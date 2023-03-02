@@ -9,21 +9,29 @@ import { createOrUpdateWorthWatching } from '../../../api/movies';
 import { updateMovieUserData } from './updateMovieDataUtils';
 
 interface LikeProps {
-  isLike?: boolean
+  isLike?: boolean;
+  width?: string;
+  height?: string;
+  iconwidth?: string;
+  iconheight?: string;
 }
 interface DislikeProps {
-  isDislike?: boolean
+  isDislike?: boolean;
+  width?: string;
+  height?: string;
+  iconwidth?: string;
+  iconheight?: string;
 }
 
 export const StyledDislikeIcon = styled.div <DislikeProps>`
   color: #FF1800;
-  width: 1.875rem;
-  height: 1.875rem;
+  width: ${(props) => (props.width ? props.width : '1.875rem')};
+  height: ${(props) => (props.width ? props.height : '1.875rem')};
   transform: rotateY(180deg);
   ${(props) => (props.isDislike ? ' border: 1px solid #FF1800' : ' border: 1px solid #3A3B46')};
   FontAwesomeIcon {
-    width: 1.326rem;
-    height: 1.391rem;
+    width: ${(props) => (props.width ? props.iconwidth : ' 1.326rem')};
+    height: ${(props) => (props.width ? props.iconheight : '1.391rem')};
   }
   &:hover {
     color: #FF1800;
@@ -32,12 +40,16 @@ export const StyledDislikeIcon = styled.div <DislikeProps>`
 `;
 export const StyledLikeIcon = styled.div <LikeProps>`
   color: #00FF0A;
-  width: 1.875rem;
-  height: 1.875rem;
+  width: ${(props) => (props.width ? props.width : '1.875rem')};
+  height: ${(props) => (props.width ? props.height : '1.875rem')};
   ${(props) => (props.isLike ? ' border: 1px solid #00FF0A' : ' border: 1px solid #3A3B46')};
   svg {
     margin-left: 0.125rem;
     margin-top: -1px;
+  } 
+  FontAwesomeIcon {
+    width: ${(props) => (props.width ? props.iconwidth : '')};
+    height: ${(props) => (props.width ? props.iconheight : '')};
   }
   &:hover {
     color: #00FF0A;
@@ -49,17 +61,17 @@ const StyleWatchWorthIcon = styled(FontAwesomeIcon)`
   height: 0.997rem;
 `;
 type Props = {
-  movieData: MovieData;
-  setMovieData: React.Dispatch<React.SetStateAction<MovieData | undefined>>;
+  movieData?: MovieData;
+  setMovieData?: React.Dispatch<React.SetStateAction<MovieData | undefined>>;
 };
 function WorthWatchIcon({ movieData, setMovieData }: Props) {
-  const [liked, setLike] = useState<boolean>(movieData.userData?.worthWatching === WorthWatchingStatus.Up);
-  const [disLiked, setDisLike] = useState<boolean>(movieData.userData?.worthWatching === WorthWatchingStatus.Down);
+  const [liked, setLike] = useState<boolean>(movieData!.userData?.worthWatching === WorthWatchingStatus.Up);
+  const [disLiked, setDisLike] = useState<boolean>(movieData!.userData?.worthWatching === WorthWatchingStatus.Down);
   const params = useParams();
   const handleThumbsUp = useCallback(() => {
     if (!params?.id) { return; }
     createOrUpdateWorthWatching(params.id, WorthWatchingStatus.Up).then((res) => {
-      updateMovieUserData(res.data, 'worthWatching', setMovieData);
+      updateMovieUserData(res.data, 'worthWatching', setMovieData!);
       setLike(true); setDisLike(false);
     });
   }, [params, setMovieData]);
@@ -67,7 +79,7 @@ function WorthWatchIcon({ movieData, setMovieData }: Props) {
   const handleThumbsDown = useCallback(() => {
     if (!params?.id) { return; }
     createOrUpdateWorthWatching(params.id, WorthWatchingStatus.Down).then((res) => {
-      updateMovieUserData(res.data, 'worthWatching', setMovieData);
+      updateMovieUserData(res.data, 'worthWatching', setMovieData!);
       setLike(false); setDisLike(true);
     });
   }, [params.id, setMovieData]);
@@ -79,7 +91,7 @@ function WorthWatchIcon({ movieData, setMovieData }: Props) {
         </StyledLikeIcon>
         <p className="m-0 fs-3 text-light">
           (
-          {movieData.worthWatchingUpUsersCount}
+          {movieData!.worthWatchingUpUsersCount ? movieData!.worthWatchingUpUsersCount : 0}
           )
         </p>
       </div>
@@ -89,12 +101,15 @@ function WorthWatchIcon({ movieData, setMovieData }: Props) {
         </StyledDislikeIcon>
         <p className="m-0 fs-3 text-light">
           (
-          {movieData.worthWatchingDownUsersCount}
+          {movieData!.worthWatchingDownUsersCount ? movieData!.worthWatchingDownUsersCount : 0}
           )
         </p>
       </div>
     </div>
   );
 }
-
+WorthWatchIcon.defaultProps = {
+  movieData: null,
+  setMovieData: undefined,
+};
 export default WorthWatchIcon;

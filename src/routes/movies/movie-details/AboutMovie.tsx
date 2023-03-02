@@ -26,7 +26,9 @@ import { StyledBorder } from '../../../components/ui/StyledBorder';
 import { MOVIE_INDIE_DIV } from '../../../utils/pubwise-ad-units';
 import PubWiseAd from '../../../components/ui/PubWiseAd';
 import { enableDevFeatures } from '../../../utils/configEnvironment';
+import MovieReviews from '../movie-reviews/MovieReviews';
 import { addMovieUserStatus, deleteMovieUserStatus, getMoviesIdList } from '../../../api/movies';
+import MovieReviewDetails from '../movie-reviews/MovieReviewDetails';
 
 interface MovieIconProps {
   label: string;
@@ -63,18 +65,21 @@ const MovieIconList = [
     label: 'Buy', key: 'buy', icon: solid('bag-shopping'), iconColor: '#FF1800', width: '1.029rem', height: '1.185rem', addMovie: false,
   },
 ];
-const tabsForSelf = [
+
+type OptionType = { value: string, label: string, devOnly?: boolean };
+
+const tabsForAllViews: OptionType[] = [
   { value: 'details', label: 'Details' },
-  { value: 'posts', label: 'Posts' },
+  { value: 'posts', label: 'Posts', devOnly: true },
+  { value: 'reviews', label: 'Reviews', devOnly: true },
+];
+const tabsForSelf: OptionType[] = [
+  ...tabsForAllViews,
   { value: 'edit', label: 'Edit' },
 ];
-const tabsForViewer = [
-  { value: 'details', label: 'Details' },
-  { value: 'posts', label: 'Posts' },
-];
+const tabsForViewer = tabsForAllViews;
 
-type OptionType = { value: string, label: string };
-const filterEnableDevFeatures = (t: OptionType) => (enableDevFeatures ? true : (t.label !== 'Posts'));
+const filterEnableDevFeatures = (t: OptionType) => (enableDevFeatures ? true : (!t.devOnly));
 
 function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData) {
   const [searchParams] = useSearchParams();
@@ -255,6 +260,8 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
             </>
           )}
         />
+        <Route path="reviews" element={<MovieReviews />} />
+        <Route path="reviews/:postId" element={<MovieReviewDetails />} />
         <Route path="posts" element={<MoviePosts />} />
         <Route path="edit" element={<MovieEdit />} />
       </Routes>

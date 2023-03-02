@@ -18,11 +18,11 @@ interface BorderButtonProps {
 }
 
 interface StylButtonProps {
-  customCss?: string
+  customcss?: string
 }
 
 const StyleBorderButton = styled(RoundButton) <StylButtonProps>`
-  ${(props) => props.customCss}
+  ${(props) => props.customcss}
   border: 1px solid #3A3B46;
     &:hover {
     border: 1px solid #3A3B46;
@@ -56,7 +56,7 @@ function BorderButton({
   return (
     toggleButton ? (
       <StyleBorderButton
-        customCss={customButtonCss}
+        customcss={customButtonCss}
         onClick={handleClick}
         className={`rounded-pill ${toggleBgColor ? 'bg-primary border-primary' : 'bg-black'} ${buttonClass}`}
         variant={variant}

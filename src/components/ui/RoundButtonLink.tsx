@@ -13,13 +13,14 @@ interface Props {
   to: string;
   size?: string | null;
   state?: any;
+  handleClick?: () => void;
 }
 
 function RoundButtonLink({
-  children, className, variant, to, size, state,
+  children, className, variant, to, size, state, handleClick,
 }: Props) {
   return (
-    <StyledLink to={to} state={state} className={`btn ${size ? `btn-${size}` : ''} btn-${variant} ${className}`}>
+    <StyledLink onClick={handleClick} to={to} state={state} className={`btn ${size ? `btn-${size}` : ''} btn-${variant} ${className}`}>
       {children}
     </StyledLink>
   );
@@ -29,6 +30,7 @@ RoundButtonLink.defaultProps = {
   size: null,
   state: null,
   className: '',
+  handleClick: undefined,
 };
 
 export default RoundButtonLink;

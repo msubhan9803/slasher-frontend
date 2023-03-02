@@ -1,12 +1,11 @@
 /* eslint-disable max-lines */
 import React, { useState } from 'react';
-import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, Modal } from 'react-bootstrap';
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
 import ModalContainer from '../../../components/ui/CustomModal';
 import RoundButton from '../../../components/ui/RoundButton';
+import RatingButtonGroups from '../../../components/ui/RatingButtonGroups';
 import IconRegularGore from '../../../images/icon-regular-gore.png';
 import IconRedSolidGore from '../../../images/icon-red-solid-gore.png';
 import { createOrUpdateGoreFactor, createOrUpdateRating } from '../../../api/movies';
@@ -21,15 +20,15 @@ interface MovieDetaisProps {
   setMovieData?: React.Dispatch<React.SetStateAction<MovieData | undefined>>
   rateType?: 'rating' | 'goreFactorRating';
 }
-const RatingStar = styled.div`
-  .fa-star {
-    width: rem;
-    height: rem;
-  }
-  .rate {
-    color: #FF8A00;
-  }
-`;
+// const RatingStar = styled.div`
+//   .fa-star {
+//     width: rem;
+//     height: rem;
+//   }
+//   .rate {
+//     color: #FF8A00;
+//   }
+// `;
 const RatingGore = styled.div`
   img {
     width: 2rem;
@@ -128,23 +127,11 @@ function MoviesModal({
                 <div className="px-5">
                   <h1 className="text-primary h2">Rate this movie</h1>
                 </div>
-                <RatingStar className="star-rating my-3">
-                  {[...Array(5)].map((star, index) => (
-                    <Button
-                      variant="link"
-                      type="button"
-                      key={star}
-                      className="px-2 bg-transparent"
-                      onClick={() => setRating(index)}
-                    >
-                      {index <= rating ? (
-                        <FontAwesomeIcon icon={solid('star')} size="2x" className="rate" />
-                      ) : (
-                        <FontAwesomeIcon icon={regular('star')} size="2x" className="text-white" />
-                      )}
-                    </Button>
-                  ))}
-                </RatingStar>
+                <RatingButtonGroups
+                  rating={rating}
+                  setRating={setRating}
+                  size="2x"
+                />
                 <RoundButton onClick={handleRatingSubmit} className="mt-3 w-100 border-0 bg-primary fw-bold">
                   Submit
                 </RoundButton>
@@ -186,7 +173,7 @@ function MoviesModal({
 
 MoviesModal.defaultProps = {
   ButtonType: '',
-  setMovieData: () => {},
+  setMovieData: () => { },
   rateType: '',
   movieData: {},
 };

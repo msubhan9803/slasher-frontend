@@ -24,6 +24,7 @@ interface PostFooterProps {
   commentCount?: string;
   postType?: string;
   handleLikeModal?: (value: string, postId: string) => void;
+  setShowReviewDetail?: (value: boolean) => void;
 }
 const StyleDot = styled(FontAwesomeIcon)`
   width: 0.267rem;
@@ -35,8 +36,8 @@ const LinearIcon = styled.span<LinearIconProps>`
   }
 `;
 function PostFooter({
-  likeIcon, postId, userName, rssfeedProviderId, onLikeClick,
-  onSelect, likeCount, commentCount, handleLikeModal, postType,
+  likeIcon, postId, userName, rssfeedProviderId, onLikeClick, onSelect,
+  likeCount, commentCount, handleLikeModal, postType, setShowReviewDetail,
 }: PostFooterProps) {
   const showRepost = enableDevFeatures;
   return (
@@ -80,10 +81,10 @@ function PostFooter({
           className={(postType !== 'group-post' && showRepost) ? 'text-xl-start text-lg-center text-md-start text-center ' : postType === 'group-post' ? 'text-center' : 'text-xl-center text-lg-end text-md-center text-end'}
         >
           <HashLink
-            onClick={() => onSelect!(rssfeedProviderId || postId)}
-            to={rssfeedProviderId
+            onClick={() => (postType === 'review' ? setShowReviewDetail!(true) : onSelect!(rssfeedProviderId || postId))}
+            to={(postType === 'review' && '?view=self') || (rssfeedProviderId
               ? `/app/news/partner/${rssfeedProviderId}/posts/${postId}#comments`
-              : `/${userName}/posts/${postId}#comments`}
+              : `/${userName}/posts/${postId}#comments`)}
             className="text-decoration-none"
             scroll={scrollWithOffset}
           >
@@ -122,6 +123,6 @@ PostFooter.defaultProps = {
   commentCount: '',
   handleLikeModal: undefined,
   postType: '',
+  setShowReviewDetail: undefined,
 };
-
 export default PostFooter;

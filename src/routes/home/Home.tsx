@@ -197,13 +197,18 @@ function Home() {
     });
   };
 
-  useEffect(() => {
-    callLatestFeedPost();
-  }, []);
   const onUpdatePost = (message: string) => {
     updateFeedPost(postId, message).then(() => {
       setShow(false);
-      callLatestFeedPost();
+      const updatePost = posts.map((post: any) => {
+        if (post._id === postId) {
+          return {
+            ...post, content: message,
+          };
+        }
+        return post;
+      });
+      setPosts(updatePost);
     });
   };
 
@@ -309,7 +314,7 @@ function Home() {
         <InfiniteScroll
           threshold={2000}
           pageStart={0}
-          initialLoad={false}
+          initialLoad
           loadMore={() => { setRequestAdditionalPosts(true); }}
           hasMore={!noMoreData}
         >

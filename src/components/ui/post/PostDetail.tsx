@@ -1,5 +1,7 @@
 /* eslint-disable max-lines */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback, useEffect, useState, useRef,
+} from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { createBlockUser } from '../../../api/blocks';
 import {
@@ -13,7 +15,8 @@ import {
 import { deleteFeedPost, feedPostDetail, updateFeedPost } from '../../../api/feed-posts';
 import { reportData } from '../../../api/report';
 import { getSuggestUserName } from '../../../api/users';
-import { useAppSelector } from '../../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import { reviewComments, reviewPost } from '../../../routes/movies/movie-reviews/review-data';
 import { MentionProps } from '../../../routes/posts/create-post/CreatePost';
 import {
@@ -60,6 +63,32 @@ function PostDetail({ user, postType }: Props) {
   const [previousCommentsAvailable, setPreviousCommentsAvailable] = useState(false);
   const userData = useAppSelector((state) => state.user);
   const [updateState, setUpdateState] = useState(false);
+  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  const dispatch = useAppDispatch();
+  const [checkPostUpdate, setCheckPostUpdate] = useState<boolean>(false);
+  const scrollPositionRef = useRef(scrollPosition);
+
+  useEffect(() => {
+    scrollPositionRef.current = scrollPosition;
+  });
+
+  useEffect(() => {
+    if (checkPostUpdate && scrollPositionRef.current.data.length > 0) {
+      const updatedScrollData = scrollPositionRef.current?.data.map((scrollData: any) => {
+        if (scrollData._id === postData[0].id) {
+          return { ...scrollData, ...postData[0] };
+        }
+        return scrollData;
+      });
+      const positionData = {
+        ...scrollPositionRef.current,
+        data: updatedScrollData,
+      };
+      dispatch(setScrollPosition(positionData));
+    } else {
+      setCheckPostUpdate(false);
+    }
+  }, [checkPostUpdate, postData, dispatch]);
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     setShow(true);
@@ -182,6 +211,7 @@ function PostDetail({ user, postType }: Props) {
           };
           newCommentArray = [commentValueData].concat(newCommentArray);
           setCommentData(newCommentArray);
+          setCheckPostUpdate(true);
           setPostData([{
             ...postData[0],
             commentCount: postData[0].commentCount + 1,
@@ -273,6 +303,7 @@ function PostDetail({ user, postType }: Props) {
       removeFeedComments(commentID).then(() => {
         setCommentID('');
         callLatestFeedComments();
+        setCheckPostUpdate(true);
         setPostData([{
           ...postData[0],
           commentCount: postData[0].commentCount - 1,
@@ -359,6 +390,7 @@ function PostDetail({ user, postType }: Props) {
       updateFeedPost(postId, message).then(() => {
         setShow(false);
         getFeedPostDetail(postId);
+        setCheckPostUpdate(true);
       });
     } else {
       setShow(false);
@@ -397,6 +429,7 @@ function PostDetail({ user, postType }: Props) {
             },
           );
           setPostData(unLikePostData);
+          setCheckPostUpdate(true);
         }
       });
     } else {
@@ -414,6 +447,7 @@ function PostDetail({ user, postType }: Props) {
             return likePost;
           });
           setPostData(likePostData);
+          setCheckPostUpdate(true);
         }
       });
     }

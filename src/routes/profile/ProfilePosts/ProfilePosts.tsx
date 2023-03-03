@@ -161,7 +161,15 @@ function ProfilePosts({ user }: Props) {
   const onUpdatePost = (message: string) => {
     updateFeedPost(postId, message).then(() => {
       setShowReportModal(false);
-      callLatestFeedPost();
+      const updatePost = posts.map((post: any) => {
+        if (post._id === postId) {
+          return {
+            ...post, content: message,
+          };
+        }
+        return post;
+      });
+      setPosts(updatePost);
     });
   };
   const deletePostClick = () => {
@@ -173,9 +181,6 @@ function ProfilePosts({ user }: Props) {
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
   };
-  useEffect(() => {
-    callLatestFeedPost();
-  }, [callLatestFeedPost]);
 
   const onLikeClick = (feedPostId: string) => {
     const checkLike = posts.some((post) => post.id === feedPostId

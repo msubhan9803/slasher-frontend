@@ -124,15 +124,6 @@ function PostFeed({
     setButtonClck(click);
   };
 
-  const renderNoMoreDataMessage = () => (
-    <p className="text-center">
-      {
-        commentsData && commentsData.length > 0
-          ? 'No more comments' : ''
-      }
-    </p>
-  );
-
   const imageLinkUrl = (post: any, imageId: string) => {
     if (post.rssfeedProviderId) {
       return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}?imageId=${imageId}`;
@@ -383,7 +374,6 @@ function PostFeed({
                     />
                   </InfiniteScroll>
                   {loadingPosts && <LoadingIndicator />}
-                  {noMoreData && renderNoMoreDataMessage()}
                 </>
               )
             }

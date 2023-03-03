@@ -19,8 +19,11 @@ const StyledMention = styled(Mentions) <SytledMentionProps>`
         border-right: 0 !important;
         textarea {
           background: transparent !important;
+          border: none !important;
+          box-shadow: none !important;
+        }
       }
-    }`
+    `
     : '')
 }
 
@@ -48,7 +51,8 @@ interface MentionProps {
   id?: string;
   className?: string;
   isCommentInput?: string;
-  setIsReply?: (value: boolean) => void;
+  onFocusHandler?: () => void;
+  onBlurHandler?: () => void;
 }
 
 function MessageTextarea({
@@ -63,7 +67,8 @@ function MessageTextarea({
   id,
   className,
   isCommentInput,
-  setIsReply,
+  onFocusHandler,
+  onBlurHandler,
 }: MentionProps) {
   const { Option } = Mentions;
   const optionRef = createRef<HTMLInputElement>();
@@ -100,7 +105,8 @@ function MessageTextarea({
       placeholder={placeholder}
       onSearch={handleSearch}
       onSelect={handleSelect}
-      onFocus={() => isCommentInput && setIsReply && setIsReply!(false)}
+      onFocus={() => { onFocusHandler!(); }}
+      onBlur={() => onBlurHandler!()}
       value={defaultValue || ''}
       notFoundContent="Type to search for a username"
       aria-label="message"
@@ -127,6 +133,7 @@ MessageTextarea.defaultProps = {
   id: '',
   className: '',
   isCommentInput: undefined,
-  setIsReply: undefined,
+  onFocusHandler: undefined,
+  onBlurHandler: undefined,
 };
 export default MessageTextarea;

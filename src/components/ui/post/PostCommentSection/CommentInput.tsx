@@ -35,11 +35,17 @@ interface CommentInputProps {
   commentReplyID?: string;
   checkCommnt?: string;
 }
-const StyledCommentInputGroup = styled(InputGroup)`
+
+interface InputProps {
+  focus: boolean;
+}
+
+const StyledCommentInputGroup = styled(InputGroup) <InputProps>`
   .form-control {
     border-radius: 1.875rem;
     border-bottom-right-radius: 0rem;
     border-top-right-radius: 0rem;
+    outline: none !important;
   }
   .input-group-text {
     background-color: var(--bs-dark);
@@ -49,6 +55,13 @@ const StyledCommentInputGroup = styled(InputGroup)`
   svg {
     min-width: 1.875rem;
   }
+
+  ${(props) => props.focus && `
+    box-shadow: 0 0 0 3px var(--stroke-and-line-separator-color);
+    // opacity:0.5;
+    border-radius: 1.875rem;
+  `};
+
 `;
 function CommentInput({
   userData, message, setIsReply, inputFile,
@@ -58,6 +71,7 @@ function CommentInput({
 }: CommentInputProps) {
   const [editMessage, setEditMessage] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
+  const [isFocosInput, setIsFocusInput] = useState<boolean>(false);
   useEffect(() => {
     if (message) {
       const regexMessgafe = isReply && commentReplyID
@@ -117,6 +131,17 @@ function CommentInput({
     onUpdatePost(postContentWithMentionReplacements);
   };
 
+  const onFocusHandler = () => {
+    setIsFocusInput(true);
+    if (setIsReply) {
+      setIsReply(false);
+    }
+  };
+
+  const onBlurHandler = () => {
+    setIsFocusInput(false);
+  };
+
   return (
     <Form>
       <Row className="ps-3 pt-2 order-last order-sm-0">
@@ -125,12 +150,12 @@ function CommentInput({
         </Col>
         <Col className="ps-0 pe-4">
           <div className="d-flex align-items-end mb-4">
-            <StyledCommentInputGroup>
+            <StyledCommentInputGroup focus={isFocosInput}>
               <MessageTextarea
                 rows={1}
                 id={checkCommnt}
                 className="fs-5 form-control p-0"
-                placeholder="Write a comment"
+                placeholder={isReply ? 'Reply to comment' : 'Write a comment'}
                 handleSearch={handleSearch}
                 mentionLists={mentionList}
                 setMessageContent={setEditMessage}
@@ -138,7 +163,8 @@ function CommentInput({
                 setFormatMentionList={setFormatMention}
                 defaultValue={decryptMessage(editMessage)}
                 isCommentInput="true"
-                setIsReply={setIsReply}
+                onFocusHandler={onFocusHandler}
+                onBlurHandler={onBlurHandler}
               />
               <InputGroup.Text>
                 <FontAwesomeIcon

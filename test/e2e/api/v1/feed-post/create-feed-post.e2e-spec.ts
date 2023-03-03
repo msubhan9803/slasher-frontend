@@ -96,7 +96,7 @@ describe('Feed-Post / Post File (e2e)', () => {
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           message: 'hello test user',
-          postType: 1,
+          postType: PostType.User,
           userId: activeUser._id.toString(),
           images: [
             {
@@ -158,7 +158,7 @@ describe('Feed-Post / Post File (e2e)', () => {
       expect(response.body).toEqual({
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
         message: 'This is a test message',
-        postType: 1,
+        postType: PostType.User,
         userId: activeUser._id.toString(),
         images: [],
       });
@@ -294,7 +294,7 @@ describe('Feed-Post / Post File (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
-    it('when moviePostFields is exits than expected response', async () => {
+    it('when moviePostFields is exits but postType is User than expected response', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
           .post('/api/v1/feed-posts')
@@ -302,6 +302,55 @@ describe('Feed-Post / Post File (e2e)', () => {
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'this new post')
           .field('postType', PostType.User)
+          .field('userId', activeUser._id.toString())
+          .field('movieId', movie._id.toString())
+          .field('moviePostFields[title]', 'this movie title')
+          .field('moviePostFields[spoilers]', true)
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1]);
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'When submitting moviePostFields, post type must be MovieReview.',
+        });
+      }, [{ extension: 'png' }, { extension: 'jpg' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when moviePostFields is exits but movieId is not exist in post than expected response', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'this new post')
+          .field('postType', PostType.MovieReview)
+          .field('userId', activeUser._id.toString())
+          .field('moviePostFields[title]', 'this movie title')
+          .field('moviePostFields[spoilers]', true)
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1]);
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'When submitting moviePostFields, movieId is required.',
+        });
+      }, [{ extension: 'png' }, { extension: 'jpg' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when moviePostFields is exits than expected response', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'this new post')
+          .field('postType', PostType.MovieReview)
           .field('userId', activeUser._id.toString())
           .field('movieId', movie._id.toString())
           .field('moviePostFields[title]', 'this movie title')

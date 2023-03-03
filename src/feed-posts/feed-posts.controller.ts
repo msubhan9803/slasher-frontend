@@ -19,7 +19,7 @@ import {
   MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_POST, UPLOAD_PARAM_NAME_FOR_FILES,
 } from '../constants';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
-import { FeedPostDeletionState } from '../schemas/feedPost/feedPost.enums';
+import { FeedPostDeletionState, PostType } from '../schemas/feedPost/feedPost.enums';
 import { NotificationType } from '../schemas/notification/notification.enums';
 import { NotificationsService } from '../notifications/providers/notifications.service';
 import { StorageLocationService } from '../global/providers/storage-location.service';
@@ -83,19 +83,41 @@ export class FeedPostsController {
     feedPost.userId = user._id;
     feedPost.postType = createFeedPostsDto.postType;
 
-    if (createFeedPostsDto.movieId && createFeedPostsDto.moviePostFields) {
+    if (createFeedPostsDto.moviePostFields) {
+      if (createFeedPostsDto.postType !== PostType.MovieReview) {
+        throw new HttpException('When submitting moviePostFields, post type must be MovieReview.', HttpStatus.BAD_REQUEST);
+      }
+      if (!createFeedPostsDto.movieId) {
+        throw new HttpException('When submitting moviePostFields, movieId is required.', HttpStatus.BAD_REQUEST);
+      }
+
       feedPost.title = createFeedPostsDto.moviePostFields.title;
       feedPost.spoilers = createFeedPostsDto.moviePostFields.spoilers;
-      const rating = createFeedPostsDto.moviePostFields.rating ? createFeedPostsDto.moviePostFields.rating : 0;
-      // eslint-disable-next-line max-len
-      const goreFactorRating = createFeedPostsDto.moviePostFields.goreFactorRating ? createFeedPostsDto.moviePostFields.goreFactorRating : 0;
-      const worthWatching = createFeedPostsDto.moviePostFields.worthWatching ? createFeedPostsDto.moviePostFields.worthWatching : 0;
-      await Promise.all([
-        await this.moviesService.createOrUpdateRating(createFeedPostsDto.movieId.toString(), rating, user.id),
-        await this.moviesService.createOrUpdateGoreFactorRating(createFeedPostsDto.movieId.toString(), goreFactorRating, user.id),
-        await this.moviesService.createOrUpdateWorthWatching(createFeedPostsDto.movieId.toString(), worthWatching, user.id),
-      ]);
+      const ratingPromises = [];
+      if (createFeedPostsDto.moviePostFields.rating) {
+        ratingPromises.push(this.moviesService.createOrUpdateRating(
+          feedPost.movieId.toString(),
+          createFeedPostsDto.moviePostFields.rating,
+          user.id,
+        ));
+      }
+      if (createFeedPostsDto.moviePostFields.goreFactorRating) {
+        ratingPromises.push(this.moviesService.createOrUpdateGoreFactorRating(
+          feedPost.movieId.toString(),
+          createFeedPostsDto.moviePostFields.goreFactorRating,
+          user.id,
+        ));
+      }
+      if (createFeedPostsDto.moviePostFields.worthWatching) {
+        ratingPromises.push(this.moviesService.createOrUpdateWorthWatching(
+          feedPost.movieId.toString(),
+          createFeedPostsDto.moviePostFields.worthWatching,
+          user.id,
+        ));
+      }
+      await Promise.all(ratingPromises);
     }
+
     const createFeedPost = await this.feedPostsService.create(feedPost);
 
     // Create notifications if any users were mentioned
@@ -233,21 +255,41 @@ export class FeedPostsController {
       Object.assign(updateFeedPostsDto, { images: updateFeedPostsDto.imagesToDelete ? feedPostImages : images.concat(feedPost.images) });
     }
 
-    if (feedPost.movieId && updateFeedPostsDto.moviePostFields) {
+    if (updateFeedPostsDto.moviePostFields) {
+      if (feedPost.postType !== PostType.MovieReview) {
+        throw new HttpException('When submitting moviePostFields, post type must be MovieReview.', HttpStatus.BAD_REQUEST);
+      }
+
+      if (!feedPost.movieId) {
+        throw new HttpException('When submitting moviePostFields, movieId is required.', HttpStatus.BAD_REQUEST);
+      }
       // eslint-disable-next-line no-param-reassign
       (updateFeedPostsDto as unknown as FeedPost).title = updateFeedPostsDto.moviePostFields.title;
       // eslint-disable-next-line no-param-reassign
       (updateFeedPostsDto as unknown as FeedPost).spoilers = updateFeedPostsDto.moviePostFields.spoilers;
-      // eslint-disable-next-line max-len
-      const rating = updateFeedPostsDto.moviePostFields.rating ? updateFeedPostsDto.moviePostFields.rating : 0;
-      // eslint-disable-next-line max-len
-      const goreFactorRating = updateFeedPostsDto.moviePostFields.goreFactorRating ? updateFeedPostsDto.moviePostFields.goreFactorRating : 0;
-      const worthWatching = updateFeedPostsDto.moviePostFields.worthWatching ? updateFeedPostsDto.moviePostFields.worthWatching : 0;
-      await Promise.all([
-        await this.moviesService.createOrUpdateRating(feedPost.movieId.toString(), rating, user.id),
-        await this.moviesService.createOrUpdateGoreFactorRating(feedPost.movieId.toString(), goreFactorRating, user.id),
-        await this.moviesService.createOrUpdateWorthWatching(feedPost.movieId.toString(), worthWatching, user.id),
-      ]);
+      const ratingPromises = [];
+      if (updateFeedPostsDto.moviePostFields.rating) {
+        ratingPromises.push(this.moviesService.createOrUpdateRating(
+          feedPost.movieId.toString(),
+          updateFeedPostsDto.moviePostFields.rating,
+          user.id,
+        ));
+      }
+      if (updateFeedPostsDto.moviePostFields.goreFactorRating) {
+        ratingPromises.push(this.moviesService.createOrUpdateGoreFactorRating(
+          feedPost.movieId.toString(),
+          updateFeedPostsDto.moviePostFields.goreFactorRating,
+          user.id,
+        ));
+      }
+      if (updateFeedPostsDto.moviePostFields.worthWatching) {
+        ratingPromises.push(this.moviesService.createOrUpdateWorthWatching(
+          feedPost.movieId.toString(),
+          updateFeedPostsDto.moviePostFields.worthWatching,
+          user.id,
+        ));
+      }
+      await Promise.all(ratingPromises);
     }
 
     const updatedFeedPost = await this.feedPostsService.update(param.id, updateFeedPostsDto);

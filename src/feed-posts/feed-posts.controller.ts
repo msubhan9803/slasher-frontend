@@ -189,26 +189,33 @@ export class FeedPostsController {
         HttpStatus.BAD_REQUEST,
       );
     }
+
+    const imagesToDelete = updateFeedPostsDto.imagesToDelete && updateFeedPostsDto.imagesToDelete.length;
+    const newPostImages = files && files.length;
+    const currentPostImages = feedPost.images && feedPost.images.length;
+    const { message } = updateFeedPostsDto;
+
     // eslint-disable-next-line max-len
-    if ((updateFeedPostsDto?.imagesToDelete?.length && !files?.length && updateFeedPostsDto.message === '' && feedPost?.images.length === updateFeedPostsDto?.imagesToDelete.length) || (!feedPost?.images.length && !files?.length && updateFeedPostsDto.message === '')) {
+    const isPostWithoutImgAndMsg = (imagesToDelete && !newPostImages && message === '' && currentPostImages === imagesToDelete) || (!currentPostImages && !newPostImages && message === '');
+
+    if (isPostWithoutImgAndMsg) {
       throw new HttpException(
         'Posts must have a message or at least one image. No message or image received.',
         HttpStatus.BAD_REQUEST,
       );
     }
-    // eslint-disable-next-line
-    if ((updateFeedPostsDto?.imagesToDelete?.length && feedPost?.images?.length - updateFeedPostsDto?.imagesToDelete?.length + files?.length) > MAX_ALLOWED_UPLOAD_FILES_FOR_POST || (!updateFeedPostsDto?.imagesToDelete?.length && feedPost?.images?.length + files?.length) > MAX_ALLOWED_UPLOAD_FILES_FOR_POST) {
+
+    // eslint-disable-next-line max-len
+    const totalCommentImages = (imagesToDelete && currentPostImages - imagesToDelete + newPostImages) || (!imagesToDelete && currentPostImages + newPostImages);
+
+    if (totalCommentImages > MAX_ALLOWED_UPLOAD_FILES_FOR_POST) {
       // eslint-disable-next-line max-len
       throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_POST} images on a post.`, HttpStatus.BAD_REQUEST);
     }
 
-    let currentPostImages;
+    let imagesToKeep;
     if (updateFeedPostsDto.imagesToDelete) {
-      const postImages = feedPost.images.filter((image) => !updateFeedPostsDto.imagesToDelete.includes((image as any)._id.toString()));
-      if (postImages.length + files.length > MAX_ALLOWED_UPLOAD_FILES_FOR_POST) {
-        throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_POST} images on a post.`, HttpStatus.BAD_REQUEST);
-      }
-      currentPostImages = postImages;
+      imagesToKeep = feedPost.images.filter((image) => !updateFeedPostsDto.imagesToDelete.includes((image as any)._id.toString()));
     }
     const images = [];
     for (const file of files) {
@@ -221,8 +228,8 @@ export class FeedPostsController {
       images.push({ image_path: storageLocation });
     }
 
-    if (files.length || updateFeedPostsDto.imagesToDelete) {
-      const feedPostImages = images.concat(currentPostImages);
+    if (newPostImages || imagesToDelete) {
+      const feedPostImages = images.concat(imagesToKeep);
       Object.assign(updateFeedPostsDto, { images: updateFeedPostsDto.imagesToDelete ? feedPostImages : images.concat(feedPost.images) });
     }
 

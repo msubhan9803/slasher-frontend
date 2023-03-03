@@ -192,9 +192,10 @@ function PostCommentSection({
       };
       feedCommentData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     commentSectionData, updateState, checkLoadMoreId, commentReplyID,
-    setUpdateState, commentData, updatedReply,
+    setUpdateState, updatedReply,
   ]);
 
   useEffect(() => {

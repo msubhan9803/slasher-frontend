@@ -34,7 +34,10 @@ function PosterCardList({ dataList, pubWiseAdUnitDivId, onSelect }: PosterCardPr
       if (dataList.length > 0
         && scrollPosition.position > 0
         && scrollPosition?.pathname === location.pathname) {
-        window.scrollTo(0, scrollPosition?.position);
+        window.scrollTo({
+          top: scrollPosition?.position,
+          behavior: 'instant' as any,
+        });
       }
     }, 0);
   }, [dataList, scrollPosition, location.pathname]);

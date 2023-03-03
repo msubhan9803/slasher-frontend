@@ -349,31 +349,31 @@ describe('Update Feed Post (e2e)', () => {
           {
             images: [
               {
-                image_path: 'https://picsum.photos/id/237/200/300',
+                image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
               },
               {
-                image_path: 'https://picsum.photos/seed/picsum/200/300',
+                image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample2.jpg',
               },
               {
-                image_path: 'https://picsum.photos/id/237/200/300',
+                image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
               },
               {
-                image_path: 'https://picsum.photos/seed/picsum/200/300',
+                image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample2.jpg',
               },
               {
-                image_path: 'https://picsum.photos/seed/picsum/200/300',
+                image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
               },
               {
-                image_path: 'https://picsum.photos/seed/picsum/200/300',
+                image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample2.jpg',
               },
               {
-                image_path: 'https://picsum.photos/seed/picsum/200/300',
+                image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
               },
               {
-                image_path: 'https://picsum.photos/seed/picsum/200/300',
+                image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample2.jpg',
               },
               {
-                image_path: 'https://picsum.photos/seed/picsum/200/300',
+                image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
               },
             ],
             userId: activeUser._id,

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
@@ -5,7 +6,7 @@ import { Connection } from 'mongoose';
 import { DateTime } from 'luxon';
 import { AppModule } from '../../app.module';
 import { EventService } from './events.service';
-import { EventDocument } from '../../schemas/event/event.schema';
+import { EventDocument, EventSchema } from '../../schemas/event/event.schema';
 import { eventsFactory } from '../../../test/factories/events.factory';
 import { userFactory } from '../../../test/factories/user.factory';
 import { UserDocument } from '../../schemas/user/user.schema';
@@ -14,9 +15,10 @@ import { EventCategoriesService } from '../../event-categories/providers/event-c
 import { eventCategoryFactory } from '../../../test/factories/event-category.factory';
 import { EventCategoryDocument } from '../../schemas/eventCategory/eventCategory.schema';
 import { EventActiveStatus } from '../../schemas/event/event.enums';
-import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import { clearDatabase, dbHasActiveOperations } from '../../../test/helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
+import { sleep, waitForAsyncFunction } from '../../utils/timer-utils';
 
 describe('EventService', () => {
   let app: INestApplication;
@@ -60,6 +62,7 @@ describe('EventService', () => {
   });
 
   beforeEach(async () => {
+    console.log('beforeEAch top level');
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
@@ -243,6 +246,68 @@ describe('EventService', () => {
         // Last result in first set should have earlier sortStartDate value than first result of second set
         expect(firstResults[limit - 1].sortStartDate.localeCompare(secondResults[0].sortStartDate)).toBe(-1);
       });
+    });
+  });
+
+  describe.only('#findAllByDistance', () => {
+    beforeEach(async () => {
+      await eventService.create(
+        eventsFactory.build({
+          userId: userData.id,
+          event_type: eventCategoryData.id,
+          status: EventActiveStatus.Active,
+          location: {
+            type: 'Point',
+            coordinates: [41.055877, -79],
+          },
+        }),
+      );
+      await eventService.create(
+        eventsFactory.build({
+          userId: userData.id,
+          event_type: eventCategoryData.id,
+          status: EventActiveStatus.Active,
+          location: {
+            type: 'Point',
+            coordinates: [41.055877, -80],
+          },
+        }),
+      );
+      await eventService.create(
+        eventsFactory.build({
+          userId: userData.id,
+          event_type: eventCategoryData.id,
+          status: EventActiveStatus.Active,
+          location: {
+            type: 'Point',
+            coordinates: [41.055877, -81],
+          },
+        }),
+      );
+
+      // Wait for geo-indexing to finish
+      await waitForAsyncFunction(async () => !(await dbHasActiveOperations(connection)), 5000);
+      // await sleep(2000);
+    });
+
+    it('find events in 300 miles', async () => {
+      // 11 Sand Pond Rd, Hardwick Township, NJ
+      const userLocation = { lattitude: 41.055877, longitude: -74.95479 };
+      const maxDistanceMiles = 300;
+      const eventList = await eventService.findAllByDistance(userLocation.lattitude, userLocation.longitude, maxDistanceMiles, false);
+      expect(eventList).toHaveLength(1);
+      expect(Math.round(eventList[0].distance)).toBe(280);
+    });
+
+    it('check distances', async () => {
+      const maxDistanceMiles = Infinity;
+      // 11 Sand Pond Rd, Hardwick Township, NJ
+      const userLocation = { lattitude: 41.055877, longitude: -74.95479 };
+
+      const eventList = await eventService.findAllByDistance(userLocation.lattitude, userLocation.longitude, maxDistanceMiles, false);
+      expect(Math.round(eventList[0].distance)).toBe(280);
+      expect(Math.round(eventList[1].distance)).toBe(349);
+      expect(Math.round(eventList[2].distance)).toBe(418);
     });
   });
 

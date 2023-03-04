@@ -101,7 +101,7 @@ export class EventService {
     longitude: number,
     miles: number,
     activeOnly: boolean,
-  ): Promise<EventDocument[]> {
+  ): Promise<Array<EventDocument & { distance: number }>> {
     const query: any = {};
     if (activeOnly) {
       query.deleted = false;

@@ -18,3 +18,5 @@ export const SHARED_GATEWAY_OPTS = {
   // we only want to support websocket connections (not interested in long polling at this time).
   transports: ['websocket'],
 };
+
+export const METRES_TO_MILES_MULTIPLIER = 0.000621371;

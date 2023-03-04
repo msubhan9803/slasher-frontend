@@ -24,6 +24,7 @@ import { UserType } from '../schemas/user/user.enums';
 import { relativeToFullImagePath } from '../utils/image-utils';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
+import { ValidateAllEventDistanceDto } from './dto/validate-all-event-by-distance.dto';
 
 @Controller({ path: 'events', version: ['1'] })
 export class EventsController {
@@ -74,8 +75,9 @@ export class EventsController {
     return pick(event, pickConversationFields);
   }
 
+  // TODO: Update e2e test? Naming?
   @TransformImageUrls('$.images[*]')
-  @Get(':id')
+  @Get('single/:id')
   async getById(@Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateEventIdDto) {
     const eventData = await this.eventService.findById(params.id, true, 'event_type', 'event_name');
     if (!eventData) {
@@ -114,8 +116,9 @@ export class EventsController {
     };
   }
 
+  // TODO: Update e2e test? Naming?
   @TransformImageUrls('$[*].images[*]')
-  @Get()
+  @Get('by-date-range')
   async getEventsByDateRange(
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     query: ValidateAllEventDto,
@@ -161,5 +164,34 @@ export class EventsController {
       true,
     );
     return eventCounts;
+  }
+
+  @TransformImageUrls('$[*].images[*]')
+  @Get('by-distance')
+  async getEventsByDistance(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: ValidateAllEventDistanceDto,
+  ) {
+    const eventData = await this.eventService.findAllByDistance(
+      Number(query.lattitude),
+      Number(query.longitude),
+      Number(query.maxDistanceMiles),
+      false,
+    );
+    eventData.forEach((event) => {
+      if (event.images.length === 0) {
+        event.images.push(relativeToFullImagePath(this.config, '/placeholders/no_image_available.png'));
+      }
+    });
+    return eventData.map(
+      (event) => pick(
+        event,
+         // TODO: DISCUSS: Should we keep this `distance`?
+        [
+          '_id', 'images', 'startDate', 'endDate', 'event_type', 'city', 'state', 'address',
+          'country', 'event_info', 'location', 'distance',
+        ],
+      ),
+    );
   }
 }

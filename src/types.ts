@@ -14,3 +14,8 @@ export type RegisterUser = Partial<
   securityAnswer: string,
   dob: string,
 }>;
+
+export type LocationType = {
+  type: 'Point',
+  coordinates: [number, number]
+};

@@ -4,6 +4,7 @@ import { EventCategory } from '../eventCategory/eventCategory.schema';
 import { User } from '../user/user.schema';
 import { EventActiveStatus } from './event.enums';
 import { EventUnusedFields } from './event.unused-fields';
+import { LocationType } from '../../types';
 
 @Schema({ timestamps: true })
 export class Event extends EventUnusedFields {
@@ -76,6 +77,19 @@ export class Event extends EventUnusedFields {
   @Prop({ type: Array, default: [] })
   images: string[];
 
+  @Prop({
+    type: {
+      type: String,
+      enum: ['Point'],
+      required: true,
+    },
+    coordinates: {
+      type: [Number],
+      required: true,
+    },
+  })
+  location: LocationType;
+
   // NEW FIELD
   @Prop({ default: null })
   address: string;
@@ -106,5 +120,6 @@ EventSchema.index(
     deleted: 1, status: 1, startDate: 1, endDate: 1, sortStartDate: 1,
   },
 );
+EventSchema.index({ location: '2dsphere' });
 
 export type EventDocument = HydratedDocument<Event>;

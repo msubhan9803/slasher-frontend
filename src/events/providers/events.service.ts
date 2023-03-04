@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Event, EventDocument } from '../../schemas/event/event.schema';
 import { EventActiveStatus } from '../../schemas/event/event.enums';
 import { toUtcStartOfDay } from '../../utils/date-utils';
+import { METRES_TO_MILES_MULTIPLIER } from '../../constants';
 
 @Injectable()
 export class EventService {
@@ -93,5 +94,37 @@ export class EventService {
     }
 
     return daysToEventCounts;
+  }
+
+  async findAllByDistance(
+    lattitude: number,
+    longitude: number,
+    miles: number,
+    activeOnly: boolean,
+  ): Promise<EventDocument[]> {
+    const query: any = {};
+    if (activeOnly) {
+      query.deleted = false;
+      query.status = EventActiveStatus.Active;
+    }
+
+    const maxDistanceMetres = miles * 1609.344;
+    return this.eventModel.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: 'Point',
+            coordinates: [lattitude, longitude],
+          },
+          maxDistance: maxDistanceMetres,
+          // TODO: DISCUSS: Should we keep this `distance`?
+          distanceField: 'distance',
+          // TODO: DISCUSS: Optional: The factor to multiply
+          // all distances returned by the query.
+          distanceMultiplier: METRES_TO_MILES_MULTIPLIER,
+        },
+      },
+      { $match: query },
+    ]);
   }
 }

@@ -1,14 +1,22 @@
+import { Type } from 'class-transformer';
 import {
-  IsString,
+  IsNotEmpty,
+  IsNumber,
 } from 'class-validator';
 
 export class ValidateAllEventDistanceDto {
-  @IsString()
-  lattitude: string;
+  @IsNotEmpty()
+  @Type(() => Number)
+  @IsNumber()
+  lattitude: number;
 
-  @IsString()
-  longitude: string;
+  @IsNotEmpty()
+  @Type(() => Number)
+  @IsNumber()
+  longitude: number;
 
-  @IsString()
+  @IsNotEmpty()
+  @Type(() => Number)
+  @IsNumber()
   maxDistanceMiles: number;
 }

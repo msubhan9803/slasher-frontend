@@ -173,9 +173,9 @@ export class EventsController {
     query: ValidateAllEventDistanceDto,
   ) {
     const eventData = await this.eventService.findAllByDistance(
-      Number(query.lattitude),
-      Number(query.longitude),
-      Number(query.maxDistanceMiles),
+      query.lattitude,
+      query.longitude,
+      query.maxDistanceMiles,
       false,
     );
     eventData.forEach((event) => {

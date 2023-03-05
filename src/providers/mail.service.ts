@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import Mail from 'nodemailer/lib/mailer';
+import { verificationEmailTemplate } from '../email-templates';
 import { ReportType } from '../types';
+import { escapeStringForRegex } from '../utils/escape-utils';
+import { relativeToFullImagePath } from '../utils/image-utils';
 
 @Injectable()
 export class MailService {
@@ -10,6 +13,18 @@ export class MailService {
 
   getDefaultSender() {
     return this.config.get<string>('DEFAULT_SMTP_AUTH_USER');
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  processEmailTemplate(template: string, context: { [key: string]: string }) {
+    let output = template;
+    Object.entries(context).forEach(([key, val]) => {
+      output = output.replace(
+        new RegExp(escapeStringForRegex(`[[${key}]]`), 'g'),
+        val,
+      );
+    });
+    return output;
   }
 
   async sendForgotPasswordEmail(email: string, resetPasswordToken: string) {
@@ -22,14 +37,23 @@ export class MailService {
     );
   }
 
-  async sendVerificationEmail(email: string, verificationToken: string) {
+  async sendVerificationEmail(firstName: string, email: string, verificationToken: string) {
+    const htmlToSend = this.processEmailTemplate(verificationEmailTemplate, {
+      ReceiverName: firstName,
+      ImageBaseUrl: relativeToFullImagePath(this.config, ''),
+      FRONTEND_URL: this.config.get<string>('FRONTEND_URL'),
+      HELP_EMAIL: this.config.get<string>('HELP_EMAIL'),
+      EmailVerificationPath: `/app/activate-account?email=${encodeURIComponent(email)}`
+        + `&verificationToken=${encodeURIComponent(verificationToken)}`,
+    });
     return this.sendEmail(
       email,
       this.getDefaultSender(),
       'Welcome to Slasher',
       // TODO: Change text below to actually include link to account activation page
-      `Here is the verification token that will be used to activate your slasher account: ${verificationToken}`,
-      'plain',
+      //`Here is the verification token that will be used to activate your slasher account: ${verificationToken}`,
+      htmlToSend,
+      'html',
     );
   }
 

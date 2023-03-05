@@ -293,6 +293,7 @@ export class UsersController {
     await this.userSettingsService.create({ userId: registeredUser.id });
 
     await this.mailService.sendVerificationEmail(
+      registeredUser.firstName,
       registeredUser.email,
       registeredUser.verification_token,
     );
@@ -395,6 +396,7 @@ export class UsersController {
     );
     if (userData) {
       await this.mailService.sendVerificationEmail(
+        userData.firstName,
         userData.email,
         userData.verification_token,
       );

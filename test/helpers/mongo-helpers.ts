@@ -44,7 +44,7 @@ export const clearDatabase = async (connection: Connection) => {
   // And also make sure that no other operations are running
   await waitForAsyncFunction(async () => !(await dbHasActiveOperations(connection)), 5000);
 
-  await databaseDeletionMethod2(connection);
+  await databaseDeletionMethod1(connection);
 
   // And also make sure that no other operations are running
   await waitForAsyncFunction(async () => !(await dbHasActiveOperations(connection)), 5000);

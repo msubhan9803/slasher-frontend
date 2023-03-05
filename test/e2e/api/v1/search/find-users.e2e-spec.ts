@@ -51,7 +51,7 @@ describe('Find Users(e2e)', () => {
     // Reset sequences so we start fresh before each test
     rewindAllFactories();
 
-    activeUser = await usersService.create(userFactory.build({ userName: 'Count Rock' }));
+    activeUser = await usersService.create(userFactory.build({ userName: 'Active user' }));
     user1 = await usersService.create(userFactory.build({ userName: 'Jack' }));
     await usersService.create(userFactory.build({
       userName: 'Count Denial',
@@ -120,6 +120,23 @@ describe('Find Users(e2e)', () => {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             userName: 'The Count',
             firstName: 'First name 6',
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
+        ]);
+      });
+
+      it('check login user is exists in response', async () => {
+        const query = 'Active';
+        const limit = 20;
+        const response = await request(app.getHttpServer())
+          .get(`/api/v1/search/users?query=${query}&limit=${limit}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body).toEqual([
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            userName: activeUser.userName,
+            firstName: activeUser.firstName,
             profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           },
         ]);

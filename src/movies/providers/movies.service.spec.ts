@@ -595,7 +595,7 @@ describe('MoviesService', () => {
       const firstResults = await moviesService.findAll(limit, false, 'name');
       expect(firstResults).toHaveLength(3);
 
-      expect(firstResults[0].movieDBId).toBe(123456);
+      expect(firstResults[0].movieDBId).toBe(1);
       expect(firstResults[0].deleted).toBe(MovieDeletionStatus.Deleted);
 
       expect(firstResults[1].movieDBId).toBe(663712);
@@ -768,7 +768,7 @@ describe('MoviesService', () => {
       await moviesService.syncWithTheMovieDb(startYear, endYear);
       const firstResults = await moviesService.findAll(limit, false, 'name');
       expect(firstResults).toHaveLength(3);
-      expect(firstResults[0].movieDBId).toBe(123456);
+      expect(firstResults[0].movieDBId).toBe(1);
       expect(firstResults[0].deleted).toBe(MovieDeletionStatus.Deleted);
 
       expect(firstResults[1].movieDBId).toBe(movieData1.movieDBId);

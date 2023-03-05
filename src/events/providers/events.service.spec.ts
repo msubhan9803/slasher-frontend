@@ -248,7 +248,7 @@ describe('EventService', () => {
     });
   });
 
-  describe.only('#findAllByDistance', () => {
+  describe('#findAllByDistance', () => {
     beforeEach(async () => {
       await eventService.create(
         eventsFactory.build({
@@ -283,30 +283,26 @@ describe('EventService', () => {
           },
         }),
       );
+    });
 
-      // Wait for geo-indexing to finish
-      // await waitForAsyncFunction(async () => !(await dbHasActiveOperations(connection)), 5000);
-      // await sleep(2000);
+    it('should compute distance for each event location', async () => {
+      // 11 Sand Pond Rd, Hardwick Township, NJ
+      const userLocation1 = { lattitude: 41.055877, longitude: -74.95479 };
+      const maxDistanceMiles1 = Infinity;
+
+      const eventList1 = await eventService.findAllByDistance(userLocation1.lattitude, userLocation1.longitude, maxDistanceMiles1, false);
+      expect(Math.round(eventList1[0].distance)).toBe(280);
+      expect(Math.round(eventList1[1].distance)).toBe(349);
+      expect(Math.round(eventList1[2].distance)).toBe(418);
     });
 
     it('find events in 300 miles', async () => {
       // 11 Sand Pond Rd, Hardwick Township, NJ
-      const userLocation = { lattitude: 41.055877, longitude: -74.95479 };
-      const maxDistanceMiles1 = 300;
-      const eventList1 = await eventService.findAllByDistance(userLocation.lattitude, userLocation.longitude, maxDistanceMiles1, false);
-      expect(eventList1).toHaveLength(1);
-      expect(Math.round(eventList1[0].distance)).toBe(280);
-    });
-
-    it('check distances', async () => {
-      // 11 Sand Pond Rd, Hardwick Township, NJ
-      const userLocation = { lattitude: 41.055877, longitude: -74.95479 };
-      const maxDistanceMiles2 = Infinity;
-
-      const eventList2 = await eventService.findAllByDistance(userLocation.lattitude, userLocation.longitude, maxDistanceMiles2, false);
+      const userLocation2 = { lattitude: 41.055877, longitude: -74.95479 };
+      const maxDistanceMiles2 = 300;
+      const eventList2 = await eventService.findAllByDistance(userLocation2.lattitude, userLocation2.longitude, maxDistanceMiles2, false);
+      expect(eventList2).toHaveLength(1);
       expect(Math.round(eventList2[0].distance)).toBe(280);
-      expect(Math.round(eventList2[1].distance)).toBe(349);
-      expect(Math.round(eventList2[2].distance)).toBe(418);
     });
   });
 

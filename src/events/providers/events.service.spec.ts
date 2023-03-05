@@ -62,7 +62,6 @@ describe('EventService', () => {
   });
 
   beforeEach(async () => {
-    console.log('beforeEAch top level');
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
@@ -286,28 +285,28 @@ describe('EventService', () => {
       );
 
       // Wait for geo-indexing to finish
-      await waitForAsyncFunction(async () => !(await dbHasActiveOperations(connection)), 5000);
+      // await waitForAsyncFunction(async () => !(await dbHasActiveOperations(connection)), 5000);
       // await sleep(2000);
     });
 
     it('find events in 300 miles', async () => {
       // 11 Sand Pond Rd, Hardwick Township, NJ
       const userLocation = { lattitude: 41.055877, longitude: -74.95479 };
-      const maxDistanceMiles = 300;
-      const eventList = await eventService.findAllByDistance(userLocation.lattitude, userLocation.longitude, maxDistanceMiles, false);
-      expect(eventList).toHaveLength(1);
-      expect(Math.round(eventList[0].distance)).toBe(280);
+      const maxDistanceMiles1 = 300;
+      const eventList1 = await eventService.findAllByDistance(userLocation.lattitude, userLocation.longitude, maxDistanceMiles1, false);
+      expect(eventList1).toHaveLength(1);
+      expect(Math.round(eventList1[0].distance)).toBe(280);
     });
 
     it('check distances', async () => {
-      const maxDistanceMiles = Infinity;
       // 11 Sand Pond Rd, Hardwick Township, NJ
       const userLocation = { lattitude: 41.055877, longitude: -74.95479 };
+      const maxDistanceMiles2 = Infinity;
 
-      const eventList = await eventService.findAllByDistance(userLocation.lattitude, userLocation.longitude, maxDistanceMiles, false);
-      expect(Math.round(eventList[0].distance)).toBe(280);
-      expect(Math.round(eventList[1].distance)).toBe(349);
-      expect(Math.round(eventList[2].distance)).toBe(418);
+      const eventList2 = await eventService.findAllByDistance(userLocation.lattitude, userLocation.longitude, maxDistanceMiles2, false);
+      expect(Math.round(eventList2[0].distance)).toBe(280);
+      expect(Math.round(eventList2[1].distance)).toBe(349);
+      expect(Math.round(eventList2[2].distance)).toBe(418);
     });
   });
 

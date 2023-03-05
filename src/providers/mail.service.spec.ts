@@ -48,12 +48,13 @@ describe('MailService', () => {
       const to = 'exampleTo@example.com';
       const subject = 'This is the email subject.';
       const text = 'This is the email text.';
+      const textType = 'plain';
       const mockTransporter = {
         createTransport: jest.fn(),
         sendMail: jest.fn().mockImplementation((opts, callback) => { callback(null, { fakeData: 'fake' }); }),
       };
       (jest.spyOn(mailService, 'createMailTransporter') as jest.Mock).mockReturnValue(mockTransporter);
-      await mailService.sendEmail(to, from, subject, text);
+      await mailService.sendEmail(to, from, subject, text, textType);
       expect(mockTransporter.sendMail).toHaveBeenCalledWith(
         {
           to,
@@ -80,6 +81,7 @@ describe('MailService', () => {
         mailService.getDefaultSender(),
         'Forgot password',
         `This is the forgot password email with token: ${token}`,
+        'plain',
       );
     });
   });
@@ -96,8 +98,9 @@ describe('MailService', () => {
       expect(mailService.sendEmail).toHaveBeenCalledWith(
         to,
         mailService.getDefaultSender(),
-        'Activate your Slasher account',
+        'Welcome to Slasher',
         `Here is the verification token that will be used to activate your slasher account: ${token}`,
+        'plain',
       );
     });
   });
@@ -120,6 +123,7 @@ describe('MailService', () => {
         `Slasher Content Report: ${reportType}`,
         `A user (${reportingUserName}) has reported a ${reportType}:\n\n${reportReason}\n\n`
         + 'View the Slasher admin console for more information.',
+        'plain',
       );
     });
   });

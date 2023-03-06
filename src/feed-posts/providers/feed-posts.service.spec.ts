@@ -245,10 +245,10 @@ describe('FeedPostsService', () => {
         message: 'Test message',
         images: [
           {
-            image_path: 'feed/feed_sample1.jpg',
+            image_path: '/feed/feed_sample1.jpg',
           },
           {
-            image_path: 'feed/feed_sample1.jpg',
+            image_path: '/feed/feed_sample1.jpg',
           },
         ],
       };

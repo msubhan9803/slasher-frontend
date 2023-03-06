@@ -31,10 +31,10 @@ describe('FeedLikesService', () => {
   const feedCommentsAndReplyObject = {
     images: [
       {
-        image_path: 'feed/feed_sample1.jpg',
+        image_path: '/feed/feed_sample1.jpg',
       },
       {
-        image_path: 'feed/feed_sample1.jpg',
+        image_path: '/feed/feed_sample1.jpg',
       },
     ],
     message: 'Hello Test Message',

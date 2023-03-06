@@ -47,6 +47,26 @@ Instead, it will copy all the configuration files and the transitive dependencie
 
 You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
+## Capacitor
+
+This app can also be built into a Capacitor app (https://capacitorjs.com).  Below are some quick references for useful commands:
+
+`npm run build` - Run this before `npx cap sync`, beause `npx cap sync` will sync the build to the android and ios project directories.
+
+`npx cap sync` - This command runs `npx cap copy` and then `npx cap update` behind the scenes.  Run this before running or building the Android or iOS apps.  You can also run `npx cap sync android` or `npx cap sync ios` if you're only targeting one of those platforms at a time.
+
+`npx cap open android` - Open the Android project (in Android Studio)
+
+`npx cap open ios` - Open the Android project (in XCode)
+
+So when building for Android, locally, you'll probably often run this:
+
+`npm run build && npx cap sync && npx cap run android`
+
+For a production build, make sure to read in the correct production environment variables.  This may look something like this:
+
+`set -o allexport && source ./deploy-cloudflare/.env.deploy/prod && npm run build && npx cap sync && npx cap run android`
+
 ## App Structure
 
 Below is a general overview of our app structure, with some example subdirectories that show naming conventions.

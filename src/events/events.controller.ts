@@ -75,7 +75,8 @@ export class EventsController {
     return pick(event, pickConversationFields);
   }
 
-  // TODO: Update e2e test? Naming?
+  // TODO-CRITICAL: NEED_URGENT_DEBUGGING Update e2e test? Naming? ( getting some weird error)
+  // ERROR: chanigng below path to `:id` gives "Segmentation Error"
   @TransformImageUrls('$.images[*]')
   @Get('single/:id')
   async getById(@Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateEventIdDto) {
@@ -116,7 +117,6 @@ export class EventsController {
     };
   }
 
-  // TODO: Update e2e test? Naming?
   @TransformImageUrls('$[*].images[*]')
   @Get('by-date-range')
   async getEventsByDateRange(
@@ -139,7 +139,7 @@ export class EventsController {
     return eventData.map(
       (event) => pick(
         event,
-        ['_id', 'images', 'startDate', 'endDate', 'event_type', 'city', 'state', 'address', 'country', 'event_info'],
+        ['_id', 'images', 'startDate', 'endDate', 'event_type', 'city', 'state', 'address', 'country'],
       ),
     );
   }
@@ -186,10 +186,9 @@ export class EventsController {
     return eventData.map(
       (event) => pick(
         event,
-         // TODO: DISCUSS: Should we keep this `distance`?
         [
           '_id', 'images', 'startDate', 'endDate', 'event_type', 'city', 'state', 'address',
-          'country', 'event_info', 'location', 'distance',
+          'country', 'location', 'distance',
         ],
       ),
     );

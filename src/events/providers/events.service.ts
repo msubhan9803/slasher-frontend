@@ -117,10 +117,8 @@ export class EventService {
             coordinates: [lattitude, longitude],
           },
           maxDistance: maxDistanceMetres,
-          // TODO: DISCUSS: Should we keep this `distance`?
           distanceField: 'distance',
-          // TODO: DISCUSS: Optional: The factor to multiply
-          // all distances returned by the query.
+          // get distances of each event in miles
           distanceMultiplier: METRES_TO_MILES_MULTIPLIER,
         },
       },

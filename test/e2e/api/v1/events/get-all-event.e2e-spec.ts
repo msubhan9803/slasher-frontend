@@ -104,16 +104,16 @@ describe('Events all / (e2e)', () => {
     }
   });
 
-  describe('GET /api/v1/events', () => {
+  describe('GET /api/v1/events/by-date-range', () => {
     it('requires authentication', async () => {
-      await request(app.getHttpServer()).get('/api/v1/events').expect(HttpStatus.UNAUTHORIZED);
+      await request(app.getHttpServer()).get('/api/v1/events/by-date-range').expect(HttpStatus.UNAUTHORIZED);
     });
 
     describe('Successful get all events data', () => {
       it('get expected events data based on startDate and endDate within of that span', async () => {
         const limit = 10;
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/events?startDate=${startDateForSearch}&endDate=${endDateForSearch}&limit=${limit}`)
+          .get(`/api/v1/events/by-date-range?startDate=${startDateForSearch}&endDate=${endDateForSearch}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         for (let i = 1; i < response.body.length; i += 1) {
@@ -133,7 +133,6 @@ describe('Events all / (e2e)', () => {
             state: 'California',
             address: null,
             country: 'USA',
-            event_info: `Event info organised by ${i + 1}`,
           });
         }
         expect(response.status).toEqual(HttpStatus.OK);
@@ -145,7 +144,7 @@ describe('Events all / (e2e)', () => {
         const startDate = DateTime.now().minus({ days: 50 }).toJSDate();
         const endDate = DateTime.now().minus({ days: 40 }).toJSDate();
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/events?startDate=${startDate}&endDate=${endDate}&limit=${limit}`)
+          .get(`/api/v1/events/by-date-range?startDate=${startDate}&endDate=${endDate}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
@@ -175,7 +174,7 @@ describe('Events all / (e2e)', () => {
         }
         const limit = 10;
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/events?startDate=${startDate}&endDate=${endDate}&limit=${limit}`)
+          .get(`/api/v1/events/by-date-range?startDate=${startDate}&endDate=${endDate}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([
@@ -189,7 +188,6 @@ describe('Events all / (e2e)', () => {
             state: 'California',
             address: null,
             country: 'USA',
-            event_info: 'Event info organised by 7',
           },
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -201,7 +199,6 @@ describe('Events all / (e2e)', () => {
             state: 'California',
             address: null,
             country: 'USA',
-            event_info: 'Event info organised by 8',
           },
         ]);
         expect(response.status).toEqual(HttpStatus.OK);
@@ -212,7 +209,7 @@ describe('Events all / (e2e)', () => {
         it('get expected first and second sets of paginated results', async () => {
           const limit = 3;
           const firstResponse = await request(app.getHttpServer())
-            .get(`/api/v1/events?startDate=${startDateForSearch}&endDate=${endDateForSearch}&limit=${limit}`)
+            .get(`/api/v1/events/by-date-range?startDate=${startDateForSearch}&endDate=${endDateForSearch}&limit=${limit}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
           for (let i = 1; i < firstResponse.body.length; i += 1) {
@@ -222,7 +219,7 @@ describe('Events all / (e2e)', () => {
           expect(firstResponse.body).toHaveLength(3);
 
           const secondResponse = await request(app.getHttpServer())
-            .get('/api/v1/events?'
+            .get('/api/v1/events/by-date-range?'
               + `startDate=${startDateForSearch}&endDate=${endDateForSearch}&limit=${limit}&after=${firstResponse.body[2]._id}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
@@ -242,7 +239,7 @@ describe('Events all / (e2e)', () => {
       it('startDate should not be empty', async () => {
         const limit = 10;
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/events?endDate=${endDateForSearch}&limit=${limit}`)
+          .get(`/api/v1/events/by-date-range?endDate=${endDateForSearch}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('startDate should not be empty');
@@ -251,7 +248,7 @@ describe('Events all / (e2e)', () => {
       it('endDate should not be empty', async () => {
         const limit = 10;
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/events?startDate=${startDateForSearch}&limit=${limit}`)
+          .get(`/api/v1/events/by-date-range?startDate=${startDateForSearch}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('endDate should not be empty');
@@ -259,7 +256,7 @@ describe('Events all / (e2e)', () => {
 
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/events?startDate=${startDateForSearch}&endDate=${endDateForSearch}`)
+          .get(`/api/v1/events/by-date-range?startDate=${startDateForSearch}&endDate=${endDateForSearch}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit should not be empty');
@@ -268,7 +265,7 @@ describe('Events all / (e2e)', () => {
       it('limit should be a number', async () => {
         const limit = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/events?startDate=${startDateForSearch}&endDate=${endDateForSearch}&limit=${limit}`)
+          .get(`/api/v1/events/by-date-range?startDate=${startDateForSearch}&endDate=${endDateForSearch}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
@@ -277,7 +274,7 @@ describe('Events all / (e2e)', () => {
       it('limit should not be grater than 20', async () => {
         const limit = 21;
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/events?startDate=${startDateForSearch}&endDate=${endDateForSearch}&limit=${limit}`)
+          .get(`/api/v1/events/by-date-range?startDate=${startDateForSearch}&endDate=${endDateForSearch}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must not be greater than 20');

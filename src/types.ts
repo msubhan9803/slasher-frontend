@@ -19,3 +19,8 @@ export type LocationType = {
   type: 'Point',
   coordinates: [number, number]
 };
+export enum WorthWatchingStatus {
+  NoRating = 0,
+  Down = 1,
+  Up = 2,
+}

@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
+import Mail from 'nodemailer/lib/mailer';
+import { verificationEmailTemplate } from '../email-templates';
 import { ReportType } from '../types';
+import { escapeStringForRegex } from '../utils/escape-utils';
+import { relativeToFullImagePath } from '../utils/image-utils';
 
 @Injectable()
 export class MailService {
@@ -11,22 +15,45 @@ export class MailService {
     return this.config.get<string>('DEFAULT_SMTP_AUTH_USER');
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  processEmailTemplate(template: string, context: { [key: string]: string }) {
+    let output = template;
+    Object.entries(context).forEach(([key, val]) => {
+      output = output.replace(
+        new RegExp(escapeStringForRegex(`[[${key}]]`), 'g'),
+        val,
+      );
+    });
+    return output;
+  }
+
   async sendForgotPasswordEmail(email: string, resetPasswordToken: string) {
     return this.sendEmail(
       email,
       this.getDefaultSender(),
       'Forgot password',
       `This is the forgot password email with token: ${resetPasswordToken}`,
+      'plain',
     );
   }
 
-  async sendVerificationEmail(email: string, verificationToken: string) {
+  async sendVerificationEmail(firstName: string, email: string, verificationToken: string) {
+    const htmlToSend = this.processEmailTemplate(verificationEmailTemplate, {
+      ReceiverName: firstName,
+      ImageBaseUrl: relativeToFullImagePath(this.config, ''),
+      FRONTEND_URL: this.config.get<string>('FRONTEND_URL'),
+      HELP_EMAIL: this.config.get<string>('HELP_EMAIL'),
+      EmailVerificationPath: `/app/activate-account?email=${encodeURIComponent(email)}`
+        + `&verificationToken=${encodeURIComponent(verificationToken)}`,
+    });
     return this.sendEmail(
       email,
       this.getDefaultSender(),
-      'Activate your Slasher account',
+      'Welcome to Slasher',
       // TODO: Change text below to actually include link to account activation page
-      `Here is the verification token that will be used to activate your slasher account: ${verificationToken}`,
+      //`Here is the verification token that will be used to activate your slasher account: ${verificationToken}`,
+      htmlToSend,
+      'html',
     );
   }
 
@@ -36,15 +63,21 @@ export class MailService {
       this.getDefaultSender(),
       `Slasher Content Report: ${reportType}`,
       `A user (${reportedBy}) has reported a ${reportType}:\n\n${reason}\n\nView the Slasher admin console for more information.`,
+      'plain',
     );
   }
 
-  async sendEmail(to: string, from: string, subject: string, text: string) {
+  async sendEmail(to: string, from: string, subject: string, text: string, textType: 'plain' | 'html') {
     return new Promise((resolve, reject) => {
       const mailTransporter = this.createMailTransporter();
-      mailTransporter.sendMail({
-        to, from, subject, text,
-      }, (err, data) => {
+      const mailOpts: Mail.Options = { to, from, subject };
+      if (textType === 'html') {
+        mailOpts.html = text;
+      } else {
+        mailOpts.text = text;
+      }
+
+      mailTransporter.sendMail(mailOpts, (err, data) => {
         if (err) {
           reject(err);
         } else {

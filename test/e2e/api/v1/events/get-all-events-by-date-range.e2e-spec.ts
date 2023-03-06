@@ -20,7 +20,7 @@ import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
-describe('Events all / (e2e)', () => {
+describe('Events all by date range / (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let eventService: EventService;

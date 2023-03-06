@@ -6,7 +6,7 @@ import { Connection } from 'mongoose';
 import { DateTime } from 'luxon';
 import { AppModule } from '../../app.module';
 import { EventService } from './events.service';
-import { EventDocument, EventSchema } from '../../schemas/event/event.schema';
+import { EventDocument } from '../../schemas/event/event.schema';
 import { eventsFactory } from '../../../test/factories/events.factory';
 import { userFactory } from '../../../test/factories/user.factory';
 import { UserDocument } from '../../schemas/user/user.schema';
@@ -15,10 +15,9 @@ import { EventCategoriesService } from '../../event-categories/providers/event-c
 import { eventCategoryFactory } from '../../../test/factories/event-category.factory';
 import { EventCategoryDocument } from '../../schemas/eventCategory/eventCategory.schema';
 import { EventActiveStatus } from '../../schemas/event/event.enums';
-import { clearDatabase, dbHasActiveOperations } from '../../../test/helpers/mongo-helpers';
+import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
-import { sleep, waitForAsyncFunction } from '../../utils/timer-utils';
 
 describe('EventService', () => {
   let app: INestApplication;

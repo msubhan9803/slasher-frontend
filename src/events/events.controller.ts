@@ -75,48 +75,6 @@ export class EventsController {
     return pick(event, pickConversationFields);
   }
 
-  // TODO-CRITICAL: NEED_URGENT_DEBUGGING Update e2e test? Naming? ( getting some weird error)
-  // ERROR: chanigng below path to `:id` gives "Segmentation Error"
-  @TransformImageUrls('$.images[*]')
-  @Get('single/:id')
-  async getById(@Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateEventIdDto) {
-    const eventData = await this.eventService.findById(params.id, true, 'event_type', 'event_name');
-    if (!eventData) {
-      throw new HttpException('Event not found', HttpStatus.NOT_FOUND);
-    }
-    if (eventData.images.length === 0) {
-      // eslint-disable-next-line no-param-reassign
-      eventData.images.push(relativeToFullImagePath(this.config, '/placeholders/no_image_available.png'));
-    }
-    const pickConversationFields = [
-      '_id', 'images', 'startDate',
-      'endDate', 'event_type', 'city',
-      'state', 'address', 'country',
-      'url', 'event_info',
-    ];
-    return pick(eventData, pickConversationFields);
-  }
-
-  @Patch(':id')
-  async update(
-    @Req() request: Request,
-    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateEventIdDto,
-    @Body() updateEventDto: UpdateEventDto,
-  ) {
-    const user = getUserFromRequest(request);
-
-    // For now, only admins can edit events
-    if (user.userType !== UserType.Admin) {
-      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
-    }
-
-    const eventData = await this.eventService.update(params.id, updateEventDto);
-    return {
-      _id: eventData.id,
-      ...pick(eventData, Object.keys(updateEventDto)),
-    };
-  }
-
   @TransformImageUrls('$[*].images[*]')
   @Get('by-date-range')
   async getEventsByDateRange(
@@ -192,5 +150,45 @@ export class EventsController {
         ],
       ),
     );
+  }
+
+  @TransformImageUrls('$.images[*]')
+  @Get(':id')
+  async getById(@Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateEventIdDto) {
+    const eventData = await this.eventService.findById(params.id, true, 'event_type', 'event_name');
+    if (!eventData) {
+      throw new HttpException('Event not found', HttpStatus.NOT_FOUND);
+    }
+    if (eventData.images.length === 0) {
+      // eslint-disable-next-line no-param-reassign
+      eventData.images.push(relativeToFullImagePath(this.config, '/placeholders/no_image_available.png'));
+    }
+    const pickConversationFields = [
+      '_id', 'images', 'startDate',
+      'endDate', 'event_type', 'city',
+      'state', 'address', 'country',
+      'url', 'event_info',
+    ];
+    return pick(eventData, pickConversationFields);
+  }
+
+  @Patch(':id')
+  async update(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateEventIdDto,
+    @Body() updateEventDto: UpdateEventDto,
+  ) {
+    const user = getUserFromRequest(request);
+
+    // For now, only admins can edit events
+    if (user.userType !== UserType.Admin) {
+      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+    }
+
+    const eventData = await this.eventService.update(params.id, updateEventDto);
+    return {
+      _id: eventData.id,
+      ...pick(eventData, Object.keys(updateEventDto)),
+    };
   }
 }

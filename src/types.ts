@@ -14,3 +14,9 @@ export type RegisterUser = Partial<
   securityAnswer: string,
   dob: string,
 }>;
+
+export enum WorthWatchingStatus {
+  NoRating = 0,
+  Down = 1,
+  Up = 2,
+}

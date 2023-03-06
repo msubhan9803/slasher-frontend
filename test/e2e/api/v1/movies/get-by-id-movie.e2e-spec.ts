@@ -13,7 +13,7 @@ import { UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
-import { WorthWatchingStatus } from '../../../../../src/schemas/movieUserStatus/movieUserStatus.enums';
+import { WorthWatchingStatus } from '../../../../../src/types';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('GET Movie (e2e)', () => {
@@ -61,13 +61,13 @@ describe('GET Movie (e2e)', () => {
       user1 = await usersService.create(userFactory.build());
     });
 
-  describe('Find a movie by id', () => {
-    it('requires authentication', async () => {
-      const movieId = new mongoose.Types.ObjectId();
-      await request(app.getHttpServer()).get(`/api/v1/movies/${movieId}`).expect(HttpStatus.UNAUTHORIZED);
-    });
+    describe('Find a movie by id', () => {
+      it('requires authentication', async () => {
+        const movieId = new mongoose.Types.ObjectId();
+        await request(app.getHttpServer()).get(`/api/v1/movies/${movieId}`).expect(HttpStatus.UNAUTHORIZED);
+      });
 
-    it('returns the expected movie details', async () => {
+      it('returns the expected movie details', async () => {
         const movie = await moviesService.create(
           moviesFactory.build({
             status: MovieActiveStatus.Active,
@@ -80,7 +80,7 @@ describe('GET Movie (e2e)', () => {
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
-          movieDBId: 123456,
+          movieDBId: 1,
           rating: 0,
           goreFactorRating: 0,
           userData: {
@@ -137,7 +137,7 @@ describe('GET Movie (e2e)', () => {
             .send();
           expect(response.status).toEqual(HttpStatus.OK);
           expect(response.body).toEqual({
-            movieDBId: 123456,
+            movieDBId: 1,
             rating: expectedRating,
             goreFactorRating: expectedGoreFactor,
             worthWatching: expectedWorthWatching,

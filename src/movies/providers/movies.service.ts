@@ -17,9 +17,10 @@ import { DiscoverMovieDto } from '../dto/discover-movie.dto';
 import { relativeToFullImagePath } from '../../utils/image-utils';
 import { MovieUserStatus, MovieUserStatusDocument } from '../../schemas/movieUserStatus/movieUserStatus.schema';
 import {
-  WorthWatchingStatus, MovieUserStatusBuy, MovieUserStatusFavorites,
+  MovieUserStatusBuy, MovieUserStatusFavorites,
   MovieUserStatusWatch, MovieUserStatusWatched,
 } from '../../schemas/movieUserStatus/movieUserStatus.enums';
+import { WorthWatchingStatus } from '../../types';
 
 export interface Cast {
   'adult': boolean,
@@ -133,7 +134,7 @@ export interface MovieDbData {
 export class MoviesService {
   constructor(
     @InjectModel(Movie.name) private moviesModel: Model<MovieDocument>,
-    @InjectModel(MovieUserStatus.name) private movieUserStatusModel: Model<MovieUserStatus>,
+    @InjectModel(MovieUserStatus.name) private movieUserStatusModel: Model<MovieUserStatusDocument>,
     private httpService: HttpService,
     private configService: ConfigService,
   ) { }

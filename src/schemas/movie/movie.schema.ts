@@ -1,9 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import {
- MovieActiveStatus, MovieDeletionStatus, MovieType, WorthWatchingStatus,
+ MovieActiveStatus, MovieDeletionStatus, MovieType,
 } from './movie.enums';
 import { MovieUnusedFields } from './movie.unused-fields';
+import { WorthWatchingStatus } from '../../types';
 
 @Schema({ timestamps: true })
 export class Movie extends MovieUnusedFields {

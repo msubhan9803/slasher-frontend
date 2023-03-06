@@ -32,6 +32,10 @@ import { LikesLimitOffSetDto } from './dto/likes-limit-offset-query.dto';
 import { FriendsService } from '../friends/providers/friends.service';
 import { MoviesService } from '../movies/providers/movies.service';
 import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
+import { AllFeedPostQueryDto } from './dto/all-feed-posts-query.dto';
+import { MovieIdDto } from './dto/movie-id.dto';
+import { MovieUserStatusService } from '../movie-user-status/providers/movie-user-status.service';
+import { User } from '../schemas/user/user.schema';
 
 @Controller({ path: 'feed-posts', version: ['1'] })
 export class FeedPostsController {
@@ -45,6 +49,7 @@ export class FeedPostsController {
     private readonly blocksService: BlocksService,
     private readonly friendsService: FriendsService,
     private readonly moviesService: MoviesService,
+    private readonly movieUserStatusService: MovieUserStatusService,
   ) { }
 
   @TransformImageUrls('$.images[*].image_path')
@@ -430,5 +435,46 @@ export class FeedPostsController {
       user._id.toString(),
     );
     return feedLikeUsers;
+  }
+
+  @TransformImageUrls(
+    '$[*].images[*].image_path',
+    '$[*].userId.profilePic',
+  )
+  @Get(':movieId/reviews')
+  async findMovieReviews(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: MovieIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: AllFeedPostQueryDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const movieData = await this.moviesService.findById(params.movieId, true);
+    if (!movieData) {
+      throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
+    }
+
+    const posts = await this.feedPostsService.findPostsByMovieId(
+      movieData._id.toString(),
+      query.limit,
+      true,
+      query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
+      user._id.toString(),
+    );
+    const userIds = posts.map((id) => (id.userId as any)._id);
+
+    const movieUserStatusData = await this.movieUserStatusService.findAllMovieUserStatus(userIds, movieData._id.toString());
+    posts.map((post) => {
+      movieUserStatusData.forEach((movie) => {
+        // eslint-disable-next-line max-len
+        if (movie.movieId.toString() === post.movieId.toString() && movie.userId.toString() === (post.userId as unknown as User)._id.toString()) {
+          // eslint-disable-next-line no-param-reassign
+          (post as any).reviewData = { rating: movie.rating, goreFactorRating: movie.goreFactorRating, worthWatching: movie.worthWatching };
+        }
+        return movie;
+      });
+      return post;
+    });
+    return posts;
   }
 }

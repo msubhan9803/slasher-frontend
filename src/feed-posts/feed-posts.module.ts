@@ -13,6 +13,7 @@ import { BlockAndUnblock, BlockAndUnblockSchema } from '../schemas/blockAndUnblo
 import { FriendsModule } from '../friends/friends.module';
 import { BlocksModule } from '../blocks/blocks.module';
 import { MoviesModule } from '../movies/movies.module';
+import { MovieUserStatusModule } from '../movie-user-status/movie.user.status.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { MoviesModule } from '../movies/movies.module';
     FriendsModule,
     BlocksModule,
     MoviesModule,
+    MovieUserStatusModule,
   ],
   providers: [FeedPostsService, BlocksService, LocalStorageService, S3StorageService],
   exports: [FeedPostsService],

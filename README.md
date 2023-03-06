@@ -61,11 +61,11 @@ This app can also be built into a Capacitor app (https://capacitorjs.com).  Belo
 
 So when building for Android, locally, you'll probably often run this:
 
-`npm run build && npx cap sync && npx cap run android`
+`npm run build && npx cap sync android && npx cap run android`
 
 For a production build, make sure to read in the correct production environment variables.  This may look something like this:
 
-`set -o allexport && source ./deploy-cloudflare/.env.deploy/prod && npm run build && npx cap sync && npx cap run android`
+`set -o allexport && source ./deploy-cloudflare/.env.deploy/prod && npm run build && npx cap sync android && npx cap run android`
 
 ## App Structure
 

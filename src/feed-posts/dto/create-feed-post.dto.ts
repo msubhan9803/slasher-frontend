@@ -11,7 +11,7 @@ import {
 } from 'class-validator';
 import mongoose from 'mongoose';
 import { PostType } from '../../schemas/feedPost/feedPost.enums';
-import { WorthWatchingStatus } from '../../schemas/movie/movie.enums';
+import { WorthWatchingStatus } from '../../types';
 
 export class MoviePostDto {
   @IsNotEmpty()

@@ -427,16 +427,16 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
             message: 'Hello Reply Test Message 1',
             images: [
               {
-                image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+                image_path: '/feed/feed_sample1.jpg',
               },
               {
-                image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample2.jpg',
+                image_path: '/feed/feed_sample2.jpg',
               },
               {
-                image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample3.jpg',
+                image_path: '/feed/feed_sample3.jpg',
               },
               {
-                image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample4.jpg',
+                image_path: '/feed/feed_sample4.jpg',
               },
             ],
           },

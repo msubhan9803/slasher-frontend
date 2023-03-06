@@ -2,6 +2,8 @@
 // This file can be used for declaring TypeScript types/interfaces
 // that are shared across multiple places in the app.
 
+import { LatLngLiteral } from 'leaflet';
+
 export interface ValueLabelPair {
   value: string;
   label: string;
@@ -276,3 +278,16 @@ export interface MovieData {
     worthWatching: number;
   }
 }
+export type LocationPointType = {
+  type: 'Point',
+  coordinates: [number, number]
+};
+export type MarkerLocationType = {
+  id: string,
+  latLng: LatLngLiteral, // { lat: number; lng: number; }
+  dateRange: string,
+  address: string,
+  name: string,
+  linkText: string,
+  linkAddress: string,
+};

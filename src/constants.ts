@@ -12,3 +12,6 @@ export const XL_MEDIA_BREAKPOINT = '1200px';
 export const XXL_MEDIA_BREAKPOINT = '1440px';
 
 export const enableADs = process.env.REACT_APP_ENABLE_ADS === 'true';
+
+// 11 Sand Pond Rd, Hardwick Township, NJ
+export const EVENTS_MAP_CENTER = { lat: 41.055877, lng: -74.95479 };

@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+/* eslint-disable max-lines */
+import React, { useEffect, useRef, useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  TileLayer, Marker, Popup, MapContainer,
+  TileLayer, Marker, Popup, MapContainer, useMapEvents, FeatureGroup,
 } from 'react-leaflet';
 import {
   Alert,
@@ -12,7 +13,28 @@ import styled from 'styled-components';
 import Leaflet, { LatLngLiteral } from 'leaflet';
 import ReactDOMServer from 'react-dom/server';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 import ErrorMessageList from './ErrorMessageList';
+import { MarkerLocationType } from '../../types';
+
+// Sample markers data for PR reviewing/testing/debugging
+// const latLngs = [
+//   { lat: 41.045877, lng: -74.94479 },
+//   { lat: 41.048899, lng: -74.947958 },
+//   { lat: 41.045877, lng: -74.99479 },
+// ];
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function MapDebugger() {
+  const map = useMapEvents({
+    click: (e) => {
+      map.locate();
+      // eslint-disable-next-line no-console
+      console.log('clicked location?', e.latlng.toString());
+    },
+  });
+  return null;
+}
 
 const Map = styled(MapContainer)`
   height: 450px;
@@ -42,9 +64,12 @@ interface Props {
   defaultCenter: LatLngLiteral,
   defaultZoomLevel: number,
   onCenterChange: (newCenter: LatLngLiteral) => void,
+  markerLocations: Array<MarkerLocationType>,
 }
 
-function MapComponent({ defaultCenter, defaultZoomLevel, onCenterChange }: Props) {
+function MapComponent({
+  defaultCenter, defaultZoomLevel, onCenterChange, markerLocations,
+}: Props) {
   const [center, setCenter] = useState<LatLngLiteral>(defaultCenter);
   const [errors, setErrors] = useState<string[]>([]);
   const [
@@ -52,6 +77,8 @@ function MapComponent({ defaultCenter, defaultZoomLevel, onCenterChange }: Props
   ] = useState<string | null>(null);
   const [lastLocationSearchQuery, setLastLocationSearchQuery] = useState<string>('');
   const [locationSearchQuery, setLocationSearchQuery] = useState<string>('');
+  const mapRef = useRef<Leaflet.Map>(null);
+  const featureGroupRef = useRef<Leaflet.FeatureGroup>(null);
 
   // Whenever center changes, call onCenterChange
   useEffect(() => {
@@ -73,6 +100,11 @@ function MapComponent({ defaultCenter, defaultZoomLevel, onCenterChange }: Props
       onError();
     }
   };
+
+  useEffect(() => {
+    if (!featureGroupRef.current || !mapRef.current) { return; }
+    mapRef.current.fitBounds(featureGroupRef.current.getBounds());
+  }, [markerLocations]);
 
   const lookUpLocation = async (locationString: string) => {
     let query = locationString;
@@ -154,27 +186,42 @@ function MapComponent({ defaultCenter, defaultZoomLevel, onCenterChange }: Props
         key={`${center.lat}-${center.lng}`}
         center={[center.lat, center.lng]}
         zoom={defaultZoomLevel}
+        bounds={markerLocations.map((ml) => [ml.latLng.lat, ml.latLng.lng])}
+        ref={mapRef}
       >
         <TileLayer
           url="https://api.maptiler.com/maps/basic-v2/256/{z}/{x}/{y}.png?key=SLcHU7I1RZjHoCZGIbr6"
           attribution={'&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}
         />
-        <Marker
-          position={center}
-          icon={customMarkerIcon}
+
+        <FeatureGroup
+          ref={featureGroupRef}
         >
-          <Popup>
-            <div>
-              <p className="fs-5 fw-normal mb-3 ">24/06/2022 -26/06/2022</p>
-              <div className="d-flex align-items-baseline">
-                <FontAwesomeIcon icon={solid('location-dot')} className="text-primary me-2" size="lg" />
-                <span className="fs-3 fw-normal mb-2">1 Main St, New York, NY USA</span>
-              </div>
-              <h1 className="h3 fw-bold">Escape from a House of Horror - A Diane Sawyer Special Event</h1>
-              <Button className="bg-transparent text-primary border-0 shadow-none p-0">View event</Button>
-            </div>
-          </Popup>
-        </Marker>
+          {markerLocations.map((markerDetails) => (
+            <Marker
+              key={markerDetails.id}
+              position={markerDetails.latLng}
+              icon={customMarkerIcon}
+            >
+              <Popup>
+                <div>
+                  <p className="fs-5 fw-normal mb-3 ">{markerDetails.dateRange}</p>
+                  <div className="d-flex align-items-baseline">
+                    <FontAwesomeIcon icon={solid('location-dot')} className="text-primary me-2" size="lg" />
+                    <span className="fs-3 fw-normal mb-2">{markerDetails.address}</span>
+                  </div>
+                  <h1 className="h3 fw-bold">{markerDetails.name}</h1>
+                  <Link to={markerDetails.linkAddress} className="text-decoration-none btn bg-transparent text-primary border-0 shadow-none p-0">
+                    {markerDetails.linkText}
+                  </Link>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+        </FeatureGroup>
+
+        {/* For development only */}
+        {/* { enableDevFeatures && <MapDebugger /> } */}
       </Map>
     </div>
   );

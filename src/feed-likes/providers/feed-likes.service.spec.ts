@@ -34,7 +34,7 @@ describe('FeedLikesService', () => {
         image_path: '/feed/feed_sample1.jpg',
       },
       {
-        image_path: '/feed/feed_sample1.jpg',
+        image_path: '/feed/feed_sample2.jpg',
       },
     ],
     message: 'Hello Test Message',

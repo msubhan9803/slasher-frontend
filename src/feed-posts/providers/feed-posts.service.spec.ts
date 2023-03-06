@@ -248,7 +248,7 @@ describe('FeedPostsService', () => {
             image_path: '/feed/feed_sample1.jpg',
           },
           {
-            image_path: '/feed/feed_sample1.jpg',
+            image_path: '/feed/feed_sample2.jpg',
           },
         ],
       };

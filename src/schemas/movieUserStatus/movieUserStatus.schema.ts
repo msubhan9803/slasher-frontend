@@ -5,8 +5,9 @@ import { User } from '../user/user.schema';
 import {
   MovieUserStatusBuy, MovieUserStatusFavorites,
   MovieUserStatusWatch, MovieUserStatusWatched, MovieUserStatusDeletionStatus,
-  MovieUserStatusRatingStatus, MovieUserStatusStatus, WorthWatchingStatus,
+  MovieUserStatusRatingStatus, MovieUserStatusStatus,
 } from './movieUserStatus.enums';
+import { WorthWatchingStatus } from '../../types';
 
 @Schema({ timestamps: true })
 export class MovieUserStatus {

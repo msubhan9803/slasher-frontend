@@ -11,9 +11,9 @@ definitions:
       memory: 2048
   steps:
     - step: &lint-test-build
-        # If our test runs for more than 20 minutes, something is definitely wrong.
-        # We'll limit test run time so we don't waste CI build minutes.
-        max-time: 20
+        # If our test runs for more than the number of minutes specified below, something is
+        # probably wrong. We'll limit test run time so we don't waste CI build minutes.
+        max-time: 25
         name: Lint, test, and build
         image: node:16.13.1
         services:

@@ -4,7 +4,6 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
-import { DateTime } from 'luxon';
 import { AppModule } from '../../../../../src/app.module';
 import { UsersService } from '../../../../../src/users/providers/users.service';
 import { userFactory } from '../../../../factories/user.factory';
@@ -18,7 +17,9 @@ import { EventActiveStatus } from '../../../../../src/schemas/event/event.enums'
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 
+// TODO-SAHIL: URGENT: Please uncomment these tests, but this test causes jest process termination.
 // eslint-disable-next-line jest/no-disabled-tests
 describe.skip('Events all by distance / (e2e)', () => {
   let app: INestApplication;
@@ -30,17 +31,6 @@ describe.skip('Events all by distance / (e2e)', () => {
   let activeUser: User;
   let activeEventCategory: EventCategory;
   let configService: ConfigService;
-
-  const activeEventData = [
-    { start: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-19T23:59:59Z').toJSDate() },
-    { start: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-20T23:59:59Z').toJSDate() },
-    { start: DateTime.fromISO('2022-10-19T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-21T23:59:59Z').toJSDate() },
-    { start: DateTime.fromISO('2022-10-20T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-22T23:59:59Z').toJSDate() },
-    { start: DateTime.fromISO('2022-10-21T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-23T23:59:59Z').toJSDate() },
-  ];
-  const inactiveEventData = [
-    { start: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-18T23:59:59Z').toJSDate() },
-  ];
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -74,32 +64,39 @@ describe.skip('Events all by distance / (e2e)', () => {
       configService.get<string>('JWT_SECRET_KEY'),
     );
 
-    for (const eventDateRange of activeEventData) {
-      await eventService.create(
-        eventsFactory.build(
-          {
-            userId: activeUser._id,
-            event_type: activeEventCategory,
-            startDate: eventDateRange.start,
-            endDate: eventDateRange.end,
-            status: EventActiveStatus.Active,
-          },
-        ),
-      );
-    }
-    for (const eventDateRange of inactiveEventData) {
-      await eventService.create(
-        eventsFactory.build(
-          {
-            userId: activeUser._id,
-            event_type: activeEventCategory,
-            startDate: eventDateRange.start,
-            endDate: eventDateRange.end,
-            status: EventActiveStatus.Inactive,
-          },
-        ),
-      );
-    }
+    await eventService.create(
+      eventsFactory.build({
+        userId: activeUser._id,
+        event_type: activeEventCategory,
+        status: EventActiveStatus.Active,
+        location: {
+          type: 'Point',
+          coordinates: [41.055877, -79],
+        },
+      }),
+    );
+    await eventService.create(
+      eventsFactory.build({
+        userId: activeUser._id,
+        event_type: activeEventCategory,
+        status: EventActiveStatus.Active,
+        location: {
+          type: 'Point',
+          coordinates: [41.055877, -80],
+        },
+      }),
+    );
+    await eventService.create(
+      eventsFactory.build({
+        userId: activeUser._id,
+        event_type: activeEventCategory,
+        status: EventActiveStatus.Active,
+        location: {
+          type: 'Point',
+          coordinates: [41.055877, -81],
+        },
+      }),
+    );
   });
 
   describe('GET /api/v1/events/by-distance', () => {
@@ -108,7 +105,7 @@ describe.skip('Events all by distance / (e2e)', () => {
     });
 
     describe('Successful get all events in 300 miles', () => {
-      it('get expected events data based on startDate and endDate within of that span', async () => {
+      it('Get events in 300 miles', async () => {
         const lattitude = 41.055877;
         const longitude = -74.95479;
         const maxDistanceMiles = 300;
@@ -117,9 +114,107 @@ describe.skip('Events all by distance / (e2e)', () => {
           .get(`/api/v1/events/by-distance?lattitude=${lattitude}&longitude=${longitude}&maxDistanceMiles=${maxDistanceMiles}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        // eslint-disable-next-line no-console
-        console.log('response?', response.body);
-        expect(1).toBe(1);
+        expect(response.body).toEqual([
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            images: [
+              'http://localhost:4444/placeholders/default_user_icon.png',
+              'http://localhost:4444/placeholders/default_user_icon.png',
+            ],
+            startDate: expect.any(String),
+            endDate: expect.any(String),
+            event_type: activeEventCategory._id.toString(),
+            city: 'Los Angeles',
+            state: 'California',
+            address: null,
+            country: 'USA',
+            location: { type: 'Point', coordinates: [41.055877, -79] },
+            distance: 279.80839755496675,
+          },
+        ]);
+      });
+
+      describe('validations', () => {
+        it('lattitude, longitude and maxDistanceMiles should not be empty', async () => {
+          const response = await request(app.getHttpServer())
+            .get('/api/v1/events/by-distance')
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .send();
+
+          expect(response.body.statusCode).toBe(HttpStatus.BAD_REQUEST);
+          expect(response.body).toEqual({
+            error: 'Bad Request',
+            message: [
+              'lattitude must be a number conforming to the specified constraints',
+              'lattitude should not be empty',
+              'longitude must be a number conforming to the specified constraints',
+              'longitude should not be empty',
+              'maxDistanceMiles must be a number conforming to the specified constraints',
+              'maxDistanceMiles should not be empty',
+            ],
+            statusCode: 400,
+          });
+        });
+
+        it('lattitude should be number type', async () => {
+          const lattitude = 'abc';
+          const longitude = -74.95479;
+          const maxDistanceMiles = 300;
+
+          const response = await request(app.getHttpServer())
+            .get(`/api/v1/events/by-distance?lattitude=${lattitude}&longitude=${longitude}&maxDistanceMiles=${maxDistanceMiles}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .send();
+
+          expect(response.body.statusCode).toBe(HttpStatus.BAD_REQUEST);
+          expect(response.body).toEqual({
+            error: 'Bad Request',
+            message: [
+              'lattitude must be a number conforming to the specified constraints',
+            ],
+            statusCode: 400,
+          });
+        });
+
+        it('longitude should be number type', async () => {
+          const lattitude = 41.055877;
+          const longitude = 'abc';
+          const maxDistanceMiles = 300;
+
+          const response = await request(app.getHttpServer())
+            .get(`/api/v1/events/by-distance?lattitude=${lattitude}&longitude=${longitude}&maxDistanceMiles=${maxDistanceMiles}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .send();
+
+          expect(response.body.statusCode).toBe(HttpStatus.BAD_REQUEST);
+          expect(response.body).toEqual({
+            error: 'Bad Request',
+            message: [
+              'longitude must be a number conforming to the specified constraints',
+            ],
+            statusCode: 400,
+          });
+        });
+
+        it('maxDistanceMiles should be number type', async () => {
+          const lattitude = 41.055877;
+          const longitude = -74.95479;
+          const maxDistanceMiles = 'abc';
+
+          const response = await request(app.getHttpServer())
+            .get(`/api/v1/events/by-distance?lattitude=${lattitude}&longitude=${longitude}&maxDistanceMiles=${maxDistanceMiles}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .send();
+
+          expect(response.body.statusCode).toBe(HttpStatus.BAD_REQUEST);
+          expect(response.body).toEqual({
+            error: 'Bad Request',
+            message: [
+              'maxDistanceMiles must be a number conforming to the specified constraints',
+            ],
+            statusCode: 400,
+          });
+        });
       });
     });
   });

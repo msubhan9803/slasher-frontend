@@ -337,31 +337,31 @@ describe('Update Feed Post (e2e)', () => {
           {
             images: [
               {
-                image_path: 'https://picsum.photos/id/237/200/300',
+                image_path: '/feed/feed_sample1.jpg',
               },
               {
-                image_path: 'https://picsum.photos/seed/picsum/200/300',
+                image_path: '/feed/feed_sample2.jpg',
               },
               {
-                image_path: 'https://picsum.photos/id/237/200/300',
+                image_path: '/feed/feed_sample3.jpg',
               },
               {
-                image_path: 'https://picsum.photos/seed/picsum/200/300',
+                image_path: '/feed/feed_sample4.jpg',
               },
               {
-                image_path: 'https://picsum.photos/seed/picsum/200/300',
+                image_path: '/feed/feed_sample5.jpg',
               },
               {
-                image_path: 'https://picsum.photos/seed/picsum/200/300',
+                image_path: '/feed/feed_sample6.jpg',
               },
               {
-                image_path: 'https://picsum.photos/seed/picsum/200/300',
+                image_path: '/feed/feed_sample7.jpg',
               },
               {
-                image_path: 'https://picsum.photos/seed/picsum/200/300',
+                image_path: '/feed/feed_sample8.jpg',
               },
               {
-                image_path: 'https://picsum.photos/seed/picsum/200/300',
+                image_path: '/feed/feed_sample9.jpg',
               },
             ],
             userId: activeUser._id,

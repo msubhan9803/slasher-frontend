@@ -415,7 +415,7 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
           .field('message', '')
           .field('imagesToDelete', (feedReply0.images[0] as any).id)
           .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toBe('Posts must have a message or at least one image. No message or image received.');
+        expect(response.body.message).toBe('Reply must have a message or at least one image. No message or image received.');
       });
 
     it('when reply has a already 4 images and add more 2 images than expected response', async () => {
@@ -427,16 +427,16 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
             message: 'Hello Reply Test Message 1',
             images: [
               {
-                image_path: 'https://picsum.photos/id/237/200/300',
+                image_path: '/feed/feed_sample1.jpg',
               },
               {
-                image_path: 'https://picsum.photos/seed/picsum/200/300',
+                image_path: '/feed/feed_sample2.jpg',
               },
               {
-                image_path: 'https://picsum.photos/id/237/200/300',
+                image_path: '/feed/feed_sample3.jpg',
               },
               {
-                image_path: 'https://picsum.photos/seed/picsum/200/300',
+                image_path: '/feed/feed_sample4.jpg',
               },
             ],
           },
@@ -482,7 +482,7 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
         .field('message', '');
       expect(response.body).toEqual({
         statusCode: 400,
-        message: 'Posts must have a message or at least one image. No message or image received.',
+        message: 'Reply must have a message or at least one image. No message or image received.',
       });
     });
 

@@ -147,27 +147,31 @@ export class FeedCommentsController {
       throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
     }
 
+    const imagesToDelete = updateFeedCommentsDto.imagesToDelete && updateFeedCommentsDto.imagesToDelete.length;
+    const newCommentImages = files && files.length;
+    const currentCommentImages = comment.images && comment.images.length;
+    const { message } = updateFeedCommentsDto;
+
     // eslint-disable-next-line max-len
-    if ((updateFeedCommentsDto?.imagesToDelete?.length && !files.length && updateFeedCommentsDto.message === '' && comment?.images.length === updateFeedCommentsDto?.imagesToDelete.length) || (!comment?.images.length && !files.length && updateFeedCommentsDto.message === '')) {
+    const isCommentWithoutImgAndMsg = (imagesToDelete && !newCommentImages && message === '' && currentCommentImages === imagesToDelete) || (!currentCommentImages && !newCommentImages && message === '');
+    if (isCommentWithoutImgAndMsg) {
       throw new HttpException(
-        'Posts must have a message or at least one image. No message or image received.',
+        'Comment must have a message or at least one image. No message or image received.',
         HttpStatus.BAD_REQUEST,
       );
     }
-    // eslint-disable-next-line
-    if ((updateFeedCommentsDto?.imagesToDelete?.length && comment?.images?.length - updateFeedCommentsDto?.imagesToDelete?.length + files?.length) > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT || (!updateFeedCommentsDto?.imagesToDelete?.length && comment?.images?.length + files?.length) > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT) {
+
+    // eslint-disable-next-line max-len
+    const totalCommentImages = (imagesToDelete && currentCommentImages - imagesToDelete + newCommentImages) || (!imagesToDelete && currentCommentImages + newCommentImages);
+
+    if (totalCommentImages > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT) {
       // eslint-disable-next-line max-len
       throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT} images on a comment.`, HttpStatus.BAD_REQUEST);
     }
 
-    let currentCommentImages;
+    let imagesToKeep;
     if (updateFeedCommentsDto.imagesToDelete) {
-      const commentImages = comment.images.filter((image) => !updateFeedCommentsDto.imagesToDelete.includes((image as any)._id.toString()));
-      if (commentImages.length + files.length > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT) {
-        // eslint-disable-next-line max-len
-        throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT} images on a comment.`, HttpStatus.BAD_REQUEST);
-      }
-      currentCommentImages = commentImages;
+      imagesToKeep = comment.images.filter((image) => !updateFeedCommentsDto.imagesToDelete.includes((image as any)._id.toString()));
     }
 
     const images = [];
@@ -180,8 +184,8 @@ export class FeedCommentsController {
       }
       images.push({ image_path: storageLocation });
     }
-    if (files.length || updateFeedCommentsDto.imagesToDelete) {
-      const feedCommentImages = images.concat(currentCommentImages);
+    if (newCommentImages || imagesToDelete) {
+      const feedCommentImages = images.concat(imagesToKeep);
       Object.assign(
         updateFeedCommentsDto,
         {
@@ -322,27 +326,32 @@ export class FeedCommentsController {
     if (reply.userId.toString() !== user.id) {
       throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
     }
+
+    const imagesToDelete = updateFeedReplyDto.imagesToDelete && updateFeedReplyDto.imagesToDelete.length;
+    const newReplyImages = files && files.length;
+    const currentReplyImages = reply.images && reply.images.length;
+    const { message } = updateFeedReplyDto;
+
     // eslint-disable-next-line max-len
-    if ((updateFeedReplyDto?.imagesToDelete?.length && !files.length && updateFeedReplyDto.message === '' && reply?.images.length === updateFeedReplyDto?.imagesToDelete.length) || (!reply?.images.length && !files.length && updateFeedReplyDto.message === '')) {
+    const isReplyWithoutImgAndMsg = (imagesToDelete && !newReplyImages && message === '' && currentReplyImages === imagesToDelete) || (!currentReplyImages && !newReplyImages && message === '');
+    if (isReplyWithoutImgAndMsg) {
       throw new HttpException(
-        'Posts must have a message or at least one image. No message or image received.',
+        'Reply must have a message or at least one image. No message or image received.',
         HttpStatus.BAD_REQUEST,
       );
     }
-    // eslint-disable-next-line
-    if ((updateFeedReplyDto?.imagesToDelete?.length && reply?.images?.length - updateFeedReplyDto?.imagesToDelete?.length + files?.length) > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT || (!updateFeedReplyDto?.imagesToDelete?.length && reply?.images?.length + files?.length) > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT) {
+
+    // eslint-disable-next-line max-len
+    const totalReplyImages = (imagesToDelete && currentReplyImages - imagesToDelete + newReplyImages) || (!imagesToDelete && currentReplyImages + newReplyImages);
+
+    if (totalReplyImages > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT) {
       // eslint-disable-next-line max-len
       throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT} images on a reply.`, HttpStatus.BAD_REQUEST);
     }
 
-    let currentReplyImages;
+    let imagesToKeep;
     if (updateFeedReplyDto.imagesToDelete) {
-      const replyImages = reply.images.filter((image) => !updateFeedReplyDto.imagesToDelete.includes((image as any)._id.toString()));
-      if (replyImages.length + files.length > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT) {
-        // eslint-disable-next-line max-len
-        throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT} images on a reply.`, HttpStatus.BAD_REQUEST);
-      }
-      currentReplyImages = replyImages;
+      imagesToKeep = reply.images.filter((image) => !updateFeedReplyDto.imagesToDelete.includes((image as any)._id.toString()));
     }
 
     const images = [];
@@ -356,9 +365,9 @@ export class FeedCommentsController {
       images.push({ image_path: storageLocation });
     }
 
-    if (files.length || updateFeedReplyDto.imagesToDelete) {
-      const feedCommentImages = images.concat(currentReplyImages);
-      Object.assign(updateFeedReplyDto, { images: updateFeedReplyDto.imagesToDelete ? feedCommentImages : images.concat(reply.images) });
+    if (newReplyImages || imagesToDelete) {
+      const feedReplyImages = images.concat(imagesToKeep);
+      Object.assign(updateFeedReplyDto, { images: updateFeedReplyDto.imagesToDelete ? feedReplyImages : images.concat(reply.images) });
     }
 
     const updatedReply = await this.feedCommentsService.updateFeedReply(params.feedReplyId, updateFeedReplyDto);

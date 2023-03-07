@@ -62,3 +62,51 @@ export async function deleteMovieUserStatus(id: string, category: string) {
   };
   return axios.delete(`${apiUrl}/api/v1/movies/${id}/lists/${category}`, { headers });
 }
+export async function createOrUpdateRating(id: string, rating: number) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.put(`${apiUrl}/api/v1/movies/${id}/rating`, { rating }, { headers });
+}
+export async function createOrUpdateGoreFactor(id: string, goreFactorRating: number) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.put(`${apiUrl}/api/v1/movies/${id}/gore-factor`, { goreFactorRating }, { headers });
+}
+export async function createOrUpdateWorthWatching(id: string, worthWatching: number) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.put(`${apiUrl}/api/v1/movies/${id}/worth-watching`, { worthWatching }, { headers });
+}
+export async function deleteRating(id: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.delete(`${apiUrl}/api/v1/movies/${id}/rating`, { headers });
+}
+export async function deleteGoreFactor(id: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.delete(`${apiUrl}/api/v1/movies/${id}/gore-factor`, { headers });
+}
+export async function deleteWorthWatching(id: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.delete(`${apiUrl}/api/v1/movies/${id}/worth-watching`, { headers });
+}

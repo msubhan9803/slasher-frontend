@@ -141,6 +141,8 @@ describe('All Notifications (e2e)', () => {
             feedPostId: {
               _id: feedPostData.id.toString(),
               userId: feedPostData.userId.toString(),
+              movieId: null,
+              postType: 1,
             },
             feedReplyId: allNotifications[0].feedReplyId.toString(),
             isRead: 0,
@@ -165,6 +167,8 @@ describe('All Notifications (e2e)', () => {
             feedPostId: {
               _id: feedPostData.id.toString(),
               userId: feedPostData.userId.toString(),
+              movieId: null,
+              postType: 1,
             },
             feedReplyId: allNotifications[1].feedReplyId.toString(),
             isRead: 0,
@@ -189,6 +193,8 @@ describe('All Notifications (e2e)', () => {
             feedPostId: {
               _id: feedPostData.id.toString(),
               userId: feedPostData.userId.toString(),
+              movieId: null,
+              postType: 1,
             },
             feedReplyId: allNotifications[2].feedReplyId.toString(),
             isRead: 0,
@@ -213,6 +219,8 @@ describe('All Notifications (e2e)', () => {
             feedPostId: {
               _id: feedPostData.id.toString(),
               userId: feedPostData.userId.toString(),
+              movieId: null,
+              postType: 1,
             },
             feedReplyId: allNotifications[3].feedReplyId.toString(),
             isRead: 0,
@@ -237,6 +245,8 @@ describe('All Notifications (e2e)', () => {
             feedPostId: {
               _id: feedPostData.id.toString(),
               userId: feedPostData.userId.toString(),
+              movieId: null,
+              postType: 1,
             },
             feedReplyId: allNotifications[4].feedReplyId.toString(),
             isRead: 0,

@@ -277,17 +277,17 @@ describe('FeedPostsService', () => {
       const feedPost = await feedPostsService.create(feedPostDetails);
       const feedPostData = await feedPostsService.findPostsByMovieId(movie.id, 20, true, feedPost.id);
       for (let i = 1; i < feedPostData.length; i += 1) {
-        expect(feedPostData[i].lastUpdateAt < feedPostData[i - 1].lastUpdateAt).toBe(true);
+        expect(feedPostData[i].createdAt < feedPostData[i - 1].createdAt).toBe(true);
         expect(feedPostData[i].likeCount).toBe(2);
       }
       expect(feedPostData).toHaveLength(10);
-      expect(feedPostData).not.toContain(feedPost.lastUpdateAt);
+      expect(feedPostData).not.toContain(feedPost.createdAt);
     });
 
     it('when earlier than post id is does not exist and active only is false then it returns the expected response', async () => {
       const feedPost = await feedPostsService.findPostsByMovieId(movie.id, 20, false);
       for (let i = 1; i < feedPost.length; i += 1) {
-        expect(feedPost[i].lastUpdateAt < feedPost[i - 1].lastUpdateAt).toBe(true);
+        expect(feedPost[i].createdAt < feedPost[i - 1].createdAt).toBe(true);
       }
       expect(feedPost).toHaveLength(20);
     });
@@ -295,7 +295,7 @@ describe('FeedPostsService', () => {
     it('when earlier than post id is does not exist but active only is true then it returns the expected response', async () => {
       const feedPost = await feedPostsService.findPostsByMovieId(movie.id, 20, true);
       for (let i = 1; i < feedPost.length; i += 1) {
-        expect(feedPost[i].lastUpdateAt < feedPost[i - 1].lastUpdateAt).toBe(true);
+        expect(feedPost[i].createdAt < feedPost[i - 1].createdAt).toBe(true);
       }
       expect(feedPost).toHaveLength(10);
     });

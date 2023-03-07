@@ -131,7 +131,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       for (let i = 1; i < response.body.length; i += 1) {
-        expect(response.body[i].lastUpdateAt < response.body[i - 1].lastUpdateAt).toBe(true);
+        expect(response.body[i].createdAt < response.body[i - 1].createdAt).toBe(true);
       }
       expect(response.body).toEqual(getMovieReviewsResponse);
     });
@@ -175,7 +175,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
           .send();
         expect(firstResponse.body).toHaveLength(3);
         for (let index = 1; index < firstResponse.body.length; index += 1) {
-          expect(firstResponse.body[index].lastUpdateAt < firstResponse.body[index - 1].lastUpdateAt).toBe(true);
+          expect(firstResponse.body[index].createdAt < firstResponse.body[index - 1].createdAt).toBe(true);
         }
 
         const secondResponse = await request(app.getHttpServer())
@@ -184,7 +184,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
           .send();
         expect(secondResponse.body).toHaveLength(2);
         for (let index = 1; index < secondResponse.body.length; index += 1) {
-          expect(secondResponse.body[index].lastUpdateAt < secondResponse.body[index - 1].lastUpdateAt).toBe(true);
+          expect(secondResponse.body[index].createdAt < secondResponse.body[index - 1].createdAt).toBe(true);
         }
       });
     });

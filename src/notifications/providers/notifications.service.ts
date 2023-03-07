@@ -62,7 +62,7 @@ export class NotificationsService {
         ],
       })
       .populate('senderId', 'userName _id profilePic')
-      .populate('feedPostId', '_id userId')
+      .populate('feedPostId', '_id userId postType movieId')
       .populate('rssFeedProviderId', '_id logo title')
       .sort({ createdAt: -1 })
       .limit(limit)
@@ -74,7 +74,7 @@ export class NotificationsService {
     return this.notificationModel
     .findById(id)
     .populate('senderId', 'userName _id profilePic')
-    .populate('feedPostId', '_id userId')
+    .populate('feedPostId', '_id userId postType movieId')
     .populate('rssFeedProviderId', '_id logo title')
     .exec();
   }

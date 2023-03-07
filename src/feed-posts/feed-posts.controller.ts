@@ -36,6 +36,7 @@ import { AllFeedPostQueryDto } from './dto/all-feed-posts-query.dto';
 import { MovieIdDto } from './dto/movie-id.dto';
 import { MovieUserStatusService } from '../movie-user-status/providers/movie-user-status.service';
 import { User } from '../schemas/user/user.schema';
+import { getPostType } from '../utils/post.utils';
 
 @Controller({ path: 'feed-posts', version: ['1'] })
 export class FeedPostsController {
@@ -158,9 +159,9 @@ export class FeedPostsController {
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-
+    const postType = getPostType(feedPost);
     if (
-      !feedPost.rssfeedProviderId
+      postType === PostType.User
       && user.id !== (feedPost.userId as any)._id.toString()
       && (feedPost.userId as any).profile_status !== ProfileVisibility.Public
     ) {
@@ -170,17 +171,33 @@ export class FeedPostsController {
       }
     }
 
-    if (!feedPost.rssfeedProviderId) {
+    if (postType !== PostType.News) {
       const block = await this.blocksService.blockExistsBetweenUsers((feedPost.userId as any)._id, user.id);
       if (block) {
         throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
       }
     }
-    return pick(
-      feedPost,
-      ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likedByUser',
-        'message'],
-    );
+
+    let reviewData;
+    if (postType === PostType.MovieReview) {
+      const movieUserStatusData = await this.movieUserStatusService.findMovieUserStatus(user.id, feedPost.movieId.toString());
+      if (movieUserStatusData) {
+        reviewData = {
+          rating: movieUserStatusData.rating,
+          goreFactorRating: movieUserStatusData.goreFactorRating,
+          worthWatching: movieUserStatusData.worthWatching,
+        };
+      }
+    }
+
+    return {
+      ...pick(
+        feedPost,
+        ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likedByUser',
+          'postType', 'title', 'spoilers', 'movieId', 'message'],
+      ),
+      reviewData,
+    };
   }
 
   @TransformImageUrls('$.images[*].image_path')
@@ -475,6 +492,16 @@ export class FeedPostsController {
       });
       return post;
     });
-    return posts;
+    return posts.map(
+      (post) => pick(
+        post,
+        [
+          '_id', 'message', 'images',
+          'userId', 'createdAt', 'likedByUser',
+          'likeCount', 'commentCount', 'reviewData',
+          'postType', 'title', 'spoilers', 'movieId',
+        ],
+      ),
+    );
   }
 }

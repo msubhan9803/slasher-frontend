@@ -116,7 +116,7 @@ export class FeedPostsService {
     const feedPosts = await this.feedPostModel
       .find({ $and: feedPostQuery })
       .populate('userId', 'userName _id profilePic')
-      .sort({ lastUpdateAt: -1 })
+      .sort({ createdAt: -1 })
       .limit(limit)
       .exec();
 
@@ -124,6 +124,8 @@ export class FeedPostsService {
     return JSON.parse(JSON.stringify(feedPosts)).map((post) => {
       // eslint-disable-next-line no-param-reassign
       post.likeCount = post.likes.length || 0;
+      // eslint-disable-next-line no-param-reassign
+      post.likedByUser = post.likes.includes(requestingContextUserId);
       return post;
     });
   }

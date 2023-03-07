@@ -54,17 +54,6 @@ function CreatePost() {
   const addPost = () => {
     /* eslint no-useless-escape: 0 */
     const postContentWithMentionReplacements = (postContent.replace(/\@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
-    // if (paramsType === 'group-post') {
-    //   const groupPostData = {
-    //     title: titleContent,
-    //     message: postContentWithMentionReplacements,
-    //     images: imageArray,
-    //     type: selectedPostType,
-    //     spoiler: containSpoiler,
-    //     groupId: paramsGroupId,
-    //   };
-    //   return groupPostData;
-    // }
     return createPost(postContentWithMentionReplacements, imageArray)
       .then(() => {
         setErrorMessage([]);

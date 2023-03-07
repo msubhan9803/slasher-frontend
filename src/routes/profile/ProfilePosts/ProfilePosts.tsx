@@ -76,14 +76,12 @@ function ProfilePosts({ user }: Props) {
         || posts.length === 0
       ) {
         setLoadingPosts(true);
-        /* eslint no-underscore-dangle: 0 */
         getProfilePosts(
           user._id,
           posts.length > 0 ? posts[posts.length - 1]._id : undefined,
         ).then((res) => {
           const newPosts = res.data.map((data: any) => (
             {
-              /* eslint no-underscore-dangle: 0 */
               _id: data._id,
               id: data._id,
               postDate: data.createdAt,

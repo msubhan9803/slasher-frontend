@@ -28,6 +28,7 @@ import usePubWiseAdSlots from './hooks/usePubWiseAdSlots';
 import { enableADs } from './constants';
 import SocialGroups from './routes/social-group/SocialGroups';
 import { enableDevFeatures } from './utils/configEnvironment';
+import ActivateAccount from './routes/activate-account/ActivateAccount';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -63,6 +64,7 @@ const routes: Record<string, TopLevelRoute> = {
   'app/verification-email-not-received': { wrapper: UnauthenticatedPageWrapper, component: VerificationEmailNotReceived },
   'app/registration/*': { wrapper: UnauthenticatedPageWrapper, component: Registration },
   'app/onboarding/*': { wrapper: UnauthenticatedPageWrapper, component: Onboarding, wrapperProps: { hideFooter: true } },
+  'app/activate-account': { wrapper: UnauthenticatedPageWrapper, component: ActivateAccount },
   'app/account-activated': { wrapper: UnauthenticatedPageWrapper, component: AccountActivated },
   'app/sign-in': { wrapper: UnauthenticatedPageWrapper, component: SignIn, wrapperProps: { hideTopLogo: true } },
 };

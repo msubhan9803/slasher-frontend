@@ -277,3 +277,13 @@ export async function getUserMoviesList(
   }
   return axios.get(`${apiUrl}/api/v1/users/${userId}/${name}${queryParameter}`, { headers });
 }
+
+export async function activateAccount(email: string, verificationToken: string) {
+  return axios.post(
+    `${apiUrl}/api/v1/users/activate-account`,
+    {
+      email,
+      verification_token: verificationToken,
+    },
+  );
+}

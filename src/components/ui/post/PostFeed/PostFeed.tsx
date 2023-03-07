@@ -9,6 +9,7 @@ import linkifyHtml from 'linkify-html';
 import 'swiper/swiper-bundle.css';
 import Cookies from 'js-cookie';
 import InfiniteScroll from 'react-infinite-scroller';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import PostFooter from './PostFooter';
 import { CommentValue, Post, ReplyValue } from '../../../../types';
 import LikeShareModal from '../../LikeShareModal';
@@ -19,14 +20,16 @@ import 'linkify-plugin-mention';
 import { PopoverClickProps } from '../../CustomPopover';
 import PubWiseAd from '../../PubWiseAd';
 import {
-  decryptMessage,
   cleanExternalHtmlContent,
+  decryptMessage,
   escapeHtmlSpecialCharacters,
   newLineToBr,
 } from '../../../../utils/text-utils';
 import { MentionListProps } from '../../MessageTextarea';
 import { MD_MEDIA_BREAKPOINT } from '../../../../constants';
 import RoundButton from '../../RoundButton';
+import CustomRatingText from '../../CustomRatingText';
+import CustomWortItText from '../../CustomWortItText';
 import { useAppSelector } from '../../../../redux/hooks';
 import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
 import LoadingIndicator from '../../LoadingIndicator';
@@ -63,12 +66,13 @@ interface Props {
   updateState?: boolean;
   setUpdateState?: (value: boolean) => void;
   onSelect?: (value: string) => void;
+  postType?: string,
   handleSearch?: (val: string) => void;
   mentionList?: MentionListProps[];
   commentImages?: string[];
   setCommentImages?: (val: any) => void;
   commentError?: string[];
-  postType?: string;
+  setShowReviewDetail?: (value: boolean) => void;
 }
 const StyledPostFeed = styled.div`
     .post-separator {
@@ -82,6 +86,7 @@ const StyledPostFeed = styled.div`
       }
     }
 `;
+
 const StyleSpoilerButton = styled(RoundButton)`
   width: 150px;
   height: 42px;
@@ -95,6 +100,7 @@ function PostFeed({
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
   addUpdateComment, updateState, setUpdateState, isSinglePagePost, onSelect,
   handleSearch, mentionList, commentImages, setCommentImages, commentError, postType,
+  setShowReviewDetail,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -151,7 +157,7 @@ function PostFeed({
   const renderPostContent = (post: any) => {
     let { content } = post;
     let showReadMoreLink = false;
-    if (!detailPage && content.length >= READ_MORE_TEXT_LIMIT) {
+    if (!detailPage && content?.length >= READ_MORE_TEXT_LIMIT) {
       let reducedContentLength = post.content.substring(0, READ_MORE_TEXT_LIMIT).lastIndexOf(' ');
       if (reducedContentLength === -1) {
         // This means that no spaces were found anywhere in the post content.  Since posts can't be
@@ -164,50 +170,87 @@ function PostFeed({
       showReadMoreLink = true;
     }
     return (
-      post.containsSpoilers
-        ? (
-          <div className="d-flex flex-column align-items-center p-5" style={{ backgroundColor: '#1B1B1B' }}>
-            <h2 className="text-primary fw-bold">Warning</h2>
-            <p className="fs-3">Contains spoilers</p>
-            <StyleSpoilerButton variant="filter" className="fs-5">
-              Click to view
-            </StyleSpoilerButton>
-          </div>
-        )
-        : (
-          <div>
-            {/* eslint-disable-next-line react/no-danger */}
-            <div dangerouslySetInnerHTML={
-              {
-                __html: escapeHtml
-                  ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content))))
-                  : cleanExternalHtmlContent(content),
-              }
-            }
+      <div>
+        {postType === 'review' && !post.spoiler && (
+          <div className="d-flex align-items-center">
+            <div className="px-3 py-2 bg-dark rounded-pill d-flex align-items-center">
+              <CustomRatingText
+                rating={post.rating}
+                icon={solid('star')}
+                ratingType="star"
+                customWidth="16.77px"
+                customHeight="16px"
+              />
+            </div>
+            <div className="align-items-center bg-dark d-flex mx-3 px-3 py-2 rounded-pill">
+              <CustomRatingText
+                rating={post.goreFactor}
+                icon={solid('burst')}
+                ratingType="burst"
+                customWidth="15.14px"
+                customHeight="16px"
+              />
+            </div>
+            <CustomWortItText
+              divClass="align-items-center py-2 px-3 bg-dark rounded-pill"
+              textClass="fs-4"
+              customCircleWidth="16px"
+              customCircleHeight="16px"
+              customIconWidth="8.53px"
+              customIconHeight="8.53px"
+              worthIt={post.worthWatching}
             />
-            {
-              post.hashTag?.map((hashtag: string) => (
-                <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
-                  #
-                  {hashtag}
-                </span>
-              ))
-            }
-            {
-              !detailPage
-              && showReadMoreLink
-              && (
-                <>
-                  {' '}
-                  <Link to={generateReadMoreLink(post)} className="text-decoration-none text-primary">
-                    ...read more
-                  </Link>
-                </>
-              )
-            }
           </div>
-        )
+        )}
+        {postType === 'review' && (
+          <h1 className="h2 my-3">
+            {post.contentHeading}
+          </h1>
+        )}
+        {post.spoiler
+          ? (
+            <div className="d-flex flex-column align-items-center p-5" style={{ backgroundColor: '#1B1B1B' }}>
+              <h2 className="text-primary fw-bold">Warning</h2>
+              <p className="fs-3">Contains spoilers</p>
+              <StyleSpoilerButton variant="filter" className="fs-5">
+                Click to view
+              </StyleSpoilerButton>
+            </div>
+          ) : (
+            <span>
+              {/* eslint-disable-next-line react/no-danger */}
+              <div dangerouslySetInnerHTML={
+                {
+                  __html: escapeHtml && !post?.spoiler
+                    ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content))))
+                    : cleanExternalHtmlContent(content),
+                }
+              }
+              />
+              {
+                post.hashTag?.map((hashtag: string) => (
+                  <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
+                    #
+                    {hashtag}
+                  </span>
+                ))
+              }
+              {
+                !detailPage
+                && showReadMoreLink
+                && (
+                  <>
+                    {' '}
+                    <Link to={generateReadMoreLink(post)} className="text-decoration-none text-primary">
+                      ...read more
+                    </Link>
+                  </>
+                )
+              }
+            </span>
+          )}
 
+      </div>
     );
   };
 
@@ -282,7 +325,6 @@ function PostFeed({
                         imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
                       }))
                     }
-                    /* eslint no-underscore-dangle: 0 */
                     initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
                     onSelect={onSelect}
                   />
@@ -300,6 +342,7 @@ function PostFeed({
                       commentCount={post.commentCount}
                       handleLikeModal={openDialogue}
                       postType={postType}
+                      setShowReviewDetail={setShowReviewDetail}
                     />
                   </Col>
                 </Row>
@@ -403,11 +446,12 @@ PostFeed.defaultProps = {
   updateState: false,
   setUpdateState: undefined,
   onSelect: undefined,
+  postType: '',
   handleSearch: undefined,
   mentionList: null,
   commentError: undefined,
   commentImages: [],
   setCommentImages: () => { },
-  postType: '',
+  setShowReviewDetail: undefined,
 };
 export default PostFeed;

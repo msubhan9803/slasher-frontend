@@ -164,7 +164,6 @@ function ProfileFriendRequest({ user }: Props) {
           >
             <Row className="mt-4" ref={friendRequestContainerElementRef}>
               {friendsReqList.map((friend: FriendProps) => (
-                /* eslint no-underscore-dangle: 0 */
                 <Col md={4} lg={6} xl={4} key={friend._id}>
                   <FriendsProfileCard
                     friend={friend}

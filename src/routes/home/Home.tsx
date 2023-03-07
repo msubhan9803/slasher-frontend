@@ -91,7 +91,6 @@ function Home() {
             if (data.userId) {
               // Regular post
               return {
-                /* eslint no-underscore-dangle: 0 */
                 _id: data._id,
                 id: data._id,
                 postDate: data.createdAt,
@@ -159,7 +158,6 @@ function Home() {
         if (data.userId) {
           // Regular post
           return {
-            /* eslint no-underscore-dangle: 0 */
             _id: data._id,
             id: data._id,
             postDate: data.createdAt,

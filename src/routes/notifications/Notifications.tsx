@@ -14,6 +14,7 @@ import NotificationsRIghtSideNav from './NotificationsRIghtSideNav';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import { useAppSelector, useAppDispatch } from '../../redux/hooks';
 import { setScrollPosition } from '../../redux/slices/scrollPositionSlice';
+import { setUserInitialData } from '../../redux/slices/userSlice';
 
 function Notifications() {
   const popoverOption = ['Settings'];
@@ -28,6 +29,8 @@ function Notifications() {
     scrollPosition.pathname === location.pathname
       ? scrollPosition?.data : [],
   );
+  const userData = useAppSelector((state) => state.user);
+
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
       if (scrollPosition === null
@@ -66,10 +69,20 @@ function Notifications() {
   }, [requestAdditionalPosts, loadingPosts, scrollPosition, notificationData, dispatch]);
 
   const persistScrollPosition = (id: string) => {
+    const updateNotification = notificationData.map((notify: any) => {
+      if (notify._id === id) {
+        return { ...notify, isRead: 1 };
+      }
+      return notify;
+    });
+    const notifyCount = userData.unreadNotificationCount > 0 ? userData.unreadNotificationCount - 1 : 0;
+    dispatch(setUserInitialData(
+      { ...userData, unreadNotificationCount: notifyCount },
+    ));
     const positionData = {
       pathname: location.pathname,
       position: window.pageYOffset,
-      data: notificationData,
+      data: updateNotification,
       positionElementId: id,
     };
     dispatch(setScrollPosition(positionData));
@@ -99,6 +112,9 @@ function Notifications() {
               setNotificationData([
                 ...notification,
               ]);
+              dispatch(setUserInitialData(
+                { ...userData, unreadNotificationCount: 0 },
+              ));
             }).catch(
               (error) => {
                 setNoMoreData(true);

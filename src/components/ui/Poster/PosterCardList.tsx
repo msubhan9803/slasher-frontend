@@ -43,7 +43,6 @@ function PosterCardList({ dataList, pubWiseAdUnitDivId, onSelect }: PosterCardPr
       {dataList && dataList.length > 0 && dataList.map((listDetail: CardListProps, i, arr) => {
         const show = checkAdsPosterCardList(bp, i, arr);
         return (
-          /* eslint no-underscore-dangle: 0 */
           <React.Fragment key={listDetail._id}>
             <Col xs={4} md={3} lg={4} xl={3} key={listDetail._id}>
               <Link

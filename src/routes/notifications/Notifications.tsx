@@ -44,7 +44,6 @@ function Notifications() {
       ) {
         setLoadingPosts(true);
         getNotifications(
-          /* eslint no-underscore-dangle: 0 */
           notificationData.length > 1 ? notificationData[notificationData.length - 1]._id : undefined,
         ).then((res) => {
           const notification = res.data;

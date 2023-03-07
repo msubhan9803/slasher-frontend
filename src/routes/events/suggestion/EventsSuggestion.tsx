@@ -122,7 +122,6 @@ function EventSuggestion() {
               <option value="" disabled>Event Category</option>
               {optionLoading ? <option value="" disabled>Loading event categories…</option>
                 : options.map((option: Option) => (
-                  /* eslint no-underscore-dangle: 0 */
                   <option key={option._id} value={option._id}>{option.event_name}</option>
                 ))}
             </Form.Select>

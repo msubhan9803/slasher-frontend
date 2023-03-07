@@ -48,7 +48,6 @@ function NewsPostData({ partnerId }: Props) {
           postData.length > 1 ? postData[postData.length - 1]._id : undefined,
         ).then((res) => {
           const newPosts = res.data.map((data: any) => ({
-            /* eslint no-underscore-dangle: 0 */
             _id: data._id,
             id: data._id,
             postDate: data.createdAt,

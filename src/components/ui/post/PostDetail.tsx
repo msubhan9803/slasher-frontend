@@ -326,7 +326,6 @@ function PostDetail({ user, postType }: Props) {
           // Regular post
           post = {
             ...res.data,
-            /* eslint no-underscore-dangle: 0 */
             _id: res.data._id,
             id: res.data._id,
             postDate: res.data.createdAt,

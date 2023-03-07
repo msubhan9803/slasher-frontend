@@ -31,10 +31,10 @@ describe('FeedLikesService', () => {
   const feedCommentsAndReplyObject = {
     images: [
       {
-        image_path: 'https://picsum.photos/id/237/200/300',
+        image_path: '/feed/feed_sample1.jpg',
       },
       {
-        image_path: 'https://picsum.photos/seed/picsum/200/300',
+        image_path: '/feed/feed_sample2.jpg',
       },
     ],
     message: 'Hello Test Message',

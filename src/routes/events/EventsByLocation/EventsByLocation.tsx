@@ -1,8 +1,11 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect, useMemo, useState,
+} from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { LatLngLiteral } from 'leaflet';
 import { DateTime } from 'luxon';
+import _ from 'lodash';
 import EventHeader from '../EventHeader';
 import EventsPosterCard from '../EventsPosterCard';
 import EventPoster from '../../../images/events-poster.png';
@@ -41,6 +44,24 @@ function EventsByLocation() {
   const [center, setCenter] = useState<LatLngLiteral>(EVENTS_MAP_CENTER);
   const [events, setEvents] = useState<EventType[]>([]);
   const bp = useBootstrapBreakpointName();
+  const onCenterChangeDebounced = useMemo(() => _.debounce(
+    (newCenter: LatLngLiteral) => setCenter(
+      { lat: Number(newCenter.lat), lng: Number(newCenter.lng) },
+    ),
+    500,
+  ), [setCenter]);
+  const markerLocations = useMemo(() => events.map((evt) => {
+    const [lat, lng] = evt.locationPoint.coordinates;
+    return {
+      id: evt.id,
+      latLng: { lat, lng },
+      dateRange: evt.dateRange,
+      address: evt.location,
+      name: evt.name,
+      linkText: 'View event',
+      linkAddress: `/app/events/${evt.id}`,
+    };
+  }), [events]);
 
   useEffect(() => {
     const maxDistanceMiles = 300;
@@ -63,20 +84,10 @@ function EventsByLocation() {
       <div className="mt-3 bg-dark bg-mobile-transparent p-4 rounded">
         <MapComponent
           defaultCenter={center}
-          onCenterChange={(newCenter) => setCenter(newCenter)}
+          // eslint-disable-next-line max-len
+          onCenterChange={onCenterChangeDebounced}
           defaultZoomLevel={10}
-          markerLocations={events.map((evt) => {
-            const [lat, lng] = evt.locationPoint.coordinates;
-            return {
-              id: evt.id,
-              latLng: { lat, lng },
-              dateRange: evt.dateRange,
-              address: evt.location,
-              name: evt.name,
-              linkText: 'View event',
-              linkAddress: `/app/events/${evt.id}`,
-            };
-          })}
+          markerLocations={markerLocations}
         />
         <p
           className="fs-3 text-light mt-4 mb-3 text-center"

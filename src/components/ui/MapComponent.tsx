@@ -59,6 +59,13 @@ const customMarkerIcon = new Leaflet.DivIcon({
   html: iconHTML,
   iconAnchor: [12, 5], // [left/right, top/bottom]
 });
+const userIconHTML = ReactDOMServer.renderToString(
+  <FontAwesomeIcon icon={solid('location-crosshairs')} size="3x" className="text-secondary" />,
+);
+const userMarkerIcon = new Leaflet.DivIcon({
+  html: userIconHTML,
+  iconAnchor: [12, 5], // [left/right, top/bottom]
+});
 
 interface Props {
   defaultCenter: LatLngLiteral,
@@ -103,7 +110,12 @@ function MapComponent({
 
   useEffect(() => {
     if (!featureGroupRef.current || !mapRef.current) { return; }
-    mapRef.current.fitBounds(featureGroupRef.current.getBounds());
+    if (!featureGroupRef.current.getBounds().isValid()) { return; }
+    if (markerLocations.length === 0) { return; }
+
+    // Animations Choices:
+    // 1. Instant: map.fitBounds()`, 2. Animated: `map.flyToBounds()`
+    mapRef.current.flyToBounds(featureGroupRef.current.getBounds());
   }, [markerLocations]);
 
   const lookUpLocation = async (locationString: string) => {
@@ -186,7 +198,6 @@ function MapComponent({
         key={`${center.lat}-${center.lng}`}
         center={[center.lat, center.lng]}
         zoom={defaultZoomLevel}
-        bounds={markerLocations.map((ml) => [ml.latLng.lat, ml.latLng.lng])}
         ref={mapRef}
       >
         <TileLayer
@@ -218,6 +229,10 @@ function MapComponent({
               </Popup>
             </Marker>
           ))}
+          <Marker
+            position={center}
+            icon={userMarkerIcon}
+          />
         </FeatureGroup>
 
         {/* For development only */}

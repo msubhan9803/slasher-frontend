@@ -41,14 +41,22 @@ function PubWiseAdUnit({ id, style, className }: PubWiseAdTypes) {
   return <div style={style} className={className} id={id} />;
 }
 
-const PlaceHolderAd = styled.div`
+const PlaceHolderAdUnit = styled.div`
   height: 250px;
   width: 300px;
   background-color: #272727;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 `;
+
+function PlaceHolderAd({ className, style }: any) {
+  return (
+    <div>
+      <PlaceHolderAdUnit className={`d-flex justify-content-center align-items-center mx-auto ${className}`} style={style}>
+        Slasher Ad
+      </PlaceHolderAdUnit>
+      <h2 className="text-center my-2 fs-6 fw-normal">Sponsored</h2>
+    </div>
+  );
+}
 
 function PubWiseAd({
   id, style, className, autoSequencer,
@@ -83,7 +91,7 @@ function PubWiseAd({
     style, className, autoSequencer, id: autoSequencer ? sequencedId : id,
   };
 
-  if (!enableADs) { return <PlaceHolderAd className={`${enableADs} mx-auto my-4`} style={style}>Slasher Ad</PlaceHolderAd>; }
+  if (!enableADs) { return <PlaceHolderAd {...({ className, style })} />; }
   if (!isSlotsDefined) { return null; }
 
   if (!autoSequencer) {

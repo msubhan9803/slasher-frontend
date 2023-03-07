@@ -176,7 +176,7 @@ function Notifications() {
   };
 
   const onNotificationReceivedHandler = useCallback((payload: any) => {
-    const notification = {
+    const notification : Notification = {
       _id: payload.notification._id,
       createdAt: payload.notification.createdAt,
       isRead: payload.notification.isRead,

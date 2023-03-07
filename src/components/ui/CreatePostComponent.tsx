@@ -83,20 +83,22 @@ function CreatePostComponent({
   };
 
   const handleFileChange = (postImage: ChangeEvent<HTMLInputElement>) => {
-    if (!postImage.target) {
+    const postImageEvent = postImage;
+    if (!postImageEvent.target) {
       return;
     }
-    if (postImage.target.name === 'post' && postImage.target && postImage.target.files) {
+    if (postImageEvent.target.name === 'post' && postImageEvent.target && postImageEvent.target.files) {
       const uploadedPostList = [...uploadPost] as any;
       const imageArrayList = [...imageArray];
-      const fileList = postImage.target.files;
+      const fileList = postImageEvent.target.files;
       for (let list = 0; list < fileList.length; list += 1) {
         if (uploadedPostList.length < 10) {
-          const image = postImage.target.files[list];
+          const image = postImageEvent.target.files[list];
           uploadedPostList.push(image);
-          imageArrayList.push(postImage.target.files[list]);
+          imageArrayList.push(postImageEvent.target.files[list]);
         }
       }
+      postImageEvent.target.value = '';
       setUploadPost(uploadedPostList);
       setImageArray(imageArrayList);
     }

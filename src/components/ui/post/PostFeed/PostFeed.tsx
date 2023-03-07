@@ -69,6 +69,9 @@ interface Props {
   postType?: string,
   handleSearch?: (val: string) => void;
   mentionList?: MentionListProps[];
+  commentImages?: string[];
+  setCommentImages?: (val: any) => void;
+  commentError?: string[];
   setShowReviewDetail?: (value: boolean) => void;
 }
 const StyledPostFeed = styled.div`
@@ -96,7 +99,8 @@ function PostFeed({
   noMoreData, isEdit, loadingPosts, onLikeClick, newsPostPopoverOptions,
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
   addUpdateComment, updateState, setUpdateState, isSinglePagePost, onSelect,
-  postType, handleSearch, mentionList, setShowReviewDetail,
+  handleSearch, mentionList, commentImages, setCommentImages, commentError, postType,
+  setShowReviewDetail,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -105,7 +109,7 @@ function PostFeed({
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
   const location = useLocation();
-  const scrollPosition: any = useAppSelector((state) => state.scrollPosition);
+  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const [clickedPostId, setClickedPostId] = useState('');
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
@@ -303,6 +307,7 @@ function PostFeed({
                   userId={post.userId}
                   rssfeedProviderId={post.rssfeedProviderId}
                   onSelect={onSelect}
+                  postImages={post.images}
                   postType={postType}
                 />
               </Card.Header>
@@ -379,6 +384,9 @@ function PostFeed({
                       setUpdateState={setUpdateState}
                       handleSearch={handleSearch}
                       mentionList={mentionList}
+                      commentImages={commentImages}
+                      setCommentImages={setCommentImages}
+                      commentError={commentError}
                     />
                   </InfiniteScroll>
                   {loadingPosts && <LoadingIndicator />}
@@ -441,6 +449,9 @@ PostFeed.defaultProps = {
   postType: '',
   handleSearch: undefined,
   mentionList: null,
+  commentError: undefined,
+  commentImages: [],
+  setCommentImages: () => { },
   setShowReviewDetail: undefined,
 };
 export default PostFeed;

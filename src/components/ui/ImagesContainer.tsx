@@ -38,7 +38,9 @@ function ImagesContainer({
       className={containerClass}
     >
       <Image
-        src={URL.createObjectURL(image)}
+        src={
+          (image && image.image_path) ? image.image_path : URL.createObjectURL(image)
+        }
         alt={alt}
         className="w-100 h-100 img-fluid rounded"
       />

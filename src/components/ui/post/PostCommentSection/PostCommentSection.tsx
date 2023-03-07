@@ -44,6 +44,9 @@ function PostCommentSection({
   setUpdateState,
   handleSearch,
   mentionList,
+  commentImages,
+  setCommentImages,
+  commentError,
 }: any) {
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [show, setShow] = useState<boolean>(false);
@@ -60,7 +63,8 @@ function PostCommentSection({
   const [selectedReplyCommentId, setSelectedReplyCommentId] = useState<string>('');
   const [replyUserName, setReplyUserName] = useState<string>('');
   const [selectedReplyUserID, setSelectedReplyUserID] = useState<string>('');
-  const [editContent, setEditContent] = useState<string>();
+  const [editContent, setEditContent] = useState<any>('');
+  const [deleteImageIds, setDeleteImageIds] = useState<any>([]);
   const userData = useSelector((state: any) => state.user);
   const [commentReplyUserId, setCommentReplyUserId] = useState<string>('');
   const [searchParams] = useSearchParams();
@@ -114,7 +118,12 @@ function PostCommentSection({
 
   useEffect(() => {
     handleSeeCompleteList(selectedReplyCommentId, replyUserName, selectedReplyId, scrollId);
-  }, [selectedReplyCommentId, replyUserName, scrollId, selectedReplyId, isReply,
+  }, [
+    selectedReplyCommentId,
+    replyUserName,
+    scrollId,
+    selectedReplyId,
+    isReply,
     handleSeeCompleteList,
   ]);
 
@@ -234,6 +243,8 @@ function PostCommentSection({
   };
 
   const handlePopover = (value: string, popoverData: PopoverClickProps) => {
+    setCommentImages(popoverData.postImages);
+    setDeleteImageIds([]);
     setCommentID(popoverData.id);
     setCommentReplyID('');
     setEditContent(popoverData.content);
@@ -252,6 +263,8 @@ function PostCommentSection({
   };
 
   const handleReplyPopover = (value: string, popoverData: PopoverClickProps) => {
+    setCommentImages(popoverData.postImages);
+    setDeleteImageIds([]);
     setCommentReplyID(popoverData.id);
     setCommentID('');
     setEditContent(popoverData.content);
@@ -601,8 +614,11 @@ function PostCommentSection({
             isReply={!commentID}
             addUpdateComment={addUpdateComment}
             addUpdateReply={addUpdateReply}
-            handleSearch={handleSearch}
-            mentionList={mentionList}
+            deleteImageIds={deleteImageIds}
+            setDeleteImageIds={setDeleteImageIds}
+            postImages={commentImages}
+            setPostImages={setCommentImages}
+            commentError={commentError}
           />
         )
       }

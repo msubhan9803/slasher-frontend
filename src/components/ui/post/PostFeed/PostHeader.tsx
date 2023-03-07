@@ -23,6 +23,7 @@ interface PostHeaderProps {
   userId?: string;
   rssfeedProviderId?: string;
   onSelect?: (value: string) => void;
+  postImages?: string[];
   postType?: string;
 }
 interface StyledSavedProps {
@@ -37,7 +38,7 @@ const StyledSaveButton = styled(Button) <StyledSavedProps>`
 `;
 function PostHeader({
   id, userName, postDate, profileImage, popoverOptions, onPopoverClick, detailPage,
-  content, userId, rssfeedProviderId, onSelect, postType,
+  content, userId, rssfeedProviderId, onSelect, postImages, postType,
 }: PostHeaderProps) {
   const [notificationOn, setNotificationOn] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -137,6 +138,7 @@ function PostHeader({
             content={content}
             id={id}
             userId={userId}
+            postImages={postImages}
           />
         </div>
       </Col>
@@ -152,6 +154,7 @@ PostHeader.defaultProps = {
   onPopoverClick: undefined,
   popoverOptions: null,
   onSelect: undefined,
+  postImages: [],
   postType: '',
 };
 

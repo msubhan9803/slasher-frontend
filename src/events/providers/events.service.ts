@@ -109,7 +109,7 @@ export class EventService {
     }
 
     const maxDistanceMetres = miles * 1609.344;
-    return this.eventModel.aggregate([
+    const results = await this.eventModel.aggregate([
       {
         $geoNear: {
           near: {
@@ -124,5 +124,6 @@ export class EventService {
       },
       { $match: query },
     ]);
+    return results;
   }
 }

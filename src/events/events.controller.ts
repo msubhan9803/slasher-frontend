@@ -146,7 +146,7 @@ export class EventsController {
         event,
         [
           '_id', 'images', 'startDate', 'endDate', 'event_type', 'city', 'state', 'address',
-          'country', 'location', 'distance',
+          'country', 'location', 'distance', 'name',
         ],
       ),
     );

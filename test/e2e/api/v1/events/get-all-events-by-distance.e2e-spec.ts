@@ -19,9 +19,7 @@ import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-se
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 
-// TODO-SAHIL: URGENT: Please uncomment these tests, but this test causes jest process termination.
-// eslint-disable-next-line jest/no-disabled-tests
-describe.skip('Events all by distance / (e2e)', () => {
+describe('Events all by distance / (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let eventService: EventService;
@@ -121,6 +119,7 @@ describe.skip('Events all by distance / (e2e)', () => {
               'http://localhost:4444/placeholders/default_user_icon.png',
               'http://localhost:4444/placeholders/default_user_icon.png',
             ],
+            name: 'Event name 1',
             startDate: expect.any(String),
             endDate: expect.any(String),
             event_type: activeEventCategory._id.toString(),

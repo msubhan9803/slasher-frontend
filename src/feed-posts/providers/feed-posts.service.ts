@@ -331,4 +331,13 @@ export class FeedPostsService {
 
     return likeUsersForPost;
   }
+
+  async findFeedPost(userId: string, movieId: string) {
+    const feedPost = await this.feedPostModel
+    .findOne({
+      $and: [{ userId: new mongoose.Types.ObjectId(userId) }, { movieId: new mongoose.Types.ObjectId(movieId) }],
+    })
+    .exec();
+    return feedPost;
+  }
 }

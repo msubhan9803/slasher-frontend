@@ -12,6 +12,8 @@ import { BlocksService } from '../blocks/providers/blocks.service';
 import { BlockAndUnblock, BlockAndUnblockSchema } from '../schemas/blockAndUnblock/blockAndUnblock.schema';
 import { FriendsModule } from '../friends/friends.module';
 import { BlocksModule } from '../blocks/blocks.module';
+//TO-DO: remove this lint disable
+// eslint-disable-next-line
 import { MoviesModule } from '../movies/movies.module';
 import { MovieUserStatusModule } from '../movie-user-status/movie.user.status.module';
 

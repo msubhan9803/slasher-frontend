@@ -809,4 +809,23 @@ describe('FeedPostsService', () => {
       });
     });
   });
+
+  describe('#findFeedPost', () => {
+    beforeEach(async () => {
+      // Created post is associated with the `activeUser`
+      const feedPostData = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: activeUser.id,
+          movieId: movie.id,
+        }),
+      );
+      await feedPostsService.findById(feedPostData.id, false);
+    });
+
+    it('successfully find feed post details', async () => {
+      const post = await feedPostsService.findFeedPost(activeUser.id, movie.id);
+      expect(post.movieId.toString()).toEqual(movie.id);
+      expect(post.userId.toString()).toEqual(activeUser.id);
+    });
+  });
 });

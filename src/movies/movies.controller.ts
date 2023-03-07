@@ -22,6 +22,7 @@ import { CreateOrUpdateWorthWatchingDto } from './dto/create-or-update-worth-wat
 import { MovieUserStatusService } from '../movie-user-status/providers/movie-user-status.service';
 import { MovieUserStatusIdDto } from '../movie-user-status/dto/movie-user-status-id.dto';
 import { MovieUserStatus } from '../schemas/movieUserStatus/movieUserStatus.schema';
+import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 
 @Controller({ path: 'movies', version: ['1'] })
 export class MoviesController {
@@ -33,6 +34,7 @@ export class MoviesController {
   }
 
   constructor(
+    private feedPostsService: FeedPostsService,
     private readonly moviesService: MoviesService,
     private readonly movieUserStatusService: MovieUserStatusService,
     private configService: ConfigService,
@@ -71,9 +73,17 @@ export class MoviesController {
     if (movie.logo === null) {
       movie.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
     }
+
+    let reviewPostId;
+    const post = await this.feedPostsService.findFeedPost(user.id, movie._id.toString());
+    if (post) {
+      reviewPostId = { reviewPostId: post.id };
+    }
     type UserData = Partial<MovieUserStatus>;
     // assign default values for simplistic usage in client side
-    let userData: UserData = { rating: 0, goreFactorRating: 0, worthWatching: 0 };
+    let userData: UserData = {
+      rating: 0, goreFactorRating: 0, worthWatching: 0, ...reviewPostId,
+    };
 
     let movieUserStatus: any = await this.moviesService.getUserMovieStatusRatings(params.id, user.id);
     if (movieUserStatus) {

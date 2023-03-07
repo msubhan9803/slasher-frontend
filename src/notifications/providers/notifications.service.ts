@@ -71,7 +71,12 @@ export class NotificationsService {
   }
 
   async findById(id: string): Promise<NotificationDocument> {
-    return this.notificationModel.findById(id).exec();
+    return this.notificationModel
+    .findById(id)
+    .populate('senderId', 'userName _id profilePic')
+    .populate('feedPostId', '_id userId')
+    .populate('rssFeedProviderId', '_id logo title')
+    .exec();
   }
 
   async update(id: string, notificationData: Partial<NotificationDocument>): Promise<NotificationDocument> {

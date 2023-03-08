@@ -141,6 +141,8 @@ export class FeedPostsController {
     return {
       _id: createFeedPost.id,
       message: createFeedPost.message,
+      title: createFeedPost.title,
+      spoilers: createFeedPost.spoilers,
       userId: createFeedPost.userId,
       images: createFeedPost.images,
       postType: createFeedPostsDto.postType,
@@ -335,6 +337,8 @@ export class FeedPostsController {
       message: updatedFeedPost.message,
       userId: updatedFeedPost.userId,
       images: updatedFeedPost.images,
+      title: updatedFeedPost.title,
+      spoilers: updatedFeedPost.spoilers,
     };
   }
 

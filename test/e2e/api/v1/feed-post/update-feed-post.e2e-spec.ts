@@ -114,6 +114,8 @@ describe('Update Feed Post (e2e)', () => {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           },
         ],
+        spoilers: false,
+        title: null,
       });
       expect(feedPostDetails.lastUpdateAt > postBeforeUpdate.lastUpdateAt).toBe(true);
     });
@@ -214,6 +216,8 @@ describe('Update Feed Post (e2e)', () => {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
           ],
+          spoilers: false,
+          title: null,
         });
         expect(feedPostDetails.images).toHaveLength(3);
       }, [{ extension: 'png' }, { extension: 'png' }]);
@@ -254,6 +258,8 @@ describe('Update Feed Post (e2e)', () => {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
           ],
+          spoilers: false,
+          title: null,
         });
         expect(feedPostDetails.images).toHaveLength(4);
       }, [{ extension: 'png' }, { extension: 'png' }]);
@@ -280,6 +286,8 @@ describe('Update Feed Post (e2e)', () => {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           },
         ],
+        spoilers: false,
+        title: null,
       });
       expect(feedPostDetails.images).toHaveLength(1);
     });

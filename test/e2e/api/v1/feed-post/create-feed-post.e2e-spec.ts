@@ -97,6 +97,8 @@ describe('Feed-Post / Post File (e2e)', () => {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           message: 'hello test user',
           postType: PostType.User,
+          spoilers: false,
+          title: null,
           userId: activeUser._id.toString(),
           images: [
             {
@@ -161,6 +163,8 @@ describe('Feed-Post / Post File (e2e)', () => {
         postType: PostType.User,
         userId: activeUser._id.toString(),
         images: [],
+        spoilers: false,
+        title: null,
       });
     });
 

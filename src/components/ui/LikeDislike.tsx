@@ -5,13 +5,13 @@ import styled from 'styled-components';
 import RoundButton from './RoundButton';
 
 const StyledOnLikedIcon = styled(RoundButton)`
-  color: #00FF0A;
-  border: 1px solid #00FF0A;
+  color: var(--bs-success);
+  border: 1px solid var(--bs-success);
   width: 1.875rem;
   height: 1.875rem;
   &:hover {
-    color: #00FF0A;
-    border: 1px solid #00FF0A;
+    color: var(--bs-success);
+    border: 1px solid var(--bs-success);
   }  
   svg {
     margin-left: 0.125rem;
@@ -19,12 +19,12 @@ const StyledOnLikedIcon = styled(RoundButton)`
   }
 `;
 const StyledLikeIcon = styled(RoundButton)`
-  color: #00FF0A;
+  color: var(--bs-success);
   border: 1px solid #3A3B46;
   width: 1.875rem;
   height: 1.875rem;
   &:hover {
-    color: #00FF0A;
+    color: var(--bs-success);
     border: 1px solid #3A3B46;
   }
   svg {
@@ -33,27 +33,27 @@ const StyledLikeIcon = styled(RoundButton)`
   }
 `;
 const StyledOnDisLikeIcon = styled(RoundButton)`
-  color: #FF1800;
-  border: 1px solid #FF1800;
+  color: var(--bs-primary);
+  border: 1px solid var(--bs-primary);
   transform: rotateY(180deg);
   width: 1.875rem;
   height: 1.875rem;
   &:hover {
-    color: #FF1800;
-    border: 1px solid #FF1800;
+    color: var(--bs-primary);
+    border: 1px solid var(--bs-primary);
   } 
   svg {
     margin-left: -1px;
   }
 `;
 const StyledDisLikeIcon = styled(RoundButton)`
-  color: #FF1800;
+  color: var(--bs-primary);
   border: 1px solid #3A3B46;
   transform: rotateY(180deg);
   width: 1.875rem;
   height: 1.875rem;
   &:hover {
-    color: #FF1800;
+    color: var(--bs-primary);
     border: 1px solid #3A3B46;
   } 
   svg {

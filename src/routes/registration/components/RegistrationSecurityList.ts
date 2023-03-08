@@ -9,4 +9,5 @@ const RegistartionSecurityList = [
   'Your favorite band',
   'Your favorite book',
 ];
+
 export default RegistartionSecurityList;

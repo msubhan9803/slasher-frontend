@@ -39,7 +39,6 @@ function FriendAction({ postLike }: { postLike: PostLike }) {
   );
 
   useEffect(() => {
-    /* eslint no-underscore-dangle: 0 */
     friendship(postLike._id).then((res) => {
       setFriendData(res.data);
       setFriendStatus(res.data.reaction);

@@ -90,11 +90,9 @@ function AddYourMovie() {
                     className="fs-4"
                   />
                   <CharactersCounter
-                    counterClass="float-end fs-5"
+                    counterClass="float-end fs-5 me-2"
                     charCount={charCount}
                     totalChar={113}
-                    marginTop="-1.43rem"
-                    marginRight=".5rem"
                   />
                 </Form.Group>
               </Col>

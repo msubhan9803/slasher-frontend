@@ -73,11 +73,9 @@ function PlacesEdit() {
               className="fs-4"
             />
             <CharactersCounter
-              counterClass="float-end fs-4"
+              counterClass="float-end fs-4 me-2"
               charCount={charCount}
               totalChar={1000}
-              marginTop="-1.43rem"
-              marginRight=".5rem"
             />
           </Form.Group>
         </Col>

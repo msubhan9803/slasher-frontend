@@ -44,12 +44,12 @@ const AboutMovieDetails = styled.div`
     height: 0.188rem;
   }
   .star {
-    color: #FF8A00;
+    color: var(--bs-orange);
     width: 1.638rem;
     height: 1.563rem;
   }
   .burst {
-    color: #FF1800;
+    color: var(--bs-primary);
     width: 1.638rem;
     height: 1.563rem;
   }
@@ -219,7 +219,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                         <StyledLikeIcon className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
                           <StyleWatchWorthIcon icon={regular('thumbs-up')} />
                         </StyledLikeIcon>
-                        <p className="fs-3 fw-bold m-0 align-self-center" style={{ color: '#00FF0A' }}>Worth it!</p>
+                        <p className="fs-3 fw-bold m-0 align-self-center" style={{ color: 'var(--bs-success)' }}>Worth it!</p>
                       </div>
                     )}
 

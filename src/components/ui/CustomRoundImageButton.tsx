@@ -35,7 +35,7 @@ const CustomRoundImageButton = styled(RoundImageButton)`
     background: white;
     border-radius: 100%;
     &:hover {
-      background: #000 !important;
+      background: var(--bs-black) !important;
     }
   }
 

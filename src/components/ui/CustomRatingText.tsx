@@ -20,12 +20,12 @@ interface RatingIConProps {
 }
 const StyledRatingIcon = styled(FontAwesomeIcon) <RatingIConProps>`
   ${(props) => (props.ratingtype === 'star' ? `
-    color: #FF8A00;
+    color: var(--bs-orange);
     width: ${props.width};
     height: ${props.height}
   ` : '')}
   ${(props) => (props.ratingtype === 'burst' ? `
-    color: #FF1800;
+    color:  var(--bs-primary);
     width: ${props.width};
     height: ${props.height}
   ` : '')}

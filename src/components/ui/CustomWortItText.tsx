@@ -43,7 +43,7 @@ function CustomWortItText({
       <p className={`${textClass} fs-3 fw-bold m-0 align-self-center`}>
 
         {worthIt
-          ? <span style={{ color: '#00FF0A' }}>Worth it!</span>
+          ? <span style={{ color: 'var(--bs-success)' }}>Worth it!</span>
           : <span style={{ color: '#FF1800' }}>Not worth it!</span>}
       </p>
     </div>

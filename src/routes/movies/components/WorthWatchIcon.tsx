@@ -24,25 +24,25 @@ interface DislikeProps {
 }
 
 export const StyledDislikeIcon = styled.div <DislikeProps>`
-  color: #FF1800;
+  color: var(--bs-primary);
   width: ${(props) => (props.width ? props.width : '1.875rem')};
   height: ${(props) => (props.width ? props.height : '1.875rem')};
   transform: rotateY(180deg);
-  ${(props) => (props.isDislike ? ' border: 1px solid #FF1800' : ' border: 1px solid #3A3B46')};
+  ${(props) => (props.isDislike ? ' border: 1px solid var(--bs-primary)' : ' border: 1px solid #3A3B46')};
   FontAwesomeIcon {
     width: ${(props) => (props.width ? props.iconwidth : ' 1.326rem')};
     height: ${(props) => (props.width ? props.iconheight : '1.391rem')};
   }
   &:hover {
-    color: #FF1800;
-    ${(props) => (props.isDislike ? ' border: 1px solid #FF1800' : ' border: 1px solid #3A3B46')};
+    color: var(--bs-primary);
+    ${(props) => (props.isDislike ? ' border: 1px solid var(--bs-primary)' : ' border: 1px solid #3A3B46')};
   } 
 `;
 export const StyledLikeIcon = styled.div <LikeProps>`
-  color: #00FF0A;
+  color: var(--bs-success);
   width: ${(props) => (props.width ? props.width : '1.875rem')};
   height: ${(props) => (props.width ? props.height : '1.875rem')};
-  ${(props) => (props.isLike ? ' border: 1px solid #00FF0A' : ' border: 1px solid #3A3B46')};
+  ${(props) => (props.isLike ? ' border: 1px solid var(--bs-success)' : ' border: 1px solid #3A3B46')};
   svg {
     margin-left: 0.125rem;
     margin-top: -1px;
@@ -52,8 +52,8 @@ export const StyledLikeIcon = styled.div <LikeProps>`
     height: ${(props) => (props.width ? props.iconheight : '')};
   }
   &:hover {
-    color: #00FF0A;
-    ${(props) => (props.isLike ? ' border: 1px solid #00FF0A' : ' border: 1px solid #3A3B46')};
+    color: var(--bs-success);
+    ${(props) => (props.isLike ? ' border: 1px solid var(--bs-success)' : ' border: 1px solid #3A3B46')};
   }
 `;
 const StyleWatchWorthIcon = styled(FontAwesomeIcon)`

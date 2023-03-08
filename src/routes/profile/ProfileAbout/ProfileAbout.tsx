@@ -61,7 +61,6 @@ function ProfileAbout({ user }: Props) {
         <div className="d-flex justify-content-between">
           <h2 className="mb-4">About me</h2>
           {loginUserId === user?._id
-            /* eslint no-underscore-dangle: 0 */
             && <FontAwesomeIcon icon={solid('pen')} className="me-1 mt-1" size="lg" />
             && (
               <Button variant="link" onClick={() => setEdit(!isEdit)}>
@@ -85,11 +84,9 @@ function ProfileAbout({ user }: Props) {
                     className="fs-4"
                   />
                   <CharactersCounter
-                    counterClass="float-end fs-4"
+                    counterClass="float-end fs-4 me-3"
                     charCount={charCount}
                     totalChar={1000}
-                    marginTop="-1.43rem"
-                    marginRight=".5rem"
                   />
                 </Col>
               </Row>

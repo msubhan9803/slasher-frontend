@@ -83,7 +83,7 @@ function Chat({
                 <ImagesContainer
                   containerWidth="7.25rem"
                   containerHeight="7.25rem"
-                  containerBorder="0.125rem solid #3A3B46"
+                  containerBorder="0.125rem solid var(--bs-input-border-color)"
                   image={post}
                   alt="post image"
                   handleRemoveImage={() => handleRemoveFile!(post)}

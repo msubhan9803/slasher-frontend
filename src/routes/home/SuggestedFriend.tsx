@@ -152,7 +152,6 @@ function SuggestedFriend() {
               className="d-flex flex-nowrap w-100 mx-3 g-0"
             >
               {suggestedFriends.map((user: any) => (
-                /* eslint no-underscore-dangle: 0 */
                 <Card key={user._id}>
                   <div className="bg-dark rounded p-2">
                     <Link className="text-decoration-none" to={`/${user.userName}/about`}>

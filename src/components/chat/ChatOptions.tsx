@@ -29,7 +29,6 @@ function ChatOptions({ userData }: any) {
       .catch((error) => console.error(error));
   };
   const onBlockYesClick = () => {
-    /* eslint no-underscore-dangle: 0 */
     createBlockUser(userData._id)
       .then(() => {
         setShow(false);
@@ -40,7 +39,6 @@ function ChatOptions({ userData }: any) {
   return (
     <>
       <CustomPopover
-        /* eslint no-underscore-dangle: 0 */
         popoverOptions={popoverOption}
         onPopoverClick={handlePopoverOption}
         id={userData._id}

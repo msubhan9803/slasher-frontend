@@ -31,7 +31,7 @@ import RoundButton from '../../RoundButton';
 import CustomRatingText from '../../CustomRatingText';
 import CustomWortItText from '../../CustomWortItText';
 import { useAppSelector } from '../../../../redux/hooks';
-import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
+import { HOME_WEB_DIV_ID, NEWS_PARTNER_DETAILS_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
 import LoadingIndicator from '../../LoadingIndicator';
 
 const READ_MORE_TEXT_LIMIT = 300;
@@ -127,15 +127,6 @@ function PostFeed({
     setOpenLikeShareModal(true);
     setButtonClck(click);
   };
-
-  const renderNoMoreDataMessage = () => (
-    <p className="text-center">
-      {
-        commentsData && commentsData.length > 0
-          ? 'No more comments' : ''
-      }
-    </p>
-  );
 
   const imageLinkUrl = (post: any, imageId: string) => {
     if (post.rssfeedProviderId) {
@@ -390,12 +381,16 @@ function PostFeed({
                     />
                   </InfiniteScroll>
                   {loadingPosts && <LoadingIndicator />}
-                  {noMoreData && renderNoMoreDataMessage()}
                 </>
               )
             }
           </div>
+          { /* Below ad is to be shown in the end of a single pgae post */ }
+          {isSinglePagePost && <PubWiseAd className="text-center mt-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />}
+
           {!detailPage && <hr className="post-separator" />}
+
+          {/* Show ad after every three posts. */}
           {(i + 1) % 3 === 0 && pubWiseAdDivId && (
             <>
               <PubWiseAd className="text-center" id={pubWiseAdDivId} autoSequencer />

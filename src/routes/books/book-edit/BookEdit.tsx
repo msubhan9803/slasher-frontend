@@ -58,11 +58,9 @@ function BookEdit() {
           className="fs-5"
         />
         <CharactersCounter
-          counterClass="float-end fs-6"
+          counterClass="float-end fs-6 me-2"
           charCount={charCount}
           totalChar={1000}
-          marginTop="-25px"
-          marginRight="10px"
         />
         <Row className="mt-4">
           <Col lg={6}>

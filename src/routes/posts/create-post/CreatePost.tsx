@@ -5,8 +5,7 @@ import {
 } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import Cookies from 'js-cookie';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
 import { createPost } from '../../../api/feed-posts';
 import { useAppSelector } from '../../../redux/hooks';
@@ -32,13 +31,16 @@ function CreatePost() {
   const [postContent, setPostContent] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const loggedInUser = useAppSelector((state) => state.user.user);
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  const navigate = useNavigate();
   const paramsType = searchParams.get('type');
   const paramsGroupId = searchParams.get('groupId');
   const [titleContent, setTitleContent] = useState<string>('');
   const [containSpoiler, setContainSpoiler] = useState<boolean>(false);
   const [selectedPostType, setSelectedPostType] = useState<string>('');
+  const location = useLocation();
+
   const mentionReplacementMatchFunc = (match: string) => {
     if (match) {
       const finalString: any = formatMention.find(
@@ -52,21 +54,10 @@ function CreatePost() {
   const addPost = () => {
     /* eslint no-useless-escape: 0 */
     const postContentWithMentionReplacements = (postContent.replace(/\@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
-    if (paramsType === 'group-post') {
-      const groupPostData = {
-        title: titleContent,
-        message: postContentWithMentionReplacements,
-        images: imageArray,
-        type: selectedPostType,
-        spoiler: containSpoiler,
-        groupId: paramsGroupId,
-      };
-      return groupPostData;
-    }
     return createPost(postContentWithMentionReplacements, imageArray)
       .then(() => {
         setErrorMessage([]);
-        navigate(`/${Cookies.get('userName')}/posts`);
+        navigate(location.state);
       })
       .catch((error) => {
         setErrorMessage(error.response.data.message);

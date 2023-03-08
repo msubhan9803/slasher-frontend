@@ -27,7 +27,7 @@ const ChatMessages = styled.div`
     p {
       border-radius: 1.25rem;
       border-bottom-right-radius: 0rem;
-      background: linear-gradient(90deg, #5C258D 2%, #4389A2 100%), #000000;
+      background: linear-gradient(90deg, #5C258D 2%, #4389A2 100%), var(--bs-secondary);
     }
   }
 `;

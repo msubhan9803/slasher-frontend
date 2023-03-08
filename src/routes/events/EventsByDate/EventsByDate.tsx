@@ -63,6 +63,15 @@ const EventCalender = styled(Calendar)`
     height:4rem !important;
     position: relative;
   }
+
+  @media only screen and (min-width: 768px) {
+    .react-calendar__tile{
+      width: 3rem !important;
+      height: 3rem !important;
+      padding: 0 6.6667px !important;
+    }
+  }
+
   .react-calendar__month-view__weekdays__weekday abbr {
     text-decoration: none;
   }
@@ -113,7 +122,7 @@ const EventCalender = styled(Calendar)`
   }
   .react-calendar__tile--active::after {
     visibility: hidden;
-}
+  }
 `;
 
 function EventsByDate() {
@@ -141,7 +150,6 @@ function EventsByDate() {
     const formattedDate = formattedStartDate === formattedEndDate ? formattedStartDate : `${formattedStartDate} - ${formattedEndDate}`;
     return {
       ...event,
-      /* eslint no-underscore-dangle: 0 */
       id: event._id,
       image: event.images[0],
       date: formattedDate,
@@ -232,7 +240,8 @@ function EventsByDate() {
       <EventHeader tabKey="by-date" />
       <div className="mt-md-3 bg-dark bg-mobile-transparent p-4 rounded">
         <EventCalender
-          className="w-100 p-4 pb-0 bg-dark border-0 text-white"
+          locale="en-US"
+          className="w-100 px-4 pb-0 bg-dark border-0 text-white"
           onClickDay={setSelectedDate}
           onActiveStartDateChange={onActiveStartDateChange}
           onDrillDown={onDrillDownChange}

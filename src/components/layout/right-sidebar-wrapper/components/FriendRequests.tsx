@@ -40,7 +40,6 @@ function FriendRequests() {
       {recentFriendRequests && recentFriendRequests.length > 0
         && recentFriendRequests.map((request: FriendRequest, i: number) => (
           <FriendRequestItem
-            /* eslint no-underscore-dangle: 0 */
             key={request._id}
             className={i + 1 < recentFriendRequests.length ? 'mb-3' : ''}
             image={request.profilePic}

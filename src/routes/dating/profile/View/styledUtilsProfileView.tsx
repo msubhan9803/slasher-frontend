@@ -33,7 +33,7 @@ export const Title = styled.div`
   font-weight: bold;
 `;
 export const Gender = styled.div`
-  color: #FF1800;
+  color: var(--bs-primary);
   font-size: 1rem;
 `;
 export const HeroProfileImg = styled.div`

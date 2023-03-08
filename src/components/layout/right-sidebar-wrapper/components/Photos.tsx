@@ -31,14 +31,12 @@ function Photos({ user }: PhotosProps) {
 
   useEffect(() => {
     if (!user._id) { return; }
-    /* eslint no-underscore-dangle: 0 */
     userPhotos(user._id, '', '6')
       .then((res) => {
         const newPhotoList: PhotoList[] = [];
         res.data?.forEach((photosData: any) => {
           photosData.images.forEach((photo: ImageList) => {
             if (newPhotoList.length < 6) {
-              /* eslint no-underscore-dangle: 0 */
               newPhotoList.push({
                 id: photosData._id,
                 imageId: photo._id,

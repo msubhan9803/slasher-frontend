@@ -22,7 +22,7 @@ function IconWithTextNavLink({
 }: Props) {
   const { pathname } = useLocation();
   return (
-    <Link to={to} className={`text-decoration-none ${className}`}>
+    <Link to={to} className={`shadow-none text-decoration-none ${className}`}>
       <IconWithTextNavItemInnerElement
         label={label}
         userProfileIcon={userProfileIcon}

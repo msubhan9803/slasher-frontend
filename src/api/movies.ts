@@ -17,10 +17,10 @@ export async function getMovies(
     queryParameter += `&after=${lastRetrievedMovieId}`;
   }
   if (search) {
-    queryParameter += `&nameContains=${search}`;
+    queryParameter += `&nameContains=${encodeURIComponent(search)}`;
   }
   if (key) {
-    queryParameter += `&startsWith=${key}`;
+    queryParameter += `&startsWith=${encodeURIComponent(key)}`;
   }
   return axios.get(`${apiUrl}/api/v1/movies${queryParameter}`, { headers });
 }

@@ -18,7 +18,7 @@ const StyledPodcastPoster = styled(Image)`
 `;
 const StyledIcons = styled(FontAwesomeIcon)`
   &.star {
-    color: #FF8A00;
+    color: var(--bs-orange);
     width: 1.638rem;
     height: 1.563rem;
   }

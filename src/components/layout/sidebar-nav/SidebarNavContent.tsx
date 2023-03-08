@@ -38,7 +38,7 @@ const sidebarMenuList: MenuType[] = [
     label: 'Dating', icon: solid('heart'), iconColor: '#FF0000', to: '/app/dating', id: 5, comingSoon: true,
   },
   {
-    label: 'Podcasts', icon: solid('podcast'), iconColor: '#8F00FF', to: '/app/podcasts', id: 5, comingSoon: true,
+    label: 'Podcasts', icon: solid('podcast'), iconColor: '#8F00FF', to: '/app/podcasts', id: 6, comingSoon: true,
   },
   {
     label: 'Video Channels', icon: solid('tv'), iconColor: '#00E676', to: '/app/videos', id: 7, comingSoon: true,

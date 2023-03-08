@@ -113,7 +113,6 @@ function SearchPeople() {
           {moreCharacters
             && <h1 className="h3">Enter a search term into the search box above to find users by username (must enter at least 3 characters).</h1>}
           {searchPeople && searchPeople.length > 0 && searchPeople.map((peopleDetail) => (
-            /* eslint no-underscore-dangle: 0 */
             <Col md={6} key={peopleDetail._id}>
               <Link className="pb-4 d-flex align-items-center text-decoration-none" to={`/${peopleDetail.userName}`}>
                 <UserCircleImage className="me-3 ms-md-2 bg-dark align-items-center d-flex fs-1 justify-content-around fw-light" src={peopleDetail.profilePic} />

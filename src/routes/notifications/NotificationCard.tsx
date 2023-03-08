@@ -63,7 +63,6 @@ function urlForNotification(notification: Notification) {
 
 function NotificationCard({ notification, lastCard, onSelect }: Props) {
   return (
-    /* eslint no-underscore-dangle: 0 */
     <StyledBorder lastCard={lastCard} key={notification._id} className="d-flex justify-content-between py-3">
       <Link
         onClick={() => { markRead(notification._id); onSelect!(notification._id); }}

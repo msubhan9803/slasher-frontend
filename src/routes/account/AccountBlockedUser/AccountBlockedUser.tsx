@@ -10,7 +10,6 @@ import { LG_MEDIA_BREAKPOINT } from '../../../constants';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
 interface BlockUsers {
-  /* eslint no-underscore-dangle: 0 */
   _id: string;
   firstName: string;
   userName: string;

@@ -41,7 +41,6 @@ function FriendsProfileCard({
               variant="black"
               className="me-2 text-success"
               icon={solid('check')}
-              /* eslint no-underscore-dangle: 0 */
               userId={friend._id}
               onAcceptRejectClick={onAcceptClick}
               label="accept friend request"
@@ -50,7 +49,6 @@ function FriendsProfileCard({
               variant="black"
               className="me-2 text-primary"
               icon={solid('times')}
-              /* eslint no-underscore-dangle: 0 */
               userId={friend._id}
               onAcceptRejectClick={onRejectClick}
               label="reject friend request"

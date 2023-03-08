@@ -3,7 +3,9 @@ import React, { useState, useEffect } from 'react';
 import {
   Card, Col, Row,
 } from 'react-bootstrap';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import {
+  Link, useLocation, useNavigate, useSearchParams,
+} from 'react-router-dom';
 import styled from 'styled-components';
 import linkifyHtml from 'linkify-html';
 import 'swiper/swiper-bundle.css';
@@ -31,7 +33,7 @@ import RoundButton from '../../RoundButton';
 import CustomRatingText from '../../CustomRatingText';
 import CustomWortItText from '../../CustomWortItText';
 import { useAppSelector } from '../../../../redux/hooks';
-import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
+import { HOME_WEB_DIV_ID, NEWS_PARTNER_DETAILS_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
 import LoadingIndicator from '../../LoadingIndicator';
 
 const READ_MORE_TEXT_LIMIT = 300;
@@ -69,6 +71,9 @@ interface Props {
   postType?: string,
   handleSearch?: (val: string) => void;
   mentionList?: MentionListProps[];
+  commentImages?: string[];
+  setCommentImages?: (val: any) => void;
+  commentError?: string[];
   setShowReviewDetail?: (value: boolean) => void;
 }
 const StyledPostFeed = styled.div`
@@ -88,6 +93,11 @@ const StyleSpoilerButton = styled(RoundButton)`
   width: 150px;
   height: 42px;
 `;
+
+const StyledContentContainer = styled.div`
+  max-width: max-content;
+  cursor: pointer;
+`;
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
   commentsData, removeComment, setCommentID, setCommentReplyID, commentID,
@@ -96,7 +106,8 @@ function PostFeed({
   noMoreData, isEdit, loadingPosts, onLikeClick, newsPostPopoverOptions,
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
   addUpdateComment, updateState, setUpdateState, isSinglePagePost, onSelect,
-  postType, handleSearch, mentionList, setShowReviewDetail,
+  handleSearch, mentionList, commentImages, setCommentImages, commentError, postType,
+  setShowReviewDetail,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -105,7 +116,8 @@ function PostFeed({
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
   const location = useLocation();
-  const scrollPosition: any = useAppSelector((state) => state.scrollPosition);
+  const navigate = useNavigate();
+  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const [clickedPostId, setClickedPostId] = useState('');
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
@@ -124,20 +136,20 @@ function PostFeed({
     setButtonClck(click);
   };
 
-  const renderNoMoreDataMessage = () => (
-    <p className="text-center">
-      {
-        commentsData && commentsData.length > 0
-          ? 'No more comments' : ''
-      }
-    </p>
-  );
-
   const imageLinkUrl = (post: any, imageId: string) => {
     if (post.rssfeedProviderId) {
       return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}?imageId=${imageId}`;
     }
     return `/${post.userName}/posts/${post.id}?imageId=${imageId}`;
+  };
+
+  const onPostContentClick = (post: any) => {
+    if (post.rssfeedProviderId) {
+      navigate(`/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`);
+    } else {
+      navigate(`/${post.userName}/posts/${post.id}`);
+    }
+    onSelect!(post.id);
   };
 
   const showPopoverOption = (postDetail: any) => {
@@ -215,13 +227,15 @@ function PostFeed({
           ) : (
             <span>
               {/* eslint-disable-next-line react/no-danger */}
-              <div dangerouslySetInnerHTML={
+              <StyledContentContainer
+                dangerouslySetInnerHTML={
                 {
                   __html: escapeHtml && !post?.spoiler
                     ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content))))
                     : cleanExternalHtmlContent(content),
                 }
               }
+                onClick={() => onPostContentClick(post)}
               />
               {
                 post.hashTag?.map((hashtag: string) => (
@@ -303,6 +317,7 @@ function PostFeed({
                   userId={post.userId}
                   rssfeedProviderId={post.rssfeedProviderId}
                   onSelect={onSelect}
+                  postImages={post.images}
                   postType={postType}
                 />
               </Card.Header>
@@ -320,7 +335,6 @@ function PostFeed({
                         imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
                       }))
                     }
-                    /* eslint no-underscore-dangle: 0 */
                     initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
                     onSelect={onSelect}
                   />
@@ -380,15 +394,22 @@ function PostFeed({
                       setUpdateState={setUpdateState}
                       handleSearch={handleSearch}
                       mentionList={mentionList}
+                      commentImages={commentImages}
+                      setCommentImages={setCommentImages}
+                      commentError={commentError}
                     />
                   </InfiniteScroll>
                   {loadingPosts && <LoadingIndicator />}
-                  {noMoreData && renderNoMoreDataMessage()}
                 </>
               )
             }
           </div>
+          { /* Below ad is to be shown in the end of a single pgae post */ }
+          {isSinglePagePost && <PubWiseAd className="text-center mt-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />}
+
           {!detailPage && <hr className="post-separator" />}
+
+          {/* Show ad after every three posts. */}
           {(i + 1) % 3 === 0 && pubWiseAdDivId && (
             <>
               <PubWiseAd className="text-center" id={pubWiseAdDivId} autoSequencer />
@@ -442,6 +463,9 @@ PostFeed.defaultProps = {
   postType: '',
   handleSearch: undefined,
   mentionList: null,
+  commentError: undefined,
+  commentImages: [],
+  setCommentImages: () => { },
   setShowReviewDetail: undefined,
 };
 export default PostFeed;

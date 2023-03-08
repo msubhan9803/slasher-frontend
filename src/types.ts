@@ -158,6 +158,8 @@ interface FeedCommentUserId {
 interface NotificationFeedPostId {
   _id: string;
   userId: string;
+  postType?: number;
+  movieId?: string;
 }
 
 interface NotificationRssFeedProviderId {
@@ -262,11 +264,16 @@ export enum WorthWatchingStatus {
   Down = 1,
   Up = 2,
 }
+export enum PostType {
+  User = 1,
+  News = 2,
+  MovieReview = 3,
+}
 export interface MovieData {
-  movieDBId : number;
+  movieDBId: number;
   // ratings
   rating: number;
-  goreFactorRating : number;
+  goreFactorRating: number;
   worthWatching: number;
   // number of users who rated for `rating`, `goreFactorRating` and `worthWatching`
   ratingUsersCount: number;
@@ -275,8 +282,9 @@ export interface MovieData {
   worthWatchingDownUsersCount: number;
   // ratings by logged-in user
   userData: {
-    rating:number;
+    rating: number;
     goreFactorRating: number;
     worthWatching: number;
+    reviewPostId: string;
   }
 }

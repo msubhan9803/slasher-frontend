@@ -13,7 +13,9 @@ import Cookies from 'js-cookie';
 import InfiniteScroll from 'react-infinite-scroller';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import PostFooter from './PostFooter';
-import { CommentValue, Post, ReplyValue } from '../../../../types';
+import {
+  CommentValue, Post, ReplyValue, WorthWatchingStatus,
+} from '../../../../types';
 import LikeShareModal from '../../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
 import PostHeader from './PostHeader';
@@ -156,7 +158,10 @@ function PostFeed({
     if (postDetail && !postDetail.userId && newsPostPopoverOptions?.length) {
       return newsPostPopoverOptions;
     }
-    if (postDetail?.userId && loginUserId !== postDetail?.userId && postType === 'group-post') {
+    /* eslint-disable max-len */
+    // TO-DO: Remove this because it was breaking popover for others user post (comment added by Avadh)
+    // if (postDetail?.userId && loginUserId !== postDetail?.userId && (postType && postType === 'group-post')) {
+    if (postDetail?.userId && loginUserId !== postDetail?.userId) {
       return otherUserPopoverOptions!;
     }
     return popoverOptions;
@@ -181,6 +186,7 @@ function PostFeed({
       <div>
         {postType === 'review' && !post.spoiler && (
           <div className="d-flex align-items-center">
+            {post.rating !== 0 && (
             <div className="px-3 py-2 bg-dark rounded-pill d-flex align-items-center">
               <CustomRatingText
                 rating={post.rating}
@@ -190,6 +196,8 @@ function PostFeed({
                 customHeight="16px"
               />
             </div>
+            )}
+            {post.goreFactor !== 0 && (
             <div className="align-items-center bg-dark d-flex mx-3 px-3 py-2 rounded-pill">
               <CustomRatingText
                 rating={post.goreFactor}
@@ -199,6 +207,8 @@ function PostFeed({
                 customHeight="16px"
               />
             </div>
+            )}
+            {post.worthWatching !== WorthWatchingStatus.NoRating && (
             <CustomWortItText
               divClass="align-items-center py-2 px-3 bg-dark rounded-pill"
               textClass="fs-4"
@@ -208,6 +218,7 @@ function PostFeed({
               customIconHeight="8.53px"
               worthIt={post.worthWatching}
             />
+            )}
           </div>
         )}
         {postType === 'review' && (
@@ -353,6 +364,7 @@ function PostFeed({
                       handleLikeModal={openDialogue}
                       postType={postType}
                       setShowReviewDetail={setShowReviewDetail}
+                      movieId={post.movieId}
                     />
                   </Col>
                 </Row>

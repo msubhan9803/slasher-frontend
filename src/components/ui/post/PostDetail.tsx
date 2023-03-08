@@ -14,7 +14,6 @@ import { deleteFeedPost, feedPostDetail, updateFeedPost } from '../../../api/fee
 import { reportData } from '../../../api/report';
 import { getSuggestUserName } from '../../../api/users';
 import { useAppSelector } from '../../../redux/hooks';
-import { reviewComments, reviewPost } from '../../../routes/movies/movie-reviews/review-data';
 import { MentionProps } from '../../../routes/posts/create-post/CreatePost';
 import {
   CommentValue, FeedComments, Post, User,
@@ -66,7 +65,6 @@ function PostDetail({ user, postType }: Props) {
   const [previousCommentsAvailable, setPreviousCommentsAvailable] = useState(false);
   const userData = useAppSelector((state: any) => state.user);
   const [updateState, setUpdateState] = useState(false);
-
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.postImages) {
       setPostImages(popoverClickProps.postImages);
@@ -324,6 +322,8 @@ function PostDetail({ user, postType }: Props) {
           if (partnerId !== res.data.rssfeedProviderId?._id && !queryCommentId) {
             navigate(`/app/news/partner/${res.data.rssfeedProviderId?._id}/posts/${postId}`);
           }
+        } else if (postType === 'review') {
+          navigate(`/app/movies/${res.data.movieId}/reviews/${postId}#comments`);
         } else if (res.data.userId.userName !== user?.userName) {
           navigate(`/${res.data.userId.userName}/posts/${feedPostId}`);
           return;
@@ -344,6 +344,25 @@ function PostDetail({ user, postType }: Props) {
             sharedList: res.data.sharedList,
             likeIcon: res.data.likedByUser,
             rssfeedProviderId: res.data.rssfeedProviderId?._id,
+          };
+        } else if (postType === 'review') {
+          post = {
+            _id: res.data._id,
+            id: res.data._id,
+            postDate: res.data.createdAt,
+            content: res.data.message,
+            images: FormatImageVideoList(res.data.images, res.data.message),
+            userName: res.data.userId.userName,
+            profileImage: res.data.userId.profilePic,
+            userId: res.data.userId._id,
+            likeIcon: res.data.likedByUser,
+            likedByUser: res.data.likedByUser,
+            likeCount: res.data.likeCount,
+            commentCount: res.data.commentCount,
+            rating: res.data.reviewData.rating,
+            goreFactor: res.data.reviewData.goreFactorRating,
+            worthWatching: res.data.reviewData.worthWatching,
+            contentHeading: res.data.title,
           };
         } else {
           // Regular post
@@ -671,13 +690,13 @@ function PostDetail({ user, postType }: Props) {
             <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
             <PostFeed
               detailPage
-              postFeedData={postType === 'review' ? [reviewPost[0]] : postData}
+              postFeedData={postData}
               popoverOptions={loginUserPopoverOptions}
               onPopoverClick={handlePopoverOption}
               otherUserPopoverOptions={otherUserPopoverOptions}
               postCreaterPopoverOptions={postCreaterPopoverOptions}
               isCommentSection
-              commentsData={postType === 'review' ? reviewComments : commentData}
+              commentsData={commentData}
               removeComment={removeComment}
               setCommentID={setCommentID}
               setCommentReplyID={setCommentReplyID}

@@ -167,7 +167,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                     : (
                       <div className="d-flex mt-md-3 justify-content-md-center">
                         <CustomRatingText
-                          rating={movieData.rating ? movieData.rating : 0}
+                          rating={movieData.userData ? movieData.userData?.rating : 0}
                           icon={solid('star')}
                           ratingType="star"
                           customWidth="1.638rem"
@@ -269,7 +269,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                   : (
                     <div className="mt-2 d-flex justify-content-center">
                       <CustomRatingText
-                        rating={movieData.goreFactorRating ? movieData.goreFactorRating : 0}
+                        rating={movieData.userData ? movieData.userData?.goreFactorRating : 0}
                         icon={solid('burst')}
                         ratingType="burst"
                         customWidth="1.638rem"

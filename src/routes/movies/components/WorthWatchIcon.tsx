@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
@@ -65,8 +65,20 @@ type Props = {
   setMovieData?: React.Dispatch<React.SetStateAction<MovieData | undefined>>;
 };
 function WorthWatchIcon({ movieData, setMovieData }: Props) {
-  const [liked, setLike] = useState<boolean>(movieData!.userData?.worthWatching === WorthWatchingStatus.Up);
-  const [disLiked, setDisLike] = useState<boolean>(movieData!.userData?.worthWatching === WorthWatchingStatus.Down);
+  const [liked, setLike] = useState<boolean>();
+  const [disLiked, setDisLike] = useState<boolean>();
+
+  useEffect(() => {
+    if (movieData!.userData?.worthWatching === WorthWatchingStatus.Up) {
+      setLike(true);
+      setDisLike(false);
+    }
+    if (movieData!.userData?.worthWatching === WorthWatchingStatus.Down) {
+      setDisLike(true);
+      setLike(false);
+    }
+  }, [movieData]);
+
   const params = useParams();
   const handleThumbsUp = useCallback(() => {
     if (!params?.id) { return; }

@@ -5,7 +5,8 @@ import {
 } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import Cookies from 'js-cookie';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
 import { createPost } from '../../../api/feed-posts';
 import { useAppSelector } from '../../../redux/hooks';
@@ -13,6 +14,7 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/la
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import CreatePostComponent from '../../../components/ui/CreatePostComponent';
+import { PostType } from '../../../types';
 
 export interface MentionProps {
   id: string;
@@ -39,8 +41,6 @@ function CreatePost() {
   const [titleContent, setTitleContent] = useState<string>('');
   const [containSpoiler, setContainSpoiler] = useState<boolean>(false);
   const [selectedPostType, setSelectedPostType] = useState<string>('');
-  const location = useLocation();
-
   const mentionReplacementMatchFunc = (match: string) => {
     if (match) {
       const finalString: any = formatMention.find(
@@ -54,10 +54,25 @@ function CreatePost() {
   const addPost = () => {
     /* eslint no-useless-escape: 0 */
     const postContentWithMentionReplacements = (postContent.replace(/\@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
-    return createPost(postContentWithMentionReplacements, imageArray)
+    if (paramsType === 'group-post') {
+      const groupPostData = {
+        title: titleContent,
+        message: postContentWithMentionReplacements,
+        images: imageArray,
+        type: selectedPostType,
+        spoiler: containSpoiler,
+        groupId: paramsGroupId,
+      };
+      return groupPostData;
+    }
+    const createPostData = {
+      message: postContentWithMentionReplacements,
+      postType: PostType.User,
+    };
+    return createPost(createPostData, imageArray)
       .then(() => {
         setErrorMessage([]);
-        navigate(location.state);
+        navigate(`/${Cookies.get('userName')}/posts`);
       })
       .catch((error) => {
         setErrorMessage(error.response.data.message);

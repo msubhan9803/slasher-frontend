@@ -260,7 +260,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
             </>
           )}
         />
-        <Route path="reviews" element={<MovieReviews />} />
+        <Route path="reviews" element={<MovieReviews movieData={movieData} setMovieData={setMovieData} />} />
         <Route path="reviews/:postId" element={<MovieReviewDetails />} />
         <Route path="posts" element={<MoviePosts />} />
         <Route path="edit" element={<MovieEdit />} />

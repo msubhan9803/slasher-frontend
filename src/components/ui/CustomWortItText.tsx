@@ -9,7 +9,7 @@ interface WortItTextProps {
   customCircleHeight?: string;
   customIconWidth: string;
   customIconHeight: string;
-  worthIt: boolean;
+  worthIt: number | undefined;
   textClass: string;
   divClass: string;
 }

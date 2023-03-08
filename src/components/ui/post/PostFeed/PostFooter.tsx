@@ -25,6 +25,7 @@ interface PostFooterProps {
   postType?: string;
   handleLikeModal?: (value: string, postId: string) => void;
   setShowReviewDetail?: (value: boolean) => void;
+  movieId?: string;
 }
 const StyleDot = styled(FontAwesomeIcon)`
   width: 0.267rem;
@@ -37,7 +38,7 @@ const LinearIcon = styled.span<LinearIconProps>`
 `;
 function PostFooter({
   likeIcon, postId, userName, rssfeedProviderId, onLikeClick, onSelect,
-  likeCount, commentCount, handleLikeModal, postType, setShowReviewDetail,
+  likeCount, commentCount, handleLikeModal, postType, setShowReviewDetail, movieId,
 }: PostFooterProps) {
   const showRepost = enableDevFeatures;
   return (
@@ -82,9 +83,12 @@ function PostFooter({
         >
           <HashLink
             onClick={() => (postType === 'review' ? setShowReviewDetail!(true) : onSelect!(rssfeedProviderId || postId))}
-            to={(postType === 'review' && '?view=self') || (rssfeedProviderId
-              ? `/app/news/partner/${rssfeedProviderId}/posts/${postId}#comments`
-              : `/${userName}/posts/${postId}#comments`)}
+            to={
+              (postType === 'review' && movieId && `/app/movies/${movieId}/reviews/${postId}#comments`)
+              || (rssfeedProviderId
+                ? `/app/news/partner/${rssfeedProviderId}/posts/${postId}#comments`
+                : `/${userName}/posts/${postId}#comments`)
+            }
             className="text-decoration-none"
             scroll={scrollWithOffset}
           >
@@ -124,5 +128,6 @@ PostFooter.defaultProps = {
   handleLikeModal: undefined,
   postType: '',
   setShowReviewDetail: undefined,
+  movieId: '',
 };
 export default PostFooter;

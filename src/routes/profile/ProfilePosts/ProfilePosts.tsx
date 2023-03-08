@@ -145,7 +145,7 @@ function ProfilePosts({ user }: Props) {
           images: FormatImageVideoList(data.images, data.message),
           userName: data.userId.userName,
           profileImage: data.userId.profilePic,
-          userId: data.userId.userId,
+          userId: data.userId._id,
           likeIcon: data.likedByUser,
           likeCount: data.likeCount,
           commentCount: data.commentCount,

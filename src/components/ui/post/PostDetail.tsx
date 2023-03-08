@@ -21,6 +21,9 @@ import {
 } from '../../../types';
 import { decryptMessage } from '../../../utils/text-utils';
 import FormatImageVideoList from '../../../utils/vido-utils';
+import { ContentPageWrapper } from '../../layout/main-site-wrapper/authenticated/ContentWrapper';
+import RightSidebarWrapper from '../../layout/main-site-wrapper/authenticated/RightSidebarWrapper';
+import RightSidebarSelf from '../../layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import { PopoverClickProps } from '../CustomPopover';
 import ErrorMessageList from '../ErrorMessageList';
 import ReportModal from '../ReportModal';
@@ -594,70 +597,149 @@ function PostDetail({ user, postType }: Props) {
       .catch((error) => console.error(error));
   };
   return (
-    <div>
-      <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
-      <PostFeed
-        detailPage
-        postFeedData={postType === 'review' ? [reviewPost[0]] : postData}
-        popoverOptions={loginUserPopoverOptions}
-        onPopoverClick={handlePopoverOption}
-        otherUserPopoverOptions={otherUserPopoverOptions}
-        postCreaterPopoverOptions={postCreaterPopoverOptions}
-        isCommentSection
-        commentsData={postType === 'review' ? reviewComments : commentData}
-        removeComment={removeComment}
-        setCommentID={setCommentID}
-        setCommentReplyID={setCommentReplyID}
-        commentID={commentID}
-        commentReplyID={commentReplyID}
-        isEdit={isEdit}
-        setIsEdit={setIsEdit}
-        setRequestAdditionalPosts={setRequestAdditionalPosts}
-        noMoreData={noMoreData}
-        loadingPosts={loadingComments}
-        onLikeClick={onLikeClick}
-        loadNewerComment={loadNewerComment}
-        previousCommentsAvailable={previousCommentsAvailable}
-        addUpdateReply={addUpdateReply}
-        addUpdateComment={addUpdateComment}
-        updateState={updateState}
-        setUpdateState={setUpdateState}
-        isSinglePagePost
-        newsPostPopoverOptions={postType === 'news' ? newsPostPopoverOptions : undefined}
-        escapeHtml={postType === 'news' ? false : undefined}
-        handleSearch={handleSearch}
-        mentionList={mentionList}
-        commentImages={commentImages}
-        setCommentImages={setCommentImages}
-        commentError={commentErrorMessage}
-        postType={postType}
-      />
-      {dropDownValue !== 'Edit'
-        && (
-          <ReportModal
-            deleteText="Are you sure you want to delete this post?"
-            onConfirmClick={deletePostClick}
-            show={show}
-            setShow={setShow}
-            slectedDropdownValue={dropDownValue}
-            handleReport={reportPost}
-            onBlockYesClick={onBlockYesClick}
-          />
+    <>
+      {postType === 'news'
+        ? (
+          <ContentPageWrapper>
+            <div>
+              <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+              <PostFeed
+                detailPage
+                postFeedData={postData}
+                popoverOptions={loginUserPopoverOptions}
+                onPopoverClick={handlePopoverOption}
+                otherUserPopoverOptions={otherUserPopoverOptions}
+                postCreaterPopoverOptions={postCreaterPopoverOptions}
+                isCommentSection
+                commentsData={commentData}
+                removeComment={removeComment}
+                setCommentID={setCommentID}
+                setCommentReplyID={setCommentReplyID}
+                commentID={commentID}
+                commentReplyID={commentReplyID}
+                isEdit={isEdit}
+                setIsEdit={setIsEdit}
+                setRequestAdditionalPosts={setRequestAdditionalPosts}
+                noMoreData={noMoreData}
+                loadingPosts={loadingComments}
+                onLikeClick={onLikeClick}
+                loadNewerComment={loadNewerComment}
+                previousCommentsAvailable={previousCommentsAvailable}
+                addUpdateReply={addUpdateReply}
+                addUpdateComment={addUpdateComment}
+                updateState={updateState}
+                setUpdateState={setUpdateState}
+                isSinglePagePost
+                newsPostPopoverOptions={postType === 'news' ? newsPostPopoverOptions : undefined}
+                escapeHtml={postType === 'news' ? false : undefined}
+                handleSearch={handleSearch}
+                mentionList={mentionList}
+                commentImages={commentImages}
+                setCommentImages={setCommentImages}
+                commentError={commentErrorMessage}
+              />
+              {dropDownValue !== 'Edit'
+              && (
+                <ReportModal
+                  deleteText="Are you sure you want to delete this post?"
+                  onConfirmClick={deletePostClick}
+                  show={show}
+                  setShow={setShow}
+                  slectedDropdownValue={dropDownValue}
+                  handleReport={reportPost}
+                  onBlockYesClick={onBlockYesClick}
+                />
+              )}
+              {postType !== 'news' && dropDownValue === 'Edit'
+              && (
+                <EditPostModal
+                  show={show}
+                  errorMessage={errorMessage}
+                  setShow={setShow}
+                  setPostContent={setPostContent}
+                  postContent={postContent}
+                  onUpdatePost={onUpdatePost}
+                  postImages={postImages}
+                  setPostImages={setPostImages}
+                />
+              )}
+            </div>
+          </ContentPageWrapper>
+        )
+        : (
+          <div>
+            <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+            <PostFeed
+              detailPage
+              postFeedData={postType === 'review' ? [reviewPost[0]] : postData}
+              popoverOptions={loginUserPopoverOptions}
+              onPopoverClick={handlePopoverOption}
+              otherUserPopoverOptions={otherUserPopoverOptions}
+              postCreaterPopoverOptions={postCreaterPopoverOptions}
+              isCommentSection
+              commentsData={postType === 'review' ? reviewComments : commentData}
+              removeComment={removeComment}
+              setCommentID={setCommentID}
+              setCommentReplyID={setCommentReplyID}
+              commentID={commentID}
+              commentReplyID={commentReplyID}
+              isEdit={isEdit}
+              setIsEdit={setIsEdit}
+              setRequestAdditionalPosts={setRequestAdditionalPosts}
+              noMoreData={noMoreData}
+              loadingPosts={loadingComments}
+              onLikeClick={onLikeClick}
+              loadNewerComment={loadNewerComment}
+              previousCommentsAvailable={previousCommentsAvailable}
+              addUpdateReply={addUpdateReply}
+              addUpdateComment={addUpdateComment}
+              updateState={updateState}
+              setUpdateState={setUpdateState}
+              isSinglePagePost
+              newsPostPopoverOptions={postType === 'news' ? newsPostPopoverOptions : undefined}
+              escapeHtml={postType === 'news' ? false : undefined}
+              handleSearch={handleSearch}
+              mentionList={mentionList}
+              postType={postType}
+              commentImages={commentImages}
+              setCommentImages={setCommentImages}
+              commentError={commentErrorMessage}
+            />
+            {dropDownValue !== 'Edit'
+            && (
+              <ReportModal
+                deleteText="Are you sure you want to delete this post?"
+                onConfirmClick={deletePostClick}
+                show={show}
+                setShow={setShow}
+                slectedDropdownValue={dropDownValue}
+                handleReport={reportPost}
+                onBlockYesClick={onBlockYesClick}
+              />
+            )}
+            {postType !== 'news' && dropDownValue === 'Edit'
+            && (
+              <EditPostModal
+                show={show}
+                errorMessage={errorMessage}
+                setShow={setShow}
+                setPostContent={setPostContent}
+                postContent={postContent}
+                onUpdatePost={onUpdatePost}
+                postImages={postImages}
+                setPostImages={setPostImages}
+              />
+            )}
+          </div>
         )}
-      {postType !== 'news' && dropDownValue === 'Edit'
+
+      {postType === 'news'
         && (
-          <EditPostModal
-            show={show}
-            errorMessage={errorMessage}
-            setShow={setShow}
-            setPostContent={setPostContent}
-            postContent={postContent}
-            onUpdatePost={onUpdatePost}
-            postImages={postImages}
-            setPostImages={setPostImages}
-          />
+        <RightSidebarWrapper>
+          <RightSidebarSelf />
+        </RightSidebarWrapper>
         )}
-    </div>
+    </>
   );
 }
 

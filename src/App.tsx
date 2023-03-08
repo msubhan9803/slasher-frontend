@@ -28,7 +28,7 @@ import AccountActivated from './routes/account-activated/AccountActivated';
 import usePubWiseAdSlots from './hooks/usePubWiseAdSlots';
 import { enableADs } from './constants';
 import Books from './routes/books/Books';
-import Artists from './routes/art/Artists';
+import Artists from './routes/artists/Artists';
 import Podcasts from './routes/podcasts/Podcasts';
 import Music from './routes/music/Music';
 import SocialGroups from './routes/social-group/SocialGroups';

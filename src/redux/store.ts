@@ -5,7 +5,7 @@ import userReducer from './slices/userSlice';
 import remoteConstantsReducer from './slices/remoteConstantsSlice';
 import pubWiseReducer from './slices/pubWiseSlice';
 import booksReducer from './slices/booksSlice';
-import artsReducer from './slices/artsSlice';
+import artistsReducer from './slices/artistsSlice';
 import musicReducer from './slices/musicSlice';
 import podcastsReducer from './slices/podcastsSlice';
 import scrollPositionReducer from './slices/scrollPositionSlice';
@@ -16,7 +16,7 @@ export const store = configureStore({
     remoteConstants: remoteConstantsReducer,
     user: userReducer,
     books: booksReducer,
-    arts: artsReducer,
+    artists: artistsReducer,
     music: musicReducer,
     podcasts: podcastsReducer,
     suggestedFriendList: suggestedFriendsReducer,

@@ -5,7 +5,7 @@ import NotificationSetting from '../../../components/layout/right-sidebar-wrappe
 import RecentMessages from '../../../components/layout/right-sidebar-wrapper/components/RecentMessages';
 import AdvertisementBox from '../../../components/layout/right-sidebar-wrapper/components/AdvertisementBox';
 
-function ArtsRightSideNav() {
+function ArtistsRightSideNav() {
   const params = useParams();
   return (
     <>
@@ -17,4 +17,4 @@ function ArtsRightSideNav() {
   );
 }
 
-export default ArtsRightSideNav;
+export default ArtistsRightSideNav;

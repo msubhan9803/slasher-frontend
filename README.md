@@ -122,3 +122,20 @@ Scripts added directly under the `scripts` directory are NOT git ignored, and we
 ```
 NODE_ENV=development npx ts-node ./scripts/createSampleData.ts
 ```
+
+## NestJS Conventions
+
+### Circular Dependency
+
+Docs - Circular dependency | NestJS: [Click here](https://docs.nestjs.com/fundamentals/circular-dependency)
+
+The circular dependency problem can be fixed -
+
+  - (good way) with a @Global module directive .e.,g for the `UserModule`.  As we are using the `UserModule` in multiple modules (more than 3, otherwise second option of `forwardRef` seems good), so it seems like making it a `@Global` module is good option. Other global modules: `MoviesModule` and `FeedPostsModule`. NOTE: NestJS recommends avoiding that if possible, I think because it is bad practice to make something global because it's safer to limit access to functionality to only places in the app where it's needed.
+  - (good way) with  forwardRef is the another way as mentioned in NestJS docs.
+  - (good way?) by extracting the duplicate logics of each module into a common module to avoid dependency as [described here](https://blog.logrocket.com/avoid-circular-dependencies-nestjs/).
+  - (bad way) by creating a model instace in a controller directly instead of a schema method via service layer.  We are avoiding performing mongodb queries directly in the controllers so we would like to use the services to wrap the mongodb query calls, so that we abstract the queries away and can change the implementation later as needed.
+
+Note: The Movie module must always be declared with `useFactory`, to add the pre and post hooks, then if anyone forgets to do the same thing when that module is re-declared elsewhere, it creates bugs because the pre and post hooks won't be running properly in some places think and this is why NestJS encourages developers to re-use modules by using @Global module directive to make them global, rather than re-declaring them in each module.
+
+Note: If we consider avoiding `forwardRef` because circular dependency is [common problem](https://en.wikipedia.org/wiki/Circular_dependency) in the way how modules behave in most of the popular programming languages, then a we have two options: export and import the modules, or make a module global.

@@ -5,7 +5,7 @@ import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import BooksHeader from '../BooksHeader';
 import { BooksProps } from '../components/BookProps';
 import { favoriteBooks } from '../components/booksList';
-import BooksRigthSideNav from '../components/BooksRigthSideNav';
+import BooksRightSideNav from '../components/BooksRightSideNav';
 
 function FavoriteBooks() {
   const [showKeys, setShowKeys] = useState(false);
@@ -43,7 +43,7 @@ function FavoriteBooks() {
         </div>
       </ContentPageWrapper>
       <RightSidebarWrapper>
-        <BooksRigthSideNav />
+        <BooksRightSideNav />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>
   );

@@ -1,7 +1,6 @@
 import React, {
   useCallback, useEffect, useRef, useState,
 } from 'react';
-import styled from 'styled-components';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Link } from 'react-router-dom';
 import UserCircleImage from './UserCircleImage';
@@ -9,12 +8,6 @@ import { FriendRequestReaction } from '../../types';
 import { getLikeUsersForPost } from '../../api/feed-posts';
 import FriendActionButtons from './Friend/FriendActionButtons';
 import { friendship } from '../../api/friends';
-
-// TODO-SAHIL: Remove after Damon's check!
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const SmallText = styled.p`
-    font-size: .75rem;
-  `;
 
 type PostLike = {
   _id: string,
@@ -74,9 +67,6 @@ function PostLikes({ postLikesList } : PostLikesProp) {
                 {postLike.userName}
               </p>
             </Link>
-
-            {/* TODO-SAHIL: Remove after Damon's check! */}
-            {/* <SmallText className="text-light mb-0">{postLike.userName}</SmallText> */}
           </div>
           <FriendAction postLike={postLike} />
         </div>

@@ -13,7 +13,9 @@ import Cookies from 'js-cookie';
 import InfiniteScroll from 'react-infinite-scroller';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import PostFooter from './PostFooter';
-import { CommentValue, Post, ReplyValue } from '../../../../types';
+import {
+  CommentValue, Post, PostButtonClickType, ReplyValue,
+} from '../../../../types';
 import LikeShareModal from '../../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
 import PostHeader from './PostHeader';
@@ -111,7 +113,7 @@ function PostFeed({
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
-  const [buttonClick, setButtonClck] = useState<string>('');
+  const [buttonClick, setButtonClck] = useState<PostButtonClickType>('');
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
@@ -119,6 +121,7 @@ function PostFeed({
   const navigate = useNavigate();
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const [clickedPostId, setClickedPostId] = useState('');
+  const [clickedPostLikeCount, setClickedPostLikeCount] = useState(0);
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
       return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
@@ -130,10 +133,12 @@ function PostFeed({
     setPostData(postFeedData);
   }, [postFeedData]);
 
-  const openDialogue = (click: string, postId: string) => {
-    setClickedPostId(postId);
+  const openDialogue = (click: PostButtonClickType, postId: string, postLikeCount: number) => {
     setOpenLikeShareModal(true);
+    // Set other useful info for the `modal`
+    setClickedPostId(postId);
     setButtonClck(click);
+    setClickedPostLikeCount(postLikeCount);
   };
 
   const imageLinkUrl = (post: any, imageId: string) => {
@@ -427,6 +432,7 @@ function PostFeed({
             setShow={setOpenLikeShareModal}
             click={buttonClick}
             clickedPostId={clickedPostId}
+            clickedPostLikeCount={clickedPostLikeCount}
           />
         )
       }

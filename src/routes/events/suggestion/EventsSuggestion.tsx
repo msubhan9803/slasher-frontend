@@ -167,13 +167,11 @@ function EventSuggestion() {
         </Row>
         <Row>
           <Col md={6} className="mt-3">
-            <Form.Control aria-label="Street Address" type="text" placeholder="Street Address" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'address')} />
+            <Form.Select aria-label="Country" defaultValue="" className="fs-4" onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e.target.value, 'country')}>
+              <option value="" disabled>Country</option>
+              <option value="United States">United States</option>
+            </Form.Select>
           </Col>
-          <Col md={6} className="mt-3">
-            <Form.Control aria-label="City" type="text" placeholder="City" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'city')} />
-          </Col>
-        </Row>
-        <Row>
           <Col md={6} className="mt-3">
             <Form.Select aria-label="State/Province" defaultValue="" className="fs-4" onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e.target.value, 'state')}>
               <option value="" disabled>State/Province</option>
@@ -182,11 +180,13 @@ function EventSuggestion() {
               ))}
             </Form.Select>
           </Col>
+        </Row>
+        <Row>
           <Col md={6} className="mt-3">
-            <Form.Select aria-label="Country" defaultValue="" className="fs-4" onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e.target.value, 'country')}>
-              <option value="" disabled>Country</option>
-              <option value="United States">United States</option>
-            </Form.Select>
+            <Form.Control aria-label="Street Address" type="text" placeholder="Street Address" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'address')} />
+          </Col>
+          <Col md={6} className="mt-3">
+            <Form.Control aria-label="City" type="text" placeholder="City" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'city')} />
           </Col>
         </Row>
         <ErrorMessageList errorMessages={errors} className="mt-4" />

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { TextField } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -12,6 +12,10 @@ interface Props {
 
 function CustomDatePicker({ date, setDate, label }: Props) {
   const color = 'var(--bs-link-color)';
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
   const theme = createTheme({
     components: {
       MuiIconButton: {
@@ -63,6 +67,10 @@ function CustomDatePicker({ date, setDate, label }: Props) {
           label={label}
           inputFormat="MM/dd/yyyy"
           value={date}
+          open={open}
+          onOpen={handleOpen}
+          InputProps={{ onClick: handleOpen }}
+          onClose={handleClose}
           onChange={(newValue) => {
             setDate(newValue);
           }}

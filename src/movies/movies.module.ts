@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { HttpModule } from '@nestjs/axios';
 import { Movie, MovieSchema } from '../schemas/movie/movie.schema';
@@ -8,10 +8,8 @@ import { MoviesService } from './providers/movies.service';
 import { User, UserSchema } from '../schemas/user/user.schema';
 import { MovieUserStatusModule } from '../movie-user-status/movie.user.status.module';
 import { MovieUserStatus, MovieUserStatusSchema } from '../schemas/movieUserStatus/movieUserStatus.schema';
-//TO-DO: remove this lint disable
-// eslint-disable-next-line
-import { FeedPostsModule } from '../feed-posts/feed-posts.module';
 
+@Global()
 @Module({
   imports: [
     MongooseModule.forFeatureAsync([
@@ -28,7 +26,6 @@ import { FeedPostsModule } from '../feed-posts/feed-posts.module';
     MongooseModule.forFeature([{ name: MovieUserStatus.name, schema: MovieUserStatusSchema }]),
     HttpModule,
     MovieUserStatusModule,
-    forwardRef(() => FeedPostsModule),
   ],
   controllers: [MoviesController],
   providers: [MoviesService],

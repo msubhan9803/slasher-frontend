@@ -131,7 +131,7 @@ Docs - Circular dependency | NestJS: [Click here](https://docs.nestjs.com/fundam
 
 The circular dependency problem can be fixed -
 
- - (good way) with a @Global module directive .e.,g for the `UserModule`.  As we are using the `UserModule` in multiple modules (more than 3, otherwise second option of `forwardRef` seems good), so it seems like making it a `@Global` module is good option. Other global modules: `MoviesModule` and `FeedPostsModule`. NOTE: NestJS recommends avoiding that if possible, I think because it is bad practice to make something global because it's safer to limit access to functionality to only places in the app where it's needed.
+  - (good way) with a @Global module directive .e.,g for the `UserModule`.  As we are using the `UserModule` in multiple modules (more than 3, otherwise second option of `forwardRef` seems good), so it seems like making it a `@Global` module is good option. Other global modules: `MoviesModule` and `FeedPostsModule`. NOTE: NestJS recommends avoiding that if possible, I think because it is bad practice to make something global because it's safer to limit access to functionality to only places in the app where it's needed.
   - (good way) with  forwardRef is the another way as mentioned in NestJS docs.
   - (bad way) by creating a model instace in a controller directly instead of a schema method via service layer.  We are avoiding performing mongodb queries directly in the controllers so we would like to use the services to wrap the mongodb query calls, so that we abstract the queries away and can change the implementation later as needed.
 

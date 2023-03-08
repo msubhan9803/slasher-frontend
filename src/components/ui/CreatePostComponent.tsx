@@ -174,7 +174,6 @@ function CreatePostComponent({
             charCount={titleContent!.length}
             totalChar={150}
             right="10px"
-            top="16px"
           />
         </div>
       )}

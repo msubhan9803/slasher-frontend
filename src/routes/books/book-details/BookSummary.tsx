@@ -21,7 +21,7 @@ const AboutBookDetails = styled.div`
     height: 0.188rem;
   }
   .star {
-    color: #FF8A00;
+    color: var(--bs-orange);
     width: 1.638rem;
     height: 1.563rem;
   }

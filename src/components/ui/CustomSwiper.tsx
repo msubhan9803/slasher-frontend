@@ -44,7 +44,7 @@ const StyledSwiper = styled(Swiper)`
 .swiper-slide {
   text-align: center;
   font-size: 1.125rem;
-  background: #000;
+  background: var(--bs-black);
   height:450px;
 
   /* Center slide text vertically */

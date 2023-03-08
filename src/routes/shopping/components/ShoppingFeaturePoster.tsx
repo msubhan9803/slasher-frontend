@@ -16,7 +16,7 @@ const StyledFeaturesPhotos = styled.div`
 const StyledRating = styled.div`
   margin-top: -1.875rem;
   svg {
-    color: #FF8A00;
+    color: var(--bs-orange);
     width: 0.847rem;
     height: 0.808rem;
   }

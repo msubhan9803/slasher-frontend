@@ -278,7 +278,7 @@ function PostFeed({
       && scrollPosition?.pathname === location.pathname) {
       window.scrollTo({
         top: scrollPosition?.position,
-        behavior: 'auto',
+        behavior: 'instant' as any,
       });
     }
   }, [postData, scrollPosition, location.pathname]);

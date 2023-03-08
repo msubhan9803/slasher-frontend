@@ -155,12 +155,18 @@ function ProfilePosts({ user }: Props) {
     }
   }, [user]);
   const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
-    updateFeedPost(postId, message, images, imageDelete)
-      .then(() => {
-        setShowReportModal(false);
-        setEditModalErrorMessage([]);
-        callLatestFeedPost();
-      })
+    updateFeedPost(postId, message, images, imageDelete).then(() => {
+      setShowReportModal(false);
+      const updatePost = posts.map((post: any) => {
+        if (post._id === postId) {
+          return {
+            ...post, content: message,
+          };
+        }
+        return post;
+      });
+      setPosts(updatePost);
+    })
       .catch((error) => {
         setEditModalErrorMessage(error.response.data.message);
       });
@@ -175,10 +181,6 @@ function ProfilePosts({ user }: Props) {
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
   };
-
-  useEffect(() => {
-    callLatestFeedPost();
-  }, [callLatestFeedPost]);
 
   const onLikeClick = (feedPostId: string) => {
     const checkLike = posts.some((post) => post.id === feedPostId

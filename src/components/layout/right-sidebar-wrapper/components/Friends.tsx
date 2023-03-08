@@ -8,7 +8,6 @@ import FriendCircleWithLabel from './FriendCircleWithLabel';
 import SidebarHeaderWithLink from './SidebarHeaderWithLink';
 
 interface FriendType {
-  /* eslint no-underscore-dangle: 0 */
   _id: string;
   userName: string;
   profilePic: string;
@@ -23,7 +22,6 @@ function Friends({ user }: FriendsProps) {
 
   useEffect(() => {
     if (!userNameOrId) { return; }
-    /* eslint no-underscore-dangle: 0 */
     getUsersFriends(user._id)
       .then((res) => { setFriendsList(res.data.friends); setLoading(false); });
   }, [userNameOrId, user._id]);
@@ -36,7 +34,6 @@ function Friends({ user }: FriendsProps) {
           {!loading && friendsList.length === 0 && <div>No friends yet.</div>}
           {loading ? <LoadingIndicator />
             : friendsList.map((friend: FriendType, i: number) => (
-              /* eslint no-underscore-dangle: 0 */
               <Col xs="4" key={friend._id} className={i > 2 ? 'mt-3' : ''}>
                 <FriendCircleWithLabel
                   className="mx-auto"

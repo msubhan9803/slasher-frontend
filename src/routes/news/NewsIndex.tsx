@@ -43,7 +43,6 @@ function NewsIndex() {
               const show = checkAdsNewsIndex(bp, i, arr);
 
               return (
-                /* eslint no-underscore-dangle: 0 */
                 <React.Fragment key={news._id}>
                   <Col xs={6} sm={4} md={3} lg={4} xl={3} className="pt-2">
                     <Link to={`/app/news/partner/${news._id}`} className="text-decoration-none">

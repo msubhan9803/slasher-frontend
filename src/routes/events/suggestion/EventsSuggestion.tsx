@@ -122,7 +122,6 @@ function EventSuggestion() {
               <option value="" disabled>Event Category</option>
               {optionLoading ? <option value="" disabled>Loading event categories…</option>
                 : options.map((option: Option) => (
-                  /* eslint no-underscore-dangle: 0 */
                   <option key={option._id} value={option._id}>{option.event_name}</option>
                 ))}
             </Form.Select>
@@ -146,11 +145,9 @@ function EventSuggestion() {
                 aria-label="Event description"
               />
               <CharactersCounter
-                counterClass="float-end fs-4"
+                counterClass="float-end fs-4 me-2"
                 charCount={charCount}
                 totalChar={1000}
-                marginTop="-1.43rem"
-                marginRight=".5rem"
               />
             </Form.Group>
           </Col>

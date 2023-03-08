@@ -4,6 +4,10 @@ import suggestedFriendsReducer from './slices/suggestedFriendsSlice';
 import userReducer from './slices/userSlice';
 import remoteConstantsReducer from './slices/remoteConstantsSlice';
 import pubWiseReducer from './slices/pubWiseSlice';
+import booksReducer from './slices/booksSlice';
+import artistsReducer from './slices/artistsSlice';
+import musicReducer from './slices/musicSlice';
+import podcastsReducer from './slices/podcastsSlice';
 import scrollPositionReducer from './slices/scrollPositionSlice';
 
 export const store = configureStore({
@@ -11,6 +15,10 @@ export const store = configureStore({
     registration: registrationReducer,
     remoteConstants: remoteConstantsReducer,
     user: userReducer,
+    books: booksReducer,
+    artists: artistsReducer,
+    music: musicReducer,
+    podcasts: podcastsReducer,
     suggestedFriendList: suggestedFriendsReducer,
     pubWise: pubWiseReducer,
     scrollPosition: scrollPositionReducer,

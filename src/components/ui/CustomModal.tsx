@@ -4,7 +4,7 @@ import closeIcon from '../../images/x-circle.svg';
 
 const CustomModal = styled(Modal)`
   .modal-content {
-    background-color: #000000;
+    background-color: var(--bs-black);
   }
   .btn-close {
     margin: 0;

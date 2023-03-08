@@ -28,7 +28,7 @@ const StyledDescription = styled.p`
 `;
 const StyledRating = styled.div`
   svg {
-    color: #FF8A00;
+    color: var(--bs-orange);
     width: 0.847rem;
     height: 0.808rem;
   }

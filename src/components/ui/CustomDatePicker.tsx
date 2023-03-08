@@ -11,7 +11,7 @@ interface Props {
 }
 
 function CustomDatePicker({ date, setDate, label }: Props) {
-  const color = '#ffffff';
+  const color = 'var(--bs-link-color)';
   const theme = createTheme({
     components: {
       MuiIconButton: {

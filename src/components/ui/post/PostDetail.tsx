@@ -44,7 +44,8 @@ function PostDetail({ user, postType }: Props) {
   const { userName, postId, partnerId } = useParams<string>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [errorMessage, setErrorMessage] = useState<string[]>();
+  const [errorMessage, setErrorMessage] = useState<string[]>([]);
+  const [commentErrorMessage, setCommentErrorMessage] = useState<string[]>([]);
   const [postData, setPostData] = useState<Post[]>([]);
   const [show, setShow] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
@@ -57,14 +58,19 @@ function PostDetail({ user, postType }: Props) {
   const [noMoreData, setNoMoreData] = useState<boolean>(false);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
+  const [postImages, setPostImages] = useState<string[]>([]);
+  const [commentImages, setCommentImages] = useState<string[]>([]);
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
   const queryCommentId = searchParams.get('commentId');
   const queryReplyId = searchParams.get('replyId');
   const [previousCommentsAvailable, setPreviousCommentsAvailable] = useState(false);
-  const userData = useAppSelector((state) => state.user);
+  const userData = useAppSelector((state: any) => state.user);
   const [updateState, setUpdateState] = useState(false);
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
+    if (popoverClickProps.postImages) {
+      setPostImages(popoverClickProps.postImages);
+    }
     setShow(true);
     setDropDownValue(value);
     setPopoverClick(popoverClickProps);
@@ -135,7 +141,13 @@ function PostDetail({ user, postType }: Props) {
       createdAt: new Date().toISOString(),
     };
     if (comment?.commentId) {
-      updateFeedComments(postId!, comment.commentMessage, comment?.commentId)
+      updateFeedComments(
+        postId!,
+        comment.commentMessage,
+        comment?.commentId,
+        comment?.images,
+        comment?.deleteImage,
+      )
         .then((res) => {
           const updateCommentArray: any = commentData;
           const index = updateCommentArray.findIndex(
@@ -160,11 +172,11 @@ function PostDetail({ user, postType }: Props) {
           }
           setCommentData(updateCommentArray);
           setUpdateState(true);
-          setErrorMessage([]);
+          setCommentErrorMessage([]);
           setIsEdit(false);
         })
         .catch((error) => {
-          setErrorMessage(error.response?.data.message);
+          setCommentErrorMessage(error.response?.data.message);
         });
     } else if (comment.commentMessage || comment.imageArr?.length) {
       addFeedComments(
@@ -190,10 +202,10 @@ function PostDetail({ user, postType }: Props) {
             commentCount: postData[0].commentCount + 1,
           }]);
           setUpdateState(true);
-          setErrorMessage([]);
+          setCommentErrorMessage([]);
         })
         .catch((error) => {
-          setErrorMessage(error.response.data.message);
+          setCommentErrorMessage(error.response.data.message);
         });
     }
   };
@@ -205,11 +217,18 @@ function PostDetail({ user, postType }: Props) {
       images: [],
       message: '',
       userId: { ...userData.user, _id: userData.user.id },
+      deleteImage: [],
       createdAt: new Date().toISOString(),
     };
 
     if (reply.replyId) {
-      updateFeedCommentReply(postId!, reply.replyMessage, reply.replyId)
+      updateFeedCommentReply(
+        postId!,
+        reply.replyMessage,
+        reply.replyId,
+        reply.images,
+        reply.deleteImage,
+      )
         .then((res) => {
           const updateReplyArray: any = commentData;
           updateReplyArray.map((comment: any) => {
@@ -222,6 +241,7 @@ function PostDetail({ user, postType }: Props) {
                 ...staticReplies[index],
                 message: res.data.message,
                 userId: { ...userData.user, _id: userData.user.id },
+                images: res.data.images,
               };
               if (staticReplies[index]._id === res.data._id) {
                 staticReplies[index] = { ...res.data, ...replyValueData };
@@ -232,10 +252,10 @@ function PostDetail({ user, postType }: Props) {
           });
           setCommentData(updateReplyArray);
           setUpdateState(true);
-          setErrorMessage([]);
+          setCommentErrorMessage([]);
           setIsEdit(false);
         }).catch((error) => {
-          setErrorMessage(error.response.data.message);
+          setCommentErrorMessage(error.response.data.message);
         });
     } else if (reply.replyMessage || reply?.imageArr?.length) {
       addFeedReplyComments(
@@ -263,10 +283,10 @@ function PostDetail({ user, postType }: Props) {
         });
         setCommentData(newReplyArray);
         setUpdateState(true);
-        setErrorMessage([]);
+        setCommentErrorMessage([]);
         setCommentID('');
       }).catch((error) => {
-        setErrorMessage(error.response.data.message);
+        setCommentErrorMessage(error.response.data.message);
       });
     }
   };
@@ -329,7 +349,6 @@ function PostDetail({ user, postType }: Props) {
           // Regular post
           post = {
             ...res.data,
-            /* eslint no-underscore-dangle: 0 */
             _id: res.data._id,
             id: res.data._id,
             postDate: res.data.createdAt,
@@ -357,12 +376,17 @@ function PostDetail({ user, postType }: Props) {
     }
   }, [postId, getFeedPostDetail]);
 
-  const onUpdatePost = (message: string) => {
+  const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
     if (postId) {
-      updateFeedPost(postId, message).then(() => {
-        setShow(false);
-        getFeedPostDetail(postId);
-      });
+      updateFeedPost(postId, message, images, imageDelete)
+        .then(() => {
+          setErrorMessage([]);
+          setShow(false);
+          getFeedPostDetail(postId);
+        })
+        .catch((error) => {
+          setErrorMessage(error.response.data.message);
+        });
     } else {
       setShow(false);
     }
@@ -558,7 +582,7 @@ function PostDetail({ user, postType }: Props) {
     if (queryCommentId) {
       getSingleComment();
     }
-  }, [queryCommentId, queryReplyId, getSingleComment]);
+  }, [queryCommentId, getSingleComment]);
 
   const loadNewerComment = () => {
     feedComments(true);
@@ -610,6 +634,9 @@ function PostDetail({ user, postType }: Props) {
                 escapeHtml={postType === 'news' ? false : undefined}
                 handleSearch={handleSearch}
                 mentionList={mentionList}
+                commentImages={commentImages}
+                setCommentImages={setCommentImages}
+                commentError={commentErrorMessage}
               />
               {dropDownValue !== 'Edit'
               && (
@@ -627,12 +654,13 @@ function PostDetail({ user, postType }: Props) {
               && (
                 <EditPostModal
                   show={show}
+                  errorMessage={errorMessage}
                   setShow={setShow}
-                  handleSearch={handleSearch}
-                  mentionList={mentionList}
                   setPostContent={setPostContent}
                   postContent={postContent}
                   onUpdatePost={onUpdatePost}
+                  postImages={postImages}
+                  setPostImages={setPostImages}
                 />
               )}
             </div>
@@ -673,6 +701,9 @@ function PostDetail({ user, postType }: Props) {
               handleSearch={handleSearch}
               mentionList={mentionList}
               postType={postType}
+              commentImages={commentImages}
+              setCommentImages={setCommentImages}
+              commentError={commentErrorMessage}
             />
             {dropDownValue !== 'Edit'
             && (
@@ -690,12 +721,13 @@ function PostDetail({ user, postType }: Props) {
             && (
               <EditPostModal
                 show={show}
+                errorMessage={errorMessage}
                 setShow={setShow}
-                handleSearch={handleSearch}
-                mentionList={mentionList}
                 setPostContent={setPostContent}
                 postContent={postContent}
                 onUpdatePost={onUpdatePost}
+                postImages={postImages}
+                setPostImages={setPostImages}
               />
             )}
           </div>

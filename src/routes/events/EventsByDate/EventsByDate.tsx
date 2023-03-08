@@ -141,7 +141,6 @@ function EventsByDate() {
     const formattedDate = formattedStartDate === formattedEndDate ? formattedStartDate : `${formattedStartDate} - ${formattedEndDate}`;
     return {
       ...event,
-      /* eslint no-underscore-dangle: 0 */
       id: event._id,
       image: event.images[0],
       date: formattedDate,

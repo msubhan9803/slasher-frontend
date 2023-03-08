@@ -21,7 +21,7 @@ interface Props {
   time: string;
   commentMention?: string;
   commentMsg: string;
-  commentImg?: ImageList[];
+  commentImg?: any;
   onIconClick: (value: string) => void;
   likeIcon: boolean;
   popoverOptions: string[];
@@ -79,9 +79,7 @@ function CommentSection({
   const highlightRef = useRef<any>();
 
   useEffect(() => {
-    if (commentImg && commentImg.length > 0) {
-      setImages(commentImg);
-    }
+    setImages(commentImg);
   }, [commentImg]);
 
   useEffect(() => {
@@ -132,6 +130,7 @@ function CommentSection({
                 id={id}
                 userId={userId}
                 userName={userName}
+                postImages={commentImg}
               />
             </div>
           </div>
@@ -151,7 +150,6 @@ function CommentSection({
           />
           <div className="d-flex flex-wrap">
             {images && images.length > 0 && images.map((imageC: ImageList) => (
-              /* eslint no-underscore-dangle: 0 */
               <div key={imageC._id} className="me-3">
                 <UserCircleImage size="5.625rem" src={imageC.image_path} alt={`${imageC._id} picture`} className="mt-2 rounded" />
               </div>

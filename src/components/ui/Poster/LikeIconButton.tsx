@@ -16,12 +16,12 @@ const StyledLikeButton = styled.div<StyledLikeButtonProps>`
   border: 1px solid #3A3B46;
   background-color: #1F1F1F;
   .fa-thumbs-up {
-    color: #00FF0A;
+    color: var(--bs-success);
     width: ${(props) => props.thumbsUpWidth};
     height: ${(props) => props.thumbsUpWidth};
   }
   .fa-thumbs-down {
-    color: #FF1800;
+    color: var(--bs-primary);
     transform: rotateY(180deg);
     width: ${(props) => props.thumbsDownWidth};
     height: ${(props) => props.thumbsDownHeight};

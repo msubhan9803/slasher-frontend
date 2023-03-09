@@ -91,13 +91,11 @@ function EventSuggestion() {
   });
   const [errors, setErrors] = useState<string[]>([]);
   const handleChange = (value: any, key: EventFormKeys) => {
-    const isUsTerritory = key === 'country' && STATES_TO_REMOVE_FROM_US.map((s) => s.toLowerCase()).includes(value.toLowerCase());
-    if (isUsTerritory) {
-      // we set state name same as territory name for a `LIST` of US territories
-      setEventForm({ ...eventForm, country: value, state: value });
-    } else {
-      setEventForm({ ...eventForm, [key]: value, state: key === 'country' ? '' : eventForm.state });
+    if (key === 'country') {
+      setEventForm({ ...eventForm, [key]: value, state: '' });
+      return;
     }
+    setEventForm({ ...eventForm, [key]: value });
   };
   // TODO-SAHIL: Remove this
   Object.assign(window, { eventForm });
@@ -207,7 +205,7 @@ function EventSuggestion() {
         <Row>
           <Col md={6} className="mt-3">
             <Form.Select aria-label="Country" defaultValue="" className="fs-4" onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e.target.value, 'country')}>
-              <option value="" disabled>Country</option>
+              <option value="">Country</option>
               {getCountries().map((country) => (
                 <option
                   key={country}
@@ -220,7 +218,7 @@ function EventSuggestion() {
           </Col>
           <Col md={6} className="mt-3">
             <Form.Select aria-label="State/Province" defaultValue={eventForm.state} className="fs-4" onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e.target.value, 'state')}>
-              <option value="" disabled>State/Province</option>
+              <option value="">State/Province</option>
               {getStatesbyCountryName(eventForm.country).map((state) => (
                 <option key={state} value={state}>{state}</option>
               ))}

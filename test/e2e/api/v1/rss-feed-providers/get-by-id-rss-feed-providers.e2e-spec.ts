@@ -55,6 +55,7 @@ describe('rssFeedProviders / :id (e2e)', () => {
     activeUser = await usersService.create(userFactory.build());
     activeRssFeedProvider = await rssFeedProvidersService.create(rssFeedProviderFactory.build({
       status: RssFeedProviderActiveStatus.Active,
+      feed_url: 'https://gruesomemagazine.com/feed',
     }));
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -81,7 +82,7 @@ describe('rssFeedProviders / :id (e2e)', () => {
           description: null,
           logo: null,
           title: 'RssFeedProvider 1',
-          feed_url: null,
+          feed_url: 'https://gruesomemagazine.com/feed',
         });
       });
 

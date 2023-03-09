@@ -39,12 +39,24 @@ function urlForNotification(notification: Notification) {
     case NotificationType.UserSentYouAFriendRequest:
       return `/${notification.userId}/friends/request`;
     case NotificationType.UserLikedYourPost:
+      if (notification.feedPostId.postType === PostType.MovieReview) {
+        return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}`;
+      }
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}`;
     case NotificationType.UserLikedYourComment:
+      if (notification.feedPostId.postType === PostType.MovieReview) {
+        return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
+      }
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
     case NotificationType.UserCommentedOnYourPost:
+      if (notification.feedPostId.postType === PostType.MovieReview) {
+        return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
+      }
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
     case NotificationType.UserMentionedYouInPost:
+      if (notification.feedPostId.postType === PostType.MovieReview) {
+        return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}`;
+      }
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}`;
     // eslint-disable-next-line max-len
     case NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost:

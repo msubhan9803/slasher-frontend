@@ -77,6 +77,7 @@ interface Props {
   setCommentImages?: (val: any) => void;
   commentError?: string[];
   setShowReviewDetail?: (value: boolean) => void;
+  onSpoilerClick?: (value: string) => void;
 }
 const StyledPostFeed = styled.div`
     .post-separator {
@@ -109,7 +110,7 @@ function PostFeed({
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
   addUpdateComment, updateState, setUpdateState, isSinglePagePost, onSelect,
   handleSearch, mentionList, commentImages, setCommentImages, commentError, postType,
-  setShowReviewDetail,
+  setShowReviewDetail, onSpoilerClick,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -121,6 +122,7 @@ function PostFeed({
   const navigate = useNavigate();
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const [clickedPostId, setClickedPostId] = useState('');
+  const spoilerId = localStorage.getItem('spoilersIds');
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
       return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
@@ -148,6 +150,8 @@ function PostFeed({
   const onPostContentClick = (post: any) => {
     if (post.rssfeedProviderId) {
       navigate(`/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`);
+    } else if (postType === 'review') {
+      navigate(`/app/movies/${post.movieId}/reviews/${post.id}#comments`);
     } else {
       navigate(`/${post.userName}/posts/${post.id}`);
     }
@@ -184,40 +188,40 @@ function PostFeed({
     }
     return (
       <div>
-        {postType === 'review' && !post.spoiler && (
+        {postType === 'review' && !post.spoilers && (
           <div className="d-flex align-items-center">
             {post.rating !== 0 && (
-            <div className="px-3 py-2 bg-dark rounded-pill d-flex align-items-center">
-              <CustomRatingText
-                rating={post.rating}
-                icon={solid('star')}
-                ratingType="star"
-                customWidth="16.77px"
-                customHeight="16px"
-              />
-            </div>
+              <div className="px-3 py-2 bg-dark rounded-pill d-flex align-items-center">
+                <CustomRatingText
+                  rating={post.rating}
+                  icon={solid('star')}
+                  ratingType="star"
+                  customWidth="16.77px"
+                  customHeight="16px"
+                />
+              </div>
             )}
             {post.goreFactor !== 0 && (
-            <div className="align-items-center bg-dark d-flex mx-3 px-3 py-2 rounded-pill">
-              <CustomRatingText
-                rating={post.goreFactor}
-                icon={solid('burst')}
-                ratingType="burst"
-                customWidth="15.14px"
-                customHeight="16px"
-              />
-            </div>
+              <div className="align-items-center bg-dark d-flex mx-3 px-3 py-2 rounded-pill">
+                <CustomRatingText
+                  rating={post.goreFactor}
+                  icon={solid('burst')}
+                  ratingType="burst"
+                  customWidth="15.14px"
+                  customHeight="16px"
+                />
+              </div>
             )}
             {post.worthWatching !== WorthWatchingStatus.NoRating && (
-            <CustomWortItText
-              divClass="align-items-center py-2 px-3 bg-dark rounded-pill"
-              textClass="fs-4"
-              customCircleWidth="16px"
-              customCircleHeight="16px"
-              customIconWidth="8.53px"
-              customIconHeight="8.53px"
-              worthIt={post.worthWatching}
-            />
+              <CustomWortItText
+                divClass="align-items-center py-2 px-3 bg-dark rounded-pill"
+                textClass="fs-4"
+                customCircleWidth="16px"
+                customCircleHeight="16px"
+                customIconWidth="8.53px"
+                customIconHeight="8.53px"
+                worthIt={post.worthWatching}
+              />
             )}
           </div>
         )}
@@ -226,12 +230,12 @@ function PostFeed({
             {post.contentHeading}
           </h1>
         )}
-        {post.spoiler
+        {(!detailPage && post.spoilers && post.id !== spoilerId)
           ? (
             <div className="d-flex flex-column align-items-center p-5" style={{ backgroundColor: '#1B1B1B' }}>
               <h2 className="text-primary fw-bold">Warning</h2>
               <p className="fs-3">Contains spoilers</p>
-              <StyleSpoilerButton variant="filter" className="fs-5">
+              <StyleSpoilerButton variant="filter" className="fs-5" onClick={() => onSpoilerClick && onSpoilerClick(post.id)}>
                 Click to view
               </StyleSpoilerButton>
             </div>
@@ -240,12 +244,12 @@ function PostFeed({
               {/* eslint-disable-next-line react/no-danger */}
               <StyledContentContainer
                 dangerouslySetInnerHTML={
-                {
-                  __html: escapeHtml && !post?.spoiler
-                    ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content))))
-                    : cleanExternalHtmlContent(content),
+                  {
+                    __html: escapeHtml && !post?.spoiler
+                      ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content))))
+                      : cleanExternalHtmlContent(content),
+                  }
                 }
-              }
                 onClick={() => onPostContentClick(post)}
               />
               {
@@ -416,7 +420,7 @@ function PostFeed({
               )
             }
           </div>
-          { /* Below ad is to be shown in the end of a single pgae post */ }
+          { /* Below ad is to be shown in the end of a single pgae post */}
           {isSinglePagePost && <PubWiseAd className="text-center mt-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />}
 
           {!detailPage && <hr className="post-separator" />}
@@ -479,5 +483,6 @@ PostFeed.defaultProps = {
   commentImages: [],
   setCommentImages: () => { },
   setShowReviewDetail: undefined,
+  onSpoilerClick: () => { },
 };
 export default PostFeed;

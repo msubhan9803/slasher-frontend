@@ -1,21 +1,25 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import CreatePostComponent from '../../../components/ui/CreatePostComponent';
 import { FormatMentionProps } from '../../posts/create-post/CreatePost';
 import {
-  createPost, feedPostDetail, getMovieReview, updateFeedPost,
+  createPost, deleteFeedPost, feedPostDetail, getMovieReview, updateFeedPost,
 } from '../../../api/feed-posts';
-import { MovieData, Post, PostType } from '../../../types';
+import {
+  MovieData, Post, PostType,
+} from '../../../types';
 import FormatImageVideoList from '../../../utils/vido-utils';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import { useAppDispatch } from '../../../redux/hooks';
+import ReportModal from '../../../components/ui/ReportModal';
+import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 
 type Props = {
   movieData: MovieData;
@@ -28,6 +32,8 @@ const otherUserPopoverOptions = ['Report', 'Block user'];
 function MovieReviews({ movieData, setMovieData }: Props) {
   const { id } = useParams();
   const location = useLocation();
+  const [show, setShow] = useState<boolean>(false);
+  const [dropDownValue, setDropDownValue] = useState<string>('');
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [errorMessage, setErrorMessage] = useState([]);
   const [postContent, setPostContent] = useState<string>('');
@@ -37,12 +43,18 @@ function MovieReviews({ movieData, setMovieData }: Props) {
   const [rating, setRating] = useState(0);
   const [goreFactor, setGoreFactor] = useState(0);
   const [reviewPostData, setReviewPostData] = useState<any>([]);
+  const [deletePostId, setDeletePostId] = useState<any>([]);
   const [requestAdditionalReviewPosts, setRequestAdditionalReviewPosts] = useState<boolean>(false);
   const [loadingReviewPosts, setLoadingReviewPosts] = useState<boolean>(false);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
-  const dispatch = useAppDispatch();
   const [lastReviePostId, setLastReviePostId] = useState<string>('');
-  const handlePopoverOption = (value: string) => value;
+  const [isWorthIt, setWorthIt] = useState<any>(0);
+  const [liked, setLike] = useState<boolean>(false);
+  const [disLiked, setDisLike] = useState<boolean>(false);
+
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
   const handleCreateInput = () => {
     setShowReviewForm(true);
   };
@@ -64,7 +76,47 @@ function MovieReviews({ movieData, setMovieData }: Props) {
       }
     }
   }, [movieData]);
+  const callLatestFeedPost = useCallback(() => {
+    if (id) {
+      getMovieReview(id).then((res) => {
+        const newPosts = res.data.map((data: any) => ({
+          _id: data._id,
+          id: data._id,
+          postDate: data.createdAt,
+          content: data.message,
+          images: FormatImageVideoList(data.images, data.message),
+          userName: data.userId.userName,
+          profileImage: data.userId.profilePic,
+          userId: data.userId._id,
+          likeIcon: data.likedByUser,
+          likeCount: data.likeCount,
+          commentCount: data.commentCount,
+          rating: data?.reviewData.rating,
+          goreFactor: data?.reviewData.goreFactorRating,
+          worthWatching: data?.reviewData.worthWatching,
+          contentHeading: data.title,
+          movieId: id,
+          spoilers: data.spoilers,
+        }));
+        setReviewPostData(newPosts);
+        setLoadingReviewPosts(true);
+      });
+    }
+  }, [id]);
 
+  const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
+    setShow(true);
+    if (value === 'Delete Review') {
+      setDropDownValue('Delete');
+    } else {
+      setDropDownValue('Edit');
+    }
+    setDeletePostId(popoverClickProps.id);
+    if (value === 'Edit Review') {
+      setShowReviewForm(true);
+      getUserMovieReviewData(popoverClickProps.id!);
+    }
+  };
   const mentionReplacementMatchFunc = (match: string) => {
     if (match) {
       const finalString: any = formatMention.find(
@@ -84,8 +136,10 @@ function MovieReviews({ movieData, setMovieData }: Props) {
             ...movieData.userData!,
             rating: rating + 1,
             goreFactorRating: goreFactor + 1,
+            worthWatching: isWorthIt,
           },
         });
+        callLatestFeedPost();
         setErrorMessage([]);
         setShowReviewForm(false);
       })
@@ -109,8 +163,10 @@ function MovieReviews({ movieData, setMovieData }: Props) {
             ...movieData.userData!,
             rating: rating + 1,
             goreFactorRating: goreFactor + 1,
+            worthWatching: isWorthIt,
           },
         });
+        callLatestFeedPost();
         setErrorMessage([]);
         setShowReviewForm(false);
       })
@@ -128,7 +184,7 @@ function MovieReviews({ movieData, setMovieData }: Props) {
       spoiler: containSpoiler,
       rate: rating + 1,
       goreFactorRate: goreFactor + 1,
-      worthIt: movieData && movieData.worthWatching,
+      worthIt: isWorthIt,
       postType: PostType.MovieReview,
       movieId: id,
     };
@@ -142,12 +198,13 @@ function MovieReviews({ movieData, setMovieData }: Props) {
   };
 
   useEffect(() => {
+    setLoadingReviewPosts(false);
     if (requestAdditionalReviewPosts && !loadingReviewPosts && id) {
       getMovieReview(
         id,
         lastReviePostId.length > 0 ? lastReviePostId : undefined,
       ).then((res) => {
-        setLoadingReviewPosts(false);
+        // setLoadingReviewPosts(false);
         const newPosts = res.data.map((data: any) => ({
           _id: data._id,
           id: data._id,
@@ -160,11 +217,12 @@ function MovieReviews({ movieData, setMovieData }: Props) {
           likeIcon: data.likedByUser,
           likeCount: data.likeCount,
           commentCount: data.commentCount,
-          rating: data.reviewData.rating,
-          goreFactor: data.reviewData.goreFactorRating,
-          worthWatching: data.reviewData.worthWatching,
+          rating: data?.reviewData?.rating,
+          goreFactor: data?.reviewData?.goreFactorRating,
+          worthWatching: data?.reviewData?.worthWatching,
           contentHeading: data.title,
           movieId: id,
+          spoilers: data.spoilers,
         }));
         setLoadingReviewPosts(false);
         setReviewPostData((prev: Post[]) => [
@@ -187,6 +245,7 @@ function MovieReviews({ movieData, setMovieData }: Props) {
       );
     }
   }, [requestAdditionalReviewPosts, loadingReviewPosts, id, lastReviePostId]);
+
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -204,6 +263,28 @@ function MovieReviews({ movieData, setMovieData }: Props) {
       positionElementId: movieId,
     };
     dispatch(setScrollPosition(positionData));
+  };
+  const deletePostClick = () => {
+    if (deletePostId) {
+      deleteFeedPost(deletePostId)
+        .then(() => {
+          setShow(false);
+          callLatestFeedPost();
+          setRating(0);
+          setGoreFactor(0);
+          setTitleContent('');
+          setPostContent('');
+          setContainSpoiler(false);
+        })
+        /* eslint-disable no-console */
+        .catch((error) => console.error(error));
+    }
+  };
+  const handleSpoiler = (postId: string) => {
+    console.log('handle spoiler', postId);
+    localStorage.setItem('spoilersIds', postId);
+    console.log('aaa');
+    navigate(`/app/movies/${id}/reviews/${postId}#comments`);
   };
 
   const onLikeClick = (feedPostId: string) => {
@@ -254,7 +335,7 @@ function MovieReviews({ movieData, setMovieData }: Props) {
           ? (
             <CreatePostComponent
               movieData={movieData}
-              setMovieData={setMovieData}
+              // setMovieData={setMovieData}
               errorMessage={errorMessage}
               setPostMessageContent={setPostContent}
               defaultValue={postContent}
@@ -270,6 +351,11 @@ function MovieReviews({ movieData, setMovieData }: Props) {
               setRating={setRating}
               goreFactor={goreFactor}
               setGoreFactor={setGoreFactor}
+              setWorthIt={setWorthIt}
+              liked={liked}
+              setLike={setLike}
+              disLiked={disLiked}
+              setDisLike={setDisLike}
             />
           ) : (
             <CustomCreatePost
@@ -282,7 +368,7 @@ function MovieReviews({ movieData, setMovieData }: Props) {
       }
       <InfiniteScroll
         pageStart={0}
-        initialLoad
+        initialLoad={false}
         loadMore={() => { setRequestAdditionalReviewPosts(true); }}
         hasMore={!noMoreData}
       >
@@ -295,10 +381,23 @@ function MovieReviews({ movieData, setMovieData }: Props) {
           otherUserPopoverOptions={otherUserPopoverOptions}
           onLikeClick={onLikeClick}
           onSelect={persistScrollPosition}
+          onSpoilerClick={handleSpoiler}
         />
       </InfiniteScroll>
       {loadingReviewPosts && <LoadingIndicator />}
       {noMoreData && renderNoMoreDataMessage()}
+      {
+        dropDownValue === 'Delete'
+        && (
+          <ReportModal
+            deleteText="Are you sure you want to delete this post?"
+            onConfirmClick={deletePostClick}
+            show={show}
+            setShow={setShow}
+            slectedDropdownValue={dropDownValue}
+          />
+        )
+      }
     </div>
   );
 }

@@ -31,7 +31,6 @@ interface FormatMentionProps {
 }
 interface Props {
   movieData?: MovieData;
-  setMovieData?: React.Dispatch<React.SetStateAction<MovieData | undefined>>;
   errorMessage?: string[] | undefined;
   createUpdatePost?: () => void;
   setPostMessageContent: (val: string) => void;
@@ -53,6 +52,11 @@ interface Props {
   setGoreFactor?: (value: number) => void;
   selectedPostType?: string;
   setSelectedPostType?: (value: string) => void;
+  setWorthIt: (val: boolean) => void;
+  liked: boolean;
+  setLike: (val: boolean) => void;
+  disLiked: boolean;
+  setDisLike: (val: boolean) => void;
 }
 
 const AddPhotosButton = styled(RoundButton)`
@@ -67,11 +71,12 @@ const PostTypeButton = styled(Button)`
 `;
 
 function CreatePostComponent({
-  movieData, setMovieData, errorMessage, createUpdatePost, setPostMessageContent,
+  movieData, errorMessage, createUpdatePost, setPostMessageContent,
   imageArray, setImageArray, defaultValue, formatMention, setFormatMention,
   deleteImageIds, setDeleteImageIds, postType, titleContent, setTitleContent,
   containSpoiler, setContainSpoiler, rating, setRating, goreFactor, setGoreFactor,
-  selectedPostType, setSelectedPostType,
+  selectedPostType, setSelectedPostType, setWorthIt, liked, setLike,
+  disLiked, setDisLike,
 }: Props) {
   const inputFile = useRef<HTMLInputElement>(null);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
@@ -139,7 +144,14 @@ function CreatePostComponent({
             <div>
               <Form.Label className="fw-bold h3">Worth watching?</Form.Label>
               <div className="d-flex align-items-center">
-                <WorthWatchIcon movieData={movieData} setMovieData={setMovieData} />
+                <WorthWatchIcon
+                  movieData={movieData}
+                  setWorthIt={setWorthIt}
+                  liked={liked}
+                  setLike={setLike}
+                  disLiked={disLiked}
+                  setDisLike={setDisLike}
+                />
                 <CustomWortItText
                   divClass="align-items-center py-2 px-3 bg-black rounded-pill"
                   textClass="fs-4"
@@ -286,7 +298,6 @@ function CreatePostComponent({
 }
 CreatePostComponent.defaultProps = {
   movieData: undefined,
-  setMovieData: undefined,
   defaultValue: '',
   deleteImageIds: [],
   setDeleteImageIds: () => { },

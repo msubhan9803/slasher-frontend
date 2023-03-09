@@ -323,7 +323,13 @@ function PostDetail({ user, postType }: Props) {
             navigate(`/app/news/partner/${res.data.rssfeedProviderId?._id}/posts/${postId}`);
           }
         } else if (postType === 'review') {
-          navigate(`/app/movies/${res.data.movieId}/reviews/${postId}#comments`);
+          if (queryCommentId && queryReplyId) {
+            navigate(`/app/movies/${res.data.movieId}/reviews/${postId}?commentId=${queryCommentId}&replyId=${queryReplyId}`);
+          } else if (queryCommentId) {
+            navigate(`/app/movies/${res.data.movieId}/reviews/${postId}?commentId=${queryCommentId}`);
+          } else {
+            navigate(`/app/movies/${res.data.movieId}/reviews/${postId}#comments`);
+          }
         } else if (res.data.userId.userName !== user?.userName) {
           navigate(`/${res.data.userId.userName}/posts/${feedPostId}`);
           return;
@@ -359,10 +365,11 @@ function PostDetail({ user, postType }: Props) {
             likedByUser: res.data.likedByUser,
             likeCount: res.data.likeCount,
             commentCount: res.data.commentCount,
-            rating: res.data.reviewData.rating,
-            goreFactor: res.data.reviewData.goreFactorRating,
-            worthWatching: res.data.reviewData.worthWatching,
-            contentHeading: res.data.title,
+            rating: res.data?.reviewData?.rating,
+            goreFactor: res.data?.reviewData?.goreFactorRating,
+            worthWatching: res.data?.reviewData?.worthWatching,
+            contentHeading: res?.data?.title,
+            spoilers: res.data.spoilers,
           };
         } else {
           // Regular post
@@ -387,7 +394,7 @@ function PostDetail({ user, postType }: Props) {
       .catch((error) => {
         setErrorMessage(error.response.data.message);
       });
-  }, [navigate, partnerId, postId, postType, queryCommentId, user]);
+  }, [navigate, partnerId, postId, postType, queryCommentId, user, queryReplyId]);
 
   useEffect(() => {
     if (postId) {
@@ -658,30 +665,30 @@ function PostDetail({ user, postType }: Props) {
                 commentError={commentErrorMessage}
               />
               {dropDownValue !== 'Edit'
-              && (
-                <ReportModal
-                  deleteText="Are you sure you want to delete this post?"
-                  onConfirmClick={deletePostClick}
-                  show={show}
-                  setShow={setShow}
-                  slectedDropdownValue={dropDownValue}
-                  handleReport={reportPost}
-                  onBlockYesClick={onBlockYesClick}
-                />
-              )}
+                && (
+                  <ReportModal
+                    deleteText="Are you sure you want to delete this post?"
+                    onConfirmClick={deletePostClick}
+                    show={show}
+                    setShow={setShow}
+                    slectedDropdownValue={dropDownValue}
+                    handleReport={reportPost}
+                    onBlockYesClick={onBlockYesClick}
+                  />
+                )}
               {postType !== 'news' && dropDownValue === 'Edit'
-              && (
-                <EditPostModal
-                  show={show}
-                  errorMessage={errorMessage}
-                  setShow={setShow}
-                  setPostContent={setPostContent}
-                  postContent={postContent}
-                  onUpdatePost={onUpdatePost}
-                  postImages={postImages}
-                  setPostImages={setPostImages}
-                />
-              )}
+                && (
+                  <EditPostModal
+                    show={show}
+                    errorMessage={errorMessage}
+                    setShow={setShow}
+                    setPostContent={setPostContent}
+                    postContent={postContent}
+                    onUpdatePost={onUpdatePost}
+                    postImages={postImages}
+                    setPostImages={setPostImages}
+                  />
+                )}
             </div>
           </ContentPageWrapper>
         )
@@ -725,38 +732,38 @@ function PostDetail({ user, postType }: Props) {
               commentError={commentErrorMessage}
             />
             {dropDownValue !== 'Edit'
-            && (
-              <ReportModal
-                deleteText="Are you sure you want to delete this post?"
-                onConfirmClick={deletePostClick}
-                show={show}
-                setShow={setShow}
-                slectedDropdownValue={dropDownValue}
-                handleReport={reportPost}
-                onBlockYesClick={onBlockYesClick}
-              />
-            )}
+              && (
+                <ReportModal
+                  deleteText="Are you sure you want to delete this post?"
+                  onConfirmClick={deletePostClick}
+                  show={show}
+                  setShow={setShow}
+                  slectedDropdownValue={dropDownValue}
+                  handleReport={reportPost}
+                  onBlockYesClick={onBlockYesClick}
+                />
+              )}
             {postType !== 'news' && dropDownValue === 'Edit'
-            && (
-              <EditPostModal
-                show={show}
-                errorMessage={errorMessage}
-                setShow={setShow}
-                setPostContent={setPostContent}
-                postContent={postContent}
-                onUpdatePost={onUpdatePost}
-                postImages={postImages}
-                setPostImages={setPostImages}
-              />
-            )}
+              && (
+                <EditPostModal
+                  show={show}
+                  errorMessage={errorMessage}
+                  setShow={setShow}
+                  setPostContent={setPostContent}
+                  postContent={postContent}
+                  onUpdatePost={onUpdatePost}
+                  postImages={postImages}
+                  setPostImages={setPostImages}
+                />
+              )}
           </div>
         )}
 
       {postType === 'news'
         && (
-        <RightSidebarWrapper>
-          <RightSidebarSelf />
-        </RightSidebarWrapper>
+          <RightSidebarWrapper>
+            <RightSidebarSelf />
+          </RightSidebarWrapper>
         )}
     </>
   );

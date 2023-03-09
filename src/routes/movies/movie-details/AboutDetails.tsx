@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
@@ -17,7 +17,9 @@ import { StyledBorder } from '../../../components/ui/StyledBorder';
 import ShareLinksModal from '../../../components/ui/ShareLinksModal';
 import { enableDevFeatures } from '../../../utils/configEnvironment';
 import CustomRatingText from '../../../components/ui/CustomRatingText';
-import { deleteGoreFactor, deleteRating, deleteWorthWatching } from '../../../api/movies';
+import {
+  createOrUpdateWorthWatching, deleteGoreFactor, deleteRating, deleteWorthWatching,
+} from '../../../api/movies';
 import { updateMovieUserData } from '../components/updateMovieDataUtils';
 
 const StyleWatchWorthIcon = styled(FontAwesomeIcon)`
@@ -83,7 +85,19 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
   const [showRating, setShowRating] = useState(false);
   const [showGoreRating, setShowGoreRating] = useState(false);
   const [showShareLinks, setShowShareLinks] = useState(false);
+  const [isWorthIt, setWorthIt] = useState<any>(0);
+  const [liked, setLike] = useState<boolean>(false);
+  const [disLiked, setDisLike] = useState<boolean>(false);
   const params = useParams();
+
+  useEffect(() => {
+    if (params.id && isWorthIt) {
+      createOrUpdateWorthWatching(params.id, isWorthIt).then((res) => {
+        updateMovieUserData(res.data, 'worthWatching', setMovieData!);
+      });
+    }
+  }, [isWorthIt, params, setMovieData]);
+
   const toHoursAndMinutes = (totalMinutes: number) => {
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
@@ -238,7 +252,14 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
 
                   {/* Worth Watch Icons */}
                   <div className="mt-3">
-                    <WorthWatchIcon movieData={movieData} setMovieData={setMovieData} />
+                    <WorthWatchIcon
+                      movieData={movieData}
+                      setWorthIt={setWorthIt}
+                      liked={liked}
+                      setLike={setLike}
+                      disLiked={disLiked}
+                      setDisLike={setDisLike}
+                    />
                   </div>
                   {/* Remove Button - Worth Watch */}
                   {

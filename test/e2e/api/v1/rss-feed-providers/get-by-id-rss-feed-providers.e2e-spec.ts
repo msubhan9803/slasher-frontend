@@ -81,6 +81,7 @@ describe('rssFeedProviders / :id (e2e)', () => {
           description: null,
           logo: null,
           title: 'RssFeedProvider 1',
+          feed_url: null,
         });
       });
 

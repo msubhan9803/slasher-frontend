@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { TextField } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -13,7 +13,14 @@ interface Props {
 function CustomDatePicker({ date, setDate, label }: Props) {
   const color = 'var(--bs-link-color)';
   const [open, setOpen] = useState(false);
+  const dateSelectedRef = useRef(false);
   const handleOpen = () => setOpen(true);
+  // `handleOnFocus` handles opening of calendar when `input` is focussed by keyboard <tab> key
+  const handleOnFocus = () => {
+    if (dateSelectedRef.current) { return; }
+    dateSelectedRef.current = true;
+    setOpen(true);
+  };
   const handleClose = () => setOpen(false);
 
   const theme = createTheme({
@@ -69,7 +76,7 @@ function CustomDatePicker({ date, setDate, label }: Props) {
           value={date}
           open={open}
           onOpen={handleOpen}
-          InputProps={{ onClick: handleOpen }}
+          InputProps={{ onClick: handleOpen, onFocus: handleOnFocus }}
           onClose={handleClose}
           onChange={(newValue) => {
             setDate(newValue);

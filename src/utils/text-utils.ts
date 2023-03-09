@@ -71,3 +71,7 @@ export function decryptMessage(content: any) {
   const found = content ? content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '') : '';
   return found;
 }
+
+export function sortInPlace(array: string[]) {
+  return array.sort((a, b) => a.localeCompare(b));
+}

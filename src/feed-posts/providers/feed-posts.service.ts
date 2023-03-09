@@ -64,6 +64,11 @@ export class FeedPostsService {
     const feedPostFindAllQuery: any = {};
     const feedPostQuery = [];
     feedPostQuery.push({ userId: new mongoose.Types.ObjectId(userId) });
+    //remove postType query when we have support for postType.User
+    feedPostQuery.push(
+    { postType: { $ne: PostType.MovieReview } },
+          { postType: { $ne: PostType.News } },
+    );
     if (before) {
       const feedPost = await this.feedPostModel.findById(before).exec();
       feedPostQuery.push({ createdAt: { $lt: feedPost.createdAt } });
@@ -159,6 +164,12 @@ export class FeedPostsService {
               { rssfeedProviderId: { $in: rssFeedProviderIds } },
             ],
           },
+          {
+            $and: [
+              { postType: { $ne: PostType.MovieReview } },
+              { postType: { $ne: PostType.News } },
+            ],
+          },
           { hideUsers: { $ne: new mongoose.Types.ObjectId(userId) } },
           beforeQuery,
         ],
@@ -193,6 +204,12 @@ export class FeedPostsService {
           { is_deleted: FeedPostDeletionState.NotDeleted },
           { status: FeedPostStatus.Active },
           { 'images.0': { $exists: true } },
+          {
+            $and: [
+              { postType: { $ne: PostType.MovieReview } },
+              { postType: { $ne: PostType.News } },
+            ],
+          },
           beforeQuery,
         ],
       })

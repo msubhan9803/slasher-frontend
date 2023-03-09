@@ -29,7 +29,7 @@ const MobileNavbar = styled(Navbar)`
     font-size: .8rem;
   }
 `;
-const StyledNav = styled(Nav)`
+export const StyledNav = styled(Nav)`
   font-size: .875em;
   @media (min-width: ${LG_MEDIA_BREAKPOINT}) {
     // We need to use an exact offset here because we're matching the width of the word "Me"
@@ -39,6 +39,9 @@ const StyledNav = styled(Nav)`
   }
   .profile-link svg {
     visibility: hidden;
+  }
+  .small-screen {
+    padding: 10px 50px;
   }
 `;
 interface Props {

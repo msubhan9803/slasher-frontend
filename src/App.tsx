@@ -34,6 +34,7 @@ import Music from './routes/music/Music';
 import SocialGroups from './routes/social-group/SocialGroups';
 import { enableDevFeatures } from './utils/configEnvironment';
 import ActivateAccount from './routes/activate-account/ActivateAccount';
+import PublicHomePage from './routes/public-home-page/PublicHomePage';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -113,6 +114,7 @@ function App() {
             ),
           )
         }
+        <Route path="app/public-home-page" element={<PublicHomePage />} />
         <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />
       </Route>,
     ),

@@ -74,7 +74,7 @@ function PhotoUploadInput({
       <FontAwesomeIcon
         icon={solid('camera')}
         size="lg"
-        className="text-light bg-primary p-3 rounded-circle "
+        className="text-light bg-secondary p-3 rounded-circle "
       />
     ));
 
@@ -119,7 +119,7 @@ function PhotoUploadInput({
         }
         variant="link"
         className={
-          `p-1 d-flex align-items-center justify-content-center text-center position-absolute rounded-circle ${(photo || imageUrl) ? 'bg-white text-primary' : 'bg-primary text-white'}`
+          `p-1 d-flex align-items-center justify-content-center text-center position-absolute rounded-circle ${(photo || imageUrl) ? 'bg-white text-secondary' : 'bg-secondary text-white'}`
         }
         aria-label="photo"
       >

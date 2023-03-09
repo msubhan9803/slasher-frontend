@@ -12,7 +12,6 @@ import {
 import styled from 'styled-components';
 import Cookies from 'js-cookie';
 import { Country, State } from 'country-state-city';
-import RoundButton from '../../../components/ui/RoundButton';
 import CustomDatePicker from '../../../components/ui/CustomDatePicker';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import { suggestEvent, getEventCategoriesOption } from '../../../api/event';
@@ -20,6 +19,7 @@ import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import CharactersCounter from '../../../components/ui/CharactersCounter';
 import CustomText from '../../../components/ui/CustomText';
 import { sortInPlace } from '../../../utils/text-utils';
+import useProgressButton from '../../../components/ui/ProgressButton';
 
 // NOTE: From the state list of US, we get US states along with US territories.
 // We don't want to show US territories as states of US but individual countries.
@@ -36,6 +36,7 @@ const STATES_TO_REMOVE_FROM_US = [
 const filterUndesirableStatesFn = (state: string) => !STATES_TO_REMOVE_FROM_US.map((s) => s.toLowerCase()).includes(state.toLowerCase());
 
 function getStatesbyCountryName(countryName: string): string[] {
+  if (!countryName) { return []; }
   const countryIso = Country.getAllCountries().find((c) => c.name === countryName)?.isoCode;
   // If no country iso code found then use `countryName` as `state`
   if (!countryIso) { return [countryName]; }
@@ -77,6 +78,19 @@ const CustomContainer = styled(Container)`
   background-color: #1B1B1B;
 `;
 
+function prettifyErrorMessages(errorMessageList: string[]) {
+  return errorMessageList.map((errorMessage) => errorMessage
+    .replace('event_type', 'Event category')
+    .replace('event_info', 'Event description')
+    .replace('name', 'Event name')
+    .replace('country', 'Country')
+    .replace('state', 'State')
+    .replace('address', 'Address')
+    .replace('city', 'City')
+    .replace('endDate', 'End date')
+    .replace('startDate', 'Start date'));
+}
+
 function EventSuggestion() {
   const [description, setDescription] = useState<string>('');
   const [charCount, setCharCount] = useState<number>(0);
@@ -90,6 +104,8 @@ function EventSuggestion() {
     name: '', eventType: '', country: '', state: '', city: '', eventInfo: '', url: '', author: '', address: '',
   });
   const [errors, setErrors] = useState<string[]>([]);
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
+
   const handleChange = (value: any, key: EventFormKeys) => {
     if (key === 'country') {
       setEventForm({ ...eventForm, [key]: value, state: '' });
@@ -97,8 +113,6 @@ function EventSuggestion() {
     }
     setEventForm({ ...eventForm, [key]: value });
   };
-  // TODO-SAHIL: Remove this
-  Object.assign(window, { eventForm });
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCharCount(e.target.value.length);
     setDescription(e.target.value);
@@ -116,10 +130,13 @@ function EventSuggestion() {
       name, eventType, country, state, eventInfo, url, city, file, address,
     } = eventForm;
 
+    setProgressButtonStatus('loading');
     suggestEvent(name, userId || '', eventType, country, state, city, eventInfo, url || '', file, startDate, endDate, address).then(() => {
+      setProgressButtonStatus('success');
       setErrors([]);
     }).catch((error) => {
-      setErrors(error.response.data.message);
+      setProgressButtonStatus('failure');
+      setErrors(prettifyErrorMessages(error.response.data.message));
     });
   };
 
@@ -155,8 +172,8 @@ function EventSuggestion() {
         <h2 className="d-md-block mt-4">Event Information</h2>
         <Row>
           <Col md={6} className="mt-3">
-            <Form.Select aria-label="Event Category" defaultValue="" className="fs-4" onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e.target.value, 'eventType')}>
-              <option value="" disabled>Event Category</option>
+            <Form.Select aria-label="Event category" defaultValue="" className="fs-4" onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e.target.value, 'eventType')}>
+              <option value="" disabled>Event category</option>
               {optionLoading ? <option value="" disabled>Loading event categories…</option>
                 : options.map((option: Option) => (
                   <option key={option._id} value={option._id}>{option.event_name}</option>
@@ -236,7 +253,7 @@ function EventSuggestion() {
         <ErrorMessageList errorMessages={errors} className="mt-4" />
         <Row className="my-4 pe-md-5">
           <Col md={5}>
-            <RoundButton className="w-100 mb-5 mb-md-0 p-1" size="lg" onClick={() => onSendEventData()}>Send</RoundButton>
+            <ProgressButton label="Send" className="w-100 mb-5 mb-md-0 p-1" onClick={() => onSendEventData()} />
           </Col>
         </Row>
       </CustomContainer>

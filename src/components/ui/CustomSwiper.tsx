@@ -76,6 +76,7 @@ const PostImage = styled.div`
 function CustomSwiper({ images, initialSlide, onSelect }: Props) {
   const [showVideoPlayerModal, setShowYouTubeModal] = useState(false);
   const { placeholderUrlNoImageAvailable } = useAppSelector((state) => state.remoteConstants);
+  const [hideSwiper, setHideSwiper] = useState(false)
 
   const displayVideoAndImage = (imageAndVideo: SliderImage) => {
     if (imageAndVideo.videoKey) {
@@ -86,8 +87,11 @@ function CustomSwiper({ images, initialSlide, onSelect }: Props) {
             className="w-100 h-100"
             alt="user uploaded content"
             onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-              e.currentTarget.src = placeholderUrlNoImageAvailable;
+              images.length > 1 ?
+              e.currentTarget.src = placeholderUrlNoImageAvailable :
+              setHideSwiper(true)
             }}
+            onLoad={() => setHideSwiper(false)}
           />
           <StyledYouTubeButton
             variant="link"
@@ -111,8 +115,11 @@ function CustomSwiper({ images, initialSlide, onSelect }: Props) {
               className="w-100 h-100"
               alt="user uploaded content"
               onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                e.currentTarget.src = placeholderUrlNoImageAvailable;
+                images.length > 1 ?
+                e.currentTarget.src = placeholderUrlNoImageAvailable :
+                setHideSwiper(true)
               }}
+              onLoad={() => setHideSwiper(false)}
             />
           </PostImage>
         </Link>
@@ -125,8 +132,11 @@ function CustomSwiper({ images, initialSlide, onSelect }: Props) {
           className="w-100 h-100"
           alt="user uploaded content"
           onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-            e.currentTarget.src = placeholderUrlNoImageAvailable;
+            images.length > 1 ?
+            e.currentTarget.src = placeholderUrlNoImageAvailable :
+            setHideSwiper(true)
           }}
+          onLoad={() => setHideSwiper(false)}
         />
       </PostImage>
     );
@@ -139,6 +149,7 @@ function CustomSwiper({ images, initialSlide, onSelect }: Props) {
         initialSlide={initialSlide}
         navigation
         modules={[Pagination, Navigation]}
+        className={hideSwiper ? "d-none" : "d-block"}
       >
         {
           images.map((image: SliderImage) => (

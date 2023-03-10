@@ -1,16 +1,18 @@
 import React from 'react';
-import AvailableSection from './AvailableSection';
+import AboutApp from './AboutApp';
 import DownloadAppSection from './DownloadAppSection';
 import HeroSection from './HeroSection';
+import PublicSignIn from './PublicSignIn';
 import UserReview from './UserReview';
 
 function PublicHomeBody() {
   return (
-    <div className="bg-dark">
+    <div style={{ backgroundColor: '#171718' }}>
       <HeroSection />
-      <AvailableSection />
+      <AboutApp />
       <DownloadAppSection />
       <UserReview />
+      <PublicSignIn />
     </div>
   );
 }

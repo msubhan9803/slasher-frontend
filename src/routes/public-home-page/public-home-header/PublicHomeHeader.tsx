@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Navbar } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { StyledNav } from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageHeader';
 import HeaderLogo from '../../../components/ui/HeaderLogo';
-import { LG_MEDIA_BREAKPOINT } from '../../../constants';
+import { LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT } from '../../../constants';
 import SlasherLogo from '../../../images/slasher-logo-medium.png';
+
+interface HeaderStyleProps {
+  isOpen: boolean;
+}
 
 const NavbarToggle = styled(Navbar.Toggle)`
   &:focus {
@@ -34,29 +38,83 @@ const StyledNavbarCollapse = styled(Navbar.Collapse)`
   }
 `;
 
+const StyledHeader = styled.header<HeaderStyleProps>`
+  height: 100px;
+  z-index: 997;
+  transition: all 0.5s;
+  &.header-scrolled {
+    background: var(--bs-secondary) !important;
+    height: 70px;
+  }
+  @media (max-width: ${MD_MEDIA_BREAKPOINT}){
+    height: ${({ isOpen }) => (isOpen ? 'auto' : '100px')} !important;
+    &.header-scrolled {
+      background: var(--bs-secondary) !important;
+      height: ${({ isOpen }) => (isOpen ? 'auto' : '70px')} !important;
+    }
+  }
+`;
 function PublicHomeHeader() {
   const navList = ['Home', 'About', 'Shop', 'Advertise', 'Help', 'Contact Us'];
   const midIndex = Math.ceil(navList.length / 2);
-
+  const [isOpen, setIsOpen] = useState(false);
   const beforeBrand = navList.slice(0, midIndex);
   const afterBrand = navList.slice(midIndex);
+
+  useEffect(() => {
+    const selectHeader = document.querySelector('#header');
+    const selectBeforeNavLink = document.querySelector('.before-link');
+    const selectAfterNavLink = document.querySelector('.after-link');
+    const selectLogo1 = document.querySelector('.logo1');
+    const selectLogo2 = document.querySelector('.logo2');
+    const selectToggle = document.querySelector('.toggle');
+
+    const headerScrolled = () => {
+      if (window.pageYOffset > 100) {
+        selectHeader?.classList.add('header-scrolled');
+        selectBeforeNavLink?.classList.add('mt-md-4');
+        selectAfterNavLink?.classList.add('mt-md-4');
+        selectLogo1?.classList.add('mt-4');
+        selectLogo2?.classList.add('mt-4');
+        selectToggle?.classList.add('mt-4');
+      } else {
+        selectHeader?.classList.remove('header-scrolled');
+        selectBeforeNavLink?.classList.remove('mt-md-4');
+        selectAfterNavLink?.classList.remove('mt-md-4');
+        selectLogo1?.classList.remove('mt-4');
+        selectLogo2?.classList.remove('mt-4');
+        selectToggle?.classList.remove('mt-4');
+      }
+    };
+
+    window.addEventListener('load', headerScrolled);
+    window.onscroll = () => {
+      headerScrolled();
+    };
+
+    return () => {
+      window.removeEventListener('load', headerScrolled);
+      window.onscroll = null;
+    };
+  }, []);
+
   return (
-    <header>
+    <StyledHeader isOpen={isOpen} id="header" className="fixed-top d-flex align-items-center bg-transparent">
       <Container>
         <Navbar
           collapseOnSelect
           expand="lg"
           bg="transparent"
           variant="dark"
-          className="fixed-top pt-0 px-lg-5 mb-3"
+          className="pt-0 px-lg-5 mb-3"
         >
-          <NavbarToggle aria-controls="responsive-navbar-nav" className="border-0" />
-          <Navbar.Brand as={Link} to="/" className="mx-auto pe-5 d-lg-none py-0">
+          <NavbarToggle onClick={() => setIsOpen(!isOpen)} aria-controls="responsive-navbar-nav" className="toggle border-0" />
+          <Navbar.Brand as={Link} to="/" className="logo1 mx-auto pe-5 d-lg-none py-0">
             <HeaderLogo logo={SlasherLogo} height="6.5rem" />
           </Navbar.Brand>
           <StyledNavbarCollapse id="responsive-navbar-nav" className="bg-black mt-2 mt-lg-0">
             <StyledNav className="w-100 justify-content-between px-3 mx-lg-5 small-screen">
-              <div className="d-lg-flex align-items-lg-center">
+              <div className="before-link d-lg-flex align-items-lg-center">
                 {beforeBrand.map((nav) => (
                   <StyledNavLink
                     key={nav}
@@ -67,10 +125,10 @@ function PublicHomeHeader() {
                   </StyledNavLink>
                 ))}
               </div>
-              <Navbar.Brand as={Link} to="/" className="d-none d-lg-block mx-lg-auto py-0">
-                <HeaderLogo logo={SlasherLogo} height="7rem" />
+              <Navbar.Brand as={Link} to="/" className="logo2 d-none d-lg-block mx-lg-auto py-0">
+                <HeaderLogo logo={SlasherLogo} height="8rem" />
               </Navbar.Brand>
-              <div className="d-lg-flex align-items-lg-center">
+              <div className="after-link d-lg-flex align-items-lg-center">
                 {afterBrand.map((nav) => (
                   <StyledNavLink
                     key={nav}
@@ -85,7 +143,7 @@ function PublicHomeHeader() {
           </StyledNavbarCollapse>
         </Navbar>
       </Container>
-    </header>
+    </StyledHeader>
   );
 }
 

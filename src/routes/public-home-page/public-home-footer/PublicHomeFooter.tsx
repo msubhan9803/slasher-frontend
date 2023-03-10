@@ -1,6 +1,6 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Col, Image, Row } from 'react-bootstrap';
+import { Col, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import {
@@ -8,8 +8,7 @@ import {
 } from '@fortawesome/free-brands-svg-icons';
 import SlasherLogo from '../../../images/slasher-logo-medium.png';
 import HeaderLogo from '../../../components/ui/HeaderLogo';
-import AppStoreImage from '../../../images/app-store-badge.png';
-import PlayStoreImage from '../../../images/google-play-badge.png';
+import DownloadStoreBadge from '../components/DownloadStoreBadge';
 
 const socialMediaSites = [
   { icon: faFacebookF, to: '/', bgColor: '#3b5998' },
@@ -68,14 +67,7 @@ function PublicHomeFooter() {
             </div>
           </Col>
           <Col md={4} lg={5} className="text-center text-md-end my-md-auto">
-            <div className="mt-md-4 pt-md-3">
-              <Link to="/" className="me-3 me-md-0 me-lg-3">
-                <Image fluid src={AppStoreImage} alt="app store" className="mb-md-3 mb-lg-0" />
-              </Link>
-              <Link to="/">
-                <Image fluid src={PlayStoreImage} alt="play store" />
-              </Link>
-            </div>
+            <DownloadStoreBadge />
           </Col>
         </Row>
       </div>

@@ -154,6 +154,7 @@ describe('All Movies (e2e)', () => {
           name: 'a',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 0,
+          worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
@@ -161,6 +162,7 @@ describe('All Movies (e2e)', () => {
           name: 'b',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 0,
+          worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
@@ -168,6 +170,7 @@ describe('All Movies (e2e)', () => {
           name: 'c',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 0,
+          worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
@@ -175,6 +178,7 @@ describe('All Movies (e2e)', () => {
           name: 'd',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 0,
+          worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
@@ -182,6 +186,7 @@ describe('All Movies (e2e)', () => {
           name: 'e',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 0,
+          worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',
         },
       ]);
@@ -288,6 +293,7 @@ describe('All Movies (e2e)', () => {
           {
             status: MovieActiveStatus.Active,
             rating: 1,
+            worthWatching: 2,
             name: 'a',
             releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
@@ -298,6 +304,7 @@ describe('All Movies (e2e)', () => {
           {
             status: MovieActiveStatus.Active,
             rating: 2,
+            worthWatching: 1,
             name: 'b',
             releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
@@ -308,6 +315,7 @@ describe('All Movies (e2e)', () => {
           {
             status: MovieActiveStatus.Active,
             rating: 3,
+            worthWatching: 0,
             name: 'c',
             releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
@@ -318,6 +326,7 @@ describe('All Movies (e2e)', () => {
           {
             status: MovieActiveStatus.Active,
             rating: 4,
+            worthWatching: 1,
             name: 'd',
             releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
@@ -328,6 +337,7 @@ describe('All Movies (e2e)', () => {
           {
             status: MovieActiveStatus.Active,
             rating: 5,
+            worthWatching: 2,
             name: 'e',
             releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
@@ -348,6 +358,7 @@ describe('All Movies (e2e)', () => {
           name: 'e',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 5,
+          worthWatching: 2,
           releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
@@ -355,6 +366,7 @@ describe('All Movies (e2e)', () => {
           name: 'd',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 4,
+          worthWatching: 1,
           releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
@@ -362,6 +374,7 @@ describe('All Movies (e2e)', () => {
           name: 'c',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 3,
+          worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
@@ -369,6 +382,7 @@ describe('All Movies (e2e)', () => {
           name: 'b',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 2,
+          worthWatching: 1,
           releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
@@ -376,6 +390,7 @@ describe('All Movies (e2e)', () => {
           name: 'a',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 1,
+          worthWatching: 2,
           releaseDate: '2022-10-17T00:00:00.000Z',
         },
       ]);
@@ -434,6 +449,7 @@ describe('All Movies (e2e)', () => {
         logo: 'http://localhost:4444/placeholders/movie_poster.png',
         releaseDate: movie.releaseDate.toISOString(),
         rating: 0,
+        worthWatching: 0,
       }]);
     });
 
@@ -491,6 +507,7 @@ describe('All Movies (e2e)', () => {
         logo: 'http://localhost:4444/placeholders/movie_poster.png',
         releaseDate: movie0.releaseDate.toISOString(),
         rating: 0,
+        worthWatching: 0,
       }]);
     });
 

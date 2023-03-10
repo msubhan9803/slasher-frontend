@@ -4,6 +4,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
+import { EventEmitter } from 'stream';
 import { readdirSync } from 'fs';
 import { AppModule } from '../../../../../src/app.module';
 import { UsersService } from '../../../../../src/users/providers/users.service';
@@ -24,6 +25,8 @@ describe('Feed-Post / Post File (e2e)', () => {
   let configService: ConfigService;
 
   beforeAll(async () => {
+    //set max listeners value 12 because it required 12 images in 'only allows a maximum of 10 images'
+    EventEmitter.setMaxListeners(12);
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -189,7 +192,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           .attach('files', tempPaths[10])
           .attach('files', tempPaths[11])
           .expect(HttpStatus.BAD_REQUEST);
-          expect(response.body).toEqual({ statusCode: 400, message: 'Too many files uploaded. Maximum allowed: 10' });
+        expect(response.body).toEqual({ statusCode: 400, message: 'Too many files uploaded. Maximum allowed: 10' });
       }, [
         { extension: 'png' },
         { extension: 'png' },

@@ -45,9 +45,7 @@ interface Props {
 function PostDetail({ user, postType }: Props) {
   const { userName, postId, partnerId } = useParams<string>();
   const [searchParams] = useSearchParams();
-  // console.log(searchParams, "searjkjk")
   const location = useLocation();
-  // console.log(location, "location")
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState<string[]>([]);
   const [commentErrorMessage, setCommentErrorMessage] = useState<string[]>([]);
@@ -333,8 +331,6 @@ function PostDetail({ user, postType }: Props) {
             navigate(`/app/movies/${res.data.movieId}/reviews/${postId}?commentId=${queryCommentId}&replyId=${queryReplyId}`);
           } else if (queryCommentId) {
             navigate(`/app/movies/${res.data.movieId}/reviews/${postId}?commentId=${queryCommentId}`);
-          } else if (location.hash === '#comments') {
-            navigate(`/app/movies/${res.data.movieId}/reviews`);
           } else {
             navigate(`/app/movies/${res.data.movieId}/reviews/${postId}#comments`);
           }
@@ -750,7 +746,6 @@ function PostDetail({ user, postType }: Props) {
               setCommentImages={setCommentImages}
               commentError={commentErrorMessage}
               onSpoilerClick={handleSpoiler}
-            // movieId={postData[0].movieId}
             />
             {dropDownValue !== 'Edit'
               && (

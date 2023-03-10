@@ -232,7 +232,7 @@ function PostFeed({
           </h1>
         )}
         {(post.spoilers
-          && !spoilerId.includes(post.id)
+           && post.userId !== loginUserId && !spoilerId.includes(post.id)
         )
           ? (
             <div className="d-flex flex-column align-items-center p-5" style={{ backgroundColor: '#1B1B1B' }}>

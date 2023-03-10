@@ -3,6 +3,7 @@ import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import mongoose, { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
+import { EventEmitter } from 'stream';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';
 import { UsersService } from '../../../../../src/users/providers/users.service';
@@ -29,6 +30,8 @@ describe('Send Message In Conversation / (e2e)', () => {
   let friendsService: FriendsService;
 
   beforeAll(async () => {
+    //set max listeners value 12 because it required 12 images in 'only allows a maximum of 10 images'
+    EventEmitter.setMaxListeners(12);
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();

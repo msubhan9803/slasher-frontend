@@ -5,6 +5,7 @@ import { INestApplication, HttpStatus } from '@nestjs/common';
 import mongoose, { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
+import { EventEmitter } from 'stream';
 import { readdirSync } from 'fs';
 import { AppModule } from '../../../../../src/app.module';
 import { UsersService } from '../../../../../src/users/providers/users.service';
@@ -40,6 +41,8 @@ describe('Update Feed Post (e2e)', () => {
   };
 
   beforeAll(async () => {
+    //set max listeners value 12 because it required 12 images in 'only allows a maximum of 10 images'
+    EventEmitter.setMaxListeners(12);
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();

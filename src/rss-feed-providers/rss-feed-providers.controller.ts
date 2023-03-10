@@ -36,7 +36,7 @@ export class RssFeedProvidersController {
     }
     rssFeedProvider.logo = relativeToFullImagePath(this.config, rssFeedProvider.logo);
     return pick(rssFeedProvider, [
-      '_id', 'description', 'logo', 'title',
+      '_id', 'description', 'logo', 'title', 'feed_url',
     ]);
   }
 

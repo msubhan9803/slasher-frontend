@@ -20,6 +20,7 @@ import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import { useAppDispatch } from '../../../redux/hooks';
 import ReportModal from '../../../components/ui/ReportModal';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
+import { setLocalStorage } from '../../../utils/localstorage-utils';
 
 type Props = {
   movieData: MovieData;
@@ -281,9 +282,7 @@ function MovieReviews({ movieData, setMovieData }: Props) {
     }
   };
   const handleSpoiler = (postId: string) => {
-    console.log('handle spoiler', postId);
-    localStorage.setItem('spoilersIds', postId);
-    console.log('aaa');
+    setLocalStorage('spoilersIds', postId);
     navigate(`/app/movies/${id}/reviews/${postId}#comments`);
   };
 

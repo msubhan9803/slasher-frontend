@@ -37,6 +37,7 @@ import CustomWortItText from '../../CustomWortItText';
 import { useAppSelector } from '../../../../redux/hooks';
 import { HOME_WEB_DIV_ID, NEWS_PARTNER_DETAILS_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
 import LoadingIndicator from '../../LoadingIndicator';
+import { getLocalStorage } from '../../../../utils/localstorage-utils';
 
 const READ_MORE_TEXT_LIMIT = 300;
 
@@ -122,7 +123,7 @@ function PostFeed({
   const navigate = useNavigate();
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const [clickedPostId, setClickedPostId] = useState('');
-  const spoilerId = localStorage.getItem('spoilersIds');
+  const spoilerId = getLocalStorage('spoilersIds');
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
       return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;

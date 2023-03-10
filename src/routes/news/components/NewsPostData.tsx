@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import Cookies from 'js-cookie';
 import { useLocation } from 'react-router-dom';
@@ -96,7 +96,7 @@ function NewsPostData({ partnerId }: Props) {
     </p>
   );
 
-  const callLatestFeedPost = useCallback(() => {
+  const callLatestFeedPost = () => {
     getRssFeedProviderPosts(partnerId).then((res) => {
       const newPosts = res.data.map((data: any) => ({
         _id: data._id,
@@ -113,11 +113,7 @@ function NewsPostData({ partnerId }: Props) {
       }));
       setPostData(newPosts);
     });
-  }, [partnerId]);
-
-  useEffect(() => {
-    callLatestFeedPost();
-  }, [callLatestFeedPost]);
+  };
 
   const onLikeClick = (likeId: string) => {
     const checkLike = postData.some((post: any) => post.id === likeId
@@ -195,7 +191,7 @@ function NewsPostData({ partnerId }: Props) {
     <>
       <InfiniteScroll
         pageStart={0}
-        initialLoad={false}
+        initialLoad
         loadMore={() => { setRequestAdditionalPosts(true); }}
         hasMore={!noMoreData}
       >

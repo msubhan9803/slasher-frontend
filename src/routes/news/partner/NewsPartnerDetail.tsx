@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import { Helmet } from 'react-helmet';
 import {
   disableRssFeedProviderNotification, enableRssFeedProviderNotification,
   followRssFeedProvider, getRssFeedProviderDetail, getRssFeedProviderFollowUnfollow,
@@ -26,9 +27,16 @@ const CustomButton = styled(RoundButton)`
     border: 1px solid #3A3B46;
   }
 `;
+type RssFeedProviderType = {
+  description: string;
+  logo: string;
+  title: string;
+  _id: string;
+  feed_url: string;
+};
 function NewsPartnerDetail() {
   const { partnerId } = useParams<string>();
-  const [rssFeedProviderDetail, setRssFeedProviderDetail] = useState<any>();
+  const [rssFeedProviderDetail, setRssFeedProviderDetail] = useState<RssFeedProviderType>();
   const [following, setFollowing] = useState<boolean>(false);
   const [notificationToggle, setNotificationToggle] = useState<boolean>(false);
   const userData = useAppSelector((state) => state.user);
@@ -94,6 +102,9 @@ function NewsPartnerDetail() {
 
   return (
     <>
+      <Helmet>
+        <link rel="canonical" href={rssFeedProviderDetail?.feed_url} />
+      </Helmet>
       <ContentPageWrapper>
         <div>
           <div className="bg-dark rounded-3 p-4 mb-3">

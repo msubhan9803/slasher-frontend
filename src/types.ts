@@ -280,3 +280,5 @@ export interface MovieData {
     worthWatching: number;
   }
 }
+
+export type PostButtonClickType = 'like' | 'share' | '';

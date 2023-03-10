@@ -190,22 +190,23 @@ function Home() {
     });
   };
 
-  useEffect(() => {
-    callLatestFeedPost();
-  }, []);
-
   const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
-    updateFeedPost(postId, message, images, imageDelete)
-      .then(() => {
-        setErrorMessage([]);
-        setShow(false);
-        callLatestFeedPost();
-      })
+    updateFeedPost(postId, message, images, imageDelete).then(() => {
+      setShow(false);
+      const updatePost = posts.map((post: any) => {
+        if (post._id === postId) {
+          return {
+            ...post, content: message,
+          };
+        }
+        return post;
+      });
+      setPosts(updatePost);
+    })
       .catch((error) => {
         setErrorMessage(error.response.data.message);
       });
   };
-
   const deletePostClick = () => {
     deleteFeedPost(postId)
       .then(() => {
@@ -308,7 +309,7 @@ function Home() {
         <InfiniteScroll
           threshold={2000}
           pageStart={0}
-          initialLoad={false}
+          initialLoad
           loadMore={() => { setRequestAdditionalPosts(true); }}
           hasMore={!noMoreData}
         >

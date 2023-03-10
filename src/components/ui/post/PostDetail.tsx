@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  useLocation, useNavigate, useParams, useSearchParams,
+  useNavigate, useParams, useSearchParams,
 } from 'react-router-dom';
 import { createBlockUser } from '../../../api/blocks';
 import {
@@ -45,7 +45,6 @@ interface Props {
 function PostDetail({ user, postType }: Props) {
   const { userName, postId, partnerId } = useParams<string>();
   const [searchParams] = useSearchParams();
-  const location = useLocation();
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState<string[]>([]);
   const [commentErrorMessage, setCommentErrorMessage] = useState<string[]>([]);
@@ -399,7 +398,7 @@ function PostDetail({ user, postType }: Props) {
       .catch((error) => {
         setErrorMessage(error.response.data.message);
       });
-  }, [navigate, partnerId, postId, postType, queryCommentId, user, queryReplyId, location]);
+  }, [navigate, partnerId, postId, postType, queryCommentId, user, queryReplyId]);
 
   useEffect(() => {
     if (postId) {

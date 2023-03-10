@@ -1,6 +1,8 @@
 /* eslint-disable max-lines */
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import {
+  useLocation, useNavigate, useParams, useSearchParams,
+} from 'react-router-dom';
 import { createBlockUser } from '../../../api/blocks';
 import {
   addFeedComments, addFeedReplyComments, getFeedComments,
@@ -18,6 +20,7 @@ import { MentionProps } from '../../../routes/posts/create-post/CreatePost';
 import {
   CommentValue, FeedComments, Post, User,
 } from '../../../types';
+import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-utils';
 import { decryptMessage } from '../../../utils/text-utils';
 import FormatImageVideoList from '../../../utils/vido-utils';
 import { ContentPageWrapper } from '../../layout/main-site-wrapper/authenticated/ContentWrapper';
@@ -42,6 +45,9 @@ interface Props {
 function PostDetail({ user, postType }: Props) {
   const { userName, postId, partnerId } = useParams<string>();
   const [searchParams] = useSearchParams();
+  // console.log(searchParams, "searjkjk")
+  const location = useLocation();
+  // console.log(location, "location")
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState<string[]>([]);
   const [commentErrorMessage, setCommentErrorMessage] = useState<string[]>([]);
@@ -327,6 +333,8 @@ function PostDetail({ user, postType }: Props) {
             navigate(`/app/movies/${res.data.movieId}/reviews/${postId}?commentId=${queryCommentId}&replyId=${queryReplyId}`);
           } else if (queryCommentId) {
             navigate(`/app/movies/${res.data.movieId}/reviews/${postId}?commentId=${queryCommentId}`);
+          } else if (location.hash === '#comments') {
+            navigate(`/app/movies/${res.data.movieId}/reviews`);
           } else {
             navigate(`/app/movies/${res.data.movieId}/reviews/${postId}#comments`);
           }
@@ -370,6 +378,7 @@ function PostDetail({ user, postType }: Props) {
             worthWatching: res.data?.reviewData?.worthWatching,
             contentHeading: res?.data?.title,
             spoilers: res.data.spoilers,
+            movieId: res.data.movieId,
           };
         } else {
           // Regular post
@@ -394,7 +403,7 @@ function PostDetail({ user, postType }: Props) {
       .catch((error) => {
         setErrorMessage(error.response.data.message);
       });
-  }, [navigate, partnerId, postId, postType, queryCommentId, user, queryReplyId]);
+  }, [navigate, partnerId, postId, postType, queryCommentId, user, queryReplyId, location]);
 
   useEffect(() => {
     if (postId) {
@@ -570,6 +579,15 @@ function PostDetail({ user, postType }: Props) {
     }
   };
 
+  const handleSpoiler = (spoilerPostId: string) => {
+    const spoilerIdList = getLocalStorage('spoilersIds');
+    if (!spoilerIdList.includes(spoilerPostId)) {
+      spoilerIdList.push(spoilerPostId);
+      setLocalStorage('spoilersIds', JSON.stringify(spoilerIdList));
+      getFeedPostDetail(postId!);
+    }
+  };
+
   const reportPost = (reason: string) => {
     const reportPayload = {
       targetId: popoverClick?.id,
@@ -663,6 +681,7 @@ function PostDetail({ user, postType }: Props) {
                 commentImages={commentImages}
                 setCommentImages={setCommentImages}
                 commentError={commentErrorMessage}
+
               />
               {dropDownValue !== 'Edit'
                 && (
@@ -730,6 +749,8 @@ function PostDetail({ user, postType }: Props) {
               commentImages={commentImages}
               setCommentImages={setCommentImages}
               commentError={commentErrorMessage}
+              onSpoilerClick={handleSpoiler}
+            // movieId={postData[0].movieId}
             />
             {dropDownValue !== 'Edit'
               && (

@@ -189,9 +189,9 @@ function PostFeed({
     }
     return (
       <div>
-        {postType === 'review' && !post.spoilers && (
+        {postType === 'review' && (
           <div className="d-flex align-items-center">
-            {post.rating !== 0 && (
+            {post?.rating !== 0 && (
               <div className="px-3 py-2 bg-dark rounded-pill d-flex align-items-center">
                 <CustomRatingText
                   rating={post.rating}
@@ -202,7 +202,7 @@ function PostFeed({
                 />
               </div>
             )}
-            {post.goreFactor !== 0 && (
+            {post?.goreFactor !== 0 && (
               <div className="align-items-center bg-dark d-flex mx-3 px-3 py-2 rounded-pill">
                 <CustomRatingText
                   rating={post.goreFactor}
@@ -221,7 +221,7 @@ function PostFeed({
                 customCircleHeight="16px"
                 customIconWidth="8.53px"
                 customIconHeight="8.53px"
-                worthIt={post.worthWatching}
+                worthIt={post.worthWatching === WorthWatchingStatus.Up ? 1 : 0}
               />
             )}
           </div>
@@ -231,7 +231,9 @@ function PostFeed({
             {post.contentHeading}
           </h1>
         )}
-        {(!detailPage && post.spoilers && post.id !== spoilerId)
+        {(post.spoilers
+          && !spoilerId.includes(post.id)
+        )
           ? (
             <div className="d-flex flex-column align-items-center p-5" style={{ backgroundColor: '#1B1B1B' }}>
               <h2 className="text-primary fw-bold">Warning</h2>

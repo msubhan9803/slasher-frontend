@@ -71,7 +71,7 @@ type OptionType = { value: string, label: string, devOnly?: boolean };
 const tabsForAllViews: OptionType[] = [
   { value: 'details', label: 'Details' },
   { value: 'posts', label: 'Posts', devOnly: true },
-  { value: 'reviews', label: 'Reviews', devOnly: true },
+  { value: 'reviews', label: 'Reviews' },
 ];
 const tabsForSelf: OptionType[] = [
   ...tabsForAllViews,

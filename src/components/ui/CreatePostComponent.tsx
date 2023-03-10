@@ -17,7 +17,7 @@ import RatingButtonGroups from './RatingButtonGroups';
 import CustomWortItText from './CustomWortItText';
 import { StyledBorder } from './StyledBorder';
 import WorthWatchIcon from '../../routes/movies/components/WorthWatchIcon';
-import { MovieData } from '../../types';
+import { MovieData, WorthWatchingStatus } from '../../types';
 
 interface MentionProps {
   id: string;
@@ -52,11 +52,12 @@ interface Props {
   setGoreFactor?: (value: number) => void;
   selectedPostType?: string;
   setSelectedPostType?: (value: string) => void;
-  setWorthIt: (val: boolean) => void;
-  liked: boolean;
-  setLike: (val: boolean) => void;
-  disLiked: boolean;
-  setDisLike: (val: boolean) => void;
+  setWorthIt?: (val: boolean) => void;
+  liked?: boolean;
+  setLike?: (val: boolean) => void;
+  disLiked?: boolean;
+  setDisLike?: (val: boolean) => void;
+  isWorthIt?: number;
 }
 
 const AddPhotosButton = styled(RoundButton)`
@@ -76,7 +77,7 @@ function CreatePostComponent({
   deleteImageIds, setDeleteImageIds, postType, titleContent, setTitleContent,
   containSpoiler, setContainSpoiler, rating, setRating, goreFactor, setGoreFactor,
   selectedPostType, setSelectedPostType, setWorthIt, liked, setLike,
-  disLiked, setDisLike,
+  disLiked, setDisLike, isWorthIt,
 }: Props) {
   const inputFile = useRef<HTMLInputElement>(null);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
@@ -147,10 +148,10 @@ function CreatePostComponent({
                 <WorthWatchIcon
                   movieData={movieData}
                   setWorthIt={setWorthIt}
-                  liked={liked}
-                  setLike={setLike}
-                  disLiked={disLiked}
-                  setDisLike={setDisLike}
+                  liked={liked!}
+                  setLike={setLike!}
+                  disLiked={disLiked!}
+                  setDisLike={setDisLike!}
                 />
                 <CustomWortItText
                   divClass="align-items-center py-2 px-3 bg-black rounded-pill"
@@ -159,7 +160,7 @@ function CreatePostComponent({
                   customCircleHeight="20px"
                   customIconWidth="10.67px"
                   customIconHeight="10.67px"
-                  worthIt={movieData && movieData.worthWatchingUpUsersCount}
+                  worthIt={isWorthIt === WorthWatchingStatus.Up ? 1 : 0}
                 />
               </div>
             </div>
@@ -316,5 +317,11 @@ CreatePostComponent.defaultProps = {
   setGoreFactor: undefined,
   selectedPostType: '',
   setSelectedPostType: undefined,
+  setWorthIt: () => { },
+  liked: false,
+  setLike: () => { },
+  disLiked: false,
+  setDisLike: () => { },
+  isWorthIt: 0,
 };
 export default CreatePostComponent;

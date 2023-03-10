@@ -20,7 +20,8 @@ import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import { useAppDispatch } from '../../../redux/hooks';
 import ReportModal from '../../../components/ui/ReportModal';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
-import { setLocalStorage } from '../../../utils/localstorage-utils';
+import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-utils';
+import { getMoviesById } from '../../../api/movies';
 
 type Props = {
   movieData: MovieData;
@@ -52,10 +53,8 @@ function MovieReviews({ movieData, setMovieData }: Props) {
   const [isWorthIt, setWorthIt] = useState<any>(0);
   const [liked, setLike] = useState<boolean>(false);
   const [disLiked, setDisLike] = useState<boolean>(false);
-
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-
   const handleCreateInput = () => {
     setShowReviewForm(true);
   };
@@ -68,15 +67,6 @@ function MovieReviews({ movieData, setMovieData }: Props) {
     });
   };
 
-  useEffect(() => {
-    if (movieData) {
-      setRating(movieData.userData.rating - 1);
-      setGoreFactor(movieData.userData.goreFactorRating - 1);
-      if (movieData.userData?.reviewPostId) {
-        getUserMovieReviewData(movieData.userData?.reviewPostId);
-      }
-    }
-  }, [movieData]);
   const callLatestFeedPost = useCallback(() => {
     if (id) {
       getMovieReview(id).then((res) => {
@@ -92,18 +82,28 @@ function MovieReviews({ movieData, setMovieData }: Props) {
           likeIcon: data.likedByUser,
           likeCount: data.likeCount,
           commentCount: data.commentCount,
-          rating: data?.reviewData.rating,
-          goreFactor: data?.reviewData.goreFactorRating,
-          worthWatching: data?.reviewData.worthWatching,
+          rating: data?.reviewData.rating || 0,
+          goreFactor: data?.reviewData.goreFactorRating || 0,
+          worthWatching: data?.reviewData.worthWatching || 0,
           contentHeading: data.title,
           movieId: id,
           spoilers: data.spoilers,
         }));
         setReviewPostData(newPosts);
-        setLoadingReviewPosts(true);
       });
     }
   }, [id]);
+
+  useEffect(() => {
+    if (movieData) {
+      setRating(movieData.userData.rating - 1);
+      setGoreFactor(movieData.userData.goreFactorRating - 1);
+      if (movieData.userData?.reviewPostId) {
+        getUserMovieReviewData(movieData.userData?.reviewPostId);
+      }
+      callLatestFeedPost();
+    }
+  }, [movieData, callLatestFeedPost]);
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     setShow(true);
@@ -116,6 +116,8 @@ function MovieReviews({ movieData, setMovieData }: Props) {
     if (value === 'Edit Review') {
       setShowReviewForm(true);
       getUserMovieReviewData(popoverClickProps.id!);
+      getMoviesById(id!)
+        .then((res) => setMovieData(res.data));
     }
   };
   const mentionReplacementMatchFunc = (match: string) => {
@@ -199,8 +201,8 @@ function MovieReviews({ movieData, setMovieData }: Props) {
   };
 
   useEffect(() => {
-    setLoadingReviewPosts(false);
     if (requestAdditionalReviewPosts && !loadingReviewPosts && id) {
+      setLoadingReviewPosts(false);
       getMovieReview(
         id,
         lastReviePostId.length > 0 ? lastReviePostId : undefined,
@@ -218,14 +220,13 @@ function MovieReviews({ movieData, setMovieData }: Props) {
           likeIcon: data.likedByUser,
           likeCount: data.likeCount,
           commentCount: data.commentCount,
-          rating: data?.reviewData?.rating,
-          goreFactor: data?.reviewData?.goreFactorRating,
-          worthWatching: data?.reviewData?.worthWatching,
+          rating: data?.reviewData?.rating || 0,
+          goreFactor: data?.reviewData?.goreFactorRating || 0,
+          worthWatching: data?.reviewData?.worthWatching || 0,
           contentHeading: data.title,
           movieId: id,
           spoilers: data.spoilers,
         }));
-        setLoadingReviewPosts(false);
         setReviewPostData((prev: Post[]) => [
           ...prev,
           ...newPosts,
@@ -233,6 +234,7 @@ function MovieReviews({ movieData, setMovieData }: Props) {
         if (res.data.length === 0) {
           setNoMoreData(true);
           setLastReviePostId('');
+          setLoadingReviewPosts(false);
         } else {
           setLastReviePostId(res.data[res.data.length - 1]._id);
         }
@@ -245,7 +247,7 @@ function MovieReviews({ movieData, setMovieData }: Props) {
         () => { setRequestAdditionalReviewPosts(false); setLoadingReviewPosts(false); },
       );
     }
-  }, [requestAdditionalReviewPosts, loadingReviewPosts, id, lastReviePostId]);
+  }, [requestAdditionalReviewPosts, loadingReviewPosts, id, lastReviePostId, movieData]);
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
@@ -282,7 +284,11 @@ function MovieReviews({ movieData, setMovieData }: Props) {
     }
   };
   const handleSpoiler = (postId: string) => {
-    setLocalStorage('spoilersIds', postId);
+    const spoilerIdList = getLocalStorage('spoilersIds');
+    if (!spoilerIdList.includes(postId)) {
+      spoilerIdList.push(postId);
+      setLocalStorage('spoilersIds', JSON.stringify(spoilerIdList));
+    }
     navigate(`/app/movies/${id}/reviews/${postId}#comments`);
   };
 
@@ -334,7 +340,6 @@ function MovieReviews({ movieData, setMovieData }: Props) {
           ? (
             <CreatePostComponent
               movieData={movieData}
-              // setMovieData={setMovieData}
               errorMessage={errorMessage}
               setPostMessageContent={setPostContent}
               defaultValue={postContent}
@@ -355,6 +360,7 @@ function MovieReviews({ movieData, setMovieData }: Props) {
               setLike={setLike}
               disLiked={disLiked}
               setDisLike={setDisLike}
+              isWorthIt={isWorthIt}
             />
           ) : (
             <CustomCreatePost
@@ -367,7 +373,7 @@ function MovieReviews({ movieData, setMovieData }: Props) {
       }
       <InfiniteScroll
         pageStart={0}
-        initialLoad={false}
+        initialLoad
         loadMore={() => { setRequestAdditionalReviewPosts(true); }}
         hasMore={!noMoreData}
       >

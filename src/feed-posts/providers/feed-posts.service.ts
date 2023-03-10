@@ -352,7 +352,10 @@ export class FeedPostsService {
   async findFeedPost(userId: string, movieId: string) {
     const feedPost = await this.feedPostModel
     .findOne({
-      $and: [{ userId: new mongoose.Types.ObjectId(userId) }, { movieId: new mongoose.Types.ObjectId(movieId) }],
+      $and: [
+        { userId: new mongoose.Types.ObjectId(userId) },
+        { movieId: new mongoose.Types.ObjectId(movieId) },
+        { is_deleted: FeedPostDeletionState.NotDeleted }],
     })
     .exec();
     return feedPost;

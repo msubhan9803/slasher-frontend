@@ -5,6 +5,7 @@ import { INestApplication, HttpStatus } from '@nestjs/common';
 import mongoose, { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
+import { EventEmitter } from 'stream';
 import { readdirSync } from 'fs';
 import { AppModule } from '../../../../../src/app.module';
 import { UsersService } from '../../../../../src/users/providers/users.service';
@@ -35,6 +36,8 @@ describe('Update Feed Post (e2e)', () => {
   };
 
   beforeAll(async () => {
+    //set max listeners value 12 because it required 12 images in 'only allows a maximum of 10 images'
+    EventEmitter.setMaxListeners(12);
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -400,10 +403,10 @@ describe('Update Feed Post (e2e)', () => {
         ),
       );
       const response = await request(app.getHttpServer())
-      .patch(`/api/v1/feed-posts/${feedPost3._id}`)
-      .auth(activeUserAuthToken, { type: 'bearer' })
-      .set('Content-Type', 'multipart/form-data')
-      .field('message', '');
+        .patch(`/api/v1/feed-posts/${feedPost3._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', '');
       expect(response.body).toEqual({
         statusCode: 400,
         message: 'Posts must have a message or at least one image. No message or image received.',

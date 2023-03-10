@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
   IsIn,
@@ -20,7 +20,7 @@ export class MoviePostDto {
 
   @IsNotEmpty()
   @IsBoolean()
-  @Type(() => Boolean)
+  @Transform(({ value }) => (value === 'true'))
   spoilers: boolean;
 
   @IsOptional()

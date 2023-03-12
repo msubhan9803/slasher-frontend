@@ -96,6 +96,7 @@ export class EventService {
     return daysToEventCounts;
   }
 
+  // Find events in a given distance (radially)
   async findAllByDistance(
     lattitude: number,
     longitude: number,
@@ -125,5 +126,25 @@ export class EventService {
       { $match: query },
     ]);
     return results;
+  }
+
+  // Find events in a given rectangle denotes by provided coordinates
+  async findAllInRectangle(
+    lattitudeTopRight: number,
+    longitudeTopRight: number,
+    lattitudeBottomLeft: number,
+    longitudeBottomLeft: number,
+    activeOnly: boolean,
+  ): Promise<Array<EventDocument>> {
+    const query: any = {
+      location: {
+        $geoWithin: { $box: [[lattitudeTopRight, longitudeTopRight], [lattitudeBottomLeft, longitudeBottomLeft]] },
+      },
+    };
+    if (activeOnly) {
+      query.deleted = false;
+      query.status = EventActiveStatus.Active;
+    }
+    return this.eventModel.find(query);
   }
 }

@@ -305,6 +305,56 @@ describe('EventService', () => {
     });
   });
 
+  describe('#findAllInRectangle', () => {
+    beforeEach(async () => {
+      await eventService.create(
+        eventsFactory.build({
+          userId: userData.id,
+          event_type: eventCategoryData.id,
+          status: EventActiveStatus.Active,
+          location: {
+            type: 'Point',
+            coordinates: [41.045877, -74.94479],
+          },
+        }),
+      );
+      await eventService.create(
+        eventsFactory.build({
+          userId: userData.id,
+          event_type: eventCategoryData.id,
+          status: EventActiveStatus.Active,
+          location: {
+            type: 'Point',
+            coordinates: [41.048899, -74.947958],
+          },
+        }),
+      );
+      await eventService.create(
+        eventsFactory.build({
+          userId: userData.id,
+          event_type: eventCategoryData.id,
+          status: EventActiveStatus.Active,
+          location: {
+            type: 'Point',
+            coordinates: [41.045877, -74.99479],
+          },
+        }),
+      );
+    });
+
+    it('find events in rectangluar region of given coordinates', async () => {
+      // coordinates of rectangle (top-right and bottom-left)
+      const lattitudeTopRight = 41.08840841260634;
+      const longitudeTopRight = -74.89843368530275;
+      const lattitudeBottomLeft = 41.01332484409777;
+      const longitudeBottomLeft = -75.03129959106447;
+
+      // eslint-disable-next-line max-len
+      const eventList1 = await eventService.findAllInRectangle(lattitudeTopRight, longitudeTopRight, lattitudeBottomLeft, longitudeBottomLeft, false);
+      expect(eventList1).toHaveLength(3);
+    });
+  });
+
   describe('#findCountsByDate', () => {
     const startDateForSearch = DateTime.fromISO('2022-10-16T00:00:00Z').toJSDate();
     const endDateForSearch = DateTime.fromISO('2022-10-22T23:59:59Z').toJSDate();

@@ -25,6 +25,7 @@ import { relativeToFullImagePath } from '../utils/image-utils';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
 import { ValidateAllEventDistanceDto } from './dto/validate-all-event-by-distance.dto';
+import { ValidateAllEventsByRectangularAreaDto } from './dto/validate-all-event-by-rectangular-area.dto';
 
 @Controller({ path: 'events', version: ['1'] })
 export class EventsController {
@@ -147,6 +148,35 @@ export class EventsController {
         [
           '_id', 'images', 'startDate', 'endDate', 'event_type', 'city', 'state', 'address',
           'country', 'location', 'distance', 'name',
+        ],
+      ),
+    );
+  }
+
+  @TransformImageUrls('$[*].images[*]')
+  @Get('by-rectangular-area')
+  async findAllInRectangle(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: ValidateAllEventsByRectangularAreaDto,
+  ) {
+    const eventData = await this.eventService.findAllInRectangle(
+      query.lattitudeTopRight,
+      query.longitudeTopRight,
+      query.lattitudeBottomLeft,
+      query.longitudeBottomLeft,
+      false,
+    );
+    eventData.forEach((event) => {
+      if (event.images.length === 0) {
+        event.images.push(relativeToFullImagePath(this.config, '/placeholders/no_image_available.png'));
+      }
+    });
+    return eventData.map(
+      (event) => pick(
+        event,
+        [
+          '_id', 'images', 'startDate', 'endDate', 'event_type', 'city', 'state', 'address',
+          'country', 'location', 'name',
         ],
       ),
     );

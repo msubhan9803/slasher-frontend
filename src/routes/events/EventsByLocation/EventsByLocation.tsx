@@ -1,9 +1,9 @@
 /* eslint-disable max-lines */
 import React, {
-  useEffect, useMemo, useState,
+  useEffect, useMemo, useRef, useState,
 } from 'react';
 import { Col, Row } from 'react-bootstrap';
-import { LatLngLiteral } from 'leaflet';
+import Leaflet, { LatLngLiteral } from 'leaflet';
 import { DateTime } from 'luxon';
 import _ from 'lodash';
 import EventHeader from '../EventHeader';
@@ -15,8 +15,8 @@ import PubWiseAd from '../../../components/ui/PubWiseAd';
 import useBootstrapBreakpointName from '../../../hooks/useBootstrapBreakpoint';
 import checkAdsEventByLocation from './checkAdsEventByLocation';
 import { EVENTS_BY_LOCATION_DIV_ID } from '../../../utils/pubwise-ad-units';
-import { EVENTS_MAP_CENTER } from '../../../constants';
-import { getEventsByDistance } from '../../../api/eventByDistance';
+import { DEFAULT_EVENTS_USER_LOCATION } from '../../../constants';
+import { getEventsByRectangularArea } from '../../../api/eventByDistance';
 import { LocationPointType } from '../../../types';
 
 type GetLocationOptions = { city: string, state: string, country: string };
@@ -41,15 +41,16 @@ type EventType = {
 };
 
 function EventsByLocation() {
-  const [center, setCenter] = useState<LatLngLiteral>(EVENTS_MAP_CENTER);
+  const [userLocation, setUserLocation] = useState<LatLngLiteral>(DEFAULT_EVENTS_USER_LOCATION);
   const [events, setEvents] = useState<EventType[]>([]);
   const bp = useBootstrapBreakpointName();
+  const mapRef = useRef<Leaflet.Map>(null);
   const onCenterChangeDebounced = useMemo(() => _.debounce(
-    (newCenter: LatLngLiteral) => setCenter(
+    (newCenter: LatLngLiteral) => setUserLocation(
       { lat: Number(newCenter.lat), lng: Number(newCenter.lng) },
     ),
     500,
-  ), [setCenter]);
+  ), [setUserLocation]);
   const markerLocations = useMemo(() => events.map((evt) => {
     const [lat, lng] = evt.locationPoint.coordinates;
     return {
@@ -63,9 +64,24 @@ function EventsByLocation() {
     };
   }), [events]);
 
-  useEffect(() => {
-    const maxDistanceMiles = 300;
-    getEventsByDistance(center.lat, center.lng, maxDistanceMiles)
+  const fetchAndSetEventsDebounced = useMemo(() => _.debounce(() => {
+    if (!mapRef.current) { return; }
+
+    const visibleMap = mapRef.current.getBounds();
+    const {
+      lat: lattitudeTopRight,
+      lng: longitudeTopRight,
+    } = visibleMap.getNorthEast();
+    const {
+      lat: lattitudeBottomLeft,
+      lng: longitudeBottomLeft,
+    } = visibleMap.getSouthWest();
+    getEventsByRectangularArea(
+      lattitudeTopRight,
+      longitudeTopRight,
+      lattitudeBottomLeft,
+      longitudeBottomLeft,
+    )
       .then((res) => setEvents(res.data.map((evt: any) => ({
         id: evt._id,
         image: evt?.images[0] ?? `${EventPoster}`,
@@ -76,18 +92,23 @@ function EventsByLocation() {
         name: evt.name,
         dateRange: `${DateTime.fromISO(evt.startDate).toFormat('dd-MM-yyyy')} - ${DateTime.fromISO(evt.endDate).toFormat('dd-MM-yyyy')}`,
       }))));
-  }, [center]);
+  }, 1_000), []);
+
+  useEffect(() => {
+    fetchAndSetEventsDebounced();
+  }, [fetchAndSetEventsDebounced, userLocation]);
 
   return (
     <div>
       <EventHeader tabKey="by-location" />
       <div className="mt-3 bg-dark bg-mobile-transparent p-4 rounded">
         <MapComponent
-          defaultCenter={center}
-          // eslint-disable-next-line max-len
+          ref={mapRef}
+          defaultCenter={userLocation}
           onCenterChange={onCenterChangeDebounced}
-          defaultZoomLevel={10}
+          defaultZoomLevel={5}
           markerLocations={markerLocations}
+          handlePanAndZoom={fetchAndSetEventsDebounced}
         />
         <p
           className="fs-3 text-light mt-4 mb-3 text-center"

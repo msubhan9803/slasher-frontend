@@ -1,9 +1,12 @@
+/* eslint-disable react/destructuring-assignment */
 /* eslint-disable max-lines */
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useEffect, useState,
+} from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  TileLayer, Marker, Popup, MapContainer, useMapEvents, FeatureGroup,
+  TileLayer, Marker, Popup, MapContainer, useMapEvents,
 } from 'react-leaflet';
 import {
   Alert,
@@ -17,13 +20,6 @@ import { Link } from 'react-router-dom';
 import ErrorMessageList from './ErrorMessageList';
 import { MarkerLocationType } from '../../types';
 
-// Sample markers data for PR reviewing/testing/debugging
-// const latLngs = [
-//   { lat: 41.045877, lng: -74.94479 },
-//   { lat: 41.048899, lng: -74.947958 },
-//   { lat: 41.045877, lng: -74.99479 },
-// ];
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function MapDebugger() {
   const map = useMapEvents({
@@ -31,6 +27,19 @@ function MapDebugger() {
       map.locate();
       // eslint-disable-next-line no-console
       console.log('clicked location?', e.latlng.toString());
+    },
+  });
+  return null;
+}
+
+function RegisterPanAndZoomEvents({ handlePanAndZoom }: { handlePanAndZoom: Function }) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const map = useMapEvents({
+    moveend: () => {
+      handlePanAndZoom();
+    },
+    zoomend: () => {
+      handlePanAndZoom();
     },
   });
   return null;
@@ -72,11 +81,12 @@ interface Props {
   defaultZoomLevel: number,
   onCenterChange: (newCenter: LatLngLiteral) => void,
   markerLocations: Array<MarkerLocationType>,
+  handlePanAndZoom: Function,
 }
 
 function MapComponent({
-  defaultCenter, defaultZoomLevel, onCenterChange, markerLocations,
-}: Props) {
+  defaultCenter, defaultZoomLevel, onCenterChange, markerLocations, handlePanAndZoom,
+}: Props, mapRef: any) {
   const [center, setCenter] = useState<LatLngLiteral>(defaultCenter);
   const [errors, setErrors] = useState<string[]>([]);
   const [
@@ -84,8 +94,6 @@ function MapComponent({
   ] = useState<string | null>(null);
   const [lastLocationSearchQuery, setLastLocationSearchQuery] = useState<string>('');
   const [locationSearchQuery, setLocationSearchQuery] = useState<string>('');
-  const mapRef = useRef<Leaflet.Map>(null);
-  const featureGroupRef = useRef<Leaflet.FeatureGroup>(null);
 
   // Whenever center changes, call onCenterChange
   useEffect(() => {
@@ -107,16 +115,6 @@ function MapComponent({
       onError();
     }
   };
-
-  useEffect(() => {
-    if (!featureGroupRef.current || !mapRef.current) { return; }
-    if (!featureGroupRef.current.getBounds().isValid()) { return; }
-    if (markerLocations.length === 0) { return; }
-
-    // Animations Choices:
-    // 1. Instant: map.fitBounds()`, 2. Animated: `map.flyToBounds()`
-    mapRef.current.flyToBounds(featureGroupRef.current.getBounds());
-  }, [markerLocations]);
 
   const lookUpLocation = async (locationString: string) => {
     let query = locationString;
@@ -205,35 +203,33 @@ function MapComponent({
           attribution={'&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}
         />
 
-        <FeatureGroup
-          ref={featureGroupRef}
-        >
-          {markerLocations.map((markerDetails) => (
-            <Marker
-              key={markerDetails.id}
-              position={markerDetails.latLng}
-              icon={customMarkerIcon}
-            >
-              <Popup>
-                <div>
-                  <p className="fs-5 fw-normal mb-3 ">{markerDetails.dateRange}</p>
-                  <div className="d-flex align-items-baseline">
-                    <FontAwesomeIcon icon={solid('location-dot')} className="text-primary me-2" size="lg" />
-                    <span className="fs-3 fw-normal mb-2">{markerDetails.address}</span>
-                  </div>
-                  <h1 className="h3 fw-bold">{markerDetails.name}</h1>
-                  <Link to={markerDetails.linkAddress} className="text-decoration-none btn bg-transparent text-primary border-0 shadow-none p-0">
-                    {markerDetails.linkText}
-                  </Link>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
+        {markerLocations.map((markerDetails) => (
           <Marker
-            position={center}
-            icon={userMarkerIcon}
-          />
-        </FeatureGroup>
+            key={markerDetails.id}
+            position={markerDetails.latLng}
+            icon={customMarkerIcon}
+          >
+            <Popup>
+              <div>
+                <p className="fs-5 fw-normal mb-3 ">{markerDetails.dateRange}</p>
+                <div className="d-flex align-items-baseline">
+                  <FontAwesomeIcon icon={solid('location-dot')} className="text-primary me-2" size="lg" />
+                  <span className="fs-3 fw-normal mb-2">{markerDetails.address}</span>
+                </div>
+                <h1 className="h3 fw-bold">{markerDetails.name}</h1>
+                <Link to={markerDetails.linkAddress} className="text-decoration-none btn bg-transparent text-primary border-0 shadow-none p-0">
+                  {markerDetails.linkText}
+                </Link>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+        <Marker
+          position={center}
+          icon={userMarkerIcon}
+        />
+
+        <RegisterPanAndZoomEvents handlePanAndZoom={handlePanAndZoom} />
 
         {/* For development only */}
         {/* { enableDevFeatures && <MapDebugger /> } */}
@@ -242,4 +238,4 @@ function MapComponent({
   );
 }
 
-export default MapComponent;
+export default React.forwardRef(MapComponent);

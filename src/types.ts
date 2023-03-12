@@ -248,12 +248,16 @@ export interface CommentValue {
   commentMessage: string,
   imageArr?: string[],
   commentId?: string,
+  images?: any,
+  deleteImage?: string[],
 }
 export interface ReplyValue {
   replyMessage: string,
   commentId?: string,
   imageArr?: string[],
   replyId?: string,
+  images?: any,
+  deleteImage?: string[],
 }
 export enum WorthWatchingStatus {
   NoRating = 0,
@@ -291,3 +295,5 @@ export type MarkerLocationType = {
   linkText: string,
   linkAddress: string,
 };
+
+export type PostButtonClickType = 'like' | 'share' | '';

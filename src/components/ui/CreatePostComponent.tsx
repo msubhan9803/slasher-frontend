@@ -3,7 +3,7 @@ import React, { ChangeEvent, useRef, useState } from 'react';
 import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Row, Col, Form, Button,
+  Row, Col, Button, Form,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { useSearchParams } from 'react-router-dom';
@@ -78,25 +78,27 @@ function CreatePostComponent({
 
   const handleRemoveFile = (postImage: any) => {
     const removePostImage = imageArray.filter((image: File) => image !== postImage);
-    setDeleteImageIds([...deleteImageIds, postImage._id]);
+    setDeleteImageIds([...deleteImageIds, postImage._id].filter(Boolean));
     setImageArray(removePostImage);
   };
 
   const handleFileChange = (postImage: ChangeEvent<HTMLInputElement>) => {
-    if (!postImage.target) {
+    const postImageEvent = postImage;
+    if (!postImageEvent.target) {
       return;
     }
-    if (postImage.target.name === 'post' && postImage.target && postImage.target.files) {
+    if (postImageEvent.target.name === 'post' && postImageEvent.target && postImageEvent.target.files) {
       const uploadedPostList = [...uploadPost] as any;
       const imageArrayList = [...imageArray];
-      const fileList = postImage.target.files;
+      const fileList = postImageEvent.target.files;
       for (let list = 0; list < fileList.length; list += 1) {
         if (uploadedPostList.length < 10) {
-          const image = postImage.target.files[list];
+          const image = postImageEvent.target.files[list];
           uploadedPostList.push(image);
-          imageArrayList.push(postImage.target.files[list]);
+          imageArrayList.push(postImageEvent.target.files[list]);
         }
       }
+      postImageEvent.target.value = '';
       setUploadPost(uploadedPostList);
       setImageArray(imageArrayList);
     }
@@ -172,7 +174,6 @@ function CreatePostComponent({
             charCount={titleContent!.length}
             totalChar={150}
             right="10px"
-            top="16px"
           />
         </div>
       )}

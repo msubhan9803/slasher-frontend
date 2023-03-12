@@ -1,17 +1,13 @@
 import React, {
   useCallback, useEffect, useRef, useState,
 } from 'react';
-import styled from 'styled-components';
 import InfiniteScroll from 'react-infinite-scroller';
+import { Link } from 'react-router-dom';
 import UserCircleImage from './UserCircleImage';
 import { FriendRequestReaction } from '../../types';
 import { getLikeUsersForPost } from '../../api/feed-posts';
 import FriendActionButtons from './Friend/FriendActionButtons';
 import { friendship } from '../../api/friends';
-
-const SmallText = styled.p`
-    font-size: .75rem;
-  `;
 
 type PostLike = {
   _id: string,
@@ -39,7 +35,6 @@ function FriendAction({ postLike }: { postLike: PostLike }) {
   );
 
   useEffect(() => {
-    /* eslint no-underscore-dangle: 0 */
     friendship(postLike._id).then((res) => {
       setFriendData(res.data);
       setFriendStatus(res.data.reaction);
@@ -67,10 +62,11 @@ function PostLikes({ postLikesList } : PostLikesProp) {
             <UserCircleImage src={postLike.profilePic} />
           </div>
           <div className="px-3 flex-grow-1 min-width-0">
-            <p className="mb-0">
-              {postLike.firstName}
-            </p>
-            <SmallText className="text-light mb-0">{postLike.userName}</SmallText>
+            <Link className="text-decoration-none" to={`/${postLike.userName}/posts`}>
+              <p className="mb-0">
+                {postLike.userName}
+              </p>
+            </Link>
           </div>
           <FriendAction postLike={postLike} />
         </div>

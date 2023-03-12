@@ -8,6 +8,7 @@ import { brands } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from 'react-bootstrap';
 import CustomYoutubeModal from './CustomYoutubeModal';
+import { useAppSelector } from '../../redux/hooks';
 
 interface SliderImage {
   postId: string;
@@ -43,7 +44,7 @@ const StyledSwiper = styled(Swiper)`
 .swiper-slide {
   text-align: center;
   font-size: 1.125rem;
-  background: #000;
+  background: var(--bs-black);
   height:450px;
 
   /* Center slide text vertically */
@@ -74,6 +75,8 @@ const PostImage = styled.div`
 `;
 function CustomSwiper({ images, initialSlide, onSelect }: Props) {
   const [showVideoPlayerModal, setShowYouTubeModal] = useState(false);
+  const { placeholderUrlNoImageAvailable } = useAppSelector((state) => state.remoteConstants);
+  const [hideSwiper, setHideSwiper] = useState(false);
 
   const displayVideoAndImage = (imageAndVideo: SliderImage) => {
     if (imageAndVideo.videoKey) {
@@ -83,6 +86,14 @@ function CustomSwiper({ images, initialSlide, onSelect }: Props) {
             src={`https://img.youtube.com/vi/${imageAndVideo.videoKey}/hqdefault.jpg`}
             className="w-100 h-100"
             alt="user uploaded content"
+            onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+              if (images.length > 1) {
+                e.currentTarget.src = placeholderUrlNoImageAvailable;
+              } else {
+                setHideSwiper(true);
+              }
+            }}
+            onLoad={() => setHideSwiper(false)}
           />
           <StyledYouTubeButton
             variant="link"
@@ -101,14 +112,38 @@ function CustomSwiper({ images, initialSlide, onSelect }: Props) {
           className="h-100"
         >
           <PostImage>
-            <img src={imageAndVideo.imageUrl} className="w-100 h-100" alt="user uploaded content" />
+            <img
+              src={imageAndVideo.imageUrl}
+              className="w-100 h-100"
+              alt="user uploaded content"
+              onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                if (images.length > 1) {
+                  e.currentTarget.src = placeholderUrlNoImageAvailable;
+                } else {
+                  setHideSwiper(true);
+                }
+              }}
+              onLoad={() => setHideSwiper(false)}
+            />
           </PostImage>
         </Link>
       );
     }
     return (
       <PostImage>
-        <img src={imageAndVideo.imageUrl} className="w-100 h-100" alt="user uploaded content" />
+        <img
+          src={imageAndVideo.imageUrl}
+          className="w-100 h-100"
+          alt="user uploaded content"
+          onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+            if (images.length > 1) {
+              e.currentTarget.src = placeholderUrlNoImageAvailable;
+            } else {
+              setHideSwiper(true);
+            }
+          }}
+          onLoad={() => setHideSwiper(false)}
+        />
       </PostImage>
     );
   };
@@ -120,6 +155,7 @@ function CustomSwiper({ images, initialSlide, onSelect }: Props) {
         initialSlide={initialSlide}
         navigation
         modules={[Pagination, Navigation]}
+        className={hideSwiper ? 'd-none' : 'd-block'}
       >
         {
           images.map((image: SliderImage) => (
@@ -131,11 +167,11 @@ function CustomSwiper({ images, initialSlide, onSelect }: Props) {
       </StyledSwiper>
       {images?.[0]?.videoKey
         && (
-        <CustomYoutubeModal
-          show={showVideoPlayerModal}
-          setShow={setShowYouTubeModal}
-          videokey={images?.[0]?.videoKey}
-        />
+          <CustomYoutubeModal
+            show={showVideoPlayerModal}
+            setShow={setShowYouTubeModal}
+            videokey={images?.[0]?.videoKey}
+          />
         )}
     </>
   );

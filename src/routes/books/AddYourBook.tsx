@@ -90,11 +90,9 @@ function AddYourBook() {
                       className="fs-5"
                     />
                     <CharactersCounter
-                      counterClass="float-end fs-5"
+                      counterClass="float-end fs-5 me-2"
                       charCount={charCount}
                       totalChar={1000}
-                      marginTop="-1.89rem"
-                      marginRight=".75rem"
                     />
                   </Form.Group>
                 </Col>

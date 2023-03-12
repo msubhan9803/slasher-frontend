@@ -36,7 +36,6 @@ function ProfilePhotos({ user }: Props) {
   useEffect(() => {
     if (requestAdditionalPhotos && !loadingPhotos) {
       setLoadingPhotos(true);
-      /* eslint no-underscore-dangle: 0 */
       userPhotos(
         user._id,
         userPhotosList.length > 0 ? userPhotosList[userPhotosList.length - 1].id : undefined,
@@ -44,7 +43,6 @@ function ProfilePhotos({ user }: Props) {
         .then((res) => {
           const newPhotoList = res.data.map((data: any) => (
             {
-              /* eslint no-underscore-dangle: 0 */
               id: data._id,
               imagesList: data.images,
             }

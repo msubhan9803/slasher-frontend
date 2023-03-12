@@ -35,7 +35,7 @@ const StyledBadge = styled.div`
 function TabLinks({
   tabLink, selectedTab, toLink, params, display, tabsClass, tabsClassSmall,
 }: TabLinksProps) {
-  const color = '#ffffff';
+  const color = 'var(--bs-link-color)';
   const theme = createTheme({
     components: {
       MuiTabs: {

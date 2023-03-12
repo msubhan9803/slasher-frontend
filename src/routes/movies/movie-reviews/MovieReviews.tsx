@@ -27,13 +27,16 @@ function MovieReviews() {
       const finalString: any = formatMention.find(
         (matchMention: FormatMentionProps) => match.includes(matchMention.value),
       );
-      return finalString.format;
+      if (finalString) {
+        return finalString.format;
+      }
+      return match;
     }
     return undefined;
   };
   const addPost = () => {
     /* eslint no-useless-escape: 0 */
-    const postContentWithMentionReplacements = (postContent.replace(/\@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    const postContentWithMentionReplacements = (postContent.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
     const groupPostData = {
       title: titleContent,
       message: postContentWithMentionReplacements,

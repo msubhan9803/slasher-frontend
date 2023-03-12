@@ -8,7 +8,7 @@ const StarLabel = styled.span`
   bottom: .2rem;
   right: .2rem;
   .svg-inline--fa {
-    color: #FF8A00;
+    color: var(--bs-orange);
     shape-rendering: geometricPrecision; // better rendering for small SVG
   }
 `;
@@ -17,7 +17,7 @@ const YearAndThumbRating = styled.div`
   font-size: 0.625rem;
   .svg-inline--fa {
     border: 1px solid #3A3B46;
-    color: #FF8A00;
+    color: var(--bs-orange);
     font-size: .5rem;
     padding: .15rem;
     shape-rendering: geometricPrecision; // better rendering for small SVG

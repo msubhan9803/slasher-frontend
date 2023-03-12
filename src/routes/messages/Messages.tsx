@@ -55,7 +55,6 @@ function Messages() {
           const userDetail = data.participants.find(
             (participant: any) => participant._id !== userId,
           );
-          /* eslint no-underscore-dangle: 0 */
           const message = {
             _id: data._id,
             id: userDetail!._id,
@@ -100,7 +99,6 @@ function Messages() {
           const userDetail = data.participants.find(
             (participant: any) => participant._id !== userId,
           );
-          /* eslint no-underscore-dangle: 0 */
           const message = {
             _id: data._id,
             id: userDetail!._id,

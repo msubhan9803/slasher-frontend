@@ -20,15 +20,6 @@ interface MovieDetaisProps {
   setMovieData?: React.Dispatch<React.SetStateAction<MovieData | undefined>>
   rateType?: 'rating' | 'goreFactorRating';
 }
-// const RatingStar = styled.div`
-//   .fa-star {
-//     width: rem;
-//     height: rem;
-//   }
-//   .rate {
-//     color: #FF8A00;
-//   }
-// `;
 const RatingGore = styled.div`
   img {
     width: 2rem;

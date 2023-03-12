@@ -1,28 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import { Modal } from 'react-bootstrap';
 import { FormatMentionProps } from '../../../routes/posts/create-post/CreatePost';
-import MessageTextarea, { MentionListProps } from '../MessageTextarea';
-import RoundButton from '../RoundButton';
+import CreatePostComponent from '../CreatePostComponent';
 import ModalContainer from '../CustomModal';
 import { decryptMessage } from '../../../utils/text-utils';
 
 interface Props {
   show: boolean;
+  errorMessage: string[];
   setShow: (value: boolean) => void;
-  handleSearch: (val: string) => void;
-  mentionList: MentionListProps[];
   setPostContent: (val: string) => void;
   postContent: string;
-  onUpdatePost: (value: string) => void;
+  onUpdatePost: (value: string, images: string[], deleteImageIds: string[] | undefined) => void;
+  postImages: string[];
+  setPostImages: any;
+  deleteImageIds?: string[];
+  setDeleteImageIds?: (val: string) => void;
 }
 function EditPostModal({
   show,
+  errorMessage,
   setShow,
-  handleSearch,
-  mentionList,
   setPostContent,
   postContent,
   onUpdatePost,
+  postImages,
+  setPostImages,
+  deleteImageIds,
+  setDeleteImageIds,
 }: Props) {
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   useEffect(() => {
@@ -45,17 +50,21 @@ function EditPostModal({
     setShow(false);
   };
   const mentionReplacementMatchFunc = (match: string) => {
-    if (match) {
+    if (match && formatMention) {
       const finalString: any = formatMention.find(
         (matchMention: FormatMentionProps) => match.includes(matchMention.value),
       );
-      return finalString.format;
+      if (finalString) {
+        return finalString.format;
+      }
+      return match;
     }
     return undefined;
   };
-  const handleMessage = () => {
-    const postContentWithMentionReplacements = (postContent.replace(/@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
-    onUpdatePost(postContentWithMentionReplacements);
+  const updatePost = () => {
+    const postContentWithMentionReplacements = (postContent.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    const files = postImages.filter((images: any) => images instanceof File);
+    onUpdatePost(postContentWithMentionReplacements, files, deleteImageIds);
   };
   return (
     <ModalContainer
@@ -67,27 +76,24 @@ function EditPostModal({
       <Modal.Header className="bg-dark border-0 shadow-none justify-content-end" closeButton />
       <Modal.Body className="bg-dark d-flex flex-column pt-0">
         <h1 className="h1 mb-0 text-primary text-center pb-2">Edit</h1>
-        <MessageTextarea
-          rows={10}
-          placeholder="Create a post"
-          handleSearch={handleSearch}
-          mentionLists={mentionList}
-          setMessageContent={setPostContent}
-          formatMentionList={formatMention}
-          setFormatMentionList={setFormatMention}
+        <CreatePostComponent
+          setPostMessageContent={setPostContent}
+          errorMessage={errorMessage}
+          createUpdatePost={updatePost}
+          imageArray={postImages}
+          setImageArray={setPostImages}
           defaultValue={decryptMessage(postContent)}
+          formatMention={formatMention}
+          setFormatMention={setFormatMention}
+          deleteImageIds={deleteImageIds}
+          setDeleteImageIds={setDeleteImageIds}
         />
-        <div className="d-flex flex-wrap justify-content-between">
-          <RoundButton variant="black" className="px-4 mt-4" size="md" onClick={closeModal}>
-            <span className="h3">Cancel</span>
-          </RoundButton>
-          <RoundButton className="px-4 mt-4" size="md" onClick={handleMessage}>
-            <span className="h3">Update</span>
-          </RoundButton>
-        </div>
       </Modal.Body>
     </ModalContainer>
   );
 }
-
+EditPostModal.defaultProps = {
+  deleteImageIds: [],
+  setDeleteImageIds: undefined,
+};
 export default EditPostModal;

@@ -7,7 +7,6 @@ export interface BooksProps {
   year: string,
   liked: boolean,
 }
-
 export interface BookIconProps {
   label: string;
   icon: IconDefinition;

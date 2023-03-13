@@ -14,7 +14,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import PostFooter from './PostFooter';
 import {
-  CommentValue, Post, PostButtonClickType, ReplyValue, WorthWatchingStatus
+  CommentValue, Post, PostButtonClickType, ReplyValue, WorthWatchingStatus,
 } from '../../../../types';
 import LikeShareModal from '../../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';

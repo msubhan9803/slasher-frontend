@@ -270,7 +270,7 @@ function ProfilePosts({ user }: Props) {
       <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
       <InfiniteScroll
         pageStart={0}
-        initialLoad={false}
+        initialLoad
         loadMore={() => { setRequestAdditionalPosts(true); }}
         hasMore={!noMoreData}
       >

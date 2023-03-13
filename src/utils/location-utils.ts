@@ -1,3 +1,4 @@
+// TODO-SAHIL: Opinion? Should we remove this data or keep for future data-consistency checking?
 /* eslint-disable import/prefer-default-export */
 export const stateOptions = [
   { name: 'Alabama', value: 'AL' },

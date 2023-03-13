@@ -31,6 +31,7 @@
     "axios": "^0.27.2",
     "bootstrap": "^5.2.3",
     "copy-to-clipboard": "^3.3.3",
+    "country-state-city": "^3.1.2",
     "date-fns": "^2.29.1",
     "js-cookie": "^3.0.1",
     "leaflet": "^1.8.0",

@@ -127,7 +127,7 @@ export class MoviesController {
       }
     });
     return movies.map(
-      (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating']),
+      (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating', 'worthWatching']),
     );
   }
 

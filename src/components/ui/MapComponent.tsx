@@ -1,7 +1,7 @@
 /* eslint-disable react/destructuring-assignment */
 /* eslint-disable max-lines */
 import React, {
-  useEffect, useState,
+  useEffect, useMemo, useRef, useState,
 } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,16 +9,30 @@ import {
   TileLayer, Marker, Popup, MapContainer, useMapEvents,
 } from 'react-leaflet';
 import {
-  Alert,
-  Button, Col, Form, InputGroup, Row,
+  Alert, Col, Form, InputGroup, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import Leaflet, { LatLngLiteral } from 'leaflet';
 import ReactDOMServer from 'react-dom/server';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import _ from 'lodash';
 import ErrorMessageList from './ErrorMessageList';
 import { MarkerLocationType } from '../../types';
+import RoundButton from './RoundButton';
+
+const lookUpLocation = async (locationString: string) => {
+  let query = locationString;
+
+  // Query Correction for massachusetts search
+  if (query.toLowerCase().replaceAll(' ', '').endsWith(',ma')) {
+    query = `${query.trim()}ssachusetts`;
+  }
+
+  return (await axios.post(
+    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`,
+  )).data;
+};
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function MapDebugger() {
@@ -92,8 +106,31 @@ function MapComponent({
   const [
     resolvedSearchLocationDisplayName, setResolvedSearchLocationDisplayName,
   ] = useState<string | null>(null);
-  const [lastLocationSearchQuery, setLastLocationSearchQuery] = useState<string>('');
-  const [locationSearchQuery, setLocationSearchQuery] = useState<string>('');
+  const [locationSearchQuery, setLocationSearchQuery] = useState('');
+  const lastLocationQueryRef = useRef('');
+
+  const setMapLocationFromLocationSearchQueryNew = useMemo(() => _.debounce(
+    async (value: string) => {
+      if ((value === '') || (value === lastLocationQueryRef.current)) {
+        // To reduce API calls, only perform lookup if query is different than last search.
+        // Prevents a double search if someone presses enter more than once in the search input.
+        return;
+      }
+      lastLocationQueryRef.current = value;
+      setErrors([]);
+      setResolvedSearchLocationDisplayName(null);
+
+      const results = await lookUpLocation(value);
+      if (results.length > 0) {
+        const firstResult = results[0];
+        setResolvedSearchLocationDisplayName(firstResult.display_name);
+        setCenter({ lat: firstResult.lat, lng: firstResult.lon });
+      } else {
+        setErrors(['Unable to find entered location.']);
+      }
+    },
+    500,
+  ), []);
 
   // Whenever center changes, call onCenterChange
   useEffect(() => {
@@ -101,6 +138,10 @@ function MapComponent({
   }, [center, onCenterChange]);
 
   const detectLocation = () => {
+    // Reset location search input
+    setLocationSearchQuery('');
+    setResolvedSearchLocationDisplayName(null);
+
     const onError = () => {
       setErrors(['Geolocation feature unavailable. Please update your device\'s permissions to enable location access.']);
     };
@@ -116,69 +157,39 @@ function MapComponent({
     }
   };
 
-  const lookUpLocation = async (locationString: string) => {
-    let query = locationString;
-
-    // Query Correction for massachusetts search
-    if (query.toLowerCase().replaceAll(' ', '').endsWith(',ma')) {
-      query = `${query.trim()}ssachusetts`;
-    }
-
-    return (await axios.post(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`,
-    )).data;
-  };
-
-  const setMapLocationFromLocationSearchQuery = async () => {
-    if (locationSearchQuery === lastLocationSearchQuery) {
-      // To reduce API calls, only perform lookup if query is different than last search.
-      // This prevents a double search if someone presses enter more than once in the search input.
-      return;
-    }
-    setLastLocationSearchQuery(locationSearchQuery);
-    setErrors([]);
-    setResolvedSearchLocationDisplayName(null);
-
-    if (locationSearchQuery === '') {
-      return;
-    }
-
-    const results = await lookUpLocation(locationSearchQuery);
-    if (results.length > 0) {
-      const firstResult = results[0];
-      setResolvedSearchLocationDisplayName(firstResult.display_name);
-      setCenter({ lat: firstResult.lat, lng: firstResult.lon });
-    } else {
-      setErrors(['Unable to find entered location.']);
-    }
-  };
-
   return (
     <div>
       <Row className="align-items-center mb-4">
-        <Col sm={4} md={3} lg={6} xl={4}>
-          <Button onClick={detectLocation} className="w-100">Detect my location</Button>
-        </Col>
-        <Col sm={8} md={9} lg={6} xl={8}>
+        <Col className="p-2" sm={12} xl={7}>
           <Form>
             <InputGroup className="mt-3 mt-sm-0">
               <Form.Control
-                placeholder="Enter a location (example: Salem, Massachusetts)"
+                className="rounded-pill"
+                placeholder="Enter a location"
                 aria-label="Location"
                 aria-describedby="location-search-button"
                 value={locationSearchQuery}
-                onChange={(e) => { setLocationSearchQuery(e.target.value); }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                  }
+                }}
+                onChange={(e) => {
+                  e.preventDefault();
+                  setLocationSearchQuery(e.target.value);
+                  // (todo: rename this) this is to be called with debounce!
+                  setMapLocationFromLocationSearchQueryNew(e.target.value);
+                }}
               />
-              <Button
-                type="submit"
-                variant="primary"
-                id="location-search-button"
-                onClick={(e) => { e.preventDefault(); setMapLocationFromLocationSearchQuery(); }}
-              >
-                <FontAwesomeIcon icon={solid('search')} />
-              </Button>
             </InputGroup>
           </Form>
+        </Col>
+        <Col className="p-2 text-center" sm={12} xl={1}>Or</Col>
+        <Col className="p-2" sm={12} xl={4}>
+          <RoundButton onClick={detectLocation} className="w-100 text-nowrap d-flex align-items-center justify-content-center px-3">
+            <FontAwesomeIcon size="lg" icon={solid('location-crosshairs')} className="text-secondary px-2" />
+            <div>Use your location</div>
+          </RoundButton>
         </Col>
       </Row>
       <ErrorMessageList errorMessages={errors} className="my-4" />

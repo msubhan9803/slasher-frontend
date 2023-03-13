@@ -16,8 +16,8 @@ import useBootstrapBreakpointName from '../../../hooks/useBootstrapBreakpoint';
 import checkAdsEventByLocation from './checkAdsEventByLocation';
 import { EVENTS_BY_LOCATION_DIV_ID } from '../../../utils/pubwise-ad-units';
 import { DEFAULT_EVENTS_USER_LOCATION } from '../../../constants';
-import { getEventsByRectangularArea } from '../../../api/eventByDistance';
 import { LocationPointType } from '../../../types';
+import { getEventsByRectangularArea } from '../../../api/eventByRectangularArea';
 
 type GetLocationOptions = { city: string, state: string, country: string };
 function getLocationName({ city, state, country }: GetLocationOptions) {

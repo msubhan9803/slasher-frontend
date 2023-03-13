@@ -330,8 +330,6 @@ function PostDetail({ user, postType }: Props) {
             navigate(`/app/movies/${res.data.movieId}/reviews/${postId}?commentId=${queryCommentId}&replyId=${queryReplyId}`);
           } else if (queryCommentId) {
             navigate(`/app/movies/${res.data.movieId}/reviews/${postId}?commentId=${queryCommentId}`);
-          } else {
-            navigate(`/app/movies/${res.data.movieId}/reviews/${postId}#comments`);
           }
         } else if (res.data.userId.userName !== user?.userName) {
           navigate(`/${res.data.userId.userName}/posts/${feedPostId}`);
@@ -368,9 +366,9 @@ function PostDetail({ user, postType }: Props) {
             likedByUser: res.data.likedByUser,
             likeCount: res.data.likeCount,
             commentCount: res.data.commentCount,
-            rating: res.data?.reviewData?.rating,
-            goreFactor: res.data?.reviewData?.goreFactorRating,
-            worthWatching: res.data?.reviewData?.worthWatching,
+            rating: res.data?.reviewData?.rating || 0,
+            goreFactor: res.data?.reviewData?.goreFactorRating || 0,
+            worthWatching: res.data?.reviewData?.worthWatching || 0,
             contentHeading: res?.data?.title,
             spoilers: res.data.spoilers,
             movieId: res.data.movieId,

@@ -49,7 +49,7 @@ function MovieReviews({ movieData, setMovieData }: Props) {
   const [requestAdditionalReviewPosts, setRequestAdditionalReviewPosts] = useState<boolean>(false);
   const [loadingReviewPosts, setLoadingReviewPosts] = useState<boolean>(false);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
-  const [lastReviePostId, setLastReviePostId] = useState<string>('');
+  const [lastReviewPostId, setLastReviePostId] = useState<string>('');
   const [isWorthIt, setWorthIt] = useState<any>(0);
   const [liked, setLike] = useState<boolean>(false);
   const [disLiked, setDisLike] = useState<boolean>(false);
@@ -201,11 +201,11 @@ function MovieReviews({ movieData, setMovieData }: Props) {
   };
 
   useEffect(() => {
-    if (requestAdditionalReviewPosts && !loadingReviewPosts && id) {
+    if (requestAdditionalReviewPosts && !loadingReviewPosts && id && lastReviewPostId) {
       setLoadingReviewPosts(false);
       getMovieReview(
         id,
-        lastReviePostId.length > 0 ? lastReviePostId : undefined,
+        lastReviewPostId.length > 0 ? lastReviewPostId : undefined,
       ).then((res) => {
         // setLoadingReviewPosts(false);
         const newPosts = res.data.map((data: any) => ({
@@ -247,7 +247,7 @@ function MovieReviews({ movieData, setMovieData }: Props) {
         () => { setRequestAdditionalReviewPosts(false); setLoadingReviewPosts(false); },
       );
     }
-  }, [requestAdditionalReviewPosts, loadingReviewPosts, id, lastReviePostId, movieData]);
+  }, [requestAdditionalReviewPosts, loadingReviewPosts, id, lastReviewPostId, movieData]);
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
@@ -289,7 +289,7 @@ function MovieReviews({ movieData, setMovieData }: Props) {
       spoilerIdList.push(postId);
       setLocalStorage('spoilersIds', JSON.stringify(spoilerIdList));
     }
-    navigate(`/app/movies/${id}/reviews/${postId}#comments`);
+    navigate(`/app/movies/${id}/reviews/${postId}`);
   };
 
   const onLikeClick = (feedPostId: string) => {

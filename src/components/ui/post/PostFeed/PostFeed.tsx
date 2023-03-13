@@ -152,7 +152,7 @@ function PostFeed({
     if (post.rssfeedProviderId) {
       navigate(`/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`);
     } else if (postType === 'review') {
-      navigate(`/app/movies/${post.movieId}/reviews/${post.id}#comments`);
+      navigate(`/app/movies/${post.movieId}/reviews/${post.id}`);
     } else {
       navigate(`/${post.userName}/posts/${post.id}`);
     }
@@ -192,7 +192,7 @@ function PostFeed({
         {postType === 'review' && (
           <div className="d-flex align-items-center">
             {post?.rating !== 0 && (
-              <div className="px-3 py-2 bg-dark rounded-pill d-flex align-items-center">
+              <div className={`px-3 py-2 bg-dark rounded-pill d-flex align-items-center ${(post.worthWatching && !post.goreFactor) && 'me-3'}`}>
                 <CustomRatingText
                   rating={post.rating}
                   icon={solid('star')}
@@ -203,7 +203,7 @@ function PostFeed({
               </div>
             )}
             {post?.goreFactor !== 0 && (
-              <div className="align-items-center bg-dark d-flex mx-3 px-3 py-2 rounded-pill">
+              <div className={`align-items-center bg-dark d-flex px-3 py-2 rounded-pill ${post.rating && 'ms-3'} ${post.worthWatching && 'me-3'}`}>
                 <CustomRatingText
                   rating={post.goreFactor}
                   icon={solid('burst')}
@@ -232,7 +232,7 @@ function PostFeed({
           </h1>
         )}
         {(post.spoilers
-           && post.userId !== loginUserId && !spoilerId.includes(post.id)
+          && post.userId !== loginUserId && !spoilerId.includes(post.id)
         )
           ? (
             <div className="d-flex flex-column align-items-center p-5" style={{ backgroundColor: '#1B1B1B' }}>

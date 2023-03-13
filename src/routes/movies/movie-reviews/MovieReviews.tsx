@@ -98,6 +98,7 @@ function MovieReviews({ movieData, setMovieData }: Props) {
     if (movieData) {
       setRating(movieData.userData.rating - 1);
       setGoreFactor(movieData.userData.goreFactorRating - 1);
+      setWorthIt(movieData.worthWatching);
       if (movieData.userData?.reviewPostId) {
         getUserMovieReviewData(movieData.userData?.reviewPostId);
       }

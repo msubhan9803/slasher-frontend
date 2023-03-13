@@ -221,7 +221,7 @@ function PostFeed({
                 customCircleHeight="16px"
                 customIconWidth="8.53px"
                 customIconHeight="8.53px"
-                worthIt={post.worthWatching === WorthWatchingStatus.Up ? 1 : 0}
+                worthIt={post.worthWatching}
               />
             )}
           </div>

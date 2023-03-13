@@ -227,7 +227,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
               <Col xs={6} md={5} className="p-0">
                 <StyledVerticalBorder className="mt-4 mt-md-0">
                   <p className="fs-3 fw-bold text-center">Worth watching?</p>
-                  {movieData.worthWatching === WorthWatchingStatus.Up
+                  {movieData.userData.worthWatching === WorthWatchingStatus.Up
                     && (
                       <div className="mt-2 d-flex justify-content-center">
                         <StyledLikeIcon className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
@@ -237,7 +237,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                       </div>
                     )}
 
-                  {movieData.worthWatching === WorthWatchingStatus.Down
+                  {movieData.userData.worthWatching === WorthWatchingStatus.Down
                     && (
                       <div className="mt-2 d-flex justify-content-center">
                         <StyledDislikeIcon role="button" className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">

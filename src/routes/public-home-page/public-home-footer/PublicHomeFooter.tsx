@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import {
   faFacebookF, faTwitter, faYoutube, faInstagram,
 } from '@fortawesome/free-brands-svg-icons';
-import SlasherLogo from '../../../images/slasher-logo-medium.png';
+import slasherLogo from '../../../images/slasher-logo-medium.png';
 import HeaderLogo from '../../../components/ui/HeaderLogo';
 import DownloadStoreBadge from '../components/DownloadStoreBadge';
 
@@ -38,7 +38,7 @@ function PublicHomeFooter() {
         <Row>
           <Col md={4} lg={3} className="text-center text-md-start mb-3 mb-md-0">
             <div className="mb-3">
-              <HeaderLogo logo={SlasherLogo} height="8rem" />
+              <HeaderLogo logo={slasherLogo} height="8rem" />
             </div>
             <div className="align-items-center d-flex mb-3 justify-content-center justify-content-md-start">
               {socialMediaSites.map((site: any) => (

@@ -7,14 +7,19 @@ interface LogoImageProps {
   height: string,
 }
 
+interface Props {
+  logo?: string,
+  height?: string,
+}
+
 const StyledLogoImage = styled(Image) <LogoImageProps>`
   height: ${(prop) => prop.height};
 `;
-function HeaderLogo({ logo, height }: any) {
-  return <StyledLogoImage height={height} src={logo} alt="Slasher logo" />;
+function HeaderLogo({ logo, height }: Props) {
+  return <StyledLogoImage height={height!} src={logo!} alt="Slasher logo" />;
 }
 
-HeaderLogo.default = {
+HeaderLogo.defaultProps = {
   logo: slasherLogo,
   height: '5rem',
 };

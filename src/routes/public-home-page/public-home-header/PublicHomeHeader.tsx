@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { StyledNav } from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageHeader';
 import HeaderLogo from '../../../components/ui/HeaderLogo';
 import { LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT } from '../../../constants';
-import SlasherLogo from '../../../images/slasher-logo-medium.png';
+import slasherLogo from '../../../images/slasher-logo-medium.png';
 
 interface HeaderStyleProps {
   isOpen: boolean;
@@ -110,7 +110,7 @@ function PublicHomeHeader() {
         >
           <NavbarToggle onClick={() => setIsOpen(!isOpen)} aria-controls="responsive-navbar-nav" className="toggle border-0" />
           <Navbar.Brand as={Link} to="/" className="logo1 mx-auto pe-5 d-lg-none py-0">
-            <HeaderLogo logo={SlasherLogo} height="6.5rem" />
+            <HeaderLogo logo={slasherLogo} height="6.5rem" />
           </Navbar.Brand>
           <StyledNavbarCollapse id="responsive-navbar-nav" className="bg-black mt-2 mt-lg-0">
             <StyledNav className="w-100 justify-content-between px-3 mx-lg-5 small-screen">
@@ -126,7 +126,7 @@ function PublicHomeHeader() {
                 ))}
               </div>
               <Navbar.Brand as={Link} to="/" className="logo2 d-none d-lg-block mx-lg-auto py-0">
-                <HeaderLogo logo={SlasherLogo} height="8rem" />
+                <HeaderLogo logo={slasherLogo} height="8rem" />
               </Navbar.Brand>
               <div className="after-link d-lg-flex align-items-lg-center">
                 {afterBrand.map((nav) => (

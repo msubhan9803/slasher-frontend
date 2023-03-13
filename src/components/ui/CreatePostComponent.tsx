@@ -79,7 +79,6 @@ function CreatePostComponent({
   selectedPostType, setSelectedPostType, setWorthIt, liked, setLike,
   disLiked, setDisLike, isWorthIt,
 }: Props) {
-  console.log(isWorthIt, "isWorthItxx")
   const inputFile = useRef<HTMLInputElement>(null);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [uploadPost, setUploadPost] = useState<string[]>([]);
@@ -154,17 +153,18 @@ function CreatePostComponent({
                   disLiked={disLiked!}
                   setDisLike={setDisLike!}
                 />
-                {isWorthIt !== WorthWatchingStatus.NoRating &&
-                  <CustomWortItText
-                    divClass="align-items-center py-2 px-3 bg-black rounded-pill"
-                    textClass="fs-4"
-                    customCircleWidth="20px"
-                    customCircleHeight="20px"
-                    customIconWidth="10.67px"
-                    customIconHeight="10.67px"
-                    worthIt={isWorthIt}
-                  />
-                }
+                {isWorthIt !== WorthWatchingStatus.NoRating
+                  && (
+                    <CustomWortItText
+                      divClass="align-items-center py-2 px-3 bg-black rounded-pill"
+                      textClass="fs-4"
+                      customCircleWidth="20px"
+                      customCircleHeight="20px"
+                      customIconWidth="10.67px"
+                      customIconHeight="10.67px"
+                      worthIt={isWorthIt}
+                    />
+                  )}
               </div>
             </div>
           </div>

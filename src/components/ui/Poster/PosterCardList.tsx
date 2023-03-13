@@ -18,11 +18,11 @@ interface CardListProps {
   name: string;
   image: string;
   year: string;
-  liked: boolean;
   rating?: number;
   _id?: string | null;
   logo?: string;
   releaseDate?: string;
+  worthWatching?: number;
 }
 
 function PosterCardList({ dataList, pubWiseAdUnitDivId, onSelect }: PosterCardProps) {
@@ -56,7 +56,7 @@ function PosterCardList({ dataList, pubWiseAdUnitDivId, onSelect }: PosterCardPr
                   name={listDetail.name}
                   poster={listDetail.logo}
                   year={listDetail.releaseDate ? DateTime.fromISO(listDetail.releaseDate).toFormat('yyyy') : listDetail.year}
-                  liked={listDetail.liked}
+                  worthWatching={listDetail.worthWatching}
                   rating={listDetail.rating}
                 />
               </Link>

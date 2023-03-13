@@ -288,3 +288,5 @@ export interface MovieData {
     reviewPostId: string;
   }
 }
+
+export type PostButtonClickType = 'like' | 'share' | '';

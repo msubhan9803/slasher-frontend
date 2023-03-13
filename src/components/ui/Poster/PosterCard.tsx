@@ -4,11 +4,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Card } from 'react-bootstrap';
 import styled from 'styled-components';
 import LikeIconButton from './LikeIconButton';
+import { WorthWatchingStatus } from '../../../types';
 
 interface PosterProps {
   name: string;
   year: string;
-  liked: boolean;
+  worthWatching?: number;
   rating?: number;
   poster?: string;
 }
@@ -45,29 +46,33 @@ const RatingDiv = styled.div`
 `;
 
 function PosterCard({
-  name, poster, year, liked, rating,
+  name, poster, year, worthWatching, rating,
 }: PosterProps) {
   return (
     <PosterCardStyle className="bg-transparent border-0">
       <div className="poster">
         <Card.Img variant="top" src={poster} alt={`${name} poster`} className="w-100 h-100 rounded-4" />
       </div>
+      {rating !== 0 && (
       <RatingDiv className="d-flex justify-content-end me-2">
         <Card.Text className="rating bg-white mb-0 px-2 rounded-5 fs-5 text-black">
           <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" />
           <span className="h5">{rating}</span>
         </Card.Text>
       </RatingDiv>
+      )}
       <Card.Body className="px-0 pb-4">
         <div className="fs-5 d-flex justify-content-between align-items-center m-0 text-light">
           {year}
+          {worthWatching !== WorthWatchingStatus.NoRating && (
           <LikeIconButton
-            liked={liked}
+            worthWatching={worthWatching}
             thumbsUpWidth="0.804rem"
             thumbsUpHeight="0.805rem"
             thumbsDownWidth="0.804rem"
             thumbsDownHeight="0.805rem"
           />
+          )}
         </div>
         <Card.Text className="h3 fw-bold mt-1">
           {name}
@@ -80,6 +85,7 @@ function PosterCard({
 PosterCard.defaultProps = {
   rating: null,
   poster: null,
+  worthWatching: null,
 };
 
 export default PosterCard;

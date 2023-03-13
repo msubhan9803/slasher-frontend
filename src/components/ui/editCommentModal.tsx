@@ -79,12 +79,15 @@ function EditCommentModal({
       const finalString: any = formatMention.find(
         (matchMention: FormatMentionProps) => match.includes(matchMention.value),
       );
-      return finalString.format;
+      if (finalString) {
+        return finalString.format;
+      }
+      return match;
     }
     return undefined;
   };
   const handlePostComment = () => {
-    const postContentWithMentionReplacements = (editMessage!.replace(/@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    const postContentWithMentionReplacements = (editMessage!.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
     const files = postImages.filter((images: any) => images instanceof File);
     onUpdatePost(postContentWithMentionReplacements, files, deleteImageIds);
   };

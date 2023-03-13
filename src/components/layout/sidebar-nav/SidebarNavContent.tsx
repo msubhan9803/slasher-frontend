@@ -38,7 +38,7 @@ const sidebarMenuList: MenuType[] = [
     label: 'Dating', icon: solid('heart'), iconColor: '#FF0000', to: '/app/dating', id: 5, comingSoon: true,
   },
   {
-    label: 'Podcasts', icon: solid('podcast'), iconColor: '#8F00FF', to: '/app/podcasts', id: 6, comingSoon: true,
+    label: 'Podcasts', icon: solid('podcast'), iconColor: '#8F00FF', to: '/app/podcasts', id: 6,
   },
   {
     label: 'Video Channels', icon: solid('tv'), iconColor: '#00E676', to: '/app/videos', id: 7, comingSoon: true,
@@ -50,13 +50,13 @@ const sidebarMenuList: MenuType[] = [
     label: 'Movies', icon: solid('film'), iconColor: '#FF343E', to: '/app/movies', id: 9,
   },
   {
-    label: 'Books', icon: solid('book-skull'), iconColor: '#D88100', to: '/app/books', id: 10, comingSoon: true,
+    label: 'Books', icon: solid('book-skull'), iconColor: '#D88100', to: '/app/books', id: 10,
   },
   {
-    label: 'Music', icon: solid('headphones'), iconColor: '#7C4DFF', id: 11, to: '/app/music', comingSoon: true,
+    label: 'Music', icon: solid('headphones'), iconColor: '#7C4DFF', id: 11, to: '/app/music',
   },
   {
-    label: 'Art', icon: solid('palette'), iconColor: '#799F0C', id: 12, to: '/app/art', comingSoon: true,
+    label: 'Art', icon: solid('palette'), iconColor: '#799F0C', id: 12, to: '/app/art',
   },
   {
     label: 'Help', icon: solid('circle-question'), iconColor: '#9E9E9E', id: 13, to: '/app/help', desktopOnly: true,

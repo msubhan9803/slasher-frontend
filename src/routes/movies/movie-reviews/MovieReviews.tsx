@@ -126,7 +126,10 @@ function MovieReviews({ movieData, setMovieData }: Props) {
       const finalString: any = formatMention.find(
         (matchMention: FormatMentionProps) => match.includes(matchMention.value),
       );
-      return finalString.format;
+      if (finalString) {
+        return finalString.format;
+      }
+      return match;
     }
     return undefined;
   };
@@ -181,7 +184,7 @@ function MovieReviews({ movieData, setMovieData }: Props) {
 
   const addPost = () => {
     /* eslint no-useless-escape: 0 */
-    const postContentWithMentionReplacements = (postContent.replace(/\@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    const postContentWithMentionReplacements = (postContent.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
     const movieReviewPostData = {
       title: titleContent,
       message: postContentWithMentionReplacements,

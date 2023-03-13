@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Card, Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
@@ -35,7 +33,6 @@ function NewsIndex() {
       <ContentPageWrapper>
         <div>
           <div className="px-2 bg-mobile-transparent d-flex align-items-center d-lg-none bg-dark">
-            <FontAwesomeIcon role="button" icon={solid('arrow-left')} size="lg" />
             <h1 className="h2 text-center mb-0 mx-auto">News &#38; Reviews </h1>
           </div>
           <Row className="bg-dark bg-mobile-transparent rounded-3 pt-4 pb-3 px-lg-3 px-0 m-0 mb-5">

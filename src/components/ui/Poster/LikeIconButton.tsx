@@ -2,6 +2,7 @@ import React from 'react';
 import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { WorthWatchingStatus } from '../../../types';
 
 interface StyledLikeButtonProps {
   thumbsUpWidth: string;
@@ -29,7 +30,7 @@ const StyledLikeButton = styled.div<StyledLikeButtonProps>`
 }
 `;
 function LikeIconButton({
-  liked, thumbsUpWidth, thumbsUpHeight, thumbsDownWidth, thumbsDownHeight,
+  worthWatching, thumbsUpWidth, thumbsUpHeight, thumbsDownWidth, thumbsDownHeight,
 }: any) {
   return (
     <StyledLikeButton
@@ -40,7 +41,7 @@ function LikeIconButton({
       className="align-items-center d-flex justify-content-center me-2 p-1 rounded-circle"
     >
       <FontAwesomeIcon
-        icon={liked ? regular('thumbs-up') : regular('thumbs-down')}
+        icon={worthWatching === WorthWatchingStatus.Up ? regular('thumbs-up') : regular('thumbs-down')}
         className="border-0"
       />
     </StyledLikeButton>

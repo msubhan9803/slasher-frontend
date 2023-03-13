@@ -5,12 +5,13 @@ import FriendRequests from '../../../components/layout/right-sidebar-wrapper/com
 import NotificationSetting from '../../../components/layout/right-sidebar-wrapper/components/NotificationSetting';
 import RecentMessages from '../../../components/layout/right-sidebar-wrapper/components/RecentMessages';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
+import { enableDevFeatures } from '../../../utils/configEnvironment';
 
 function PodcastsSidebar() {
   const params = useParams();
   return (
     <>
-      <RoundButtonLink to="/app/podcasts/add" variant="primary" className="w-100 mb-3">Add your podcast</RoundButtonLink>
+      {enableDevFeatures && <RoundButtonLink to="/app/podcasts/add" variant="primary" className="w-100 mb-3">Add your podcast</RoundButtonLink>}
       {params.podcastId && <NotificationSetting />}
       <AdvertisementBox />
       <RecentMessages />

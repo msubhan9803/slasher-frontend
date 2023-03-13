@@ -114,20 +114,49 @@ describe('Notifications Gateway (e2e)', () => {
     // Await socket response to receive emitted event
     await socketListenPromise;
 
-    expect(receivedPayload.notification._id).toEqual(notification._id.toString());
-    expect(receivedPayload.notification.senderId).toEqual({
-      _id: user1.id,
-      userName: 'Username2',
-      profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-    });
-    expect(receivedPayload.notification.rssFeedProviderId).toEqual({
-      _id: rssFeedProviderData._id.toString(),
-      logo: 'http://localhost:4444/placeholders/default_user_icon.png',
-      title: 'RssFeedProvider 1',
-    });
-    expect(receivedPayload.notification.feedPostId).toEqual({
-      _id: feedPostData.id,
-      userId: activeUser.id,
+    expect(receivedPayload).toEqual({
+      notification: {
+        _id: notification._id.toString(),
+        notificationFor: 'Push',
+        notifyType: 99,
+        data: null,
+        images: [],
+        senderId: {
+          _id: user1.id,
+          userName: 'Username2',
+          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+        },
+        feedPostId: {
+          _id: feedPostData.id,
+          userId: activeUser.id,
+        },
+        feedCommentId: null,
+        feedReplyId: null,
+        movieId: null,
+        movieDBId: null,
+        movieMainCommentID: null,
+        messageMainPostID: null,
+        movieReplyID: null,
+        messageCommentID: null,
+        rssFeedProviderId: {
+          _id: rssFeedProviderData._id.toString(),
+          logo: 'http://localhost:4444/placeholders/default_user_icon.png',
+          title: 'RssFeedProvider 1',
+        },
+        rssFeedId: null,
+        rssFeedCommentId: null,
+        status: 0,
+        userId: activeUser.id,
+        notificationMsg: 'mentioned you in a post',
+        isProcessed: false,
+        is_deleted: 0,
+        isRead: 0,
+        allUsers: [],
+        lastUpdateAt: expect.any(String),
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+        __v: 0,
+      },
     });
 
     client.close();

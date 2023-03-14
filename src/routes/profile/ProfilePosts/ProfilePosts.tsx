@@ -28,6 +28,8 @@ interface Props {
   user: User
 }
 
+const staticHashTags = ['horrorday', 'horrorcommunity', 'slasher', 'horror'];
+
 function ProfilePosts({ user }: Props) {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
@@ -93,6 +95,7 @@ function ProfilePosts({ user }: Props) {
               likeIcon: data.likedByUser,
               likeCount: data.likeCount,
               commentCount: data.commentCount,
+              hashTag: staticHashTags,
             }
           ));
           setPosts((prev: Post[]) => [
@@ -149,6 +152,7 @@ function ProfilePosts({ user }: Props) {
           likeIcon: data.likedByUser,
           likeCount: data.likeCount,
           commentCount: data.commentCount,
+          hashTag: staticHashTags,
         }));
         setPosts(newPosts);
       });

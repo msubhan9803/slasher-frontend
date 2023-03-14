@@ -35,6 +35,7 @@ const tabs = [
   { value: 'friends', label: 'Friends' },
   { value: 'photos', label: 'Photos' },
   { value: 'watched-list', label: 'Watched list' },
+  { value: 'following', label: 'Following' },
 ];
 const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => t.label !== 'Watched list');
 const CustomCol = styled(Col)`

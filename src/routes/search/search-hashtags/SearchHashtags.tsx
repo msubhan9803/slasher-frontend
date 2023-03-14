@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import { StyledHastagsCircle } from '../component/Hashtags';
 import SearchHeader from '../SearchHeader';
 import { hashtags } from '../SearchResult';
@@ -37,7 +38,7 @@ function SearchHashtags() {
       <Row>
         {searchHashtag.map((hashtagDetail) => (
           <Col md={6} key={hashtagDetail.id}>
-            <div className="py-4 d-flex align-items-center">
+            <Link to={`/app/search/posts?${hashtagDetail.hashtag}`} className="py-4 d-flex align-items-center">
               <StyledHastagsCircle className="me-3 ms-md-2 bg-dark align-items-center d-flex fs-1 justify-content-around fw-light">#</StyledHastagsCircle>
               <div className="ps-0 ps-md-5 ps-lg-3 ps-xl-0">
                 <p className="fw-bold mb-0">
@@ -46,7 +47,7 @@ function SearchHashtags() {
                 </p>
                 <small className="text-light mb-0">{hashtagDetail.count}</small>
               </div>
-            </div>
+            </Link>
           </Col>
         ))}
       </Row>

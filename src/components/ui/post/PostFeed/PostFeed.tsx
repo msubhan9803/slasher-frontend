@@ -244,10 +244,10 @@ function PostFeed({
               />
               {
                 post.hashTag?.map((hashtag: string) => (
-                  <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
+                  <Link to={`/app/search/posts?${hashtag}`} key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
                     #
                     {hashtag}
-                  </span>
+                  </Link>
                 ))
               }
               {

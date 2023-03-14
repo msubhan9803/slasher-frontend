@@ -21,6 +21,7 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layou
 import PostDetail from '../../components/ui/post/PostDetail';
 import ProfileLimitedView from './ProfileLimitedView/ProfileLimitedView';
 import RightSidebarAdOnly from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarAdOnly';
+import ProfileFollowing from './ProfileFollowing/ProfileFollowing';
 
 function Profile() {
   const loginUserData = useAppSelector((state) => state.user.user);
@@ -84,6 +85,7 @@ function Profile() {
           <Route path="/about" element={<ProfileAbout user={user} />} />
           <Route path="/photos" element={<ProfilePhotos user={user} />} />
           <Route path="/watched-list" element={<ProfileWatchList user={user} />} />
+          <Route path="/following" element={<ProfileFollowing user={user} />} />
           <Route path="/edit" element={<ProfileEdit user={user} />} />
         </Routes>
       </ContentPageWrapper>

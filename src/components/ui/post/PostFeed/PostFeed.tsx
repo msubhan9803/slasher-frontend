@@ -169,13 +169,11 @@ function PostFeed({
 
   const renderPostContent = (post: any) => {
     let { content } = post;
-    let postContent;
 
     if (post.rssFeedTitle) {
       /* eslint-disable no-useless-escape */
       const pattern = new RegExp(`<(h[1-6])[^>]*>${post.rssFeedTitle}<\/(h[1-6])>`);
-      postContent = content.replace(pattern, '');
-      content = postContent;
+      content = content.replace(pattern, '');
     }
 
     let showReadMoreLink = false;

@@ -73,7 +73,7 @@ function FilterModal({
       className="px-3 px-md-0"
       scrollable
     >
-      <Modal.Header className={`m-0 ${postType === 'group-post' ? 'justify-content-end' : ''}`} closeButton>
+      <Modal.Header className={`border-0 m-0 ${postType === 'group-post' ? 'justify-content-end' : ''}`} closeButton>
         {postType !== 'group-post' && <Modal.Title className="fs-2">Filter Options</Modal.Title>}
       </Modal.Header>
       <Modal.Body className="pb-5">

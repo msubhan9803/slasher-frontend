@@ -10,9 +10,6 @@ const CustomModal = styled(Modal)`
     margin: 0;
     background: url("${closeIcon}") center/4em auto no-repeat;
     opacity: 1;
-    &:focus {
-      box-shadow:none;
-    }
   }
 `;
 

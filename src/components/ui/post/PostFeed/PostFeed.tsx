@@ -169,6 +169,15 @@ function PostFeed({
 
   const renderPostContent = (post: any) => {
     let { content } = post;
+    let postContent;
+
+    if (post.rssFeedTitle) {
+      /* eslint-disable no-useless-escape */
+      const pattern = new RegExp(`<(h[1-6])[^>]*>${post.rssFeedTitle}<\/(h[1-6])>`);
+      postContent = content.replace(pattern, '');
+      content = postContent;
+    }
+
     let showReadMoreLink = false;
     if (!detailPage && content?.length >= READ_MORE_TEXT_LIMIT) {
       let reducedContentLength = post.content.substring(0, READ_MORE_TEXT_LIMIT).lastIndexOf(' ');
@@ -328,6 +337,7 @@ function PostFeed({
               </Card.Header>
               <Card.Body className="px-0 pt-3">
                 {postType === 'group-post' && renderGroupPostContent(post)}
+                {post?.rssFeedTitle && <h1 className="h2">{post.rssFeedTitle}</h1>}
                 {renderPostContent(post)}
                 {post?.images && (
                   <CustomSwiper

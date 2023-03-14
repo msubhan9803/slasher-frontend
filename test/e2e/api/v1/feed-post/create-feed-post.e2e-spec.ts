@@ -1,9 +1,9 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { EventEmitter } from 'stream';
 import { readdirSync } from 'fs';
 import { AppModule } from '../../../../../src/app.module';
@@ -15,6 +15,8 @@ import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { Hashtag, HashtagDocument } from '../../../../../src/schemas/hastag/hashtag.schema';
+import { FeedPostsService } from '../../../../../src/feed-posts/providers/feed-posts.service';
 
 describe('Feed-Post / Post File (e2e)', () => {
   let app: INestApplication;
@@ -23,6 +25,8 @@ describe('Feed-Post / Post File (e2e)', () => {
   let activeUserAuthToken: string;
   let activeUser: User;
   let configService: ConfigService;
+  let hashtagModel: Model<HashtagDocument>;
+  let feedPostsService: FeedPostsService;
 
   beforeAll(async () => {
     //set max listeners value 12 because it required 12 images in 'only allows a maximum of 10 images'
@@ -34,6 +38,8 @@ describe('Feed-Post / Post File (e2e)', () => {
 
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
+    feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
+    hashtagModel = moduleRef.get<Model<HashtagDocument>>(getModelToken(Hashtag.name));
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
     await app.init();
@@ -245,6 +251,61 @@ describe('Feed-Post / Post File (e2e)', () => {
           .expect(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('message cannot be longer than 20,000 characters');
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when # is exists on message string than expected response', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'test user#ok #slasher #nothing #ok')
+          .field('userId', activeUser._id.toString())
+          .attach('files', tempPaths[0]);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'test user#ok #slasher #nothing #ok',
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
+
+        const feedPost = await feedPostsService.findById(response.body._id, true);
+        expect(feedPost.hashtags).toEqual(['ok', 'slasher', 'nothing']);
+
+        const hashtags = await hashtagModel.find({ name: { $in: feedPost.hashtags } });
+        expect(hashtags[0].name).toEqual(feedPost.hashtags[0]);
+        expect(hashtags[1].name).toEqual(feedPost.hashtags[1]);
+        expect(hashtags[2].name).toEqual(feedPost.hashtags[2]);
+      }, [{ extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('only allows a maximum of 10 hashtags', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'test user#ok #slasher #nothing #okay #best #not #go #run #fast #good #buy')
+          .field('userId', activeUser._id.toString())
+          .attach('files', tempPaths[0]);
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'you can not add more than 10 hashtags on a post',
+        });
+      }, [{ extension: 'png' }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
       const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));

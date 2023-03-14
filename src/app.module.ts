@@ -37,6 +37,7 @@ import { QueuedJobsModule } from './global/queued-jobs.module';
 import { MulterUploadCleanupInterceptor } from './app/interceptors/multer-upload-cleanup.interceptor';
 import { MovieUserStatusModule } from './movie-user-status/movie.user.status.module';
 import { AppController } from './app/app.controller';
+import { HashtagModule } from './hashtag/hashtag.module';
 
 @Module({
   imports: [
@@ -83,6 +84,7 @@ import { AppController } from './app/app.controller';
     ReportsModule,
     QueuedJobsModule,
     MovieUserStatusModule,
+    HashtagModule,
   ],
   controllers: [AppController],
   providers: [

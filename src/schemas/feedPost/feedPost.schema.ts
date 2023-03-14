@@ -73,6 +73,9 @@ export class FeedPost extends FeedPostUnusedFields {
   @Prop({ default: null, ref: RssFeed.name })
   rssFeedId: mongoose.Schema.Types.ObjectId;
 
+  @Prop({ default: [] })
+  hashtags: string[];
+
   /***********
    * Methods *
    ***********/

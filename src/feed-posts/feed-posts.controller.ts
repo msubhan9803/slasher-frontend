@@ -31,6 +31,7 @@ import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 import { LikesLimitOffSetDto } from './dto/likes-limit-offset-query.dto';
 import { FriendsService } from '../friends/providers/friends.service';
 import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
+import { HashtagService } from '../hashtag/providers/hashtag.service';
 
 @Controller({ path: 'feed-posts', version: ['1'] })
 export class FeedPostsController {
@@ -43,6 +44,7 @@ export class FeedPostsController {
     private readonly notificationsService: NotificationsService,
     private readonly blocksService: BlocksService,
     private readonly friendsService: FriendsService,
+    private readonly hashtagService: HashtagService,
   ) { }
 
   @TransformImageUrls('$.images[*].image_path')
@@ -76,9 +78,27 @@ export class FeedPostsController {
       images.push({ image_path: storageLocation });
     }
 
+    let hashtags;
+    if (createFeedPostsDto.message && createFeedPostsDto.message.includes('#')) {
+      const hashtagRegex = /^([^#]*#){1,10}[^#]*$/;
+      const hashtag = hashtagRegex.test(createFeedPostsDto.message);
+      if (!hashtag) {
+        throw new HttpException(
+          'you can not add more than 10 hashtags on a post',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      const regex = /#[^\s#]*/g;
+      const findHashtag = createFeedPostsDto.message.match(regex).map((match) => match.slice(1));
+      hashtags = [...new Set(findHashtag)];
+      await this.hashtagService.createOrUpdateHashtags(hashtags);
+    }
+
     const feedPost = new FeedPost(createFeedPostsDto);
     feedPost.images = images;
     feedPost.userId = user._id;
+    feedPost.hashtags = hashtags;
     const createFeedPost = await this.feedPostsService.create(feedPost);
 
     // Create notifications if any users were mentioned
@@ -213,6 +233,30 @@ export class FeedPostsController {
     if (newPostImages || imagesToDelete) {
       const feedPostImages = images.concat(imagesToKeep);
       Object.assign(updateFeedPostsDto, { images: updateFeedPostsDto.imagesToDelete ? feedPostImages : images.concat(feedPost.images) });
+    }
+
+    // let hashtags;
+    if (updateFeedPostsDto.message && updateFeedPostsDto.message.includes('#')) {
+      const hashtagRegex = /^([^#]*#){1,10}[^#]*$/;
+      const hashtag = hashtagRegex.test(updateFeedPostsDto.message);
+      if (!hashtag) {
+        throw new HttpException(
+          'you can not add more than 10 # on a post',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      const regex = /#[^\s#]*/g;
+      const findHashtag = updateFeedPostsDto.message.match(regex).map((match) => match.slice(1));
+      const hashtagNames = [...new Set(findHashtag)];
+      const hashtagData = await this.hashtagService.findHashtags(hashtagNames);
+      if (hashtagData.length && JSON.stringify(hashtagNames) !== JSON.stringify(feedPost.hashtags)) {
+        const uniqueHashtag = feedPost.hashtags.filter((item) => !hashtagNames.includes(item));
+        await this.hashtagService.createOrUpdateHashtags(uniqueHashtag);
+      }
+    }
+    if (updateFeedPostsDto.message && updateFeedPostsDto.message.indexOf('#') === -1) {
+      await this.hashtagService.decrementTotalPost(feedPost.hashtags);
     }
 
     const updatedFeedPost = await this.feedPostsService.update(param.id, updateFeedPostsDto);

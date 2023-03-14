@@ -24,6 +24,7 @@ import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndU
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
+import { RssFeed } from '../../schemas/rssFeed/rssFeed.schema';
 
 describe('FeedPostsService', () => {
   let app: INestApplication;
@@ -150,6 +151,11 @@ describe('FeedPostsService', () => {
     it('when add identifylikesforuser than expected response', async () => {
       const feedPostDetails = await feedPostsService.findById(feedPost.id, false, activeUser.id);
       expect((feedPostDetails as any).likedByUser).toBe(true);
+    });
+
+    it("populates the title field on the post's returned rssFeedId object", async () => {
+      const feedPostDetails = await feedPostsService.findById(feedPost.id, false);
+      expect((feedPostDetails.rssFeedId as unknown as RssFeed).title).toEqual(rssFeed.title);
     });
   });
 

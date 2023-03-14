@@ -155,7 +155,7 @@ function PostFeed({
     if (post.rssfeedProviderId) {
       navigate(`/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`);
     } else if (postType === 'review') {
-      navigate(`/app/movies/${post.movieId}/reviews/${post.id}`);
+      navigate(`/app/movies/${post.movieId}/reviews/${post.id}#comments`);
     } else {
       navigate(`/${post.userName}/posts/${post.id}`);
     }

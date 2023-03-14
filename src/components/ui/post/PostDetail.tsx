@@ -192,6 +192,7 @@ function PostDetail({ user, postType }: Props) {
             message: comment.commentMessage,
             userId: { ...userData.user, _id: userData.user.id },
             replies: [],
+            likeCount: 0,
             createdAt: new Date().toISOString(),
           };
           if (updateCommentArray[index]._id === res.data._id) {
@@ -224,6 +225,7 @@ function PostDetail({ user, postType }: Props) {
             message: comment.commentMessage,
             userId: { ...userData.user, _id: userData.user.id },
             replies: [],
+            likeCount: 0,
             createdAt: new Date().toISOString(),
           };
           newCommentArray = [commentValueData].concat(newCommentArray);
@@ -250,6 +252,7 @@ function PostDetail({ user, postType }: Props) {
       message: '',
       userId: { ...userData.user, _id: userData.user.id },
       deleteImage: [],
+      likeCount: 0,
       createdAt: new Date().toISOString(),
     };
 
@@ -304,6 +307,7 @@ function PostDetail({ user, postType }: Props) {
           message: reply.replyMessage,
           userId: { ...userData.user, _id: userData.user.id },
           createdAt: new Date().toISOString(),
+          likeCount: 0,
           new: true,
         };
         newReplyArray.map((comment: any) => {

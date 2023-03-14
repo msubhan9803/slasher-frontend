@@ -112,6 +112,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         rssFeedId: {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           content: '<p>this is rss <b>feed</b> <span>test<span> </p>',
+          title: 'Rss Feed 1',
         },
         images: [
           {

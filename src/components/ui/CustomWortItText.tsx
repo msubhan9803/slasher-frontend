@@ -40,7 +40,7 @@ function CustomWortItText({
             <StyleWatchWorthIcon width={customIconWidth} height={customIconHeight} icon={regular('thumbs-down')} />
           </StyledDislikeIcon>
         )}
-      <p className={`${textClass} fs-3 fw-bold m-0 align-self-center`}>
+      <p className={`${textClass} fw-bold m-0 align-self-center`}>
 
         {worthIt
           ? <span style={{ color: 'var(--bs-success)' }}>Worth it!</span>

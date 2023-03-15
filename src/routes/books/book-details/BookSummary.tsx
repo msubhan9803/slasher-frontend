@@ -92,21 +92,21 @@ function BookSummary() {
         </div>
         <div className="my-2 mb-xl-0 mt-xxl-3 d-none d-xxl-flex align-items-center">
           <span className="d-lg-flex">
-            <p className="m-0 fs-3 fw-bold">
+            <p className="m-0 fw-bold">
               Year:&nbsp;
             </p>
             1921
           </span>
           <FontAwesomeIcon icon={solid('circle')} size="sm" className="circle mx-3 text-primary" />
           <span className="d-lg-flex">
-            <p className="m-0 fs-3 fw-bold">
+            <p className="m-0 fw-bold">
               Pages:&nbsp;
             </p>
             447
           </span>
           <FontAwesomeIcon icon={solid('circle')} size="sm" className="circle mx-3 text-primary" />
           <span className="d-lg-flex">
-            <p className="m-0 fs-3 fw-bold">
+            <p className="m-0 fw-bold">
               ISBN:&nbsp;
             </p>
             272423118X
@@ -115,7 +115,7 @@ function BookSummary() {
       </StyledRateBorder>
       <div className="mt-2 mt-xl-0 d-block d-xxl-flex justify-content-center justify-content-xxl-between py-3">
         <div className="align-items-center d-flex justify-content-center justify-content-xl-start">
-          <p className="m-0 me-1 me-sm-3 fs-3 fw-bold">Worth watching?</p>
+          <p className="m-0 me-1 me-sm-3 fw-bold">Worth watching?</p>
           <LikeDislike />
         </div>
         <div className="d-none d-xxl-flex">

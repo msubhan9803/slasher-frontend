@@ -160,10 +160,10 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
             <Row className="justify-content-between mt-4">
               <Col xs={12} md={3} className="px-0">
                 <div className="d-flex justify-content-between d-md-block align-items-center">
-                  <p className="fs-3 fw-bold text-md-center mb-0 mb-md-3">User rating</p>
+                  <p className="fw-bold text-md-center mb-0 mb-md-3">User rating</p>
 
                   {movieData.ratingUsersCount === 0
-                    ? <p className="fs-3 fw-bold m-0 align-self-center text-light text-center">Not yet rated</p>
+                    ? <p className="fw-bold m-0 align-self-center text-light text-center">Not yet rated</p>
                     : (
                       <div className="d-flex mt-md-3 justify-content-md-center">
                         <CustomRatingText
@@ -206,20 +206,20 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                     </div>
                   )}
                 <div className="d-flex justify-content-center my-3 d-md-none ">
-                  <RoundButton className="w-100 fs-3 fw-bold">Write a review</RoundButton>
+                  <RoundButton className="w-100 fw-bold">Write a review</RoundButton>
                 </div>
                 <StyledBorder className="d-md-none" />
               </Col>
               <Col xs={6} md={5} className="p-0">
                 <StyledVerticalBorder className="mt-4 mt-md-0">
-                  <p className="fs-3 fw-bold text-center">Worth watching?</p>
+                  <p className="fw-bold text-center">Worth watching?</p>
                   {movieData.worthWatching === WorthWatchingStatus.Up
                     && (
                       <div className="mt-2 d-flex justify-content-center">
                         <StyledLikeIcon className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
                           <StyleWatchWorthIcon icon={regular('thumbs-up')} />
                         </StyledLikeIcon>
-                        <p className="fs-3 fw-bold m-0 align-self-center" style={{ color: 'var(--bs-success)' }}>Worth it!</p>
+                        <p className="fw-bold m-0 align-self-center" style={{ color: 'var(--bs-success)' }}>Worth it!</p>
                       </div>
                     )}
 
@@ -229,12 +229,12 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                         <StyledDislikeIcon role="button" className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
                           <StyleWatchWorthIcon icon={regular('thumbs-down')} />
                         </StyledDislikeIcon>
-                        <p className="fs-3 fw-bold m-0 align-self-center" style={{ color: '#FF1800' }}>Not worth it!</p>
+                        <p className="fw-bold m-0 align-self-center" style={{ color: '#FF1800' }}>Not worth it!</p>
                       </div>
                     )}
 
                   {movieData.worthWatching === WorthWatchingStatus.NoRating
-                    && <p className="fs-3 fw-bold m-0 align-self-center text-light text-center">Not yet rated</p>}
+                    && <p className="fw-bold m-0 align-self-center text-light text-center">Not yet rated</p>}
 
                   {/* Worth Watch Icons */}
                   <div className="mt-3">
@@ -263,9 +263,9 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                 </StyledVerticalBorder>
               </Col>
               <Col xs={6} md={3} className="p-0 mt-4 mt-md-0">
-                <p className="fs-3 fw-bold text-center">Gore factor</p>
+                <p className="fw-bold text-center">Gore factor</p>
                 {movieData.goreFactorRatingUsersCount === 0
-                  ? <p className="fs-3 fw-bold m-0 align-self-center text-light text-center">Not yet rated</p>
+                  ? <p className="fw-bold m-0 align-self-center text-light text-center">Not yet rated</p>
                   : (
                     <div className="mt-2 d-flex justify-content-center">
                       <CustomRatingText
@@ -311,7 +311,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                 }
               </Col>
               <div className="d-none d-md-flex justify-content-center mt-3">
-                <RoundButton className="w-50 fs-3 fw-bold">Write a review</RoundButton>
+                <RoundButton className="w-50 fw-bold">Write a review</RoundButton>
               </div>
               <StyledBorder className="d-md-none my-3" />
             </Row>

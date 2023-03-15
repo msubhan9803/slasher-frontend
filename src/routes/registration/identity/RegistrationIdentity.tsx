@@ -105,7 +105,7 @@ function RegistrationIdentity({ activeStep }: Props) {
           </Form.Group>
           <ErrorMessageList errorMessages={errors} className="m-0" />
           <div className="col-md-4 my-5">
-            <ProgressButton label="Next step" className="w-100  fs-3 fw-bold" onClick={validateAndGoToNextStep} />
+            <ProgressButton label="Next step" className="w-100" onClick={validateAndGoToNextStep} />
           </div>
           <div className="text-center fs-5">
             Already have an account?

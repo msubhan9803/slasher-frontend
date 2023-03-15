@@ -66,10 +66,10 @@ function BooksModal({
                   <h1 className="text-primary h2">Deactivate listing </h1>
                   <p className="h5 px-4">Are you sure you want to deactivate your listing?</p>
                 </div>
-                <RoundButton onClick={closeModal} className="mt-3 w-100 border-0 bg-dark text-white fs-3 fw-bold">
+                <RoundButton onClick={closeModal} className="mt-3 w-100 border-0 bg-dark text-white fw-bold">
                   No, do not deactivate
                 </RoundButton>
-                <RoundButton onClick={() => { setDeactivate(true); setShow(false); }} className="mt-3 w-100 border-0 bg-dark text-white fs-3 fw-bold">
+                <RoundButton onClick={() => { setDeactivate(true); setShow(false); }} className="mt-3 w-100 border-0 bg-dark text-white fw-bold">
                   Yes, please deactivate my listing
                 </RoundButton>
               </Modal.Body>

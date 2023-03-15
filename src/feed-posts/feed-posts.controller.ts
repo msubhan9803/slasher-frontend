@@ -90,7 +90,7 @@ export class FeedPostsController {
       }
 
       const regex = /#[^\s#]*/g;
-      const findHashtag = createFeedPostsDto.message.match(regex).map((match) => match.slice(1));
+      const findHashtag = createFeedPostsDto.message.match(regex).map((match) => match.slice(1).toLowerCase());
       hashtags = [...new Set(findHashtag)];
       await this.hashtagService.createOrUpdateHashtags(hashtags);
     }
@@ -235,31 +235,39 @@ export class FeedPostsController {
       Object.assign(updateFeedPostsDto, { images: updateFeedPostsDto.imagesToDelete ? feedPostImages : images.concat(feedPost.images) });
     }
 
-    // let hashtags;
+    let newHashtagNames;
     if (updateFeedPostsDto.message && updateFeedPostsDto.message.includes('#')) {
       const hashtagRegex = /^([^#]*#){1,10}[^#]*$/;
       const hashtag = hashtagRegex.test(updateFeedPostsDto.message);
       if (!hashtag) {
         throw new HttpException(
-          'you can not add more than 10 # on a post',
+          'you can not add more than 10 hashtags on a post',
           HttpStatus.BAD_REQUEST,
         );
       }
 
       const regex = /#[^\s#]*/g;
-      const findHashtag = updateFeedPostsDto.message.match(regex).map((match) => match.slice(1));
-      const hashtagNames = [...new Set(findHashtag)];
-      const hashtagData = await this.hashtagService.findHashtags(hashtagNames);
-      if (hashtagData.length && JSON.stringify(hashtagNames) !== JSON.stringify(feedPost.hashtags)) {
-        const uniqueHashtag = feedPost.hashtags.filter((item) => !hashtagNames.includes(item));
-        await this.hashtagService.createOrUpdateHashtags(uniqueHashtag);
+      const findHashtag = updateFeedPostsDto.message.match(regex).map((match) => match.slice(1).toLowerCase());
+      newHashtagNames = [...new Set(findHashtag)];
+      if (JSON.stringify(newHashtagNames) !== JSON.stringify(feedPost.hashtags)) {
+        const addHashtagNameOrTotalPost = newHashtagNames.filter((item) => !feedPost.hashtags.includes(item));
+        const totalPostDecrement = feedPost.hashtags.filter((item) => !newHashtagNames.includes(item));
+        if (addHashtagNameOrTotalPost.length) {
+          await this.hashtagService.createOrUpdateHashtags(addHashtagNameOrTotalPost);
+        }
+        if (totalPostDecrement.length) {
+          await this.hashtagService.decrementTotalPost(totalPostDecrement);
+        }
       }
     }
     if (updateFeedPostsDto.message && updateFeedPostsDto.message.indexOf('#') === -1) {
       await this.hashtagService.decrementTotalPost(feedPost.hashtags);
     }
 
-    const updatedFeedPost = await this.feedPostsService.update(param.id, updateFeedPostsDto);
+    const updatedFeedPost = await this.feedPostsService.update(
+      param.id,
+      Object.assign(updateFeedPostsDto, { hashtags: newHashtagNames || [] }),
+    );
     const mentionedUserIdsBeforeUpdate = extractUserMentionIdsFromMessage(feedPost.message);
     const mentionedUserIdsAfterUpdate = extractUserMentionIdsFromMessage(updateFeedPostsDto?.message);
 

@@ -2,9 +2,9 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication, HttpStatus } from '@nestjs/common';
-import mongoose, { Connection } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { EventEmitter } from 'stream';
 import { readdirSync } from 'fs';
 import { AppModule } from '../../../../../src/app.module';
@@ -19,6 +19,8 @@ import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { createTempFiles } from '../../../../helpers/tempfile-helpers';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { Hashtag, HashtagDocument } from '../../../../../src/schemas/hastag/hashtag.schema';
+import { HashtagService } from '../../../../../src/hashtag/providers/hashtag.service';
 
 describe('Update Feed Post (e2e)', () => {
   let app: INestApplication;
@@ -29,7 +31,9 @@ describe('Update Feed Post (e2e)', () => {
   let user1: User;
   let configService: ConfigService;
   let feedPostsService: FeedPostsService;
+  let hashtagService: HashtagService;
   let feedPost: FeedPostDocument;
+  let hashtagModel: Model<HashtagDocument>;
 
   const sampleFeedPostObject = {
     message: 'hello all test user upload your feed post',
@@ -46,6 +50,8 @@ describe('Update Feed Post (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
+    hashtagService = moduleRef.get<HashtagService>(HashtagService);
+    hashtagModel = moduleRef.get<Model<HashtagDocument>>(getModelToken(Hashtag.name));
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
     await app.init();
@@ -55,6 +61,7 @@ describe('Update Feed Post (e2e)', () => {
     await app.close();
   });
 
+  let feedPost4;
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
@@ -73,6 +80,16 @@ describe('Update Feed Post (e2e)', () => {
         },
       ),
     );
+    feedPost4 = await feedPostsService.create(
+      feedPostFactory.build(
+        {
+          userId: activeUser._id,
+          message: 'test user#ok #Slasher post',
+          hashtags: ['ok', 'slasher'],
+        },
+      ),
+    );
+    await hashtagService.createOrUpdateHashtags(feedPost4.hashtags);
   });
 
   describe('PATCH /api/v1/feed-posts/:id', () => {
@@ -411,6 +428,156 @@ describe('Update Feed Post (e2e)', () => {
         statusCode: 400,
         message: 'Posts must have a message or at least one image. No message or image received.',
       });
+    });
+
+    it('when add new hashtag on post than expected response', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-posts/${feedPost4._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'test user#ok #Slasher post #nothing #ok #good')
+          .field('userId', activeUser._id.toString())
+          .attach('files', tempPaths[0]);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'test user#ok #Slasher post #nothing #ok #good',
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
+
+        const post = await feedPostsService.findById(response.body._id, true);
+        expect(post.hashtags).toEqual(['ok', 'slasher', 'nothing', 'good']);
+
+        const hashtags = await hashtagModel.find({ name: { $in: post.hashtags } });
+        expect(hashtags[0].name).toEqual(post.hashtags[0]);
+        expect(hashtags[1].name).toEqual(post.hashtags[1]);
+        expect(hashtags[2].name).toEqual(post.hashtags[2]);
+        expect(hashtags[3].name).toEqual(post.hashtags[3]);
+      }, [{ extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('only allows a maximum of 10 hashtags', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-posts/${feedPost._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'test user#ok #slasher #nothing #okay #best #not #go #run #fast #good #buy')
+          .field('userId', activeUser._id.toString())
+          .attach('files', tempPaths[0]);
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'you can not add more than 10 hashtags on a post',
+        });
+      }, [{ extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('post has a 2 hashtags now update one old or one new hashtags than expected response', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-posts/${feedPost4._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'test user #Slasher post #funny')
+          .field('userId', activeUser._id.toString())
+          .attach('files', tempPaths[0]);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'test user #Slasher post #funny',
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
+        const post = await feedPostsService.findById(response.body._id, true);
+        expect(post.hashtags).toEqual(['slasher', 'funny']);
+
+        const hashtags = await hashtagModel.find({ name: { $in: post.hashtags } });
+        expect(hashtags[0].name).toEqual(post.hashtags[0]);
+        expect(hashtags[1].name).toEqual(post.hashtags[1]);
+      }, [{ extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('post has a 2 hashtags now update two new hashtags than expected response', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-posts/${feedPost4._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'test user #flash #best')
+          .field('userId', activeUser._id.toString())
+          .attach('files', tempPaths[0]);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'test user #flash #best',
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
+        const post = await feedPostsService.findById(response.body._id, true);
+        expect(post.hashtags).toEqual(['flash', 'best']);
+
+        const hashtags = await hashtagModel.find({ name: { $in: post.hashtags } });
+        expect(hashtags[0].name).toEqual(post.hashtags[0]);
+        expect(hashtags[1].name).toEqual(post.hashtags[1]);
+
+        const decrementTotalPostCount = await hashtagModel.find({ name: { $in: feedPost4.hashtags } });
+        expect(decrementTotalPostCount[0].totalPost).toBe(0);
+        expect(decrementTotalPostCount[1].totalPost).toBe(0);
+      }, [{ extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
     });
   });
 

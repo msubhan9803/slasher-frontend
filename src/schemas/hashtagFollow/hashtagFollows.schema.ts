@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
+import { Hashtag } from '../hastag/hashtag.schema';
 import { User } from '../user/user.schema';
 import {
   HashTagsFollowNotificationsEnabled,
@@ -23,6 +24,9 @@ export class RssFeedProviderFollow extends HashTagsFollowUnusedFields {
 
   @Prop({ default: null, ref: User.name, required: true })
   userId: mongoose.Schema.Types.ObjectId;
+
+  @Prop({ default: null, ref: Hashtag.name, required: true })
+  hashTagId: mongoose.Schema.Types.ObjectId;
 
   @Prop({
     enum: [HashTagsFollowNotificationsEnabled.NotEnabled, HashTagsFollowNotificationsEnabled.Enabled],

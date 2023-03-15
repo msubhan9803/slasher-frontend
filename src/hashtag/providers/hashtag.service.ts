@@ -10,31 +10,25 @@ export class HashtagService {
   ) { }
 
   async createOrUpdateHashtags(name: string[]) {
-    let hastags;
+    const hastags = [];
     for (let i = 0; i < name.length; i += 1) {
-      hastags = await this.HashtagModel
-        .updateOne(
+      hastags.push(await this.HashtagModel
+        .findOneAndUpdate(
           { name: name[i] },
           { $set: { name: name[i] }, $inc: { totalPost: 1 } },
           { upsert: true, new: true },
-        ).exec();
+        ).exec());
     }
     return hastags;
   }
 
   async decrementTotalPost(name: string[]) {
-    let hastags;
+    const hastags = [];
     for (let i = 0; i < name.length; i += 1) {
-      hastags = await this.HashtagModel
-        .updateOne({ name: name[i] }, { $inc: { totalPost: -1 } }, { new: true })
-        .exec();
+      hastags.push(await this.HashtagModel
+        .findOneAndUpdate({ name: name[i] }, { $inc: { totalPost: -1 } }, { new: true })
+        .exec());
     }
     return hastags;
-  }
-
-  async findHashtags(name: string[]): Promise<Hashtag[]> {
-    return this.HashtagModel
-      .find({ name: { $in: name } })
-      .exec();
   }
 }

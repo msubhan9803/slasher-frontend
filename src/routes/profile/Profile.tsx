@@ -85,7 +85,7 @@ function Profile() {
           <Route path="/about" element={<ProfileAbout user={user} />} />
           <Route path="/photos" element={<ProfilePhotos user={user} />} />
           <Route path="/watched-list" element={<ProfileWatchList user={user} />} />
-          <Route path="/following" element={<ProfileFollowing user={user} />} />
+          <Route path="/following/*" element={<ProfileFollowing user={user} />} />
           <Route path="/edit" element={<ProfileEdit user={user} />} />
         </Routes>
       </ContentPageWrapper>

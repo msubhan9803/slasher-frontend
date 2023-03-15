@@ -35,7 +35,7 @@ const tabs = [
   { value: 'friends', label: 'Friends' },
   { value: 'photos', label: 'Photos' },
   { value: 'watched-list', label: 'Watched list' },
-  { value: 'following', label: 'Following' },
+  { value: 'following', label: 'Following', user: 'self' },
 ];
 const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => t.label !== 'Watched list');
 const CustomCol = styled(Col)`
@@ -67,6 +67,7 @@ function ProfileHeader({ tabKey, user, showTabs }: Props) {
   const [friendData, setFriendData] = useState<FriendType>(null);
 
   const isSelfUserProfile = userName === loginUserName;
+  const customTabs = isSelfUserProfile ? allTabs : allTabs.filter((t) => t.user !== 'self');
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.userId) {
@@ -182,7 +183,7 @@ function ProfileHeader({ tabKey, user, showTabs }: Props) {
         showTabs && (
           <>
             <StyledBorder className="d-md-block d-none" />
-            <TabLinks tabLink={allTabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
+            <TabLinks tabLink={customTabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
           </>
         )
       }

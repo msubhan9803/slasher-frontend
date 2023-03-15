@@ -17,7 +17,7 @@ import { useAppSelector, useAppDispatch } from '../../redux/hooks';
 import { setScrollPosition } from '../../redux/slices/scrollPositionSlice';
 import { SocketContext } from '../../context/socket';
 import { setUserInitialData } from '../../redux/slices/userSlice';
-import NotificationsRightSideNav from './NotificationsRIghtSideNav';
+import NotificationsRightSideNav from './NotificationsRightSideNav';
 
 function Notifications() {
   const popoverOption = ['Settings'];

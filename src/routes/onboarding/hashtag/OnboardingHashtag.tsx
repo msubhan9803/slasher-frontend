@@ -13,7 +13,7 @@ const hashtagList: string[] = [
   'story', 'darkart', 'datenight',
 ];
 
-const HashtagButton = styled(Button)`
+export const HashtagButton = styled(Button)`
   border : 0.125rem solid #383838
 `;
 const SelectedHashtagButton = styled(Button)`

@@ -2,10 +2,17 @@ import React, { useState } from 'react';
 import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, Col, Row } from 'react-bootstrap';
+import styled from 'styled-components';
 import BorderButton from '../../../../components/ui/BorderButton';
 import { StyledBorder } from '../../../../components/ui/StyledBorder';
 import { StyledHastagsCircle } from '../../../search/component/Hashtags';
 import FollowingHeader from '../FollowingHeader';
+import { HashtagButton } from '../../../onboarding/hashtag/OnboardingHashtag';
+import { enableDevFeatures } from '../../../../utils/configEnvironment';
+
+const CustomHashTagButton = styled(HashtagButton)`
+  background-color: #383838;
+`;
 
 const followHashtags = [
   { id: 'hashtag01', title: 'horrortrickortreat', notify: true },
@@ -13,7 +20,10 @@ const followHashtags = [
   { id: 'hashtag03', title: 'slasherhorrormovies', notify: true },
   { id: 'hashtag04', title: 'americanhorrorstory', notify: false },
 ];
-
+const hashTags = [
+  { title: 'Trending', tags: ['onlinebusiness', 'slasher', 'follow4follow', 'slashershop', 'follow4follow'] },
+  { title: 'Most popular', tags: ['onlinebusiness', 'slasher', 'follow4follow', 'slashershop', 'follow4follow'] },
+];
 function FollowingHashtags() {
   const [search, setSearch] = useState<string>('');
   const [notificationOn, setNotificationOn] = useState(false);
@@ -28,6 +38,28 @@ function FollowingHashtags() {
       />
 
       <div className="bg-dark p-3 mt-4">
+        {enableDevFeatures && (
+          <div>
+            {hashTags.map((hashtag: any) => (
+              <div key={hashtag.title} className="mt-2 d-flex flex-wrap align-items-center">
+                <h1 className="h3">
+                  {hashtag.title}
+                  :
+                  {' '}
+                </h1>
+                {hashtag.tags.map((tag: string) => (
+                  <CustomHashTagButton
+                    key={`${tag}-1`}
+                    as="input"
+                    type="button"
+                    value={`#${tag}`}
+                    className="m-1 px-3 py-1 text-white rounded-pill"
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
         {followHashtags.map((hashtag: any, index: number) => (
           <div key={hashtag.id}>
             <Row className="align-items-center p-3 mb-0">

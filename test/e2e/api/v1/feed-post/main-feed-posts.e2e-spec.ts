@@ -135,6 +135,43 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
       expect(response.body).toEqual(getMainFeedPostResponse);
     });
 
+    it('returns the expected hashtags', async () => {
+      await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: activeUser._id,
+            message: 'test user#ok #Slasher post',
+            hashtags: ['ok', 'slasher'],
+          },
+        ),
+      );
+      await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: activeUser._id,
+            message: 'test user#ok #good',
+            hashtags: ['ok', 'good'],
+          },
+        ),
+      );
+      await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: activeUser._id,
+            message: 'test user#flash #good',
+            hashtags: ['flash', 'good'],
+          },
+        ),
+      );
+      const limit = 5;
+      const hashtag = 'ok';
+      const response = await request(app.getHttpServer())
+        .get(`/api/v1/feed-posts?limit=${limit}&hashtag=${hashtag}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body.map((body) => body.message.includes(`#${hashtag}`))).toEqual([true, true]);
+    });
+
     describe('when `before` argument is supplied', () => {
       beforeEach(async () => {
         for (let index = 0; index < 3; index += 1) {

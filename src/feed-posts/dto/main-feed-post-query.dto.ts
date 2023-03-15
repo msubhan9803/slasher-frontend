@@ -15,4 +15,8 @@ export class MainFeedPostQueryDto {
   @IsOptional()
   @IsMongoId()
   before: string;
+
+  @IsOptional()
+  @IsString()
+  hashtag: string;
 }

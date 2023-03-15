@@ -8,6 +8,7 @@ import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 import { HashtagDocument, Hashtag } from '../../schemas/hastag/hashtag.schema';
 import { HashtagService } from './hashtag.service';
+import { HashtagActiveStatus } from '../../schemas/hastag/hashtag.enums';
 
 describe('HashtagService', () => {
   let app: INestApplication;
@@ -64,6 +65,64 @@ describe('HashtagService', () => {
       expect(hashtags[0].totalPost).toBe(0);
       expect(hashtags[1].totalPost).toBe(1);
       expect(hashtags[2].totalPost).toBe(1);
+    });
+  });
+
+  describe('#suggestHashtagName', () => {
+    beforeEach(async () => {
+      await hashtagModel.create({
+        name: 'good',
+      });
+      await hashtagModel.create({
+        name: 'goodidea',
+      });
+      await hashtagModel.create({
+        name: 'goodbook',
+      });
+      await hashtagModel.create({
+        name: 'goodnight',
+      });
+      await hashtagModel.create({
+        name: 'goodmorning',
+        status: HashtagActiveStatus.Deactivated,
+        deleted: true,
+      });
+      await hashtagModel.create({
+        name: 'goodbyy',
+        status: HashtagActiveStatus.Deactivated,
+        deleted: true,
+      });
+    });
+
+    it('when query exists, returns expected response, with orders sorted alphabetically by name', async () => {
+      const query = 'goo';
+      const limit = 10;
+      const suggestHashtagNames = await hashtagService.suggestHashtagName(query, limit, true);
+      expect(suggestHashtagNames).toHaveLength(4);
+      expect(suggestHashtagNames.map((suggestHashtagName) => suggestHashtagName.name)).toEqual(
+        ['good', 'goodbook', 'goodidea', 'goodnight'],
+      );
+    });
+
+    it('when query is exists and limited is applied, returns expected response', async () => {
+      const query = 'goo';
+      const limit = 1;
+      const suggestUserNames = await hashtagService.suggestHashtagName(query, limit, true);
+      expect(suggestUserNames).toHaveLength(1);
+    });
+
+    it('when query is wrong than expected response', async () => {
+      const query = 'wq';
+      const limit = 5;
+      const suggestUserNames = await hashtagService.suggestHashtagName(query, limit, true);
+      expect(suggestUserNames).toEqual([]);
+    });
+
+    it('when activeOnly is false then it gives expected response', async () => {
+      const query = 'goo';
+      const limit = 10;
+      const suggestUserNames = await hashtagService.suggestHashtagName(query, limit, false);
+      expect(suggestUserNames).toHaveLength(6);
     });
   });
 });

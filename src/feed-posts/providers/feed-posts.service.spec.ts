@@ -411,6 +411,48 @@ describe('FeedPostsService', () => {
         const feedPosts = await feedPostsService.findMainFeedPostsForUser(userData.id, 10);
         expect((feedPosts[0] as any).likedByUser).toBe(true);
       });
+
+      it('returns the expected hashtags', async () => {
+        const user3 = await usersService.create(userFactory.build());
+        await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: user3._id,
+              message: 'test user#ok #Slasher post',
+              hashtags: ['ok', 'slasher'],
+            },
+          ),
+        );
+        await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: user3._id,
+              message: 'test user#ok #code',
+              hashtags: ['ok', 'code'],
+            },
+          ),
+        );
+        await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: user3._id,
+              message: 'test user#ok #good',
+              hashtags: ['ok', 'good'],
+            },
+          ),
+        );
+        await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: user3._id,
+              message: 'test user#flash #good',
+              hashtags: ['flash', 'good'],
+            },
+          ),
+        );
+        const feedPosts = await feedPostsService.findMainFeedPostsForUser(user3.id, 10, null, 'ok');
+        expect(feedPosts).toHaveLength(3);
+      });
     });
 
     describe('should not include posts hidden for current user', () => {

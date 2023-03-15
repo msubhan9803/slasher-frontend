@@ -306,6 +306,7 @@ export class FeedPostsController {
       user.id,
       mainFeedPostQueryDto.limit,
       mainFeedPostQueryDto.before ? new mongoose.Types.ObjectId(mainFeedPostQueryDto.before) : undefined,
+      mainFeedPostQueryDto.hashtag,
     );
     return feedPosts.map(
       (feedPost) => pick(

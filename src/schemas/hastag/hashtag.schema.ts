@@ -28,7 +28,7 @@ export class Hashtag {
       HashtagActiveStatus.Active,
       HashtagActiveStatus.Deactivated,
     ],
-    default: HashtagActiveStatus.Inactive,
+    default: HashtagActiveStatus.Active,
   })
   status: HashtagActiveStatus;
 

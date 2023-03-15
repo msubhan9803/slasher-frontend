@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { HashtagService } from './providers/hashtag.service';
 import { Hashtag, HashtagSchema } from '../schemas/hastag/hashtag.schema';
+import { HashtagController } from './hashtag.controller';
 
 @Global()
 @Module({
@@ -10,6 +11,6 @@ import { Hashtag, HashtagSchema } from '../schemas/hastag/hashtag.schema';
   ],
   providers: [HashtagService],
   exports: [HashtagService],
-  controllers: [],
+  controllers: [HashtagController],
 })
 export class HashtagModule { }

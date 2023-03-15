@@ -54,11 +54,10 @@ function SocialGroupsHeader({
         {!noFilter && (
           <Col md={4} className="text-center d-none d-md-inline">
             <FilterOptions
-              buttonClass={`${selectedKey !== '' ? 'text-primary' : 'text-white'}`}
               setShowKeys={setShowKeys!}
               showKeys={showKeys!}
               showSort={postType === 'group-post'}
-              key={selectedKey}
+              activeKey={!!(selectedKey && selectedKey.length > 0)}
             />
           </Col>
         )}
@@ -68,7 +67,12 @@ function SocialGroupsHeader({
         {!noFilter && postType === 'group-post' && (
           <Col className="text-center d-md-none my-3">
             <span className="d-flex align-items-center justify-content-center">
-              <FilterOptions buttonClass={`${selectedKey !== '' ? 'text-primary' : 'text-white'} d-flex align-items-center`} setShowKeys={setShowKeys!} showKeys={showKeys!} showSort={postType === 'group-post'} />
+              <FilterOptions
+                setShowKeys={setShowKeys!}
+                showKeys={showKeys!}
+                showSort={postType === 'group-post'}
+                activeKey={!!(selectedKey && selectedKey.length > 0)}
+              />
               {selectedKey !== ''
                 && (
                   <div className="d-flex justify-content-center">

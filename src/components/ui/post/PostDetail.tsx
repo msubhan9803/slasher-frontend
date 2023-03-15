@@ -366,6 +366,7 @@ function PostDetail({ user, postType }: Props) {
             _id: res.data._id,
             id: res.data._id,
             postDate: res.data.createdAt,
+            rssFeedTitle: res.data.rssFeedId.title,
             title: res.data.rssfeedProviderId?.title,
             content: res.data.rssFeedId ? res.data.rssFeedId.content : res.data.message,
             images: res.data.images,

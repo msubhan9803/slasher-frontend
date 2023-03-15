@@ -44,7 +44,7 @@ const sidebarMenuList: MenuType[] = [
     label: 'Art', icon: solid('palette'), iconColor: '#799F0C', to: '/app/art', id: 7,
   },
   {
-    label: 'Settings', icon: solid('gear'), iconColor: '#888888', to: '/app/account/settings', id: 8, desktopOnly: true,
+    label: 'Settings', icon: solid('gear'), iconColor: '#888888', to: '/app/account', id: 8, desktopOnly: true,
   },
   {
     label: 'Help', icon: solid('circle-question'), iconColor: '#9E9E9E', to: '/app/help', id: 9, desktopOnly: true,

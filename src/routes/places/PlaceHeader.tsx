@@ -31,7 +31,7 @@ function PlaceHeader({ tabKey }: PlaceHeaderProps) {
           <SortData title="Sort: " sortoptions={sortoptions} type="sort" className="rounded-5" />
         </Col>
         <Col md={4} className="order-first order-md-last">
-          <RoundButton className="py-2 d-lg-none w-100">Add your place</RoundButton>
+          <RoundButton className="d-lg-none w-100">Add your place</RoundButton>
         </Col>
       </Row>
     </>

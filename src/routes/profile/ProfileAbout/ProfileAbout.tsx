@@ -99,7 +99,7 @@ function ProfileAbout({ user }: Props) {
                       </RoundButton>
                     </Col>
                     <Col xs={6}>
-                      <ProgressButton label="Save" className="py-2 w-100  fs-3 fw-bold" onClick={() => handleUserAbout(user?._id)} />
+                      <ProgressButton label="Save" className="w-100 fs-3 fw-bold" onClick={() => handleUserAbout(user?._id)} />
                     </Col>
                   </Row>
                 </Col>

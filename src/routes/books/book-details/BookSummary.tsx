@@ -30,7 +30,7 @@ const AboutBookDetails = styled.div`
     svg {
       width: 1.179rem;
       height: 1.125rem;
-    }    
+    }
     p {
       font-size: 1rem;
     }
@@ -40,12 +40,12 @@ const AboutBookDetails = styled.div`
     svg {
       width: 1.055rem;
       height: 1.125rem;
-    }    
+    }
     p {
       font-size: 1rem;
     }
   }
-  
+
 `;
 function BookSummary() {
   const [show, setShow] = useState(false);
@@ -126,7 +126,7 @@ function BookSummary() {
         <Col xs={6} sm={5} xl={12}>
           <div className="d-flex justify-content-xl-between justify-content-end align-items-center">
             <WorthContent />
-            <RoundButton className="d-none d-xl-block bg-primary px-5 py-2 fw-bold fs-3">Buy now</RoundButton>
+            <RoundButton className="d-none d-xl-block bg-primary px-5 fw-bold fs-3">Buy now</RoundButton>
           </div>
         </Col>
         <Col xs={6} sm={5} xl={12} className="d-xxl-none pt-xl-3 pt-xxl-0">
@@ -135,7 +135,7 @@ function BookSummary() {
       </Row>
       <Row className="mt-5 d-xl-none">
         <Col className="text-center text-xl-end">
-          <RoundButton className="bg-primary px-5 py-2 fw-bold fs-3">Buy now</RoundButton>
+          <RoundButton className="bg-primary px-5 fw-bold fs-3">Buy now</RoundButton>
         </Col>
       </Row>
       <BooksModal show={show} setShow={setShow} ButtonType="rate" />

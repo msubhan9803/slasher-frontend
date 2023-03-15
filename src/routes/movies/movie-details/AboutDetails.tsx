@@ -136,7 +136,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
             </div>
             <div>
               <BorderButton
-                buttonClass="d-flex share-btn bg-black py-2"
+                buttonClass="d-flex share-btn bg-black"
                 variant="lg"
                 icon={solid('share-nodes')}
                 iconClass="me-2"
@@ -178,7 +178,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                     )}
 
                   <BorderButton
-                    buttonClass="mx-md-auto rate-btn bg-black py-2 mt-md-4 justify-content-md-center d-flex"
+                    buttonClass="mx-md-auto rate-btn bg-black mt-md-4 justify-content-md-center d-flex"
                     variant="lg"
                     icon={regular('star')}
                     iconClass="me-2"
@@ -192,7 +192,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                   && (
                     <div className="mt-2 mt-md-4 d-flex justify-content-center">
                       <BorderButton
-                        buttonClass="d-flex rate-btn bg-black py-2 d-flex"
+                        buttonClass="d-flex rate-btn bg-black d-flex"
                         variant="lg"
                         iconClass="me-2"
                         iconSize="sm"
@@ -246,7 +246,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                     && (
                       <div className="mt-4 d-flex justify-content-center">
                         <BorderButton
-                          buttonClass="d-flex rate-btn bg-black py-2 d-flex"
+                          buttonClass="d-flex rate-btn bg-black d-flex"
                           variant="lg"
                           iconClass="me-2"
                           iconSize="sm"
@@ -280,7 +280,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                   )}
                 <div className="mt-4 d-flex justify-content-center">
                   <BorderButton
-                    buttonClass="d-flex rate-btn bg-black py-2 d-flex"
+                    buttonClass="d-flex rate-btn bg-black d-flex"
                     variant="lg"
                     icon={solid('burst')}
                     iconClass="me-2"
@@ -295,7 +295,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                   && (
                     <div className="mt-4 d-flex justify-content-center">
                       <BorderButton
-                        buttonClass="d-flex rate-btn bg-black py-2 d-flex"
+                        buttonClass="d-flex rate-btn bg-black d-flex"
                         variant="lg"
                         iconClass="me-2"
                         iconSize="sm"

@@ -105,7 +105,7 @@ function EventDetails() {
               >
                 {eventDetails?.url}
               </a>
-              <RoundButton onClick={handleShowShareLinks} className="d-none d-md-flex d-lg-none d-xl-flex align-self-center rate-btn py-2" variant="black">
+              <RoundButton onClick={handleShowShareLinks} className="d-none d-md-flex d-lg-none d-xl-flex align-self-center rate-btn" variant="black">
                 <FontAwesomeIcon icon={solid('share-nodes')} className="align-self-center me-2" />
                 <h1 className="h3 m-0">Share</h1>
               </RoundButton>
@@ -114,7 +114,7 @@ function EventDetails() {
         </Row>
         <div className="d-flex d-md-none d-lg-flex d-xl-none justify-content-between">
           <div className="d-flex align-self-center">
-            <RoundButton onClick={handleShowShareLinks} className="d-flex align-self-center rate-btn bg-black py-2" variant="black">
+            <RoundButton onClick={handleShowShareLinks} className="d-flex align-self-center rate-btn bg-black" variant="black">
               <FontAwesomeIcon icon={solid('share-nodes')} className="align-self-center me-2" />
               <h1 className="h3 m-0">Share</h1>
             </RoundButton>

@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { escapeStringForRegex } from '../../utils/escape-utils';
 import { Hashtag, HashtagDocument } from '../../schemas/hastag/hashtag.schema';
-import { HashtagActiveStatus } from '../../schemas/hastag/hashtag.enums';
+import { HashtagActiveStatus, HashtagDeletionStatus } from '../../schemas/hastag/hashtag.enums';
 
 @Injectable()
 export class HashtagService {
@@ -53,5 +53,14 @@ export class HashtagService {
       (hashtag) => ({ name: hashtag.name, _id: hashtag.id, totalPost: hashtag.totalPost }),
     );
     return hashtagsNameSuggestions as unknown as Hashtag[];
+  }
+
+  async findByHashTagName(name: string, activeOnly: boolean): Promise<Hashtag> {
+    const hashtagFindQuery: any = { name };
+    if (activeOnly) {
+      hashtagFindQuery.deleted = HashtagDeletionStatus.NotDeleted;
+      hashtagFindQuery.status = HashtagActiveStatus.Active;
+    }
+    return this.HashtagModel.findOne(hashtagFindQuery).exec();
   }
 }

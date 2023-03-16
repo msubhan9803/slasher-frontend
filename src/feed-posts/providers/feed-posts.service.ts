@@ -93,7 +93,6 @@ export class FeedPostsService {
     userId: string,
     limit: number,
     before?: mongoose.Types.ObjectId,
-    hashtag?: string,
   ): Promise<FeedPostDocument[]> {
     // Get the list of rss feed providers that the user is following
     const rssFeedProviderIds = (await this.rssFeedProviderFollowsService.findAllByUserId(userId)).map((follow) => follow.rssfeedProviderId);
@@ -105,11 +104,6 @@ export class FeedPostsService {
     if (before) {
       const feedPost = await this.feedPostModel.findById(before).exec();
       beforeQuery.updatedAt = { $lt: feedPost.updatedAt };
-    }
-
-    const hashtagQuery: any = {};
-    if (hashtag) {
-      hashtagQuery.hashtags = hashtag;
     }
 
     const query = await this.feedPostModel
@@ -126,7 +120,6 @@ export class FeedPostsService {
           },
           { hideUsers: { $ne: new mongoose.Types.ObjectId(userId) } },
           beforeQuery,
-          hashtagQuery,
         ],
       })
       .populate('userId', '_id userName profilePic')

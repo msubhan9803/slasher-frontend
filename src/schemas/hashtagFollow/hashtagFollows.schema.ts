@@ -9,7 +9,7 @@ import {
 import { HashTagsFollowUnusedFields } from './hashtagFollows.unused-fields';
 
 @Schema({ timestamps: true })
-export class RssFeedProviderFollow extends HashTagsFollowUnusedFields {
+export class HashTagsFollow extends HashTagsFollowUnusedFields {
   /***********
    * Fields *
    ***********/
@@ -44,7 +44,7 @@ export class RssFeedProviderFollow extends HashTagsFollowUnusedFields {
    * Methods *
    ***********/
 
-  constructor(options?: Partial<RssFeedProviderFollow>) {
+  constructor(options?: Partial<HashTagsFollow>) {
     super();
     if (!options) {
       return;
@@ -55,6 +55,6 @@ export class RssFeedProviderFollow extends HashTagsFollowUnusedFields {
   }
 }
 
-export const RssFeedProviderFollowSchema = SchemaFactory.createForClass(RssFeedProviderFollow);
+export const HashTagsFollowSchema = SchemaFactory.createForClass(HashTagsFollow);
 
-export type RssFeedProviderFollowDocument = HydratedDocument<RssFeedProviderFollow>;
+export type HashTagsFollowDocument = HydratedDocument<HashTagsFollow>;

@@ -14,6 +14,7 @@ import { RssFeedProvidersModule } from '../rss-feed-providers/rss-feed-providers
 import { MailModule } from '../providers/mail.module';
 import { DisallowedUsernameModule } from '../disallowedUsername/disallowed-username.module';
 import { MoviesModule } from '../movies/movies.module';
+import { HashtagFollowsModule } from '../hashtag-follows/hashtag-follows.module';
 
 // Since the UsersModule is likely to be used in many places, we'll make it global
 @Global()
@@ -29,6 +30,7 @@ import { MoviesModule } from '../movies/movies.module';
     MailModule,
     DisallowedUsernameModule,
     MoviesModule,
+    HashtagFollowsModule,
   ],
   controllers: [UsersController],
   providers: [UsersService, LocalStorageService, S3StorageService],

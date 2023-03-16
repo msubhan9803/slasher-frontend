@@ -16,6 +16,7 @@ import {
   UseInterceptors,
   Delete,
   Ip,
+  Put,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
@@ -67,6 +68,10 @@ import { DisallowedUsernameService } from '../disallowedUsername/providers/disal
 import { MoviesService } from '../movies/providers/movies.service';
 import { FindAllMoviesDto } from '../movies/dto/find-all-movies.dto';
 import { relativeToFullImagePath } from '../utils/image-utils';
+import { FollowHashtagDto } from './dto/follow-hashtag.dto';
+import { HashtagFollowsService } from '../hashtag-follows/providers/hashtag-follows.service';
+import { HashtagService } from '../hashtag/providers/hashtag.service';
+import { NotificationDto } from './dto/notification.dto';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -87,6 +92,8 @@ export class UsersController {
     private readonly notificationsService: NotificationsService,
     private readonly disallowedUsernameService: DisallowedUsernameService,
     private readonly moviesService: MoviesService,
+    private readonly hashtagFollowsService: HashtagFollowsService,
+    private readonly hashtagService: HashtagService,
     private configService: ConfigService,
   ) { }
 
@@ -912,5 +919,64 @@ export class UsersController {
     return movies.map(
       (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating']),
     );
+  }
+
+  @Get(':userId/hashtag-follows')
+  async fetchAllUserFollowedHashtag(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ParamUserIdDto,
+  ) {
+    const user = getUserFromRequest(request);
+    if (user.id !== params.userId) { throw new HttpException('Not authorized', HttpStatus.UNAUTHORIZED); }
+
+    const hashtagFollows = await this.hashtagFollowsService.findAllByUserId(params.userId);
+    if (!hashtagFollows.length) {
+      throw new HttpException('Hashtag not found', HttpStatus.NOT_FOUND);
+    }
+    return hashtagFollows.map(
+      (follow) => pick(follow, ['notification', 'userId', 'hashTagId']),
+    );
+  }
+
+  @Put(':userId/hashtag-follows/:hashtag')
+  async createOrUpdateHashtagFollow(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: FollowHashtagDto,
+    @Body() notificationDto: NotificationDto,
+  ) {
+    const user = getUserFromRequest(request);
+    if (user.id !== params.userId) { throw new HttpException('Not authorized', HttpStatus.UNAUTHORIZED); }
+
+    const hashtag = await this.hashtagService.findByHashTagName(params.hashtag, true);
+    if (!hashtag) {
+      throw new HttpException('Hashtag not found', HttpStatus.NOT_FOUND);
+    }
+
+    const hashtagFollow = await this.hashtagFollowsService.findOneAndUpdateHashtagFollow(
+      user.id,
+      hashtag._id.toString(),
+      notificationDto.notification,
+    );
+    return pick(hashtagFollow, ['notification', 'userId', 'hashTagId']);
+  }
+
+  @Delete(':userId/followed-hashtags/:hashtag')
+  async deleteHashtagsFollow(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: FollowHashtagDto,
+  ) {
+    const user = getUserFromRequest(request);
+    if (user.id !== params.userId) { throw new HttpException('Not authorized', HttpStatus.UNAUTHORIZED); }
+
+    const hashtag = await this.hashtagService.findByHashTagName(params.hashtag, true);
+    if (!hashtag) {
+      throw new HttpException('Hashtag not found', HttpStatus.NOT_FOUND);
+    }
+
+    const hashtagFollows = await this.hashtagFollowsService.findByUserAndHashtag(user.id, hashtag._id.toString());
+    if (hashtagFollows) {
+      await this.hashtagFollowsService.deleteById(hashtagFollows._id.toString());
+    }
+    return { success: true };
   }
 }

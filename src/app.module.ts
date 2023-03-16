@@ -38,6 +38,7 @@ import { MulterUploadCleanupInterceptor } from './app/interceptors/multer-upload
 import { MovieUserStatusModule } from './movie-user-status/movie.user.status.module';
 import { AppController } from './app/app.controller';
 import { HashtagModule } from './hashtag/hashtag.module';
+import { HashtagFollowsModule } from './hashtag-follows/hashtag-follows.module';
 
 @Module({
   imports: [
@@ -85,6 +86,7 @@ import { HashtagModule } from './hashtag/hashtag.module';
     QueuedJobsModule,
     MovieUserStatusModule,
     HashtagModule,
+    HashtagFollowsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -48,6 +48,10 @@ body {
   }
 }
 
+abbr[title] {
+  cursor: default;
+}
+
 .page-wrapper {
   min-height: 100vh;
   display: flex;

@@ -33,7 +33,7 @@ function CustomCreatePost({
       handleClick={handleCreateInput}
       state={pathname}
       to={handleCreateInput ? `${linkParams}` : `/app/posts/create${linkParams}`}
-      variant="dark"
+      variant="black"
       className={`w-100 d-flex justify-content-between ${className}`}
     >
       <div>

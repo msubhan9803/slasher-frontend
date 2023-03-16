@@ -270,7 +270,7 @@ function CreatePostComponent({
             <>
               <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
               <Col md="auto" className="mb-3 mb-md-0 order-0 order-md-1 me-auto">
-                <AddPhotosButton size="md" disabled={uploadPost && uploadPost.length >= 10} className="mt-4 border-0 btn btn-form w-100 rounded-5 py-2" onClick={() => inputFile.current?.click()}>
+                <AddPhotosButton size="md" disabled={uploadPost && uploadPost.length >= 10} className="mt-4 border-0 btn btn-form w-100 rounded-5" onClick={() => inputFile.current?.click()}>
                   <FontAwesomeIcon icon={regular('image')} className="me-2" />
                   <span className="h3">Add photos</span>
                 </AddPhotosButton>

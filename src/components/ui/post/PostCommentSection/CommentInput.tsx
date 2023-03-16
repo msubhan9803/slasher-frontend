@@ -57,8 +57,7 @@ const StyledCommentInputGroup = styled(InputGroup) <InputProps>`
   }
 
   ${(props) => props.focus && `
-    box-shadow: 0 0 0 3px var(--stroke-and-line-separator-color);
-    // opacity:0.5;
+    box-shadow: 0 0 0 1px var(--stroke-and-line-separator-color);
     border-radius: 1.875rem;
   `};
 

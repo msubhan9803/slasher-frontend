@@ -12,7 +12,7 @@ const StyledSlider = styled.div`
   .testimonial-item {
     box-sizing: content-box;
     box-shadow: 0px 0px 20px 0px rgba(11, 35, 65, 0.1);
-    
+
   }
   .rate {
     color: var(--bs-orange);
@@ -103,7 +103,7 @@ function UserReview() {
                     <p className="fs-4 review">
                       {card.review}
                     </p>
-                    <p className="fs-3 fw-bold">
+                    <p className="fw-bold">
                       {card.user}
                     </p>
                   </div>

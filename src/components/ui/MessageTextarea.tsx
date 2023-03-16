@@ -26,7 +26,6 @@ const StyledMention = styled(Mentions) <SytledMentionProps>`
     `
     : '')
 }
-
 `;
 
 export interface MentionListProps {

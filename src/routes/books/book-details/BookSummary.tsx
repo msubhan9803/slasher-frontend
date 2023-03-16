@@ -30,7 +30,7 @@ const AboutBookDetails = styled.div`
     svg {
       width: 1.179rem;
       height: 1.125rem;
-    }    
+    }
     p {
       font-size: 1rem;
     }
@@ -40,12 +40,12 @@ const AboutBookDetails = styled.div`
     svg {
       width: 1.055rem;
       height: 1.125rem;
-    }    
+    }
     p {
       font-size: 1rem;
     }
   }
-  
+
 `;
 function BookSummary() {
   const [show, setShow] = useState(false);
@@ -92,21 +92,21 @@ function BookSummary() {
         </div>
         <div className="my-2 mb-xl-0 mt-xxl-3 d-none d-xxl-flex align-items-center">
           <span className="d-lg-flex">
-            <p className="m-0 fs-3 fw-bold">
+            <p className="m-0 fw-bold">
               Year:&nbsp;
             </p>
             1921
           </span>
           <FontAwesomeIcon icon={solid('circle')} size="sm" className="circle mx-3 text-primary" />
           <span className="d-lg-flex">
-            <p className="m-0 fs-3 fw-bold">
+            <p className="m-0 fw-bold">
               Pages:&nbsp;
             </p>
             447
           </span>
           <FontAwesomeIcon icon={solid('circle')} size="sm" className="circle mx-3 text-primary" />
           <span className="d-lg-flex">
-            <p className="m-0 fs-3 fw-bold">
+            <p className="m-0 fw-bold">
               ISBN:&nbsp;
             </p>
             272423118X
@@ -115,7 +115,7 @@ function BookSummary() {
       </StyledRateBorder>
       <div className="mt-2 mt-xl-0 d-block d-xxl-flex justify-content-center justify-content-xxl-between py-3">
         <div className="align-items-center d-flex justify-content-center justify-content-xl-start">
-          <p className="m-0 me-1 me-sm-3 fs-3 fw-bold">Worth watching?</p>
+          <p className="m-0 me-1 me-sm-3 fw-bold">Worth watching?</p>
           <LikeDislike />
         </div>
         <div className="d-none d-xxl-flex">
@@ -126,7 +126,7 @@ function BookSummary() {
         <Col xs={6} sm={5} xl={12}>
           <div className="d-flex justify-content-xl-between justify-content-end align-items-center">
             <WorthContent />
-            <RoundButton className="d-none d-xl-block bg-primary px-5 py-2 fw-bold fs-3">Buy now</RoundButton>
+            <RoundButton className="d-none d-xl-block bg-primary px-5 fw-bold fs-3">Buy now</RoundButton>
           </div>
         </Col>
         <Col xs={6} sm={5} xl={12} className="d-xxl-none pt-xl-3 pt-xxl-0">
@@ -135,7 +135,7 @@ function BookSummary() {
       </Row>
       <Row className="mt-5 d-xl-none">
         <Col className="text-center text-xl-end">
-          <RoundButton className="bg-primary px-5 py-2 fw-bold fs-3">Buy now</RoundButton>
+          <RoundButton className="bg-primary px-5 fw-bold fs-3">Buy now</RoundButton>
         </Col>
       </Row>
       <BooksModal show={show} setShow={setShow} ButtonType="rate" />

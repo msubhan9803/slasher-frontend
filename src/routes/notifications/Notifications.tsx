@@ -12,12 +12,12 @@ import NotificationTimestamp from './NotificationTimestamp';
 import NotificationCard from './NotificationCard';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import NotificationsRIghtSideNav from './NotificationsRIghtSideNav';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import { useAppSelector, useAppDispatch } from '../../redux/hooks';
 import { setScrollPosition } from '../../redux/slices/scrollPositionSlice';
 import { SocketContext } from '../../context/socket';
 import { setUserInitialData } from '../../redux/slices/userSlice';
+import NotificationsRightSideNav from './NotificationsRightSideNav';
 
 function Notifications() {
   const popoverOption = ['Settings'];
@@ -249,7 +249,7 @@ function Notifications() {
         </div>
       </ContentPageWrapper>
       <RightSidebarWrapper>
-        <NotificationsRIghtSideNav />
+        <NotificationsRightSideNav />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>
   );

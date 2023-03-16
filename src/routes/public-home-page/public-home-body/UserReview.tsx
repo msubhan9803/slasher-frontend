@@ -75,10 +75,10 @@ function UserReview() {
   }, []);
 
   return (
-    <StyledSlider className="my-5 p-5">
+    <StyledSlider className="mt-5 pt-5">
       <Container>
 
-        <div className="text-center">
+        <div className="mb-4 text-center">
           <h1 className="h1 fw-bold">
             WHAT PEOPLE ARE
             <br />

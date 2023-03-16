@@ -2,10 +2,12 @@ import React from 'react';
 import { Image } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { MD_MEDIA_BREAKPOINT } from '../../../constants';
 import AppStoreImage from '../../../images/app-store-badge.png';
 import PlayStoreImage from '../../../images/google-play-badge.png';
 
 export const StyledBadge = styled.div`
+@media (max-width: ${MD_MEDIA_BREAKPOINT})
   .ios-badge{
     width: 204px;
     height: 61px !important;

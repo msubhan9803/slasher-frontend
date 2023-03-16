@@ -2,37 +2,59 @@ import React from 'react';
 import {
   Col, Container, Image, Row,
 } from 'react-bootstrap';
+import styled from 'styled-components';
 import SlasherAbout1 from '../../../images/slasher-about-1.png';
 import SlasherAbout2 from '../../../images/slasher-about-2.png';
 import SlasherAbout3 from '../../../images/slasher-about-3.png';
 import SlasherAbout4 from '../../../images/slasher-about-4.png';
 import AvailableSection from './AvailableSection';
 import DownloadStoreBadge from '../components/DownloadStoreBadge';
+import {
+  XL_MEDIA_BREAKPOINT,
+  LG_MEDIA_BREAKPOINT,
+  SM_MEDIA_BREAKPOINT,
+} from '../../../constants';
+
+const StyledAbout = styled.div`
+  margin-top: -0.8rem;
+  
+  @media (max-width: ${XL_MEDIA_BREAKPOINT}){
+    margin-top: -15.53rem;
+  }
+  @media (max-width: ${LG_MEDIA_BREAKPOINT}){
+    margin-top: 2rem;
+  }
+  @media (max-width: ${SM_MEDIA_BREAKPOINT}){ 
+    margin-top: 3.2rem;
+  }
+`;
 
 function AboutApp() {
   return (
-    <div id="details" className="details my-5 py-5">
+    <StyledAbout id="details" className="details mb-5 pb-1">
       <Container>
         <Row className="justify-content-center mb-5 pb-3 row text-center">
           <Col md={10}>
             <h1 className="mb-3">SLASHER IS THE ULTIMATE APP FOR HORROR FANS</h1>
             <p className="text-light">
               For the first time, you can experience horror on a social platform the way it
-              is meant to be enjoyed! Creators in the horror community can have
-              their vision presented as they intended – blood & gore special
+              is meant to be enjoyed!
+              <br />
+              Creators in the horror community can have their vision presented as they
+              intended &#8722; blood & gore special
               seffects are welcome!
             </p>
           </Col>
         </Row>
-        <Row className="content align-items-center mb-5 pb-4">
+        <Row className="content align-items-center mb-3">
           <Col md={6}>
             <Image fluid src={SlasherAbout1} className="" alt="about 1" />
           </Col>
           <Col md={6} className="pt-4 mb-md-5 text-center text-md-start">
             <h2 className="text-primary text-uppercase h1 mb-3">Social Network</h2>
-            <p className="pe-lg-5 text-light fs-4 mb-3">
-              Slasher is different from the mainstream social networks. It’s a friendly,
-              respectful community for all horror fans to enjoy. There’s no censorship of
+            <p className="pe-lg-3 text-light fs-4 mb-3">
+              Slasher is different from the mainstream social networks. It&#39;s a friendly,
+              respectful community for all horror fans to enjoy. There&#39;s no censorship of
               bloody or gory special effects and makeup. You can also build your connections
               faster than any other social website or app! The people behind Slasher are horror
               fans too!
@@ -46,10 +68,10 @@ function AboutApp() {
             <Image fluid src={SlasherAbout2} className="" alt="about 2" />
           </Col>
           <Col md={6} className="pt-5 order-2 order-md-1 mb-md-5 text-center text-md-start">
-            <h3 className="text-primary text-uppercase h1 mb-3">
+            <h3 className="text-primary text-uppercase h1 mb-3 me-lg-3">
               THE LARGEST HORROR MOVIE DATABASE
             </h3>
-            <p className="pe-lg-5 text-light fs-4 mb-3">
+            <p className="text-light fs-4 mb-3">
               Slasher has the largest horror movie database online! You can share, get info,
               watch trailers, check out ratings from other Slasher members, and talk about
               thousands of horror movies from all
@@ -65,9 +87,9 @@ function AboutApp() {
           </Col>
           <Col md={6} className="pt-5 mb-md-5 text-center text-md-start">
             <h4 className="text-primary text-uppercase h1 mb-3">EVENTS CALENDAR</h4>
-            <p className="pe-lg-5 text-light fs-4 mb-3">
+            <p className="text-light fs-4 mb-3 me-lg-3">
               Looking for a horror convention? Maybe a film festival?
-              Check out Slasher’s event calendar to see what kind of cool things are
+              Check out Slasher&#39;s event calendar to see what kind of cool things are
               going on near you!
             </p>
             <DownloadStoreBadge />
@@ -80,7 +102,7 @@ function AboutApp() {
           </Col>
           <Col md={6} className="pt-5 order-2 order-md-1 mb-md-5 text-center text-md-start">
             <h5 className="text-primary text-uppercase h1 mb-3">DATING FOR HORROR FANS</h5>
-            <p className="pe-lg-5 text-light fs-4 mb-3">
+            <p className="text-light fs-4 mb-3">
               You love horror, so why not find someone to share that with? Check out the first ever
               dating feature made for horror fans!
             </p>
@@ -89,7 +111,7 @@ function AboutApp() {
         </Row>
         <AvailableSection />
       </Container>
-    </div>
+    </StyledAbout>
   );
 }
 

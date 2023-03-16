@@ -1,6 +1,6 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Col, Row } from 'react-bootstrap';
+import { Col, Image, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import {
@@ -8,7 +8,8 @@ import {
 } from '@fortawesome/free-brands-svg-icons';
 import slasherLogo from '../../../images/slasher-logo-medium.png';
 import HeaderLogo from '../../../components/ui/HeaderLogo';
-import DownloadStoreBadge from '../components/DownloadStoreBadge';
+import AppStoreImage from '../../../images/app-store-badge.png';
+import PlayStoreImage from '../../../images/google-play-badge.png';
 
 const socialMediaSites = [
   { icon: faFacebookF, to: '/', bgColor: '#3b5998' },
@@ -28,6 +29,9 @@ const StyledMediaIcon = styled.div <SocialMediaIcon>`
     background-color: ${(prop) => prop.bgcolor} !important;
     color: var(--bs-body-color) !important;
   }
+`;
+
+const StyledBadge = styled.div`
 `;
 
 const footerNavList = ['HOME', 'ADVERTICE', 'ABOUT', 'SHOP', 'HELP', 'CONTACT US'];
@@ -66,8 +70,15 @@ function PublicHomeFooter() {
               </Row>
             </div>
           </Col>
-          <Col md={4} lg={5} className="text-center text-md-end my-md-auto">
-            <DownloadStoreBadge />
+          <Col md={4} lg={5} className="my-md-auto">
+            <StyledBadge className="d-flex justify-content-center justify-content-md-end">
+              <Link to="/" className="me-3">
+                <Image fluid src={AppStoreImage} alt="app store" className="border rounded ios-badge" />
+              </Link>
+              <Link to="/">
+                <Image fluid src={PlayStoreImage} alt="play store" className="border rounded" />
+              </Link>
+            </StyledBadge>
           </Col>
         </Row>
       </div>

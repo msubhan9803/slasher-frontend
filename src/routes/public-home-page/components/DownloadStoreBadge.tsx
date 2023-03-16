@@ -7,16 +7,17 @@ import AppStoreImage from '../../../images/app-store-badge.png';
 import PlayStoreImage from '../../../images/google-play-badge.png';
 
 export const StyledBadge = styled.div`
-@media (max-width: ${MD_MEDIA_BREAKPOINT})
-  .ios-badge{
-    width: 204px;
-    height: 61px !important;
-  } 
-}`;
+  @media (min-width: ${MD_MEDIA_BREAKPOINT})
+    .ios-badge{
+      width: 204px;
+      height: 61px !important;
+    } 
+  }
+`;
 
 function DownloadStoreBadge() {
   return (
-    <StyledBadge className="d-flex flex-column flex-md-row">
+    <StyledBadge className="d-flex flex-column flex-sm-row">
       <Link to="/" className="mb-3 mb-md-0 me-0 me-md-3">
         <Image fluid src={AppStoreImage} alt="app store" className="ios-badge" />
       </Link>

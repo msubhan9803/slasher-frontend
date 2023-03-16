@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Navbar } from 'react-bootstrap';
+import { Navbar } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { StyledNav } from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageHeader';
@@ -52,12 +52,18 @@ const StyledHeader = styled.header<HeaderStyleProps>`
     right: -20px;
   }
   @media (max-width: ${XL_MEDIA_BREAKPOINT}){
-  .login-btn{
-    top: 48px;
-    right: -30px;
+    .login-btn{
+      right: -30px;
+    }
   }
+  @media only screen and (max-width: ${LG_MEDIA_BREAKPOINT}){
+    height: ${({ isOpen }) => (isOpen ? 'auto' : '100px')} !important;
+    &.header-scrolled {
+      background: var(--bs-secondary) !important;
+      height: ${({ isOpen }) => (isOpen ? 'auto' : '70px')} !important;
+    }
   }
-  @media (max-width: ${MD_MEDIA_BREAKPOINT}){
+  @media (max-width: ${MD_MEDIA_BREAKPOINT}){    
     height: ${({ isOpen }) => (isOpen ? 'auto' : '100px')} !important;
     &.header-scrolled {
       background: var(--bs-secondary) !important;
@@ -108,7 +114,7 @@ function PublicHomeHeader() {
 
   return (
     <StyledHeader isOpen={isOpen} id="header" className="fixed-top d-flex align-items-center bg-transparent">
-      <Container className="position-relative">
+      <div className="container-md position-relative">
         <Navbar
           collapseOnSelect
           expand="lg"
@@ -157,7 +163,7 @@ function PublicHomeHeader() {
           </StyledNavbarCollapse>
         </Navbar>
         <RoundButton className="login-btn d-none d-lg-block px-4 position-absolute">Login</RoundButton>
-      </Container>
+      </div>
     </StyledHeader>
   );
 }

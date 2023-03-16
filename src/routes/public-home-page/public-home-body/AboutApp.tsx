@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Col, Container, Image, Row,
+  Col, Image, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import SlasherAbout1 from '../../../images/slasher-about-1.png';
@@ -10,32 +10,43 @@ import SlasherAbout4 from '../../../images/slasher-about-4.png';
 import AvailableSection from './AvailableSection';
 import DownloadStoreBadge from '../components/DownloadStoreBadge';
 import {
+  XXL_MEDIA_BREAKPOINT,
   XL_MEDIA_BREAKPOINT,
   LG_MEDIA_BREAKPOINT,
+  MD_MEDIA_BREAKPOINT,
   SM_MEDIA_BREAKPOINT,
 } from '../../../constants';
 
 const StyledAbout = styled.div`
-  margin-top: -0.8rem;
+  margin-top: -2.8rem;
   
+  @media (min-width: ${XXL_MEDIA_BREAKPOINT}){
+    margin-top: 2.2rem;
+  }
   @media (max-width: ${XL_MEDIA_BREAKPOINT}){
-    margin-top: -15.53rem;
+    margin-top: 0rem;
   }
   @media (max-width: ${LG_MEDIA_BREAKPOINT}){
+    margin-top: 8rem;
+  }
+  @media (max-width: ${MD_MEDIA_BREAKPOINT}){
     margin-top: 2rem;
   }
   @media (max-width: ${SM_MEDIA_BREAKPOINT}){ 
     margin-top: 3.2rem;
+    .title {
+      font-size: 20px !important;
+    }
   }
 `;
 
 function AboutApp() {
   return (
     <StyledAbout id="details" className="details mb-5 pb-1">
-      <Container>
+      <div className="container-lg">
         <Row className="justify-content-center mb-5 pb-3 row text-center">
           <Col md={10}>
-            <h1 className="mb-3">SLASHER IS THE ULTIMATE APP FOR HORROR FANS</h1>
+            <h1 className="title mb-3">SLASHER IS THE ULTIMATE APP FOR HORROR FANS</h1>
             <p className="text-light">
               For the first time, you can experience horror on a social platform the way it
               is meant to be enjoyed!
@@ -50,7 +61,7 @@ function AboutApp() {
           <Col md={6}>
             <Image fluid src={SlasherAbout1} className="" alt="about 1" />
           </Col>
-          <Col md={6} className="pt-4 mb-md-5 text-center text-md-start">
+          <Col md={6} className="pt-4 mb-md-5 text-center text-sm-start">
             <h2 className="text-primary text-uppercase h1 mb-3">Social Network</h2>
             <p className="pe-lg-3 text-light fs-4 mb-3">
               Slasher is different from the mainstream social networks. It&#39;s a friendly,
@@ -67,7 +78,7 @@ function AboutApp() {
           <Col md={6} className="order-1 order-md-2">
             <Image fluid src={SlasherAbout2} className="" alt="about 2" />
           </Col>
-          <Col md={6} className="pt-5 order-2 order-md-1 mb-md-5 text-center text-md-start">
+          <Col md={6} className="pt-5 order-2 order-md-1 mb-md-5 text-center text-sm-start">
             <h3 className="text-primary text-uppercase h1 mb-3 me-lg-3">
               THE LARGEST HORROR MOVIE DATABASE
             </h3>
@@ -85,7 +96,7 @@ function AboutApp() {
           <Col md={6} className="">
             <Image fluid src={SlasherAbout3} className="" alt="about 3" />
           </Col>
-          <Col md={6} className="pt-5 mb-md-5 text-center text-md-start">
+          <Col md={6} className="pt-5 mb-md-5 text-center text-sm-start">
             <h4 className="text-primary text-uppercase h1 mb-3">EVENTS CALENDAR</h4>
             <p className="text-light fs-4 mb-3 me-lg-3">
               Looking for a horror convention? Maybe a film festival?
@@ -100,7 +111,7 @@ function AboutApp() {
           <Col md={6} className="order-1 order-md-2">
             <Image fluid src={SlasherAbout4} className="" alt="about 4" />
           </Col>
-          <Col md={6} className="pt-5 order-2 order-md-1 mb-md-5 text-center text-md-start">
+          <Col md={6} className="pt-5 order-2 order-md-1 mb-md-5 text-center text-sm-start">
             <h5 className="text-primary text-uppercase h1 mb-3">DATING FOR HORROR FANS</h5>
             <p className="text-light fs-4 mb-3">
               You love horror, so why not find someone to share that with? Check out the first ever
@@ -110,7 +121,7 @@ function AboutApp() {
           </Col>
         </Row>
         <AvailableSection />
-      </Container>
+      </div>
     </StyledAbout>
   );
 }

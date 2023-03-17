@@ -11,7 +11,7 @@ const RatingStar = styled.div`
     height: rem;
   }
   .rate {
-    color: #FF8A00;
+    color: var(--bs-orange);
   }
   width: fit-content;
 `;

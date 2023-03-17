@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Form } from 'react-bootstrap';
 
 interface SortDataProps {
@@ -17,9 +17,29 @@ interface OptionsProps {
 function SortData({
   title, className, sortoptions, type, onSelectSort, sortVal,
 }: SortDataProps) {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const handleDropdownToggle = (isOpen: any) => {
+    setIsDropdownOpen(isOpen);
+  };
+
+  const handleKeyDown = (event: any) => {
+    if (event.key === 'Enter') {
+      setIsDropdownOpen(!isDropdownOpen);
+    } else if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+      event.preventDefault();
+    }
+  };
   return (
     <Form>
-      <Form.Select value={sortVal!} aria-label="Default select example" onChange={onSelectSort} className={`fs-5 shadow-none px-4 ${className}`}>
+      <Form.Select
+        value={sortVal!}
+        aria-label="Default select example"
+        onChange={onSelectSort}
+        className={`fs-5 px-4 ${className}`}
+        onKeyDown={handleKeyDown}
+        onClick={handleDropdownToggle}
+      >
         {sortoptions && sortoptions.length > 0 && sortoptions.map(({ value, label }) => (
           type === 'sort' && (
             <option key={value} value={value}>

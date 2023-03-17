@@ -50,7 +50,7 @@ function PlacesDetails() {
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
-        <RoundButton className="d-lg-none w-100 my-3 fs-3 fw-bold">Add your place</RoundButton>
+        <RoundButton className="d-lg-none w-100 my-3">Add your place</RoundButton>
         <div className="bg-dark rounded p-4 pb-0">
           <ImageContainer>
             <Image src={postImage} alt="Banner image" className="w-100 rounded" />

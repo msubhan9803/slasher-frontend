@@ -6,12 +6,15 @@ import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import LikeShareModalContent from './LikeShareModalContent';
+import { enableDevFeatures } from '../../utils/configEnvironment';
+import { PostButtonClickType } from '../../types';
 
 interface Props {
   show: boolean;
   setShow: (value: boolean) => void;
-  click: string;
-  clickedPostId: string
+  click: PostButtonClickType;
+  clickedPostId: string;
+  clickedPostLikeCount: number;
 }
 interface LinearIconProps {
   uniqueId?: string
@@ -40,7 +43,7 @@ const StyleTabs = styled(Tabs)`
 `;
 const CustomModal = styled(Modal)`
   .modal-content {
-    background-color: #000000;
+    background-var(--bs-black)
   }
   .btn-close {
     display:none;
@@ -51,7 +54,7 @@ border-bottom: 1px solid #3A3B46;
 `;
 
 function LikeShareModal({
-  show, setShow, click, clickedPostId,
+  show, setShow, click, clickedPostId, clickedPostLikeCount,
 }: Props) {
   const [tab, setTab] = useState<string>(click);
   const closeModal = () => {
@@ -72,19 +75,21 @@ function LikeShareModal({
             title={(
               <LinearIcon uniqueId="like-button-dialogue">
                 <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                <span>800</span>
+                <span>{clickedPostLikeCount}</span>
               </LinearIcon>
             )}
           />
-          <Tab
-            eventKey="share"
-            title={(
-              <>
-                <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
-                <span>25</span>
-              </>
-            )}
-          />
+          { enableDevFeatures && (
+            <Tab
+              eventKey="share"
+              title={(
+                <>
+                  <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
+                  <span>25</span>
+                </>
+              )}
+            />
+          )}
         </StyleTabs>
         <svg width="0" height="0">
           <linearGradient id="like-button-dialogue" x1="00%" y1="0%" x2="0%" y2="100%">

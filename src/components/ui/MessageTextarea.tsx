@@ -19,11 +19,13 @@ const StyledMention = styled(Mentions) <SytledMentionProps>`
         border-right: 0 !important;
         textarea {
           background: transparent !important;
+          border: none !important;
+          box-shadow: none !important;
+        }
       }
-    }`
+    `
     : '')
 }
-
 `;
 
 export interface MentionListProps {
@@ -48,7 +50,8 @@ interface MentionProps {
   id?: string;
   className?: string;
   isCommentInput?: string;
-  setIsReply?: (value: boolean) => void;
+  onFocusHandler?: () => void;
+  onBlurHandler?: () => void;
 }
 
 function MessageTextarea({
@@ -63,7 +66,8 @@ function MessageTextarea({
   id,
   className,
   isCommentInput,
-  setIsReply,
+  onFocusHandler,
+  onBlurHandler,
 }: MentionProps) {
   const { Option } = Mentions;
   const optionRef = createRef<HTMLInputElement>();
@@ -75,7 +79,13 @@ function MessageTextarea({
       setMessageContent(defaultValue);
     }
   }, [defaultValue, setMessageContent]);
+  useEffect(() => {
+    if (formatMentionList) {
+      setFormatMentionList(formatMentionList);
+    }
+  }, [formatMentionList, setFormatMentionList]);
   const handleSelect = (option: OptionProps) => {
+    setFormatMentionList(formatMentionList);
     const mentionString = `##LINK_ID##${option.key}@${option.value}##LINK_END##`;
     const addFormatObject = {
       id: option.key,
@@ -100,12 +110,13 @@ function MessageTextarea({
       placeholder={placeholder}
       onSearch={handleSearch}
       onSelect={handleSelect}
-      onFocus={() => isCommentInput && setIsReply && setIsReply!(false)}
+      onFocus={() => { onFocusHandler!(); }}
+      onBlur={() => onBlurHandler!()}
       value={defaultValue || ''}
       notFoundContent="Type to search for a username"
       aria-label="message"
     >
-      {mentionLists?.map((mentionList: MentionListProps) => (
+      {mentionLists && mentionLists?.map((mentionList: MentionListProps) => (
         <Option value={mentionList.userName} key={mentionList.id} style={{ zIndex: '100' }}>
           <div ref={optionRef} className="list--hover soft-half pointer">
             <div>
@@ -127,6 +138,7 @@ MessageTextarea.defaultProps = {
   id: '',
   className: '',
   isCommentInput: undefined,
-  setIsReply: undefined,
+  onFocusHandler: undefined,
+  onBlurHandler: undefined,
 };
 export default MessageTextarea;

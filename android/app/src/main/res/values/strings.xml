@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Slasher</string>
+    <string name="title_activity_main">Slasher</string>
+    <string name="package_name">tv.slasher.app</string>
+    <string name="custom_url_scheme">tv.slasher.app</string>
+</resources>

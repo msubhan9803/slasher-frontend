@@ -10,9 +10,7 @@ import {
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import UserCircleImage from '../../UserCircleImage';
-import PubWiseAd from '../../PubWiseAd';
 import ImagesContainer from '../../ImagesContainer';
-import { NEWS_PARTNER_DETAILS_DIV_ID } from '../../../../utils/pubwise-ad-units';
 import { decryptMessage } from '../../../../utils/text-utils';
 import MessageTextarea from '../../MessageTextarea';
 import { FormatMentionProps } from '../../../../routes/posts/create-post/CreatePost';
@@ -37,11 +35,17 @@ interface CommentInputProps {
   commentReplyID?: string;
   checkCommnt?: string;
 }
-const StyledCommentInputGroup = styled(InputGroup)`
+
+interface InputProps {
+  focus: boolean;
+}
+
+const StyledCommentInputGroup = styled(InputGroup) <InputProps>`
   .form-control {
     border-radius: 1.875rem;
     border-bottom-right-radius: 0rem;
     border-top-right-radius: 0rem;
+    outline: none !important;
   }
   .input-group-text {
     background-color: var(--bs-dark);
@@ -51,6 +55,12 @@ const StyledCommentInputGroup = styled(InputGroup)`
   svg {
     min-width: 1.875rem;
   }
+
+  ${(props) => props.focus && `
+    box-shadow: 0 0 0 1px var(--stroke-and-line-separator-color);
+    border-radius: 1.875rem;
+  `};
+
 `;
 function CommentInput({
   userData, message, setIsReply, inputFile,
@@ -60,6 +70,7 @@ function CommentInput({
 }: CommentInputProps) {
   const [editMessage, setEditMessage] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
+  const [isFocosInput, setIsFocusInput] = useState<boolean>(false);
   useEffect(() => {
     if (message) {
       const regexMessgafe = isReply && commentReplyID
@@ -89,22 +100,24 @@ function CommentInput({
   }, [editMessage]);
   const onUpdatePost = (msg: string) => {
     const imageArr = isReply ? replyImageArray : imageArray;
-    if (isReply) {
-      addUpdateReply!({
-        replyMessage: msg,
-        commentId: dataId,
-        imageArr,
-        commentReplyID,
-      });
-    } else {
-      addUpdateComment!({
-        commentMessage: msg,
-        commentId: dataId,
-        imageArr,
-      });
+    if (msg || imageArr.length) {
+      if (isReply) {
+        addUpdateReply!({
+          replyMessage: msg,
+          commentId: dataId,
+          imageArr,
+          commentReplyID,
+        });
+      } else {
+        addUpdateComment!({
+          commentMessage: msg,
+          commentId: dataId,
+          imageArr,
+        });
+      }
+      sendComment(dataId! && dataId!);
+      setEditMessage('');
     }
-    sendComment(dataId! && dataId!);
-    setEditMessage('');
   };
 
   const mentionReplacementMatchFunc = (match: string) => {
@@ -112,30 +125,43 @@ function CommentInput({
       const finalString: any = formatMention.find(
         (matchMention: FormatMentionProps) => match.includes(matchMention.value),
       );
-      return finalString.format;
+      if (finalString) {
+        return finalString.format;
+      }
+      return match;
     }
     return undefined;
   };
   const handleMessage = () => {
-    const postContentWithMentionReplacements = (editMessage!.replace(/@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    const postContentWithMentionReplacements = (editMessage!.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
     onUpdatePost(postContentWithMentionReplacements);
+  };
+
+  const onFocusHandler = () => {
+    setIsFocusInput(true);
+    if (setIsReply) {
+      setIsReply(false);
+    }
+  };
+
+  const onBlurHandler = () => {
+    setIsFocusInput(false);
   };
 
   return (
     <Form>
-      <PubWiseAd className="text-center mb-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />
       <Row className="ps-3 pt-2 order-last order-sm-0">
         <Col xs="auto" className="pe-0">
           <UserCircleImage src={userData.user.profilePic} alt="user picture" className="me-3 bg-secondary" />
         </Col>
         <Col className="ps-0 pe-4">
           <div className="d-flex align-items-end mb-4">
-            <StyledCommentInputGroup>
+            <StyledCommentInputGroup focus={isFocosInput}>
               <MessageTextarea
                 rows={1}
                 id={checkCommnt}
                 className="fs-5 form-control p-0"
-                placeholder="Write a comment"
+                placeholder={isReply ? 'Reply to comment' : 'Write a comment'}
                 handleSearch={handleSearch}
                 mentionLists={mentionList}
                 setMessageContent={setEditMessage}
@@ -143,7 +169,8 @@ function CommentInput({
                 setFormatMentionList={setFormatMention}
                 defaultValue={decryptMessage(editMessage)}
                 isCommentInput="true"
-                setIsReply={setIsReply}
+                onFocusHandler={onFocusHandler}
+                onBlurHandler={onBlurHandler}
               />
               <InputGroup.Text>
                 <FontAwesomeIcon

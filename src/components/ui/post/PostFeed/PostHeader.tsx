@@ -23,6 +23,7 @@ interface PostHeaderProps {
   userId?: string;
   rssfeedProviderId?: string;
   onSelect?: (value: string) => void;
+  postImages?: string[];
   postType?: string;
 }
 interface StyledSavedProps {
@@ -32,12 +33,12 @@ const StyledSaveButton = styled(Button) <StyledSavedProps>`
   width: 85px;
   height: 28px;
   svg {
-    ${(props) => (props.saved ? 'color: #FFC700' : '')};
+    ${(props) => (props.saved ? 'color: var(--bs-yellow)' : '')};
   }
 `;
 function PostHeader({
   id, userName, postDate, profileImage, popoverOptions, onPopoverClick, detailPage,
-  content, userId, rssfeedProviderId, onSelect, postType,
+  content, userId, rssfeedProviderId, onSelect, postImages, postType,
 }: PostHeaderProps) {
   const [notificationOn, setNotificationOn] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -113,7 +114,7 @@ function PostHeader({
               <div className="d-none d-md-flex d-lg-none d-xl-flex align-items-center">
                 <BorderButton
                   customButtonCss="width: 125px;"
-                  buttonClass={`${bgColor ? 'text-black' : 'text-white'} py-2`}
+                  buttonClass={`${bgColor ? 'text-black' : 'text-white'}`}
                   variant="sm"
                   toggleBgColor={bgColor}
                   handleClick={() => setBgColor(!bgColor)}
@@ -137,6 +138,7 @@ function PostHeader({
             content={content}
             id={id}
             userId={userId}
+            postImages={postImages}
           />
         </div>
       </Col>
@@ -152,6 +154,7 @@ PostHeader.defaultProps = {
   onPopoverClick: undefined,
   popoverOptions: null,
   onSelect: undefined,
+  postImages: [],
   postType: '',
 };
 

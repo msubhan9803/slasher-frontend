@@ -15,13 +15,15 @@ interface Props {
   content?: string;
   id?: string;
   userId?: string;
+  postImages?: string[] | undefined;
 }
 
 export interface PopoverClickProps {
   content?: string,
   id?: string,
   userId?: string,
-  userName?: string
+  userName?: string,
+  postImages?: string[] | undefined,
 }
 
 const StyledPopover = styled.div`
@@ -54,7 +56,7 @@ const PopoverText = styled.p`
 
 function CustomPopover({
   popoverOptions, onPopoverClick, userProfileIcon,
-  content, id, userId, userName,
+  content, id, userId, userName, postImages,
 }: Props) {
   const popover = (
     <Custompopover arrowplacement={userProfileIcon ? 'bottom' : 'left'} id="popover-basic" className="fs-3 py-2 rounded-2">
@@ -64,6 +66,7 @@ function CustomPopover({
           id,
           userId,
           userName,
+          postImages,
         };
         return (
           <PopoverText
@@ -105,6 +108,7 @@ CustomPopover.defaultProps = {
   id: null,
   userId: null,
   userName: null,
+  postImages: [],
 };
 
 export default CustomPopover;

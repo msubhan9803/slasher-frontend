@@ -83,7 +83,6 @@ function BuyMovieList() {
         || filteredMovies.length >= scrollPosition?.data?.length
         || filteredMovies.length === 0
       ) {
-        /* eslint no-underscore-dangle: 0 */
         setNoMoreData(false);
         setLoadingMovies(true);
         getUserMoviesList(

@@ -3,6 +3,7 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { useLocation } from 'react-router-dom';
 import UserCircleImage from './UserCircleImage';
 import RoundButtonLink from './RoundButtonLink';
 import { useAppSelector } from '../../redux/hooks';
@@ -25,11 +26,19 @@ function CustomCreatePost({
   label, icon, iconClass, className, handleCreateInput, linkParams,
 }: CreatePostProps) {
   const userProfilePic = useAppSelector((state) => state.user.user.profilePic);
+  const { pathname } = useLocation();
+
   return (
-    <StyledRoundButtonLink handleClick={handleCreateInput} to={handleCreateInput ? `${linkParams}` : `/app/posts/create${linkParams}`} variant="dark" className={`w-100 d-flex justify-content-between ${className}`}>
+    <StyledRoundButtonLink
+      handleClick={handleCreateInput}
+      state={pathname}
+      to={handleCreateInput ? `${linkParams}` : `/app/posts/create${linkParams}`}
+      variant="black"
+      className={`w-100 d-flex justify-content-between ${className}`}
+    >
       <div>
-        <UserCircleImage size="2.5rem" src={userProfilePic} alt="user picture" />
-        <span className="ms-2 text-light fs-5">{label}</span>
+        <UserCircleImage size="1.5rem" src={userProfilePic} alt="user picture" />
+        <span className="ms-2 text-light">{label}</span>
       </div>
       <div className="align-self-center me-2">
         <FontAwesomeIcon role="button" icon={icon!} size="lg" className={iconClass} />

@@ -5,9 +5,8 @@ import { Modal } from 'react-bootstrap';
 import { FormatMentionProps } from '../../routes/posts/create-post/CreatePost';
 import { CommentValue, ReplyValue } from '../../types';
 import { decryptMessage } from '../../utils/text-utils';
+import CreatePostComponent from './CreatePostComponent';
 import ModalContainer from './CustomModal';
-import MessageTextarea, { MentionListProps } from './MessageTextarea';
-import RoundButton from './RoundButton';
 
 interface Props {
   showEdit: boolean;
@@ -20,14 +19,17 @@ interface Props {
   addUpdateReply: (value: ReplyValue) => void;
   setCommentID: (value: string) => void;
   setCommentReplyID: (value: string) => void;
-  handleSearch: (val: string) => void;
-  mentionList: MentionListProps[];
+  deleteImageIds: string[];
+  setDeleteImageIds: (val: string) => void;
+  postImages: any;
+  setPostImages: any;
+  commentError: string[];
 }
 
 function EditCommentModal({
   showEdit, setShowEdit, commentID, commentReplyID, editContent, isReply,
-  setCommentID, setCommentReplyID, addUpdateComment, addUpdateReply, handleSearch,
-  mentionList,
+  setCommentID, setCommentReplyID, addUpdateComment, addUpdateReply,
+  deleteImageIds, setDeleteImageIds, postImages, setPostImages, commentError,
 }: Props) {
   const [editMessage, setEditMessage] = useState<string>(editContent! || '');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
@@ -47,7 +49,7 @@ function EditCommentModal({
       }
     }
   }, [editContent]);
-  const onUpdatePost = (msg: string) => {
+  const onUpdatePost = (msg: string, imagesList: any, deleteImages: any) => {
     let mentionReplyString = '';
     if (isReply) {
       /* eslint no-useless-escape: 0 */
@@ -57,6 +59,8 @@ function EditCommentModal({
         replyMessage: msg,
         replyId: commentReplyID,
         commentId: commentID,
+        images: imagesList,
+        deleteImage: deleteImages,
       });
     } else {
       setCommentID(commentID);
@@ -65,6 +69,8 @@ function EditCommentModal({
       addUpdateComment({
         commentMessage: mentionReplyString,
         commentId: commentID,
+        images: postImages,
+        deleteImage: deleteImages,
       });
     }
   };
@@ -73,13 +79,17 @@ function EditCommentModal({
       const finalString: any = formatMention.find(
         (matchMention: FormatMentionProps) => match.includes(matchMention.value),
       );
-      return finalString.format;
+      if (finalString) {
+        return finalString.format;
+      }
+      return match;
     }
     return undefined;
   };
-  const handleMessage = () => {
-    const postContentWithMentionReplacements = (editMessage!.replace(/@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
-    onUpdatePost(postContentWithMentionReplacements);
+  const handlePostComment = () => {
+    const postContentWithMentionReplacements = (editMessage!.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    const files = postImages.filter((images: any) => images instanceof File);
+    onUpdatePost(postContentWithMentionReplacements, files, deleteImageIds);
   };
 
   const closeModal = () => {
@@ -95,24 +105,18 @@ function EditCommentModal({
       <Modal.Header className="bg-dark border-0 shadow-none justify-content-end" closeButton />
       <Modal.Body className="bg-dark d-flex flex-column pt-0">
         <h1 className="h1 mb-0 text-primary text-center pb-2">Edit</h1>
-        <MessageTextarea
-          rows={10}
-          placeholder="Write a comments"
-          handleSearch={handleSearch}
-          mentionLists={mentionList}
-          setMessageContent={setEditMessage}
-          formatMentionList={formatMention}
-          setFormatMentionList={setFormatMention}
+        <CreatePostComponent
+          setPostMessageContent={setEditMessage}
+          errorMessage={commentError}
+          createUpdatePost={handlePostComment}
+          imageArray={postImages}
+          setImageArray={setPostImages}
           defaultValue={decryptMessage(editMessage)}
+          formatMention={formatMention}
+          setFormatMention={setFormatMention}
+          deleteImageIds={deleteImageIds}
+          setDeleteImageIds={setDeleteImageIds}
         />
-        <div className="d-flex flex-wrap justify-content-between">
-          <RoundButton variant="black" className="px-4 mt-4" size="md" onClick={closeModal}>
-            <span className="h3">Cancel</span>
-          </RoundButton>
-          <RoundButton className="px-4 mt-4" size="md" onClick={handleMessage}>
-            <span className="h3">Update</span>
-          </RoundButton>
-        </div>
       </Modal.Body>
     </ModalContainer>
   );

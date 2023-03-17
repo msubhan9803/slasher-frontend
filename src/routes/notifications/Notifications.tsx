@@ -1,6 +1,8 @@
 /* eslint-disable max-lines */
 /* eslint-disable max-len */
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect, useState, useContext, useCallback,
+} from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Link, useLocation } from 'react-router-dom';
 import { DateTime } from 'luxon';
@@ -10,10 +12,12 @@ import NotificationTimestamp from './NotificationTimestamp';
 import NotificationCard from './NotificationCard';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import NotificationsRIghtSideNav from './NotificationsRIghtSideNav';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import { useAppSelector, useAppDispatch } from '../../redux/hooks';
 import { setScrollPosition } from '../../redux/slices/scrollPositionSlice';
+import { SocketContext } from '../../context/socket';
+import { setUserInitialData } from '../../redux/slices/userSlice';
+import NotificationsRightSideNav from './NotificationsRightSideNav';
 
 function Notifications() {
   const popoverOption = ['Settings'];
@@ -23,11 +27,14 @@ function Notifications() {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
+  const socket = useContext(SocketContext);
   const location = useLocation();
   const [notificationData, setNotificationData] = useState<Notification[]>(
     scrollPosition.pathname === location.pathname
       ? scrollPosition?.data : [],
   );
+  const userData = useAppSelector((state) => state.user);
+
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
       if (scrollPosition === null
@@ -37,7 +44,6 @@ function Notifications() {
       ) {
         setLoadingPosts(true);
         getNotifications(
-          /* eslint no-underscore-dangle: 0 */
           notificationData.length > 1 ? notificationData[notificationData.length - 1]._id : undefined,
         ).then((res) => {
           const notification = res.data;
@@ -66,10 +72,20 @@ function Notifications() {
   }, [requestAdditionalPosts, loadingPosts, scrollPosition, notificationData, dispatch]);
 
   const persistScrollPosition = (id: string) => {
+    const updateNotification = notificationData.map((notify: any) => {
+      if (notify._id === id) {
+        return { ...notify, isRead: 1 };
+      }
+      return notify;
+    });
+    const notifyCount = userData.unreadNotificationCount > 0 ? userData.unreadNotificationCount - 1 : 0;
+    dispatch(setUserInitialData(
+      { ...userData, unreadNotificationCount: notifyCount },
+    ));
     const positionData = {
       pathname: location.pathname,
       position: window.pageYOffset,
-      data: notificationData,
+      data: updateNotification,
       positionElementId: id,
     };
     dispatch(setScrollPosition(positionData));
@@ -99,6 +115,9 @@ function Notifications() {
               setNotificationData([
                 ...notification,
               ]);
+              dispatch(setUserInitialData(
+                { ...userData, unreadNotificationCount: 0 },
+              ));
             }).catch(
               (error) => {
                 setNoMoreData(true);
@@ -171,6 +190,38 @@ function Notifications() {
     return elementsToRender;
   };
 
+  const onNotificationReceivedHandler = useCallback((payload: any) => {
+    const notification: Notification = {
+      _id: payload.notification._id,
+      createdAt: payload.notification.createdAt,
+      isRead: payload.notification.isRead,
+      notificationMsg: payload.notification.notificationMsg,
+      senderId: payload.notification.senderId,
+      feedPostId: payload.notification.feedPostId,
+      feedCommentId: payload.notification.feedCommentId,
+      feedReplyId: payload.notification.feedReplyId,
+      userId: payload.notification.userId,
+      rssFeedProviderId: payload.notification.rssFeedProviderId,
+      rssFeedId: payload.notification.rssFeedId,
+      notifyType: payload.notification.notifyType,
+    };
+
+    setNotificationData((prev: any) => [
+      notification,
+      ...prev,
+    ]);
+  }, []);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('notificationReceived', onNotificationReceivedHandler);
+      return () => {
+        socket.off('notificationReceived', onNotificationReceivedHandler);
+      };
+    }
+    return () => { };
+  }, [onNotificationReceivedHandler, socket]);
+
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
@@ -198,7 +249,7 @@ function Notifications() {
         </div>
       </ContentPageWrapper>
       <RightSidebarWrapper>
-        <NotificationsRIghtSideNav />
+        <NotificationsRightSideNav />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>
   );

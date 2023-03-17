@@ -40,7 +40,7 @@ function FilterModal({
   const generateAlphabet = () => {
     const alphabet = [...Array(26)].map((_, i) => String.fromCharCode(i + 97).toUpperCase());
     const number = [...Array(10)].map((_, i) => String.fromCharCode(i + 48));
-    setKeyboard([...number, ...alphabet]);
+    setKeyboard([...number, ...alphabet, '#']);
   };
   const generateGroupsType = () => {
     const groupsType = ['Review', 'Discussion', 'Help', 'Recommended', 'Opinions wanted', 'Hidden gem',
@@ -60,7 +60,7 @@ function FilterModal({
 
   const onClickApplyFilter = (keyVal?: string) => {
     if (applyFilter) {
-      applyFilter(postType !== 'group-post' ? keyVal! : key, selectedSortValue);
+      applyFilter(postType === 'group-post' ? keyVal! : key, selectedSortValue);
       handleCloseKeys();
     }
   };
@@ -73,7 +73,7 @@ function FilterModal({
       className="px-3 px-md-0"
       scrollable
     >
-      <Modal.Header className={`border-0 shadow-none m-0 ${postType === 'group-post' ? 'justify-content-end' : ''}`} closeButton>
+      <Modal.Header className={`border-0 m-0 ${postType === 'group-post' ? 'justify-content-end' : ''}`} closeButton>
         {postType !== 'group-post' && <Modal.Title className="fs-2">Filter Options</Modal.Title>}
       </Modal.Header>
       <Modal.Body className="pb-5">
@@ -91,7 +91,7 @@ function FilterModal({
                 <Button
                   key={keys}
                   onClick={() => { onClickApplyFilter(keys); }}
-                  className={`py-2 px-3 text-white fs-3 border shadow-none align-items-center d-flex fw-normal justify-content-center m-2 rounded-pill ${key !== keys ? 'bg-dark' : ' bg-primary'}`}
+                  className={`py-2 px-3 text-white fs-3 border align-items-center d-flex fw-normal justify-content-center m-2 rounded-pill ${key !== keys ? 'bg-dark' : ' bg-primary'}`}
                 >
                   {keys}
                 </Button>
@@ -100,7 +100,7 @@ function FilterModal({
                 <KeyboardButtons
                   key={keys}
                   onClick={() => setKey(keys)}
-                  className={`text-white fs-3 border-0 shadow-none align-items-center d-flex fw-normal justify-content-center m-2 rounded-circle ${key !== keys ? 'bg-dark' : ' bg-primary'}`}
+                  className={`text-white fs-3 border-0 align-items-center d-flex fw-normal justify-content-center m-2 rounded-circle ${key !== keys ? 'bg-dark' : ' bg-primary'}`}
                 >
                   {keys}
                 </KeyboardButtons>

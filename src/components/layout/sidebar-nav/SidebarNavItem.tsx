@@ -62,7 +62,7 @@ function SidebarNavItem({
         <svg width="0" height="0">
           <linearGradient id={`icon-${id}`} x1="100%" y1="100%" x2="0%" y2="0%">
             <stop offset="0%" style={{ stopColor: `${color}`, stopOpacity: '1' }} />
-            <stop offset="100%" style={{ stopColor: '#FFFFFF', stopOpacity: '1' }} />
+            <stop offset="100%" style={{ stopColor: 'var(--bs-link-color)', stopOpacity: '1' }} />
           </linearGradient>
         </svg>
       </LinkContentWrapper>

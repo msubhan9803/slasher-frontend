@@ -58,7 +58,7 @@ function ShoppingDetails() {
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
-        <RoundButton className="d-lg-none w-100 my-3 fs-3 fw-bold">Become a vendor</RoundButton>
+        <RoundButton className="d-lg-none w-100 my-3">Become a vendor</RoundButton>
         <div className="bg-dark rounded p-4 pb-0">
           <ImageContainer>
             <Image src={bannerImage} alt="Banner image" className="w-100 rounded" />

@@ -1,6 +1,10 @@
 /* eslint-disable max-lines */
-import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import React, {
+  useCallback, useEffect, useState, useRef,
+} from 'react';
+import {
+  useNavigate, useParams, useSearchParams,
+} from 'react-router-dom';
 import { createBlockUser } from '../../../api/blocks';
 import {
   addFeedComments, addFeedReplyComments, getFeedComments,
@@ -13,14 +17,18 @@ import {
 import { deleteFeedPost, feedPostDetail, updateFeedPost } from '../../../api/feed-posts';
 import { reportData } from '../../../api/report';
 import { getSuggestUserName } from '../../../api/users';
-import { useAppSelector } from '../../../redux/hooks';
-import { reviewComments, reviewPost } from '../../../routes/movies/movie-reviews/review-data';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import { MentionProps } from '../../../routes/posts/create-post/CreatePost';
 import {
   CommentValue, FeedComments, Post, User,
 } from '../../../types';
+import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-utils';
 import { decryptMessage } from '../../../utils/text-utils';
 import FormatImageVideoList from '../../../utils/vido-utils';
+import { ContentPageWrapper } from '../../layout/main-site-wrapper/authenticated/ContentWrapper';
+import RightSidebarWrapper from '../../layout/main-site-wrapper/authenticated/RightSidebarWrapper';
+import RightSidebarSelf from '../../layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import { PopoverClickProps } from '../CustomPopover';
 import ErrorMessageList from '../ErrorMessageList';
 import ReportModal from '../ReportModal';
@@ -41,7 +49,8 @@ function PostDetail({ user, postType }: Props) {
   const { userName, postId, partnerId } = useParams<string>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [errorMessage, setErrorMessage] = useState<string[]>();
+  const [errorMessage, setErrorMessage] = useState<string[]>([]);
+  const [commentErrorMessage, setCommentErrorMessage] = useState<string[]>([]);
   const [postData, setPostData] = useState<Post[]>([]);
   const [show, setShow] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
@@ -54,14 +63,45 @@ function PostDetail({ user, postType }: Props) {
   const [noMoreData, setNoMoreData] = useState<boolean>(false);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
+  const [postImages, setPostImages] = useState<string[]>([]);
+  const [commentImages, setCommentImages] = useState<string[]>([]);
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
   const queryCommentId = searchParams.get('commentId');
   const queryReplyId = searchParams.get('replyId');
   const [previousCommentsAvailable, setPreviousCommentsAvailable] = useState(false);
-  const userData = useAppSelector((state) => state.user);
+  const userData = useAppSelector((state: any) => state.user);
   const [updateState, setUpdateState] = useState(false);
+  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  const dispatch = useAppDispatch();
+  const [checkPostUpdate, setCheckPostUpdate] = useState<boolean>(false);
+  const scrollPositionRef = useRef(scrollPosition);
+
+  useEffect(() => {
+    scrollPositionRef.current = scrollPosition;
+  });
+
+  useEffect(() => {
+    if (checkPostUpdate && scrollPositionRef.current.data.length > 0) {
+      const updatedScrollData = scrollPositionRef.current?.data.map((scrollData: any) => {
+        if (scrollData._id === postData[0].id) {
+          return { ...scrollData, ...postData[0] };
+        }
+        return scrollData;
+      });
+      const positionData = {
+        ...scrollPositionRef.current,
+        data: updatedScrollData,
+      };
+      dispatch(setScrollPosition(positionData));
+    } else {
+      setCheckPostUpdate(false);
+    }
+  }, [checkPostUpdate, postData, dispatch]);
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
+    if (popoverClickProps.postImages) {
+      setPostImages(popoverClickProps.postImages);
+    }
     setShow(true);
     setDropDownValue(value);
     setPopoverClick(popoverClickProps);
@@ -132,7 +172,13 @@ function PostDetail({ user, postType }: Props) {
       createdAt: new Date().toISOString(),
     };
     if (comment?.commentId) {
-      updateFeedComments(postId!, comment.commentMessage, comment?.commentId)
+      updateFeedComments(
+        postId!,
+        comment.commentMessage,
+        comment?.commentId,
+        comment?.images,
+        comment?.deleteImage,
+      )
         .then((res) => {
           const updateCommentArray: any = commentData;
           const index = updateCommentArray.findIndex(
@@ -146,6 +192,7 @@ function PostDetail({ user, postType }: Props) {
             message: comment.commentMessage,
             userId: { ...userData.user, _id: userData.user.id },
             replies: [],
+            likeCount: 0,
             createdAt: new Date().toISOString(),
           };
           if (updateCommentArray[index]._id === res.data._id) {
@@ -157,11 +204,11 @@ function PostDetail({ user, postType }: Props) {
           }
           setCommentData(updateCommentArray);
           setUpdateState(true);
-          setErrorMessage([]);
+          setCommentErrorMessage([]);
           setIsEdit(false);
         })
         .catch((error) => {
-          setErrorMessage(error.response?.data.message);
+          setCommentErrorMessage(error.response?.data.message);
         });
     } else if (comment.commentMessage || comment.imageArr?.length) {
       addFeedComments(
@@ -178,19 +225,21 @@ function PostDetail({ user, postType }: Props) {
             message: comment.commentMessage,
             userId: { ...userData.user, _id: userData.user.id },
             replies: [],
+            likeCount: 0,
             createdAt: new Date().toISOString(),
           };
           newCommentArray = [commentValueData].concat(newCommentArray);
           setCommentData(newCommentArray);
+          setCheckPostUpdate(true);
           setPostData([{
             ...postData[0],
             commentCount: postData[0].commentCount + 1,
           }]);
           setUpdateState(true);
-          setErrorMessage([]);
+          setCommentErrorMessage([]);
         })
         .catch((error) => {
-          setErrorMessage(error.response.data.message);
+          setCommentErrorMessage(error.response.data.message);
         });
     }
   };
@@ -202,11 +251,19 @@ function PostDetail({ user, postType }: Props) {
       images: [],
       message: '',
       userId: { ...userData.user, _id: userData.user.id },
+      deleteImage: [],
+      likeCount: 0,
       createdAt: new Date().toISOString(),
     };
 
     if (reply.replyId) {
-      updateFeedCommentReply(postId!, reply.replyMessage, reply.replyId)
+      updateFeedCommentReply(
+        postId!,
+        reply.replyMessage,
+        reply.replyId,
+        reply.images,
+        reply.deleteImage,
+      )
         .then((res) => {
           const updateReplyArray: any = commentData;
           updateReplyArray.map((comment: any) => {
@@ -219,6 +276,7 @@ function PostDetail({ user, postType }: Props) {
                 ...staticReplies[index],
                 message: res.data.message,
                 userId: { ...userData.user, _id: userData.user.id },
+                images: res.data.images,
               };
               if (staticReplies[index]._id === res.data._id) {
                 staticReplies[index] = { ...res.data, ...replyValueData };
@@ -229,10 +287,10 @@ function PostDetail({ user, postType }: Props) {
           });
           setCommentData(updateReplyArray);
           setUpdateState(true);
-          setErrorMessage([]);
+          setCommentErrorMessage([]);
           setIsEdit(false);
         }).catch((error) => {
-          setErrorMessage(error.response.data.message);
+          setCommentErrorMessage(error.response.data.message);
         });
     } else if (reply.replyMessage || reply?.imageArr?.length) {
       addFeedReplyComments(
@@ -249,6 +307,7 @@ function PostDetail({ user, postType }: Props) {
           message: reply.replyMessage,
           userId: { ...userData.user, _id: userData.user.id },
           createdAt: new Date().toISOString(),
+          likeCount: 0,
           new: true,
         };
         newReplyArray.map((comment: any) => {
@@ -260,10 +319,10 @@ function PostDetail({ user, postType }: Props) {
         });
         setCommentData(newReplyArray);
         setUpdateState(true);
-        setErrorMessage([]);
+        setCommentErrorMessage([]);
         setCommentID('');
       }).catch((error) => {
-        setErrorMessage(error.response.data.message);
+        setCommentErrorMessage(error.response.data.message);
       });
     }
   };
@@ -273,6 +332,7 @@ function PostDetail({ user, postType }: Props) {
       removeFeedComments(commentID).then(() => {
         setCommentID('');
         callLatestFeedComments();
+        setCheckPostUpdate(true);
         setPostData([{
           ...postData[0],
           commentCount: postData[0].commentCount - 1,
@@ -301,6 +361,12 @@ function PostDetail({ user, postType }: Props) {
           if (partnerId !== res.data.rssfeedProviderId?._id && !queryCommentId) {
             navigate(`/app/news/partner/${res.data.rssfeedProviderId?._id}/posts/${postId}`);
           }
+        } else if (postType === 'review') {
+          if (queryCommentId && queryReplyId) {
+            navigate(`/app/movies/${res.data.movieId}/reviews/${postId}?commentId=${queryCommentId}&replyId=${queryReplyId}`);
+          } else if (queryCommentId) {
+            navigate(`/app/movies/${res.data.movieId}/reviews/${postId}?commentId=${queryCommentId}`);
+          }
         } else if (res.data.userId.userName !== user?.userName) {
           navigate(`/${res.data.userId.userName}/posts/${feedPostId}`);
           return;
@@ -312,6 +378,7 @@ function PostDetail({ user, postType }: Props) {
             _id: res.data._id,
             id: res.data._id,
             postDate: res.data.createdAt,
+            rssFeedTitle: res.data.rssFeedId.title,
             title: res.data.rssfeedProviderId?.title,
             content: res.data.rssFeedId ? res.data.rssFeedId.content : res.data.message,
             images: res.data.images,
@@ -322,11 +389,31 @@ function PostDetail({ user, postType }: Props) {
             likeIcon: res.data.likedByUser,
             rssfeedProviderId: res.data.rssfeedProviderId?._id,
           };
+        } else if (postType === 'review') {
+          post = {
+            _id: res.data._id,
+            id: res.data._id,
+            postDate: res.data.createdAt,
+            content: res.data.message,
+            images: FormatImageVideoList(res.data.images, res.data.message),
+            userName: res.data.userId.userName,
+            profileImage: res.data.userId.profilePic,
+            userId: res.data.userId._id,
+            likeIcon: res.data.likedByUser,
+            likedByUser: res.data.likedByUser,
+            likeCount: res.data.likeCount,
+            commentCount: res.data.commentCount,
+            rating: res.data?.reviewData?.rating || 0,
+            goreFactor: res.data?.reviewData?.goreFactorRating || 0,
+            worthWatching: res.data?.reviewData?.worthWatching || 0,
+            contentHeading: res?.data?.title,
+            spoilers: res.data.spoilers,
+            movieId: res.data.movieId,
+          };
         } else {
           // Regular post
           post = {
             ...res.data,
-            /* eslint no-underscore-dangle: 0 */
             _id: res.data._id,
             id: res.data._id,
             postDate: res.data.createdAt,
@@ -346,7 +433,7 @@ function PostDetail({ user, postType }: Props) {
       .catch((error) => {
         setErrorMessage(error.response.data.message);
       });
-  }, [navigate, partnerId, postId, postType, queryCommentId, user]);
+  }, [navigate, partnerId, postId, postType, queryCommentId, user, queryReplyId]);
 
   useEffect(() => {
     if (postId) {
@@ -354,12 +441,16 @@ function PostDetail({ user, postType }: Props) {
     }
   }, [postId, getFeedPostDetail]);
 
-  const onUpdatePost = (message: string) => {
+  const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
     if (postId) {
-      updateFeedPost(postId, message).then(() => {
+      updateFeedPost(postId, message, images, imageDelete).then(() => {
         setShow(false);
         getFeedPostDetail(postId);
-      });
+        setCheckPostUpdate(true);
+      })
+        .catch((error) => {
+          setErrorMessage(error.response.data.message);
+        });
     } else {
       setShow(false);
     }
@@ -397,6 +488,7 @@ function PostDetail({ user, postType }: Props) {
             },
           );
           setPostData(unLikePostData);
+          setCheckPostUpdate(true);
         }
       });
     } else {
@@ -414,6 +506,7 @@ function PostDetail({ user, postType }: Props) {
             return likePost;
           });
           setPostData(likePostData);
+          setCheckPostUpdate(true);
         }
       });
     }
@@ -517,6 +610,15 @@ function PostDetail({ user, postType }: Props) {
     }
   };
 
+  const handleSpoiler = (spoilerPostId: string) => {
+    const spoilerIdList = getLocalStorage('spoilersIds');
+    if (!spoilerIdList.includes(spoilerPostId)) {
+      spoilerIdList.push(spoilerPostId);
+      setLocalStorage('spoilersIds', JSON.stringify(spoilerIdList));
+      getFeedPostDetail(postId!);
+    }
+  };
+
   const reportPost = (reason: string) => {
     const reportPayload = {
       targetId: popoverClick?.id,
@@ -555,7 +657,7 @@ function PostDetail({ user, postType }: Props) {
     if (queryCommentId) {
       getSingleComment();
     }
-  }, [queryCommentId, queryReplyId, getSingleComment]);
+  }, [queryCommentId, getSingleComment]);
 
   const loadNewerComment = () => {
     feedComments(true);
@@ -570,66 +672,151 @@ function PostDetail({ user, postType }: Props) {
       .catch((error) => console.error(error));
   };
   return (
-    <div>
-      <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
-      <PostFeed
-        detailPage
-        postFeedData={postType === 'review' ? [reviewPost[0]] : postData}
-        popoverOptions={loginUserPopoverOptions}
-        onPopoverClick={handlePopoverOption}
-        otherUserPopoverOptions={otherUserPopoverOptions}
-        postCreaterPopoverOptions={postCreaterPopoverOptions}
-        isCommentSection
-        commentsData={postType === 'review' ? reviewComments : commentData}
-        removeComment={removeComment}
-        setCommentID={setCommentID}
-        setCommentReplyID={setCommentReplyID}
-        commentID={commentID}
-        commentReplyID={commentReplyID}
-        isEdit={isEdit}
-        setIsEdit={setIsEdit}
-        setRequestAdditionalPosts={setRequestAdditionalPosts}
-        noMoreData={noMoreData}
-        loadingPosts={loadingComments}
-        onLikeClick={onLikeClick}
-        loadNewerComment={loadNewerComment}
-        previousCommentsAvailable={previousCommentsAvailable}
-        addUpdateReply={addUpdateReply}
-        addUpdateComment={addUpdateComment}
-        updateState={updateState}
-        setUpdateState={setUpdateState}
-        isSinglePagePost
-        newsPostPopoverOptions={postType === 'news' ? newsPostPopoverOptions : undefined}
-        escapeHtml={postType === 'news' ? false : undefined}
-        handleSearch={handleSearch}
-        mentionList={mentionList}
-        postType={postType}
-      />
-      {dropDownValue !== 'Edit'
-        && (
-          <ReportModal
-            deleteText="Are you sure you want to delete this post?"
-            onConfirmClick={deletePostClick}
-            show={show}
-            setShow={setShow}
-            slectedDropdownValue={dropDownValue}
-            handleReport={reportPost}
-            onBlockYesClick={onBlockYesClick}
-          />
+    <>
+      {postType === 'news'
+        ? (
+          <ContentPageWrapper>
+            <div>
+              <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+              <PostFeed
+                detailPage
+                postFeedData={postData}
+                popoverOptions={loginUserPopoverOptions}
+                onPopoverClick={handlePopoverOption}
+                otherUserPopoverOptions={otherUserPopoverOptions}
+                postCreaterPopoverOptions={postCreaterPopoverOptions}
+                isCommentSection
+                commentsData={commentData}
+                removeComment={removeComment}
+                setCommentID={setCommentID}
+                setCommentReplyID={setCommentReplyID}
+                commentID={commentID}
+                commentReplyID={commentReplyID}
+                isEdit={isEdit}
+                setIsEdit={setIsEdit}
+                setRequestAdditionalPosts={setRequestAdditionalPosts}
+                noMoreData={noMoreData}
+                loadingPosts={loadingComments}
+                onLikeClick={onLikeClick}
+                loadNewerComment={loadNewerComment}
+                previousCommentsAvailable={previousCommentsAvailable}
+                addUpdateReply={addUpdateReply}
+                addUpdateComment={addUpdateComment}
+                updateState={updateState}
+                setUpdateState={setUpdateState}
+                isSinglePagePost
+                newsPostPopoverOptions={postType === 'news' ? newsPostPopoverOptions : undefined}
+                escapeHtml={postType === 'news' ? false : undefined}
+                handleSearch={handleSearch}
+                mentionList={mentionList}
+                commentImages={commentImages}
+                setCommentImages={setCommentImages}
+                commentError={commentErrorMessage}
+
+              />
+              {dropDownValue !== 'Edit'
+                && (
+                  <ReportModal
+                    deleteText="Are you sure you want to delete this post?"
+                    onConfirmClick={deletePostClick}
+                    show={show}
+                    setShow={setShow}
+                    slectedDropdownValue={dropDownValue}
+                    handleReport={reportPost}
+                    onBlockYesClick={onBlockYesClick}
+                  />
+                )}
+              {postType !== 'news' && dropDownValue === 'Edit'
+                && (
+                  <EditPostModal
+                    show={show}
+                    errorMessage={errorMessage}
+                    setShow={setShow}
+                    setPostContent={setPostContent}
+                    postContent={postContent}
+                    onUpdatePost={onUpdatePost}
+                    postImages={postImages}
+                    setPostImages={setPostImages}
+                  />
+                )}
+            </div>
+          </ContentPageWrapper>
+        )
+        : (
+          <div>
+            <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+            <PostFeed
+              detailPage
+              postFeedData={postData}
+              popoverOptions={loginUserPopoverOptions}
+              onPopoverClick={handlePopoverOption}
+              otherUserPopoverOptions={otherUserPopoverOptions}
+              postCreaterPopoverOptions={postCreaterPopoverOptions}
+              isCommentSection
+              commentsData={commentData}
+              removeComment={removeComment}
+              setCommentID={setCommentID}
+              setCommentReplyID={setCommentReplyID}
+              commentID={commentID}
+              commentReplyID={commentReplyID}
+              isEdit={isEdit}
+              setIsEdit={setIsEdit}
+              setRequestAdditionalPosts={setRequestAdditionalPosts}
+              noMoreData={noMoreData}
+              loadingPosts={loadingComments}
+              onLikeClick={onLikeClick}
+              loadNewerComment={loadNewerComment}
+              previousCommentsAvailable={previousCommentsAvailable}
+              addUpdateReply={addUpdateReply}
+              addUpdateComment={addUpdateComment}
+              updateState={updateState}
+              setUpdateState={setUpdateState}
+              isSinglePagePost
+              newsPostPopoverOptions={postType === 'news' ? newsPostPopoverOptions : undefined}
+              escapeHtml={postType === 'news' ? false : undefined}
+              handleSearch={handleSearch}
+              mentionList={mentionList}
+              postType={postType}
+              commentImages={commentImages}
+              setCommentImages={setCommentImages}
+              commentError={commentErrorMessage}
+              onSpoilerClick={handleSpoiler}
+            />
+            {dropDownValue !== 'Edit'
+              && (
+                <ReportModal
+                  deleteText="Are you sure you want to delete this post?"
+                  onConfirmClick={deletePostClick}
+                  show={show}
+                  setShow={setShow}
+                  slectedDropdownValue={dropDownValue}
+                  handleReport={reportPost}
+                  onBlockYesClick={onBlockYesClick}
+                />
+              )}
+            {postType !== 'news' && dropDownValue === 'Edit'
+              && (
+                <EditPostModal
+                  show={show}
+                  errorMessage={errorMessage}
+                  setShow={setShow}
+                  setPostContent={setPostContent}
+                  postContent={postContent}
+                  onUpdatePost={onUpdatePost}
+                  postImages={postImages}
+                  setPostImages={setPostImages}
+                />
+              )}
+          </div>
         )}
-      {postType !== 'news' && dropDownValue === 'Edit'
+
+      {postType === 'news'
         && (
-          <EditPostModal
-            show={show}
-            setShow={setShow}
-            handleSearch={handleSearch}
-            mentionList={mentionList}
-            setPostContent={setPostContent}
-            postContent={postContent}
-            onUpdatePost={onUpdatePost}
-          />
+          <RightSidebarWrapper>
+            <RightSidebarSelf />
+          </RightSidebarWrapper>
         )}
-    </div>
+    </>
   );
 }
 

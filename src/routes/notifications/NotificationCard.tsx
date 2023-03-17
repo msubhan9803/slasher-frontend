@@ -5,7 +5,9 @@ import { Link } from 'react-router-dom';
 import { Image } from 'react-bootstrap';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Notification, NotificationReadStatus, NotificationType } from '../../types';
+import {
+  Notification, NotificationReadStatus, NotificationType, PostType,
+} from '../../types';
 import { markRead } from '../../api/notification';
 
 interface Props {
@@ -37,21 +39,41 @@ function urlForNotification(notification: Notification) {
     case NotificationType.UserSentYouAFriendRequest:
       return `/${notification.userId}/friends/request`;
     case NotificationType.UserLikedYourPost:
+      if (notification.feedPostId.postType === PostType.MovieReview) {
+        return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}`;
+      }
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}`;
     case NotificationType.UserLikedYourComment:
+      if (notification.feedPostId.postType === PostType.MovieReview) {
+        return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
+      }
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
     case NotificationType.UserCommentedOnYourPost:
+      if (notification.feedPostId.postType === PostType.MovieReview) {
+        return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
+      }
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
     case NotificationType.UserMentionedYouInPost:
+      if (notification.feedPostId.postType === PostType.MovieReview) {
+        return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}`;
+      }
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}`;
     // eslint-disable-next-line max-len
     case NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost:
       // This enum is very long because the old API has too many things associated with the same
       // notification type id on the backend. We will change this after retiring the old API.
-      if (notification.feedReplyId) {
-        return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}&replyId=${notification.feedReplyId}`;
-      } if (notification.feedCommentId) {
-        return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
+      if (notification.feedPostId.postType === PostType.MovieReview) {
+        if (notification.feedReplyId) {
+          return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}?commentId=${notification.feedCommentId}&replyId=${notification.feedReplyId}`;
+        } if (notification.feedCommentId) {
+          return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
+        }
+      } else {
+        if (notification.feedReplyId) {
+          return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}&replyId=${notification.feedReplyId}`;
+        } if (notification.feedCommentId) {
+          return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
+        }
       }
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}`;
     case NotificationType.NewPostFromFollowedRssFeedProvider:
@@ -63,7 +85,6 @@ function urlForNotification(notification: Notification) {
 
 function NotificationCard({ notification, lastCard, onSelect }: Props) {
   return (
-    /* eslint no-underscore-dangle: 0 */
     <StyledBorder lastCard={lastCard} key={notification._id} className="d-flex justify-content-between py-3">
       <Link
         onClick={() => { markRead(notification._id); onSelect!(notification._id); }}

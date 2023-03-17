@@ -8,7 +8,8 @@ import Home from './routes/home/Home';
 import Registration from './routes/registration/Registration';
 import SignIn from './routes/sign-in/SignIn';
 import Dating from './routes/dating/Dating';
-import UnauthenticatedPageWrapper from './components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
+import UnauthenticatedPageWrapper
+  from './components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import AuthenticatedPageWrapper from './components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import NotFound from './components/NotFound';
 import Conversation from './routes/conversation/Conversation';
@@ -26,12 +27,17 @@ import ResetPassword from './routes/reset-password/ResetPassword';
 import AccountActivated from './routes/account-activated/AccountActivated';
 import usePubWiseAdSlots from './hooks/usePubWiseAdSlots';
 import { enableADs } from './constants';
+import Books from './routes/books/Books';
+import Artists from './routes/artists/Artists';
+import Podcasts from './routes/podcasts/Podcasts';
+import Music from './routes/music/Music';
 import SocialGroups from './routes/social-group/SocialGroups';
 import { enableDevFeatures } from './utils/configEnvironment';
+import ActivateAccount from './routes/activate-account/ActivateAccount';
+import PublicHomePage from './routes/public-home-page/PublicHomePage';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
-// import Podcasts from './routes/podcasts/Podcasts';
 
 const DEFAULT_INDEX_REDIRECT = 'app/home';
 
@@ -58,11 +64,21 @@ const routes: Record<string, TopLevelRoute> = {
   'app/movies/*': { wrapper: AuthenticatedPageWrapper, component: Movies },
   'app/notifications': { wrapper: AuthenticatedPageWrapper, component: Notifications },
   'app/account/*': { wrapper: AuthenticatedPageWrapper, component: Account },
+  'app/podcasts/*': { wrapper: AuthenticatedPageWrapper, component: Podcasts },
+  // 'shopping/*': { wrapper: AuthenticatedPageWrapper, component: Shopping },
+  // 'places/*': { wrapper: AuthenticatedPageWrapper, component: Places },
+  'app/books/*': { wrapper: AuthenticatedPageWrapper, component: Books },
+  'app/music/*': { wrapper: AuthenticatedPageWrapper, component: Music },
+  'app/art/*': { wrapper: AuthenticatedPageWrapper, component: Artists },
   'app/forgot-password': { wrapper: UnauthenticatedPageWrapper, component: ForgotPassword },
   'app/reset-password': { wrapper: UnauthenticatedPageWrapper, component: ResetPassword },
-  'app/verification-email-not-received': { wrapper: UnauthenticatedPageWrapper, component: VerificationEmailNotReceived },
+  'app/verification-email-not-received': {
+    wrapper: UnauthenticatedPageWrapper,
+    component: VerificationEmailNotReceived,
+  },
   'app/registration/*': { wrapper: UnauthenticatedPageWrapper, component: Registration },
   'app/onboarding/*': { wrapper: UnauthenticatedPageWrapper, component: Onboarding, wrapperProps: { hideFooter: true } },
+  'app/activate-account': { wrapper: UnauthenticatedPageWrapper, component: ActivateAccount },
   'app/account-activated': { wrapper: UnauthenticatedPageWrapper, component: AccountActivated },
   'app/sign-in': { wrapper: UnauthenticatedPageWrapper, component: SignIn, wrapperProps: { hideTopLogo: true } },
 };
@@ -98,6 +114,7 @@ function App() {
             ),
           )
         }
+        <Route path="app/public-home-page" element={<PublicHomePage />} />
         <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />
       </Route>,
     ),
@@ -107,4 +124,5 @@ function App() {
     <RouterProvider router={router} />
   );
 }
+
 export default App;

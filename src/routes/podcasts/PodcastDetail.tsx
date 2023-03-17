@@ -18,7 +18,7 @@ const StyledPodcastPoster = styled(Image)`
 `;
 const StyledIcons = styled(FontAwesomeIcon)`
   &.star {
-    color: #FF8A00;
+    color: var(--bs-orange);
     width: 1.638rem;
     height: 1.563rem;
   }
@@ -89,7 +89,7 @@ function PodcastDetail() {
                 </span>
                 2.8K
               </p>
-              <p className="fs-3 fw-bold mb-3 mb-xl-1">Rating</p>
+              <p className="fw-bold mb-3 mb-xl-1">Rating</p>
               <Row className="justify-content-center justify-content-xl-between align-items-center">
                 <Col xl={8}>
                   <div className="d-flex align-items-center justify-content-center justify-content-xl-start">

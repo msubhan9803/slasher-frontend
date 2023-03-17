@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
 
 const StyledStar = styled(FontAwesomeIcon)`
-  color: #FF8A00;
+  color: var(--bs-orange);
   width: 1.638rem;
   height: 1.563rem;
 `;

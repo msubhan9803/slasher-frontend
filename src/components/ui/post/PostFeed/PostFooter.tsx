@@ -9,6 +9,7 @@ import { HashLink } from 'react-router-hash-link';
 import { scrollWithOffset } from '../../../../utils/scrollFunctions';
 import ShareLinkButton from '../../ShareLinkButton';
 import { enableDevFeatures } from '../../../../utils/configEnvironment';
+import { PostButtonClickType } from '../../../../types';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -20,11 +21,12 @@ interface PostFooterProps {
   rssfeedProviderId?: string;
   onLikeClick: (id: string) => void
   onSelect?: (value: string) => void
-  likeCount?: string;
+  likeCount?: number;
   commentCount?: string;
   postType?: string;
-  handleLikeModal?: (value: string, postId: string) => void;
+  handleLikeModal?: (value: PostButtonClickType, postId: string, openDialogue: number) => void;
   setShowReviewDetail?: (value: boolean) => void;
+  movieId?: string;
 }
 const StyleDot = styled(FontAwesomeIcon)`
   width: 0.267rem;
@@ -37,7 +39,7 @@ const LinearIcon = styled.span<LinearIconProps>`
 `;
 function PostFooter({
   likeIcon, postId, userName, rssfeedProviderId, onLikeClick, onSelect,
-  likeCount, commentCount, handleLikeModal, postType, setShowReviewDetail,
+  likeCount, commentCount, handleLikeModal, postType, setShowReviewDetail, movieId,
 }: PostFooterProps) {
   const showRepost = enableDevFeatures;
   return (
@@ -66,7 +68,7 @@ function PostFooter({
             <StyleDot icon={solid('circle')} size="xs" className="py-1 me-2" />
             <Button
               className="bg-transparent border-0 btn btn-primary p-0 text-white"
-              onClick={() => handleLikeModal!('like', postId)}
+              onClick={() => handleLikeModal?.('like', postId, Number(likeCount))}
             >
               <span className="fs-3">{likeCount}</span>
             </Button>
@@ -82,9 +84,12 @@ function PostFooter({
         >
           <HashLink
             onClick={() => (postType === 'review' ? setShowReviewDetail!(true) : onSelect!(rssfeedProviderId || postId))}
-            to={(postType === 'review' && '?view=self') || (rssfeedProviderId
-              ? `/app/news/partner/${rssfeedProviderId}/posts/${postId}#comments`
-              : `/${userName}/posts/${postId}#comments`)}
+            to={
+              (postType === 'review' && movieId && `/app/movies/${movieId}/reviews/${postId}#comments`)
+              || (rssfeedProviderId
+                ? `/app/news/partner/${rssfeedProviderId}/posts/${postId}#comments`
+                : `/${userName}/posts/${postId}#comments`)
+            }
             className="text-decoration-none"
             scroll={scrollWithOffset}
           >
@@ -121,8 +126,9 @@ PostFooter.defaultProps = {
   onSelect: undefined,
   likeCount: '',
   commentCount: '',
-  handleLikeModal: undefined,
+  handleLikeModal: () => {},
   postType: '',
   setShowReviewDetail: undefined,
+  movieId: '',
 };
 export default PostFooter;

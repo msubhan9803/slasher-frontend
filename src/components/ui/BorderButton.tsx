@@ -72,7 +72,7 @@ function BorderButton({
         {icon ? (
           <>
             <FontAwesomeIcon icon={icon} size={iconSize} className={iconClass} />
-            <p className="fs-3 fw-bold m-0">{lable}</p>
+            <p className="m-0">{lable}</p>
           </>
         ) : (
           lable

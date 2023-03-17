@@ -8,7 +8,7 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import {
   Navigate,
-  Route, Routes, useNavigate, useParams, useSearchParams,
+  Route, Routes, useLocation, useNavigate, useParams, useSearchParams,
 } from 'react-router-dom';
 import Switch from '../../../components/ui/Switch';
 import AboutDetails from './AboutDetails';
@@ -71,7 +71,7 @@ type OptionType = { value: string, label: string, devOnly?: boolean };
 const tabsForAllViews: OptionType[] = [
   { value: 'details', label: 'Details' },
   { value: 'posts', label: 'Posts', devOnly: true },
-  { value: 'reviews', label: 'Reviews', devOnly: true },
+  { value: 'reviews', label: 'Reviews' },
 ];
 const tabsForSelf: OptionType[] = [
   ...tabsForAllViews,
@@ -84,14 +84,25 @@ const filterEnableDevFeatures = (t: OptionType) => (enableDevFeatures ? true : (
 function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData) {
   const [searchParams] = useSearchParams();
   const [movieIdList, setMovieIdList] = useState();
+  const [isReviewDetail, setReviewDetail] = useState(false);
   const selfView = searchParams.get('view') === 'self';
   const tabs = (selfView ? tabsForSelf : tabsForViewer).filter(filterEnableDevFeatures);
   const navigate = useNavigate();
   const params = useParams();
+  const location = useLocation();
 
   useEffect(() => {
     if (params['*'] === 'edit' && !selfView) { navigate(`/app/movies/${params.id}/details`); }
   });
+
+  useEffect(() => {
+    if (location.hash === '#comments') {
+      setReviewDetail(true);
+    } else {
+      setReviewDetail(false);
+    }
+  }, [location]);
+
   const [bgColor, setBgColor] = useState<boolean>(false);
   const [movieIconListData, setMovieIconListData] = useState(MovieIconList);
   const handleMovieAddRemove = (labelName: string, isFavorite: boolean) => {
@@ -239,7 +250,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
         </Row>
         <Row className="justify-content-center">
           <Col xs={12}>
-            <TabLinks tabsClass="start" tabsClassSmall="start" tabLink={tabs} toLink={`/app/movies/${params.id}`} selectedTab={params['*']} params={selfView ? '?view=self' : ''} />
+            <TabLinks tabsClass="start" tabsClassSmall="start" tabLink={tabs} toLink={`/app/movies/${params.id}`} selectedTab={isReviewDetail ? 'reviews' : params['*']} params={selfView ? '?view=self' : ''} />
           </Col>
         </Row>
       </div>
@@ -260,7 +271,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
             </>
           )}
         />
-        <Route path="reviews" element={<MovieReviews />} />
+        <Route path="reviews" element={<MovieReviews movieData={movieData} setMovieData={setMovieData} />} />
         <Route path="reviews/:postId" element={<MovieReviewDetails />} />
         <Route path="posts" element={<MoviePosts />} />
         <Route path="edit" element={<MovieEdit />} />

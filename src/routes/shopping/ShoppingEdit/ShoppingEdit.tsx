@@ -114,18 +114,16 @@ function ShoppingEdit() {
               className="fs-4"
             />
             <CharactersCounter
-              counterClass="float-end fs-4"
+              counterClass="float-end fs-4 me-2"
               charCount={charCount}
               totalChar={113}
-              marginTop="-1.43rem"
-              marginRight=".5rem"
             />
           </Form.Group>
         </Col>
       </Row>
       <StyleButton className="mt-3 mb-1 d-block d-md-flex justify-content-between align-items-center">
-        <RoundButton className="update-btn fs-3 fw-bold px-3">Update listing</RoundButton>
-        <RoundButton className="deactivate-btn mt-4 mt-md-0 fs-3 fw-bold px-4 bg-black text-white">
+        <RoundButton className="update-btn px-3">Update listing</RoundButton>
+        <RoundButton className="deactivate-btn mt-4 mt-md-0 px-4 bg-black text-white">
           Deactivate listing
         </RoundButton>
       </StyleButton>

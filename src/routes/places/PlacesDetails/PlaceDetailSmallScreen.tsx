@@ -80,7 +80,7 @@ function PlaceDetailSmallScreen({ toggle, onToggleClick }: Props) {
         </div>
         <StyledBorder className="mb-3" />
         <div className="align-items-center d-flex justify-content-center">
-          <p className="m-0 me-1 me-sm-3 fs-3 fw-bold">Worth going?</p>
+          <p className="m-0 me-1 me-sm-3 fw-bold">Worth going?</p>
           <LikeDislike />
         </div>
         <div className="mt-4 d-flex justify-content-center align-items-center">

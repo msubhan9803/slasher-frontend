@@ -152,7 +152,6 @@ function SuggestedFriend() {
               className="d-flex flex-nowrap w-100 mx-3 g-0"
             >
               {suggestedFriends.map((user: any) => (
-                /* eslint no-underscore-dangle: 0 */
                 <Card key={user._id}>
                   <div className="bg-dark rounded p-2">
                     <Link className="text-decoration-none" to={`/${user.userName}/about`}>
@@ -166,12 +165,12 @@ function SuggestedFriend() {
                     </Link>
                     {user.addFriend
                       ? (
-                        <RoundButton variant="black" className="w-100 fs-3" onClick={() => cancelFriendClick(user._id)}>
+                        <RoundButton variant="black" className="w-100" onClick={() => cancelFriendClick(user._id)}>
                           Cancel Request
                         </RoundButton>
                       )
                       : (
-                        <RoundButton className="w-100 fs-3" onClick={() => addFriendClick(user._id)}>
+                        <RoundButton className="w-100" onClick={() => addFriendClick(user._id)}>
                           Add friend
                         </RoundButton>
                       )}

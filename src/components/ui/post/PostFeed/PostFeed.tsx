@@ -3,7 +3,9 @@ import React, { useState, useEffect } from 'react';
 import {
   Card, Col, Row,
 } from 'react-bootstrap';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import {
+  Link, useLocation, useNavigate, useSearchParams,
+} from 'react-router-dom';
 import styled from 'styled-components';
 import linkifyHtml from 'linkify-html';
 import 'swiper/swiper-bundle.css';
@@ -11,7 +13,9 @@ import Cookies from 'js-cookie';
 import InfiniteScroll from 'react-infinite-scroller';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import PostFooter from './PostFooter';
-import { CommentValue, Post, ReplyValue } from '../../../../types';
+import {
+  CommentValue, Post, PostButtonClickType, ReplyValue, WorthWatchingStatus,
+} from '../../../../types';
 import LikeShareModal from '../../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
 import PostHeader from './PostHeader';
@@ -31,8 +35,9 @@ import RoundButton from '../../RoundButton';
 import CustomRatingText from '../../CustomRatingText';
 import CustomWortItText from '../../CustomWortItText';
 import { useAppSelector } from '../../../../redux/hooks';
-import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
+import { HOME_WEB_DIV_ID, NEWS_PARTNER_DETAILS_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
 import LoadingIndicator from '../../LoadingIndicator';
+import { getLocalStorage } from '../../../../utils/localstorage-utils';
 
 const READ_MORE_TEXT_LIMIT = 300;
 
@@ -69,7 +74,11 @@ interface Props {
   postType?: string,
   handleSearch?: (val: string) => void;
   mentionList?: MentionListProps[];
+  commentImages?: string[];
+  setCommentImages?: (val: any) => void;
+  commentError?: string[];
   setShowReviewDetail?: (value: boolean) => void;
+  onSpoilerClick?: (value: string) => void;
 }
 const StyledPostFeed = styled.div`
     .post-separator {
@@ -88,6 +97,11 @@ const StyleSpoilerButton = styled(RoundButton)`
   width: 150px;
   height: 42px;
 `;
+
+const StyledContentContainer = styled.div`
+  max-width: max-content;
+  cursor: pointer;
+`;
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
   commentsData, removeComment, setCommentID, setCommentReplyID, commentID,
@@ -96,17 +110,21 @@ function PostFeed({
   noMoreData, isEdit, loadingPosts, onLikeClick, newsPostPopoverOptions,
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
   addUpdateComment, updateState, setUpdateState, isSinglePagePost, onSelect,
-  postType, handleSearch, mentionList, setShowReviewDetail,
+  handleSearch, mentionList, commentImages, setCommentImages, commentError, postType,
+  setShowReviewDetail, onSpoilerClick,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
-  const [buttonClick, setButtonClck] = useState<string>('');
+  const [buttonClick, setButtonClck] = useState<PostButtonClickType>('');
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
   const location = useLocation();
-  const scrollPosition: any = useAppSelector((state) => state.scrollPosition);
+  const navigate = useNavigate();
+  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const [clickedPostId, setClickedPostId] = useState('');
+  const spoilerId = getLocalStorage('spoilersIds');
+  const [clickedPostLikeCount, setClickedPostLikeCount] = useState(0);
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
       return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
@@ -118,20 +136,13 @@ function PostFeed({
     setPostData(postFeedData);
   }, [postFeedData]);
 
-  const openDialogue = (click: string, postId: string) => {
-    setClickedPostId(postId);
+  const openDialogue = (click: PostButtonClickType, postId: string, postLikeCount: number) => {
     setOpenLikeShareModal(true);
+    // Set other useful info for the `modal`
+    setClickedPostId(postId);
     setButtonClck(click);
+    setClickedPostLikeCount(postLikeCount);
   };
-
-  const renderNoMoreDataMessage = () => (
-    <p className="text-center">
-      {
-        commentsData && commentsData.length > 0
-          ? 'No more comments' : ''
-      }
-    </p>
-  );
 
   const imageLinkUrl = (post: any, imageId: string) => {
     if (post.rssfeedProviderId) {
@@ -140,11 +151,25 @@ function PostFeed({
     return `/${post.userName}/posts/${post.id}?imageId=${imageId}`;
   };
 
+  const onPostContentClick = (post: any) => {
+    if (post.rssfeedProviderId) {
+      navigate(`/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`);
+    } else if (postType === 'review') {
+      navigate(`/app/movies/${post.movieId}/reviews/${post.id}#comments`);
+    } else {
+      navigate(`/${post.userName}/posts/${post.id}`);
+    }
+    onSelect!(post.id);
+  };
+
   const showPopoverOption = (postDetail: any) => {
     if (postDetail && !postDetail.userId && newsPostPopoverOptions?.length) {
       return newsPostPopoverOptions;
     }
-    if (postDetail?.userId && loginUserId !== postDetail?.userId && postType === 'group-post') {
+    /* eslint-disable max-len */
+    // TO-DO: Remove this because it was breaking popover for others user post (comment added by Avadh)
+    // if (postDetail?.userId && loginUserId !== postDetail?.userId && (postType && postType === 'group-post')) {
+    if (postDetail?.userId && loginUserId !== postDetail?.userId) {
       return otherUserPopoverOptions!;
     }
     return popoverOptions;
@@ -152,6 +177,13 @@ function PostFeed({
 
   const renderPostContent = (post: any) => {
     let { content } = post;
+
+    if (post.rssFeedTitle) {
+      /* eslint-disable no-useless-escape */
+      const pattern = new RegExp(`<(h[1-6])[^>]*>${post.rssFeedTitle}<\/(h[1-6])>`);
+      content = content.replace(pattern, '');
+    }
+
     let showReadMoreLink = false;
     if (!detailPage && content?.length >= READ_MORE_TEXT_LIMIT) {
       let reducedContentLength = post.content.substring(0, READ_MORE_TEXT_LIMIT).lastIndexOf(' ');
@@ -167,35 +199,41 @@ function PostFeed({
     }
     return (
       <div>
-        {postType === 'review' && !post.spoiler && (
+        {postType === 'review' && (
           <div className="d-flex align-items-center">
-            <div className="px-3 py-2 bg-dark rounded-pill d-flex align-items-center">
-              <CustomRatingText
-                rating={post.rating}
-                icon={solid('star')}
-                ratingType="star"
-                customWidth="16.77px"
-                customHeight="16px"
+            {post?.rating !== 0 && (
+              <div className={`px-3 py-2 bg-dark rounded-pill d-flex align-items-center ${(post.worthWatching && !post.goreFactor) && 'me-3'}`}>
+                <CustomRatingText
+                  rating={post.rating}
+                  icon={solid('star')}
+                  ratingType="star"
+                  customWidth="16.77px"
+                  customHeight="16px"
+                />
+              </div>
+            )}
+            {post?.goreFactor !== 0 && (
+              <div className={`align-items-center bg-dark d-flex px-3 py-2 rounded-pill ${post.rating && 'ms-3'} ${post.worthWatching && 'me-3'}`}>
+                <CustomRatingText
+                  rating={post.goreFactor}
+                  icon={solid('burst')}
+                  ratingType="burst"
+                  customWidth="15.14px"
+                  customHeight="16px"
+                />
+              </div>
+            )}
+            {post.worthWatching !== WorthWatchingStatus.NoRating && (
+              <CustomWortItText
+                divClass="align-items-center py-2 px-3 bg-dark rounded-pill"
+                textClass="fs-4"
+                customCircleWidth="16px"
+                customCircleHeight="16px"
+                customIconWidth="8.53px"
+                customIconHeight="8.53px"
+                worthIt={post.worthWatching}
               />
-            </div>
-            <div className="align-items-center bg-dark d-flex mx-3 px-3 py-2 rounded-pill">
-              <CustomRatingText
-                rating={post.goreFactor}
-                icon={solid('burst')}
-                ratingType="burst"
-                customWidth="15.14px"
-                customHeight="16px"
-              />
-            </div>
-            <CustomWortItText
-              divClass="align-items-center py-2 px-3 bg-dark rounded-pill"
-              textClass="fs-4"
-              customCircleWidth="16px"
-              customCircleHeight="16px"
-              customIconWidth="8.53px"
-              customIconHeight="8.53px"
-              worthIt={post.worthWatching}
-            />
+            )}
           </div>
         )}
         {postType === 'review' && (
@@ -203,25 +241,29 @@ function PostFeed({
             {post.contentHeading}
           </h1>
         )}
-        {post.spoiler
+        {(post.spoilers
+          && post.userId !== loginUserId && !spoilerId.includes(post.id)
+        )
           ? (
             <div className="d-flex flex-column align-items-center p-5" style={{ backgroundColor: '#1B1B1B' }}>
               <h2 className="text-primary fw-bold">Warning</h2>
               <p className="fs-3">Contains spoilers</p>
-              <StyleSpoilerButton variant="filter" className="fs-5">
+              <StyleSpoilerButton variant="filter" className="fs-5" onClick={() => onSpoilerClick && onSpoilerClick(post.id)}>
                 Click to view
               </StyleSpoilerButton>
             </div>
           ) : (
             <span>
               {/* eslint-disable-next-line react/no-danger */}
-              <div dangerouslySetInnerHTML={
-                {
-                  __html: escapeHtml && !post?.spoiler
-                    ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content))))
-                    : cleanExternalHtmlContent(content),
+              <StyledContentContainer
+                dangerouslySetInnerHTML={
+                  {
+                    __html: escapeHtml && !post?.spoiler
+                      ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content))))
+                      : cleanExternalHtmlContent(content),
+                  }
                 }
-              }
+                onClick={() => onPostContentClick(post)}
               />
               {
                 post.hashTag?.map((hashtag: string) => (
@@ -264,7 +306,7 @@ function PostFeed({
       && scrollPosition?.pathname === location.pathname) {
       window.scrollTo({
         top: scrollPosition?.position,
-        behavior: 'auto',
+        behavior: 'instant' as any,
       });
     }
   }, [postData, scrollPosition, location.pathname]);
@@ -303,11 +345,13 @@ function PostFeed({
                   userId={post.userId}
                   rssfeedProviderId={post.rssfeedProviderId}
                   onSelect={onSelect}
+                  postImages={post.images}
                   postType={postType}
                 />
               </Card.Header>
               <Card.Body className="px-0 pt-3">
                 {postType === 'group-post' && renderGroupPostContent(post)}
+                {post?.rssFeedTitle && <h1 className="h2">{post.rssFeedTitle}</h1>}
                 {renderPostContent(post)}
                 {post?.images && (
                   <CustomSwiper
@@ -320,7 +364,6 @@ function PostFeed({
                         imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
                       }))
                     }
-                    /* eslint no-underscore-dangle: 0 */
                     initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
                     onSelect={onSelect}
                   />
@@ -339,6 +382,7 @@ function PostFeed({
                       handleLikeModal={openDialogue}
                       postType={postType}
                       setShowReviewDetail={setShowReviewDetail}
+                      movieId={post.movieId}
                     />
                   </Col>
                 </Row>
@@ -380,15 +424,22 @@ function PostFeed({
                       setUpdateState={setUpdateState}
                       handleSearch={handleSearch}
                       mentionList={mentionList}
+                      commentImages={commentImages}
+                      setCommentImages={setCommentImages}
+                      commentError={commentError}
                     />
                   </InfiniteScroll>
                   {loadingPosts && <LoadingIndicator />}
-                  {noMoreData && renderNoMoreDataMessage()}
                 </>
               )
             }
           </div>
+          { /* Below ad is to be shown in the end of a single pgae post */}
+          {isSinglePagePost && <PubWiseAd className="text-center mt-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />}
+
           {!detailPage && <hr className="post-separator" />}
+
+          {/* Show ad after every three posts. */}
           {(i + 1) % 3 === 0 && pubWiseAdDivId && (
             <>
               <PubWiseAd className="text-center" id={pubWiseAdDivId} autoSequencer />
@@ -406,6 +457,7 @@ function PostFeed({
             setShow={setOpenLikeShareModal}
             click={buttonClick}
             clickedPostId={clickedPostId}
+            clickedPostLikeCount={clickedPostLikeCount}
           />
         )
       }
@@ -442,6 +494,10 @@ PostFeed.defaultProps = {
   postType: '',
   handleSearch: undefined,
   mentionList: null,
+  commentError: undefined,
+  commentImages: [],
+  setCommentImages: () => { },
   setShowReviewDetail: undefined,
+  onSpoilerClick: () => { },
 };
 export default PostFeed;

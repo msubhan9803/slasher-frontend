@@ -14,7 +14,7 @@ function PodcastsList() {
       <ContentPageWrapper>
         <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4">
           <Link to="/podcasts" className="d-lg-none">
-            <RoundButton className="w-100 fs-3 fw-bold">Add my podcast</RoundButton>
+            <RoundButton className="w-100">Add my podcast</RoundButton>
           </Link>
           <Row className="mt-0">
             {podcastDataList.map((listDetail) => (

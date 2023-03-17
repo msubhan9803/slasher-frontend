@@ -1,10 +1,8 @@
 /* eslint-disable max-lines */
 import React, { useState } from 'react';
 import {
-  Alert, Col, Form, Row,
+  Alert, Form,
 } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import Cookies from 'js-cookie';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
@@ -14,6 +12,7 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/la
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import CreatePostComponent from '../../../components/ui/CreatePostComponent';
+import { PostType } from '../../../types';
 
 export interface MentionProps {
   id: string;
@@ -32,8 +31,9 @@ function CreatePost() {
   const [postContent, setPostContent] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const loggedInUser = useAppSelector((state) => state.user.user);
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  const navigate = useNavigate();
   const paramsType = searchParams.get('type');
   const paramsGroupId = searchParams.get('groupId');
   const [titleContent, setTitleContent] = useState<string>('');
@@ -44,14 +44,17 @@ function CreatePost() {
       const finalString: any = formatMention.find(
         (matchMention: FormatMentionProps) => match.includes(matchMention.value),
       );
-      return finalString.format;
+      if (finalString) {
+        return finalString.format;
+      }
+      return match;
     }
     return undefined;
   };
 
   const addPost = () => {
     /* eslint no-useless-escape: 0 */
-    const postContentWithMentionReplacements = (postContent.replace(/\@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    const postContentWithMentionReplacements = (postContent.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
     if (paramsType === 'group-post') {
       const groupPostData = {
         title: titleContent,
@@ -63,7 +66,11 @@ function CreatePost() {
       };
       return groupPostData;
     }
-    return createPost(postContentWithMentionReplacements, imageArray)
+    const createPostData = {
+      message: postContentWithMentionReplacements,
+      postType: PostType.User,
+    };
+    return createPost(createPostData, imageArray)
       .then(() => {
         setErrorMessage([]);
         navigate(`/${Cookies.get('userName')}/posts`);
@@ -76,10 +83,6 @@ function CreatePost() {
     <ContentSidbarWrapper>
       <ContentPageWrapper>
         {(paramsType === 'group-post' && !paramsGroupId) && <Alert variant="danger">Group id missing from URL</Alert>}
-        <Row className="d-md-none bg-dark">
-          <Col xs="auto" className="ms-2"><FontAwesomeIcon role="button" icon={solid('arrow-left')} size="lg" /></Col>
-          <Col><h1 className="h2 text-center">Create Post</h1></Col>
-        </Row>
         <Form className="bg-dark px-4 py-4 rounded-2">
           <Form.Group controlId="about-me">
             <div className="align-items-center d-flex form-label mb-4 w-100 mb-4">

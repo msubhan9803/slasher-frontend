@@ -40,11 +40,9 @@ function PlaceInformation({
           className="fs-4"
         />
         <CharactersCounter
-          counterClass="float-end fs-4"
+          counterClass="float-end fs-4 me-2"
           charCount={charCount}
           totalChar={1000}
-          marginTop="-1.77rem"
-          marginRight=".7rem"
         />
       </Form.Group>
       <Form.Control type="text" placeholder="Website" className="fs-4 mt-3" />

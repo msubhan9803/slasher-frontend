@@ -47,7 +47,7 @@ function AccountNotification() {
     <div>
       <AccountHeader tabKey="notifications" />
       <div className="mt-3 p-md-4 bg-dark bg-mobile-transparent rounded">
-        <h1 className="mb-5">Push Notifications</h1>
+        <h1 className="mb-5">Mobile Push Notifications</h1>
         <div>
           <div className="mb-4">
             <span className="fs-3">Dating</span>

@@ -18,11 +18,11 @@ interface CardListProps {
   name: string;
   image: string;
   year: string;
-  liked: boolean;
   rating?: number;
   _id?: string | null;
   logo?: string;
   releaseDate?: string;
+  worthWatching?: number;
 }
 
 function PosterCardList({ dataList, pubWiseAdUnitDivId, onSelect }: PosterCardProps) {
@@ -34,7 +34,10 @@ function PosterCardList({ dataList, pubWiseAdUnitDivId, onSelect }: PosterCardPr
       if (dataList.length > 0
         && scrollPosition.position > 0
         && scrollPosition?.pathname === location.pathname) {
-        window.scrollTo(0, scrollPosition?.position);
+        window.scrollTo({
+          top: scrollPosition?.position,
+          behavior: 'instant' as any,
+        });
       }
     }, 0);
   }, [dataList, scrollPosition, location.pathname]);
@@ -43,7 +46,6 @@ function PosterCardList({ dataList, pubWiseAdUnitDivId, onSelect }: PosterCardPr
       {dataList && dataList.length > 0 && dataList.map((listDetail: CardListProps, i, arr) => {
         const show = checkAdsPosterCardList(bp, i, arr);
         return (
-          /* eslint no-underscore-dangle: 0 */
           <React.Fragment key={listDetail._id}>
             <Col xs={4} md={3} lg={4} xl={3} key={listDetail._id}>
               <Link
@@ -54,7 +56,7 @@ function PosterCardList({ dataList, pubWiseAdUnitDivId, onSelect }: PosterCardPr
                   name={listDetail.name}
                   poster={listDetail.logo}
                   year={listDetail.releaseDate ? DateTime.fromISO(listDetail.releaseDate).toFormat('yyyy') : listDetail.year}
-                  liked={listDetail.liked}
+                  worthWatching={listDetail.worthWatching}
                   rating={listDetail.rating}
                 />
               </Link>

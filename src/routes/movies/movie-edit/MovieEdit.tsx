@@ -55,11 +55,9 @@ function MovieEdit() {
           style={{ resize: 'none' }}
         />
         <CharactersCounter
-          counterClass="float-end fs-6"
+          counterClass="float-end fs-6 me-2"
           charCount={charCount}
           totalChar={1000}
-          marginTop="-25px"
-          marginRight="10px"
         />
         <Row className="mt-4">
           <Col lg={6}>
@@ -120,8 +118,8 @@ function MovieEdit() {
         </Row>
         <p className="text-primary h5">+ Add more cast members</p>
         <StyleButton className="mt-4 mb-1 d-block d-md-flex justify-content-between align-items-center">
-          <RoundButton className="update-btn fs-3 fw-bold px-5">Update</RoundButton>
-          <RoundButton className="deactivate-btn mt-4 mt-md-0 fs-3 fw-bold px-4 bg-black text-white" onClick={() => setShow(true)}>
+          <RoundButton className="update-btn px-5">Update</RoundButton>
+          <RoundButton className="deactivate-btn mt-4 mt-md-0 px-4 bg-black text-white" onClick={() => setShow(true)}>
             Deactivate listing
           </RoundButton>
         </StyleButton>

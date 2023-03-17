@@ -15,6 +15,10 @@ export type RegisterUser = Partial<
   dob: string,
 }>;
 
+export type LocationType = {
+  type: 'Point',
+  coordinates: [number, number]
+};
 export enum WorthWatchingStatus {
   NoRating = 0,
   Down = 1,

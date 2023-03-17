@@ -24,6 +24,8 @@ import { UserType } from '../schemas/user/user.enums';
 import { relativeToFullImagePath } from '../utils/image-utils';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
+import { ValidateAllEventDistanceDto } from './dto/validate-all-event-by-distance.dto';
+import { ValidateAllEventsByRectangularAreaDto } from './dto/validate-all-event-by-rectangular-area.dto';
 
 @Controller({ path: 'events', version: ['1'] })
 export class EventsController {
@@ -74,6 +76,112 @@ export class EventsController {
     return pick(event, pickConversationFields);
   }
 
+  @TransformImageUrls('$[*].images[*]')
+  @Get('by-date-range')
+  async getEventsByDateRange(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: ValidateAllEventDto,
+  ) {
+    const eventData = await this.eventService.findAllByDate(
+      query.startDate,
+      query.endDate,
+      query.limit,
+      true,
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
+    );
+    eventData.forEach((event) => {
+      if (event.images.length === 0) {
+        // eslint-disable-next-line no-param-reassign
+        event.images.push(relativeToFullImagePath(this.config, '/placeholders/no_image_available.png'));
+      }
+    });
+    return eventData.map(
+      (event) => pick(
+        event,
+        ['_id', 'images', 'startDate', 'endDate', 'event_type', 'city', 'state', 'address', 'country'],
+      ),
+    );
+  }
+
+  @Get('by-date-range/counts')
+  async getEventCountsByDateRange(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: ValidateAllEventCountsDto,
+  ) {
+    // To prevent abuse, make sure that startDate and endDate aren't more than a certain number of
+    // days apart (so someone can't look up an entire year worth of events).
+    const daysInMilliseconds = 45 * 86400000;
+    if (query.endDate.getTime() - query.startDate.getTime() > daysInMilliseconds) {
+      throw new HttpException(
+        'Dates are too far apart.  Cannot return results.  Please try again with dates that are closer together.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const eventCounts = await this.eventService.findCountsByDate(
+      query.startDate,
+      query.endDate,
+      true,
+    );
+    return eventCounts;
+  }
+
+  @TransformImageUrls('$[*].images[*]')
+  @Get('by-distance')
+  async getEventsByDistance(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: ValidateAllEventDistanceDto,
+  ) {
+    const eventData = await this.eventService.findAllByDistance(
+      query.lattitude,
+      query.longitude,
+      query.maxDistanceMiles,
+      false,
+    );
+    eventData.forEach((event) => {
+      if (event.images.length === 0) {
+        event.images.push(relativeToFullImagePath(this.config, '/placeholders/no_image_available.png'));
+      }
+    });
+    return eventData.map(
+      (event) => pick(
+        event,
+        [
+          '_id', 'images', 'startDate', 'endDate', 'event_type', 'city', 'state', 'address',
+          'country', 'location', 'distance', 'name',
+        ],
+      ),
+    );
+  }
+
+  @TransformImageUrls('$[*].images[*]')
+  @Get('by-rectangular-area')
+  async findAllInRectangle(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: ValidateAllEventsByRectangularAreaDto,
+  ) {
+    const eventData = await this.eventService.findAllInRectangle(
+      query.lattitudeTopRight,
+      query.longitudeTopRight,
+      query.lattitudeBottomLeft,
+      query.longitudeBottomLeft,
+      false,
+    );
+    eventData.forEach((event) => {
+      if (event.images.length === 0) {
+        event.images.push(relativeToFullImagePath(this.config, '/placeholders/no_image_available.png'));
+      }
+    });
+    return eventData.map(
+      (event) => pick(
+        event,
+        [
+          '_id', 'images', 'startDate', 'endDate', 'event_type', 'city', 'state', 'address',
+          'country', 'location', 'name',
+        ],
+      ),
+    );
+  }
+
   @TransformImageUrls('$.images[*]')
   @Get(':id')
   async getById(@Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateEventIdDto) {
@@ -112,54 +220,5 @@ export class EventsController {
       _id: eventData.id,
       ...pick(eventData, Object.keys(updateEventDto)),
     };
-  }
-
-  @TransformImageUrls('$[*].images[*]')
-  @Get()
-  async getEventsByDateRange(
-    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
-    query: ValidateAllEventDto,
-  ) {
-    const eventData = await this.eventService.findAllByDate(
-      query.startDate,
-      query.endDate,
-      query.limit,
-      true,
-      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
-    );
-    eventData.forEach((event) => {
-      if (event.images.length === 0) {
-        // eslint-disable-next-line no-param-reassign
-        event.images.push(relativeToFullImagePath(this.config, '/placeholders/no_image_available.png'));
-      }
-    });
-    return eventData.map(
-      (event) => pick(
-        event,
-        ['_id', 'images', 'startDate', 'endDate', 'event_type', 'city', 'state', 'address', 'country', 'event_info'],
-      ),
-    );
-  }
-
-  @Get('by-date-range/counts')
-  async getEventCountsByDateRange(
-    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
-    query: ValidateAllEventCountsDto,
-  ) {
-    // To prevent abuse, make sure that startDate and endDate aren't more than a certain number of
-    // days apart (so someone can't look up an entire year worth of events).
-    const daysInMilliseconds = 45 * 86400000;
-    if (query.endDate.getTime() - query.startDate.getTime() > daysInMilliseconds) {
-      throw new HttpException(
-        'Dates are too far apart.  Cannot return results.  Please try again with dates that are closer together.',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const eventCounts = await this.eventService.findCountsByDate(
-      query.startDate,
-      query.endDate,
-      true,
-    );
-    return eventCounts;
   }
 }

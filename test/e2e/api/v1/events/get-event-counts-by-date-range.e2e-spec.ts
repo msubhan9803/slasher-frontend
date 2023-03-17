@@ -182,7 +182,7 @@ describe('Event counts by date range / (e2e)', () => {
       it('startDate should not be empty', async () => {
         const limit = 10;
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/events?endDate=${endDateForSearch}&limit=${limit}`)
+          .get(`/api/v1/events/by-date-range/counts?endDate=${endDateForSearch}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('startDate should not be empty');
@@ -191,7 +191,7 @@ describe('Event counts by date range / (e2e)', () => {
       it('endDate should not be empty', async () => {
         const limit = 10;
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/events?startDate=${startDateForSearch}&limit=${limit}`)
+          .get(`/api/v1/events/by-date-range/counts?startDate=${startDateForSearch}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('endDate should not be empty');

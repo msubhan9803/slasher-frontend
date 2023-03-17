@@ -27,6 +27,7 @@ import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 import { MoviesService } from '../../movies/providers/movies.service';
 import { moviesFactory } from '../../../test/factories/movies.factory';
 import { MovieActiveStatus } from '../../schemas/movie/movie.enums';
+import { RssFeed } from '../../schemas/rssFeed/rssFeed.schema';
 
 describe('FeedPostsService', () => {
   let app: INestApplication;
@@ -163,6 +164,11 @@ describe('FeedPostsService', () => {
     it('when add identifylikesforuser than expected response', async () => {
       const feedPostDetails = await feedPostsService.findById(feedPost.id, false, activeUser.id);
       expect((feedPostDetails as any).likedByUser).toBe(true);
+    });
+
+    it("populates the title field on the post's returned rssFeedId object", async () => {
+      const feedPostDetails = await feedPostsService.findById(feedPost.id, false);
+      expect((feedPostDetails.rssFeedId as unknown as RssFeed).title).toEqual(rssFeed.title);
     });
   });
 

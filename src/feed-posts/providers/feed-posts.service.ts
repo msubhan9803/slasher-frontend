@@ -50,7 +50,7 @@ export class FeedPostsService {
       .findOne(feedPostFindQuery)
       .populate('userId', 'userName _id profilePic profile_status')
       .populate('rssfeedProviderId', 'title _id logo')
-      .populate('rssFeedId', 'content')
+      .populate('rssFeedId', 'content title')
       .exec();
 
     if (feedPost) {

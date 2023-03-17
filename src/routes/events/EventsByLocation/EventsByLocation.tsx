@@ -69,17 +69,17 @@ function EventsByLocation() {
 
     const visibleMap = mapRef.current.getBounds();
     const {
-      lat: lattitudeTopRight,
+      lat: latitudeTopRight,
       lng: longitudeTopRight,
     } = visibleMap.getNorthEast();
     const {
-      lat: lattitudeBottomLeft,
+      lat: latitudeBottomLeft,
       lng: longitudeBottomLeft,
     } = visibleMap.getSouthWest();
     getEventsByRectangularArea(
-      lattitudeTopRight,
+      latitudeTopRight,
       longitudeTopRight,
-      lattitudeBottomLeft,
+      latitudeBottomLeft,
       longitudeBottomLeft,
     )
       .then((res) => setEvents(res.data.map((evt: any) => ({

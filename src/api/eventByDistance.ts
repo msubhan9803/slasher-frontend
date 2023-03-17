@@ -4,11 +4,11 @@ import { apiUrl } from '../constants';
 
 // TODO: Opinion? Might be useful in future as discussed.
 // eslint-disable-next-line max-len
-export async function getEventsByDistance(lattitude: number, longitude: number, maxDistanceMiles: number) {
+export async function getEventsByDistance(latitude: number, longitude: number, maxDistanceMiles: number) {
   const token = Cookies.get('sessionToken');
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  const queryParameter = `?lattitude=${lattitude}&longitude=${longitude}&maxDistanceMiles=${maxDistanceMiles}`;
+  const queryParameter = `?latitude=${latitude}&longitude=${longitude}&maxDistanceMiles=${maxDistanceMiles}`;
   return axios.get(`${apiUrl}/api/v1/events/by-distance${queryParameter}`, { headers });
 }

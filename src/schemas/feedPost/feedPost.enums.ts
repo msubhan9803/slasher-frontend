@@ -31,3 +31,9 @@ export enum FeedPostDeletionState {
   NotDeleted = 0,
   Deleted = 1,
 }
+
+export enum PostType {
+  User = 1,
+  News = 2,
+  MovieReview = 3,
+}

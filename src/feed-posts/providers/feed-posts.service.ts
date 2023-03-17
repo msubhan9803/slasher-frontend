@@ -1,10 +1,11 @@
+/* eslint-disable max-lines */
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { FriendsService } from '../../friends/providers/friends.service';
 import { RssFeedProviderFollowsService } from '../../rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
-import { FeedPostDeletionState, FeedPostStatus } from '../../schemas/feedPost/feedPost.enums';
+import { FeedPostDeletionState, FeedPostStatus, PostType } from '../../schemas/feedPost/feedPost.enums';
 import { FeedPost, FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 import { User, UserDocument } from '../../schemas/user/user.schema';
 import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
@@ -63,6 +64,11 @@ export class FeedPostsService {
     const feedPostFindAllQuery: any = {};
     const feedPostQuery = [];
     feedPostQuery.push({ userId: new mongoose.Types.ObjectId(userId) });
+    //remove postType query when we have support for postType.User
+    feedPostQuery.push(
+    { postType: { $ne: PostType.MovieReview } },
+          { postType: { $ne: PostType.News } },
+    );
     if (before) {
       const feedPost = await this.feedPostModel.findById(before).exec();
       feedPostQuery.push({ createdAt: { $lt: feedPost.createdAt } });
@@ -84,6 +90,47 @@ export class FeedPostsService {
       post.likeCount = post.likes.length || 0;
       // eslint-disable-next-line no-param-reassign
       post.likedByUser = post.likes.includes(userId);
+      return post;
+    });
+  }
+
+  async findPostsByMovieId(
+    movieId: string,
+    limit: number,
+    activeOnly: boolean,
+    before?: mongoose.Types.ObjectId,
+    requestingContextUserId?: string,
+    ): Promise<FeedPostDocument[]> {
+    const feedPostFindAllQuery: any = {};
+    const feedPostQuery = [];
+    feedPostQuery.push({ movieId: new mongoose.Types.ObjectId(movieId) });
+    feedPostQuery.push({ postType: PostType.MovieReview });
+    if (requestingContextUserId) {
+      const blockUserIds = await this.blocksService.getBlockedUserIdsBySender(requestingContextUserId);
+      feedPostQuery.push({ userId: { $nin: blockUserIds } });
+    }
+    if (before) {
+      const feedPost = await this.feedPostModel.findById(before).exec();
+      feedPostQuery.push({ createdAt: { $lt: feedPost.createdAt } });
+    }
+    if (activeOnly) {
+      feedPostFindAllQuery.is_deleted = FeedPostDeletionState.NotDeleted;
+      feedPostFindAllQuery.status = FeedPostStatus.Active;
+      feedPostQuery.push(feedPostFindAllQuery);
+    }
+    const feedPosts = await this.feedPostModel
+      .find({ $and: feedPostQuery })
+      .populate('userId', 'userName _id profilePic')
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .exec();
+
+    // return feedPosts
+    return JSON.parse(JSON.stringify(feedPosts)).map((post) => {
+      // eslint-disable-next-line no-param-reassign
+      post.likeCount = post.likes.length || 0;
+      // eslint-disable-next-line no-param-reassign
+      post.likedByUser = post.likes.includes(requestingContextUserId);
       return post;
     });
   }
@@ -115,6 +162,12 @@ export class FeedPostsService {
               { userId: { $eq: userId } },
               { userId: { $in: [...friendIds, new mongoose.Types.ObjectId(userId)] } },
               { rssfeedProviderId: { $in: rssFeedProviderIds } },
+            ],
+          },
+          {
+            $and: [
+              { postType: { $ne: PostType.MovieReview } },
+              { postType: { $ne: PostType.News } },
             ],
           },
           { hideUsers: { $ne: new mongoose.Types.ObjectId(userId) } },
@@ -151,6 +204,12 @@ export class FeedPostsService {
           { is_deleted: FeedPostDeletionState.NotDeleted },
           { status: FeedPostStatus.Active },
           { 'images.0': { $exists: true } },
+          {
+            $and: [
+              { postType: { $ne: PostType.MovieReview } },
+              { postType: { $ne: PostType.News } },
+            ],
+          },
           beforeQuery,
         ],
       })
@@ -288,5 +347,17 @@ export class FeedPostsService {
     });
 
     return likeUsersForPost;
+  }
+
+  async findFeedPost(userId: string, movieId: string) {
+    const feedPost = await this.feedPostModel
+    .findOne({
+      $and: [
+        { userId: new mongoose.Types.ObjectId(userId) },
+        { movieId: new mongoose.Types.ObjectId(movieId) },
+        { is_deleted: FeedPostDeletionState.NotDeleted }],
+    })
+    .exec();
+    return feedPost;
   }
 }

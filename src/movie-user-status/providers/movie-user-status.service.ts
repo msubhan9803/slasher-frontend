@@ -102,4 +102,13 @@ export class MovieUserStatusService {
       .exec();
     return movieUserStatus;
   }
+
+  async findAllMovieUserStatus(userId: mongoose.Types.ObjectId[], movieId: string): Promise<MovieUserStatus[]> {
+    const movieUserStatus = await this.movieUserStatusModel
+      .find({
+        $and: [{ userId: { $in: userId } }, { movieId: new mongoose.Types.ObjectId(movieId) }],
+      })
+      .exec();
+    return movieUserStatus;
+  }
 }

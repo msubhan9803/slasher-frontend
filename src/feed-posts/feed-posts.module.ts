@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FeedPostsController } from './feed-posts.controller';
 import { FeedPostsService } from './providers/feed-posts.service';
@@ -12,7 +12,9 @@ import { BlocksService } from '../blocks/providers/blocks.service';
 import { BlockAndUnblock, BlockAndUnblockSchema } from '../schemas/blockAndUnblock/blockAndUnblock.schema';
 import { FriendsModule } from '../friends/friends.module';
 import { BlocksModule } from '../blocks/blocks.module';
+import { MovieUserStatusModule } from '../movie-user-status/movie.user.status.module';
 
+@Global()
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: FeedPost.name, schema: FeedPostSchema }]),
@@ -22,6 +24,7 @@ import { BlocksModule } from '../blocks/blocks.module';
     RssFeedProviderFollowsModule,
     FriendsModule,
     BlocksModule,
+    MovieUserStatusModule,
   ],
   providers: [FeedPostsService, BlocksService, LocalStorageService, S3StorageService],
   exports: [FeedPostsService],

@@ -23,6 +23,11 @@ import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../../../src/sch
 import { BlockAndUnblockReaction } from '../../../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
+import { MoviesService } from '../../../../../src/movies/providers/movies.service';
+import { moviesFactory } from '../../../../factories/movies.factory';
+import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
+import { MovieUserStatus, MovieUserStatusDocument } from '../../../../../src/schemas/movieUserStatus/movieUserStatus.schema';
 
 describe('Feed-Post / Single Feed Post Details (e2e)', () => {
   let app: INestApplication;
@@ -36,6 +41,8 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
   let rssFeedProviderData: RssFeedProviderDocument;
   let rssFeedService: RssFeedService;
   let blocksModel: Model<BlockAndUnblockDocument>;
+  let moviesService: MoviesService;
+  let movieUserStatusModel: Model<MovieUserStatusDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -48,6 +55,8 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
     rssFeedService = moduleRef.get<RssFeedService>(RssFeedService);
+    moviesService = moduleRef.get<MoviesService>(MoviesService);
+    movieUserStatusModel = moduleRef.get<Model<MovieUserStatusDocument>>(getModelToken(MovieUserStatus.name));
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -72,6 +81,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
   describe('GET /api/v1/feed-posts/:id', () => {
     let rssFeed;
     let user1;
+    let movie;
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       user1 = await usersService.create(userFactory.build());
@@ -83,6 +93,21 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         rssfeedProviderId: rssFeedProviderData._id,
         content: '<p>this is rss <b>feed</b> <span>test<span> </p>',
       }));
+
+      movie = await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+          },
+        ),
+      );
+      await movieUserStatusModel.create({
+        userId: activeUser._id,
+        movieId: movie._id,
+        rating: 5,
+        goreFactorRating: 4,
+        worthWatching: 1,
+      });
     });
 
     it('requires authentication', async () => {
@@ -133,6 +158,10 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         commentCount: 0,
         likeCount: 2,
         sharedList: 0,
+        spoilers: false,
+        title: null,
+        movieId: null,
+        postType: 1,
         likedByUser: true,
         message: expect.any(String),
       });
@@ -180,10 +209,9 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
 
     it('when post has an rssfeedProviderId, it returns a successful response', async () => {
       const rssFeedProvider = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
-
       const feedPost = await feedPostsService.create(
         feedPostFactory.build({
-          userId: rssFeedProvider._id,
+          userId: activeUser._id,
           rssfeedProviderId: rssFeedProvider._id,
         }),
       );
@@ -210,12 +238,67 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           },
         ],
-        userId: null,
+        userId: {
+          _id: activeUser._id.toString(),
+          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          profile_status: 0,
+          userName: 'Username1',
+        },
         commentCount: 0,
         likeCount: 0,
         sharedList: 0,
         likedByUser: false,
+        spoilers: false,
+        title: null,
+        movieId: null,
+        postType: 1,
         message: 'Message 1',
+      });
+    });
+
+    it('when postType is MovieReview than post expected response', async () => {
+      const feedPost = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: activeUser._id,
+          movieId: movie._id,
+          postType: PostType.MovieReview,
+        }),
+      );
+      const response = await request(app.getHttpServer())
+        .get(`/api/v1/feed-posts/${feedPost._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        createdAt: expect.any(String),
+        rssfeedProviderId: null,
+        rssFeedId: null,
+        images: [
+          {
+            image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+          {
+            image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+        ],
+        userId: {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          userName: 'Username1',
+          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          profile_status: 0,
+        },
+        commentCount: 0,
+        likeCount: 0,
+        sharedList: 0,
+        likedByUser: false,
+        spoilers: false,
+        title: null,
+        movieId: movie._id.toString(),
+        postType: 3,
+        message: 'Message 1',
+        reviewData: { rating: 5, goreFactorRating: 4, worthWatching: 1 },
       });
     });
   });

@@ -192,7 +192,6 @@ function PostDetail({ user, postType }: Props) {
             message: comment.commentMessage,
             userId: { ...userData.user, _id: userData.user.id },
             replies: [],
-            likeCount: 0,
             createdAt: new Date().toISOString(),
           };
           if (updateCommentArray[index]._id === res.data._id) {

@@ -36,7 +36,7 @@ import { AllFeedPostQueryDto } from './dto/all-feed-posts-query.dto';
 import { MovieIdDto } from './dto/movie-id.dto';
 import { MovieUserStatusService } from '../movie-user-status/providers/movie-user-status.service';
 import { User } from '../schemas/user/user.schema';
-import { getPostType } from '../utils/post.utils';
+import { getPostType } from '../utils/post-utils';
 
 @Controller({ path: 'feed-posts', version: ['1'] })
 export class FeedPostsController {

@@ -74,18 +74,18 @@ export async function updateFeedPost(
       formData.append('imagesToDelete', imagesToDelete[i]);
     }
   }
-  if (movieReviewPostData.postType === PostType.MovieReview) {
+  if (movieReviewPostData?.postType === PostType.MovieReview) {
     formData.append('moviePostFields[title]', movieReviewPostData.title);
     formData.append('moviePostFields[spoilers]', movieReviewPostData.spoiler);
     formData.append('movieId', movieReviewPostData.movieId);
   }
-  if (movieReviewPostData.rate) {
+  if (movieReviewPostData?.rate) {
     formData.append('moviePostFields[rating]', movieReviewPostData.rate);
   }
-  if (movieReviewPostData.goreFactorRate) {
+  if (movieReviewPostData?.goreFactorRate) {
     formData.append('moviePostFields[goreFactorRating]', movieReviewPostData.goreFactorRate);
   }
-  if (movieReviewPostData.worthIt) {
+  if (movieReviewPostData?.worthIt) {
     formData.append('moviePostFields[worthWatching]', movieReviewPostData.worthIt);
   }
   const headers = {

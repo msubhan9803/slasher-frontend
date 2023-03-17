@@ -15,7 +15,10 @@ export default function VerificationEmailNotReceived() {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const handleShow = (event: any) => {
+    event.preventDefault();
+    setShow(true);
+  };
   return (
     <Row className="justify-content-center">
       <Col lg="8" className="mt-3 mt-lg-2 align-self-center text-center">
@@ -28,11 +31,11 @@ export default function VerificationEmailNotReceived() {
           and be sure to check your spam folder if you do not see it within 30 minutes.
         </p>
 
-        <Form className="my-5">
+        <Form className="my-5" onSubmit={handleShow}>
           <Row className="flex-column align-items-center">
             <Col xs="10" sm="8" lg="6">
               <Form.Control aria-label="Email" className="text-white shadow-none" type="email" placeholder="Email address" />
-              <Button size="lg" className="mt-4 w-100" onClick={handleShow}>Send</Button>
+              <Button type="submit" size="lg" className="mt-4 w-100">Send</Button>
             </Col>
           </Row>
         </Form>

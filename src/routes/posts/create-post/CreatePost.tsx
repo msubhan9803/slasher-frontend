@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import {
   Alert, Form,
 } from 'react-bootstrap';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import Cookies from 'js-cookie';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
 import { createPost } from '../../../api/feed-posts';
 import { useAppSelector } from '../../../redux/hooks';
@@ -11,6 +12,7 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/la
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import CreatePostComponent from '../../../components/ui/CreatePostComponent';
+import { PostType } from '../../../types';
 
 export interface MentionProps {
   id: string;
@@ -37,8 +39,6 @@ function CreatePost() {
   const [titleContent, setTitleContent] = useState<string>('');
   const [containSpoiler, setContainSpoiler] = useState<boolean>(false);
   const [selectedPostType, setSelectedPostType] = useState<string>('');
-  const location = useLocation();
-
   const mentionReplacementMatchFunc = (match: string) => {
     if (match) {
       const finalString: any = formatMention.find(
@@ -66,10 +66,14 @@ function CreatePost() {
       };
       return groupPostData;
     }
-    return createPost(postContentWithMentionReplacements, imageArray)
+    const createPostData = {
+      message: postContentWithMentionReplacements,
+      postType: PostType.User,
+    };
+    return createPost(createPostData, imageArray)
       .then(() => {
         setErrorMessage([]);
-        navigate(location.state);
+        navigate(`/${Cookies.get('userName')}/posts`);
       })
       .catch((error) => {
         setErrorMessage(error.response.data.message);

@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
@@ -16,7 +16,9 @@ import BorderButton from '../../../components/ui/BorderButton';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
 import ShareLinksModal from '../../../components/ui/ShareLinksModal';
 import CustomRatingText from '../../../components/ui/CustomRatingText';
-import { deleteGoreFactor, deleteRating, deleteWorthWatching } from '../../../api/movies';
+import {
+  createOrUpdateWorthWatching, deleteGoreFactor, deleteRating, deleteWorthWatching,
+} from '../../../api/movies';
 import { updateMovieUserData } from '../components/updateMovieDataUtils';
 
 const StyleWatchWorthIcon = styled(FontAwesomeIcon)`
@@ -82,7 +84,19 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
   const [showRating, setShowRating] = useState(false);
   const [showGoreRating, setShowGoreRating] = useState(false);
   const [showShareLinks, setShowShareLinks] = useState(false);
+  const [isWorthIt, setWorthIt] = useState<any>(0);
+  const [liked, setLike] = useState<boolean>(false);
+  const [disLiked, setDisLike] = useState<boolean>(false);
   const params = useParams();
+
+  useEffect(() => {
+    if (params.id && isWorthIt) {
+      createOrUpdateWorthWatching(params.id, isWorthIt).then((res) => {
+        updateMovieUserData(res.data, 'worthWatching', setMovieData!);
+      });
+    }
+  }, [isWorthIt, params, setMovieData]);
+
   const toHoursAndMinutes = (totalMinutes: number) => {
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
@@ -164,7 +178,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                 : (
                   <div className="d-flex mt-md-3 justify-content-md-center">
                     <CustomRatingText
-                      rating={movieData.rating ? movieData.rating : 0}
+                      rating={movieData.userData ? movieData.userData?.rating : 0}
                       icon={solid('star')}
                       ratingType="star"
                       customWidth="1.638rem"
@@ -220,13 +234,13 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                   </div>
                 )}
 
-              {movieData.worthWatching === WorthWatchingStatus.Down
+              {movieData.userData.worthWatching === WorthWatchingStatus.Down
                 && (
                   <div className="mt-2 d-flex justify-content-center">
                     <StyledDislikeIcon role="button" className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
                       <StyleWatchWorthIcon icon={regular('thumbs-down')} />
                     </StyledDislikeIcon>
-                    <p className="fw-bold m-0 align-self-center" style={{ color: '#FF1800' }}>Not worth it!</p>
+                    <p className="fs-3 fw-bold m-0 align-self-center" style={{ color: '#FF1800' }}>Not worth it!</p>
                   </div>
                 )}
 
@@ -235,7 +249,14 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
 
               {/* Worth Watch Icons */}
               <div className="mt-3">
-                <WorthWatchIcon movieData={movieData} setMovieData={setMovieData} />
+                <WorthWatchIcon
+                  movieData={movieData}
+                  setWorthIt={setWorthIt}
+                  liked={liked}
+                  setLike={setLike}
+                  disLiked={disLiked}
+                  setDisLike={setDisLike}
+                />
               </div>
               {/* Remove Button - Worth Watch */}
               {
@@ -243,8 +264,8 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                 && (
                   <div className="mt-4 d-flex justify-content-center">
                     <BorderButton
-                      buttonClass="d-flex rate-btn bg-black d-flex"
-                      variant="black"
+                      buttonClass="d-flex rate-btn bg-black py-2 d-flex"
+                      variant="lg"
                       iconClass="me-2"
                       iconSize="sm"
                       lable="Remove"
@@ -260,13 +281,13 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
             </StyledVerticalBorder>
           </Col>
           <Col xs={6} md={3} className="p-0 mt-4 mt-md-0">
-            <p className="fw-bold text-center">Gore factor</p>
+            <p className="fs-3 fw-bold text-center">Gore factor</p>
             {movieData.goreFactorRatingUsersCount === 0
-              ? <p className="fw-bold m-0 align-self-center text-light text-center">Not yet rated</p>
+              ? <p className="fs-3 fw-bold m-0 align-self-center text-light text-center">Not yet rated</p>
               : (
                 <div className="mt-2 d-flex justify-content-center">
                   <CustomRatingText
-                    rating={movieData.goreFactorRating ? movieData.goreFactorRating : 0}
+                    rating={movieData.userData ? movieData.userData?.goreFactorRating : 0}
                     icon={solid('burst')}
                     ratingType="burst"
                     customWidth="1.638rem"
@@ -277,7 +298,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
               )}
             <div className="mt-4 d-flex justify-content-center">
               <BorderButton
-                buttonClass="d-flex rate-btn bg-black d-flex"
+                buttonClass="d-flex rate-btn bg-black py-2 d-flex"
                 variant="black"
                 icon={solid('burst')}
                 iconClass="me-2"
@@ -292,7 +313,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
               && (
                 <div className="mt-4 d-flex justify-content-center">
                   <BorderButton
-                    buttonClass="d-flex rate-btn bg-black d-flex"
+                    buttonClass="d-flex rate-btn bg-black py-2 d-flex"
                     variant="black"
                     iconClass="me-2"
                     iconSize="sm"
@@ -308,7 +329,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
             }
           </Col>
           <div className="d-none d-md-flex justify-content-center mt-3">
-            <RoundButton className="w-50 fw-bold">Write a review</RoundButton>
+            <RoundButton className="w-50 fs-3 fw-bold">Write a review</RoundButton>
           </div>
           <StyledBorder className="d-md-none my-3" />
         </Row>

@@ -15,7 +15,7 @@ interface CastLists {
   name: string;
   character: string,
 }
-const StyledCast = styled(Row)`
+export const StyledCast = styled(Row)`
   overflow-x: auto;
   overflow-y: hidden;
 

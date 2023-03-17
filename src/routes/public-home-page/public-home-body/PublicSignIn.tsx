@@ -21,14 +21,16 @@ function PublicSignIn() {
         <Form className="text-center py-5 px-4 mt-4">
           <Row>
             <Col>
-              <h1>GET NOTIFIED OF ALL THE LATEST SLASHER NEWS - SIGN UP!</h1>
+              <h1 className="fw-bolder">GET NOTIFIED OF ALL THE LATEST SLASHER NEWS &#8722; SIGN UP!</h1>
             </Col>
           </Row>
-          <Row className="justify-content-center my-4">
-            <Col xs={10} md={5} lg={10} xl={5}>
+          <Row className="text-light justify-content-center my-4">
+            <Col>
               <p>
                 Slasher will be launching lots of new features WORLDWIDE!
+                <br />
                 Get all the lastest info, sneak previews, early beta access and more.
+                <br />
                 Sign up now!
               </p>
             </Col>
@@ -37,6 +39,7 @@ function PublicSignIn() {
             <Col md={6} className="mb-4">
               <Form.Group className="">
                 <Form.Control
+                  className="py-3"
                   aria-label="Your Name"
                   type="text"
                   placeholder="Your Name"
@@ -50,6 +53,7 @@ function PublicSignIn() {
             <Col md={6} className="mb-4">
               <Form.Group className="">
                 <Form.Control
+                  className="py-3"
                   aria-label="Email address"
                   type="text"
                   placeholder="Email address"

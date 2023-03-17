@@ -1,19 +1,12 @@
+/* eslint-disable max-lines */
 import React, { useEffect, useRef } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Container } from 'react-bootstrap';
+import { Card, Col } from 'react-bootstrap';
 import styled from 'styled-components';
-import Swiper from 'swiper';
+import { StyledCast } from '../../movies/movie-details/MovieCasts';
 
 const StyledSlider = styled.div`
-  .testimonial-wrap {
-    padding-left: 50px;
-  }
-  .testimonial-item {
-    box-sizing: content-box;
-    box-shadow: 0px 0px 20px 0px rgba(11, 35, 65, 0.1);
-
-  }
   .rate {
     color: var(--bs-orange);
   }
@@ -34,51 +27,93 @@ const cardData = [
 ];
 
 function UserReview() {
-  const testimonialsSliderRef = useRef<any>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
+
+  const slideCastsRight = () => {
+    const slider = sliderRef.current;
+    if (slider !== null) {
+      const { scrollLeft, clientWidth, scrollWidth } = slider;
+      if (scrollLeft + clientWidth >= scrollWidth) {
+        slider.scrollLeft = 0;
+      } else {
+        slider.scrollLeft += 300;
+      }
+    }
+  };
 
   useEffect(() => {
-    const testimonialsSlider = new Swiper(testimonialsSliderRef?.current, {
-      speed: 600,
-      loop: true,
-      autoplay: {
-        delay: 5000,
-        disableOnInteraction: false,
-      },
-      slidesPerView: 'auto',
-      breakpoints: {
-        320: {
-          slidesPerView: 1,
-          spaceBetween: 20,
-        },
-        768: {
-          slidesPerView: 2,
-          spaceBetween: 20,
-        },
-        980: {
-          slidesPerView: 3,
-          spaceBetween: 20,
-        },
-        1200: {
-          slidesPerView: 4,
-          spaceBetween: 20,
-        },
-        1440: {
-          slidesPerView: 5,
-          spaceBetween: 20,
-        },
-      },
-    });
+    let interval: any;
+    const slider: HTMLElement | null = sliderRef.current;
 
+    const startAutoSlide = () => {
+      interval = setInterval(() => {
+        slideCastsRight();
+      }, 5000);
+    };
+
+    const stopAutoSlide = () => {
+      clearInterval(interval);
+    };
+
+    if (slider !== null) {
+      slider.scroll({
+        left: slider.scrollLeft + 300,
+        behavior: 'smooth',
+      });
+      slider.addEventListener('mouseenter', stopAutoSlide);
+      slider.addEventListener('mouseleave', startAutoSlide);
+
+      let isDragging = false;
+      let startX: number;
+      let scrollLeft: number;
+
+      slider.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.pageX - slider!.offsetLeft;
+        scrollLeft = slider!.scrollLeft;
+      });
+
+      slider.addEventListener('mousemove', (e) => {
+        if (!isDragging) { return; }
+        e.preventDefault();
+        const x = e.pageX - slider!.offsetLeft;
+        const walk = (x - startX) * 2;
+        slider!.scrollLeft = scrollLeft - walk;
+      });
+
+      slider.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
+
+      slider.addEventListener('mouseleave', () => {
+        isDragging = false;
+      });
+
+      startAutoSlide();
+    }
+
+    const newSlider = sliderRef?.current;
     return () => {
-      testimonialsSlider.destroy();
+      if (newSlider !== null) {
+        slider?.removeEventListener('mouseenter', stopAutoSlide);
+        slider?.removeEventListener('mouseleave', startAutoSlide);
+        slider?.removeEventListener('mousedown', () => { });
+        slider?.removeEventListener('mousemove', () => { });
+        slider?.removeEventListener('mouseup', () => { });
+        slider?.removeEventListener('mouseleave', () => { });
+      }
+      clearInterval(interval);
     };
   }, []);
 
+  if (!cardData || cardData.length === 0) {
+    return null;
+  }
   return (
-    <StyledSlider className="my-5 p-5">
-      <Container>
+    <StyledSlider className="mt-5 pt-5">
+      <div className="px-3 px-lg-5">
 
-        <div className="text-center">
+        <div className="mb-4 text-center">
           <h1 className="h1 fw-bold">
             WHAT PEOPLE ARE
             <br />
@@ -86,13 +121,12 @@ function UserReview() {
           </h1>
         </div>
 
-        <div className="overflow-hidden swiper py-5" ref={testimonialsSliderRef}>
-          <div className="swiper-wrapper">
-
-            {
-              cardData.map((card) => (
-                <div key={card.id} className="bg-black border-0 rounded-3 p-4 swiper-slide">
-                  <div className="px-0 pb-0testimonial-wrap">
+        <div className="d-flex align-items-center overflow-hidden py-5">
+          <StyledCast id="slideCasts" className="flex-nowrap w-100" ref={sliderRef}>
+            {cardData && cardData.map((card: any) => (
+              <Col key={card.name} md={6} lg={3}>
+                <Card className="bg-black border-0 rounded-3 p-4">
+                  <Card.Body className="px-0 pb-0">
                     <div className="d-flex mb-3 testimonial-item position-relative">
                       {[...Array(5)].map((star) => (
                         <div key={star}>
@@ -100,21 +134,20 @@ function UserReview() {
                         </div>
                       ))}
                     </div>
-                    <p className="fs-4 review">
+                    <Card.Title className="fs-4 review">
                       {card.review}
-                    </p>
-                    <p className="fw-bold">
+                    </Card.Title>
+                    <Card.Text className="fs-3 fw-bold">
                       {card.user}
-                    </p>
-                  </div>
-                </div>
-              ))
-            }
-
-          </div>
+                    </Card.Text>
+                  </Card.Body>
+                </Card>
+              </Col>
+            ))}
+          </StyledCast>
         </div>
 
-      </Container>
+      </div>
     </StyledSlider>
   );
 }

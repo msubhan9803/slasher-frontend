@@ -83,7 +83,7 @@ describe('Find Follow (e2e)', () => {
         .get(`/api/v1/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUser._id.toString()}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      expect(response.body).toEqual({ notification: 0 });
+      expect(response.body).toEqual({ notification: 1 });
     });
 
     it('returns the expected response when the rss feed provider id is not found', async () => {

@@ -207,7 +207,7 @@ function PostDetail({ user, postType }: Props) {
           setIsEdit(false);
         })
         .catch((error) => {
-          const msg = error.response.status === 413
+          const msg = error.response.status === 0 && !error.response.data
             ? 'Combined size of files is too large.'
             : error.response.data.message;
           setCommentErrorMessage(msg);
@@ -241,7 +241,7 @@ function PostDetail({ user, postType }: Props) {
           setCommentErrorMessage([]);
         })
         .catch((error) => {
-          const msg = error.response.status === 413
+          const msg = error.response.status === 0 && !error.response.data
             ? 'Combined size of files is too large.'
             : error.response.data.message;
           setCommentErrorMessage(msg);
@@ -295,7 +295,7 @@ function PostDetail({ user, postType }: Props) {
           setCommentErrorMessage([]);
           setIsEdit(false);
         }).catch((error) => {
-          const msg = error.response.status === 413
+          const msg = error.response.status === 0 && !error.response.data
             ? 'Combined size of files is too large.'
             : error.response.data.message;
           setCommentErrorMessage(msg);
@@ -330,7 +330,7 @@ function PostDetail({ user, postType }: Props) {
         setCommentErrorMessage([]);
         setCommentID('');
       }).catch((error) => {
-        const msg = error.response.status === 413
+        const msg = error.response.status === 0 && !error.response.data
           ? 'Combined size of files is too large.'
           : error.response.data.message;
         setCommentErrorMessage(msg);
@@ -460,7 +460,7 @@ function PostDetail({ user, postType }: Props) {
         setCheckPostUpdate(true);
       })
         .catch((error) => {
-          const msg = error.response.status === 413
+          const msg = error.response.status === 0 && !error.response.data
             ? 'Combined size of files is too large.'
             : error.response.data.message;
           setErrorMessage(msg);

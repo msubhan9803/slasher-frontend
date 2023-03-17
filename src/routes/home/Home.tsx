@@ -204,7 +204,7 @@ function Home() {
       setPosts(updatePost);
     })
       .catch((error) => {
-        const msg = error.response.status === 413
+        const msg = error.response.status === 0 && !error.response.data
           ? 'Combined size of files is too large.'
           : error.response.data.message;
         setErrorMessage(msg);

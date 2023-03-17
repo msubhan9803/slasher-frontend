@@ -19,4 +19,4 @@ export const SHARED_GATEWAY_OPTS = {
   transports: ['websocket'],
 };
 
-export const METRES_TO_MILES_MULTIPLIER = 0.000621371;
+export const METERS_TO_MILES_MULTIPLIER = 0.000621371;

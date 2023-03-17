@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Event, EventDocument } from '../../schemas/event/event.schema';
 import { EventActiveStatus } from '../../schemas/event/event.enums';
 import { toUtcStartOfDay } from '../../utils/date-utils';
-import { METRES_TO_MILES_MULTIPLIER } from '../../constants';
+import { METERS_TO_MILES_MULTIPLIER } from '../../constants';
 
 @Injectable()
 export class EventService {
@@ -120,7 +120,7 @@ export class EventService {
           maxDistance: maxDistanceMetres,
           distanceField: 'distance',
           // get distances of each event in miles
-          distanceMultiplier: METRES_TO_MILES_MULTIPLIER,
+          distanceMultiplier: METERS_TO_MILES_MULTIPLIER,
         },
       },
       { $match: query },

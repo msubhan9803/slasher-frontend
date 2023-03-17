@@ -5,7 +5,7 @@ import React, {
 import { Col, Row } from 'react-bootstrap';
 import Leaflet, { LatLngLiteral } from 'leaflet';
 import { DateTime } from 'luxon';
-import _ from 'lodash';
+import debounce from 'lodash/debounce';
 import EventHeader from '../EventHeader';
 import EventsPosterCard from '../EventsPosterCard';
 import EventPoster from '../../../images/events-poster.png';
@@ -45,7 +45,7 @@ function EventsByLocation() {
   const [events, setEvents] = useState<EventType[]>([]);
   const bp = useBootstrapBreakpointName();
   const mapRef = useRef<Leaflet.Map>(null);
-  const onCenterChangeDebounced = useMemo(() => _.debounce(
+  const onCenterChangeDebounced = useMemo(() => debounce(
     (newCenter: LatLngLiteral) => setUserLocation(
       { lat: Number(newCenter.lat), lng: Number(newCenter.lng) },
     ),
@@ -64,7 +64,7 @@ function EventsByLocation() {
     };
   }), [events]);
 
-  const fetchAndSetEventsDebounced = useMemo(() => _.debounce(() => {
+  const fetchAndSetEventsDebounced = useMemo(() => debounce(() => {
     if (!mapRef.current) { return; }
 
     const visibleMap = mapRef.current.getBounds();

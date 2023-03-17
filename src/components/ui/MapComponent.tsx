@@ -16,7 +16,7 @@ import Leaflet, { LatLngLiteral } from 'leaflet';
 import ReactDOMServer from 'react-dom/server';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import _ from 'lodash';
+import debounce from 'lodash/debounce';
 import ErrorMessageList from './ErrorMessageList';
 import { MarkerLocationType } from '../../types';
 import RoundButton from './RoundButton';
@@ -109,7 +109,7 @@ function MapComponent({
   const [locationSearchQuery, setLocationSearchQuery] = useState('');
   const lastLocationQueryRef = useRef('');
 
-  const setMapLocationFromLocationSearchQueryNew = useMemo(() => _.debounce(
+  const setMapLocationFromLocationSearchQueryNew = useMemo(() => debounce(
     async (value: string) => {
       if ((value === '') || (value === lastLocationQueryRef.current)) {
         // To reduce API calls, only perform lookup if query is different than last search.

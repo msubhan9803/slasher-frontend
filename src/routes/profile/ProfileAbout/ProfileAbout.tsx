@@ -20,6 +20,7 @@ interface Props {
 function ProfileAbout({ user }: Props) {
   const [isEdit, setEdit] = useState<boolean>(false);
   const [aboutMeText, setAboutMeText] = useState<string>(user?.aboutMe || '');
+  const [prevText, setPrevText] = useState('');
   const [charCount, setCharCount] = useState<number>(0);
   const loginUserId = useAppSelector((state) => state.user.user.id);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
@@ -32,6 +33,7 @@ function ProfileAbout({ user }: Props) {
     setProgressButtonStatus('loading');
     updateUserAbout(id, aboutMeText).then((res) => {
       setAboutMeText(res.data.aboutMe);
+      setPrevText(aboutMeText);
       setProgressButtonStatus('success');
       setEdit(!isEdit);
     }).catch(() => {
@@ -39,6 +41,9 @@ function ProfileAbout({ user }: Props) {
     });
   };
 
+  const handleCancel = () => {
+    setAboutMeText(prevText);
+  };
   const renderAboutMeText = (text: string) => {
     if (text && text.length > 0) {
       const safeAboutMeText = newLineToBr(
@@ -94,7 +99,7 @@ function ProfileAbout({ user }: Props) {
                 <Col xs={9} sm={7} md={5} lg={4} xxl={3}>
                   <Row>
                     <Col xs={6}>
-                      <RoundButton className="w-100 bg-black" variant="dark" onClick={() => setEdit(!isEdit)}>
+                      <RoundButton className="w-100 bg-black" variant="dark" onClick={() => { setEdit(!isEdit); handleCancel(); }}>
                         Cancel
                       </RoundButton>
                     </Col>

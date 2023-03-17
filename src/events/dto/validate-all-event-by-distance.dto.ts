@@ -8,7 +8,7 @@ export class ValidateAllEventDistanceDto {
   @IsNotEmpty()
   @Type(() => Number)
   @IsNumber()
-  lattitude: number;
+  latitude: number;
 
   @IsNotEmpty()
   @Type(() => Number)

@@ -286,10 +286,10 @@ describe('EventService', () => {
 
     it('should compute distance for each event location', async () => {
       // 11 Sand Pond Rd, Hardwick Township, NJ
-      const userLocation1 = { lattitude: 41.055877, longitude: -74.95479 };
+      const userLocation1 = { latitude: 41.055877, longitude: -74.95479 };
       const maxDistanceMiles1 = Infinity;
 
-      const eventList1 = await eventService.findAllByDistance(userLocation1.lattitude, userLocation1.longitude, maxDistanceMiles1, false);
+      const eventList1 = await eventService.findAllByDistance(userLocation1.latitude, userLocation1.longitude, maxDistanceMiles1, false);
       expect(Math.round(eventList1[0].distance)).toBe(280);
       expect(Math.round(eventList1[1].distance)).toBe(349);
       expect(Math.round(eventList1[2].distance)).toBe(418);
@@ -297,9 +297,9 @@ describe('EventService', () => {
 
     it('find events in 300 miles', async () => {
       // 11 Sand Pond Rd, Hardwick Township, NJ
-      const userLocation2 = { lattitude: 41.055877, longitude: -74.95479 };
+      const userLocation2 = { latitude: 41.055877, longitude: -74.95479 };
       const maxDistanceMiles2 = 300;
-      const eventList2 = await eventService.findAllByDistance(userLocation2.lattitude, userLocation2.longitude, maxDistanceMiles2, false);
+      const eventList2 = await eventService.findAllByDistance(userLocation2.latitude, userLocation2.longitude, maxDistanceMiles2, false);
       expect(eventList2).toHaveLength(1);
       expect(Math.round(eventList2[0].distance)).toBe(280);
     });
@@ -344,13 +344,13 @@ describe('EventService', () => {
 
     it('find events in rectangluar region of given coordinates', async () => {
       // coordinates of rectangle (top-right and bottom-left)
-      const lattitudeTopRight = 41.08840841260634;
+      const latitudeTopRight = 41.08840841260634;
       const longitudeTopRight = -74.89843368530275;
-      const lattitudeBottomLeft = 41.01332484409777;
+      const latitudeBottomLeft = 41.01332484409777;
       const longitudeBottomLeft = -75.03129959106447;
 
       // eslint-disable-next-line max-len
-      const eventList1 = await eventService.findAllInRectangle(lattitudeTopRight, longitudeTopRight, lattitudeBottomLeft, longitudeBottomLeft, false);
+      const eventList1 = await eventService.findAllInRectangle(latitudeTopRight, longitudeTopRight, latitudeBottomLeft, longitudeBottomLeft, false);
       expect(eventList1).toHaveLength(3);
     });
   });

@@ -98,7 +98,7 @@ export class EventService {
 
   // Find events in a given distance (radially)
   async findAllByDistance(
-    lattitude: number,
+    latitude: number,
     longitude: number,
     miles: number,
     activeOnly: boolean,
@@ -115,7 +115,7 @@ export class EventService {
         $geoNear: {
           near: {
             type: 'Point',
-            coordinates: [lattitude, longitude],
+            coordinates: [latitude, longitude],
           },
           maxDistance: maxDistanceMetres,
           distanceField: 'distance',
@@ -130,15 +130,15 @@ export class EventService {
 
   // Find events in a given rectangle denotes by provided coordinates
   async findAllInRectangle(
-    lattitudeTopRight: number,
+    latitudeTopRight: number,
     longitudeTopRight: number,
-    lattitudeBottomLeft: number,
+    latitudeBottomLeft: number,
     longitudeBottomLeft: number,
     activeOnly: boolean,
   ): Promise<Array<EventDocument>> {
     const query: any = {
       location: {
-        $geoWithin: { $box: [[lattitudeTopRight, longitudeTopRight], [lattitudeBottomLeft, longitudeBottomLeft]] },
+        $geoWithin: { $box: [[latitudeTopRight, longitudeTopRight], [latitudeBottomLeft, longitudeBottomLeft]] },
       },
     };
     if (activeOnly) {

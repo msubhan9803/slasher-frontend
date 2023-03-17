@@ -104,14 +104,14 @@ describe('Events all by rectangular area / (e2e)', () => {
 
     describe('Successfully get all events', () => {
       it('Get events in given rectangular area', async () => {
-        const lattitudeTopRight = 41.08840841260634;
+        const latitudeTopRight = 41.08840841260634;
         const longitudeTopRight = -74.89843368530275;
-        const lattitudeBottomLeft = 41.01332484409777;
+        const latitudeBottomLeft = 41.01332484409777;
         const longitudeBottomLeft = -75.03129959106447;
 
         const response = await request(app.getHttpServer())
           // eslint-disable-next-line max-len
-          .get(`/api/v1/events/by-rectangular-area?lattitudeTopRight=${lattitudeTopRight}&longitudeTopRight=${longitudeTopRight}&lattitudeBottomLeft=${lattitudeBottomLeft}&longitudeBottomLeft=${longitudeBottomLeft}`)
+          .get(`/api/v1/events/by-rectangular-area?latitudeTopRight=${latitudeTopRight}&longitudeTopRight=${longitudeTopRight}&latitudeBottomLeft=${latitudeBottomLeft}&longitudeBottomLeft=${longitudeBottomLeft}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([
@@ -186,7 +186,7 @@ describe('Events all by rectangular area / (e2e)', () => {
 
       describe('validations', () => {
         // eslint-disable-next-line max-len
-        it('lattitudeTopRight, longitudeTopRight, lattitudeBottomLeft, longitudeBottomLeft should be number type and not be empty', async () => {
+        it('latitudeTopRight, longitudeTopRight, latitudeBottomLeft, longitudeBottomLeft should be number type and not be empty', async () => {
           const response = await request(app.getHttpServer())
             .get('/api/v1/events/by-rectangular-area')
             .auth(activeUserAuthToken, { type: 'bearer' })
@@ -196,12 +196,12 @@ describe('Events all by rectangular area / (e2e)', () => {
           expect(response.body).toEqual({
             error: 'Bad Request',
             message: [
-              'lattitudeTopRight must be a number conforming to the specified constraints',
-              'lattitudeTopRight should not be empty',
+              'latitudeTopRight must be a number conforming to the specified constraints',
+              'latitudeTopRight should not be empty',
               'longitudeTopRight must be a number conforming to the specified constraints',
               'longitudeTopRight should not be empty',
-              'lattitudeBottomLeft must be a number conforming to the specified constraints',
-              'lattitudeBottomLeft should not be empty',
+              'latitudeBottomLeft must be a number conforming to the specified constraints',
+              'latitudeBottomLeft should not be empty',
               'longitudeBottomLeft must be a number conforming to the specified constraints',
               'longitudeBottomLeft should not be empty',
             ],

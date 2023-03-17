@@ -8,7 +8,7 @@ export class ValidateAllEventsByRectangularAreaDto {
   @IsNotEmpty()
   @Type(() => Number)
   @IsNumber()
-  lattitudeTopRight: number;
+  latitudeTopRight: number;
 
   @IsNotEmpty()
   @Type(() => Number)
@@ -18,7 +18,7 @@ export class ValidateAllEventsByRectangularAreaDto {
   @IsNotEmpty()
   @Type(() => Number)
   @IsNumber()
-  lattitudeBottomLeft: number;
+  latitudeBottomLeft: number;
 
   @IsNotEmpty()
   @Type(() => Number)

@@ -104,12 +104,12 @@ describe('Events all by distance / (e2e)', () => {
 
     describe('Successful get all events in 300 miles', () => {
       it('Get events in 300 miles', async () => {
-        const lattitude = 41.055877;
+        const latitude = 41.055877;
         const longitude = -74.95479;
         const maxDistanceMiles = 300;
 
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/events/by-distance?lattitude=${lattitude}&longitude=${longitude}&maxDistanceMiles=${maxDistanceMiles}`)
+          .get(`/api/v1/events/by-distance?latitude=${latitude}&longitude=${longitude}&maxDistanceMiles=${maxDistanceMiles}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([
@@ -134,7 +134,7 @@ describe('Events all by distance / (e2e)', () => {
       });
 
       describe('validations', () => {
-        it('lattitude, longitude and maxDistanceMiles should not be empty', async () => {
+        it('latitude, longitude and maxDistanceMiles should not be empty', async () => {
           const response = await request(app.getHttpServer())
             .get('/api/v1/events/by-distance')
             .auth(activeUserAuthToken, { type: 'bearer' })
@@ -144,8 +144,8 @@ describe('Events all by distance / (e2e)', () => {
           expect(response.body).toEqual({
             error: 'Bad Request',
             message: [
-              'lattitude must be a number conforming to the specified constraints',
-              'lattitude should not be empty',
+              'latitude must be a number conforming to the specified constraints',
+              'latitude should not be empty',
               'longitude must be a number conforming to the specified constraints',
               'longitude should not be empty',
               'maxDistanceMiles must be a number conforming to the specified constraints',
@@ -155,13 +155,13 @@ describe('Events all by distance / (e2e)', () => {
           });
         });
 
-        it('lattitude should be number type', async () => {
-          const lattitude = 'abc';
+        it('latitude should be number type', async () => {
+          const latitude = 'abc';
           const longitude = -74.95479;
           const maxDistanceMiles = 300;
 
           const response = await request(app.getHttpServer())
-            .get(`/api/v1/events/by-distance?lattitude=${lattitude}&longitude=${longitude}&maxDistanceMiles=${maxDistanceMiles}`)
+            .get(`/api/v1/events/by-distance?latitude=${latitude}&longitude=${longitude}&maxDistanceMiles=${maxDistanceMiles}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
 
@@ -169,19 +169,19 @@ describe('Events all by distance / (e2e)', () => {
           expect(response.body).toEqual({
             error: 'Bad Request',
             message: [
-              'lattitude must be a number conforming to the specified constraints',
+              'latitude must be a number conforming to the specified constraints',
             ],
             statusCode: 400,
           });
         });
 
         it('longitude should be number type', async () => {
-          const lattitude = 41.055877;
+          const latitude = 41.055877;
           const longitude = 'abc';
           const maxDistanceMiles = 300;
 
           const response = await request(app.getHttpServer())
-            .get(`/api/v1/events/by-distance?lattitude=${lattitude}&longitude=${longitude}&maxDistanceMiles=${maxDistanceMiles}`)
+            .get(`/api/v1/events/by-distance?latitude=${latitude}&longitude=${longitude}&maxDistanceMiles=${maxDistanceMiles}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
 
@@ -196,12 +196,12 @@ describe('Events all by distance / (e2e)', () => {
         });
 
         it('maxDistanceMiles should be number type', async () => {
-          const lattitude = 41.055877;
+          const latitude = 41.055877;
           const longitude = -74.95479;
           const maxDistanceMiles = 'abc';
 
           const response = await request(app.getHttpServer())
-            .get(`/api/v1/events/by-distance?lattitude=${lattitude}&longitude=${longitude}&maxDistanceMiles=${maxDistanceMiles}`)
+            .get(`/api/v1/events/by-distance?latitude=${latitude}&longitude=${longitude}&maxDistanceMiles=${maxDistanceMiles}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
 

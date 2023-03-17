@@ -132,7 +132,7 @@ export class EventsController {
     query: ValidateAllEventDistanceDto,
   ) {
     const eventData = await this.eventService.findAllByDistance(
-      query.lattitude,
+      query.latitude,
       query.longitude,
       query.maxDistanceMiles,
       false,
@@ -160,9 +160,9 @@ export class EventsController {
     query: ValidateAllEventsByRectangularAreaDto,
   ) {
     const eventData = await this.eventService.findAllInRectangle(
-      query.lattitudeTopRight,
+      query.latitudeTopRight,
       query.longitudeTopRight,
-      query.lattitudeBottomLeft,
+      query.latitudeBottomLeft,
       query.longitudeBottomLeft,
       false,
     );

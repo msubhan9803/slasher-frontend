@@ -33,12 +33,12 @@ function CustomCreatePost({
       handleClick={handleCreateInput}
       state={pathname}
       to={handleCreateInput ? `${linkParams}` : `/app/posts/create${linkParams}`}
-      variant="dark"
+      variant="black"
       className={`w-100 d-flex justify-content-between ${className}`}
     >
       <div>
-        <UserCircleImage size="2.5rem" src={userProfilePic} alt="user picture" />
-        <span className="ms-2 text-light fs-5">{label}</span>
+        <UserCircleImage size="1.5rem" src={userProfilePic} alt="user picture" />
+        <span className="ms-2 text-light">{label}</span>
       </div>
       <div className="align-self-center me-2">
         <FontAwesomeIcon role="button" icon={icon!} size="lg" className={iconClass} />

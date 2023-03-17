@@ -38,7 +38,7 @@ function BooksHeader({
           <SortData sortoptions={sortoptions} title="Sort: " className="rounded-5" type="sort" />
         </Col>
         <Col md={4} className="order-first order-md-last">
-          <RoundButton className="py-2 d-lg-none w-100">Add your book</RoundButton>
+          <RoundButton className="d-lg-none w-100">Add your book</RoundButton>
         </Col>
       </Row>
       {showKeys && (<FilterModal showKeys={showKeys} setShowKeys={setShowKeys} />)}

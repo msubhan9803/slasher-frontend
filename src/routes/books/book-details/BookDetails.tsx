@@ -12,7 +12,7 @@ function BookDetails() {
     <ContentSidbarWrapper>
       <ContentPageWrapper>
         <Container fluid className="mb-5">
-          {enableDevFeatures && <RoundButton className="d-lg-none w-100 my-3 fs-3 fw-bold">Add your book</RoundButton>}
+          {enableDevFeatures && <RoundButton className="d-lg-none w-100 my-3">Add your book</RoundButton>}
           <AboutBooks />
         </Container>
       </ContentPageWrapper>

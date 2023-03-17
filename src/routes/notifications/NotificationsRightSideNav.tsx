@@ -4,11 +4,11 @@ import FriendRequests from '../../components/layout/right-sidebar-wrapper/compon
 import RecentMessages from '../../components/layout/right-sidebar-wrapper/components/RecentMessages';
 import RoundButtonLink from '../../components/ui/RoundButtonLink';
 
-function NotificationsRIghtSideNav() {
+function NotificationsRightSideNav() {
   return (
     <>
       <RoundButtonLink
-        to="app/account/notifications"
+        to="/app/account/notifications"
         variant="black"
         className="w-100 mb-4"
       >
@@ -21,4 +21,4 @@ function NotificationsRIghtSideNav() {
   );
 }
 
-export default NotificationsRIghtSideNav;
+export default NotificationsRightSideNav;

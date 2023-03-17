@@ -148,7 +148,7 @@ function ProfileHeader({ tabKey, user, showTabs }: Props) {
                 {isSelfUserProfile
                   && (
                     <div className="d-flex justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
-                      <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4 py-2" onClick={() => navigate(`/${userName}/edit`)}>
+                      <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4" onClick={() => navigate(`/${userName}/edit`)}>
                         <FontAwesomeIcon icon={solid('pen')} className="me-2 align-self-center" />
                         <h2 className="h3 mb-0"> Edit profile</h2>
                       </RoundButton>

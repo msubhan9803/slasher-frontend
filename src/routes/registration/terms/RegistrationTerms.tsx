@@ -110,7 +110,7 @@ function RegistrationTerms({ activeStep }: Props) {
           </RoundButtonLink>
         </Col>
         <Col sm={4} md={3} className="order-1 mb-3 mb-md-0 order-sm-2">
-          <ProgressButton label="Next step" className="py-2 w-100  fs-3 fw-bold" onClick={() => submitRegister()} />
+          <ProgressButton label="Next step" className="w-100" onClick={() => submitRegister()} />
         </Col>
       </Row>
     </RegistrationPageWrapper>

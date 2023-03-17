@@ -1,10 +1,8 @@
 /* eslint-disable max-lines */
 import React, { useState } from 'react';
 import {
-  Alert, Col, Form, Row,
+  Alert, Form,
 } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import Cookies from 'js-cookie';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
@@ -85,10 +83,6 @@ function CreatePost() {
     <ContentSidbarWrapper>
       <ContentPageWrapper>
         {(paramsType === 'group-post' && !paramsGroupId) && <Alert variant="danger">Group id missing from URL</Alert>}
-        <Row className="d-md-none bg-dark">
-          <Col xs="auto" className="ms-2"><FontAwesomeIcon role="button" icon={solid('arrow-left')} size="lg" /></Col>
-          <Col><h1 className="h2 text-center">Create Post</h1></Col>
-        </Row>
         <Form className="bg-dark px-4 py-4 rounded-2">
           <Form.Group controlId="about-me">
             <div className="align-items-center d-flex form-label mb-4 w-100 mb-4">

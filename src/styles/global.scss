@@ -48,6 +48,10 @@ body {
   }
 }
 
+abbr[title] {
+  cursor: default;
+}
+
 .page-wrapper {
   min-height: 100vh;
   display: flex;
@@ -295,10 +299,10 @@ textarea {
 
 .form-control:focus-visible {
   outline: none !important;
-  box-shadow: 0 0 0 3px rgba($stroke-and-line-separator-color, .5);
+  box-shadow: 0 0 0 1px rgba($stroke-and-line-separator-color, .5);
 }
 
 :focus-visible {
   outline: none !important;
-  box-shadow: 0 0 0 3px rgba($stroke-and-line-separator-color, .5);
+  box-shadow: 0 0 0 1px rgba($stroke-and-line-separator-color, .5);
 }

@@ -16,6 +16,7 @@ import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { RssFeedProviderFollowsService } from '../../../../../src/rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { RssFeedProviderFollowNotificationsEnabled } from '../../../../../src/schemas/rssFeedProviderFollow/rssFeedProviderFollow.enums';
 
 describe('Create Follow (e2e)', () => {
   let app: INestApplication;
@@ -84,7 +85,7 @@ describe('Create Follow (e2e)', () => {
         );
       expect(follow.userId.toString()).toBe(activeUser._id.toString());
       expect(follow.rssfeedProviderId.toString()).toBe(rssFeedProviderData._id.toString());
-      expect(response.body).toEqual({ notification: 0 });
+      expect(response.body).toEqual({ notification: RssFeedProviderFollowNotificationsEnabled.Enabled });
     });
 
     it('returns the expected response when the rss feed provider id is not found', async () => {

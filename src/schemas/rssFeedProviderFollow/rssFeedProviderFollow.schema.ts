@@ -30,7 +30,7 @@ export class RssFeedProviderFollow extends RssFeedProviderFollowUnusedFields {
 
   @Prop({
     enum: [RssFeedProviderFollowNotificationsEnabled.NotEnabled, RssFeedProviderFollowNotificationsEnabled.Enabled],
-    default: RssFeedProviderFollowNotificationsEnabled.NotEnabled,
+    default: RssFeedProviderFollowNotificationsEnabled.Enabled,
   })
   notification: RssFeedProviderFollowNotificationsEnabled;
 

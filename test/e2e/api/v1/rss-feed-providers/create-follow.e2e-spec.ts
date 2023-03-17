@@ -84,7 +84,7 @@ describe('Create Follow (e2e)', () => {
         );
       expect(follow.userId.toString()).toBe(activeUser._id.toString());
       expect(follow.rssfeedProviderId.toString()).toBe(rssFeedProviderData._id.toString());
-      expect(response.body).toEqual({ notification: 0 });
+      expect(response.body).toEqual({ notification: 1 });
     });
 
     it('returns the expected response when the rss feed provider id is not found', async () => {

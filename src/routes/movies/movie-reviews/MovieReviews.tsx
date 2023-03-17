@@ -151,7 +151,10 @@ function MovieReviews({ movieData, setMovieData }: Props) {
         setShowReviewForm(false);
       })
       .catch((error) => {
-        setErrorMessage(error.response.data.message);
+        const msg = error.response.status === 413
+          ? 'Combined size of files is too large.'
+          : error.response.data.message;
+        setErrorMessage(msg);
       });
   };
 
@@ -178,7 +181,10 @@ function MovieReviews({ movieData, setMovieData }: Props) {
         setShowReviewForm(false);
       })
       .catch((error) => {
-        setErrorMessage(error.response.data.message);
+        const msg = error.response.status === 413
+          ? 'Combined size of files is too large.'
+          : error.response.data.message;
+        setErrorMessage(msg);
       });
   };
 

@@ -174,7 +174,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
               <p className="fw-bold text-md-center mb-0 mb-md-3">User rating</p>
 
               {movieData.ratingUsersCount === 0
-                ? <p className="fs-3 fw-bold m-0 align-self-center text-light text-center">Not yet rated</p>
+                ? <p className="fw-bold m-0 align-self-center text-light text-center">Not yet rated</p>
                 : (
                   <div className="d-flex mt-md-3 justify-content-md-center">
                     <CustomRatingText
@@ -299,7 +299,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
             <div className="mt-4 d-flex justify-content-center">
               <BorderButton
                 buttonClass="d-flex rate-btn bg-black py-2 d-flex"
-                variant="lg"
+                variant="black"
                 icon={solid('burst')}
                 iconClass="me-2"
                 iconSize="sm"
@@ -314,7 +314,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                 <div className="mt-4 d-flex justify-content-center">
                   <BorderButton
                     buttonClass="d-flex rate-btn bg-black py-2 d-flex"
-                    variant="lg"
+                    variant="black"
                     iconClass="me-2"
                     iconSize="sm"
                     lable="Remove"

@@ -3,6 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import mongoose, { Connection, Model } from 'mongoose';
+import { DateTime } from 'luxon';
 import { AppModule } from '../../app.module';
 import { FeedPostsService } from './feed-posts.service';
 import { userFactory } from '../../../test/factories/user.factory';
@@ -692,6 +693,179 @@ describe('FeedPostsService', () => {
         const allLikeUsers = likeUsers.map((user) => user._id.toString());
         expect(allLikeUsers).not.toContain(user0.id);
       });
+    });
+  });
+
+  describe('#findAllFeedPostsForHashtag', () => {
+    let user4;
+    let user5;
+    let user6;
+    beforeEach(async () => {
+      //create private user
+      const user2 = await usersService.create(userFactory.build({
+        profile_status: 1,
+      }));
+
+      //create public user with deleted
+      const user3 = await usersService.create(userFactory.build({
+        profile_status: 0, deleted: true,
+      }));
+
+      //create 3 public users with not deleted
+      user4 = await usersService.create(userFactory.build({
+        profile_status: 0,
+      }));
+      user5 = await usersService.create(userFactory.build({
+        profile_status: 0,
+      }));
+      user6 = await usersService.create(userFactory.build({
+        profile_status: 0,
+      }));
+
+      //create posts with public user5 or user6
+      await feedPostsService.create(
+        feedPostFactory.build({
+          message: 'post #ok #good',
+          userId: user5.id,
+          hashtags: ['ok', 'good'],
+        }),
+      );
+      await feedPostsService.create(
+        feedPostFactory.build({
+          message: 'post #ok #code',
+          userId: user6.id,
+          hashtags: ['ok', 'code'],
+        }),
+      );
+
+      //create posts with private user2 or deleted public user3
+      await feedPostsService.create(
+        feedPostFactory.build({
+          message: 'post #ok #buddy',
+          userId: user2.id,
+          hashtags: ['ok', 'buddy'],
+        }),
+      );
+      await feedPostsService.create(
+        feedPostFactory.build({
+          message: 'post #code #flash',
+          userId: user3.id,
+          hashtags: ['code', 'flash'],
+        }),
+      );
+
+      //create posts with public user4 but #ok is not exists
+      await feedPostsService.create(
+        feedPostFactory.build({
+          message: 'post#fan #follow',
+          userId: user4.id,
+          hashtags: ['fan', 'follow'],
+        }),
+      );
+    });
+
+    it('when hashtag is "ok" than expected posts response', async () => {
+      const feedPostData = await feedPostsService.findAllFeedPostsForHashtag('ok', 10);
+      for (let i = 1; i < feedPostData.length; i += 1) {
+        expect(feedPostData[i].hashtags).toContainEqual('ok');
+        expect(feedPostData[i].createdAt < feedPostData[i - 1].createdAt).toBe(true);
+      }
+      expect(feedPostData).toHaveLength(2);
+    });
+
+    it('returns the first and second sets of paginated results', async () => {
+      await feedPostsService.create(
+        feedPostFactory.build({
+          message: 'post #ok #good',
+          userId: user5.id,
+          hashtags: ['ok', 'good'],
+        }),
+      );
+      await feedPostsService.create(
+        feedPostFactory.build({
+          message: 'post #ok #code',
+          userId: user6.id,
+          hashtags: ['ok', 'code'],
+        }),
+      );
+      await feedPostsService.create(
+        feedPostFactory.build({
+          message: 'post #ok #code',
+          userId: user4.id,
+          hashtags: ['ok', 'code'],
+        }),
+      );
+
+      const limit = 3;
+      const firstResults = await feedPostsService.findAllFeedPostsForHashtag('ok', limit);
+      const secondResults = await feedPostsService
+        .findAllFeedPostsForHashtag(
+          'ok',
+          limit,
+          new mongoose.Types.ObjectId(firstResults[limit - 1]._id.toString()),
+        );
+      expect(firstResults).toHaveLength(3);
+      expect(secondResults).toHaveLength(2);
+    });
+  });
+
+  describe('#findPostsByDays', () => {
+    beforeEach(async () => {
+      await feedPostsService.create(
+        feedPostFactory.build({
+          message: 'post #scariness #horridness',
+          userId: activeUser.id,
+          hashtags: ['horridness', 'horridness'],
+        }),
+      );
+      await feedPostsService.create(
+        feedPostFactory.build({
+          message: 'post #heinousness #evil',
+          userId: activeUser.id,
+          hashtags: ['heinousness', 'evil'],
+        }),
+      );
+      await feedPostsService.create(
+        feedPostFactory.build({
+          message: 'post #torture',
+          userId: activeUser.id,
+          hashtags: ['torture'],
+        }),
+      );
+    });
+
+    it('successfully find posts by days', async () => {
+      const fourteenDaysAgo = DateTime.now().minus({ days: 14 }).toJSDate();
+      const posts = await feedPostsService.findPostsByDays(fourteenDaysAgo);
+      expect(posts).toEqual([
+        'horridness',
+        'horridness',
+        'heinousness',
+        'evil',
+        'torture',
+      ]);
+    });
+
+    it('when post is not match with exists days', async () => {
+      await feedPostsService.create(
+        feedPostFactory.build({
+          userId: activeUser._id,
+          message: 'post #scary',
+          createdAt: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(),
+          updatedAt: DateTime.fromISO('2022-10-23T00:00:00Z').toJSDate(),
+          lastUpdateAt: DateTime.fromISO('2022-10-19T00:00:00Z').toJSDate(),
+          hashtags: ['scary'],
+        }),
+      );
+      const fourteenDaysAgo = DateTime.now().minus({ days: 14 }).toJSDate();
+      const posts = await feedPostsService.findPostsByDays(fourteenDaysAgo);
+      expect(posts).toEqual([
+        'horridness',
+        'horridness',
+        'heinousness',
+        'evil',
+        'torture',
+      ]);
     });
   });
 });

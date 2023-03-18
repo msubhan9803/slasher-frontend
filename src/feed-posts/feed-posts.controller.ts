@@ -32,6 +32,8 @@ import { LikesLimitOffSetDto } from './dto/likes-limit-offset-query.dto';
 import { FriendsService } from '../friends/providers/friends.service';
 import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
 import { HashtagService } from '../hashtag/providers/hashtag.service';
+import { AllFeedPostQueryDto } from './dto/all-feed-posts-query.dto';
+import { HashtagDto } from './dto/hashtag.dto';
 
 @Controller({ path: 'feed-posts', version: ['1'] })
 export class FeedPostsController {
@@ -405,5 +407,39 @@ export class FeedPostsController {
       user._id.toString(),
     );
     return feedLikeUsers;
+  }
+
+  @TransformImageUrls(
+    '$[*].images[*].image_path',
+    '$[*].userId.profilePic',
+    '$[*].rssfeedProviderId.logo',
+  )
+  @Get('hashtag/:hashtag')
+  async findPostByHashtag(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: HashtagDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) allFeedPostQueryDto: AllFeedPostQueryDto,
+  ) {
+    const user = getUserFromRequest(request);
+
+    const hashtag = await this.hashtagService.findByHashTagName(params.hashtag, true);
+    if (!hashtag) {
+      throw new HttpException('Hashtag not found', HttpStatus.NOT_FOUND);
+    }
+
+    const feedPosts = await this.feedPostsService.findAllFeedPostsForHashtag(
+      params.hashtag,
+      allFeedPostQueryDto.limit,
+      allFeedPostQueryDto.before ? new mongoose.Types.ObjectId(allFeedPostQueryDto.before) : undefined,
+      user.id,
+    );
+    return feedPosts.map(
+      (feedPost) => pick(
+        feedPost,
+        ['_id', 'message', 'createdAt', 'lastUpdateAt',
+          'rssfeedProviderId', 'images', 'userId', 'commentCount',
+          'likeCount', 'likedByUser'],
+      ),
+    );
   }
 }

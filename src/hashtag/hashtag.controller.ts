@@ -20,4 +20,10 @@ export class HashtagController {
     const hashtags = await this.hashtagService.suggestHashtagName(query.query, query.limit, true);
     return hashtags.map((hashtag) => pick(hashtag, ['_id', 'name']));
   }
+
+  @Get('onboarding-suggestions')
+  async hashtagOnboardingSuggestions() {
+    const hashtags = await this.hashtagService.hashtagOnboardingSuggestions();
+    return hashtags;
+  }
 }

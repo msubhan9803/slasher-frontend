@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FeedPostsController } from './feed-posts.controller';
 import { FeedPostsService } from './providers/feed-posts.service';
@@ -14,6 +14,7 @@ import { FriendsModule } from '../friends/friends.module';
 import { BlocksModule } from '../blocks/blocks.module';
 import { HashtagModule } from '../hashtag/hashtag.module';
 
+@Global()
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: FeedPost.name, schema: FeedPostSchema }]),

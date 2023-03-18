@@ -13,6 +13,7 @@ import { relativeToFullImagePath } from '../../utils/image-utils';
 import { FeedPostLike, FeedPostLikeDocument } from '../../schemas/feedPostLike/feedPostLike.schema';
 import { BlocksService } from '../../blocks/providers/blocks.service';
 import { pick } from '../../utils/object-utils';
+import { ProfileVisibility } from '../../schemas/user/user.enums';
 
 @Injectable()
 export class FeedPostsService {
@@ -125,6 +126,51 @@ export class FeedPostsService {
       .populate('userId', '_id userName profilePic')
       .populate('rssfeedProviderId', '_id title logo')
       .sort({ lastUpdateAt: -1 })
+      .limit(limit)
+      .exec();
+    const feedPosts = JSON.parse(JSON.stringify(query)).map((post) => {
+      // eslint-disable-next-line no-param-reassign
+      post.likedByUser = post.likes.includes(userId);
+      // eslint-disable-next-line no-param-reassign
+      post.likeCount = post.likes.length || 0;
+      return post;
+    });
+    return feedPosts;
+  }
+
+  async findAllFeedPostsForHashtag(
+    hashtag: string,
+    limit: number,
+    before?: mongoose.Types.ObjectId,
+    userId?: string,
+  ): Promise<FeedPostDocument[]> {
+    const privateProfileUserIds = await this.userModel.find({
+      $or: [
+        { profile_status: ProfileVisibility.Private },
+        { $and: [{ profile_status: ProfileVisibility.Public, deleted: true }] },
+      ],
+    }, { _id: 1 });
+
+    // Optionally, only include posts that are older than the given `before` post
+    const beforeQuery: any = {};
+    if (before) {
+      const feedPost = await this.feedPostModel.findById(before).exec();
+      beforeQuery.createdAt = { $lt: feedPost.createdAt };
+    }
+
+    const query = await this.feedPostModel
+      .find({
+        $and: [
+          { hashtags: hashtag },
+          { status: 1 },
+          { is_deleted: 0 },
+          { userId: { $nin: privateProfileUserIds } },
+          beforeQuery,
+        ],
+      })
+      .populate('userId', '_id userName profilePic')
+      .populate('rssfeedProviderId', '_id title logo')
+      .sort({ createdAt: -1 })
       .limit(limit)
       .exec();
     const feedPosts = JSON.parse(JSON.stringify(query)).map((post) => {
@@ -289,5 +335,18 @@ export class FeedPostsService {
     });
 
     return likeUsersForPost;
+  }
+
+  async findPostsByDays(pastFourteenDaysAgoDate: Date): Promise<FeedPostDocument[]> {
+    const feedPosts = await this.feedPostModel
+      .find({
+        $and: [
+          { updatedAt: { $gte: pastFourteenDaysAgoDate } },
+          { is_deleted: 0, status: 1 },
+        ],
+      })
+      .exec();
+    const allHashtags = feedPosts.map((post) => post.hashtags).flat(1);
+    return allHashtags as any;
   }
 }

@@ -2,6 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { Connection, Model } from 'mongoose';
+import { DateTime } from 'luxon';
 import { AppModule } from '../../app.module';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
@@ -9,12 +10,19 @@ import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 import { HashtagDocument, Hashtag } from '../../schemas/hastag/hashtag.schema';
 import { HashtagService } from './hashtag.service';
 import { HashtagActiveStatus } from '../../schemas/hastag/hashtag.enums';
+import { FeedPostsService } from '../../feed-posts/providers/feed-posts.service';
+import { feedPostFactory } from '../../../test/factories/feed-post.factory';
+import { UsersService } from '../../users/providers/users.service';
+import { userFactory } from '../../../test/factories/user.factory';
+import { toUtcStartOfDay } from '../../utils/date-utils';
 
 describe('HashtagService', () => {
   let app: INestApplication;
   let connection: Connection;
   let hashtagService: HashtagService;
   let hashtagModel: Model<HashtagDocument>;
+  let feedPostsService: FeedPostsService;
+  let usersService: UsersService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -23,6 +31,8 @@ describe('HashtagService', () => {
     connection = moduleRef.get<Connection>(getConnectionToken());
     hashtagService = moduleRef.get<HashtagService>(HashtagService);
     hashtagModel = moduleRef.get<Model<HashtagDocument>>(getModelToken(Hashtag.name));
+    feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
+    usersService = moduleRef.get<UsersService>(UsersService);
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -33,12 +43,14 @@ describe('HashtagService', () => {
     await app.close();
   });
 
+  let activeUser;
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
     // Reset sequences so we start fresh before each test
     rewindAllFactories();
+    activeUser = await usersService.create(userFactory.build());
   });
 
   it('should be defined', () => {
@@ -123,6 +135,142 @@ describe('HashtagService', () => {
       const limit = 10;
       const suggestUserNames = await hashtagService.suggestHashtagName(query, limit, false);
       expect(suggestUserNames).toHaveLength(6);
+    });
+  });
+
+  describe('#findAllHashtags', () => {
+    beforeEach(async () => {
+      await hashtagModel.create({
+        name: 'frightfulness',
+      });
+      await hashtagModel.create({
+        name: 'horridness',
+      });
+      await hashtagModel.create({
+        name: 'grisliness',
+      });
+      await hashtagModel.create({
+        name: 'depravity',
+      });
+      await hashtagModel.create({
+        name: 'scariness',
+      });
+      await hashtagModel.create({
+        name: 'scary',
+        status: HashtagActiveStatus.Deactivated,
+        deleted: true,
+      });
+    });
+
+    it('finds the expected hashtah names', async () => {
+      const query = ['depravity', 'scariness'];
+      const limit = 10;
+      const hashtags = await hashtagService.findAllHashtags(query, limit);
+      expect(hashtags).toHaveLength(3);
+      expect(hashtags.map((suggestHashtagName) => suggestHashtagName.name)).toEqual(
+        ['frightfulness', 'horridness', 'grisliness'],
+      );
+    });
+  });
+
+  describe('#hashtagOnboardingSuggestions', () => {
+    beforeEach(async () => {
+      const names = [
+        'horror1', 'horror2', 'horror3', 'horror4', 'horror5',
+        'horror6', 'horror7', 'horror8', 'horror9', 'horror10',
+        'horror11', 'horror12', 'horror13', 'horror14', 'horror15',
+        'horror16', 'horror17', 'horror18', 'horror19', 'horror20',
+      ];
+      for (let i = 0; i < names.length; i += 1) {
+        await hashtagModel.create({
+          name: names[i],
+        });
+      }
+
+      await feedPostsService.create(
+        feedPostFactory.build({
+          userId: activeUser._id,
+          message: 'slasher post#horror1 #horror2 #horror3 #horror4 #horror5 #horror6',
+          createdAt: DateTime.now().minus({ days: 5 }).toJSDate(),
+          updatedAt: DateTime.now().minus({ days: 5 }).toJSDate(),
+          lastUpdateAt: DateTime.now().minus({ days: 5 }).toJSDate(),
+          hashtags: [
+            'horror1', 'horror2', 'horror3',
+            'horror4', 'horror5', 'horror6',
+          ],
+        }),
+      );
+    });
+
+    it('when hashtags plus hashtags24Hours not get 16 hashtags than finds db hashtags', async () => {
+      const hashtags = await hashtagService.hashtagOnboardingSuggestions();
+      expect(hashtags).toEqual([
+        'horror1', 'horror2', 'horror3', 'horror4', 'horror5',
+        'horror6', 'horror7', 'horror8', 'horror9', 'horror10',
+        'horror11', 'horror12', 'horror13', 'horror14', 'horror15',
+        'horror16',
+      ]);
+    });
+
+    it('when hashtags has a common(fouteenDaysAgo + oneDayAgo = 14) and add 2 removedItems hashtags than expected response', async () => {
+      await feedPostsService.create(
+        feedPostFactory.build({
+          userId: activeUser._id,
+          message: 'post #horror7 #horror8 #horror9'
+            + '#horror10 #horror11 #horror12 #horror13 #horror14 #horror15 #horror16'
+            + '#horror17 #horror18 #horror19 #horror20',
+          createdAt: DateTime.now().minus({ days: 1 }).toJSDate(),
+          updatedAt: DateTime.now().minus({ days: 1 }).toJSDate(),
+          lastUpdateAt: DateTime.now().minus({ days: 1 }).toJSDate(),
+          hashtags: [
+            'horror7', 'horror8', 'horror9', 'horror10',
+            'horror11', 'horror12', 'horror13', 'horror14', 'horror15',
+            'horror16', 'horror17', 'horror18', 'horror19', 'horror20',
+          ],
+        }),
+      );
+      const hashtags = await hashtagService.hashtagOnboardingSuggestions();
+      expect(hashtags).toEqual([
+        'horror7', 'horror8',
+        'horror9', 'horror10',
+        'horror11', 'horror12',
+        'horror13', 'horror14',
+        'horror15', 'horror16',
+        'horror17', 'horror18',
+        'horror19', 'horror20',
+        'horror1', 'horror2',
+      ]);
+    });
+
+    it('when hashtags has a common(fouteenDaysAgo + oneDayAgo = 16) hashtags than expected response', async () => {
+      await feedPostsService.create(
+        feedPostFactory.build({
+          userId: activeUser._id,
+          message: 'post #horror7 #horror8 #horror9'
+            + '#horror10 #horror11 #horror12 #horror13 #horror14 #horror15 #horror16'
+            + '#horror17 #horror18 #horror19 #horror20 #horror21 #horror22',
+          createdAt: toUtcStartOfDay(DateTime.now().minus({ days: 1 }).toJSDate()),
+          updatedAt: toUtcStartOfDay(DateTime.now().minus({ days: 1 }).toJSDate()),
+          lastUpdateAt: toUtcStartOfDay(DateTime.now().minus({ days: 1 }).toJSDate()),
+          hashtags: [
+            'horror7', 'horror8', 'horror9', 'horror10',
+            'horror11', 'horror12', 'horror13', 'horror14',
+            'horror15', 'horror16', 'horror17', 'horror18',
+            'horror19', 'horror20', 'horror21', 'horror22',
+          ],
+        }),
+      );
+      const hashtags = await hashtagService.hashtagOnboardingSuggestions();
+      expect(hashtags).toEqual([
+        'horror7', 'horror8',
+        'horror9', 'horror10',
+        'horror11', 'horror12',
+        'horror13', 'horror14',
+        'horror15', 'horror16',
+        'horror17', 'horror18',
+        'horror19', 'horror20',
+        'horror21', 'horror22',
+      ]);
     });
   });
 });

@@ -22,7 +22,7 @@ export class SearchService {
     const user = await this.userModel
       .find({
         $and: [
-          { userName: new RegExp(escapeStringForRegex(query), 'i') },
+          { userName: new RegExp(`^${escapeStringForRegex(query.toLowerCase())}`, 'i') },
           { _id: { $nin: excludeUserIds } },
           { deleted: false },
           { status: ActiveStatus.Active },

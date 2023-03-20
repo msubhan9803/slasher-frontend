@@ -37,6 +37,7 @@ import CustomWortItText from '../../CustomWortItText';
 import { useAppSelector } from '../../../../redux/hooks';
 import { HOME_WEB_DIV_ID, NEWS_PARTNER_DETAILS_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
 import LoadingIndicator from '../../LoadingIndicator';
+import { customlinkifyOpts } from '../../../../utils/linkify-utils';
 
 const READ_MORE_TEXT_LIMIT = 300;
 
@@ -243,7 +244,8 @@ function PostFeed({
                 dangerouslySetInnerHTML={
                 {
                   __html: escapeHtml && !post?.spoiler
-                    ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content))))
+                    // eslint-disable-next-line max-len
+                    ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content)), customlinkifyOpts))
                     : cleanExternalHtmlContent(content),
                 }
               }

@@ -12,7 +12,10 @@ import { useAppSelector } from '../../../redux/hooks';
 import CharactersCounter from '../../../components/ui/CharactersCounter';
 import { updateUserAbout } from '../../../api/users';
 import useProgressButton from '../../../components/ui/ProgressButton';
-import { decryptMessage, escapeHtmlSpecialCharacters, newLineToBr } from '../../../utils/text-utils';
+import {
+  decryptMessage, escapeHtmlSpecialCharacters, newLineToBr,
+} from '../../../utils/text-utils';
+import { customlinkifyOpts } from '../../../utils/linkify-utils';
 
 interface Props {
   user: User
@@ -42,7 +45,7 @@ function ProfileAbout({ user }: Props) {
   const renderAboutMeText = (text: string) => {
     if (text && text.length > 0) {
       const safeAboutMeText = newLineToBr(
-        linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(text))),
+        linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(text)), customlinkifyOpts),
       );
 
       return (

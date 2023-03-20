@@ -9,7 +9,10 @@ import linkifyHtml from 'linkify-html';
 import styled from 'styled-components';
 import UserCircleImage from '../../UserCircleImage';
 import CustomPopover, { PopoverClickProps } from '../../CustomPopover';
-import { decryptMessage, escapeHtmlSpecialCharacters, newLineToBr } from '../../../../utils/text-utils';
+import {
+  decryptMessage, escapeHtmlSpecialCharacters, newLineToBr,
+} from '../../../../utils/text-utils';
+import { customlinkifyOpts } from '../../../../utils/linkify-utils';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -143,7 +146,8 @@ function CommentSection({
             dangerouslySetInnerHTML={
               {
                 __html: newLineToBr(
-                  linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(commentMsg))),
+                  // eslint-disable-next-line max-len
+                  linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(commentMsg)), customlinkifyOpts),
                 ),
               }
             }

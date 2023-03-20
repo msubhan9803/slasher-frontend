@@ -398,6 +398,7 @@ function PostDetail({ user, postType }: Props) {
             likeCount: res.data.likeCount,
             sharedList: res.data.sharedList,
             likeIcon: res.data.likedByUser,
+            likedByUser: res.data.likedByUser,
             rssfeedProviderId: res.data.rssfeedProviderId?._id,
           };
         } else if (postType === 'review') {
@@ -434,6 +435,7 @@ function PostDetail({ user, postType }: Props) {
             profileImage: res.data.userId.profilePic,
             userId: res.data.userId._id,
             likeIcon: res.data.likedByUser,
+            likedByUser: res.data.likedByUser,
             likeCount: res.data.likeCount,
             commentCount: res.data.commentCount,
           };

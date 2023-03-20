@@ -197,7 +197,7 @@ describe('Feed-Post / Post File (e2e)', () => {
         .field('message', '')
         .field('postType', PostType.User)
         .expect(HttpStatus.BAD_REQUEST);
-      expect(response.body.message).toBe('Posts must have a message or at least one image. No message or image received.');
+      expect(response.body.message).toBe('Posts must have a message or at least one image.');
     });
 
     it('only allows a maximum of 10 images', async () => {

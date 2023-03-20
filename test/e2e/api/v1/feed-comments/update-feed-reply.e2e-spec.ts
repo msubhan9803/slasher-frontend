@@ -415,7 +415,7 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
           .field('message', '')
           .field('imagesToDelete', (feedReply0.images[0] as any).id)
           .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toBe('Reply must have a message or at least one image. No message or image received.');
+        expect(response.body.message).toBe('Reply must have a message or at least one image.');
       });
 
     it('when reply has a already 4 images and add more 2 images than expected response', async () => {
@@ -482,7 +482,7 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
         .field('message', '');
       expect(response.body).toEqual({
         statusCode: 400,
-        message: 'Reply must have a message or at least one image. No message or image received.',
+        message: 'Reply must have a message or at least one image.',
       });
     });
 

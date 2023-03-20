@@ -35,14 +35,37 @@ const STATES_TO_REMOVE_FROM_US = [
 // eslint-disable-next-line max-len
 const filterUndesirableStatesFn = (state: string) => !STATES_TO_REMOVE_FROM_US.map((s) => s.toLowerCase()).includes(state.toLowerCase());
 
+/**
+ * We don't want following US states from the list we get from the
+ * api for US states as US has 50 states ~wikipedia
+ */
+const UnWantedUSstates = [
+  'Baker Island',
+  'Jarvis Island',
+  'Johnston Atoll',
+  'Kingman Reef',
+  'Midway Atoll',
+  'Navassa Island',
+  'Palmyra Atoll',
+  'United States Minor Outlying Islands',
+  'United States Virgin Islands',
+  'Wake Island',
+  'Howland Island',
+  // NOTE: We want to show `District of Columbia` in our list of US states.
+  // 'District of Columbia',
+];
+
 function getStatesbyCountryName(countryName: string): string[] {
   if (!countryName) { return []; }
   const countryIso = Country.getAllCountries().find((c) => c.name === countryName)?.isoCode;
   // If no country iso code found then use `countryName` as `state`
   if (!countryIso) { return [countryName]; }
-  const statesOfCountry = State.getStatesOfCountry(
+  let statesOfCountry = State.getStatesOfCountry(
     countryIso,
   ).map((state) => state.name).filter(filterUndesirableStatesFn);
+  if (countryName === 'United States') {
+    statesOfCountry = statesOfCountry.filter((state) => !UnWantedUSstates.includes(state));
+  }
   // If country has no states then use `countryName` as `state`
   return statesOfCountry.length === 0 ? [countryName] : statesOfCountry;
 }

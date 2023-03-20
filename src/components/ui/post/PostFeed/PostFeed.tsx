@@ -269,7 +269,7 @@ function PostFeed({
                       : cleanExternalHtmlContent(content),
                   }
                 }
-                onClick={() => onPostContentClick(post)}
+                onClick={() => !detailPage && onPostContentClick(post)}
               />
               {
                 post.hashTag?.map((hashtag: string) => (

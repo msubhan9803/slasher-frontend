@@ -43,7 +43,7 @@ const StyleTabs = styled(Tabs)`
 `;
 const CustomModal = styled(Modal)`
   .modal-content {
-    background-var(--bs-black)
+    background: var(--bs-black);
   }
   .btn-close {
     display:none;

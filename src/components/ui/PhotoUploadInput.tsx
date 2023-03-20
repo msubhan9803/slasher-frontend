@@ -74,7 +74,7 @@ function PhotoUploadInput({
       <FontAwesomeIcon
         icon={solid('camera')}
         size="lg"
-        className="text-light bg-secondary p-3 rounded-circle "
+        className="text-secondary bg-primary p-3 rounded-circle "
       />
     ));
 
@@ -118,16 +118,13 @@ function PhotoUploadInput({
             : undefined
         }
         variant="link"
-        className={
-          `p-1 d-flex align-items-center justify-content-center text-center position-absolute rounded-circle ${(photo || imageUrl) ? 'bg-white text-secondary' : 'bg-secondary text-white'}`
-        }
+        className="p-1 d-flex align-items-center justify-content-center text-center position-absolute rounded-circle bg-primary text-secondary"
         aria-label="photo"
       >
         <FontAwesomeIcon
           icon={(photo || imageUrl) ? solid('times') : solid('plus')}
           size="sm"
           role="button"
-          color="var(--bs-primary)"
         />
       </CornerIconButton>
     </StyledImageUploadContainer>

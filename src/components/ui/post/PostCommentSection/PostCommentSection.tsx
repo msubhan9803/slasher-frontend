@@ -489,6 +489,36 @@ function PostCommentSection({
                             </div>
                           ))}
 
+                      {
+                        isReply
+                        && (selectedReplyCommentId === data.id
+                          || selectedReplyCommentId === data.commentReplySection[0]?.feedCommentId
+                          || data.commentReplySection.some(
+                            (item: any) => item.newComment === true && item.id === selectedReplyId,
+                          )
+                        ) && (
+                          <div id={scrollId} ref={tabsRef}>
+                            <CommentInput
+                              userData={userData}
+                              message={replyMessage}
+                              inputFile={replyInputFile}
+                              handleFileChange={handleFileChange}
+                              sendComment={sendComment}
+                              imageArray={replyImageArray}
+                              handleRemoveFile={handleRemoveFile}
+                              dataId={data.id}
+                              handleSearch={handleSearch}
+                              mentionList={mentionList}
+                              isReply
+                              replyImageArray={replyImageArray}
+                              addUpdateReply={addUpdateReply}
+                              commentID={selectedReplyCommentId}
+                              commentReplyID={selectedReplyId!}
+                            />
+                          </div>
+                        )
+                      }
+
                       {data.commentReplySection
                         && data.commentReplySection.length >= 1
                         && data.commentReplySection.length - data.isReplyIndex > 0
@@ -535,7 +565,7 @@ function PostCommentSection({
                                       ),
                                     ).length : 0
                                   )
-                                ) === 1 ? 'comment' : 'comments'}`}
+                                ) === 1 ? 'reply' : 'replies'}`}
                             </Button>
                           </LoadMoreCommentsWrapper>
                         )}
@@ -552,35 +582,7 @@ function PostCommentSection({
                           </div>
                         ),
                       )}
-                      {
-                        isReply
-                        && (selectedReplyCommentId === data.id
-                          || selectedReplyCommentId === data.commentReplySection[0]?.feedCommentId
-                          || data.commentReplySection.some(
-                            (item: any) => item.newComment === true && item.id === selectedReplyId,
-                          )
-                        ) && (
-                          <div id={scrollId} ref={tabsRef}>
-                            <CommentInput
-                              userData={userData}
-                              message={replyMessage}
-                              inputFile={replyInputFile}
-                              handleFileChange={handleFileChange}
-                              sendComment={sendComment}
-                              imageArray={replyImageArray}
-                              handleRemoveFile={handleRemoveFile}
-                              dataId={data.id}
-                              handleSearch={handleSearch}
-                              mentionList={mentionList}
-                              isReply
-                              replyImageArray={replyImageArray}
-                              addUpdateReply={addUpdateReply}
-                              commentID={selectedReplyCommentId}
-                              commentReplyID={selectedReplyId!}
-                            />
-                          </div>
-                        )
-                      }
+
                     </div>
                   </div>
                 </Col>

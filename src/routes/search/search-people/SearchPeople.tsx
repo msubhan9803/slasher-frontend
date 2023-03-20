@@ -88,7 +88,7 @@ function SearchPeople() {
       {
         searchPeople && searchPeople.length === 0
           ? 'No users found'
-          : 'No more results'
+          : ''
       }
     </p>
   );

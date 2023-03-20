@@ -122,8 +122,8 @@ function ShoppingEdit() {
         </Col>
       </Row>
       <StyleButton className="mt-3 mb-1 d-block d-md-flex justify-content-between align-items-center">
-        <RoundButton className="update-btn fs-3 fw-bold px-3">Update listing</RoundButton>
-        <RoundButton className="deactivate-btn mt-4 mt-md-0 fs-3 fw-bold px-4 bg-black text-white">
+        <RoundButton className="update-btn px-3">Update listing</RoundButton>
+        <RoundButton className="deactivate-btn mt-4 mt-md-0 px-4 bg-black text-white">
           Deactivate listing
         </RoundButton>
       </StyleButton>

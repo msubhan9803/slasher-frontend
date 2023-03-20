@@ -9,10 +9,9 @@ import linkifyHtml from 'linkify-html';
 import styled from 'styled-components';
 import UserCircleImage from '../../UserCircleImage';
 import CustomPopover, { PopoverClickProps } from '../../CustomPopover';
-import {
-  decryptMessage, escapeHtmlSpecialCharacters, newLineToBr,
-} from '../../../../utils/text-utils';
 import { customlinkifyOpts } from '../../../../utils/linkify-utils';
+import { decryptMessage, escapeHtmlSpecialCharacters, newLineToBr } from '../../../../utils/text-utils';
+import ZoomableImageThumbnail from '../../ZoomableImageThumbnail';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -155,7 +154,7 @@ function CommentSection({
           <div className="d-flex flex-wrap">
             {images && images.length > 0 && images.map((imageC: ImageList) => (
               <div key={imageC._id} className="me-3">
-                <UserCircleImage size="5.625rem" src={imageC.image_path} alt={`${imageC._id} picture`} className="mt-2 rounded" />
+                <ZoomableImageThumbnail src={imageC.image_path} alt={`${imageC._id} picture`} className="mt-3" />
               </div>
             ))}
           </div>

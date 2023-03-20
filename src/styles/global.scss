@@ -48,6 +48,10 @@ body {
   }
 }
 
+abbr[title] {
+  cursor: default;
+}
+
 .page-wrapper {
   min-height: 100vh;
   display: flex;
@@ -73,6 +77,10 @@ a:not(.btn) {
   }
 }
 
+.cursor-zoom-in {
+  cursor: zoom-in !important;
+}
+
 // This class is often used with flex box and truncated (ellipsis) text
 .min-width-0 {
   min-width: 0;
@@ -80,7 +88,7 @@ a:not(.btn) {
 
 // Many of our desktop screens have dark background that become transparent on mobile
 .bg-mobile-transparent {
-  @media(max-width: 991px) {
+  @media(max-width: 979px) {
     background-color: transparent !important;
   }
 }
@@ -295,10 +303,10 @@ textarea {
 
 .form-control:focus-visible {
   outline: none !important;
-  box-shadow: 0 0 0 3px rgba($stroke-and-line-separator-color, .5);
+  box-shadow: 0 0 0 1px rgba($stroke-and-line-separator-color, .5);
 }
 
 :focus-visible {
   outline: none !important;
-  box-shadow: 0 0 0 3px rgba($stroke-and-line-separator-color, .5);
+  box-shadow: 0 0 0 1px rgba($stroke-and-line-separator-color, .5);
 }

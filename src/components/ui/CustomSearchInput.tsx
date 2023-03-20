@@ -40,7 +40,6 @@ function CustomSearchInput({ label, setSearch, search }: SearchProps) {
   return (
     <StyledSearchInput>
       <FormControl
-        className="fs-5"
         placeholder={label}
         addon-label="search"
         aria-describedby="search"

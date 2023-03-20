@@ -132,8 +132,8 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
         </Col>
       </Row>
       <div className="d-block align-items-center justify-content-center justify-content-xl-between">
-        <Row>
-          <div className="d-flex justify-content-between my-3 text-light px-0">
+        <Row className="align-items-center">
+          <Col className="d-flex justify-content-between my-3 text-light px-0">
             <div className="d-flex">
               <p className="m-0 fs-3 align-self-center">{DateTime.fromJSDate(new Date(aboutMovieDetail?.mainData?.release_date)).toFormat('yyyy')}</p>
               {getCertification() && (
@@ -147,7 +147,9 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                 {toHoursAndMinutes(aboutMovieDetail && aboutMovieDetail?.mainData?.runtime)}
               </p>
             </div>
-            <div>
+          </Col>
+          <Col xs={6} md={3} className="p-0">
+            <div className="d-flex justify-content-end justify-content-md-center me-md-3">
               <BorderButton
                 buttonClass="d-flex share-btn bg-black"
                 variant="black"
@@ -158,7 +160,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                 handleClick={handleShowShareLinks}
               />
             </div>
-          </div>
+          </Col>
           {aboutMovieDetail?.mainData?.production_countries.length > 0
             && (
               <p className="mb-3 text-light p-0">

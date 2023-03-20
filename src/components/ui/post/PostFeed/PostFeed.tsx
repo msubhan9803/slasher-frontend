@@ -80,6 +80,11 @@ interface Props {
   setShowReviewDetail?: (value: boolean) => void;
   onSpoilerClick?: (value: string) => void;
 }
+
+interface StyledProps {
+  detailsPage: boolean;
+}
+
 const StyledPostFeed = styled.div`
     .post-separator {
       border-top: 1px solid var(--bs-light);
@@ -98,9 +103,9 @@ const StyleSpoilerButton = styled(RoundButton)`
   height: 42px;
 `;
 
-const StyledContentContainer = styled.div`
+const StyledContentContainer = styled.div<StyledProps>`
   max-width: max-content;
-  cursor: pointer;
+  cursor: ${(props) => (!props?.detailsPage ? 'pointer' : 'auto')};
 `;
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
@@ -256,6 +261,7 @@ function PostFeed({
             <span>
               {/* eslint-disable-next-line react/no-danger */}
               <StyledContentContainer
+                detailsPage={detailPage ?? false}
                 dangerouslySetInnerHTML={
                   {
                     __html: escapeHtml && !post?.spoiler

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import {
-  Button, Image, Modal,
+  Button, Image,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import CustomModal from './CustomModal';
+import ZoomableImageModal from './ZoomingImageModal';
 
 interface Props {
   src: string;
@@ -20,14 +20,6 @@ const StyledImage = styled(Image).attrs({ className: 'rounded' })`
   object-fit: cover;
 `;
 
-const FullscreenImage = styled(Image)`
-  display: block;
-  max-width: 100%;
-  max-height: 100%;
-  height: auto;
-  margin: auto;
-`;
-
 function ZoomableImageThumbnail({ src, className, alt }: Props) {
   const [showZoomModal, setShowZoomModal] = useState(false);
 
@@ -40,14 +32,12 @@ function ZoomableImageThumbnail({ src, className, alt }: Props) {
           style={{ width: size, height: size }}
         />
       </Button>
-      <CustomModal show={showZoomModal} fullscreen onHide={() => setShowZoomModal(false)}>
-        <Modal.Header closeButton />
-        <Modal.Body>
-          <div className="w-100 h-100 d-flex align-items-center">
-            <FullscreenImage alt={alt} src={src} className="" />
-          </div>
-        </Modal.Body>
-      </CustomModal>
+      <ZoomableImageModal
+        imgSrc={src}
+        imgAlt={alt}
+        show={showZoomModal}
+        onHide={() => setShowZoomModal(false)}
+      />
     </div>
   );
 }

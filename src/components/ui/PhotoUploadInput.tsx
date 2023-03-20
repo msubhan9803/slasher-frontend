@@ -127,6 +127,7 @@ function PhotoUploadInput({
           icon={(photo || imageUrl) ? solid('times') : solid('plus')}
           size="sm"
           role="button"
+          color="var(--bs-primary)"
         />
       </CornerIconButton>
     </StyledImageUploadContainer>

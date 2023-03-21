@@ -14,8 +14,8 @@ import { PostType } from '../../schemas/feedPost/feedPost.enums';
 import { WorthWatchingStatus } from '../../types';
 
 export class MoviePostDto {
-  @IsNotEmpty()
-  @MaxLength(150)
+  @IsNotEmpty({ message: 'title should not be empty' })
+  @MaxLength(150, { message: 'title should not exceed 150 characters' })
   title: string;
 
   @IsNotEmpty()
@@ -59,7 +59,7 @@ export class CreateFeedPostsDto {
 
   @IsOptional()
   @Type(() => MoviePostDto)
-  @ValidateNested()
+  @ValidateNested({ each: true })
   moviePostFields: MoviePostDto;
 
   @IsOptional()

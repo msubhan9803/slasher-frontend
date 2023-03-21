@@ -173,7 +173,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
         .field('message', '')
         .field('feedPostId', feedPost._id.toString())
         .expect(HttpStatus.BAD_REQUEST);
-      expect(response.body.message).toBe('Posts must have a message or at least one image. No message or image received.');
+      expect(response.body.message).toBe('Comment must have a message or at least one image.');
     });
 
     it('allows the creation of a comments with only files, but no message', async () => {

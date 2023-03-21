@@ -181,7 +181,7 @@ function PostFeed({
     if (post.rssFeedTitle) {
       /* eslint-disable no-useless-escape */
       const pattern = new RegExp(`<(h[1-6])[^>]*>${post.rssFeedTitle}<\/(h[1-6])>`);
-      content = content.replace(pattern, '');
+      content = content.replace(/&nbsp;/g, ' ').replace(pattern, '');
     }
 
     let showReadMoreLink = false;

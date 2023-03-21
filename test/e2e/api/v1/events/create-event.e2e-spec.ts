@@ -462,39 +462,6 @@ describe('Events create / (e2e)', () => {
         expect(allFilesNames).toEqual(['.keep']);
       });
 
-      it('city should not be empty', async () => {
-        postBody.city = '';
-        await createTempFiles(async (tempPath) => {
-          const response = await request(app.getHttpServer())
-            .post('/api/v1/events')
-            .auth(activeUserAuthToken, { type: 'bearer' })
-            .set('Content-Type', 'multipart/form-data')
-            .field('name', postBody.name)
-            .field('userId', postBody.userId)
-            .field('event_type', postBody.event_type)
-            .field('startDate', postBody.startDate)
-            .field('endDate', postBody.endDate)
-            .field('country', postBody.country)
-            .field('state', postBody.state)
-            .field('city', postBody.city)
-            .field('address', postBody.address)
-            .field('event_info', postBody.event_info)
-            .field('url', postBody.url)
-            .field('author', postBody.author)
-            .attach('files', tempPath[0])
-            .attach('files', tempPath[1])
-            .attach('files', tempPath[2])
-            .attach('files', tempPath[3])
-            .expect(HttpStatus.BAD_REQUEST);
-
-          expect(response.body.message).toContain('city should not be empty');
-        }, [{ extension: 'png' }, { extension: 'png' }, { extension: 'png' }, { extension: 'png' }]);
-
-        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
-        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-        expect(allFilesNames).toEqual(['.keep']);
-      });
-
       it('city must be shorter than or equal to 100 characters', async () => {
         postBody.city = new Array(102).join('c');
         await createTempFiles(async (tempPath) => {
@@ -528,39 +495,6 @@ describe('Events create / (e2e)', () => {
         expect(allFilesNames).toEqual(['.keep']);
       });
 
-      it('address should not be empty', async () => {
-        postBody.address = '';
-        await createTempFiles(async (tempPath) => {
-          const response = await request(app.getHttpServer())
-            .post('/api/v1/events')
-            .auth(activeUserAuthToken, { type: 'bearer' })
-            .set('Content-Type', 'multipart/form-data')
-            .field('name', postBody.name)
-            .field('userId', postBody.userId)
-            .field('event_type', postBody.event_type)
-            .field('startDate', postBody.startDate)
-            .field('endDate', postBody.endDate)
-            .field('country', postBody.country)
-            .field('state', postBody.state)
-            .field('city', postBody.city)
-            .field('address', postBody.address)
-            .field('event_info', postBody.event_info)
-            .field('url', postBody.url)
-            .field('author', postBody.author)
-            .attach('files', tempPath[0])
-            .attach('files', tempPath[1])
-            .attach('files', tempPath[2])
-            .attach('files', tempPath[3])
-            .expect(HttpStatus.BAD_REQUEST);
-
-          expect(response.body.message).toContain('address should not be empty');
-        }, [{ extension: 'png' }, { extension: 'png' }, { extension: 'png' }, { extension: 'png' }]);
-
-        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
-        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-        expect(allFilesNames).toEqual(['.keep']);
-      });
-
       it('address must be shorter than or equal to 150 characters', async () => {
         postBody.address = new Array(155).join('b');
         await createTempFiles(async (tempPath) => {
@@ -587,39 +521,6 @@ describe('Events create / (e2e)', () => {
             .expect(HttpStatus.BAD_REQUEST);
 
           expect(response.body.message).toContain('address must be shorter than or equal to 150 characters');
-        }, [{ extension: 'png' }, { extension: 'png' }, { extension: 'png' }, { extension: 'png' }]);
-
-        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
-        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-        expect(allFilesNames).toEqual(['.keep']);
-      });
-
-      it('event_info should not be empty', async () => {
-        postBody.event_info = '';
-        await createTempFiles(async (tempPath) => {
-          const response = await request(app.getHttpServer())
-            .post('/api/v1/events')
-            .auth(activeUserAuthToken, { type: 'bearer' })
-            .set('Content-Type', 'multipart/form-data')
-            .field('name', postBody.name)
-            .field('userId', postBody.userId)
-            .field('event_type', postBody.event_type)
-            .field('startDate', postBody.startDate)
-            .field('endDate', postBody.endDate)
-            .field('country', postBody.country)
-            .field('state', postBody.state)
-            .field('city', postBody.city)
-            .field('address', postBody.address)
-            .field('event_info', postBody.event_info)
-            .field('url', postBody.url)
-            .field('author', postBody.author)
-            .attach('files', tempPath[0])
-            .attach('files', tempPath[1])
-            .attach('files', tempPath[2])
-            .attach('files', tempPath[3])
-            .expect(HttpStatus.BAD_REQUEST);
-
-          expect(response.body.message).toContain('event_info should not be empty');
         }, [{ extension: 'png' }, { extension: 'png' }, { extension: 'png' }, { extension: 'png' }]);
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)

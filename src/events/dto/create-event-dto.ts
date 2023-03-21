@@ -31,9 +31,11 @@ export class CreateEventDto {
   @MaxLength(100)
   state: string;
 
+  @IsOptional()
   @MaxLength(100)
   city: string;
 
+  @IsOptional()
   @MaxLength(1000)
   event_info: string;
 
@@ -45,6 +47,7 @@ export class CreateEventDto {
   @MaxLength(100)
   author: string;
 
+  @IsOptional()
   @MaxLength(150)
   address: string;
 }

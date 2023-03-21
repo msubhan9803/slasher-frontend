@@ -163,9 +163,31 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
       <div className="bg-dark my-3 p-4 pb-0 rounded-2">
         <Row className="justify-content-center">
           <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
-            <StyledMoviePoster className="mx-4">
-              <Image src={aboutMovieData?.mainData?.poster_path} alt="movie poster" className="rounded-3 w-100 h-100" />
-            </StyledMoviePoster>
+            <div>
+              <StyledMoviePoster className="mx-4">
+                <Image src={aboutMovieData?.mainData?.poster_path} alt="movie poster" className="rounded-3 w-100 h-100" />
+              </StyledMoviePoster>
+              <div className="d-none d-xl-block mt-3">
+                <p className="fs-5">Your lists</p>
+                <div className="mt-2 d-flex justify-content-between">
+                  {movieIconListData.map((iconList: MovieIconProps) => (
+                    <CustomGroupIcons
+                      key={iconList.key}
+                      label={iconList.label}
+                      icon={iconList.icon}
+                      iconColor={iconList.iconColor}
+                      width={iconList.width}
+                      height={iconList.height}
+                      addData={iconList.addMovie}
+                      onClickIcon={() => handleMovieAddRemove(iconList.key, iconList.addMovie)}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="p-3 d-none d-xl-block">
+                <RoundButton variant="black" className="w-100 fs-3">Add to list</RoundButton>
+              </div>
+            </div>
           </Col>
           <Col xl={7}>
             <AboutDetails
@@ -173,30 +195,6 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
               setMovieData={setMovieData}
               aboutMovieDetail={aboutMovieData as AdditionalMovieData}
             />
-          </Col>
-        </Row>
-        <Row>
-          <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
-            <div className="d-none d-xl-block mt-3">
-              <p className="fs-5">Your lists</p>
-              <div className="mt-2 d-flex justify-content-between">
-                {movieIconListData.map((iconList: MovieIconProps) => (
-                  <CustomGroupIcons
-                    key={iconList.key}
-                    label={iconList.label}
-                    icon={iconList.icon}
-                    iconColor={iconList.iconColor}
-                    width={iconList.width}
-                    height={iconList.height}
-                    addData={iconList.addMovie}
-                    onClickIcon={() => handleMovieAddRemove(iconList.key, iconList.addMovie)}
-                  />
-                ))}
-              </div>
-            </div>
-            <div className="p-3 d-none d-xl-block">
-              <RoundButton variant="black" className="w-100 fs-3">Add to list</RoundButton>
-            </div>
           </Col>
         </Row>
         {enableDevFeatures

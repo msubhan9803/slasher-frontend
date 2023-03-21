@@ -196,7 +196,7 @@ function ProfileEdit({ user }: Props) {
                   <h1 className="h3 mb-2 fw-bold">Change cover photo</h1>
                   <div className="d-block justify-content-center">
                     <p className="fs-5 text-light mb-0">
-                      Recommended size: 830x467 pixels
+                      Recommended size: 830x320 pixels
                     </p>
                     <p className="fs-5 text-light mb-0">
                       (jpg, png)

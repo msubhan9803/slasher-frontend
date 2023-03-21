@@ -204,7 +204,10 @@ function Home() {
       setPosts(updatePost);
     })
       .catch((error) => {
-        setErrorMessage(error.response.data.message);
+        const msg = error.response.status === 0 && !error.response.data
+          ? 'Combined size of files is too large.'
+          : error.response.data.message;
+        setErrorMessage(msg);
       });
   };
   const deletePostClick = () => {

@@ -12,6 +12,7 @@ import 'swiper/swiper-bundle.css';
 import Cookies from 'js-cookie';
 import InfiniteScroll from 'react-infinite-scroller';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import * as stringSimilarity from 'string-similarity';
 import PostFooter from './PostFooter';
 import {
   CommentValue, Post, PostButtonClickType, ReplyValue, WorthWatchingStatus,
@@ -37,6 +38,7 @@ import CustomWortItText from '../../CustomWortItText';
 import { useAppSelector } from '../../../../redux/hooks';
 import { HOME_WEB_DIV_ID, NEWS_PARTNER_DETAILS_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
 import LoadingIndicator from '../../LoadingIndicator';
+import { customlinkifyOpts } from '../../../../utils/linkify-utils';
 import { getLocalStorage } from '../../../../utils/localstorage-utils';
 
 const READ_MORE_TEXT_LIMIT = 300;
@@ -80,6 +82,11 @@ interface Props {
   setShowReviewDetail?: (value: boolean) => void;
   onSpoilerClick?: (value: string) => void;
 }
+
+interface StyledProps {
+  detailsPage: boolean;
+}
+
 const StyledPostFeed = styled.div`
     .post-separator {
       border-top: 1px solid var(--bs-light);
@@ -98,9 +105,9 @@ const StyleSpoilerButton = styled(RoundButton)`
   height: 42px;
 `;
 
-const StyledContentContainer = styled.div`
+const StyledContentContainer = styled.div<StyledProps>`
   max-width: max-content;
-  cursor: pointer;
+  cursor: ${(props) => (!props?.detailsPage ? 'pointer' : 'auto')};
 `;
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
@@ -179,9 +186,26 @@ function PostFeed({
     let { content } = post;
 
     if (post.rssFeedTitle) {
-      /* eslint-disable no-useless-escape */
-      const pattern = new RegExp(`<(h[1-6])[^>]*>${post.rssFeedTitle}<\/(h[1-6])>`);
-      content = content.replace(pattern, '');
+      // Posts almost always have a title, but sometimes the post title also appears redundantly in
+      // the content (and when it is in the content, we've always found it in an h1 tag so far).
+      // Having a double title display doesn't look good, so we'll remove the second title if we
+      // find it.
+      const firstH1TagRegex = /<h1[^>]*>(.+)<\/h1>/i;
+      const firstH1Tag = content.match(firstH1TagRegex)?.[0];
+      const firstH1TagContent = content.match(firstH1TagRegex)?.[1];
+
+      if (firstH1Tag && firstH1TagContent) {
+        // If the normalized title is very similar to the content from the first h1 tag, then we'll
+        // remove the h1 tag content.
+        const similarity = stringSimilarity.compareTwoStrings(post.rssFeedTitle, firstH1TagContent);
+        // Generally, differences between the title and the h1 title come from html-entity-encoded
+        // versions of the same characters in the h1 title.
+        // We may want to move this logic to the server side feed sync code later on.
+        if (similarity > 0.75) {
+          // Remove first h1 tag because a likely duplicate title was found.
+          content = content.replace(firstH1Tag, '');
+        }
+      }
     }
 
     let showReadMoreLink = false;
@@ -256,14 +280,16 @@ function PostFeed({
             <span>
               {/* eslint-disable-next-line react/no-danger */}
               <StyledContentContainer
+                detailsPage={detailPage ?? false}
                 dangerouslySetInnerHTML={
                   {
                     __html: escapeHtml && !post?.spoiler
-                      ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content))))
+                      // eslint-disable-next-line max-len
+                      ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content)), customlinkifyOpts))
                       : cleanExternalHtmlContent(content),
                   }
                 }
-                onClick={() => onPostContentClick(post)}
+                onClick={() => !detailPage && onPostContentClick(post)}
               />
               {
                 post.hashTag?.map((hashtag: string) => (

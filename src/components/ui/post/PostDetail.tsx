@@ -192,7 +192,6 @@ function PostDetail({ user, postType }: Props) {
             message: comment.commentMessage,
             userId: { ...userData.user, _id: userData.user.id },
             replies: [],
-            likeCount: 0,
             createdAt: new Date().toISOString(),
           };
           if (updateCommentArray[index]._id === res.data._id) {
@@ -208,7 +207,10 @@ function PostDetail({ user, postType }: Props) {
           setIsEdit(false);
         })
         .catch((error) => {
-          setCommentErrorMessage(error.response?.data.message);
+          const msg = error.response.status === 0 && !error.response.data
+            ? 'Combined size of files is too large.'
+            : error.response.data.message;
+          setCommentErrorMessage(msg);
         });
     } else if (comment.commentMessage || comment.imageArr?.length) {
       addFeedComments(
@@ -239,7 +241,10 @@ function PostDetail({ user, postType }: Props) {
           setCommentErrorMessage([]);
         })
         .catch((error) => {
-          setCommentErrorMessage(error.response.data.message);
+          const msg = error.response.status === 0 && !error.response.data
+            ? 'Combined size of files is too large.'
+            : error.response.data.message;
+          setCommentErrorMessage(msg);
         });
     }
   };
@@ -290,7 +295,10 @@ function PostDetail({ user, postType }: Props) {
           setCommentErrorMessage([]);
           setIsEdit(false);
         }).catch((error) => {
-          setCommentErrorMessage(error.response.data.message);
+          const msg = error.response.status === 0 && !error.response.data
+            ? 'Combined size of files is too large.'
+            : error.response.data.message;
+          setCommentErrorMessage(msg);
         });
     } else if (reply.replyMessage || reply?.imageArr?.length) {
       addFeedReplyComments(
@@ -322,7 +330,10 @@ function PostDetail({ user, postType }: Props) {
         setCommentErrorMessage([]);
         setCommentID('');
       }).catch((error) => {
-        setCommentErrorMessage(error.response.data.message);
+        const msg = error.response.status === 0 && !error.response.data
+          ? 'Combined size of files is too large.'
+          : error.response.data.message;
+        setCommentErrorMessage(msg);
       });
     }
   };
@@ -387,6 +398,7 @@ function PostDetail({ user, postType }: Props) {
             likeCount: res.data.likeCount,
             sharedList: res.data.sharedList,
             likeIcon: res.data.likedByUser,
+            likedByUser: res.data.likedByUser,
             rssfeedProviderId: res.data.rssfeedProviderId?._id,
           };
         } else if (postType === 'review') {
@@ -423,6 +435,7 @@ function PostDetail({ user, postType }: Props) {
             profileImage: res.data.userId.profilePic,
             userId: res.data.userId._id,
             likeIcon: res.data.likedByUser,
+            likedByUser: res.data.likedByUser,
             likeCount: res.data.likeCount,
             commentCount: res.data.commentCount,
           };
@@ -449,7 +462,10 @@ function PostDetail({ user, postType }: Props) {
         setCheckPostUpdate(true);
       })
         .catch((error) => {
-          setErrorMessage(error.response.data.message);
+          const msg = error.response.status === 0 && !error.response.data
+            ? 'Combined size of files is too large.'
+            : error.response.data.message;
+          setErrorMessage(msg);
         });
     } else {
       setShow(false);

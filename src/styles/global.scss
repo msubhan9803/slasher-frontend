@@ -77,6 +77,10 @@ a:not(.btn) {
   }
 }
 
+.cursor-zoom-in {
+  cursor: zoom-in !important;
+}
+
 // This class is often used with flex box and truncated (ellipsis) text
 .min-width-0 {
   min-width: 0;
@@ -84,7 +88,7 @@ a:not(.btn) {
 
 // Many of our desktop screens have dark background that become transparent on mobile
 .bg-mobile-transparent {
-  @media(max-width: 991px) {
+  @media(max-width: 979px) {
     background-color: transparent !important;
   }
 }

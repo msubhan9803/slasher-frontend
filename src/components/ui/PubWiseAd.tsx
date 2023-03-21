@@ -19,6 +19,8 @@ interface PubWiseAdTypes {
   autoSequencer?: boolean
 }
 
+const SponsoredElement = <h2 className="text-center my-2 fs-6 fw-normal">Sponsored</h2>;
+
 function PubWiseAdUnit({ id, style, className }: PubWiseAdTypes) {
   useEffect(() => {
     if (!window.gptadslots[id]) {
@@ -38,7 +40,12 @@ function PubWiseAdUnit({ id, style, className }: PubWiseAdTypes) {
     }
   }, [id]);
 
-  return <div style={style} className={className} id={id} />;
+  return (
+    <div>
+      <div style={style} className={className} id={id} />
+      {SponsoredElement}
+    </div>
+  );
 }
 
 const PlaceHolderAdUnit = styled.div`
@@ -53,7 +60,7 @@ function PlaceHolderAd({ className, style }: any) {
       <PlaceHolderAdUnit className={`d-flex justify-content-center align-items-center mx-auto ${className}`} style={style}>
         Slasher Ad
       </PlaceHolderAdUnit>
-      <h2 className="text-center my-2 fs-6 fw-normal">Sponsored</h2>
+      {SponsoredElement}
     </div>
   );
 }

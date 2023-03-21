@@ -17,6 +17,7 @@ import { StyledBorder } from '../../../components/ui/StyledBorder';
 import { LinearIcon } from '../../../components/ui/FavoriteLinearIcon';
 import ShareLinksModal from '../../../components/ui/ShareLinksModal';
 import { enableDevFeatures } from '../../../utils/configEnvironment';
+import { customlinkifyOpts } from '../../../utils/linkify-utils';
 
 const EventBanner = styled.div`
   aspect-ratio : 1.78;
@@ -144,7 +145,7 @@ function EventDetails() {
             dangerouslySetInnerHTML={
               {
                 __html: newLineToBr(
-                  linkifyHtml(escapeHtmlSpecialCharacters(eventDetails?.event_info || '')),
+                  linkifyHtml(escapeHtmlSpecialCharacters(eventDetails?.event_info || ''), customlinkifyOpts),
                 ),
               }
             }

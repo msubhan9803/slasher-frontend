@@ -168,7 +168,10 @@ function ProfilePosts({ user }: Props) {
       setPosts(updatePost);
     })
       .catch((error) => {
-        setEditModalErrorMessage(error.response.data.message);
+        const msg = error.response.status === 0 && !error.response.data
+          ? 'Combined size of files is too large.'
+          : error.response.data.message;
+        setEditModalErrorMessage(msg);
       });
   };
   const deletePostClick = () => {

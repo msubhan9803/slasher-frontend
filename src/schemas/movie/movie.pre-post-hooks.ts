@@ -39,6 +39,11 @@ export function addPrePostHooks(schema: typeof MovieSchema) {
     }
   });
 
+  schema.post<MovieDocument>('findOneAndUpdate', async function (doc: MovieDocument) {
+    // eslint-disable-next-line no-param-reassign
+    doc.sortRating = generateSortRating(this.rating, this.id);
+    await doc.save();
+  });
   schema.post<MovieDocument>('save', async function () {
     // If, AFTER a save, id AND name have values but sort_name does not, then this is
     // probably a first-time save and we should set the sort_name value based on the name

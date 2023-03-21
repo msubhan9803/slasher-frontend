@@ -16,6 +16,7 @@ import { createBlockUser } from '../../../../api/blocks';
 import { reportData } from '../../../../api/report';
 import ReportModal from '../../ReportModal';
 import EditCommentModal from '../../editCommentModal';
+import ErrorMessageList from '../../ErrorMessageList';
 
 const LoadMoreCommentsWrapper = styled.div.attrs({ className: 'text-center' })`
   margin: -1rem 0 1rem;
@@ -47,7 +48,10 @@ function PostCommentSection({
   commentImages,
   setCommentImages,
   commentError,
+  commentReplyError,
+  commentSent
 }: any) {
+  console.log("PostCommentSection commentReplyError", commentReplyError)
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
@@ -75,7 +79,8 @@ function PostCommentSection({
   const [scrollId, setScrollId] = useState<string>('');
   const [selectedReplyId, setSelectedReplyId] = useState<string | null>('');
   const [updatedReply, setUpdatedReply] = useState<boolean>(false);
-
+  // console.log("commentData", commentData)
+  // console.log("commentError..", commentError)
   const checkPopover = (id: string) => {
     if (id === loginUserId) {
       return popoverOption;
@@ -223,19 +228,36 @@ function PostCommentSection({
     setImageArray([]);
   }, [isReply]);
 
-  const sendComment = (commentId?: string) => {
-    if (!commentId) {
-      setMessage('');
-      setImageArray([]);
-    } else {
-      setIsReply(false);
-      setReplyMessage('');
-      setReplyImageArray([]);
-      setUpdatedReply(true);
+  const sendComment = (commentId?: string, msg?: string) => {
+    debugger
+    // console.log("commentReplyError..**", commentReplyError)
+
+    if (msg !== "" || imageArray.length > 0 || replyImageArray.length > 0) {
+
+      if (!commentId) {
+        setMessage('');
+        setImageArray([]);
+      }
+      if ((commentReplyError && commentReplyError.length) || (commentError && commentError.length)) {
+        console.log("errror if", commentReplyError)
+        setIsReply(true);
+        setReplyMessage(msg!);
+        setReplyUserName(replyUserName);
+        // setSelectedReplyId(selectedReplyId);
+      } else {
+        console.log("error else");
+        setIsReply(false);
+        setReplyMessage('');
+        setReplyUserName('');
+        setImageArray([])
+        setReplyImageArray([])
+        // setReplyIndex(1);
+        // setSelectedReplyId('');
+      }
+      setUploadPost([]);
     }
-    setUploadPost([]);
-    setSelectedReplyId('');
-    setReplyUserName('');
+
+    // setSelectedReplyId('');
   };
 
   const handlePopover = (value: string, popoverData: PopoverClickProps) => {
@@ -432,6 +454,9 @@ function PostCommentSection({
         addUpdateComment={addUpdateComment}
         commentID={selectedReplyCommentId}
         checkCommnt="comments"
+        commentError={commentError}
+        commentReplyError={commentReplyError}
+        commentSent={commentSent}
       />
       {commentData && commentData.length > 0 && queryCommentId && previousCommentsAvailable
         && (
@@ -514,7 +539,13 @@ function PostCommentSection({
                               addUpdateReply={addUpdateReply}
                               commentID={selectedReplyCommentId}
                               commentReplyID={selectedReplyId!}
+                              commentError={commentError}
+                              commentReplyError={commentReplyError}
+                              commentSent={commentSent}
                             />
+                            {commentReplyError &&
+                              <ErrorMessageList errorMessages={commentReplyError} divClass="mt-3 text-start" className="m-0" />
+                            }
                           </div>
                         )
                       }
@@ -571,16 +602,18 @@ function PostCommentSection({
                         )}
 
                       {data.commentReplySection.map(
-                        (comment: any, replyCommentIndex: number) => (
-                          <div key={comment.id}>
-                            {(replyCommentIndex === (data.commentReplySection.length - 1))
-                              && (comment.newComment)
-                              && !isReply
-                              && data.id === selectedReplyCommentId
-                              ? oldReply(comment, replyCommentIndex)
-                              : null}
-                          </div>
-                        ),
+                        (comment: any, replyCommentIndex: number) => {
+                          return (
+                            <div key={comment.id}>
+                              {(replyCommentIndex === (data.commentReplySection.length - 1))
+                                && (comment.newComment)
+                                && !isReply
+                                && data.id === selectedReplyCommentId
+                                ? oldReply(comment, replyCommentIndex)
+                                : null}
+                            </div>
+                          )
+                        },
                       )}
 
                     </div>

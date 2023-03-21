@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  useEffect, useState, ChangeEvent,
+  useEffect, useState, ChangeEvent, useMemo,
 } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -14,6 +14,7 @@ import ImagesContainer from '../../ImagesContainer';
 import { decryptMessage } from '../../../../utils/text-utils';
 import MessageTextarea from '../../MessageTextarea';
 import { FormatMentionProps } from '../../../../routes/posts/create-post/CreatePost';
+import ErrorMessageList from '../../ErrorMessageList';
 
 interface CommentInputProps {
   userData: any;
@@ -21,7 +22,7 @@ interface CommentInputProps {
   setIsReply?: (value: boolean) => void;
   inputFile: any;
   handleFileChange: (value: ChangeEvent<HTMLInputElement>, replyUserId?: string) => void;
-  sendComment: (value: string) => void;
+  sendComment: (value: string, value1: string) => void;
   imageArray: any;
   handleRemoveFile: (postImage: File, replyUserId?: string) => void;
   dataId?: string;
@@ -34,6 +35,9 @@ interface CommentInputProps {
   commentID: string;
   commentReplyID?: string;
   checkCommnt?: string;
+  commentError?: string[];
+  commentReplyError?: string[];
+  commentSent?: boolean
 }
 
 interface InputProps {
@@ -66,16 +70,20 @@ function CommentInput({
   userData, message, setIsReply, inputFile,
   handleFileChange, sendComment, imageArray, handleRemoveFile, dataId,
   handleSearch, mentionList, addUpdateComment, replyImageArray, isReply,
-  addUpdateReply, commentID, commentReplyID, checkCommnt,
+  addUpdateReply, commentID, commentReplyID, checkCommnt, commentError, commentReplyError, commentSent
 }: CommentInputProps) {
+  console.log("commentReplyError CommentInput", commentReplyError)
   const [editMessage, setEditMessage] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const [isFocosInput, setIsFocusInput] = useState<boolean>(false);
+
   useEffect(() => {
     if (message) {
+      debugger
       const regexMessgafe = isReply && commentReplyID
         ? `##LINK_ID##${commentReplyID}${message}##LINK_END## `
         : `##LINK_ID##${commentID}${message}##LINK_END## `;
+
       setEditMessage(regexMessgafe);
     } else {
       setEditMessage('');
@@ -83,9 +91,11 @@ function CommentInput({
   }, [message, commentID, isReply, commentReplyID]);
 
   useEffect(() => {
+
     if (editMessage) {
       const mentionStringList = editMessage.match(/##LINK_ID##[a-zA-Z0-9@_.-]+##LINK_END##/g);
       if (mentionStringList) {
+        console.log("mentionStringList", mentionStringList)
         const finalFormatMentionList = Array.from(new Set(mentionStringList))
           .map((mentionString: string) => {
             const id = mentionString.match(/([a-f\d]{24})/g)![0];
@@ -98,26 +108,55 @@ function CommentInput({
       }
     }
   }, [editMessage]);
-  const onUpdatePost = (msg: string) => {
+
+  useEffect(() => {
+    if (commentError! && commentError.length) {
+      // console.log("hhhhh111111", commentError)
+      setEditMessage(editMessage);
+    } else {
+      // console.log("hhhhh2222")
+      setEditMessage('');
+    }
+  }, [commentError]);
+  useEffect(() => {
+    if (commentReplyError! && commentReplyError.length) {
+      setEditMessage(editMessage);
+    } else {
+      setEditMessage('');
+    }
+  }, [commentReplyError]);
+
+  useEffect(() => {
+    // debugger
+    console.log("commentSEnt@@", commentSent)
+
+    if (!commentSent) {
+      sendComment(dataId!, editMessage);
+    }
+  }, [commentSent])
+
+  const onUpdatePost = async (msg: string) => {
+    // debugger
     const imageArr = isReply ? replyImageArray : imageArray;
     if (msg || imageArr.length) {
       if (isReply) {
-        addUpdateReply!({
+        await addUpdateReply!({
           replyMessage: msg,
           commentId: dataId,
           imageArr,
           commentReplyID,
-        });
+        })
       } else {
-        addUpdateComment!({
+        await addUpdateComment!({
           commentMessage: msg,
           commentId: dataId,
           imageArr,
         });
       }
-      sendComment(dataId! && dataId!);
-      setEditMessage('');
+      // await sendComment(dataId!, editMessage);
     }
+
+
   };
 
   const mentionReplacementMatchFunc = (match: string) => {
@@ -199,7 +238,7 @@ function CommentInput({
                 />
               </InputGroup.Text>
             </StyledCommentInputGroup>
-            <Button onClick={handleMessage} variant="link" aria-label="submit" className="ms-2 p-0">
+            <Button onClick={() => handleMessage()} variant="link" aria-label="submit" className="ms-2 p-0">
               <FontAwesomeIcon icon={solid('paper-plane')} style={{ fontSize: '26px' }} className="text-primary" />
             </Button>
           </div>
@@ -227,6 +266,8 @@ function CommentInput({
           </Col>
         ))}
       </Row>
+      <ErrorMessageList errorMessages={commentError} divClass="mt-3 text-start" className="m-0" />
+      {/* <ErrorMessageList errorMessages={commentReplyError} divClass="mt-3 text-start" className="m-0" /> */}
     </Form>
   );
 }
@@ -240,6 +281,9 @@ CommentInput.defaultProps = {
   addUpdateComment: undefined,
   setIsReply: undefined,
   checkCommnt: '',
+  commentError: undefined,
+  commentReplyError: undefined,
+  commentSent: undefined
 };
 
 export default CommentInput;

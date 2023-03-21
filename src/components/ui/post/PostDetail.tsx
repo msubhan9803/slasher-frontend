@@ -51,6 +51,8 @@ function PostDetail({ user, postType }: Props) {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState<string[]>([]);
   const [commentErrorMessage, setCommentErrorMessage] = useState<string[]>([]);
+  const [commentReplyErrorMessage, setCommentReplyErrorMessage] = useState<string[]>([]);
+  // console.log("commentReplyErrorMessage", commentReplyErrorMessage)
   const [postData, setPostData] = useState<Post[]>([]);
   const [show, setShow] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
@@ -74,11 +76,16 @@ function PostDetail({ user, postType }: Props) {
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const [checkPostUpdate, setCheckPostUpdate] = useState<boolean>(false);
+  const [commentSent, setCommentSent] = useState<boolean>(false);
   const scrollPositionRef = useRef(scrollPosition);
 
   useEffect(() => {
     scrollPositionRef.current = scrollPosition;
   });
+
+  useEffect(() => {
+    console.log("updated state##", updateState)
+  }, [updateState])
 
   useEffect(() => {
     if (checkPostUpdate && scrollPositionRef.current.data.length > 0) {
@@ -163,6 +170,7 @@ function PostDetail({ user, postType }: Props) {
   };
 
   const addUpdateComment = (comment: CommentValue) => {
+    setCommentSent(true)
     let commentValueData: any = {
       feedPostId: '',
       images: [],
@@ -204,6 +212,7 @@ function PostDetail({ user, postType }: Props) {
           setCommentData(updateCommentArray);
           setUpdateState(true);
           setCommentErrorMessage([]);
+          setCommentSent(false)
           setIsEdit(false);
         })
         .catch((error) => {
@@ -211,6 +220,7 @@ function PostDetail({ user, postType }: Props) {
             ? 'Combined size of files is too large.'
             : error.response.data.message;
           setCommentErrorMessage(msg);
+          setCommentSent(false)
         });
     } else if (comment.commentMessage || comment.imageArr?.length) {
       addFeedComments(
@@ -238,18 +248,24 @@ function PostDetail({ user, postType }: Props) {
             commentCount: postData[0].commentCount + 1,
           }]);
           setUpdateState(true);
+          setCommentSent(false)
           setCommentErrorMessage([]);
         })
         .catch((error) => {
           const msg = error.response.status === 0 && !error.response.data
             ? 'Combined size of files is too large.'
             : error.response.data.message;
+          debugger
+          console.log("msg", msg)
           setCommentErrorMessage(msg);
+          setCommentSent(false)
         });
     }
   };
 
   const addUpdateReply = (reply: any) => {
+    setCommentSent(true)
+
     let replyValueData: any = {
       feedPostId: '',
       feedCommentId: '',
@@ -292,13 +308,17 @@ function PostDetail({ user, postType }: Props) {
           });
           setCommentData(updateReplyArray);
           setUpdateState(true);
-          setCommentErrorMessage([]);
+          // debugger
+          setCommentReplyErrorMessage([]);
           setIsEdit(false);
+          setCommentSent(false)
         }).catch((error) => {
           const msg = error.response.status === 0 && !error.response.data
             ? 'Combined size of files is too large.'
             : error.response.data.message;
-          setCommentErrorMessage(msg);
+          // debugger
+          setCommentReplyErrorMessage(msg);
+          setCommentSent(false)
         });
     } else if (reply.replyMessage || reply?.imageArr?.length) {
       addFeedReplyComments(
@@ -327,13 +347,17 @@ function PostDetail({ user, postType }: Props) {
         });
         setCommentData(newReplyArray);
         setUpdateState(true);
-        setCommentErrorMessage([]);
+        // debugger
+        setCommentReplyErrorMessage([]);
+        setCommentSent(false)
         setCommentID('');
       }).catch((error) => {
         const msg = error.response.status === 0 && !error.response.data
           ? 'Combined size of files is too large.'
           : error.response.data.message;
-        setCommentErrorMessage(msg);
+        // debugger
+        setCommentReplyErrorMessage(msg);
+        setCommentSent(false)
       });
     }
   };
@@ -728,7 +752,8 @@ function PostDetail({ user, postType }: Props) {
                 commentImages={commentImages}
                 setCommentImages={setCommentImages}
                 commentError={commentErrorMessage}
-
+                commentReplyError={commentReplyErrorMessage}
+                commentSent={commentSent}
               />
               {dropDownValue !== 'Edit'
                 && (
@@ -796,7 +821,9 @@ function PostDetail({ user, postType }: Props) {
               commentImages={commentImages}
               setCommentImages={setCommentImages}
               commentError={commentErrorMessage}
+              commentReplyError={commentReplyErrorMessage}
               onSpoilerClick={handleSpoiler}
+              commentSent={commentSent}
             />
             {dropDownValue !== 'Edit'
               && (

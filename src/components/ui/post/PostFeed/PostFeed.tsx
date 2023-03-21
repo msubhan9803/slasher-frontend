@@ -77,10 +77,12 @@ interface Props {
   handleSearch?: (val: string) => void;
   mentionList?: MentionListProps[];
   commentImages?: string[];
+  commentReplyError?: string[];
   setCommentImages?: (val: any) => void;
   commentError?: string[];
   setShowReviewDetail?: (value: boolean) => void;
   onSpoilerClick?: (value: string) => void;
+  commentSent?: boolean
 }
 
 interface StyledProps {
@@ -117,8 +119,8 @@ function PostFeed({
   noMoreData, isEdit, loadingPosts, onLikeClick, newsPostPopoverOptions,
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
   addUpdateComment, updateState, setUpdateState, isSinglePagePost, onSelect,
-  handleSearch, mentionList, commentImages, setCommentImages, commentError, postType,
-  setShowReviewDetail, onSpoilerClick,
+  handleSearch, mentionList, commentImages, setCommentImages, commentError, commentReplyError, postType,
+  setShowReviewDetail, onSpoilerClick, commentSent
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -168,6 +170,8 @@ function PostFeed({
     }
     onSelect!(post.id);
   };
+
+
 
   const showPopoverOption = (postDetail: any) => {
     if (postDetail && !postDetail.userId && newsPostPopoverOptions?.length) {
@@ -453,6 +457,8 @@ function PostFeed({
                       commentImages={commentImages}
                       setCommentImages={setCommentImages}
                       commentError={commentError}
+                      commentReplyError={commentReplyError}
+                      commentSent={commentSent}
                     />
                   </InfiniteScroll>
                   {loadingPosts && <LoadingIndicator />}
@@ -521,9 +527,11 @@ PostFeed.defaultProps = {
   handleSearch: undefined,
   mentionList: null,
   commentError: undefined,
+  commentReplyError: undefined,
   commentImages: [],
   setCommentImages: () => { },
   setShowReviewDetail: undefined,
   onSpoilerClick: () => { },
+  commentSent: undefined
 };
 export default PostFeed;

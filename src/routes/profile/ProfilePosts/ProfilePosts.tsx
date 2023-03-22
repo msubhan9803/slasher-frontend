@@ -167,6 +167,7 @@ function ProfilePosts({ user }: Props) {
         return post;
       });
       setPosts(updatePost);
+      callLatestFeedPost();
     })
       .catch((error) => {
         const msg = error.response.status === 0 && !error.response.data

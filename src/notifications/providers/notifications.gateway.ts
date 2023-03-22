@@ -17,6 +17,7 @@ import { SHARED_GATEWAY_OPTS } from '../../constants';
 import { Notification } from '../../schemas/notification/notification.schema';
 import { relativeToFullImagePath } from '../../utils/image-utils';
 import { User } from '../../schemas/user/user.schema';
+import { pick } from '../../utils/object-utils';
 
 @WebSocketGateway(SHARED_GATEWAY_OPTS)
 export class NotificationsGateway {
@@ -40,14 +41,19 @@ export class NotificationsGateway {
     }
     // eslint-disable-next-line no-param-reassign
     if (notification.rssFeedProviderId) {
-    // eslint-disable-next-line no-param-reassign
+      // eslint-disable-next-line no-param-reassign
       (notification.rssFeedProviderId as unknown as RssFeedProvider).logo = relativeToFullImagePath(
         this.config,
         (notification.rssFeedProviderId as unknown as RssFeedProvider).logo,
       );
     }
     targetUserSocketIds.forEach((socketId) => {
-      this.server.to(socketId).emit('notificationReceived', { notification });
+      this.server.to(socketId).emit('notificationReceived', {
+        notification: pick(notification, [
+          '_id', 'createdAt', 'feedCommentId', 'feedPostId', 'feedReplyId', 'isRead',
+          'notificationMsg', 'notifyType', 'rssFeedProviderId', 'senderId', 'userId',
+        ]),
+      });
     });
   }
 }

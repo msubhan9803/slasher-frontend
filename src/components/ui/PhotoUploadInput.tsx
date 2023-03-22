@@ -4,6 +4,7 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
 import { useDropzone } from 'react-dropzone';
+import ImagePickerPng from '../../images/image-picker.png';
 
 interface Props {
   aspectRatio?: string;
@@ -71,11 +72,7 @@ function PhotoUploadInput({
       </p>
     )
     : (
-      <FontAwesomeIcon
-        icon={solid('camera')}
-        size="lg"
-        className="text-light bg-secondary p-3 rounded-circle "
-      />
+      <img src={ImagePickerPng} width="50" alt="img picker" />
     ));
 
   return (
@@ -118,9 +115,7 @@ function PhotoUploadInput({
             : undefined
         }
         variant="link"
-        className={
-          `p-1 d-flex align-items-center justify-content-center text-center position-absolute rounded-circle ${(photo || imageUrl) ? 'bg-white text-secondary' : 'bg-secondary text-white'}`
-        }
+        className="p-1 d-flex align-items-center justify-content-center text-center position-absolute rounded-circle bg-primary text-secondary"
         aria-label="photo"
       >
         <FontAwesomeIcon

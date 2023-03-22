@@ -27,11 +27,11 @@ export interface PopoverClickProps {
 }
 
 const StyledPopover = styled.div`
-.btn[aria-describedby="popover-basic"]{
-  svg{
-    color: var(--bs-primary);
+  a{
+    &:hover {
+      color: var(--bs-primary);
+    }
   }
-}
 `;
 interface CustomPopoverProps {
   arrowplacement: string;

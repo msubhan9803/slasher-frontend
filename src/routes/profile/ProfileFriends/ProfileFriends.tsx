@@ -113,7 +113,6 @@ function ProfileFriends({ user }: Props) {
   };
 
   const handleSearch = (value: string) => {
-    console.log();
     setFriendsList([]);
     setNoMoreData(false);
     setAdditionalFriend(true);

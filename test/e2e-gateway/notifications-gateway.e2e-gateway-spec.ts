@@ -21,6 +21,7 @@ import { RssFeedProvidersService } from '../../src/rss-feed-providers/providers/
 import { RssFeedProvider } from '../../src/schemas/rssFeedProvider/rssFeedProvider.schema';
 import { RssFeedProviderActiveStatus } from '../../src/schemas/rssFeedProvider/rssFeedProvider.enums';
 import { rssFeedProviderFactory } from '../factories/rss-feed-providers.factory';
+import { PostType } from 'src/schemas/feedPost/feedPost.enums';
 
 describe('Notifications Gateway (e2e)', () => {
   let app: INestApplication;
@@ -127,7 +128,7 @@ describe('Notifications Gateway (e2e)', () => {
           _id: feedPostData.id,
           userId: activeUser.id,
           movieId: null,
-          postType: 1,
+          postType: PostType.User,
         },
         feedCommentId: null,
         feedReplyId: null,

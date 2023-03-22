@@ -80,7 +80,7 @@ function FilterModal({
         {postType !== 'group-post' && (
           <div className="d-lg-none mb-4">
             <Modal.Title className="fs-3 mb-2">Sort</Modal.Title>
-            <SortData sortVal={selectedSortValue} onSelectSort={(e: React.ChangeEvent<HTMLSelectElement>) => seSelectedSortValue(e.target.value)} sortoptions={sortoptions} title="Sort: " type="sort" />
+            <SortData sortVal={selectedSortValue} onSelectSort={seSelectedSortValue} sortoptions={sortoptions} title="Sort: " type="sort" />
           </div>
         )}
         <h2 className={`fs-3 mb-3 ${postType === 'group-post' ? 'text-primary' : ''} text-center `}>{postType === 'group-post' ? 'Filters' : 'Title starts with:'}</h2>

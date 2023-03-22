@@ -68,7 +68,7 @@ export class FeedPostsController {
   ) {
     if (!files.length && createFeedPostsDto.message === '') {
       throw new HttpException(
-        'Posts must have a message or at least one image.',
+        'Posts must have some text or at least one image.',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -231,7 +231,7 @@ export class FeedPostsController {
 
     if (!feedPost.images.length && feedPost.message === '') {
       throw new HttpException(
-        'Posts must have a message or at least one image. This post has no images, so a message is required.',
+        'Posts must have some text or at least one image. This post has no images, so a message is required.',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -246,7 +246,7 @@ export class FeedPostsController {
 
     if (isPostWithoutImgAndMsg) {
       throw new HttpException(
-        'Posts must have a message or at least one image.',
+        'Posts must have some text or at least one image.',
         HttpStatus.BAD_REQUEST,
       );
     }

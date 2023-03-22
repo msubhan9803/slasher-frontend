@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  useEffect, useState, ChangeEvent, useMemo,
+  useEffect, useState, ChangeEvent,
 } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -37,7 +37,10 @@ interface CommentInputProps {
   checkCommnt?: string;
   commentError?: string[];
   commentReplyError?: string[];
-  commentSent?: boolean
+  commentSent?: boolean;
+  setCommentReplyErrorMessage?: (value: string[]) => void;
+  setReplyImageArray?: (value: any) => void;
+  isEdit?: boolean
 }
 
 interface InputProps {
@@ -70,16 +73,15 @@ function CommentInput({
   userData, message, setIsReply, inputFile,
   handleFileChange, sendComment, imageArray, handleRemoveFile, dataId,
   handleSearch, mentionList, addUpdateComment, replyImageArray, isReply,
-  addUpdateReply, commentID, commentReplyID, checkCommnt, commentError, commentReplyError, commentSent
+  addUpdateReply, commentID, commentReplyID, checkCommnt, commentError, commentReplyError,
+  commentSent, setCommentReplyErrorMessage, setReplyImageArray, isEdit,
 }: CommentInputProps) {
-  console.log("commentReplyError CommentInput", commentReplyError)
   const [editMessage, setEditMessage] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const [isFocosInput, setIsFocusInput] = useState<boolean>(false);
 
   useEffect(() => {
     if (message) {
-      debugger
       const regexMessgafe = isReply && commentReplyID
         ? `##LINK_ID##${commentReplyID}${message}##LINK_END## `
         : `##LINK_ID##${commentID}${message}##LINK_END## `;
@@ -87,15 +89,16 @@ function CommentInput({
       setEditMessage(regexMessgafe);
     } else {
       setEditMessage('');
+      setCommentReplyErrorMessage!([]);
+      setReplyImageArray!([]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [message, commentID, isReply, commentReplyID]);
 
   useEffect(() => {
-
     if (editMessage) {
       const mentionStringList = editMessage.match(/##LINK_ID##[a-zA-Z0-9@_.-]+##LINK_END##/g);
       if (mentionStringList) {
-        console.log("mentionStringList", mentionStringList)
         const finalFormatMentionList = Array.from(new Set(mentionStringList))
           .map((mentionString: string) => {
             const id = mentionString.match(/([a-f\d]{24})/g)![0];
@@ -111,43 +114,41 @@ function CommentInput({
 
   useEffect(() => {
     if (commentError! && commentError.length) {
-      // console.log("hhhhh111111", commentError)
       setEditMessage(editMessage);
     } else {
-      // console.log("hhhhh2222")
-      setEditMessage('');
+      // setEditMessage('');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commentError]);
+
   useEffect(() => {
     if (commentReplyError! && commentReplyError.length) {
       setEditMessage(editMessage);
     } else {
-      setEditMessage('');
+      // setEditMessage('');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commentReplyError]);
 
   useEffect(() => {
-    // debugger
-    console.log("commentSEnt@@", commentSent)
-
     if (!commentSent) {
       sendComment(dataId!, editMessage);
     }
-  }, [commentSent])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commentSent]);
 
-  const onUpdatePost = async (msg: string) => {
-    // debugger
+  const onUpdatePost = (msg: string) => {
     const imageArr = isReply ? replyImageArray : imageArray;
     if (msg || imageArr.length) {
       if (isReply) {
-        await addUpdateReply!({
+        addUpdateReply!({
           replyMessage: msg,
           commentId: dataId,
           imageArr,
           commentReplyID,
-        })
+        });
       } else {
-        await addUpdateComment!({
+        addUpdateComment!({
           commentMessage: msg,
           commentId: dataId,
           imageArr,
@@ -155,8 +156,6 @@ function CommentInput({
       }
       // await sendComment(dataId!, editMessage);
     }
-
-
   };
 
   const mentionReplacementMatchFunc = (match: string) => {
@@ -266,8 +265,16 @@ function CommentInput({
           </Col>
         ))}
       </Row>
-      <ErrorMessageList errorMessages={commentError} divClass="mt-3 text-start" className="m-0" />
-      {/* <ErrorMessageList errorMessages={commentReplyError} divClass="mt-3 text-start" className="m-0" /> */}
+      {!isReply && !isEdit
+      && (
+      <ErrorMessageList
+        errorMessages={commentError}
+        divClass="mt-3 text-start"
+        className="m-0"
+      />
+      )}
+      {/* <ErrorMessageList errorMessages={commentReplyError} divClass="mt-3 text-start"
+       className="m-0" /> */}
     </Form>
   );
 }
@@ -283,7 +290,10 @@ CommentInput.defaultProps = {
   checkCommnt: '',
   commentError: undefined,
   commentReplyError: undefined,
-  commentSent: undefined
+  commentSent: undefined,
+  setCommentReplyErrorMessage: undefined,
+  setReplyImageArray: undefined,
+  isEdit: undefined,
 };
 
 export default CommentInput;

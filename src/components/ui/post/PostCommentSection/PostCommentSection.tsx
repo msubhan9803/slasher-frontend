@@ -49,9 +49,10 @@ function PostCommentSection({
   setCommentImages,
   commentError,
   commentReplyError,
-  commentSent
+  commentSent,
+  setCommentReplyErrorMessage,
+  setCommentErrorMessage,
 }: any) {
-  console.log("PostCommentSection commentReplyError", commentReplyError)
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
@@ -79,8 +80,6 @@ function PostCommentSection({
   const [scrollId, setScrollId] = useState<string>('');
   const [selectedReplyId, setSelectedReplyId] = useState<string | null>('');
   const [updatedReply, setUpdatedReply] = useState<boolean>(false);
-  // console.log("commentData", commentData)
-  // console.log("commentError..", commentError)
   const checkPopover = (id: string) => {
     if (id === loginUserId) {
       return popoverOption;
@@ -213,47 +212,62 @@ function PostCommentSection({
 
   useEffect(() => {
     setReplyMessage('');
+    setCommentReplyErrorMessage([]);
+    setReplyImageArray([]);
+
     if (isReply && selectedReplyUserID !== loginUserId) {
       const mentionString = `@${replyUserName}`;
       setReplyMessage(mentionString);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [replyUserName, isReply, selectedReplyCommentId, loginUserId, selectedReplyUserID]);
+
+  useEffect(() => {
+    setCommentReplyErrorMessage([]);
+    setCommentErrorMessage([]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEdit]);
 
   useEffect(() => {
     if (!isReply) {
       setReplyImageArray([]);
       setSelectedReplyId('');
     }
+
+    if (isReply) {
+      setCommentErrorMessage([]);
+      setMessage('');
+    }
     setUploadPost([]);
     setImageArray([]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReply]);
 
   const sendComment = (commentId?: string, msg?: string) => {
-    debugger
-    // console.log("commentReplyError..**", commentReplyError)
-
-    if (msg !== "" || imageArray.length > 0 || replyImageArray.length > 0) {
-
+    if (msg !== '' || imageArray.length > 0 || replyImageArray.length > 0) {
       if (!commentId) {
-        setMessage('');
-        setImageArray([]);
+        if (commentError && commentError.length) {
+          setMessage(msg!);
+        } else {
+          setMessage('');
+          setImageArray([]);
+        }
       }
-      if ((commentReplyError && commentReplyError.length) || (commentError && commentError.length)) {
-        console.log("errror if", commentReplyError)
-        setIsReply(true);
-        setReplyMessage(msg!);
-        setReplyUserName(replyUserName);
-        // setSelectedReplyId(selectedReplyId);
-      } else {
-        console.log("error else");
-        setIsReply(false);
-        setReplyMessage('');
-        setReplyUserName('');
-        setImageArray([])
-        setReplyImageArray([])
-        // setReplyIndex(1);
-        // setSelectedReplyId('');
+
+      if (replyImageArray.length > 0 || msg) {
+        if ((commentReplyError && commentReplyError.length)) {
+          setIsReply(true);
+          setReplyMessage(msg!);
+          setReplyUserName(replyUserName);
+          // setSelectedReplyId(selectedReplyId);
+        } else {
+          setIsReply(false);
+          setReplyMessage('');
+          setReplyUserName('');
+          setReplyImageArray([]);
+        }
       }
+
       setUploadPost([]);
     }
 
@@ -457,6 +471,9 @@ function PostCommentSection({
         commentError={commentError}
         commentReplyError={commentReplyError}
         commentSent={commentSent}
+        setCommentReplyErrorMessage={setCommentReplyErrorMessage}
+        setReplyImageArray={setReplyImageArray}
+        isEdit={isEdit}
       />
       {commentData && commentData.length > 0 && queryCommentId && previousCommentsAvailable
         && (
@@ -542,10 +559,12 @@ function PostCommentSection({
                               commentError={commentError}
                               commentReplyError={commentReplyError}
                               commentSent={commentSent}
+                              setCommentReplyErrorMessage={setCommentReplyErrorMessage}
+                              setReplyImageArray={setReplyImageArray}
+                              isEdit={isEdit}
                             />
-                            {commentReplyError &&
-                              <ErrorMessageList errorMessages={commentReplyError} divClass="mt-3 text-start" className="m-0" />
-                            }
+                            {!isEdit && commentReplyError
+                              && <ErrorMessageList errorMessages={commentReplyError} divClass="mt-3 text-start" className="m-0 mb-4" />}
                           </div>
                         )
                       }
@@ -602,18 +621,16 @@ function PostCommentSection({
                         )}
 
                       {data.commentReplySection.map(
-                        (comment: any, replyCommentIndex: number) => {
-                          return (
-                            <div key={comment.id}>
-                              {(replyCommentIndex === (data.commentReplySection.length - 1))
+                        (comment: any, replyCommentIndex: number) => (
+                          <div key={comment.id}>
+                            {(replyCommentIndex === (data.commentReplySection.length - 1))
                                 && (comment.newComment)
                                 && !isReply
                                 && data.id === selectedReplyCommentId
-                                ? oldReply(comment, replyCommentIndex)
-                                : null}
-                            </div>
-                          )
-                        },
+                              ? oldReply(comment, replyCommentIndex)
+                              : null}
+                          </div>
+                        ),
                       )}
 
                     </div>
@@ -649,7 +666,7 @@ function PostCommentSection({
             setDeleteImageIds={setDeleteImageIds}
             postImages={commentImages}
             setPostImages={setCommentImages}
-            commentError={commentError}
+            commentError={commentError.length > 0 ? commentError : commentReplyError}
           />
         )
       }

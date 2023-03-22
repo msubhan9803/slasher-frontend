@@ -352,7 +352,7 @@ describe('Update Feed Post (e2e)', () => {
           .field('message', '')
           .field('imagesToDelete', (feedPost.images[0] as any).id)
           .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toBe('Posts must have a message or at least one image.');
+        expect(response.body.message).toBe('Posts must have some text or at least one image.');
       });
 
     it('when post has a already 9 images and add more 2 images than expected response', async () => {
@@ -430,7 +430,7 @@ describe('Update Feed Post (e2e)', () => {
         .field('message', '');
       expect(response.body).toEqual({
         statusCode: 400,
-        message: 'Posts must have a message or at least one image.',
+        message: 'Posts must have some text or at least one image.',
       });
     });
 

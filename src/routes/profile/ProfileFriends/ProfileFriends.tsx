@@ -65,7 +65,11 @@ function ProfileFriends({ user }: Props) {
   };
 
   const fetchMoreFriendList = useCallback(() => {
-    userProfileFriends(user._id, page, search)
+    let searchUser = search;
+    while (searchUser.startsWith('@')) {
+      searchUser = searchUser.substring(1);
+    }
+    userProfileFriends(user._id, page, searchUser)
       .then((res) => {
         setLoadingFriends(false);
         setFriendsList((prev: any) => (page === 0
@@ -109,14 +113,11 @@ function ProfileFriends({ user }: Props) {
   };
 
   const handleSearch = (value: string) => {
+    console.log();
     setFriendsList([]);
-    let searchUser = value;
-    if (searchUser.charAt(0) === '@') {
-      searchUser = searchUser.slice(1);
-    }
     setNoMoreData(false);
     setAdditionalFriend(true);
-    setSearch(searchUser);
+    setSearch(value);
     setPage(0);
   };
   const reportProfileFriend = (reason: string) => {

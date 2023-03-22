@@ -154,6 +154,7 @@ describe('All Movies (e2e)', () => {
           name: 'a',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 0,
+          worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
@@ -161,6 +162,7 @@ describe('All Movies (e2e)', () => {
           name: 'b',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 0,
+          worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
@@ -168,6 +170,7 @@ describe('All Movies (e2e)', () => {
           name: 'c',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 0,
+          worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
@@ -175,6 +178,7 @@ describe('All Movies (e2e)', () => {
           name: 'd',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 0,
+          worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
@@ -182,6 +186,7 @@ describe('All Movies (e2e)', () => {
           name: 'e',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 0,
+          worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',
         },
       ]);
@@ -288,6 +293,7 @@ describe('All Movies (e2e)', () => {
           {
             status: MovieActiveStatus.Active,
             rating: 1,
+            worthWatching: 2,
             name: 'a',
             releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
@@ -298,6 +304,7 @@ describe('All Movies (e2e)', () => {
           {
             status: MovieActiveStatus.Active,
             rating: 2,
+            worthWatching: 1,
             name: 'b',
             releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
@@ -308,6 +315,7 @@ describe('All Movies (e2e)', () => {
           {
             status: MovieActiveStatus.Active,
             rating: 3,
+            worthWatching: 0,
             name: 'c',
             releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
@@ -318,6 +326,7 @@ describe('All Movies (e2e)', () => {
           {
             status: MovieActiveStatus.Active,
             rating: 4,
+            worthWatching: 1,
             name: 'd',
             releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
@@ -328,6 +337,7 @@ describe('All Movies (e2e)', () => {
           {
             status: MovieActiveStatus.Active,
             rating: 5,
+            worthWatching: 2,
             name: 'e',
             releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
@@ -348,6 +358,7 @@ describe('All Movies (e2e)', () => {
           name: 'e',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 5,
+          worthWatching: 2,
           releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
@@ -355,6 +366,7 @@ describe('All Movies (e2e)', () => {
           name: 'd',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 4,
+          worthWatching: 1,
           releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
@@ -362,6 +374,7 @@ describe('All Movies (e2e)', () => {
           name: 'c',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 3,
+          worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
@@ -369,6 +382,7 @@ describe('All Movies (e2e)', () => {
           name: 'b',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 2,
+          worthWatching: 1,
           releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
@@ -376,6 +390,7 @@ describe('All Movies (e2e)', () => {
           name: 'a',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 1,
+          worthWatching: 2,
           releaseDate: '2022-10-17T00:00:00.000Z',
         },
       ]);
@@ -434,6 +449,7 @@ describe('All Movies (e2e)', () => {
         logo: 'http://localhost:4444/placeholders/movie_poster.png',
         releaseDate: movie.releaseDate.toISOString(),
         rating: 0,
+        worthWatching: 0,
       }]);
     });
 
@@ -491,6 +507,7 @@ describe('All Movies (e2e)', () => {
         logo: 'http://localhost:4444/placeholders/movie_poster.png',
         releaseDate: movie0.releaseDate.toISOString(),
         rating: 0,
+        worthWatching: 0,
       }]);
     });
 
@@ -559,6 +576,206 @@ describe('All Movies (e2e)', () => {
         expect(secondResponse.status).toEqual(HttpStatus.OK);
         expect(secondResponse.body).toHaveLength(2);
       });
+    });
+
+    it('when sort_name startsWith with # than expected all movies response', async () => {
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: '#1915House',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: '!Alive',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'Blue$Whale',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: '(Captured)',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: '.Chadgetstheaxe',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: '>EATPRETTY',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: '???Float',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: '@FollowMe',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: '[funnyFACE',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: '`Horror',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: '~iKllr',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'MurderSelfie',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      const sortNameStartsWith = '%23';
+      const limit = 20;
+      const response = await request(app.getHttpServer())
+        .get(`/api/v1/movies?limit=${limit}&sortBy=${'name'}&startsWith=${sortNameStartsWith}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body).toHaveLength(10);
+      expect(response.body).toEqual([
+        {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          name: '!Alive',
+          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          releaseDate: '2022-10-17T00:00:00.000Z',
+          rating: 0,
+          worthWatching: 0,
+        },
+        {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          name: '#1915House',
+          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          releaseDate: '2022-10-17T00:00:00.000Z',
+          rating: 0,
+          worthWatching: 0,
+        },
+        {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          name: '(Captured)',
+          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          releaseDate: '2022-10-17T00:00:00.000Z',
+          rating: 0,
+          worthWatching: 0,
+        },
+        {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          name: '.Chadgetstheaxe',
+          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          releaseDate: '2022-10-17T00:00:00.000Z',
+          rating: 0,
+          worthWatching: 0,
+        },
+        {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          name: '>EATPRETTY',
+          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          releaseDate: '2022-10-17T00:00:00.000Z',
+          rating: 0,
+          worthWatching: 0,
+        },
+        {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          name: '???Float',
+          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          releaseDate: '2022-10-17T00:00:00.000Z',
+          rating: 0,
+          worthWatching: 0,
+        },
+        {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          name: '@FollowMe',
+          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          releaseDate: '2022-10-17T00:00:00.000Z',
+          rating: 0,
+          worthWatching: 0,
+        },
+        {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          name: '[funnyFACE',
+          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          releaseDate: '2022-10-17T00:00:00.000Z',
+          rating: 0,
+          worthWatching: 0,
+        },
+        {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          name: '`Horror',
+          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          releaseDate: '2022-10-17T00:00:00.000Z',
+          rating: 0,
+          worthWatching: 0,
+        },
+        {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          name: '~iKllr',
+          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          releaseDate: '2022-10-17T00:00:00.000Z',
+          rating: 0,
+          worthWatching: 0,
+        },
+      ]);
     });
 
     describe('Validation', () => {

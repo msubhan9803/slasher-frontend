@@ -6,7 +6,7 @@ import { AppModule } from '../../app.module';
 import { MovieUserStatusService } from './movie-user-status.service';
 import { MovieUserStatus, MovieUserStatusDocument } from '../../schemas/movieUserStatus/movieUserStatus.schema';
 import {
- MovieUserStatusBuy, MovieUserStatusFavorites, MovieUserStatusWatch, MovieUserStatusWatched,
+  MovieUserStatusBuy, MovieUserStatusFavorites, MovieUserStatusWatch, MovieUserStatusWatched,
 } from '../../schemas/movieUserStatus/movieUserStatus.enums';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { MoviesService } from '../../movies/providers/movies.service';
@@ -41,8 +41,10 @@ describe('MovieUserStatusService', () => {
   });
 
   let activeUser;
+  let user0;
+  let user1;
+  let user2;
   let movie;
-  let movieUserStatus1;
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
@@ -56,14 +58,30 @@ describe('MovieUserStatusService', () => {
     activeUser = await usersService.create(
       userFactory.build(),
     );
-    movieUserStatus1 = await movieUserStatusModel.create({
-      name: 'movie user status1',
+    user0 = await usersService.create(
+      userFactory.build(),
+    );
+    user1 = await usersService.create(
+      userFactory.build(),
+    );
+    user2 = await usersService.create(
+      userFactory.build(),
+    );
+    await movieUserStatusModel.create({
       userId: activeUser._id,
       movieId: movie._id,
-      favourite: 0,
-      watched: 0,
-      watch: 0,
-      buy: 0,
+    });
+    await movieUserStatusModel.create({
+      userId: user0._id,
+      movieId: movie._id,
+    });
+    await movieUserStatusModel.create({
+      userId: user1._id,
+      movieId: movie._id,
+    });
+    await movieUserStatusModel.create({
+      userId: user2._id,
+      movieId: movie._id,
     });
   });
 
@@ -138,7 +156,18 @@ describe('MovieUserStatusService', () => {
   describe('#findMovieUserStatus', () => {
     it('successfully find a add movie user status', async () => {
       const movieUserStatusData = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString());
-      expect(movieUserStatusData.name).toBe(movieUserStatus1.name);
+      expect(movieUserStatusData.userId.toString()).toBe(activeUser.id);
+    });
+  });
+
+  describe('#findAllMovieUserStatus', () => {
+    it('successfully find a all movie user status', async () => {
+      const user = [activeUser.id, user0.id, user1.id, user2.id];
+      const movieUserStatusData = await movieUserStatusService.findAllMovieUserStatus(user, movie._id.toString());
+      expect(movieUserStatusData[0].userId.toString()).toBe(activeUser.id);
+      expect(movieUserStatusData[1].userId.toString()).toBe(user0.id);
+      expect(movieUserStatusData[2].userId.toString()).toBe(user1.id);
+      expect(movieUserStatusData[3].userId.toString()).toBe(user2.id);
     });
   });
 });

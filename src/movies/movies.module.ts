@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { HttpModule } from '@nestjs/axios';
 import { Movie, MovieSchema } from '../schemas/movie/movie.schema';
@@ -9,6 +9,7 @@ import { User, UserSchema } from '../schemas/user/user.schema';
 import { MovieUserStatusModule } from '../movie-user-status/movie.user.status.module';
 import { MovieUserStatus, MovieUserStatusSchema } from '../schemas/movieUserStatus/movieUserStatus.schema';
 
+@Global()
 @Module({
   imports: [
     MongooseModule.forFeatureAsync([

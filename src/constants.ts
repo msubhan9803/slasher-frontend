@@ -8,6 +8,7 @@ export const MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT = 4;
 export const MAX_ALLOWED_UPLOAD_FILES_FOR_EVENT = 4;
 export const FRIEND_RELATION_ID = '5c9cb7138a874f1dcd0d8dcc';
 export const UNREAD_MESSAGE_NOTIFICATION_DELAY = 15_000;
+export const NON_ALPHANUMERIC_REGEX = /^[!-/:-@[-`{-~]/;
 
 export const SHARED_GATEWAY_OPTS = {
   cors: {
@@ -18,3 +19,5 @@ export const SHARED_GATEWAY_OPTS = {
   // we only want to support websocket connections (not interested in long polling at this time).
   transports: ['websocket'],
 };
+
+export const METERS_TO_MILES_MULTIPLIER = 0.000621371;

@@ -243,6 +243,11 @@ Resources:
             # Enable the passenger module and restart nginx
             if [ ! -f /etc/nginx/modules-enabled/50-mod-http-passenger.conf ]; then ln -s /usr/share/nginx/modules-available/mod-http-passenger.load /etc/nginx/modules-enabled/50-mod-http-passenger.conf ; fi
 
+            # Add a conf file to increase the default nginx client_max_body_size
+            echo '# Set default request size to accommodate upload of multiple image files
+            client_max_body_size 30M;
+            ' | tee /etc/nginx/conf.d/slasher.conf
+
             # Restart nginx
             systemctl restart nginx
             sleep 5

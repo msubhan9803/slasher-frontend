@@ -15,6 +15,9 @@ import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { WorthWatchingStatus } from '../../../../../src/types';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { feedPostFactory } from '../../../../factories/feed-post.factory';
+import { FeedPostsService } from '../../../../../src/feed-posts/providers/feed-posts.service';
+import { PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
 
 describe('GET Movie (e2e)', () => {
   let app: INestApplication;
@@ -25,6 +28,7 @@ describe('GET Movie (e2e)', () => {
   let configService: ConfigService;
   let moviesService: MoviesService;
   let user1: UserDocument;
+  let feedPostsService: FeedPostsService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -35,6 +39,7 @@ describe('GET Movie (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     moviesService = moduleRef.get<MoviesService>(MoviesService);
     configService = moduleRef.get<ConfigService>(ConfigService);
+    feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
     await app.init();
@@ -164,6 +169,43 @@ describe('GET Movie (e2e)', () => {
         expect(response.body).toEqual({
           message: 'Movie not found',
           statusCode: 404,
+        });
+      });
+
+      it('when post has a movieId or userId than expected movie details', async () => {
+        const movie = await moviesService.create(
+          moviesFactory.build({
+            status: MovieActiveStatus.Active,
+            logo: null,
+          }),
+        );
+        const post = await feedPostsService.create(
+          feedPostFactory.build({
+            userId: activeUser.id,
+            movieId: movie._id,
+            postType: PostType.MovieReview,
+          }),
+        );
+        const response = await request(app.getHttpServer())
+          .get(`/api/v1/movies/${movie._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toEqual({
+          movieDBId: 1,
+          rating: 0,
+          ratingUsersCount: 0,
+          goreFactorRating: 0,
+          goreFactorRatingUsersCount: 0,
+          worthWatching: 0,
+          worthWatchingUpUsersCount: 0,
+          worthWatchingDownUsersCount: 0,
+          userData: {
+            rating: 0,
+            goreFactorRating: 0,
+            worthWatching: 0,
+            reviewPostId: post.id,
+          },
         });
       });
     });

@@ -64,7 +64,8 @@ describe('Find Users(e2e)', () => {
       status: ActiveStatus.Inactive,
     }));
     await usersService.create(userFactory.build({ userName: 'Deni' }));
-    await usersService.create(userFactory.build({ userName: 'The Count' }));
+    await usersService.create(userFactory.build({ userName: 'Count Denial' }));
+    await usersService.create(userFactory.build({ userName: 'count jordan' }));
     await usersService.create(userFactory.build({ userName: 'Count Dracula' }));
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -83,24 +84,30 @@ describe('Find Users(e2e)', () => {
 
     describe('Find Users Details', () => {
       it('retrn the expected users', async () => {
-        const query = 'Count';
+        const query = 'Cou';
         const limit = 20;
         const response = await request(app.getHttpServer())
           .get(`/api/v1/search/users?query=${query}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body).toHaveLength(2);
+        expect(response.body).toHaveLength(3);
         expect(response.body).toEqual([
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            userName: 'Count Dracula',
-            firstName: 'First name 7',
+            userName: 'Count Denial',
+            firstName: 'First name 6',
             profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           },
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            userName: 'The Count',
-            firstName: 'First name 6',
+            userName: 'Count Dracula',
+            firstName: 'First name 8',
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            userName: 'count jordan',
+            firstName: 'First name 7',
             profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           },
         ]);
@@ -114,12 +121,18 @@ describe('Find Users(e2e)', () => {
           .get(`/api/v1/search/users?query=${query}&limit=${limit}&offset=${offset}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body).toHaveLength(1);
+        expect(response.body).toHaveLength(2);
         expect(response.body).toEqual([
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            userName: 'The Count',
-            firstName: 'First name 6',
+            userName: 'Count Dracula',
+            firstName: 'First name 8',
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            userName: 'count jordan',
+            firstName: 'First name 7',
             profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           },
         ]);

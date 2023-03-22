@@ -13,7 +13,7 @@ import { RssFeedProviderFollowsService } from '../../rss-feed-provider-follows/p
 import { feedPostFactory } from '../../../test/factories/feed-post.factory';
 import { User, UserDocument } from '../../schemas/user/user.schema';
 import { FeedPost, FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
-import { FeedPostDeletionState, FeedPostStatus } from '../../schemas/feedPost/feedPost.enums';
+import { FeedPostDeletionState, FeedPostStatus, PostType } from '../../schemas/feedPost/feedPost.enums';
 import { RssFeedProvider } from '../../schemas/rssFeedProvider/rssFeedProvider.schema';
 import { FriendsService } from '../../friends/providers/friends.service';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
@@ -24,6 +24,10 @@ import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndU
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
+import { MoviesService } from '../../movies/providers/movies.service';
+import { moviesFactory } from '../../../test/factories/movies.factory';
+import { MovieActiveStatus } from '../../schemas/movie/movie.enums';
+import { RssFeed } from '../../schemas/rssFeed/rssFeed.schema';
 
 describe('FeedPostsService', () => {
   let app: INestApplication;
@@ -40,6 +44,7 @@ describe('FeedPostsService', () => {
   let rssFeedService: RssFeedService;
   let user0: UserDocument;
   let blocksModel: Model<BlockAndUnblockDocument>;
+  let moviesService: MoviesService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -54,6 +59,7 @@ describe('FeedPostsService', () => {
     friendsService = moduleRef.get<FriendsService>(FriendsService);
     rssFeedService = moduleRef.get<RssFeedService>(RssFeedService);
     feedLikesService = moduleRef.get<FeedLikesService>(FeedLikesService);
+    moviesService = moduleRef.get<MoviesService>(MoviesService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
@@ -65,6 +71,7 @@ describe('FeedPostsService', () => {
     await app.close();
   });
   let rssFeed;
+  let movie;
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
@@ -78,6 +85,13 @@ describe('FeedPostsService', () => {
       content: '<p>this is rss <b>feed</b> <span>test<span> </p>',
     }));
     user0 = await usersService.create(userFactory.build({ userName: 'Hannibal' }));
+    movie = await moviesService.create(
+      moviesFactory.build(
+        {
+          status: MovieActiveStatus.Active,
+        },
+      ),
+    );
   });
 
   it('should be defined', () => {
@@ -150,6 +164,11 @@ describe('FeedPostsService', () => {
     it('when add identifylikesforuser than expected response', async () => {
       const feedPostDetails = await feedPostsService.findById(feedPost.id, false, activeUser.id);
       expect((feedPostDetails as any).likedByUser).toBe(true);
+    });
+
+    it("populates the title field on the post's returned rssFeedId object", async () => {
+      const feedPostDetails = await feedPostsService.findById(feedPost.id, false);
+      expect((feedPostDetails.rssFeedId as unknown as RssFeed).title).toEqual(rssFeed.title);
     });
   });
 
@@ -227,6 +246,108 @@ describe('FeedPostsService', () => {
       );
       expect(firstResults).toHaveLength(6);
       expect(secondResults).toHaveLength(4);
+    });
+  });
+
+  describe('#findPostsByMovieId', () => {
+    beforeEach(async () => {
+      for (let i = 0; i < 10; i += 1) {
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: activeUser.id,
+            movieId: movie._id,
+            postType: PostType.MovieReview,
+            likes: [activeUser._id, user0._id],
+          }),
+        );
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: activeUser.id,
+            movieId: movie._id,
+            postType: PostType.MovieReview,
+            is_deleted: FeedPostDeletionState.Deleted,
+            status: FeedPostStatus.Inactive,
+          }),
+        );
+      }
+    });
+
+    it('when earlier than post id is exist and active only is true then it returns the expected response', async () => {
+      const feedPostDetails = feedPostFactory.build({
+        userId: activeUser.id,
+        movieId: movie.id,
+        postType: PostType.MovieReview,
+        status: FeedPostStatus.Active,
+        is_deleted: FeedPostDeletionState.NotDeleted,
+      });
+      const feedPost = await feedPostsService.create(feedPostDetails);
+      const feedPostData = await feedPostsService.findPostsByMovieId(movie.id, 20, true, feedPost.id);
+      for (let i = 1; i < feedPostData.length; i += 1) {
+        expect(feedPostData[i].createdAt < feedPostData[i - 1].createdAt).toBe(true);
+        expect(feedPostData[i].likeCount).toBe(2);
+      }
+      expect(feedPostData).toHaveLength(10);
+      expect(feedPostData).not.toContain(feedPost.createdAt);
+    });
+
+    it('when earlier than post id is does not exist and active only is false then it returns the expected response', async () => {
+      const feedPost = await feedPostsService.findPostsByMovieId(movie.id, 20, false);
+      for (let i = 1; i < feedPost.length; i += 1) {
+        expect(feedPost[i].createdAt < feedPost[i - 1].createdAt).toBe(true);
+      }
+      expect(feedPost).toHaveLength(20);
+    });
+
+    it('when earlier than post id is does not exist but active only is true then it returns the expected response', async () => {
+      const feedPost = await feedPostsService.findPostsByMovieId(movie.id, 20, true);
+      for (let i = 1; i < feedPost.length; i += 1) {
+        expect(feedPost[i].createdAt < feedPost[i - 1].createdAt).toBe(true);
+      }
+      expect(feedPost).toHaveLength(10);
+    });
+
+    it('when earlier than post id does exist but active only is false then it returns the expected response', async () => {
+      const feedPostDetails = feedPostFactory.build({
+        userId: activeUser.id,
+        movieId: movie.id,
+        postType: PostType.MovieReview,
+      });
+      const feedPost = await feedPostsService.create(feedPostDetails);
+      const feedPostData = await feedPostsService.findPostsByMovieId(movie.id, 20, false, feedPost.id);
+      for (let i = 1; i < feedPostData.length; i += 1) {
+        expect(feedPostData[i].createdAt < feedPostData[i - 1].createdAt).toBe(true);
+      }
+      expect(feedPostData).toHaveLength(20);
+    });
+
+    it('returns the first and second sets of paginated results', async () => {
+      const limit = 6;
+      const firstResults = await feedPostsService.findPostsByMovieId(movie.id, limit, true);
+      const secondResults = await feedPostsService.findPostsByMovieId(
+        movie.id,
+        limit,
+        true,
+        new mongoose.Types.ObjectId(firstResults[limit - 1]._id.toString()),
+      );
+      expect(firstResults).toHaveLength(6);
+      expect(secondResults).toHaveLength(4);
+    });
+
+    describe('should not return users blocked by `requestingContextUser`', () => {
+      beforeEach(async () => {
+        await blocksModel.create({
+          from: activeUser.id,
+          to: user0.id,
+          reaction: BlockAndUnblockReaction.Block,
+        });
+      });
+      it('blocker user should not be returned', async () => {
+        const limit = 10;
+        const requestingContextUserId = activeUser.id;
+        const likeUsers = await feedPostsService.findPostsByMovieId(movie.id, limit, true, null, requestingContextUserId);
+        const allLikeUsers = likeUsers.map((user) => user._id.toString());
+        expect(allLikeUsers).not.toContain(user0.id);
+      });
     });
   });
 
@@ -692,6 +813,25 @@ describe('FeedPostsService', () => {
         const allLikeUsers = likeUsers.map((user) => user._id.toString());
         expect(allLikeUsers).not.toContain(user0.id);
       });
+    });
+  });
+
+  describe('#findFeedPost', () => {
+    beforeEach(async () => {
+      // Created post is associated with the `activeUser`
+      const feedPostData = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: activeUser.id,
+          movieId: movie.id,
+        }),
+      );
+      await feedPostsService.findById(feedPostData.id, false);
+    });
+
+    it('successfully find feed post details', async () => {
+      const post = await feedPostsService.findFeedPost(activeUser.id, movie.id);
+      expect(post.movieId.toString()).toEqual(movie.id);
+      expect(post.userId.toString()).toEqual(activeUser.id);
     });
   });
 });

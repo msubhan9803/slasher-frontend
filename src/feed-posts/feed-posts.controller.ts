@@ -19,7 +19,7 @@ import {
   MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_POST, UPLOAD_PARAM_NAME_FOR_FILES,
 } from '../constants';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
-import { FeedPostDeletionState } from '../schemas/feedPost/feedPost.enums';
+import { FeedPostDeletionState, PostType } from '../schemas/feedPost/feedPost.enums';
 import { NotificationType } from '../schemas/notification/notification.enums';
 import { NotificationsService } from '../notifications/providers/notifications.service';
 import { StorageLocationService } from '../global/providers/storage-location.service';
@@ -30,7 +30,13 @@ import { BlocksService } from '../blocks/providers/blocks.service';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 import { LikesLimitOffSetDto } from './dto/likes-limit-offset-query.dto';
 import { FriendsService } from '../friends/providers/friends.service';
+import { MoviesService } from '../movies/providers/movies.service';
 import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
+import { AllFeedPostQueryDto } from './dto/all-feed-posts-query.dto';
+import { MovieIdDto } from './dto/movie-id.dto';
+import { MovieUserStatusService } from '../movie-user-status/providers/movie-user-status.service';
+import { User } from '../schemas/user/user.schema';
+import { getPostType } from '../utils/post-utils';
 
 @Controller({ path: 'feed-posts', version: ['1'] })
 export class FeedPostsController {
@@ -43,6 +49,8 @@ export class FeedPostsController {
     private readonly notificationsService: NotificationsService,
     private readonly blocksService: BlocksService,
     private readonly friendsService: FriendsService,
+    private readonly moviesService: MoviesService,
+    private readonly movieUserStatusService: MovieUserStatusService,
   ) { }
 
   @TransformImageUrls('$.images[*].image_path')
@@ -60,7 +68,7 @@ export class FeedPostsController {
   ) {
     if (!files.length && createFeedPostsDto.message === '') {
       throw new HttpException(
-        'Posts must have a message or at least one image. No message or image received.',
+        'Posts must have a message or at least one image.',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -79,6 +87,43 @@ export class FeedPostsController {
     const feedPost = new FeedPost(createFeedPostsDto);
     feedPost.images = images;
     feedPost.userId = user._id;
+    feedPost.postType = createFeedPostsDto.postType;
+
+    if (createFeedPostsDto.moviePostFields) {
+      if (createFeedPostsDto.postType !== PostType.MovieReview) {
+        throw new HttpException('When submitting moviePostFields, post type must be MovieReview.', HttpStatus.BAD_REQUEST);
+      }
+      if (!createFeedPostsDto.movieId) {
+        throw new HttpException('When submitting moviePostFields, movieId is required.', HttpStatus.BAD_REQUEST);
+      }
+
+      feedPost.title = createFeedPostsDto.moviePostFields.title;
+      feedPost.spoilers = createFeedPostsDto.moviePostFields.spoilers;
+      const ratingPromises = [];
+      if (createFeedPostsDto.moviePostFields.rating) {
+        ratingPromises.push(this.moviesService.createOrUpdateRating(
+          feedPost.movieId.toString(),
+          createFeedPostsDto.moviePostFields.rating,
+          user.id,
+        ));
+      }
+      if (createFeedPostsDto.moviePostFields.goreFactorRating) {
+        ratingPromises.push(this.moviesService.createOrUpdateGoreFactorRating(
+          feedPost.movieId.toString(),
+          createFeedPostsDto.moviePostFields.goreFactorRating,
+          user.id,
+        ));
+      }
+      if (createFeedPostsDto.moviePostFields.worthWatching) {
+        ratingPromises.push(this.moviesService.createOrUpdateWorthWatching(
+          feedPost.movieId.toString(),
+          createFeedPostsDto.moviePostFields.worthWatching,
+          user.id,
+        ));
+      }
+      await Promise.all(ratingPromises);
+    }
+
     const createFeedPost = await this.feedPostsService.create(feedPost);
 
     // Create notifications if any users were mentioned
@@ -96,8 +141,11 @@ export class FeedPostsController {
     return {
       _id: createFeedPost.id,
       message: createFeedPost.message,
+      title: createFeedPost.title,
+      spoilers: createFeedPost.spoilers,
       userId: createFeedPost.userId,
       images: createFeedPost.images,
+      postType: createFeedPostsDto.postType,
     };
   }
 
@@ -113,9 +161,9 @@ export class FeedPostsController {
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-
+    const postType = getPostType(feedPost);
     if (
-      !feedPost.rssfeedProviderId
+      postType === PostType.User
       && user.id !== (feedPost.userId as any)._id.toString()
       && (feedPost.userId as any).profile_status !== ProfileVisibility.Public
     ) {
@@ -125,17 +173,33 @@ export class FeedPostsController {
       }
     }
 
-    if (!feedPost.rssfeedProviderId) {
+    if (postType !== PostType.News) {
       const block = await this.blocksService.blockExistsBetweenUsers((feedPost.userId as any)._id, user.id);
       if (block) {
         throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
       }
     }
-    return pick(
-      feedPost,
-      ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likedByUser',
-        'message'],
-    );
+
+    let reviewData;
+    if (postType === PostType.MovieReview) {
+      const movieUserStatusData = await this.movieUserStatusService.findMovieUserStatus(user.id, feedPost.movieId.toString());
+      if (movieUserStatusData) {
+        reviewData = {
+          rating: movieUserStatusData.rating,
+          goreFactorRating: movieUserStatusData.goreFactorRating,
+          worthWatching: movieUserStatusData.worthWatching,
+        };
+      }
+    }
+
+    return {
+      ...pick(
+        feedPost,
+        ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likedByUser',
+          'postType', 'title', 'spoilers', 'movieId', 'message'],
+      ),
+      reviewData,
+    };
   }
 
   @TransformImageUrls('$.images[*].image_path')
@@ -182,7 +246,7 @@ export class FeedPostsController {
 
     if (isPostWithoutImgAndMsg) {
       throw new HttpException(
-        'Posts must have a message or at least one image. No message or image received.',
+        'Posts must have a message or at least one image.',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -215,6 +279,43 @@ export class FeedPostsController {
       Object.assign(updateFeedPostsDto, { images: updateFeedPostsDto.imagesToDelete ? feedPostImages : images.concat(feedPost.images) });
     }
 
+    if (updateFeedPostsDto.moviePostFields) {
+      if (feedPost.postType !== PostType.MovieReview) {
+        throw new HttpException('When submitting moviePostFields, post type must be MovieReview.', HttpStatus.BAD_REQUEST);
+      }
+
+      if (!feedPost.movieId) {
+        throw new HttpException('When submitting moviePostFields, movieId is required.', HttpStatus.BAD_REQUEST);
+      }
+      // eslint-disable-next-line no-param-reassign
+      (updateFeedPostsDto as unknown as FeedPost).title = updateFeedPostsDto.moviePostFields.title;
+      // eslint-disable-next-line no-param-reassign
+      (updateFeedPostsDto as unknown as FeedPost).spoilers = updateFeedPostsDto.moviePostFields.spoilers;
+      const ratingPromises = [];
+      if (updateFeedPostsDto.moviePostFields.rating) {
+        ratingPromises.push(this.moviesService.createOrUpdateRating(
+          feedPost.movieId.toString(),
+          updateFeedPostsDto.moviePostFields.rating,
+          user.id,
+        ));
+      }
+      if (updateFeedPostsDto.moviePostFields.goreFactorRating) {
+        ratingPromises.push(this.moviesService.createOrUpdateGoreFactorRating(
+          feedPost.movieId.toString(),
+          updateFeedPostsDto.moviePostFields.goreFactorRating,
+          user.id,
+        ));
+      }
+      if (updateFeedPostsDto.moviePostFields.worthWatching) {
+        ratingPromises.push(this.moviesService.createOrUpdateWorthWatching(
+          feedPost.movieId.toString(),
+          updateFeedPostsDto.moviePostFields.worthWatching,
+          user.id,
+        ));
+      }
+      await Promise.all(ratingPromises);
+    }
+
     const updatedFeedPost = await this.feedPostsService.update(param.id, updateFeedPostsDto);
     const mentionedUserIdsBeforeUpdate = extractUserMentionIdsFromMessage(feedPost.message);
     const mentionedUserIdsAfterUpdate = extractUserMentionIdsFromMessage(updateFeedPostsDto?.message);
@@ -236,6 +337,8 @@ export class FeedPostsController {
       message: updatedFeedPost.message,
       userId: updatedFeedPost.userId,
       images: updatedFeedPost.images,
+      title: updatedFeedPost.title,
+      spoilers: updatedFeedPost.spoilers,
     };
   }
 
@@ -353,5 +456,56 @@ export class FeedPostsController {
       user._id.toString(),
     );
     return feedLikeUsers;
+  }
+
+  @TransformImageUrls(
+    '$[*].images[*].image_path',
+    '$[*].userId.profilePic',
+  )
+  @Get(':movieId/reviews')
+  async findMovieReviews(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: MovieIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: AllFeedPostQueryDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const movieData = await this.moviesService.findById(params.movieId, true);
+    if (!movieData) {
+      throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
+    }
+
+    const posts = await this.feedPostsService.findPostsByMovieId(
+      movieData._id.toString(),
+      query.limit,
+      true,
+      query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
+      user._id.toString(),
+    );
+    const userIds = posts.map((id) => (id.userId as any)._id);
+
+    const movieUserStatusData = await this.movieUserStatusService.findAllMovieUserStatus(userIds, movieData._id.toString());
+    posts.map((post) => {
+      movieUserStatusData.forEach((movie) => {
+        // eslint-disable-next-line max-len
+        if (movie.movieId.toString() === post.movieId.toString() && movie.userId.toString() === (post.userId as unknown as User)._id.toString()) {
+          // eslint-disable-next-line no-param-reassign
+          (post as any).reviewData = { rating: movie.rating, goreFactorRating: movie.goreFactorRating, worthWatching: movie.worthWatching };
+        }
+        return movie;
+      });
+      return post;
+    });
+    return posts.map(
+      (post) => pick(
+        post,
+        [
+          '_id', 'message', 'images',
+          'userId', 'createdAt', 'likedByUser',
+          'likeCount', 'commentCount', 'reviewData',
+          'postType', 'title', 'spoilers', 'movieId',
+        ],
+      ),
+    );
   }
 }

@@ -66,7 +66,7 @@ export class FeedCommentsController {
   ) {
     if (!files.length && createFeedCommentsDto.message === '') {
       throw new HttpException(
-        'Posts must have a message or at least one image. No message or image received.',
+        'Comment must have a message or at least one image.',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -156,7 +156,7 @@ export class FeedCommentsController {
     const isCommentWithoutImgAndMsg = (imagesToDelete && !newCommentImages && message === '' && currentCommentImages === imagesToDelete) || (!currentCommentImages && !newCommentImages && message === '');
     if (isCommentWithoutImgAndMsg) {
       throw new HttpException(
-        'Comment must have a message or at least one image. No message or image received.',
+        'Comment must have a message or at least one image.',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -237,7 +237,7 @@ export class FeedCommentsController {
   ) {
     if (!files.length && createFeedReplyDto.message === '') {
       throw new HttpException(
-        'Posts must have a message or at least one image. No message or image received.',
+        'Posts must have a message or at least one image.',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -336,7 +336,7 @@ export class FeedCommentsController {
     const isReplyWithoutImgAndMsg = (imagesToDelete && !newReplyImages && message === '' && currentReplyImages === imagesToDelete) || (!currentReplyImages && !newReplyImages && message === '');
     if (isReplyWithoutImgAndMsg) {
       throw new HttpException(
-        'Reply must have a message or at least one image. No message or image received.',
+        'Reply must have a message or at least one image.',
         HttpStatus.BAD_REQUEST,
       );
     }

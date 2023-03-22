@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FeedCommentsModule } from '../feed-comments/feed-comments.module';
-import { FeedPostsModule } from '../feed-posts/feed-posts.module';
 import { FeedPostLike, FeedPostLikeSchema } from '../schemas/feedPostLike/feedPostLike.schema';
 import { FeedLikesService } from './providers/feed-likes.service';
 import { FeedComment, FeedCommentSchema } from '../schemas/feedComment/feedComment.schema';
@@ -12,12 +11,10 @@ import { BlocksModule } from '../blocks/blocks.module';
 
 @Module({
   imports: [
-    FeedPostsModule,
     MongooseModule.forFeature([{ name: FeedPostLike.name, schema: FeedPostLikeSchema }]),
     MongooseModule.forFeature([{ name: FeedReply.name, schema: FeedReplySchema }]),
     MongooseModule.forFeature([{ name: FeedComment.name, schema: FeedCommentSchema }]),
     MongooseModule.forFeature([{ name: FeedReplyLike.name, schema: FeedReplyLikeSchema }]),
-    FeedPostsModule,
     FeedCommentsModule,
     BlocksModule,
   ],

@@ -21,6 +21,7 @@ import {
   MovieUserStatusWatch, MovieUserStatusWatched,
 } from '../../schemas/movieUserStatus/movieUserStatus.enums';
 import { WorthWatchingStatus } from '../../types';
+import { NON_ALPHANUMERIC_REGEX } from '../../constants';
 
 export interface Cast {
   'adult': boolean,
@@ -177,7 +178,7 @@ export class MoviesService {
     let returnValue: ReturnType = { rating: 0, ratingUsersCount: 0 };
     if (aggregate.length !== 0) {
       const [{ averageRating, count }] = aggregate;
-    // Update the new average
+      // Update the new average
       const movie = (await this.moviesModel.findOneAndUpdate(
         { _id: new mongoose.Types.ObjectId(movieId) },
         { $set: { rating: averageRating.toFixed(1), ratingUsersCount: count } },
@@ -327,7 +328,11 @@ export class MoviesService {
     }
     if (sortNameStartsWith) {
       movieFindAllQuery.sort_name = movieFindAllQuery.sort_name || {};
-      movieFindAllQuery.sort_name.$regex = new RegExp(`^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`);
+      if (sortNameStartsWith !== '#') {
+        movieFindAllQuery.sort_name.$regex = new RegExp(`^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`);
+      } else {
+        movieFindAllQuery.sort_name.$regex = new RegExp(NON_ALPHANUMERIC_REGEX, 'i');
+      }
     }
 
     let sortMoviesByNameAndReleaseDate: any;

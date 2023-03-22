@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Event, EventDocument } from '../../schemas/event/event.schema';
 import { EventActiveStatus } from '../../schemas/event/event.enums';
 import { toUtcStartOfDay } from '../../utils/date-utils';
+import { METERS_TO_MILES_MULTIPLIER } from '../../constants';
 
 @Injectable()
 export class EventService {
@@ -93,5 +94,57 @@ export class EventService {
     }
 
     return daysToEventCounts;
+  }
+
+  // Find events in a given distance (radially)
+  async findAllByDistance(
+    latitude: number,
+    longitude: number,
+    miles: number,
+    activeOnly: boolean,
+  ): Promise<Array<EventDocument & { distance: number }>> {
+    const query: any = {};
+    if (activeOnly) {
+      query.deleted = false;
+      query.status = EventActiveStatus.Active;
+    }
+
+    const maxDistanceMetres = miles * 1609.344;
+    const results = await this.eventModel.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: 'Point',
+            coordinates: [latitude, longitude],
+          },
+          maxDistance: maxDistanceMetres,
+          distanceField: 'distance',
+          // get distances of each event in miles
+          distanceMultiplier: METERS_TO_MILES_MULTIPLIER,
+        },
+      },
+      { $match: query },
+    ]);
+    return results;
+  }
+
+  // Find events in a given rectangle denotes by provided coordinates
+  async findAllInRectangle(
+    latitudeTopRight: number,
+    longitudeTopRight: number,
+    latitudeBottomLeft: number,
+    longitudeBottomLeft: number,
+    activeOnly: boolean,
+  ): Promise<Array<EventDocument>> {
+    const query: any = {
+      location: {
+        $geoWithin: { $box: [[latitudeTopRight, longitudeTopRight], [latitudeBottomLeft, longitudeBottomLeft]] },
+      },
+    };
+    if (activeOnly) {
+      query.deleted = false;
+      query.status = EventActiveStatus.Active;
+    }
+    return this.eventModel.find(query);
   }
 }

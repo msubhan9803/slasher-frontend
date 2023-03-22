@@ -21,7 +21,7 @@ interface PubWiseAdTypes {
 
 const SponsoredElement = <h2 className="text-center my-2 fs-6 fw-normal">Sponsored</h2>;
 
-const AdContainerStyle = { width: 350, height: 250 };
+const AdContainerStyle = { width: 300, height: 250 };
 function PubWiseAdUnit({ id, style, className }: PubWiseAdTypes) {
   useEffect(() => {
     if (!window.gptadslots[id]) {

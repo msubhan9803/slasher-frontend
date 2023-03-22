@@ -17,6 +17,11 @@ import { NotificationType } from '../../src/schemas/notification/notification.en
 import { NotificationsService } from '../../src/notifications/providers/notifications.service';
 import { FeedPostDocument } from '../../src/schemas/feedPost/feedPost.schema';
 import { rewindAllFactories } from '../helpers/factory-helpers.ts';
+import { RssFeedProvidersService } from '../../src/rss-feed-providers/providers/rss-feed-providers.service';
+import { RssFeedProvider } from '../../src/schemas/rssFeedProvider/rssFeedProvider.schema';
+import { RssFeedProviderActiveStatus } from '../../src/schemas/rssFeedProvider/rssFeedProvider.enums';
+import { rssFeedProviderFactory } from '../factories/rss-feed-providers.factory';
+import { PostType } from '../../src/schemas/feedPost/feedPost.enums';
 
 describe('Notifications Gateway (e2e)', () => {
   let app: INestApplication;
@@ -30,6 +35,8 @@ describe('Notifications Gateway (e2e)', () => {
   let feedPostsService: FeedPostsService;
   let notificationsService: NotificationsService;
   let feedPostData: FeedPostDocument;
+  let rssFeedProvidersService: RssFeedProvidersService;
+  let rssFeedProviderData: RssFeedProvider;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -40,6 +47,7 @@ describe('Notifications Gateway (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
+    rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
 
     app = moduleRef.createNestApplication();
 
@@ -73,6 +81,10 @@ describe('Notifications Gateway (e2e)', () => {
     feedPostData = await feedPostsService.create(feedPostFactory.build({
       userId: activeUser.id,
     }));
+    rssFeedProviderData = await rssFeedProvidersService.create(rssFeedProviderFactory.build({
+      status: RssFeedProviderActiveStatus.Active,
+      logo: 'noUser.jpg',
+    }));
   });
 
   it('NotificationsService#create calls emitMessageForNotification, which emits the expected socket message', async () => {
@@ -82,6 +94,7 @@ describe('Notifications Gateway (e2e)', () => {
     const notificationObj: any = {
       userId: activeUser.id,
       feedPostId: feedPostData.id,
+      rssFeedProviderId: rssFeedProviderData._id.toString(),
       senderId: user1.id,
       notifyType: NotificationType.UserMentionedYouInPost,
       notificationMsg: 'mentioned you in a post',
@@ -102,7 +115,34 @@ describe('Notifications Gateway (e2e)', () => {
     // Await socket response to receive emitted event
     await socketListenPromise;
 
-    expect(receivedPayload.notification._id).toEqual(notification._id.toString());
+    expect(receivedPayload).toEqual({
+      notification: {
+        _id: notification._id.toString(),
+        notifyType: 99,
+        senderId: {
+          _id: user1.id,
+          userName: 'Username2',
+          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+        },
+        feedPostId: {
+          _id: feedPostData.id,
+          userId: activeUser.id,
+          movieId: null,
+          postType: PostType.User,
+        },
+        feedCommentId: null,
+        feedReplyId: null,
+        rssFeedProviderId: {
+          _id: rssFeedProviderData._id.toString(),
+          logo: 'http://localhost:4444/placeholders/default_user_icon.png',
+          title: 'RssFeedProvider 1',
+        },
+        userId: activeUser.id,
+        notificationMsg: 'mentioned you in a post',
+        isRead: 0,
+        createdAt: expect.any(String),
+      },
+    });
 
     client.close();
 

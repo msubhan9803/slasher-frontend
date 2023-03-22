@@ -66,6 +66,12 @@ function MovieReviews({ movieData, setMovieData }: Props) {
       setContainSpoiler(res.data.spoilers);
     });
   };
+  useEffect(() => {
+    if (location.state && location.state.movieId && location.state.movieId.length) {
+      setShowReviewForm(true);
+      getUserMovieReviewData(location.state.movieId);
+    }
+  }, [location]);
 
   const callLatestFeedPost = useCallback(() => {
     if (id) {

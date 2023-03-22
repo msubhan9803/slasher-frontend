@@ -39,6 +39,7 @@ const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
 const postCreaterPopoverOptions = ['Delete', 'Report', 'Block user'];
 const newsPostPopoverOptions = ['Report'];
+const loginUserMoviePopoverOptions = ['Edit Review', 'Delete Review'];
 
 interface Props {
   user?: User;
@@ -46,7 +47,9 @@ interface Props {
 }
 
 function PostDetail({ user, postType }: Props) {
-  const { userName, postId, partnerId } = useParams<string>();
+  const {
+    userName, postId, id, partnerId,
+  } = useParams<string>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState<string[]>([]);
@@ -99,11 +102,18 @@ function PostDetail({ user, postType }: Props) {
   }, [checkPostUpdate, postData, dispatch]);
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
+    if (value === 'Edit Review') {
+      navigate(`/app/movies/${id}/reviews`, { state: { movieId: popoverClickProps.id } });
+    }
+    if (value === 'Delete Review') {
+      setDropDownValue('Delete');
+    } else {
+      setDropDownValue(value);
+    }
     if (popoverClickProps.postImages) {
       setPostImages(popoverClickProps.postImages);
     }
     setShow(true);
-    setDropDownValue(value);
     setPopoverClick(popoverClickProps);
   };
 
@@ -768,6 +778,7 @@ function PostDetail({ user, postType }: Props) {
               onPopoverClick={handlePopoverOption}
               otherUserPopoverOptions={otherUserPopoverOptions}
               postCreaterPopoverOptions={postCreaterPopoverOptions}
+              loginUserMoviePopoverOptions={loginUserMoviePopoverOptions}
               isCommentSection
               commentsData={commentData}
               removeComment={removeComment}

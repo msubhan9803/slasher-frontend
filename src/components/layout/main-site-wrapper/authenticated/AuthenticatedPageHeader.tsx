@@ -93,7 +93,7 @@ function AuthenticatedPageHeader(
             <Navbar.Brand as={Link} to="/" className="py-0">
               <HeaderLogo />
             </Navbar.Brand>
-            <StyledNav className="ms-auto">
+            <StyledNav className="ms-auto px-1">
               {
                 desktopNavLinkElements.map((el, index) => {
                   const uniqueId = `nav-link-${index}`;

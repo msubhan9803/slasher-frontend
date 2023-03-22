@@ -25,7 +25,6 @@ interface PostFooterProps {
   commentCount?: string;
   postType?: string;
   handleLikeModal?: (value: PostButtonClickType, postId: string, openDialogue: number) => void;
-  setShowReviewDetail?: (value: boolean) => void;
   movieId?: string;
 }
 const StyleDot = styled(FontAwesomeIcon)`
@@ -39,7 +38,7 @@ const LinearIcon = styled.span<LinearIconProps>`
 `;
 function PostFooter({
   likeIcon, postId, userName, rssfeedProviderId, onLikeClick, onSelect,
-  likeCount, commentCount, handleLikeModal, postType, setShowReviewDetail, movieId,
+  likeCount, commentCount, handleLikeModal, postType, movieId,
 }: PostFooterProps) {
   const showRepost = enableDevFeatures;
   return (
@@ -83,7 +82,7 @@ function PostFooter({
           className={(postType !== 'group-post' && showRepost) ? 'text-xl-start text-lg-center text-md-start text-center ' : postType === 'group-post' ? 'text-center' : 'text-xl-center text-lg-end text-md-center text-end'}
         >
           <HashLink
-            onClick={() => (postType === 'review' ? setShowReviewDetail!(true) : onSelect!(rssfeedProviderId || postId))}
+            onClick={() => (postType !== 'review' && onSelect!(rssfeedProviderId || postId))}
             to={
               (postType === 'review' && movieId && `/app/movies/${movieId}/reviews/${postId}#comments`)
               || (rssfeedProviderId
@@ -126,9 +125,8 @@ PostFooter.defaultProps = {
   onSelect: undefined,
   likeCount: '',
   commentCount: '',
-  handleLikeModal: () => {},
+  handleLikeModal: () => { },
   postType: '',
-  setShowReviewDetail: undefined,
   movieId: '',
 };
 export default PostFooter;

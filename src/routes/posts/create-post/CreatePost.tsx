@@ -3,8 +3,7 @@ import React, { useState } from 'react';
 import {
   Alert, Form,
 } from 'react-bootstrap';
-import Cookies from 'js-cookie';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
 import { createPost } from '../../../api/feed-posts';
 import { useAppSelector } from '../../../redux/hooks';
@@ -34,6 +33,7 @@ function CreatePost() {
   const [searchParams] = useSearchParams();
 
   const navigate = useNavigate();
+  const location = useLocation();
   const paramsType = searchParams.get('type');
   const paramsGroupId = searchParams.get('groupId');
   const [titleContent, setTitleContent] = useState<string>('');
@@ -73,7 +73,7 @@ function CreatePost() {
     return createPost(createPostData, imageArray)
       .then(() => {
         setErrorMessage([]);
-        navigate(`/${Cookies.get('userName')}/posts`);
+        navigate(location.state);
       })
       .catch((error) => {
         const msg = error.response.status === 0 && !error.response.data

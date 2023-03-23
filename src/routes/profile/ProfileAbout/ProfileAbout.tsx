@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -23,20 +23,26 @@ interface Props {
 function ProfileAbout({ user }: Props) {
   const [isEdit, setEdit] = useState<boolean>(false);
   const [aboutMeText, setAboutMeText] = useState<string>(user?.aboutMe || '');
-  const [prevText, setPrevText] = useState('');
+  const [updatedAboutMeText, setUpdatedAboutMeText] = useState('');
   const [charCount, setCharCount] = useState<number>(0);
   const loginUserId = useAppSelector((state) => state.user.user.id);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
 
+  useEffect(() => {
+    setUpdatedAboutMeText(aboutMeText);
+    setAboutMeText(aboutMeText);
+    setCharCount(aboutMeText.length);
+  }, [aboutMeText]);
+
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUpdatedAboutMeText(e.target.value);
     setCharCount(e.target.value.length);
-    setAboutMeText(e.target.value);
   };
   const handleUserAbout = (id: string) => {
     setProgressButtonStatus('loading');
-    updateUserAbout(id, aboutMeText).then((res) => {
+    updateUserAbout(id, updatedAboutMeText).then((res) => {
       setAboutMeText(res.data.aboutMe);
-      setPrevText(aboutMeText);
+      setCharCount(updatedAboutMeText.length);
       setProgressButtonStatus('success');
       setEdit(!isEdit);
     }).catch(() => {
@@ -45,7 +51,9 @@ function ProfileAbout({ user }: Props) {
   };
 
   const handleCancel = () => {
-    setAboutMeText(prevText);
+    setAboutMeText(aboutMeText);
+    setUpdatedAboutMeText(aboutMeText);
+    setCharCount(aboutMeText.length);
   };
   const renderAboutMeText = (text: string) => {
     if (text && text.length > 0) {
@@ -58,8 +66,18 @@ function ProfileAbout({ user }: Props) {
         <div className="text-break" dangerouslySetInnerHTML={{ __html: safeAboutMeText }} />
       );
     }
-
-    return <div className="text-light">This user has not added an &quot;About me&quot; section yet.</div>;
+    if (loginUserId === user?._id) {
+      return (
+        <div className="text-light">
+          To add some info about yourself, click on the
+          {' '}
+          <FontAwesomeIcon icon={solid('pen')} className="me-1 mt-1" size="sm" />
+          {' '}
+          to the right.
+        </div>
+      );
+    }
+    return false;
   };
 
   return (
@@ -85,7 +103,7 @@ function ProfileAbout({ user }: Props) {
                     maxLength={1000}
                     rows={10}
                     as="textarea"
-                    value={aboutMeText}
+                    value={updatedAboutMeText}
                     onChange={handleMessageChange}
                     placeholder="Write here..."
                     style={{ resize: 'none' }}

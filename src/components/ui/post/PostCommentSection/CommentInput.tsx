@@ -22,7 +22,7 @@ interface CommentInputProps {
   setIsReply?: (value: boolean) => void;
   inputFile: any;
   handleFileChange: (value: ChangeEvent<HTMLInputElement>, replyUserId?: string) => void;
-  sendComment: (value: string, value1: string) => void;
+  sendComment: (commentId: string, message: string) => void;
   imageArray: any;
   handleRemoveFile: (postImage: File, replyUserId?: string) => void;
   dataId?: string;
@@ -115,8 +115,6 @@ function CommentInput({
   useEffect(() => {
     if (commentError! && commentError.length) {
       setEditMessage(editMessage);
-    } else {
-      // setEditMessage('');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commentError]);
@@ -124,8 +122,6 @@ function CommentInput({
   useEffect(() => {
     if (commentReplyError! && commentReplyError.length) {
       setEditMessage(editMessage);
-    } else {
-      // setEditMessage('');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commentReplyError]);
@@ -154,7 +150,6 @@ function CommentInput({
           imageArr,
         });
       }
-      // await sendComment(dataId!, editMessage);
     }
   };
 
@@ -273,8 +268,6 @@ function CommentInput({
         className="m-0"
       />
       )}
-      {/* <ErrorMessageList errorMessages={commentReplyError} divClass="mt-3 text-start"
-       className="m-0" /> */}
     </Form>
   );
 }

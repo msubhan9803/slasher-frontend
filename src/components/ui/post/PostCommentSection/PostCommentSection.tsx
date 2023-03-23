@@ -259,7 +259,6 @@ function PostCommentSection({
           setIsReply(true);
           setReplyMessage(msg!);
           setReplyUserName(replyUserName);
-          // setSelectedReplyId(selectedReplyId);
         } else {
           setIsReply(false);
           setReplyMessage('');
@@ -270,8 +269,6 @@ function PostCommentSection({
 
       setUploadPost([]);
     }
-
-    // setSelectedReplyId('');
   };
 
   const handlePopover = (value: string, popoverData: PopoverClickProps) => {

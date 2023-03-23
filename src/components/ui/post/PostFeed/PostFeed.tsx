@@ -12,9 +12,10 @@ import 'swiper/swiper-bundle.css';
 import Cookies from 'js-cookie';
 import InfiniteScroll from 'react-infinite-scroller';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import * as stringSimilarity from 'string-similarity';
 import PostFooter from './PostFooter';
 import {
-  CommentValue, Post, PostButtonClickType, ReplyValue,
+  CommentValue, Post, PostButtonClickType, ReplyValue, WorthWatchingStatus,
 } from '../../../../types';
 import LikeShareModal from '../../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
@@ -37,6 +38,8 @@ import CustomWortItText from '../../CustomWortItText';
 import { useAppSelector } from '../../../../redux/hooks';
 import { HOME_WEB_DIV_ID, NEWS_PARTNER_DETAILS_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
 import LoadingIndicator from '../../LoadingIndicator';
+import { customlinkifyOpts } from '../../../../utils/linkify-utils';
+import { getLocalStorage } from '../../../../utils/localstorage-utils';
 
 const READ_MORE_TEXT_LIMIT = 300;
 
@@ -53,6 +56,7 @@ interface Props {
   commentID?: string;
   commentReplyID?: string;
   otherUserPopoverOptions?: string[];
+  loginUserMoviePopoverOptions?: string[];
   postCreaterPopoverOptions?: string[];
   setIsEdit?: (value: boolean) => void;
   setRequestAdditionalPosts?: (value: boolean) => void;
@@ -76,8 +80,13 @@ interface Props {
   commentImages?: string[];
   setCommentImages?: (val: any) => void;
   commentError?: string[];
-  setShowReviewDetail?: (value: boolean) => void;
+  onSpoilerClick?: (value: string) => void;
 }
+
+interface StyledProps {
+  detailsPage: boolean;
+}
+
 const StyledPostFeed = styled.div`
     .post-separator {
       border-top: 1px solid var(--bs-light);
@@ -96,20 +105,20 @@ const StyleSpoilerButton = styled(RoundButton)`
   height: 42px;
 `;
 
-const StyledContentContainer = styled.div`
+const StyledContentContainer = styled.div<StyledProps>`
   max-width: max-content;
-  cursor: pointer;
+  cursor: ${(props) => (!props?.detailsPage ? 'pointer' : 'auto')};
 `;
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
   commentsData, removeComment, setCommentID, setCommentReplyID, commentID,
-  commentReplyID, otherUserPopoverOptions, postCreaterPopoverOptions, setIsEdit,
-  setRequestAdditionalPosts,
+  commentReplyID, otherUserPopoverOptions, postCreaterPopoverOptions,
+  loginUserMoviePopoverOptions, setIsEdit, setRequestAdditionalPosts,
   noMoreData, isEdit, loadingPosts, onLikeClick, newsPostPopoverOptions,
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
   addUpdateComment, updateState, setUpdateState, isSinglePagePost, onSelect,
   handleSearch, mentionList, commentImages, setCommentImages, commentError, postType,
-  setShowReviewDetail,
+  onSpoilerClick,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -121,6 +130,7 @@ function PostFeed({
   const navigate = useNavigate();
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const [clickedPostId, setClickedPostId] = useState('');
+  const spoilerId = getLocalStorage('spoilersIds');
   const [clickedPostLikeCount, setClickedPostLikeCount] = useState(0);
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
@@ -151,6 +161,8 @@ function PostFeed({
   const onPostContentClick = (post: any) => {
     if (post.rssfeedProviderId) {
       navigate(`/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`);
+    } else if (postType === 'review') {
+      navigate(`/app/movies/${post.movieId}/reviews/${post.id}#comments`);
     } else {
       navigate(`/${post.userName}/posts/${post.id}`);
     }
@@ -161,8 +173,14 @@ function PostFeed({
     if (postDetail && !postDetail.userId && newsPostPopoverOptions?.length) {
       return newsPostPopoverOptions;
     }
-    if (postDetail?.userId && loginUserId !== postDetail?.userId && postType === 'group-post') {
+    /* eslint-disable max-len */
+    // TO-DO: Remove this because it was breaking popover for others user post (comment added by Avadh)
+    // if (postDetail?.userId && loginUserId !== postDetail?.userId && (postType && postType === 'group-post')) {
+    if (postDetail?.userId && loginUserId !== postDetail?.userId) {
       return otherUserPopoverOptions!;
+    }
+    if (postDetail && postType === 'review' && loginUserMoviePopoverOptions?.length) {
+      return loginUserMoviePopoverOptions;
     }
     return popoverOptions;
   };
@@ -171,9 +189,26 @@ function PostFeed({
     let { content } = post;
 
     if (post.rssFeedTitle) {
-      /* eslint-disable no-useless-escape */
-      const pattern = new RegExp(`<(h[1-6])[^>]*>${post.rssFeedTitle}<\/(h[1-6])>`);
-      content = content.replace(pattern, '');
+      // Posts almost always have a title, but sometimes the post title also appears redundantly in
+      // the content (and when it is in the content, we've always found it in an h1 tag so far).
+      // Having a double title display doesn't look good, so we'll remove the second title if we
+      // find it.
+      const firstH1TagRegex = /<h1[^>]*>(.+)<\/h1>/i;
+      const firstH1Tag = content.match(firstH1TagRegex)?.[0];
+      const firstH1TagContent = content.match(firstH1TagRegex)?.[1];
+
+      if (firstH1Tag && firstH1TagContent) {
+        // If the normalized title is very similar to the content from the first h1 tag, then we'll
+        // remove the h1 tag content.
+        const similarity = stringSimilarity.compareTwoStrings(post.rssFeedTitle, firstH1TagContent);
+        // Generally, differences between the title and the h1 title come from html-entity-encoded
+        // versions of the same characters in the h1 title.
+        // We may want to move this logic to the server side feed sync code later on.
+        if (similarity > 0.75) {
+          // Remove first h1 tag because a likely duplicate title was found.
+          content = content.replace(firstH1Tag, '');
+        }
+      }
     }
 
     let showReadMoreLink = false;
@@ -191,35 +226,41 @@ function PostFeed({
     }
     return (
       <div>
-        {postType === 'review' && !post.spoiler && (
+        {postType === 'review' && (
           <div className="d-flex align-items-center">
-            <div className="px-3 py-2 bg-dark rounded-pill d-flex align-items-center">
-              <CustomRatingText
-                rating={post.rating}
-                icon={solid('star')}
-                ratingType="star"
-                customWidth="16.77px"
-                customHeight="16px"
+            {post?.rating !== 0 && (
+              <div className={`px-3 py-2 bg-dark rounded-pill d-flex align-items-center ${(post.worthWatching && !post.goreFactor) && 'me-3'}`}>
+                <CustomRatingText
+                  rating={post.rating}
+                  icon={solid('star')}
+                  ratingType="star"
+                  customWidth="16.77px"
+                  customHeight="16px"
+                />
+              </div>
+            )}
+            {post?.goreFactor !== 0 && (
+              <div className={`align-items-center bg-dark d-flex px-3 py-2 rounded-pill ${post.rating && 'ms-3'} ${post.worthWatching && 'me-3'}`}>
+                <CustomRatingText
+                  rating={post.goreFactor}
+                  icon={solid('burst')}
+                  ratingType="burst"
+                  customWidth="15.14px"
+                  customHeight="16px"
+                />
+              </div>
+            )}
+            {post.worthWatching !== WorthWatchingStatus.NoRating && (
+              <CustomWortItText
+                divClass="align-items-center py-2 px-3 bg-dark rounded-pill"
+                textClass="fs-4"
+                customCircleWidth="16px"
+                customCircleHeight="16px"
+                customIconWidth="8.53px"
+                customIconHeight="8.53px"
+                worthIt={post.worthWatching}
               />
-            </div>
-            <div className="align-items-center bg-dark d-flex mx-3 px-3 py-2 rounded-pill">
-              <CustomRatingText
-                rating={post.goreFactor}
-                icon={solid('burst')}
-                ratingType="burst"
-                customWidth="15.14px"
-                customHeight="16px"
-              />
-            </div>
-            <CustomWortItText
-              divClass="align-items-center py-2 px-3 bg-dark rounded-pill"
-              textClass="fs-4"
-              customCircleWidth="16px"
-              customCircleHeight="16px"
-              customIconWidth="8.53px"
-              customIconHeight="8.53px"
-              worthIt={post.worthWatching}
-            />
+            )}
           </div>
         )}
         {postType === 'review' && (
@@ -227,12 +268,14 @@ function PostFeed({
             {post.contentHeading}
           </h1>
         )}
-        {post.spoiler
+        {(post.spoilers
+          && post.userId !== loginUserId && !spoilerId.includes(post.id)
+        )
           ? (
             <div className="d-flex flex-column align-items-center p-5" style={{ backgroundColor: '#1B1B1B' }}>
               <h2 className="text-primary fw-bold">Warning</h2>
               <p className="fs-3">Contains spoilers</p>
-              <StyleSpoilerButton variant="filter" className="fs-5">
+              <StyleSpoilerButton variant="filter" className="fs-5" onClick={() => onSpoilerClick && onSpoilerClick(post.id)}>
                 Click to view
               </StyleSpoilerButton>
             </div>
@@ -240,14 +283,16 @@ function PostFeed({
             <span>
               {/* eslint-disable-next-line react/no-danger */}
               <StyledContentContainer
+                detailsPage={detailPage ?? false}
                 dangerouslySetInnerHTML={
-                {
-                  __html: escapeHtml && !post?.spoiler
-                    ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content))))
-                    : cleanExternalHtmlContent(content),
+                  {
+                    __html: escapeHtml && !post?.spoiler
+                      // eslint-disable-next-line max-len
+                      ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content)), customlinkifyOpts))
+                      : cleanExternalHtmlContent(content),
+                  }
                 }
-              }
-                onClick={() => onPostContentClick(post)}
+                onClick={() => !detailPage && onPostContentClick(post)}
               />
               {
                 post.hashTag?.map((hashtag: string) => (
@@ -365,7 +410,7 @@ function PostFeed({
                       commentCount={post.commentCount}
                       handleLikeModal={openDialogue}
                       postType={postType}
-                      setShowReviewDetail={setShowReviewDetail}
+                      movieId={post.movieId}
                     />
                   </Col>
                 </Row>
@@ -396,6 +441,7 @@ function PostFeed({
                       loginUserId={loginUserId}
                       otherUserPopoverOptions={otherUserPopoverOptions}
                       postCreaterPopoverOptions={postCreaterPopoverOptions}
+                      loginUserMoviePopoverOptions={loginUserMoviePopoverOptions}
                       setIsEdit={setIsEdit}
                       isEdit={isEdit}
                       onLikeClick={onLikeClick}
@@ -417,7 +463,7 @@ function PostFeed({
               )
             }
           </div>
-          { /* Below ad is to be shown in the end of a single pgae post */ }
+          { /* Below ad is to be shown in the end of a single pgae post */}
           {isSinglePagePost && <PubWiseAd className="text-center mt-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />}
 
           {!detailPage && <hr className="post-separator" />}
@@ -458,6 +504,7 @@ PostFeed.defaultProps = {
   commentReplyID: '',
   otherUserPopoverOptions: [],
   postCreaterPopoverOptions: [],
+  loginUserMoviePopoverOptions: [],
   setIsEdit: undefined,
   isEdit: false,
   setRequestAdditionalPosts: undefined,
@@ -480,6 +527,6 @@ PostFeed.defaultProps = {
   commentError: undefined,
   commentImages: [],
   setCommentImages: () => { },
-  setShowReviewDetail: undefined,
+  onSpoilerClick: () => { },
 };
 export default PostFeed;

@@ -10,7 +10,7 @@ interface Props {
 }
 
 interface EventCardProps {
-  id: number;
+  id: number | string;
   image: string;
   location: string;
   eventName: string;

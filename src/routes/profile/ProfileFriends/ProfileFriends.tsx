@@ -44,7 +44,6 @@ function ProfileFriends({ user }: Props) {
   const popoverOption = ['View profile', 'Message', 'Unfriend', 'Report', 'Block user'];
   const friendsReqCount = useAppSelector((state) => state.user.friendRequestCount);
   const friendContainerElementRef = useRef<any>(null);
-  const [yPositionOfLastFriendElement, setYPositionOfLastFriendElement] = useState<number>(0);
   const loginUserData = useAppSelector((state) => state.user.user);
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
   const [additionalFriend, setAdditionalFriend] = useState<boolean>(false);
@@ -66,13 +65,19 @@ function ProfileFriends({ user }: Props) {
   };
 
   const fetchMoreFriendList = useCallback(() => {
-    userProfileFriends(user._id, page, search)
+    let searchUser = search;
+    while (searchUser.startsWith('@')) {
+      searchUser = searchUser.substring(1);
+    }
+    userProfileFriends(user._id, page, searchUser)
       .then((res) => {
         setLoadingFriends(false);
-        setFriendsList((prev: any) => [
-          ...prev,
-          ...res.data.friends,
-        ]);
+        setFriendsList((prev: any) => (page === 0
+          ? res.data.friends
+          : [
+            ...prev,
+            ...res.data.friends,
+          ]));
         setPage(page + 1);
         if (res.data.friends.length === 0) {
           setNoMoreData(true);
@@ -85,26 +90,12 @@ function ProfileFriends({ user }: Props) {
       );
   }, [search, user._id, page]);
   useEffect(() => {
-    if ((additionalFriend && !loadingFriends) || search) {
-      fetchMoreFriendList();
-    }
-  }, [additionalFriend, loadingFriends, search, fetchMoreFriendList]);
-  const getYPosition = () => {
-    const yPosition = friendContainerElementRef.current?.lastElementChild?.offsetTop;
-    setYPositionOfLastFriendElement(yPosition);
-  };
-  useEffect(() => {
-    getYPosition();
-  }, [friendsList]);
-
-  useEffect(() => {
-    if (yPositionOfLastFriendElement) {
-      const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastFriendElement;
-      if (bottomLine && noMoreData && page > 0) {
+    if (additionalFriend && !loadingFriends && user._id) {
+      setTimeout(() => {
         fetchMoreFriendList();
-      }
+      }, 0);
     }
-  }, [yPositionOfLastFriendElement, fetchMoreFriendList, page, search.length, noMoreData]);
+  }, [additionalFriend, loadingFriends, search, user._id, page, fetchMoreFriendList]);
 
   const renderNoMoreDataMessage = () => {
     const message = friendsList.length === 0 && search
@@ -122,14 +113,10 @@ function ProfileFriends({ user }: Props) {
   };
 
   const handleSearch = (value: string) => {
-    let searchUser = value;
-    if (searchUser.charAt(0) === '@') {
-      searchUser = searchUser.slice(1);
-    }
-    if (value.length > 0) {
-      setFriendsList([]);
-    }
-    setSearch(searchUser);
+    setFriendsList([]);
+    setNoMoreData(false);
+    setAdditionalFriend(true);
+    setSearch(value);
     setPage(0);
   };
   const reportProfileFriend = (reason: string) => {

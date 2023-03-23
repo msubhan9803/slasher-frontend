@@ -16,6 +16,8 @@ import CharactersCounter from './CharactersCounter';
 import RatingButtonGroups from './RatingButtonGroups';
 import CustomWortItText from './CustomWortItText';
 import { StyledBorder } from './StyledBorder';
+import WorthWatchIcon from '../../routes/movies/components/WorthWatchIcon';
+import { MovieData, WorthWatchingStatus } from '../../types';
 
 interface MentionProps {
   id: string;
@@ -28,6 +30,7 @@ interface FormatMentionProps {
   format: string;
 }
 interface Props {
+  movieData?: MovieData;
   errorMessage?: string[] | undefined;
   createUpdatePost?: () => void;
   setPostMessageContent: (val: string) => void;
@@ -47,9 +50,14 @@ interface Props {
   setRating?: (value: number) => void;
   goreFactor?: number;
   setGoreFactor?: (value: number) => void;
-  liked?: boolean;
   selectedPostType?: string;
   setSelectedPostType?: (value: string) => void;
+  setWorthIt?: (val: boolean) => void;
+  liked?: boolean;
+  setLike?: (val: boolean) => void;
+  disLiked?: boolean;
+  setDisLike?: (val: boolean) => void;
+  isWorthIt?: number;
 }
 
 const AddPhotosButton = styled(RoundButton)`
@@ -64,11 +72,12 @@ const PostTypeButton = styled(Button)`
 `;
 
 function CreatePostComponent({
-  errorMessage, createUpdatePost, setPostMessageContent, imageArray, setImageArray,
-  defaultValue, formatMention, setFormatMention, deleteImageIds, setDeleteImageIds,
-  postType, titleContent, setTitleContent, containSpoiler, setContainSpoiler,
-  rating, setRating, goreFactor, setGoreFactor, liked, selectedPostType,
-  setSelectedPostType,
+  movieData, errorMessage, createUpdatePost, setPostMessageContent,
+  imageArray, setImageArray, defaultValue, formatMention, setFormatMention,
+  deleteImageIds, setDeleteImageIds, postType, titleContent, setTitleContent,
+  containSpoiler, setContainSpoiler, rating, setRating, goreFactor, setGoreFactor,
+  selectedPostType, setSelectedPostType, setWorthIt, liked, setLike,
+  disLiked, setDisLike, isWorthIt,
 }: Props) {
   const inputFile = useRef<HTMLInputElement>(null);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
@@ -83,22 +92,20 @@ function CreatePostComponent({
   };
 
   const handleFileChange = (postImage: ChangeEvent<HTMLInputElement>) => {
-    const postImageEvent = postImage;
-    if (!postImageEvent.target) {
+    if (!postImage.target) {
       return;
     }
-    if (postImageEvent.target.name === 'post' && postImageEvent.target && postImageEvent.target.files) {
+    if (postImage.target.name === 'post' && postImage.target && postImage.target.files) {
       const uploadedPostList = [...uploadPost] as any;
       const imageArrayList = [...imageArray];
-      const fileList = postImageEvent.target.files;
+      const fileList = postImage.target.files;
       for (let list = 0; list < fileList.length; list += 1) {
         if (uploadedPostList.length < 10) {
-          const image = postImageEvent.target.files[list];
+          const image = postImage.target.files[list];
           uploadedPostList.push(image);
-          imageArrayList.push(postImageEvent.target.files[list]);
+          imageArrayList.push(postImage.target.files[list]);
         }
       }
-      postImageEvent.target.value = '';
       setUploadPost(uploadedPostList);
       setImageArray(imageArrayList);
     }
@@ -138,17 +145,26 @@ function CreatePostComponent({
             <div>
               <Form.Label className="fw-bold h3">Worth watching?</Form.Label>
               <div className="d-flex align-items-center">
-                {/* // un-comment below codewhen api integrated */}
-                {/* <WorthWatchIcon /> */}
-                <CustomWortItText
-                  divClass="align-items-center py-2 px-3 bg-black rounded-pill"
-                  textClass="fs-4"
-                  customCircleWidth="20px"
-                  customCircleHeight="20px"
-                  customIconWidth="10.67px"
-                  customIconHeight="10.67px"
-                  worthIt={liked || false}
+                <WorthWatchIcon
+                  movieData={movieData}
+                  setWorthIt={setWorthIt}
+                  liked={liked!}
+                  setLike={setLike!}
+                  disLiked={disLiked!}
+                  setDisLike={setDisLike!}
                 />
+                {isWorthIt !== WorthWatchingStatus.NoRating
+                  && (
+                    <CustomWortItText
+                      divClass="align-items-center py-2 px-3 bg-black rounded-pill"
+                      textClass="fs-4"
+                      customCircleWidth="20px"
+                      customCircleHeight="20px"
+                      customIconWidth="10.67px"
+                      customIconHeight="10.67px"
+                      worthIt={isWorthIt}
+                    />
+                  )}
               </div>
             </div>
           </div>
@@ -265,17 +281,15 @@ function CreatePostComponent({
             ))}
           </Row>
         </Col>
+        <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
         {postType !== 'review'
           && (
-            <>
-              <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
-              <Col md="auto" className="mb-3 mb-md-0 order-0 order-md-1 me-auto">
-                <AddPhotosButton size="md" disabled={uploadPost && uploadPost.length >= 10} className="mt-4 border-0 btn btn-form w-100 rounded-5" onClick={() => inputFile.current?.click()}>
-                  <FontAwesomeIcon icon={regular('image')} className="me-2" />
-                  <span className="h3">Add photos</span>
-                </AddPhotosButton>
-              </Col>
-            </>
+            <Col md="auto" className="mb-3 mb-md-0 order-0 order-md-1 me-auto">
+              <AddPhotosButton size="md" disabled={uploadPost && uploadPost.length >= 10} className="mt-4 border-0 btn btn-form w-100 rounded-5" onClick={() => inputFile.current?.click()}>
+                <FontAwesomeIcon icon={regular('image')} className="me-2" />
+                <span className="h3">Add photos</span>
+              </AddPhotosButton>
+            </Col>
           )}
         <Col md="auto" className={postType === 'review' ? '' : 'order-2 ms-auto'}>
           <RoundButton className="px-4 mt-4 w-100" size="md" onClick={createUpdatePost}>
@@ -287,6 +301,7 @@ function CreatePostComponent({
   );
 }
 CreatePostComponent.defaultProps = {
+  movieData: undefined,
   defaultValue: '',
   deleteImageIds: [],
   setDeleteImageIds: () => { },
@@ -303,8 +318,13 @@ CreatePostComponent.defaultProps = {
   setRating: undefined,
   goreFactor: 0,
   setGoreFactor: undefined,
-  liked: false,
   selectedPostType: '',
   setSelectedPostType: undefined,
+  setWorthIt: () => { },
+  liked: false,
+  setLike: () => { },
+  disLiked: false,
+  setDisLike: () => { },
+  isWorthIt: 0,
 };
 export default CreatePostComponent;

@@ -40,7 +40,6 @@ function MovieReviews({ movieData, setMovieData }: Props) {
   const [errorMessage, setErrorMessage] = useState([]);
   const [postContent, setPostContent] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
-  const [titleContent, setTitleContent] = useState<string>('');
   const [containSpoiler, setContainSpoiler] = useState<boolean>(false);
   const [rating, setRating] = useState(0);
   const [goreFactor, setGoreFactor] = useState(0);
@@ -61,7 +60,7 @@ function MovieReviews({ movieData, setMovieData }: Props) {
 
   const getUserMovieReviewData = (reviewPostId: string) => {
     feedPostDetail(reviewPostId).then((res) => {
-      setTitleContent(res.data.title);
+      // setTitleContent(res.data.title);
       setPostContent(res.data.message);
       setContainSpoiler(res.data.spoilers);
     });
@@ -198,7 +197,6 @@ function MovieReviews({ movieData, setMovieData }: Props) {
     /* eslint no-useless-escape: 0 */
     const postContentWithMentionReplacements = (postContent.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
     const movieReviewPostData = {
-      title: titleContent,
       message: postContentWithMentionReplacements,
       spoiler: containSpoiler,
       rate: rating + 1,
@@ -291,7 +289,6 @@ function MovieReviews({ movieData, setMovieData }: Props) {
           callLatestFeedPost();
           setRating(0);
           setGoreFactor(0);
-          setTitleContent('');
           setPostContent('');
           setContainSpoiler(false);
         })
@@ -362,8 +359,6 @@ function MovieReviews({ movieData, setMovieData }: Props) {
               formatMention={formatMention}
               setFormatMention={setFormatMention}
               postType="review"
-              titleContent={titleContent}
-              setTitleContent={setTitleContent}
               createUpdatePost={addPost}
               containSpoiler={containSpoiler}
               setContainSpoiler={setContainSpoiler}

@@ -227,7 +227,7 @@ function PostFeed({
     return (
       <div>
         {postType === 'review' && (
-          <div className="d-flex align-items-center">
+          <div className="d-flex align-items-center mb-3">
             {post?.rating !== 0 && (
               <div className={`px-3 py-2 bg-dark rounded-pill d-flex align-items-center ${(post.worthWatching && !post.goreFactor) && 'me-3'}`}>
                 <CustomRatingText
@@ -263,16 +263,11 @@ function PostFeed({
             )}
           </div>
         )}
-        {postType === 'review' && (
-          <h1 className="h2 my-3">
-            {post.contentHeading}
-          </h1>
-        )}
         {(post.spoilers
           && post.userId !== loginUserId && !spoilerId.includes(post.id)
         )
           ? (
-            <div className="d-flex flex-column align-items-center p-5" style={{ backgroundColor: '#1B1B1B' }}>
+            <div className="d-flex flex-column align-items-center p-5 mt-3" style={{ backgroundColor: '#1B1B1B' }}>
               <h2 className="text-primary fw-bold">Warning</h2>
               <p className="fs-3">Contains spoilers</p>
               <StyleSpoilerButton variant="filter" className="fs-5" onClick={() => onSpoilerClick && onSpoilerClick(post.id)}>

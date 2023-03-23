@@ -114,7 +114,7 @@ function PostHeader({
               <div className="d-none d-md-flex d-lg-none d-xl-flex align-items-center">
                 <BorderButton
                   customButtonCss="width: 125px;"
-                  buttonClass={`${bgColor ? 'text-black' : 'text-white'} py-2`}
+                  buttonClass={`${bgColor ? 'text-black' : 'text-white'}`}
                   variant="sm"
                   toggleBgColor={bgColor}
                   handleClick={() => setBgColor(!bgColor)}

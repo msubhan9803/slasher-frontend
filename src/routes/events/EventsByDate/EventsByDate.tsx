@@ -246,6 +246,7 @@ function EventsByDate() {
           onActiveStartDateChange={onActiveStartDateChange}
           onDrillDown={onDrillDownChange}
           value={selectedDate}
+          showNeighboringMonth={false}
           minDetail="year"
           prev2Label={null}
           next2Label={null}

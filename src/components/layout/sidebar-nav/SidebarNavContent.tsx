@@ -29,40 +29,40 @@ const sidebarMenuList: MenuType[] = [
     label: 'Events', icon: solid('calendar-day'), iconColor: '#05FF00', to: '/app/events', id: 2,
   },
   {
-    label: 'Places', icon: solid('location-dot'), iconColor: '#FFC700', to: '/app/places', id: 3, comingSoon: true,
+    label: 'Movies', icon: solid('film'), iconColor: '#FF343E', to: '/app/movies', id: 3,
   },
   {
-    label: 'Groups', icon: solid('user-group'), iconColor: '#E1B065', to: '/app/groups', id: 4, comingSoon: true,
+    label: 'Books', icon: solid('book-skull'), iconColor: '#D88100', to: '/app/books', id: 4,
   },
   {
-    label: 'Dating', icon: solid('heart'), iconColor: '#FF0000', to: '/app/dating', id: 5, comingSoon: true,
+    label: 'Podcasts', icon: solid('podcast'), iconColor: '#8F00FF', to: '/app/podcasts', id: 5,
   },
   {
-    label: 'Podcasts', icon: solid('podcast'), iconColor: '#8F00FF', to: '/app/podcasts', id: 6, comingSoon: true,
+    label: 'Music', icon: solid('headphones'), iconColor: '#7C4DFF', to: '/app/music', id: 6,
   },
   {
-    label: 'Video Channels', icon: solid('tv'), iconColor: '#00E676', to: '/app/videos', id: 7, comingSoon: true,
+    label: 'Art', icon: solid('palette'), iconColor: '#799F0C', to: '/app/art', id: 7,
   },
   {
-    label: 'Shopping', icon: solid('store'), iconColor: '#00D2FF', to: '/app/shopping', id: 8, comingSoon: true,
+    label: 'Settings', icon: solid('gear'), iconColor: '#888888', to: '/app/account', id: 8, desktopOnly: true,
   },
   {
-    label: 'Movies', icon: solid('film'), iconColor: '#FF343E', to: '/app/movies', id: 9,
+    label: 'Help', icon: solid('circle-question'), iconColor: '#9E9E9E', to: '/app/help', id: 9, desktopOnly: true,
   },
   {
-    label: 'Books', icon: solid('book-skull'), iconColor: '#D88100', to: '/app/books', id: 10, comingSoon: true,
+    label: 'Groups', icon: solid('user-group'), iconColor: '#E1B065', to: '/app/groups', id: 10, comingSoon: true,
   },
   {
-    label: 'Music', icon: solid('headphones'), iconColor: '#7C4DFF', id: 11, to: '/app/music', comingSoon: true,
+    label: 'Places', icon: solid('location-dot'), iconColor: '#FFC700', to: '/app/places', id: 11, comingSoon: true,
   },
   {
-    label: 'Art', icon: solid('palette'), iconColor: '#799F0C', id: 12, to: '/app/art', comingSoon: true,
+    label: 'Dating', icon: solid('heart'), iconColor: '#FF0000', to: '/app/dating', id: 12, comingSoon: true,
   },
   {
-    label: 'Help', icon: solid('circle-question'), iconColor: '#9E9E9E', id: 13, to: '/app/help', desktopOnly: true,
+    label: 'Video Channels', icon: solid('tv'), iconColor: '#00E676', to: '/app/videos', id: 13, comingSoon: true,
   },
   {
-    label: 'Settings', icon: solid('gear'), iconColor: '#888888', id: 14, to: '/app/account/settings', desktopOnly: true,
+    label: 'Shopping', icon: solid('store'), iconColor: '#00D2FF', to: '/app/shopping', id: 14, comingSoon: true,
   },
 ];
 

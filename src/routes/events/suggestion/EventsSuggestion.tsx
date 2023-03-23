@@ -11,20 +11,70 @@ import {
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import Cookies from 'js-cookie';
-import RoundButton from '../../../components/ui/RoundButton';
+import { Country, State } from 'country-state-city';
 import CustomDatePicker from '../../../components/ui/CustomDatePicker';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import { suggestEvent, getEventCategoriesOption } from '../../../api/event';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
-import { stateOptions } from '../../../utils/location-utils';
 import CharactersCounter from '../../../components/ui/CharactersCounter';
 import CustomText from '../../../components/ui/CustomText';
+import { sortInPlace } from '../../../utils/text-utils';
+import useProgressButton from '../../../components/ui/ProgressButton';
+
+// NOTE: From the state list of US, we get US states along with US territories.
+// We don't want to show US territories as states of US but individual countries.
+// https://slasher.atlassian.net/browse/SD-920
+const STATES_TO_REMOVE_FROM_US = [
+  'American Samoa',
+  'Guam',
+  'Northern Mariana Islands',
+  'Puerto Rico',
+  'Trust Territories',
+  'Virgin Islands',
+  'Baker Island',
+  'Jarvis Island',
+  'Johnston Atoll',
+  'Kingman Reef',
+  'Midway Atoll',
+  'Navassa Island',
+  'Palmyra Atoll',
+  'United States Minor Outlying Islands',
+  'United States Virgin Islands',
+  'Wake Island',
+  'Howland Island',
+  // NOTE: We want to show `District of Columbia` in our list of US states.
+  // 'District of Columbia',
+];
+// eslint-disable-next-line max-len
+const filterUndesirableStatesFn = (state: string) => !STATES_TO_REMOVE_FROM_US.map((s) => s.toLowerCase()).includes(state.toLowerCase());
+
+function getStatesbyCountryName(countryName: string): string[] {
+  if (!countryName) { return []; }
+  const countryIso = Country.getAllCountries().find((c) => c.name === countryName)?.isoCode;
+  // If no country iso code found then use `countryName` as `state`
+  if (!countryIso) { return [countryName]; }
+  let statesOfCountry = State.getStatesOfCountry(
+    countryIso,
+  ).map((state) => state.name);
+
+  if (countryIso === 'US') {
+    statesOfCountry = statesOfCountry.filter(filterUndesirableStatesFn);
+  }
+  // If country has no states then use `countryName` as `state`
+  return statesOfCountry.length === 0 ? [countryName] : statesOfCountry;
+}
+
+const COUNTRIES_TO_ADD = ['Trust Territories'];
+function getCountries() {
+  const fromLibraray = Country.getAllCountries().map((c) => c.name);
+  return sortInPlace([...fromLibraray, ...COUNTRIES_TO_ADD]);
+}
 
 interface Option {
   event_name: string;
   _id: string;
 }
-interface Value {
+interface EventForm {
   name: string;
   eventType: string;
   country: string;
@@ -36,6 +86,7 @@ interface Value {
   file?: File | null | undefined;
   address: string;
 }
+type EventFormKeys = keyof EventForm;
 
 const CustomCol = styled(Col)`
   width: 13.125rem !important;
@@ -43,6 +94,19 @@ const CustomCol = styled(Col)`
 const CustomContainer = styled(Container)`
   background-color: #1B1B1B;
 `;
+
+function prettifyErrorMessages(errorMessageList: string[]) {
+  return errorMessageList.map((errorMessage) => errorMessage
+    .replace('event_type', 'Event category')
+    .replace('event_info', 'Event description')
+    .replace('name', 'Event name')
+    .replace('country', 'Country')
+    .replace('state', 'State')
+    .replace('address', 'Address')
+    .replace('city', 'City')
+    .replace('endDate', 'End date')
+    .replace('startDate', 'Start date'));
+}
 
 function EventSuggestion() {
   const [description, setDescription] = useState<string>('');
@@ -53,14 +117,18 @@ function EventSuggestion() {
   const [optionLoading, setOptionLoading] = useState<boolean>(false);
   const [options, setOptions] = useState<Option[]>([]);
   const userId = Cookies.get('userId');
-  const [eventSuggestionFormValue, setEventSuggestionFormValue] = useState<Value>({
+  const [eventForm, setEventForm] = useState<EventForm>({
     name: '', eventType: '', country: '', state: '', city: '', eventInfo: '', url: '', author: '', address: '',
   });
   const [errors, setErrors] = useState<string[]>([]);
-  const handleChange = (value: any, key: string) => {
-    const eventSuggestionFormValues = { ...eventSuggestionFormValue };
-    (eventSuggestionFormValues as any)[key] = value;
-    setEventSuggestionFormValue(eventSuggestionFormValues);
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
+
+  const handleChange = (value: any, key: EventFormKeys) => {
+    if (key === 'country') {
+      setEventForm({ ...eventForm, [key]: value, state: '' });
+      return;
+    }
+    setEventForm({ ...eventForm, [key]: value });
   };
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCharCount(e.target.value.length);
@@ -77,12 +145,15 @@ function EventSuggestion() {
   const onSendEventData = () => {
     const {
       name, eventType, country, state, eventInfo, url, city, file, address,
-    } = eventSuggestionFormValue;
+    } = eventForm;
 
+    setProgressButtonStatus('loading');
     suggestEvent(name, userId || '', eventType, country, state, city, eventInfo, url || '', file, startDate, endDate, address).then(() => {
+      setProgressButtonStatus('success');
       setErrors([]);
     }).catch((error) => {
-      setErrors(error.response.data.message);
+      setProgressButtonStatus('failure');
+      setErrors(prettifyErrorMessages(error.response.data.message));
     });
   };
 
@@ -118,8 +189,8 @@ function EventSuggestion() {
         <h2 className="d-md-block mt-4">Event Information</h2>
         <Row>
           <Col md={6} className="mt-3">
-            <Form.Select aria-label="Event Category" defaultValue="" className="fs-4" onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e.target.value, 'eventType')}>
-              <option value="" disabled>Event Category</option>
+            <Form.Select aria-label="Event category" defaultValue="" className="fs-4" onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e.target.value, 'eventType')}>
+              <option value="" disabled>Event category</option>
               {optionLoading ? <option value="" disabled>Loading event categories…</option>
                 : options.map((option: Option) => (
                   <option key={option._id} value={option._id}>{option.event_name}</option>
@@ -167,32 +238,39 @@ function EventSuggestion() {
         </Row>
         <Row>
           <Col md={6} className="mt-3">
+            <Form.Select aria-label="Country" defaultValue="" className="fs-4" onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e.target.value, 'country')}>
+              <option value="">Country</option>
+              {getCountries().map((country) => (
+                <option
+                  key={country}
+                  value={country}
+                >
+                  {country}
+                </option>
+              ))}
+            </Form.Select>
+          </Col>
+          <Col md={6} className="mt-3">
+            <Form.Select aria-label="State/Province" defaultValue={eventForm.state} className="fs-4" onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e.target.value, 'state')}>
+              <option value="">State/Province</option>
+              {getStatesbyCountryName(eventForm.country).map((state) => (
+                <option key={state} value={state}>{state}</option>
+              ))}
+            </Form.Select>
+          </Col>
+        </Row>
+        <Row>
+          <Col md={6} className="mt-3">
             <Form.Control aria-label="Street Address" type="text" placeholder="Street Address" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'address')} />
           </Col>
           <Col md={6} className="mt-3">
             <Form.Control aria-label="City" type="text" placeholder="City" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'city')} />
           </Col>
         </Row>
-        <Row>
-          <Col md={6} className="mt-3">
-            <Form.Select aria-label="State/Province" defaultValue="" className="fs-4" onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e.target.value, 'state')}>
-              <option value="" disabled>State/Province</option>
-              {stateOptions.map((state) => (
-                <option key={state.value} value={state.value}>{state.name}</option>
-              ))}
-            </Form.Select>
-          </Col>
-          <Col md={6} className="mt-3">
-            <Form.Select aria-label="Country" defaultValue="" className="fs-4" onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e.target.value, 'country')}>
-              <option value="" disabled>Country</option>
-              <option value="United States">United States</option>
-            </Form.Select>
-          </Col>
-        </Row>
         <ErrorMessageList errorMessages={errors} className="mt-4" />
         <Row className="my-4 pe-md-5">
           <Col md={5}>
-            <RoundButton className="w-100 mb-5 mb-md-0 p-1" size="lg" onClick={() => onSendEventData()}>Send</RoundButton>
+            <ProgressButton label="Send" className="w-100 mb-5 mb-md-0 p-1" onClick={() => onSendEventData()} />
           </Col>
         </Row>
       </CustomContainer>

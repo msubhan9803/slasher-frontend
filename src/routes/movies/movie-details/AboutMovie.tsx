@@ -8,7 +8,7 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import {
   Navigate,
-  Route, Routes, useNavigate, useParams, useSearchParams,
+  Route, Routes, useLocation, useNavigate, useParams, useSearchParams,
 } from 'react-router-dom';
 import Switch from '../../../components/ui/Switch';
 import AboutDetails from './AboutDetails';
@@ -71,7 +71,7 @@ type OptionType = { value: string, label: string, devOnly?: boolean };
 const tabsForAllViews: OptionType[] = [
   { value: 'details', label: 'Details' },
   { value: 'posts', label: 'Posts', devOnly: true },
-  { value: 'reviews', label: 'Reviews', devOnly: true },
+  { value: 'reviews', label: 'Reviews' },
 ];
 const tabsForSelf: OptionType[] = [
   ...tabsForAllViews,
@@ -84,14 +84,25 @@ const filterEnableDevFeatures = (t: OptionType) => (enableDevFeatures ? true : (
 function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData) {
   const [searchParams] = useSearchParams();
   const [movieIdList, setMovieIdList] = useState();
+  const [isReviewDetail, setReviewDetail] = useState(false);
   const selfView = searchParams.get('view') === 'self';
   const tabs = (selfView ? tabsForSelf : tabsForViewer).filter(filterEnableDevFeatures);
   const navigate = useNavigate();
   const params = useParams();
+  const location = useLocation();
 
   useEffect(() => {
     if (params['*'] === 'edit' && !selfView) { navigate(`/app/movies/${params.id}/details`); }
   });
+
+  useEffect(() => {
+    if (location.hash === '#comments') {
+      setReviewDetail(true);
+    } else {
+      setReviewDetail(false);
+    }
+  }, [location]);
+
   const [bgColor, setBgColor] = useState<boolean>(false);
   const [movieIconListData, setMovieIconListData] = useState(MovieIconList);
   const handleMovieAddRemove = (labelName: string, isFavorite: boolean) => {
@@ -152,9 +163,31 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
       <div className="bg-dark my-3 p-4 pb-0 rounded-2">
         <Row className="justify-content-center">
           <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
-            <StyledMoviePoster className="mx-4">
-              <Image src={aboutMovieData?.mainData?.poster_path} alt="movie poster" className="rounded-3 w-100 h-100" />
-            </StyledMoviePoster>
+            <div>
+              <StyledMoviePoster className="mx-4">
+                <Image src={aboutMovieData?.mainData?.poster_path} alt="movie poster" className="rounded-3 w-100 h-100" />
+              </StyledMoviePoster>
+              <div className="d-none d-xl-block mt-3">
+                <p className="fs-5">Your lists</p>
+                <div className="mt-2 d-flex justify-content-between">
+                  {movieIconListData.map((iconList: MovieIconProps) => (
+                    <CustomGroupIcons
+                      key={iconList.key}
+                      label={iconList.label}
+                      icon={iconList.icon}
+                      iconColor={iconList.iconColor}
+                      width={iconList.width}
+                      height={iconList.height}
+                      addData={iconList.addMovie}
+                      onClickIcon={() => handleMovieAddRemove(iconList.key, iconList.addMovie)}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="p-3 d-none d-xl-block">
+                <RoundButton variant="black" className="w-100 fs-3">Add to list</RoundButton>
+              </div>
+            </div>
           </Col>
           <Col xl={7}>
             <AboutDetails
@@ -162,30 +195,6 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
               setMovieData={setMovieData}
               aboutMovieDetail={aboutMovieData as AdditionalMovieData}
             />
-          </Col>
-        </Row>
-        <Row>
-          <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
-            <div className="d-none d-xl-block mt-3">
-              <p className="fs-5">Your lists</p>
-              <div className="mt-2 d-flex justify-content-between">
-                {movieIconListData.map((iconList: MovieIconProps) => (
-                  <CustomGroupIcons
-                    key={iconList.key}
-                    label={iconList.label}
-                    icon={iconList.icon}
-                    iconColor={iconList.iconColor}
-                    width={iconList.width}
-                    height={iconList.height}
-                    addData={iconList.addMovie}
-                    onClickIcon={() => handleMovieAddRemove(iconList.key, iconList.addMovie)}
-                  />
-                ))}
-              </div>
-            </div>
-            <div className="p-3 d-none d-xl-block">
-              <RoundButton variant="black" className="w-100 fs-3">Add to list</RoundButton>
-            </div>
           </Col>
         </Row>
         {enableDevFeatures
@@ -239,7 +248,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
         </Row>
         <Row className="justify-content-center">
           <Col xs={12}>
-            <TabLinks tabsClass="start" tabsClassSmall="start" tabLink={tabs} toLink={`/app/movies/${params.id}`} selectedTab={params['*']} params={selfView ? '?view=self' : ''} />
+            <TabLinks tabsClass="start" tabsClassSmall="start" tabLink={tabs} toLink={`/app/movies/${params.id}`} selectedTab={isReviewDetail ? 'reviews' : params['*']} params={selfView ? '?view=self' : ''} />
           </Col>
         </Row>
       </div>
@@ -260,7 +269,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
             </>
           )}
         />
-        <Route path="reviews" element={<MovieReviews />} />
+        <Route path="reviews" element={<MovieReviews movieData={movieData} setMovieData={setMovieData} />} />
         <Route path="reviews/:postId" element={<MovieReviewDetails />} />
         <Route path="posts" element={<MoviePosts />} />
         <Route path="edit" element={<MovieEdit />} />

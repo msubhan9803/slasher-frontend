@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
@@ -63,11 +63,28 @@ const StyleWatchWorthIcon = styled(FontAwesomeIcon)`
 type Props = {
   movieData?: MovieData;
   setMovieData?: React.Dispatch<React.SetStateAction<MovieData | undefined>>;
+  setWorthIt?: any;
+  liked: boolean;
+  setLike: (val: boolean) => void;
+  disLiked: boolean;
+  setDisLike: (val: boolean) => void;
 };
-function WorthWatchIcon({ movieData, setMovieData }: Props) {
-  const [liked, setLike] = useState<boolean>(movieData!.userData?.worthWatching === WorthWatchingStatus.Up);
-  const [disLiked, setDisLike] = useState<boolean>(movieData!.userData?.worthWatching === WorthWatchingStatus.Down);
+function WorthWatchIcon({
+  movieData, setMovieData, setWorthIt, liked, setLike,
+  disLiked, setDisLike,
+}: Props) {
   const params = useParams();
+  useEffect(() => {
+    if (movieData!.userData?.worthWatching === WorthWatchingStatus.Up) {
+      setLike(true);
+      setDisLike(false);
+    }
+    if (movieData!.userData?.worthWatching === WorthWatchingStatus.Down) {
+      setDisLike(true);
+      setLike(false);
+    }
+  }, [movieData, setLike, setDisLike]);
+
   const handleThumbsUp = useCallback(() => {
     if (!params?.id) { return; }
     // Like if not liked already (Happy Path)
@@ -84,7 +101,7 @@ function WorthWatchIcon({ movieData, setMovieData }: Props) {
           setLike(false); setDisLike(false);
         });
     }
-  }, [liked, params.id, setMovieData]);
+  }, [liked, params.id, setDisLike, setLike, setMovieData]);
 
   const handleThumbsDown = useCallback(() => {
     if (!params?.id) { return; }
@@ -103,7 +120,20 @@ function WorthWatchIcon({ movieData, setMovieData }: Props) {
           setLike(false); setDisLike(false);
         });
     }
-  }, [disLiked, params.id, setMovieData]);
+  }, [disLiked, params.id, setDisLike, setLike, setMovieData]);
+
+  //  !! UPDATE BY AVADH using `setWorthIt` api
+  // const handleThumbsUp = useCallback(() => {
+  //   setWorthIt(WorthWatchingStatus.Up);
+  //   setLike(true); setDisLike(false);
+  // }, [setLike, setDisLike, setWorthIt]);
+
+  //  !! UPDATE BY AVADH using `setWorthIt` api
+  // const handleThumbsDown = useCallback(() => {
+  //   setWorthIt(WorthWatchingStatus.Down);
+  //   setLike(false); setDisLike(true);
+  // }, [setLike, setDisLike, setWorthIt]);
+
   return (
     <div className="mx-1 d-flex align-items-center justify-content-around">
       <div className="mt-2 d-flex justify-content-center ">
@@ -131,6 +161,7 @@ function WorthWatchIcon({ movieData, setMovieData }: Props) {
 }
 WorthWatchIcon.defaultProps = {
   movieData: null,
-  setMovieData: undefined,
+  setWorthIt: undefined,
+  setMovieData: () => {},
 };
 export default WorthWatchIcon;

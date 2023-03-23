@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Col, Image, Row } from 'react-bootstrap';
+import { Col, Row } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import styled from 'styled-components';
@@ -40,11 +40,10 @@ const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => t.label !== 'Watch
 const CustomCol = styled(Col)`
   margin-top: -3.938rem;
 `;
-const ImageContainer = styled.div`
-  img {
-    height: 320px;
-    object-fit: cover;
-  }
+const ProfileCoverImage = styled.img`
+  width: 100%;
+  object-fit: cover;
+  aspect-ratio: 2.59375;
 `;
 const StyledPopoverContainer = styled.div`
   top: 70px;
@@ -115,9 +114,7 @@ function ProfileHeader({ tabKey, user, showTabs }: Props) {
     <div className="bg-dark bg-mobile-transparent rounded mb-4">
       <Row className="p-md-4">
         <Col>
-          <ImageContainer>
-            <Image src={user.coverPhoto || defaultCoverImage} alt="Cover picture" className="w-100 rounded" />
-          </ImageContainer>
+          <ProfileCoverImage src={user.coverPhoto || defaultCoverImage} alt="Cover picture" className="mt-3 mt-md-0 w-100 rounded" />
         </Col>
         <Row className="d-flex ms-3">
           <CustomCol md={3} lg={12} xl="auto" className="text-center text-lg-center text-xl-start  position-relative">
@@ -148,7 +145,7 @@ function ProfileHeader({ tabKey, user, showTabs }: Props) {
                 {isSelfUserProfile
                   && (
                     <div className="d-flex justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
-                      <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4 py-2" onClick={() => navigate(`/${userName}/edit`)}>
+                      <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4" onClick={() => navigate(`/${userName}/edit`)}>
                         <FontAwesomeIcon icon={solid('pen')} className="me-2 align-self-center" />
                         <h2 className="h3 mb-0"> Edit profile</h2>
                       </RoundButton>

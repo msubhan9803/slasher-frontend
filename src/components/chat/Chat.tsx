@@ -16,17 +16,17 @@ interface Props {
 }
 
 const StyledChatContainer = styled.div<Props>`
-  height: calc(100vh - 170px);
+  height: calc(100dvh - 170px);
   .card {
     height: 100%;
     .card-header {
       z-index: 1;
     }
     .card-body {
-      height: calc(100vh - 165px);
+      height: calc(100dvh - 165px);
       z-index: 0;
       .conversation-container {
-        height: ${(props) => (props.height ? 'calc(100vh - 500px)' : 'calc(100vh - 355px)')};
+        height: ${(props) => (props.height ? 'calc(100dvh - 500px)' : 'calc(100dvh - 355px)')};
         overflow-x: hidden;
       }
       * {
@@ -44,9 +44,9 @@ const StyledChatContainer = styled.div<Props>`
           background: rgba(255, 255, 255, .1);
       }
       @media (max-width: ${LG_MEDIA_BREAKPOINT}) {
-        height: calc(100vh - 165px);
+        height: calc(100dvh - 165px);
         .conversation-container {
-          height: ${(props) => (props.height ? 'calc(100vh - 372px)' : 'calc(100vh - 235px)')};
+          height: ${(props) => (props.height ? 'calc(100dvh - 372px)' : 'calc(100dvh - 235px)')};
         }
       }
     }

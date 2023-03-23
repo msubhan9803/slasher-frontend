@@ -24,10 +24,11 @@ function SortData({
   };
 
   const handleKeyDown = (event: any) => {
-    if (!isDropdownOpen) {
-      return;
+    if (event.key === 'Enter') {
+      setIsDropdownOpen(!isDropdownOpen);
+    } else if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+      event.preventDefault();
     }
-    event.preventDefault();
   };
   return (
     <Form>
@@ -35,7 +36,7 @@ function SortData({
         value={sortVal!}
         aria-label="Default select example"
         onChange={onSelectSort}
-        className={`fs-5 shadow-none px-4 ${className}`}
+        className={`fs-5 px-4 ${className}`}
         onKeyDown={handleKeyDown}
         onClick={handleDropdownToggle}
       >

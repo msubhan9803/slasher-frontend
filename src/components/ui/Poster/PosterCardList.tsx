@@ -30,16 +30,14 @@ function PosterCardList({ dataList, pubWiseAdUnitDivId, onSelect }: PosterCardPr
   const scrollPosition: any = useAppSelector((state) => state.scrollPosition);
   const location = useLocation();
   useEffect(() => {
-    setTimeout(() => {
-      if (dataList.length > 0
+    if (dataList.length > 0
         && scrollPosition.position > 0
         && scrollPosition?.pathname === location.pathname) {
-        window.scrollTo({
-          top: scrollPosition?.position,
-          behavior: 'instant' as any,
-        });
-      }
-    }, 0);
+      window.scrollTo({
+        top: scrollPosition?.position,
+        behavior: 'instant' as any,
+      });
+    }
   }, [dataList, scrollPosition, location.pathname]);
   return (
     <Row className="mt-0">

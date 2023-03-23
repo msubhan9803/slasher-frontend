@@ -12,12 +12,12 @@ import NotificationTimestamp from './NotificationTimestamp';
 import NotificationCard from './NotificationCard';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import NotificationsRIghtSideNav from './NotificationsRIghtSideNav';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import { useAppSelector, useAppDispatch } from '../../redux/hooks';
 import { setScrollPosition } from '../../redux/slices/scrollPositionSlice';
 import { SocketContext } from '../../context/socket';
 import { setUserInitialData } from '../../redux/slices/userSlice';
+import NotificationsRightSideNav from './NotificationsRightSideNav';
 
 function Notifications() {
   const popoverOption = ['Settings'];
@@ -41,6 +41,7 @@ function Notifications() {
         || scrollPosition?.position === 0
         || notificationData.length >= scrollPosition?.data?.length
         || notificationData.length === 0
+        || scrollPosition.pathname !== location.pathname
       ) {
         setLoadingPosts(true);
         getNotifications(
@@ -52,13 +53,16 @@ function Notifications() {
             ...notification,
           ]);
           if (res.data.length === 0) { setNoMoreData(true); }
-          const positionData = {
-            pathname: '',
-            position: 0,
-            data: [],
-            positionElementId: '',
-          };
-          dispatch(setScrollPosition(positionData));
+          if (scrollPosition.pathname === location.pathname
+            && notificationData.length >= scrollPosition.data.length + 10) {
+            const positionData = {
+              pathname: '',
+              position: 0,
+              data: [],
+              positionElementId: '',
+            };
+            dispatch(setScrollPosition(positionData));
+          }
         }).catch(
           (error) => {
             setNoMoreData(true);
@@ -69,7 +73,7 @@ function Notifications() {
         );
       }
     }
-  }, [requestAdditionalPosts, loadingPosts, scrollPosition, notificationData, dispatch]);
+  }, [requestAdditionalPosts, loadingPosts, scrollPosition, notificationData, dispatch, location.pathname]);
 
   const persistScrollPosition = (id: string) => {
     const updateNotification = notificationData.map((notify: any) => {
@@ -127,7 +131,16 @@ function Notifications() {
         }
       });
   };
-
+  useEffect(() => {
+    if (notificationData.length > 0
+      && scrollPosition.position > 0
+      && scrollPosition?.pathname === location.pathname) {
+      window.scrollTo({
+        top: scrollPosition?.position,
+        behavior: 'instant' as any,
+      });
+    }
+  }, [notificationData, scrollPosition, location.pathname]);
   const groupNotificationsByDateRange = (notifications: Notification[]) => {
     const groupedNotifications: {
       today: Notification[],
@@ -249,7 +262,7 @@ function Notifications() {
         </div>
       </ContentPageWrapper>
       <RightSidebarWrapper>
-        <NotificationsRIghtSideNav />
+        <NotificationsRightSideNav />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>
   );

@@ -524,6 +524,32 @@ describe('Update Feed Post (e2e)', () => {
       const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
       expect(allFilesNames).toEqual(['.keep']);
     });
+
+    it('check trim is working for message in update feed posts', async () => {
+      const response = await request(app.getHttpServer())
+        .patch(`/api/v1/feed-posts/${feedPost._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('message', '     this new post   ')
+        .field('userId', activeUser._id.toString())
+        .field('postType', PostType.MovieReview);
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        message: 'this new post',
+        title: null,
+        spoilers: false,
+        userId: activeUser._id.toString(),
+        images: [
+          {
+            image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+          {
+            image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+        ],
+      });
+    });
   });
 
   describe('Validation', () => {

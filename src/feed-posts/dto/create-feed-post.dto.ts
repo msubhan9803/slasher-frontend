@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import { Transform, Type } from 'class-transformer';
+import { Transform, TransformFnParams, Type } from 'class-transformer';
 import {
   IsBoolean,
   IsIn,
@@ -16,6 +16,7 @@ import { WorthWatchingStatus } from '../../types';
 export class MoviePostDto {
   @IsNotEmpty()
   @MaxLength(150)
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   title: string;
 
   @IsNotEmpty()
@@ -49,6 +50,7 @@ export class MoviePostDto {
 export class CreateFeedPostsDto {
   @IsOptional()
   @MaxLength(20000, { message: 'message cannot be longer than 20,000 characters' })
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   message?: string;
 
   @IsNotEmpty()

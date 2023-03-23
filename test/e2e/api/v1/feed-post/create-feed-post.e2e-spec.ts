@@ -374,6 +374,24 @@ describe('Feed-Post / Post File (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
+    it('check trim is working for message in create feed posts', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/feed-posts')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('message', '     this new post   ')
+        .field('userId', activeUser._id.toString())
+        .field('postType', PostType.MovieReview);
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        message: 'this new post',
+        title: null,
+        spoilers: false,
+        userId: activeUser._id.toString(),
+        images: [],
+        postType: PostType.MovieReview,
+      });
+    });
+
     describe('Validation', () => {
       it('title should not be empty', async () => {
         const response = await request(app.getHttpServer())

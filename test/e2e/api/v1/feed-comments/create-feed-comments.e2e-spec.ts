@@ -255,7 +255,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
           .expect(HttpStatus.PAYLOAD_TOO_LARGE);
         expect(response.body.message).toBe('File too large');
       }, [{ extension: 'png' },
-       { extension: 'jpg', size: 1024 * 1024 * 21 }]);
+      { extension: 'jpg', size: 1024 * 1024 * 21 }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
       const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
@@ -318,6 +318,22 @@ describe('Feed-Comments / Comments File (e2e)', () => {
       expect(response.body).toEqual({
         message: 'Request failed due to user block.',
         statusCode: HttpStatus.FORBIDDEN,
+      });
+    });
+
+    it('check trim is working for message in create feed comments', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/feed-comments')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('message', '     this is new post comment  ')
+        .field('userId', activeUser._id.toString())
+        .field('feedPostId', feedPost._id.toString());
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        feedPostId: feedPost._id.toString(),
+        message: 'this is new post comment',
+        userId: activeUser._id.toString(),
+        images: [],
       });
     });
 

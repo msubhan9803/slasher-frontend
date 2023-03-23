@@ -1,4 +1,4 @@
-import { Transform, Type } from 'class-transformer';
+import { Transform, TransformFnParams, Type } from 'class-transformer';
 import {
   IsOptional, MaxLength, ValidateNested,
 } from 'class-validator';
@@ -7,6 +7,7 @@ import { MoviePostDto } from './create-feed-post.dto';
 export class UpdateFeedPostsDto {
   @IsOptional()
   @MaxLength(20000, { message: 'message cannot be longer than 20,000 characters' })
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   message?: string;
 
   @IsOptional()

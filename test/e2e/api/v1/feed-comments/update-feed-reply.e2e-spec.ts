@@ -486,6 +486,31 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
       });
     });
 
+    it('check trim is working for message in update feed reply', async () => {
+      const response = await request(app.getHttpServer())
+        .patch(`/api/v1/feed-comments/replies/${feedReply._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', '        This is a test reply message      ');
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        feedCommentId: feedComments._id.toString(),
+        feedPostId: feedPost._id.toString(),
+        message: 'This is a test reply message',
+        userId: activeUser._id.toString(),
+        images: [
+          {
+            image_path: 'https://picsum.photos/id/237/200/300',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+          {
+            image_path: 'https://picsum.photos/seed/picsum/200/300',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+        ],
+      });
+    });
+
     describe('Validation', () => {
       it('check message length validation', async () => {
         const message = new Array(8_002).join('z');

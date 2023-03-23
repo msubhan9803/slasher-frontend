@@ -392,6 +392,19 @@ describe('Feed-Post / Post File (e2e)', () => {
       });
     });
 
+    it('when message is black than expected response', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/feed-posts')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('message', '     ')
+        .field('userId', activeUser._id.toString())
+        .field('postType', PostType.User);
+      expect(response.body).toEqual({
+        statusCode: 400,
+        message: 'Posts must have some text or at least one image.',
+      });
+    });
+
     describe('Validation', () => {
       it('title should not be empty', async () => {
         const response = await request(app.getHttpServer())

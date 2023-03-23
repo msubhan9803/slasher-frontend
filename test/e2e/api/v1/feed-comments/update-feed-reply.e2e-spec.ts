@@ -418,6 +418,31 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
         expect(response.body.message).toBe('Reply must have a message or at least one image.');
       });
 
+    it('check message has a black string than expected response', async () => {
+      const feedReply3 = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser._id,
+            feedCommentId: feedComments.id,
+            message: 'Hello Reply Test Message 1',
+            images: [{
+              image_path: '/feed/feed_sample1.jpg',
+            }],
+          },
+        ),
+      );
+      const response = await request(app.getHttpServer())
+        .patch(`/api/v1/feed-comments/replies/${feedReply3._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', '          ')
+        .field('imagesToDelete', (feedReply3.images[0] as any).id);
+      expect(response.body).toEqual({
+        statusCode: 400,
+        message: 'Reply must have a message or at least one image.',
+      });
+    });
+
     it('when reply has a already 4 images and add more 2 images than expected response', async () => {
       const feedReply1 = await feedCommentsService.createFeedReply(
         feedRepliesFactory.build(

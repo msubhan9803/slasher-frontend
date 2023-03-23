@@ -405,6 +405,18 @@ describe('Feed-Comments/Replies File (e2e)', () => {
       });
     });
 
+    it('when message is black than expected response', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/feed-comments/replies')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('message', '     ')
+        .field('feedCommentId', feedComment._id.toString());
+      expect(response.body).toEqual({
+        statusCode: 400,
+        message: 'Reply must have some text or at least one image.',
+      });
+    });
+
     describe('when the feed post was created by a user with a non-public profile', () => {
       let user1;
       let feedPost1;

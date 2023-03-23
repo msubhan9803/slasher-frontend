@@ -237,7 +237,7 @@ export class FeedCommentsController {
   ) {
     if (!files.length && createFeedReplyDto.message === '') {
       throw new HttpException(
-        'Posts must have some text or at least one image.',
+        'Reply must have some text or at least one image.',
         HttpStatus.BAD_REQUEST,
       );
     }

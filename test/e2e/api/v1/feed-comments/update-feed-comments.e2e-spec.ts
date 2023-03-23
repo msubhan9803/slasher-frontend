@@ -484,6 +484,28 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
       });
     });
 
+    it('check message has a black string than expected response', async () => {
+      const feedComment3 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id,
+            feedPostId: feedPost.id,
+            message: sampleFeedCommentsObject.message,
+            images: [],
+          },
+        ),
+      );
+      const response = await request(app.getHttpServer())
+        .patch(`/api/v1/feed-comments/${feedComment3._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', '          ');
+      expect(response.body).toEqual({
+        statusCode: 400,
+        message: 'Comment must have a message or at least one image.',
+      });
+    });
+
     describe('Validation', () => {
       it('check message length validation', async () => {
         const message = new Array(8002).join('z');

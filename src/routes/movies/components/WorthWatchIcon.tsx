@@ -3,10 +3,7 @@ import React, { useCallback, useEffect } from 'react';
 import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
-import { useParams } from 'react-router-dom';
 import { MovieData, WorthWatchingStatus } from '../../../types';
-import { createOrUpdateWorthWatching, deleteWorthWatching } from '../../../api/movies';
-import { updateMovieUserData } from './updateMovieDataUtils';
 
 interface LikeProps {
   isLike?: boolean;
@@ -62,7 +59,6 @@ const StyleWatchWorthIcon = styled(FontAwesomeIcon)`
 `;
 type Props = {
   movieData?: MovieData;
-  setMovieData?: React.Dispatch<React.SetStateAction<MovieData | undefined>>;
   setWorthIt?: any;
   liked: boolean;
   setLike: (val: boolean) => void;
@@ -70,10 +66,9 @@ type Props = {
   setDisLike: (val: boolean) => void;
 };
 function WorthWatchIcon({
-  movieData, setMovieData, setWorthIt, liked, setLike,
+  movieData, setWorthIt, liked, setLike,
   disLiked, setDisLike,
 }: Props) {
-  const params = useParams();
   useEffect(() => {
     if (movieData!.userData?.worthWatching === WorthWatchingStatus.Up) {
       setLike(true);
@@ -86,53 +81,26 @@ function WorthWatchIcon({
   }, [movieData, setLike, setDisLike]);
 
   const handleThumbsUp = useCallback(() => {
-    if (!params?.id) { return; }
-    // Like if not liked already (Happy Path)
-    if (!liked) {
-      createOrUpdateWorthWatching(params.id, WorthWatchingStatus.Up).then((res) => {
-        updateMovieUserData(res.data, 'worthWatching', setMovieData!);
-        setLike(true); setDisLike(false);
-      });
+    const alreadyLiked = movieData?.userData?.worthWatching === WorthWatchingStatus.Up;
+    if (alreadyLiked) {
+      setLike(false); setDisLike(false);
+      setWorthIt(WorthWatchingStatus.NoRating);
     } else {
-      // Delete worthWatch rating (other path)
-      deleteWorthWatching(params.id)
-        .then((res) => {
-          updateMovieUserData(res.data, 'worthWatching', setMovieData!);
-          setLike(false); setDisLike(false);
-        });
+      setLike(true); setDisLike(false);
+      setWorthIt(WorthWatchingStatus.Up);
     }
-  }, [liked, params.id, setDisLike, setLike, setMovieData]);
+  }, [movieData?.userData?.worthWatching, setLike, setDisLike, setWorthIt]);
 
   const handleThumbsDown = useCallback(() => {
-    if (!params?.id) { return; }
-
-    // DisLike if not disLiked already (Happy Path)
-    if (!disLiked) {
-      createOrUpdateWorthWatching(params.id, WorthWatchingStatus.Down).then((res) => {
-        updateMovieUserData(res.data, 'worthWatching', setMovieData!);
-        setLike(false); setDisLike(true);
-      });
+    const alreadyDisLiked = movieData?.userData?.worthWatching === WorthWatchingStatus.Down;
+    if (alreadyDisLiked) {
+      setLike(false); setDisLike(false);
+      setWorthIt(WorthWatchingStatus.NoRating);
     } else {
-      // Delete worthWatch rating (other path)
-      deleteWorthWatching(params.id)
-        .then((res) => {
-          updateMovieUserData(res.data, 'worthWatching', setMovieData!);
-          setLike(false); setDisLike(false);
-        });
+      setLike(false); setDisLike(true);
+      setWorthIt(WorthWatchingStatus.Down);
     }
-  }, [disLiked, params.id, setDisLike, setLike, setMovieData]);
-
-  //  !! UPDATE BY AVADH using `setWorthIt` api
-  // const handleThumbsUp = useCallback(() => {
-  //   setWorthIt(WorthWatchingStatus.Up);
-  //   setLike(true); setDisLike(false);
-  // }, [setLike, setDisLike, setWorthIt]);
-
-  //  !! UPDATE BY AVADH using `setWorthIt` api
-  // const handleThumbsDown = useCallback(() => {
-  //   setWorthIt(WorthWatchingStatus.Down);
-  //   setLike(false); setDisLike(true);
-  // }, [setLike, setDisLike, setWorthIt]);
+  }, [movieData?.userData?.worthWatching, setLike, setDisLike, setWorthIt]);
 
   return (
     <div className="mx-1 d-flex align-items-center justify-content-around">
@@ -162,6 +130,5 @@ function WorthWatchIcon({
 WorthWatchIcon.defaultProps = {
   movieData: null,
   setWorthIt: undefined,
-  setMovieData: () => {},
 };
 export default WorthWatchIcon;

@@ -16,7 +16,7 @@ import BorderButton from '../../../components/ui/BorderButton';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
 import ShareLinksModal from '../../../components/ui/ShareLinksModal';
 import CustomRatingText from '../../../components/ui/CustomRatingText';
-import { createOrUpdateWorthWatching } from '../../../api/movies';
+import { createOrUpdateWorthWatching, deleteWorthWatching } from '../../../api/movies';
 import { updateMovieUserData } from '../components/updateMovieDataUtils';
 
 const StyleWatchWorthIcon = styled(FontAwesomeIcon)`
@@ -82,19 +82,31 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
   const [showRating, setShowRating] = useState(false);
   const [showGoreRating, setShowGoreRating] = useState(false);
   const [showShareLinks, setShowShareLinks] = useState(false);
-  const [isWorthIt, setWorthIt] = useState<any>(0);
-  const [liked, setLike] = useState<boolean>(false);
-  const [disLiked, setDisLike] = useState<boolean>(false);
+  /** NOTE: `worthIt` is used as a effect-trigger to call api so
+   * do *not* use `movieData.worthWatching` as iniial value of `worthIt` state. */
+  const [worthIt, setWorthIt] = useState<WorthWatchingStatus | null>(null);
+  const [liked, setLike] = useState<boolean>(
+    movieData.userData.worthWatching === WorthWatchingStatus.Up,
+  );
+  const [disLiked, setDisLike] = useState<boolean>(
+    movieData.userData.worthWatching === WorthWatchingStatus.Down,
+  );
   const params = useParams();
 
-  //  !! UPDATE BY AVADH using `setWorthIt` api
-  // useEffect(() => {
-  //   if (params.id && isWorthIt) {
-  //     createOrUpdateWorthWatching(params.id, isWorthIt).then((res) => {
-  //       updateMovieUserData(res.data, 'worthWatching', setMovieData!);
-  //     });
-  //   }
-  // }, [isWorthIt, params, setMovieData]);
+  useEffect(() => {
+    if (params.id && worthIt !== null) {
+      if (worthIt === WorthWatchingStatus.NoRating) {
+        deleteWorthWatching(params.id)
+          .then((res) => {
+            updateMovieUserData(res.data, 'worthWatching', setMovieData!);
+          });
+      } else {
+        createOrUpdateWorthWatching(params.id, worthIt).then((res) => {
+          updateMovieUserData(res.data, 'worthWatching', setMovieData!);
+        });
+      }
+    }
+  }, [worthIt, params, setMovieData]);
 
   const toHoursAndMinutes = (totalMinutes: number) => {
     const hours = Math.floor(totalMinutes / 60);
@@ -237,7 +249,6 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                   setLike={setLike}
                   disLiked={disLiked}
                   setDisLike={setDisLike}
-                  setMovieData={setMovieData}
                 />
               </div>
             </StyledVerticalBorder>

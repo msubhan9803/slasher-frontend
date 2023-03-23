@@ -31,6 +31,8 @@ const RatingGore = styled.div`
     aspect-ratio: 1;
   }
 `;
+// Valid rating values
+type RatingValue = -1 | 0 | 1 | 2 | 3 | 4;
 function MoviesModal({
   show, setShow, ButtonType, movieData, setMovieData, rateType, hasRating, hasGoreFactor,
 }: MovieDetaisProps) {
@@ -40,7 +42,9 @@ function MoviesModal({
   };
   const initialRating = rateType ? movieData?.userData?.[rateType] ?? 0 : 0;
   // We're using `intialRating` as 1 less than actual value to work for `start`/`goreIcon` component
-  const [rating, setRating] = useState<number>(initialRating === 0 ? 0 : (initialRating - 1));
+  const [rating, setRating] = useState<RatingValue>(
+    initialRating === 0 ? 0 : (initialRating - 1) as RatingValue,
+  );
   const params = useParams();
   const closeModal = () => {
     setShow(false);
@@ -51,18 +55,34 @@ function MoviesModal({
   const handleRatingSubmit = () => {
     if (!params.id || !rateType || !setMovieData) { return; }
 
-    createOrUpdateRating(params.id, rating + 1).then((res) => {
-      updateMovieUserData(res.data, rateType, setMovieData);
-      closeModal();
-    });
+    if (rating === -1) {
+      deleteRating(params.id)
+        .then((res) => {
+          updateMovieUserData(res.data, 'rating', setMovieData!);
+          closeModal();
+        });
+    } else {
+      createOrUpdateRating(params.id, rating + 1).then((res) => {
+        updateMovieUserData(res.data, rateType, setMovieData);
+        closeModal();
+      });
+    }
   };
   const handleGoreFactorSubmit = () => {
     if (!params.id || !rateType || !setMovieData) { return; }
 
-    createOrUpdateGoreFactor(params.id, rating + 1).then((res) => {
-      updateMovieUserData(res.data, rateType, setMovieData);
-      closeModal();
-    });
+    if (rating === -1) {
+      deleteGoreFactor(params.id)
+        .then((res) => {
+          updateMovieUserData(res.data, 'goreFactorRating', setMovieData!);
+          closeModal();
+        });
+    } else {
+      createOrUpdateGoreFactor(params.id, rating + 1).then((res) => {
+        updateMovieUserData(res.data, rateType, setMovieData);
+        closeModal();
+      });
+    }
   };
   return (
     <>
@@ -133,18 +153,11 @@ function MoviesModal({
                   && (
                   <BorderButton
                     buttonClass="d-flex rate-btn bg-black py-2 w-100 d-flex justify-content-center"
-                    variant="lg"
+                    variant="secondary"
                     iconClass="me-2"
                     iconSize="sm"
                     lable="Clear rating"
-                    handleClick={() => {
-                      if (!params.id) { return; }
-                      deleteRating(params.id)
-                        .then((res) => {
-                          updateMovieUserData(res.data, 'rating', setMovieData!);
-                          closeModal();
-                        });
-                    }}
+                    handleClick={() => setRating(-1)}
                   />
                   )}
                 <RoundButton onClick={handleRatingSubmit} className="mt-3 w-100 border-0 bg-primary fw-bold">
@@ -164,7 +177,7 @@ function MoviesModal({
                       type="button"
                       key={star}
                       className="px-2 bg-transparent"
-                      onClick={() => setRating(index)}
+                      onClick={() => setRating(index as RatingValue)}
                     >
                       {index <= rating ? (
                         <img src={IconRedSolidGore} alt="burst icon" />
@@ -179,18 +192,11 @@ function MoviesModal({
                   && (
                   <BorderButton
                     buttonClass="d-flex rate-btn bg-black py-2 w-100 d-flex justify-content-center"
-                    variant="lg"
+                    variant="secondary"
                     iconClass="me-2"
                     iconSize="sm"
                     lable="Clear rating"
-                    handleClick={() => {
-                      if (!params.id) { return; }
-                      deleteGoreFactor(params.id)
-                        .then((res) => {
-                          updateMovieUserData(res.data, 'goreFactorRating', setMovieData!);
-                          closeModal();
-                        });
-                    }}
+                    handleClick={() => setRating(-1)}
                   />
                   )}
                 <RoundButton onClick={handleGoreFactorSubmit} className="mt-3 w-100 border-0 bg-primary fw-bold">

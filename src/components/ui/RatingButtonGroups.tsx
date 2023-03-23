@@ -15,10 +15,11 @@ const RatingStar = styled.div`
   }
   width: fit-content;
 `;
+type RatingValue = -1 | 0 | 1 | 2 | 3 | 4;
 
 interface RatingButtonGroupProps {
   rating?: number;
-  setRating?: (value: number) => void;
+  setRating?: (value: RatingValue) => void;
   label?: string;
   size?: SizeProp;
   isGoreFator?: boolean;
@@ -37,7 +38,7 @@ function RatingButtonGroups({
             type="button"
             key={star}
             className="px-2 bg-transparent"
-            onClick={() => setRating!(index)}
+            onClick={() => setRating!(index as RatingValue)}
             aria-label="rating"
           >
             {index <= rating! ? (

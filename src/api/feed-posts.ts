@@ -33,7 +33,6 @@ export async function createPost(postData: any, file: any) {
   formData.append('postType', postData.postType);
 
   if (postData.postType === PostType.MovieReview) {
-    formData.append('moviePostFields[title]', postData.title);
     formData.append('moviePostFields[spoilers]', postData.spoiler);
     formData.append('movieId', postData.movieId);
   }
@@ -75,7 +74,6 @@ export async function updateFeedPost(
     }
   }
   if (movieReviewPostData?.postType === PostType.MovieReview) {
-    formData.append('moviePostFields[title]', movieReviewPostData.title);
     formData.append('moviePostFields[spoilers]', movieReviewPostData.spoiler);
     formData.append('movieId', movieReviewPostData.movieId);
   }

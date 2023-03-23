@@ -60,7 +60,6 @@ function MovieReviews({ movieData, setMovieData }: Props) {
 
   const getUserMovieReviewData = (reviewPostId: string) => {
     feedPostDetail(reviewPostId).then((res) => {
-      // setTitleContent(res.data.title);
       setPostContent(res.data.message);
       setContainSpoiler(res.data.spoilers);
     });

@@ -66,7 +66,14 @@ export class FeedPostsController {
     @Body() createFeedPostsDto: CreateFeedPostsDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    if (!files.length && createFeedPostsDto.message === '') {
+    if (createFeedPostsDto.postType === PostType.MovieReview && createFeedPostsDto.message === '') {
+      throw new HttpException(
+        'Review must have a some text',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (createFeedPostsDto.postType !== PostType.MovieReview && !files.length && createFeedPostsDto.message === '') {
       throw new HttpException(
         'Posts must have a message or at least one image.',
         HttpStatus.BAD_REQUEST,
@@ -180,7 +187,10 @@ export class FeedPostsController {
 
     let reviewData;
     if (postType === PostType.MovieReview) {
-      const movieUserStatusData = await this.movieUserStatusService.findMovieUserStatus(user.id, feedPost.movieId.toString());
+      const movieUserStatusData = await this.movieUserStatusService.findMovieUserStatus(
+        (feedPost.userId as any)._id.toString(),
+        feedPost.movieId.toString(),
+      );
       if (movieUserStatusData) {
         reviewData = {
           rating: movieUserStatusData.rating,
@@ -238,6 +248,13 @@ export class FeedPostsController {
     const newPostImages = files && files.length;
     const currentPostImages = feedPost.images && feedPost.images.length;
     const { message } = updateFeedPostsDto;
+
+    if (feedPost.postType === PostType.MovieReview && updateFeedPostsDto.message === '') {
+      throw new HttpException(
+        'Review must have a some text',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
     // eslint-disable-next-line max-len
     const isPostWithoutImgAndMsg = (imagesToDelete && !newPostImages && message === '' && currentPostImages === imagesToDelete) || (!currentPostImages && !newPostImages && message === '');

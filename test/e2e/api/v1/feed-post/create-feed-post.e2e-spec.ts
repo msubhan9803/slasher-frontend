@@ -368,6 +368,19 @@ describe('Feed-Post / Post File (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
+    it('when postType is movieReview and message is black string than expected response', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/feed-posts')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', '')
+        .field('postType', PostType.MovieReview)
+        .field('userId', activeUser._id.toString());
+      expect(response.body).toEqual(
+        { statusCode: 400, message: 'Review must have a some text' },
+      );
+    });
+
     describe('Validation', () => {
       it('spoilers should not be empty', async () => {
         const response = await request(app.getHttpServer())
@@ -387,7 +400,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           .field('postType', 3)
           .field('moviePostFields[spoilers]', true)
           .field('moviePostFields[rating]', 6);
-        expect(response.body.message).toContain('rating must not be greater than 5');
+        expect(response.body.message).toContain('rating must be less than 5');
       });
 
       it('rating must not be less than 1', async () => {
@@ -398,7 +411,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           .field('postType', 3)
           .field('moviePostFields[spoilers]', true)
           .field('moviePostFields[rating]', 0);
-        expect(response.body.message).toContain('rating must not be less than 1');
+        expect(response.body.message).toContain('rating must be greater than 1');
       });
 
       it('goreFactorRating must not be greater than 5', async () => {
@@ -409,7 +422,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           .field('postType', 3)
           .field('moviePostFields[spoilers]', true)
           .field('moviePostFields[goreFactorRating]', 6);
-        expect(response.body.message).toContain('goreFactorRating must not be greater than 5');
+        expect(response.body.message).toContain('goreFactorRating must be less than 5');
       });
 
       it('goreFactorRating must not be less than 1', async () => {
@@ -420,7 +433,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           .field('postType', 3)
           .field('moviePostFields[spoilers]', true)
           .field('moviePostFields[goreFactorRating]', 0);
-        expect(response.body.message).toContain('goreFactorRating must not be less than 1');
+        expect(response.body.message).toContain('goreFactorRating must be greater than 1');
       });
 
       it('worthWatching must be one of the following values: 1, 2', async () => {

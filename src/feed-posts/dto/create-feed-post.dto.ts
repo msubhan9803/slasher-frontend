@@ -22,16 +22,16 @@ export class MoviePostDto {
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
-  @Max(5, { message: 'rating must not be greater than 5' })
-  @Min(1, { message: 'rating must not be less than 1' })
+  @Max(5, { message: 'rating must be less than 5' })
+  @Min(1, { message: 'rating must be greater than 1' })
   @IsInt()
   rating: number;
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
-  @Max(5, { message: 'goreFactorRating must not be greater than 5' })
-  @Min(1, { message: 'goreFactorRating must not be less than 1' })
+  @Max(5, { message: 'goreFactorRating must be less than 5' })
+  @Min(1, { message: 'goreFactorRating must be greater than 1' })
   @IsInt()
   goreFactorRating: number;
 

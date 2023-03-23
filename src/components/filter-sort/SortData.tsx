@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Select from 'react-select';
 import styled from 'styled-components';
 
@@ -23,24 +23,14 @@ function SortData({
   title, sortoptions, type, onSelectSort, sortVal,
 }: SortDataProps) {
   const options = sortoptions!.map(({ value, label }) => ({ value, label: title + label })) || [];
-  const [boxShadow, setBoxShadow] = useState(false);
 
-  const handleMenuOpen = () => {
-    setBoxShadow(false);
-  };
-
-  const handleKeyDown = (event: any) => {
-    if (event.key === 'Tab') {
-      setBoxShadow(true);
-    }
-  };
   const customStyles = {
     control: (base: any, state: any) => ({
       ...base,
       background: 'var(--bs-dark)',
       borderRadius: '20px',
       border: '1px solid #3A3B46',
-      boxShadow: boxShadow && state.isFocused ? '0 0 0 0.25rem rgba(255, 24, 0, 0.25)' : null,
+      boxShadow: state.isFocused ? '0 0 0 0.25rem rgba(255, 24, 0, 0.25)' : null,
       paddingLeft: 5,
       '&:hover': {
         border: '1px solid #3A3B46',
@@ -80,8 +70,6 @@ function SortData({
       components={{ IndicatorSeparator: () => null }}
       styles={customStyles}
       isSearchable={false}
-      onMenuOpen={handleMenuOpen}
-      onKeyDown={handleKeyDown}
     />
   );
 }

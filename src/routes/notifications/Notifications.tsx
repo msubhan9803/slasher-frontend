@@ -88,7 +88,7 @@ function Notifications() {
     ));
     const positionData = {
       pathname: location.pathname,
-      position: window.pageYOffset,
+      position: window.pageYOffset === 0 ? 1 : window.pageYOffset,
       data: updateNotification,
       positionElementId: id,
     };

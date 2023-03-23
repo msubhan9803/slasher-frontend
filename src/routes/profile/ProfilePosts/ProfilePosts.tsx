@@ -74,6 +74,7 @@ function ProfilePosts({ user }: Props) {
         || scrollPosition?.position === 0
         || posts.length >= scrollPosition?.data?.length
         || posts.length === 0
+        || scrollPosition.pathname !== location.pathname
       ) {
         setLoadingPosts(true);
         getProfilePosts(
@@ -100,8 +101,8 @@ function ProfilePosts({ user }: Props) {
             ...newPosts,
           ]);
           if (res.data.length === 0) { setNoMoreData(true); }
-          if (scrollPosition?.pathname === location.pathname
-            && scrollPosition?.position >= window.pageYOffset) {
+          if (scrollPosition.pathname === location.pathname
+            && posts.length >= scrollPosition.data.length + 10) {
             const positionData = {
               pathname: '',
               position: 0,
@@ -166,6 +167,7 @@ function ProfilePosts({ user }: Props) {
         return post;
       });
       setPosts(updatePost);
+      callLatestFeedPost();
     })
       .catch((error) => {
         const msg = error.response.status === 0 && !error.response.data

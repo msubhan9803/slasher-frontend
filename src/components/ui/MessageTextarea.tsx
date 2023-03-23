@@ -9,6 +9,10 @@ interface SytledMentionProps {
 }
 
 const StyledMention = styled(Mentions) <SytledMentionProps>`
+  padding: 1rem;
+  textarea {
+    border-radius: 0.875rem !important;
+  }
   ${(props) => (props.iscommentinput
     ? `&.form-control{
         overflow: unset !important;
@@ -110,8 +114,8 @@ function MessageTextarea({
       placeholder={placeholder}
       onSearch={handleSearch}
       onSelect={handleSelect}
-      onFocus={() => { onFocusHandler!(); }}
-      onBlur={() => onBlurHandler!()}
+      onFocus={() => (onFocusHandler ? onFocusHandler() : {})}
+      onBlur={() => (onBlurHandler ? onBlurHandler() : {})}
       value={defaultValue || ''}
       notFoundContent="Type to search for a username"
       aria-label="message"

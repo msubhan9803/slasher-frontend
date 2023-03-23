@@ -48,7 +48,7 @@ function ImagesContainer({
         icon={solid('times')}
         size="xs"
         role="button"
-        className="position-absolute bg-white text-primary rounded-circle"
+        className="position-absolute bg-primary text-black rounded-circle"
         style={removeIconStyle}
         onClick={() => (dataId ? handleRemoveImage(image, dataId) : handleRemoveImage(image))}
       />

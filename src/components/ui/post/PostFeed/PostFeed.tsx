@@ -56,6 +56,7 @@ interface Props {
   commentID?: string;
   commentReplyID?: string;
   otherUserPopoverOptions?: string[];
+  loginUserMoviePopoverOptions?: string[];
   postCreaterPopoverOptions?: string[];
   setIsEdit?: (value: boolean) => void;
   setRequestAdditionalPosts?: (value: boolean) => void;
@@ -80,7 +81,6 @@ interface Props {
   commentReplyError?: string[];
   setCommentImages?: (val: any) => void;
   commentError?: string[];
-  setShowReviewDetail?: (value: boolean) => void;
   onSpoilerClick?: (value: string) => void;
   commentSent?: boolean;
   setCommentReplyErrorMessage?: (value: string[]) => void;
@@ -116,13 +116,13 @@ const StyledContentContainer = styled.div<StyledProps>`
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
   commentsData, removeComment, setCommentID, setCommentReplyID, commentID,
-  commentReplyID, otherUserPopoverOptions, postCreaterPopoverOptions, setIsEdit,
-  setRequestAdditionalPosts,
+  commentReplyID, otherUserPopoverOptions, postCreaterPopoverOptions,
+  loginUserMoviePopoverOptions, setIsEdit, setRequestAdditionalPosts,
   noMoreData, isEdit, loadingPosts, onLikeClick, newsPostPopoverOptions,
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
   addUpdateComment, updateState, setUpdateState, isSinglePagePost, onSelect,
   handleSearch, mentionList, commentImages, setCommentImages, commentError,
-  commentReplyError, postType, setShowReviewDetail, onSpoilerClick,
+  commentReplyError, postType, onSpoilerClick,
   commentSent, setCommentReplyErrorMessage, setCommentErrorMessage,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
@@ -183,6 +183,9 @@ function PostFeed({
     // if (postDetail?.userId && loginUserId !== postDetail?.userId && (postType && postType === 'group-post')) {
     if (postDetail?.userId && loginUserId !== postDetail?.userId) {
       return otherUserPopoverOptions!;
+    }
+    if (postDetail && postType === 'review' && loginUserMoviePopoverOptions?.length) {
+      return loginUserMoviePopoverOptions;
     }
     return popoverOptions;
   };
@@ -412,7 +415,6 @@ function PostFeed({
                       commentCount={post.commentCount}
                       handleLikeModal={openDialogue}
                       postType={postType}
-                      setShowReviewDetail={setShowReviewDetail}
                       movieId={post.movieId}
                     />
                   </Col>
@@ -444,6 +446,7 @@ function PostFeed({
                       loginUserId={loginUserId}
                       otherUserPopoverOptions={otherUserPopoverOptions}
                       postCreaterPopoverOptions={postCreaterPopoverOptions}
+                      loginUserMoviePopoverOptions={loginUserMoviePopoverOptions}
                       setIsEdit={setIsEdit}
                       isEdit={isEdit}
                       onLikeClick={onLikeClick}
@@ -510,6 +513,7 @@ PostFeed.defaultProps = {
   commentReplyID: '',
   otherUserPopoverOptions: [],
   postCreaterPopoverOptions: [],
+  loginUserMoviePopoverOptions: [],
   setIsEdit: undefined,
   isEdit: false,
   setRequestAdditionalPosts: undefined,
@@ -533,7 +537,6 @@ PostFeed.defaultProps = {
   commentReplyError: undefined,
   commentImages: [],
   setCommentImages: () => { },
-  setShowReviewDetail: undefined,
   onSpoilerClick: () => { },
   commentSent: undefined,
   setCommentReplyErrorMessage: undefined,

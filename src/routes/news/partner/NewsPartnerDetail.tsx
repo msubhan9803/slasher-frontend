@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetData } from 'react-helmet-async';
 import {
   disableRssFeedProviderNotification, enableRssFeedProviderNotification,
   followRssFeedProvider, getRssFeedProviderDetail, getRssFeedProviderFollowUnfollow,
@@ -18,6 +18,7 @@ import { RssFeedProviderFollowNotificationsEnabled } from '../../../types';
 import NewsPostData from '../components/NewsPostData';
 import NewsRightSideNav from '../components/NewsRightSideNav';
 
+const helmetData = new HelmetData({});
 const CustomButton = styled(RoundButton)`
   border: 1px solid #3A3B46;
   &:focus {
@@ -102,7 +103,7 @@ function NewsPartnerDetail() {
 
   return (
     <>
-      <Helmet>
+      <Helmet helmetData={helmetData}>
         <link rel="canonical" href={rssFeedProviderDetail?.feed_url} />
       </Helmet>
       <ContentPageWrapper>
@@ -131,12 +132,12 @@ function NewsPartnerDetail() {
                   </CustomButton>
                 </div>
                 {following
-                && (
-                <div className="my-4 lh-lg d-flex justify-content-center">
-                  <span>Push notifications</span>
-                  <Switch id="pushNotificationSwitches" className="ms-3" onSwitchToggle={onOffNotificationClick} isChecked={notificationToggle} />
-                </div>
-                )}
+                  && (
+                    <div className="my-4 lh-lg d-flex justify-content-center">
+                      <span>Push notifications</span>
+                      <Switch id="pushNotificationSwitches" className="ms-3" onSwitchToggle={onOffNotificationClick} isChecked={notificationToggle} />
+                    </div>
+                  )}
               </Col>
             </Row>
           </div>

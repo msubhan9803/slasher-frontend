@@ -82,6 +82,7 @@ function Home() {
         || scrollPosition?.position === 0
         || posts.length >= scrollPosition?.data?.length
         || posts.length === 0
+        || scrollPosition.pathname !== location.pathname
       ) {
         setLoadingPosts(true);
         getHomeFeedPosts(
@@ -124,13 +125,16 @@ function Home() {
             ...newPosts,
           ]);
           if (res.data.length === 0) { setNoMoreData(true); }
-          const positionData = {
-            pathname: '',
-            position: 0,
-            data: [],
-            positionElementId: '',
-          };
-          dispatch(setScrollPosition(positionData));
+          if (scrollPosition.pathname === location.pathname
+            && posts.length >= scrollPosition.data.length + 10) {
+            const positionData = {
+              pathname: '',
+              position: 0,
+              data: [],
+              positionElementId: '',
+            };
+            dispatch(setScrollPosition(positionData));
+          }
         }).catch(
           (error) => {
             setNoMoreData(true);
@@ -141,7 +145,10 @@ function Home() {
         );
       }
     }
-  }, [requestAdditionalPosts, loadingPosts, loginUserId, posts, scrollPosition, dispatch]);
+  }, [
+    requestAdditionalPosts, loadingPosts, loginUserId, posts, scrollPosition,
+    dispatch, location.pathname,
+  ]);
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
@@ -202,6 +209,7 @@ function Home() {
         return post;
       });
       setPosts(updatePost);
+      callLatestFeedPost();
     })
       .catch((error) => {
         const msg = error.response.status === 0 && !error.response.data

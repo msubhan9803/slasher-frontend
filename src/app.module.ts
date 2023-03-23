@@ -1,4 +1,6 @@
-import { MiddlewareConsumer, Module, ValidationPipe } from '@nestjs/common';
+import {
+  BadRequestException, MiddlewareConsumer, Module, ValidationError, ValidationPipe,
+} from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
@@ -88,7 +90,24 @@ import { AppController } from './app/app.controller';
   providers: [
     {
       provide: APP_PIPE,
-      useValue: new ValidationPipe({ whitelist: true, transform: true }),
+      useValue: new ValidationPipe({
+        whitelist: true,
+        transform: true,
+        exceptionFactory: (validationErrors: ValidationError[] = []) => {
+          // Convert all nested DTO error messages into top level error messages that are not
+          // prefixed by the name of their nested DTO.
+          // Note: This only works for 2-level-deep nesting, so if we ever do 3-level-deep nested
+          // DTO validation then we will need to update this method.
+          const flattenedConstraints = validationErrors.map((error) => {
+            let constraints = Object.values(error.constraints || {});
+            constraints = constraints.concat(
+              ((error.children || []).map((child) => Object.values(child.constraints || {}))).flat(1),
+            );
+            return constraints;
+          }).flat(1);
+          return new BadRequestException(flattenedConstraints);
+        },
+      }),
     },
     // Interceptor to delete temp files created by mutler. It delete files in `request.filesToBeRemoved` after the request is settled.
     {

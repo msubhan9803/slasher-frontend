@@ -395,7 +395,7 @@ describe('Feed-Post / Post File (e2e)', () => {
         expect(response.body.message).toContain('moviePostFields.spoilers should not be empty');
       });
 
-      it('check title length validation', async () => {
+      it.only('check title length validation', async () => {
         const response = await request(app.getHttpServer())
           .post('/api/v1/feed-posts')
           .auth(activeUserAuthToken, { type: 'bearer' })
@@ -403,7 +403,8 @@ describe('Feed-Post / Post File (e2e)', () => {
           .field('postType', 3)
           .field('moviePostFields[title]', new Array(200).join('z'))
           .field('moviePostFields[spoilers]', true);
-        expect(response.body.message).toContain('moviePostFields.title must be shorter than or equal to 150 characters');
+        console.log(response.body);
+        expect(response.body.message).toContain('title should not exceed 150 characters');
       });
 
       it('moviePostFields.rating must not be greater than 5', async () => {

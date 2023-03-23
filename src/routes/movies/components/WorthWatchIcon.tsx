@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
 import { MovieData, WorthWatchingStatus } from '../../../types';
-import { createOrUpdateWorthWatching } from '../../../api/movies';
+import { createOrUpdateWorthWatching, deleteWorthWatching } from '../../../api/movies';
 import { updateMovieUserData } from './updateMovieDataUtils';
 
 interface LikeProps {
@@ -70,19 +70,40 @@ function WorthWatchIcon({ movieData, setMovieData }: Props) {
   const params = useParams();
   const handleThumbsUp = useCallback(() => {
     if (!params?.id) { return; }
-    createOrUpdateWorthWatching(params.id, WorthWatchingStatus.Up).then((res) => {
-      updateMovieUserData(res.data, 'worthWatching', setMovieData!);
-      setLike(true); setDisLike(false);
-    });
-  }, [params, setMovieData]);
+    // Like if not liked already (Happy Path)
+    if (!liked) {
+      createOrUpdateWorthWatching(params.id, WorthWatchingStatus.Up).then((res) => {
+        updateMovieUserData(res.data, 'worthWatching', setMovieData!);
+        setLike(true); setDisLike(false);
+      });
+    } else {
+      // Delete worthWatch rating (other path)
+      deleteWorthWatching(params.id)
+        .then((res) => {
+          updateMovieUserData(res.data, 'worthWatching', setMovieData!);
+          setLike(false); setDisLike(false);
+        });
+    }
+  }, [liked, params.id, setMovieData]);
 
   const handleThumbsDown = useCallback(() => {
     if (!params?.id) { return; }
-    createOrUpdateWorthWatching(params.id, WorthWatchingStatus.Down).then((res) => {
-      updateMovieUserData(res.data, 'worthWatching', setMovieData!);
-      setLike(false); setDisLike(true);
-    });
-  }, [params.id, setMovieData]);
+
+    // DisLike if not disLiked already (Happy Path)
+    if (!disLiked) {
+      createOrUpdateWorthWatching(params.id, WorthWatchingStatus.Down).then((res) => {
+        updateMovieUserData(res.data, 'worthWatching', setMovieData!);
+        setLike(false); setDisLike(true);
+      });
+    } else {
+      // Delete worthWatch rating (other path)
+      deleteWorthWatching(params.id)
+        .then((res) => {
+          updateMovieUserData(res.data, 'worthWatching', setMovieData!);
+          setLike(false); setDisLike(false);
+        });
+    }
+  }, [disLiked, params.id, setMovieData]);
   return (
     <div className="mx-1 d-flex align-items-center justify-content-around">
       <div className="mt-2 d-flex justify-content-center ">

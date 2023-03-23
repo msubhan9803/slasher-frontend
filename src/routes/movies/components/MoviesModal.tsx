@@ -8,9 +8,12 @@ import RoundButton from '../../../components/ui/RoundButton';
 import RatingButtonGroups from '../../../components/ui/RatingButtonGroups';
 import IconRegularGore from '../../../images/icon-regular-gore.png';
 import IconRedSolidGore from '../../../images/icon-red-solid-gore.png';
-import { createOrUpdateGoreFactor, createOrUpdateRating } from '../../../api/movies';
+import {
+  createOrUpdateGoreFactor, createOrUpdateRating, deleteGoreFactor, deleteRating,
+} from '../../../api/movies';
 import { MovieData } from '../../../types';
 import { updateMovieUserData } from './updateMovieDataUtils';
+import BorderButton from '../../../components/ui/BorderButton';
 
 interface MovieDetaisProps {
   show: boolean;
@@ -19,6 +22,8 @@ interface MovieDetaisProps {
   movieData?: MovieData;
   setMovieData?: React.Dispatch<React.SetStateAction<MovieData | undefined>>
   rateType?: 'rating' | 'goreFactorRating';
+  hasRating?: boolean;
+  hasGoreFactor?: boolean;
 }
 const RatingGore = styled.div`
   img {
@@ -27,7 +32,7 @@ const RatingGore = styled.div`
   }
 `;
 function MoviesModal({
-  show, setShow, ButtonType, movieData, setMovieData, rateType,
+  show, setShow, ButtonType, movieData, setMovieData, rateType, hasRating, hasGoreFactor,
 }: MovieDetaisProps) {
   const [deactivate, setDeactivate] = useState(false);
   const closeDeactivateModal = () => {
@@ -123,6 +128,25 @@ function MoviesModal({
                   setRating={setRating}
                   size="2x"
                 />
+                {/* Remove Star Rating Button */}
+                { hasRating
+                  && (
+                  <BorderButton
+                    buttonClass="d-flex rate-btn bg-black py-2 w-100 d-flex justify-content-center"
+                    variant="lg"
+                    iconClass="me-2"
+                    iconSize="sm"
+                    lable="Clear rating"
+                    handleClick={() => {
+                      if (!params.id) { return; }
+                      deleteRating(params.id)
+                        .then((res) => {
+                          updateMovieUserData(res.data, 'rating', setMovieData!);
+                          closeModal();
+                        });
+                    }}
+                  />
+                  )}
                 <RoundButton onClick={handleRatingSubmit} className="mt-3 w-100 border-0 bg-primary fw-bold">
                   Submit
                 </RoundButton>
@@ -150,6 +174,25 @@ function MoviesModal({
                     </Button>
                   ))}
                 </RatingGore>
+                {/* Remove Gore Factor Rating Button */}
+                { hasGoreFactor
+                  && (
+                  <BorderButton
+                    buttonClass="d-flex rate-btn bg-black py-2 w-100 d-flex justify-content-center"
+                    variant="lg"
+                    iconClass="me-2"
+                    iconSize="sm"
+                    lable="Clear rating"
+                    handleClick={() => {
+                      if (!params.id) { return; }
+                      deleteGoreFactor(params.id)
+                        .then((res) => {
+                          updateMovieUserData(res.data, 'goreFactorRating', setMovieData!);
+                          closeModal();
+                        });
+                    }}
+                  />
+                  )}
                 <RoundButton onClick={handleGoreFactorSubmit} className="mt-3 w-100 border-0 bg-primary fw-bold">
                   Submit
                 </RoundButton>
@@ -167,6 +210,8 @@ MoviesModal.defaultProps = {
   setMovieData: () => { },
   rateType: '',
   movieData: {},
+  hasRating: false,
+  hasGoreFactor: false,
 };
 
 export default MoviesModal;

@@ -306,3 +306,8 @@ textarea {
   outline: none !important;
   box-shadow: 0 0 0 1px rgba($stroke-and-line-separator-color, .5);
 }
+
+@font-face {
+  font-family: "SearsTower";
+  src: url("../fonts/Sears_Tower.ttf") format(truetype);
+}

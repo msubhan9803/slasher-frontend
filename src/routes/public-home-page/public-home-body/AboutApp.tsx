@@ -18,22 +18,21 @@ import {
 } from '../../../constants';
 
 const StyledAbout = styled.div`
-  margin-top: -2.8rem;
+  margin-top: -0.8rem;
   
   @media (min-width: ${XXL_MEDIA_BREAKPOINT}){
     margin-top: 2.2rem;
   }
   @media (max-width: ${XL_MEDIA_BREAKPOINT}){
-    margin-top: 0rem;
+    margin-top: -1rem;
   }
   @media (max-width: ${LG_MEDIA_BREAKPOINT}){
-    margin-top: 8rem;
+    margin-top: 15rem;
   }
   @media (max-width: ${MD_MEDIA_BREAKPOINT}){
-    margin-top: 2rem;
+    margin-top: -10.8rem;
   }
   @media (max-width: ${SM_MEDIA_BREAKPOINT}){ 
-    margin-top: 3.2rem;
     .title {
       font-size: 20px !important;
     }

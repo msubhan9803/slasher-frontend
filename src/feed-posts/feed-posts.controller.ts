@@ -97,7 +97,6 @@ export class FeedPostsController {
         throw new HttpException('When submitting moviePostFields, movieId is required.', HttpStatus.BAD_REQUEST);
       }
 
-      feedPost.title = createFeedPostsDto.moviePostFields.title;
       feedPost.spoilers = createFeedPostsDto.moviePostFields.spoilers;
       const ratingPromises = [];
       if (createFeedPostsDto.moviePostFields.rating) {
@@ -141,7 +140,6 @@ export class FeedPostsController {
     return {
       _id: createFeedPost.id,
       message: createFeedPost.message,
-      title: createFeedPost.title,
       spoilers: createFeedPost.spoilers,
       userId: createFeedPost.userId,
       images: createFeedPost.images,
@@ -196,7 +194,7 @@ export class FeedPostsController {
       ...pick(
         feedPost,
         ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likedByUser',
-          'postType', 'title', 'spoilers', 'movieId', 'message'],
+          'postType', 'spoilers', 'movieId', 'message'],
       ),
       reviewData,
     };
@@ -288,8 +286,6 @@ export class FeedPostsController {
         throw new HttpException('When submitting moviePostFields, movieId is required.', HttpStatus.BAD_REQUEST);
       }
       // eslint-disable-next-line no-param-reassign
-      (updateFeedPostsDto as unknown as FeedPost).title = updateFeedPostsDto.moviePostFields.title;
-      // eslint-disable-next-line no-param-reassign
       (updateFeedPostsDto as unknown as FeedPost).spoilers = updateFeedPostsDto.moviePostFields.spoilers;
       const ratingPromises = [];
       if (updateFeedPostsDto.moviePostFields.rating) {
@@ -337,7 +333,6 @@ export class FeedPostsController {
       message: updatedFeedPost.message,
       userId: updatedFeedPost.userId,
       images: updatedFeedPost.images,
-      title: updatedFeedPost.title,
       spoilers: updatedFeedPost.spoilers,
     };
   }
@@ -503,7 +498,7 @@ export class FeedPostsController {
           '_id', 'message', 'images',
           'userId', 'createdAt', 'likedByUser',
           'likeCount', 'commentCount', 'reviewData',
-          'postType', 'title', 'spoilers', 'movieId',
+          'postType', 'spoilers', 'movieId',
         ],
       ),
     );

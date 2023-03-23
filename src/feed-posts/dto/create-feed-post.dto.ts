@@ -14,11 +14,7 @@ import { PostType } from '../../schemas/feedPost/feedPost.enums';
 import { WorthWatchingStatus } from '../../types';
 
 export class MoviePostDto {
-  @IsNotEmpty({ message: 'title should not be empty' })
-  @MaxLength(150, { message: 'title should not exceed 150 characters' })
-  title: string;
-
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'spoilers should not be empty' })
   @IsBoolean()
   @Transform(({ value }) => (value === 'true'))
   spoilers: boolean;
@@ -26,16 +22,16 @@ export class MoviePostDto {
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
-  @Max(5)
-  @Min(1)
+  @Max(5, { message: 'rating must not be greater than 5' })
+  @Min(1, { message: 'rating must not be less than 1' })
   @IsInt()
   rating: number;
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
-  @Max(5)
-  @Min(1)
+  @Max(5, { message: 'goreFactorRating must not be greater than 5' })
+  @Min(1, { message: 'goreFactorRating must not be less than 1' })
   @IsInt()
   goreFactorRating: number;
 

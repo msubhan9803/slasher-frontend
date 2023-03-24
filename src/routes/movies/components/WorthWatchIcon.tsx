@@ -81,14 +81,27 @@ function WorthWatchIcon({
   }, [movieData, setLike, setDisLike]);
 
   const handleThumbsUp = useCallback(() => {
-    setWorthIt(WorthWatchingStatus.Up);
-    setLike(true); setDisLike(false);
-  }, [setLike, setDisLike, setWorthIt]);
+    const alreadyLiked = movieData?.userData?.worthWatching === WorthWatchingStatus.Up;
+    if (alreadyLiked) {
+      setLike(false); setDisLike(false);
+      setWorthIt(WorthWatchingStatus.NoRating);
+    } else {
+      setLike(true); setDisLike(false);
+      setWorthIt(WorthWatchingStatus.Up);
+    }
+  }, [movieData?.userData?.worthWatching, setLike, setDisLike, setWorthIt]);
 
   const handleThumbsDown = useCallback(() => {
-    setWorthIt(WorthWatchingStatus.Down);
-    setLike(false); setDisLike(true);
-  }, [setLike, setDisLike, setWorthIt]);
+    const alreadyDisLiked = movieData?.userData?.worthWatching === WorthWatchingStatus.Down;
+    if (alreadyDisLiked) {
+      setLike(false); setDisLike(false);
+      setWorthIt(WorthWatchingStatus.NoRating);
+    } else {
+      setLike(false); setDisLike(true);
+      setWorthIt(WorthWatchingStatus.Down);
+    }
+  }, [movieData?.userData?.worthWatching, setLike, setDisLike, setWorthIt]);
+
   return (
     <div className="mx-1 d-flex align-items-center justify-content-around">
       <div className="mt-2 d-flex justify-content-center ">

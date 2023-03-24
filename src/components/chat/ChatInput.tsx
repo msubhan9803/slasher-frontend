@@ -5,27 +5,23 @@ import { Button, Form, InputGroup } from 'react-bootstrap';
 import styled from 'styled-components';
 
 const StyledChatInputGroup = styled.div`
-  .input-group{
-    .form-control {
-      border-radius: 1.875rem;
-      border-bottom-right-radius: 0rem;
-      border-top-right-radius: 0rem;
-    }
-    .input-group-text {
-      background-color: var(--bs-dark);
-      border-color: #3a3b46;
-      border-radius: 1.875rem;
-      padding: 0.75rem !important;
+  .btn{
+    z-index: 999;
+    &.camera-btn{
+      left: 12px;
       .fa-camera {
         width: 1.508rem;
         height: 1.5rem;
       }
+    }
+    &.send-btn{
+      right: 15px;
       .fa-paper-plane {
         width: 1.5rem;
         height: 1.5rem;
       }
     }
-  }
+  }      
 `;
 
 interface ChatInputProps {
@@ -46,8 +42,8 @@ function ChatInput({
   return (
     <StyledChatInputGroup className="pt-4 pt-lg-3 pb-0 pb-lg-3 px-3 text-muted border-top-0 overflow-hidden">
       <Form onSubmit={handleSubmit}>
-        <InputGroup className="pe-2">
-          <InputGroup.Text className="border-end-0">
+        <InputGroup className="pe-2 align-items-center position-relative">
+          <Button onClick={() => inputFile.current?.click()} className="camera-btn position-absolute position-absolute bg-transparent border-0 p-0 me-1">
             <input
               type="file"
               name="post"
@@ -60,23 +56,23 @@ function ChatInput({
               ref={inputFile}
               aria-label="message"
             />
-            <FontAwesomeIcon role="button" icon={solid('camera')} className="ps-1 text-white border-end-0" onClick={() => inputFile.current?.click()} />
-          </InputGroup.Text>
+            <FontAwesomeIcon icon={solid('camera')} className="text-white" />
+          </Button>
           <Form.Control
             placeholder="Type your message here..."
-            className="border-end-0 fs-5 border-start-0"
+            className="fs-5 rounded-pill pe-5 py-3"
             value={message}
             onChange={
               (messageInput) => setMessage!(messageInput.target.value)
             }
             aria-label="message"
+            style={{ paddingLeft: '60px' }}
           />
-          <InputGroup.Text className="border-start-0">
-            <Button type="submit" className="bg-transparent border-0 p-0 pe-1">
-              <FontAwesomeIcon icon={solid('paper-plane')} className="text-primary" />
-            </Button>
-          </InputGroup.Text>
+          <Button type="submit" className="send-btn position-absolute bg-transparent border-0 p-0 me-2">
+            <FontAwesomeIcon icon={solid('paper-plane')} className="text-primary" />
+          </Button>
         </InputGroup>
+
       </Form>
     </StyledChatInputGroup>
   );

@@ -38,7 +38,7 @@ function IconWithTextNavLink({
   }, []);
 
   return (
-    <Link to={to} ref={linkRef} className={`text-decoration-none ${className}`}>
+    <Link to={to} ref={linkRef} className={`text-decoration-none pb-1 mb-1 ${className}`}>
       <IconWithTextNavItemInnerElement
         label={label}
         userProfileIcon={userProfileIcon}

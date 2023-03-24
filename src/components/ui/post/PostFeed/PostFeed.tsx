@@ -78,9 +78,13 @@ interface Props {
   handleSearch?: (val: string) => void;
   mentionList?: MentionListProps[];
   commentImages?: string[];
+  commentReplyError?: string[];
   setCommentImages?: (val: any) => void;
   commentError?: string[];
   onSpoilerClick?: (value: string) => void;
+  commentSent?: boolean;
+  setCommentReplyErrorMessage?: (value: string[]) => void;
+  setCommentErrorMessage?: (value: string[]) => void;
 }
 
 interface StyledProps {
@@ -117,8 +121,9 @@ function PostFeed({
   noMoreData, isEdit, loadingPosts, onLikeClick, newsPostPopoverOptions,
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
   addUpdateComment, updateState, setUpdateState, isSinglePagePost, onSelect,
-  handleSearch, mentionList, commentImages, setCommentImages, commentError, postType,
-  onSpoilerClick,
+  handleSearch, mentionList, commentImages, setCommentImages, commentError,
+  commentReplyError, postType, onSpoilerClick,
+  commentSent, setCommentReplyErrorMessage, setCommentErrorMessage,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -451,6 +456,10 @@ function PostFeed({
                       commentImages={commentImages}
                       setCommentImages={setCommentImages}
                       commentError={commentError}
+                      commentReplyError={commentReplyError}
+                      commentSent={commentSent}
+                      setCommentReplyErrorMessage={setCommentReplyErrorMessage}
+                      setCommentErrorMessage={setCommentErrorMessage}
                     />
                   </InfiniteScroll>
                   {loadingPosts && <LoadingIndicator />}
@@ -520,8 +529,12 @@ PostFeed.defaultProps = {
   handleSearch: undefined,
   mentionList: null,
   commentError: undefined,
+  commentReplyError: undefined,
   commentImages: [],
   setCommentImages: () => { },
   onSpoilerClick: () => { },
+  commentSent: undefined,
+  setCommentReplyErrorMessage: undefined,
+  setCommentErrorMessage: undefined,
 };
 export default PostFeed;

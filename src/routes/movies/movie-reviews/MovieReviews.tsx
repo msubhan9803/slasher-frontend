@@ -371,6 +371,7 @@ function MovieReviews({ movieData, setMovieData }: Props) {
               disLiked={disLiked}
               setDisLike={setDisLike}
               isWorthIt={isWorthIt}
+              placeHolder="Write your review here"
             />
           ) : (
             <CustomCreatePost

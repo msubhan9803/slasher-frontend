@@ -337,11 +337,11 @@ describe('Feed-Comments / Comments File (e2e)', () => {
       });
     });
 
-    it('when message is empty string than expected response', async () => {
+    it('returns the expected response when the message only contains whitespace characters', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/v1/feed-comments')
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .field('message', '     ')
+        .field('message', '     \n\n')
         .field('userId', activeUser._id.toString())
         .field('feedPostId', feedPost._id.toString());
       expect(response.body).toEqual({

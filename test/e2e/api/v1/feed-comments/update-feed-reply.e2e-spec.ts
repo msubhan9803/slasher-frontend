@@ -418,7 +418,7 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
         expect(response.body.message).toBe('Reply must have a message or at least one image.');
       });
 
-    it('check message has a empty string than expected response', async () => {
+    it('returns the expected response when the message only contains whitespace characters', async () => {
       const feedReply3 = await feedCommentsService.createFeedReply(
         feedRepliesFactory.build(
           {
@@ -435,7 +435,7 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
         .patch(`/api/v1/feed-comments/replies/${feedReply3._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .set('Content-Type', 'multipart/form-data')
-        .field('message', '          ')
+        .field('message', '          \n\n')
         .field('imagesToDelete', (feedReply3.images[0] as any).id);
       expect(response.body).toEqual({
         statusCode: 400,

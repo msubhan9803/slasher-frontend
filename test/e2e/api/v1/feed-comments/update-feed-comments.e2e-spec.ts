@@ -484,7 +484,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
       });
     });
 
-    it('check message has a empty string than expected response', async () => {
+    it('returns the expected response when the message only contains whitespace characters', async () => {
       const feedComment3 = await feedCommentsService.createFeedComment(
         feedCommentsFactory.build(
           {
@@ -499,7 +499,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
         .patch(`/api/v1/feed-comments/${feedComment3._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .set('Content-Type', 'multipart/form-data')
-        .field('message', '          ');
+        .field('message', '          \n\n');
       expect(response.body).toEqual({
         statusCode: 400,
         message: 'Comment must have a message or at least one image.',

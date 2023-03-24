@@ -542,7 +542,7 @@ describe('Update Feed Post (e2e)', () => {
       });
     });
 
-    it('when message is empty string than expected response', async () => {
+    it('returns the expected response when the message only contains whitespace characters', async () => {
       const feedPost7 = await feedPostsService.create(
         feedPostFactory.build(
           {
@@ -555,7 +555,7 @@ describe('Update Feed Post (e2e)', () => {
       const response = await request(app.getHttpServer())
         .patch(`/api/v1/feed-posts/${feedPost7._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .field('message', '     ');
+        .field('message', '     \n\n');
       expect(response.body).toEqual({
         statusCode: 400,
         message: 'Posts must have some text or at least one image.',

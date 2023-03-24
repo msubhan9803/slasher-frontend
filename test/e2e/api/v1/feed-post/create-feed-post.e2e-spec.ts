@@ -385,11 +385,11 @@ describe('Feed-Post / Post File (e2e)', () => {
       });
     });
 
-    it('when message is empty string than expected response', async () => {
+    it('returns the expected response when the message only contains whitespace characters', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/v1/feed-posts')
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .field('message', '     ')
+        .field('message', '     \n\n')
         .field('userId', activeUser._id.toString())
         .field('postType', PostType.User);
       expect(response.body).toEqual({

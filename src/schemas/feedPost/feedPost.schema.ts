@@ -87,6 +87,9 @@ export class FeedPost extends FeedPostUnusedFields {
   })
   postType: PostType;
 
+  @Prop({ default: null })
+  title: string;
+
   @Prop({ default: false })
   spoilers: boolean;
 

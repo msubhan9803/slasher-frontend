@@ -337,7 +337,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
       });
     });
 
-    it('when message is black than expected response', async () => {
+    it('when message is empty string than expected response', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/v1/feed-comments')
         .auth(activeUserAuthToken, { type: 'bearer' })

@@ -378,7 +378,6 @@ describe('Feed-Post / Post File (e2e)', () => {
       expect(response.body).toEqual({
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
         message: 'this new post',
-        title: null,
         spoilers: false,
         userId: activeUser._id.toString(),
         images: [],
@@ -386,7 +385,7 @@ describe('Feed-Post / Post File (e2e)', () => {
       });
     });
 
-    it('when message is black than expected response', async () => {
+    it('when message is empty string than expected response', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/v1/feed-posts')
         .auth(activeUserAuthToken, { type: 'bearer' })
@@ -399,7 +398,7 @@ describe('Feed-Post / Post File (e2e)', () => {
       });
     });
 
-    it('when postType is movieReview and message is black string than expected response', async () => {
+    it('when postType is movieReview and message is empty string than expected response', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/v1/feed-posts')
         .auth(activeUserAuthToken, { type: 'bearer' })

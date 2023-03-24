@@ -438,7 +438,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
-    it('check message has a black string or files or imagesToDelete is not exists', async () => {
+    it('check message has a empty string or files or imagesToDelete is not exists', async () => {
       const feedComment2 = await feedCommentsService.createFeedComment(
         feedCommentsFactory.build(
           {
@@ -484,7 +484,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
       });
     });
 
-    it('check message has a black string than expected response', async () => {
+    it('check message has a empty string than expected response', async () => {
       const feedComment3 = await feedCommentsService.createFeedComment(
         feedCommentsFactory.build(
           {

@@ -410,7 +410,7 @@ describe('Update Feed Post (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
-    it('check message has a black string or files or imagesToDelete is not exists', async () => {
+    it('check message has a empty string or files or imagesToDelete is not exists', async () => {
       const feedPost3 = await feedPostsService.create(
         feedPostFactory.build(
           {
@@ -527,7 +527,6 @@ describe('Update Feed Post (e2e)', () => {
       expect(response.body).toEqual({
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
         message: 'this new post',
-        title: null,
         spoilers: false,
         userId: activeUser._id.toString(),
         images: [
@@ -543,13 +542,13 @@ describe('Update Feed Post (e2e)', () => {
       });
     });
 
-    it('when message is black than expected response', async () => {
+    it('when message is empty string than expected response', async () => {
       const feedPost7 = await feedPostsService.create(
         feedPostFactory.build(
           {
             images: [],
             userId: activeUser._id,
-            postType: PostType.MovieReview,
+            postType: PostType.User,
           },
         ),
       );
@@ -561,9 +560,9 @@ describe('Update Feed Post (e2e)', () => {
         statusCode: 400,
         message: 'Posts must have some text or at least one image.',
       });
-    })
+    });
 
-    it('when postType is movieReview and message is black string than expected response', async () => {
+    it('when postType is movieReview and message is empty string than expected response', async () => {
       const feedPost8 = await feedPostsService.create(
         feedPostFactory.build(
           {

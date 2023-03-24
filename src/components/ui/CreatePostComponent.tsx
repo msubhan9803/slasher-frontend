@@ -171,7 +171,7 @@ function CreatePostComponent({
           <h1 className="h3 mb-3">Write your review</h1>
         </>
       )}
-      {(postType === 'review' || paramsType === 'group-post') && (
+      {(paramsType === 'group-post') && (
         <div className="position-relative">
           <Form.Control
             maxLength={150}
@@ -180,7 +180,7 @@ function CreatePostComponent({
             onChange={(e) => {
               setTitleContent!(e.target.value);
             }}
-            placeholder={postType === 'review' ? 'Write a headline' : 'Title'}
+            placeholder="Title"
             className="bg-black"
             aria-label="Title"
             style={{ paddingRight: '150px' }}
@@ -193,7 +193,7 @@ function CreatePostComponent({
           />
         </div>
       )}
-      <div className={`mt-3 ${(postType === 'review' || paramsType === 'group-post') ? 'form-control p-0 bg-black' : ''}`}>
+      <div className="mt-3">
         <MessageTextarea
           rows={10}
           placeholder={postType === 'review' ? 'Write your review here' : 'Create a post'}

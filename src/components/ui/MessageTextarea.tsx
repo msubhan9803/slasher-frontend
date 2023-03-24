@@ -9,7 +9,7 @@ interface SytledMentionProps {
 }
 
 const StyledMention = styled(Mentions) <SytledMentionProps>`
-  padding: 1rem;
+  padding: 0.063rem;
   textarea {
     border-radius: 0.875rem !important;
   }

@@ -110,6 +110,7 @@ function CreatePost() {
             setContainSpoiler={setContainSpoiler}
             selectedPostType={selectedPostType}
             setSelectedPostType={setSelectedPostType}
+            placeHolder="Create a post"
           />
         </Form>
       </ContentPageWrapper>

@@ -115,6 +115,8 @@ function CommentInput({
   useEffect(() => {
     if (commentError! && commentError.length) {
       setEditMessage(editMessage);
+    } else if (message === '') {
+      setEditMessage('');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commentError]);
@@ -122,6 +124,8 @@ function CommentInput({
   useEffect(() => {
     if (commentReplyError! && commentReplyError.length) {
       setEditMessage(editMessage);
+    } else if (message === '') {
+      setEditMessage('');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commentReplyError]);
@@ -135,21 +139,19 @@ function CommentInput({
 
   const onUpdatePost = (msg: string) => {
     const imageArr = isReply ? replyImageArray : imageArray;
-    if (msg || imageArr.length) {
-      if (isReply) {
-        addUpdateReply!({
-          replyMessage: msg,
-          commentId: dataId,
-          imageArr,
-          commentReplyID,
-        });
-      } else {
-        addUpdateComment!({
-          commentMessage: msg,
-          commentId: dataId,
-          imageArr,
-        });
-      }
+    if (isReply) {
+      addUpdateReply!({
+        replyMessage: msg,
+        commentId: dataId,
+        imageArr,
+        commentReplyID,
+      });
+    } else {
+      addUpdateComment!({
+        commentMessage: msg,
+        commentId: dataId,
+        imageArr,
+      });
     }
   };
 
@@ -261,13 +263,13 @@ function CommentInput({
         ))}
       </Row>
       {!isReply && !isEdit
-      && (
-      <ErrorMessageList
-        errorMessages={commentError}
-        divClass="mt-3 text-start"
-        className="m-0"
-      />
-      )}
+        && (
+          <ErrorMessageList
+            errorMessages={commentError}
+            divClass="mt-3 text-start"
+            className="m-0"
+          />
+        )}
     </Form>
   );
 }

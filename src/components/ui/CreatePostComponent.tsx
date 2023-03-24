@@ -58,6 +58,7 @@ interface Props {
   disLiked?: boolean;
   setDisLike?: (val: boolean) => void;
   isWorthIt?: number;
+  placeHolder?: string;
 }
 
 const AddPhotosButton = styled(RoundButton)`
@@ -77,7 +78,7 @@ function CreatePostComponent({
   deleteImageIds, setDeleteImageIds, postType, titleContent, setTitleContent,
   containSpoiler, setContainSpoiler, rating, setRating, goreFactor, setGoreFactor,
   selectedPostType, setSelectedPostType, setWorthIt, liked, setLike,
-  disLiked, setDisLike, isWorthIt,
+  disLiked, setDisLike, isWorthIt, placeHolder,
 }: Props) {
   const inputFile = useRef<HTMLInputElement>(null);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
@@ -196,7 +197,7 @@ function CreatePostComponent({
       <div className={`mt-3 ${(postType === 'review' || paramsType === 'group-post') ? 'form-control p-0 bg-black' : ''}`}>
         <MessageTextarea
           rows={10}
-          placeholder={postType === 'review' ? 'Write your review here' : 'Create a post'}
+          placeholder={placeHolder}
           handleSearch={handleSearch}
           mentionLists={mentionList}
           setMessageContent={setPostMessageContent}
@@ -326,5 +327,6 @@ CreatePostComponent.defaultProps = {
   disLiked: false,
   setDisLike: () => { },
   isWorthIt: 0,
+  placeHolder: 'Write a something...',
 };
 export default CreatePostComponent;

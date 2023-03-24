@@ -244,31 +244,29 @@ function PostCommentSection({
   }, [isReply]);
 
   const sendComment = (commentId?: string, msg?: string) => {
-    if (msg !== '' || imageArray.length > 0 || replyImageArray.length > 0) {
-      if (!commentId) {
-        if (commentError && commentError.length) {
-          setMessage(msg!);
-        } else {
-          setMessage('');
-          setImageArray([]);
-        }
+    if (!commentId) {
+      if (commentError && commentError.length) {
+        setMessage(msg!);
+      } else {
+        setMessage('');
+        setImageArray([]);
       }
-
-      if (replyImageArray.length > 0 || msg) {
-        if ((commentReplyError && commentReplyError.length)) {
-          setIsReply(true);
-          setReplyMessage(msg!);
-          setReplyUserName(replyUserName);
-        } else {
-          setIsReply(false);
-          setReplyMessage('');
-          setReplyUserName('');
-          setReplyImageArray([]);
-        }
-      }
-
-      setUploadPost([]);
     }
+
+    if (replyImageArray.length > 0 || msg) {
+      if ((commentReplyError && commentReplyError.length)) {
+        setIsReply(true);
+        setReplyMessage(msg!);
+        setReplyUserName(replyUserName);
+      } else {
+        setIsReply(false);
+        setReplyMessage('');
+        setReplyUserName('');
+        setReplyImageArray([]);
+      }
+    }
+
+    setUploadPost([]);
   };
 
   const handlePopover = (value: string, popoverData: PopoverClickProps) => {
@@ -621,9 +619,9 @@ function PostCommentSection({
                         (comment: any, replyCommentIndex: number) => (
                           <div key={comment.id}>
                             {(replyCommentIndex === (data.commentReplySection.length - 1))
-                                && (comment.newComment)
-                                && !isReply
-                                && data.id === selectedReplyCommentId
+                              && (comment.newComment)
+                              && !isReply
+                              && data.id === selectedReplyCommentId
                               ? oldReply(comment, replyCommentIndex)
                               : null}
                           </div>

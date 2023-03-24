@@ -227,7 +227,7 @@ function PostDetail({ user, postType }: Props) {
           setCommentErrorMessage(msg);
           setCommentSent(false);
         });
-    } else if (comment.commentMessage || comment.imageArr?.length) {
+    } else {
       addFeedComments(
         postId!,
         comment.commentMessage,
@@ -321,7 +321,7 @@ function PostDetail({ user, postType }: Props) {
           setCommentReplyErrorMessage(msg);
           setCommentSent(false);
         });
-    } else if (reply.replyMessage || reply?.imageArr?.length) {
+    } else {
       addFeedReplyComments(
         postId!,
         reply.replyMessage,

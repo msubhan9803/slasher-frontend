@@ -151,7 +151,7 @@ function CustomSwiper({ images, initialSlide, onSelect }: Props) {
   };
 
   return (
-    <>
+    <div style={{ height: '450px' }}>
       <StyledSwiper
         pagination={{ type: 'fraction' }}
         initialSlide={initialSlide}
@@ -175,7 +175,7 @@ function CustomSwiper({ images, initialSlide, onSelect }: Props) {
             videokey={images?.[0]?.videoKey}
           />
         )}
-    </>
+    </div>
   );
 }
 CustomSwiper.defaultProps = {

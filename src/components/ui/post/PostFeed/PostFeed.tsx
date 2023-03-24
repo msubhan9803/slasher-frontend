@@ -120,7 +120,7 @@ function PostFeed({
   handleSearch, mentionList, commentImages, setCommentImages, commentError, postType,
   onSpoilerClick,
 }: Props) {
-  const [postData, setPostData] = useState<Post[]>([]);
+  const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<PostButtonClickType>('');
   const [searchParams] = useSearchParams();
@@ -325,15 +325,14 @@ function PostFeed({
   }
 
   useEffect(() => {
-    if (postData.length > 1
-      && scrollPosition.position > 0
+    if (scrollPosition.position > 0
       && scrollPosition?.pathname === location.pathname) {
       window.scrollTo({
         top: scrollPosition?.position,
         behavior: 'instant' as any,
       });
     }
-  }, [postData, scrollPosition, location.pathname]);
+  }, [scrollPosition, location.pathname]);
   const renderGroupPostContent = (posts: any) => (
     <>
       <p>
@@ -350,6 +349,7 @@ function PostFeed({
       </h1>
     </>
   );
+
   return (
     <StyledPostFeed>
       {postData.map((post: any, i) => (
@@ -377,7 +377,7 @@ function PostFeed({
                 {postType === 'group-post' && renderGroupPostContent(post)}
                 {post?.rssFeedTitle && <h1 className="h2">{post.rssFeedTitle}</h1>}
                 {renderPostContent(post)}
-                {post?.images && (
+                {post?.images?.length > 0 && (
                   <CustomSwiper
                     images={
                       post.images.map((imageData: any) => ({

@@ -16,17 +16,17 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 const StyleFriend = styled(Row)`
   overflow-x: auto;
   overflow-y: hidden;
-  .casts-image {
-    aspect-ratio: 1;
-  }
-  &::-webkit-scrollbar {
-    display: none;
-}
+  .casts-image { aspect-ratio: 1; }
+  &::-webkit-scrollbar { display: none; }
 `;
 const Card = styled.div`
   height:12.857rem;
   width:11.71rem;
   padding-right: 1rem;
+`;
+
+const LoadingIndicatorSpacer = styled.div`
+  height:12.857rem;
 `;
 
 const slideFriendRight = () => {
@@ -78,10 +78,6 @@ function SuggestedFriend() {
     }
     setAllowReload(false);
   }, [allowReload, forceReload, lastRetrievalTime, reloadSuggestedFriends]);
-
-  if (loading) {
-    return <LoadingIndicator />;
-  }
 
   const addFriendClick = (userId: string) => {
     addFriend(userId).then(() => {
@@ -138,6 +134,16 @@ function SuggestedFriend() {
       No friend suggestions available right now, but check back later for more!
     </div>
   );
+
+  if (loading) {
+    return (
+      <div className="p-md-3 pt-md-1 ">
+        <LoadingIndicatorSpacer className="d-flex align-items-center justify-content-center">
+          <LoadingIndicator />
+        </LoadingIndicatorSpacer>
+      </div>
+    );
+  }
 
   return (
     <div>

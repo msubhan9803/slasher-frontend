@@ -25,10 +25,10 @@ function PlaceHeader({ tabKey }: PlaceHeaderProps) {
       <TabLinks tabLink={tabs} toLink="/places" selectedTab={tabKey} />
       <Row className="mt-4 mb-lg-3 justify-content-between align-items-center">
         <Col md={4} lg={5} className="mt-4 mt-md-0">
-          <SortData type="select" className="rounded-5" />
+          <SortData type="select" />
         </Col>
         <Col md={4} lg={5} xl={4} className="mt-4 mt-md-0">
-          <SortData title="Sort: " sortoptions={sortoptions} type="sort" className="rounded-5" />
+          <SortData title="Sort: " sortoptions={sortoptions} type="sort" />
         </Col>
         <Col md={4} className="order-first order-md-last">
           <RoundButton className="d-lg-none w-100">Add your place</RoundButton>

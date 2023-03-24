@@ -178,8 +178,8 @@ function AllMovies() {
         setShowKeys={setShowKeys}
         setSearch={(query: string) => { setSearch(query); setCallNavigate(true); }}
         search={search}
-        sort={(e: React.ChangeEvent<HTMLSelectElement>) => {
-          setSortVal(e.target.value);
+        sort={(value: string) => {
+          setSortVal(value);
           setCallNavigate(true);
         }}
         selectedKey={key}

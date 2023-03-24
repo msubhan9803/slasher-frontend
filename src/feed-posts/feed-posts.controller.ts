@@ -66,7 +66,14 @@ export class FeedPostsController {
     @Body() createFeedPostsDto: CreateFeedPostsDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    if (!files.length && createFeedPostsDto.message === '') {
+    if (createFeedPostsDto.postType === PostType.MovieReview && createFeedPostsDto.message === '') {
+      throw new HttpException(
+        'Review must have a some text',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (createFeedPostsDto.postType !== PostType.MovieReview && !files.length && createFeedPostsDto.message === '') {
       throw new HttpException(
         'Posts must have some text or at least one image.',
         HttpStatus.BAD_REQUEST,
@@ -97,7 +104,6 @@ export class FeedPostsController {
         throw new HttpException('When submitting moviePostFields, movieId is required.', HttpStatus.BAD_REQUEST);
       }
 
-      feedPost.title = createFeedPostsDto.moviePostFields.title;
       feedPost.spoilers = createFeedPostsDto.moviePostFields.spoilers;
       const ratingPromises = [];
       if (createFeedPostsDto.moviePostFields.rating) {
@@ -141,7 +147,6 @@ export class FeedPostsController {
     return {
       _id: createFeedPost.id,
       message: createFeedPost.message,
-      title: createFeedPost.title,
       spoilers: createFeedPost.spoilers,
       userId: createFeedPost.userId,
       images: createFeedPost.images,
@@ -182,7 +187,10 @@ export class FeedPostsController {
 
     let reviewData;
     if (postType === PostType.MovieReview) {
-      const movieUserStatusData = await this.movieUserStatusService.findMovieUserStatus(user.id, feedPost.movieId.toString());
+      const movieUserStatusData = await this.movieUserStatusService.findMovieUserStatus(
+        (feedPost.userId as any)._id.toString(),
+        feedPost.movieId.toString(),
+      );
       if (movieUserStatusData) {
         reviewData = {
           rating: movieUserStatusData.rating,
@@ -196,7 +204,7 @@ export class FeedPostsController {
       ...pick(
         feedPost,
         ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likedByUser',
-          'postType', 'title', 'spoilers', 'movieId', 'message'],
+          'postType', 'spoilers', 'movieId', 'message'],
       ),
       reviewData,
     };
@@ -240,6 +248,13 @@ export class FeedPostsController {
     const newPostImages = files && files.length;
     const currentPostImages = feedPost.images && feedPost.images.length;
     const { message } = updateFeedPostsDto;
+
+    if (feedPost.postType === PostType.MovieReview && updateFeedPostsDto.message === '') {
+      throw new HttpException(
+        'Review must have a some text',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
     // eslint-disable-next-line max-len
     const isPostWithoutImgAndMsg = (imagesToDelete && !newPostImages && message === '' && currentPostImages === imagesToDelete) || (!currentPostImages && !newPostImages && message === '');
@@ -288,8 +303,6 @@ export class FeedPostsController {
         throw new HttpException('When submitting moviePostFields, movieId is required.', HttpStatus.BAD_REQUEST);
       }
       // eslint-disable-next-line no-param-reassign
-      (updateFeedPostsDto as unknown as FeedPost).title = updateFeedPostsDto.moviePostFields.title;
-      // eslint-disable-next-line no-param-reassign
       (updateFeedPostsDto as unknown as FeedPost).spoilers = updateFeedPostsDto.moviePostFields.spoilers;
       const ratingPromises = [];
       if (updateFeedPostsDto.moviePostFields.rating) {
@@ -337,7 +350,6 @@ export class FeedPostsController {
       message: updatedFeedPost.message,
       userId: updatedFeedPost.userId,
       images: updatedFeedPost.images,
-      title: updatedFeedPost.title,
       spoilers: updatedFeedPost.spoilers,
     };
   }
@@ -503,7 +515,7 @@ export class FeedPostsController {
           '_id', 'message', 'images',
           'userId', 'createdAt', 'likedByUser',
           'likeCount', 'commentCount', 'reviewData',
-          'postType', 'title', 'spoilers', 'movieId',
+          'postType', 'spoilers', 'movieId',
         ],
       ),
     );

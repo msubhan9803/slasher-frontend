@@ -238,25 +238,25 @@ export class MoviesService {
       { $group: { _id: 'movieId', averageWorthWatching: { $avg: '$worthWatching' } } },
     ]);
 
-    type ReturnType = Partial<Movie & { userData: MovieUserStatus }>;
     // assign default values for simplistic usage in client side
-    let returnValue: ReturnType = { worthWatching: 0, worthWatchingUpUsersCount: 0, worthWatchingDownUsersCount: 0 };
+    const update: Partial<Movie> = { worthWatching: 0, worthWatchingUpUsersCount: 0, worthWatchingDownUsersCount: 0 };
     if (aggregate.length !== 0) {
       const [{ averageWorthWatching }] = aggregate;
-      const worthWatchingUpUsersCount = await this.movieUserStatusModel.count({ movieId, worthWatching: { $eq: WorthWatchingStatus.Up } });
-      const worthWatchingDownUsersCount = await this.movieUserStatusModel.count({
+      update.worthWatching = Math.round(averageWorthWatching);
+      update.worthWatchingUpUsersCount = await this.movieUserStatusModel.count({ movieId, worthWatching: { $eq: WorthWatchingStatus.Up } });
+      update.worthWatchingDownUsersCount = await this.movieUserStatusModel.count({
         movieId,
         worthWatching: { $eq: WorthWatchingStatus.Down },
       });
-      // Update the new average
-      const movie = (await this.moviesModel.findOneAndUpdate(
-        { _id: new mongoose.Types.ObjectId(movieId) },
-        { $set: { worthWatching: Math.round(averageWorthWatching), worthWatchingUpUsersCount, worthWatchingDownUsersCount } },
-        { upsert: true, new: true },
-      )).toObject();
-      returnValue = { ...movie };
     }
-    return { ...returnValue, userData: movieUserStatus };
+    // Update properties related to `worthWatch`
+    const movie = (await this.moviesModel.findOneAndUpdate(
+      { _id: new mongoose.Types.ObjectId(movieId) },
+      { $set: update },
+      { upsert: true, new: true },
+    )).toObject();
+
+    return { ...movie, userData: movieUserStatus };
   }
 
   async getRatingUsersCount(movieId: string) {

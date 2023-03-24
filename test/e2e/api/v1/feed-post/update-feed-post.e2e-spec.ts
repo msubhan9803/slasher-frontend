@@ -118,7 +118,6 @@ describe('Update Feed Post (e2e)', () => {
           },
         ],
         spoilers: false,
-        title: null,
       });
       expect(feedPostDetails.lastUpdateAt > postBeforeUpdate.lastUpdateAt).toBe(true);
     });
@@ -220,7 +219,6 @@ describe('Update Feed Post (e2e)', () => {
             },
           ],
           spoilers: false,
-          title: null,
         });
         expect(feedPostDetails.images).toHaveLength(3);
       }, [{ extension: 'png' }, { extension: 'png' }]);
@@ -262,7 +260,6 @@ describe('Update Feed Post (e2e)', () => {
             },
           ],
           spoilers: false,
-          title: null,
         });
         expect(feedPostDetails.images).toHaveLength(4);
       }, [{ extension: 'png' }, { extension: 'png' }]);
@@ -290,7 +287,6 @@ describe('Update Feed Post (e2e)', () => {
           },
         ],
         spoilers: false,
-        title: null,
       });
       expect(feedPostDetails.images).toHaveLength(1);
     });
@@ -450,7 +446,6 @@ describe('Update Feed Post (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'this new post')
-          .field('moviePostFields[title]', 'this movie title')
           .field('moviePostFields[spoilers]', true)
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1]);
@@ -481,12 +476,10 @@ describe('Update Feed Post (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'this new post')
-          .field('moviePostFields[title]', 'this movie title')
           .field('moviePostFields[spoilers]', true)
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1]);
         const post = await feedPostsService.findById(response.body._id, true);
-        expect(post.title).toBe('this movie title');
         expect(post.spoilers).toBe(true);
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
 
@@ -510,7 +503,6 @@ describe('Update Feed Post (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'this new post')
-          .field('moviePostFields[title]', 'this movie title')
           .field('moviePostFields[spoilers]', true)
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1]);
@@ -557,6 +549,7 @@ describe('Update Feed Post (e2e)', () => {
           {
             images: [],
             userId: activeUser._id,
+            postType: PostType.MovieReview,
           },
         ),
       );
@@ -568,6 +561,25 @@ describe('Update Feed Post (e2e)', () => {
         statusCode: 400,
         message: 'Posts must have some text or at least one image.',
       });
+    })
+
+    it('when postType is movieReview and message is black string than expected response', async () => {
+      const feedPost8 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: activeUser._id,
+            postType: PostType.MovieReview,
+          },
+        ),
+      );
+      const response = await request(app.getHttpServer())
+        .patch(`/api/v1/feed-posts/${feedPost8._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', '');
+      expect(response.body).toEqual(
+        { statusCode: 400, message: 'Review must have a some text' },
+      );
     });
   });
 
@@ -582,95 +594,69 @@ describe('Update Feed Post (e2e)', () => {
       expect(response.body.message).toContain('message cannot be longer than 20,000 characters');
     });
 
-    it('title should not be empty', async () => {
-      const response = await request(app.getHttpServer())
-        .patch(`/api/v1/feed-posts/${feedPost._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .field('userId', activeUser._id.toString())
-        .field('postType', 3)
-        .field('moviePostFields[spoilers]', true);
-      expect(response.body.message).toContain('moviePostFields.title should not be empty');
-    });
-
     it('spoilers should not be empty', async () => {
       const response = await request(app.getHttpServer())
         .patch(`/api/v1/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .field('userId', activeUser._id.toString())
         .field('postType', 3)
-        .field('moviePostFields[title]', 'this is title');
-      expect(response.body.message).toContain('moviePostFields.spoilers should not be empty');
+        .field('moviePostFields[rating]', 2);
+      expect(response.body.message).toContain('spoilers should not be empty');
     });
 
-    it('check title length validation', async () => {
+    it('rating must not be greater than 5', async () => {
       const response = await request(app.getHttpServer())
         .patch(`/api/v1/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .field('userId', activeUser._id.toString())
         .field('postType', 3)
-        .field('moviePostFields[title]', new Array(200).join('z'))
-        .field('moviePostFields[spoilers]', true);
-      expect(response.body.message).toContain('moviePostFields.title must be shorter than or equal to 150 characters');
-    });
-
-    it('moviePostFields.rating must not be greater than 5', async () => {
-      const response = await request(app.getHttpServer())
-        .patch(`/api/v1/feed-posts/${feedPost._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .field('userId', activeUser._id.toString())
-        .field('postType', 3)
-        .field('moviePostFields[title]', 'title')
         .field('moviePostFields[spoilers]', true)
         .field('moviePostFields[rating]', 6);
-      expect(response.body.message).toContain('moviePostFields.rating must not be greater than 5');
+      expect(response.body.message).toContain('rating must be less than 5');
     });
 
-    it('moviePostFields.rating must not be less than 1', async () => {
+    it('rating must not be less than 1', async () => {
       const response = await request(app.getHttpServer())
         .patch(`/api/v1/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .field('userId', activeUser._id.toString())
         .field('postType', 3)
-        .field('moviePostFields[title]', 'title')
         .field('moviePostFields[spoilers]', true)
         .field('moviePostFields[rating]', 0);
-      expect(response.body.message).toContain('moviePostFields.rating must not be less than 1');
+      expect(response.body.message).toContain('rating must be greater than 1');
     });
 
-    it('moviePostFields.goreFactorRating must not be greater than 5', async () => {
+    it('goreFactorRating must not be greater than 5', async () => {
       const response = await request(app.getHttpServer())
         .patch(`/api/v1/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .field('userId', activeUser._id.toString())
         .field('postType', 3)
-        .field('moviePostFields[title]', 'title')
         .field('moviePostFields[spoilers]', true)
         .field('moviePostFields[goreFactorRating]', 6);
-      expect(response.body.message).toContain('moviePostFields.goreFactorRating must not be greater than 5');
+      expect(response.body.message).toContain('goreFactorRating must be less than 5');
     });
 
-    it('moviePostFields.goreFactorRating must not be less than 1', async () => {
+    it('goreFactorRating must not be less than 1', async () => {
       const response = await request(app.getHttpServer())
         .patch(`/api/v1/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .field('userId', activeUser._id.toString())
         .field('postType', 3)
-        .field('moviePostFields[title]', 'title')
         .field('moviePostFields[spoilers]', true)
         .field('moviePostFields[goreFactorRating]', 0);
-      expect(response.body.message).toContain('moviePostFields.goreFactorRating must not be less than 1');
+      expect(response.body.message).toContain('goreFactorRating must be greater than 1');
     });
 
-    it('moviePostFields.worthWatching must be one of the following values: 1, 2', async () => {
+    it('worthWatching must be one of the following values: 1, 2', async () => {
       const response = await request(app.getHttpServer())
         .patch(`/api/v1/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .field('userId', activeUser._id.toString())
         .field('postType', 3)
-        .field('moviePostFields[title]', 'title')
         .field('moviePostFields[spoilers]', true)
         .field('moviePostFields[worthWatching]', 6);
-      expect(response.body.message).toContain('moviePostFields.worthWatching must be one of the following values: 1, 2');
+      expect(response.body.message).toContain('worthWatching must be one of the following values: 1, 2');
     });
   });
 });

@@ -101,7 +101,6 @@ describe('Feed-Post / Post File (e2e)', () => {
           message: 'hello test user',
           postType: PostType.User,
           spoilers: false,
-          title: null,
           userId: activeUser._id.toString(),
           images: [
             {
@@ -167,7 +166,6 @@ describe('Feed-Post / Post File (e2e)', () => {
         userId: activeUser._id.toString(),
         images: [],
         spoilers: false,
-        title: null,
       });
     });
 
@@ -311,7 +309,6 @@ describe('Feed-Post / Post File (e2e)', () => {
           .field('postType', PostType.User)
           .field('userId', activeUser._id.toString())
           .field('movieId', movie._id.toString())
-          .field('moviePostFields[title]', 'this movie title')
           .field('moviePostFields[spoilers]', true)
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1]);
@@ -335,7 +332,6 @@ describe('Feed-Post / Post File (e2e)', () => {
           .field('message', 'this new post')
           .field('postType', PostType.MovieReview)
           .field('userId', activeUser._id.toString())
-          .field('moviePostFields[title]', 'this movie title')
           .field('moviePostFields[spoilers]', true)
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1]);
@@ -360,12 +356,10 @@ describe('Feed-Post / Post File (e2e)', () => {
           .field('postType', PostType.MovieReview)
           .field('userId', activeUser._id.toString())
           .field('movieId', movie._id.toString())
-          .field('moviePostFields[title]', 'this movie title')
           .field('moviePostFields[spoilers]', true)
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1]);
         const post = await feedPostsService.findById(response.body._id, true);
-        expect(post.title).toBe('this movie title');
         expect(post.spoilers).toBe(true);
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
 
@@ -405,96 +399,83 @@ describe('Feed-Post / Post File (e2e)', () => {
       });
     });
 
-    describe('Validation', () => {
-      it('title should not be empty', async () => {
-        const response = await request(app.getHttpServer())
-          .post('/api/v1/feed-posts')
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .field('userId', activeUser._id.toString())
-          .field('postType', 3)
-          .field('moviePostFields[spoilers]', true);
-        expect(response.body.message).toContain('moviePostFields.title should not be empty');
-      });
+    it('when postType is movieReview and message is black string than expected response', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/feed-posts')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', '')
+        .field('postType', PostType.MovieReview)
+        .field('userId', activeUser._id.toString());
+      expect(response.body).toEqual(
+        { statusCode: 400, message: 'Review must have a some text' },
+      );
+    });
 
+    describe('Validation', () => {
       it('spoilers should not be empty', async () => {
         const response = await request(app.getHttpServer())
           .post('/api/v1/feed-posts')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .field('userId', activeUser._id.toString())
           .field('postType', 3)
-          .field('moviePostFields[title]', 'this is title');
-        expect(response.body.message).toContain('moviePostFields.spoilers should not be empty');
+          .field('moviePostFields[rating]', 1);
+        expect(response.body.message).toContain('spoilers should not be empty');
       });
 
-      it('check title length validation', async () => {
+      it('rating must not be greater than 5', async () => {
         const response = await request(app.getHttpServer())
           .post('/api/v1/feed-posts')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .field('userId', activeUser._id.toString())
           .field('postType', 3)
-          .field('moviePostFields[title]', new Array(200).join('z'))
-          .field('moviePostFields[spoilers]', true);
-        expect(response.body.message).toContain('moviePostFields.title must be shorter than or equal to 150 characters');
-      });
-
-      it('moviePostFields.rating must not be greater than 5', async () => {
-        const response = await request(app.getHttpServer())
-          .post('/api/v1/feed-posts')
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .field('userId', activeUser._id.toString())
-          .field('postType', 3)
-          .field('moviePostFields[title]', 'this is title')
           .field('moviePostFields[spoilers]', true)
           .field('moviePostFields[rating]', 6);
-        expect(response.body.message).toContain('moviePostFields.rating must not be greater than 5');
+        expect(response.body.message).toContain('rating must be less than 5');
       });
 
-      it('moviePostFields.rating must not be less than 1', async () => {
+      it('rating must not be less than 1', async () => {
         const response = await request(app.getHttpServer())
           .post('/api/v1/feed-posts')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .field('userId', activeUser._id.toString())
           .field('postType', 3)
-          .field('moviePostFields[title]', 'this is title')
           .field('moviePostFields[spoilers]', true)
           .field('moviePostFields[rating]', 0);
-        expect(response.body.message).toContain('moviePostFields.rating must not be less than 1');
+        expect(response.body.message).toContain('rating must be greater than 1');
       });
 
-      it('moviePostFields.goreFactorRating must not be greater than 5', async () => {
+      it('goreFactorRating must not be greater than 5', async () => {
         const response = await request(app.getHttpServer())
           .post('/api/v1/feed-posts')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .field('userId', activeUser._id.toString())
           .field('postType', 3)
-          .field('moviePostFields[title]', 'this is title')
           .field('moviePostFields[spoilers]', true)
           .field('moviePostFields[goreFactorRating]', 6);
-        expect(response.body.message).toContain('moviePostFields.goreFactorRating must not be greater than 5');
+        expect(response.body.message).toContain('goreFactorRating must be less than 5');
       });
 
-      it('moviePostFields.goreFactorRating must not be less than 1', async () => {
+      it('goreFactorRating must not be less than 1', async () => {
         const response = await request(app.getHttpServer())
           .post('/api/v1/feed-posts')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .field('userId', activeUser._id.toString())
           .field('postType', 3)
-          .field('moviePostFields[title]', 'this is title')
           .field('moviePostFields[spoilers]', true)
           .field('moviePostFields[goreFactorRating]', 0);
-        expect(response.body.message).toContain('moviePostFields.goreFactorRating must not be less than 1');
+        expect(response.body.message).toContain('goreFactorRating must be greater than 1');
       });
 
-      it('moviePostFields.worthWatching must be one of the following values: 1, 2', async () => {
+      it('worthWatching must be one of the following values: 1, 2', async () => {
         const response = await request(app.getHttpServer())
           .post('/api/v1/feed-posts')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .field('userId', activeUser._id.toString())
           .field('postType', 3)
-          .field('moviePostFields[title]', 'this is title')
           .field('moviePostFields[spoilers]', true)
           .field('moviePostFields[worthWatching]', 6);
-        expect(response.body.message).toContain('moviePostFields.worthWatching must be one of the following values: 1, 2');
+        expect(response.body.message).toContain('worthWatching must be one of the following values: 1, 2');
       });
 
       it('postType should not be empty', async () => {

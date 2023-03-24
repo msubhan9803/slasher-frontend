@@ -368,7 +368,37 @@ describe('Feed-Post / Post File (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
-    it('when postType is movieReview and message is black string than expected response', async () => {
+    it('check trim is working for message in create feed posts', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/feed-posts')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('message', '     this new post   ')
+        .field('userId', activeUser._id.toString())
+        .field('postType', PostType.MovieReview);
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        message: 'this new post',
+        spoilers: false,
+        userId: activeUser._id.toString(),
+        images: [],
+        postType: PostType.MovieReview,
+      });
+    });
+
+    it('returns the expected response when the message only contains whitespace characters', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/feed-posts')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('message', '     \n\n')
+        .field('userId', activeUser._id.toString())
+        .field('postType', PostType.User);
+      expect(response.body).toEqual({
+        statusCode: 400,
+        message: 'Posts must have some text or at least one image.',
+      });
+    });
+
+    it('when postType is movieReview and message is empty string than expected response', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/v1/feed-posts')
         .auth(activeUserAuthToken, { type: 'bearer' })

@@ -418,6 +418,31 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
         expect(response.body.message).toBe('Reply must have a message or at least one image.');
       });
 
+    it('returns the expected response when the message only contains whitespace characters', async () => {
+      const feedReply3 = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser._id,
+            feedCommentId: feedComments.id,
+            message: 'Hello Reply Test Message 1',
+            images: [{
+              image_path: '/feed/feed_sample1.jpg',
+            }],
+          },
+        ),
+      );
+      const response = await request(app.getHttpServer())
+        .patch(`/api/v1/feed-comments/replies/${feedReply3._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', '          \n\n')
+        .field('imagesToDelete', (feedReply3.images[0] as any).id);
+      expect(response.body).toEqual({
+        statusCode: 400,
+        message: 'Reply must have a message or at least one image.',
+      });
+    });
+
     it('when reply has a already 4 images and add more 2 images than expected response', async () => {
       const feedReply1 = await feedCommentsService.createFeedReply(
         feedRepliesFactory.build(
@@ -464,7 +489,7 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
-    it('check message has a black string or files or imagesToDelete is not exists', async () => {
+    it('check message has a empty string or files or imagesToDelete is not exists', async () => {
       const feedReply2 = await feedCommentsService.createFeedReply(
         feedRepliesFactory.build(
           {
@@ -483,6 +508,31 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
       expect(response.body).toEqual({
         statusCode: 400,
         message: 'Reply must have a message or at least one image.',
+      });
+    });
+
+    it('check trim is working for message in update feed reply', async () => {
+      const response = await request(app.getHttpServer())
+        .patch(`/api/v1/feed-comments/replies/${feedReply._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', '        This is a test reply message      ');
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        feedCommentId: feedComments._id.toString(),
+        feedPostId: feedPost._id.toString(),
+        message: 'This is a test reply message',
+        userId: activeUser._id.toString(),
+        images: [
+          {
+            image_path: 'https://picsum.photos/id/237/200/300',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+          {
+            image_path: 'https://picsum.photos/seed/picsum/200/300',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+        ],
       });
     });
 

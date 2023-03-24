@@ -222,6 +222,32 @@ describe('Send Message In Conversation / (e2e)', () => {
           { extension: 'gif' },
         ]);
       });
+
+      it('check trim is working for message in send message in conversation', async () => {
+        const matchListId = message1.matchId._id;
+        const response = await request(app.getHttpServer())
+          .post(`/api/v1/chat/conversation/${matchListId}/message`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', '     test chat message  ');
+        expect(response.body).toEqual({
+          messages: [
+            {
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              image: null,
+              message: 'test chat message',
+              fromId: activeUser._id.toString(),
+              senderId: user1._id.toString(),
+              matchId: message1.matchId._id.toString(),
+              createdAt: expect.any(String),
+              messageType: 0,
+              isRead: false,
+              status: 1,
+              deleted: false,
+            },
+          ],
+        });
+      });
     });
 
     describe('Validation', () => {

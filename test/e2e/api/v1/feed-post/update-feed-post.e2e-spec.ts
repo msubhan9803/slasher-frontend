@@ -410,7 +410,7 @@ describe('Update Feed Post (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
-    it('check message has a black string or files or imagesToDelete is not exists', async () => {
+    it('check message has a empty string or files or imagesToDelete is not exists', async () => {
       const feedPost3 = await feedPostsService.create(
         feedPostFactory.build(
           {
@@ -517,7 +517,52 @@ describe('Update Feed Post (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
-    it('when postType is movieReview and message is black string than expected response', async () => {
+    it('check trim is working for message in update feed posts', async () => {
+      const response = await request(app.getHttpServer())
+        .patch(`/api/v1/feed-posts/${feedPost._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('message', '     this new post   ')
+        .field('userId', activeUser._id.toString())
+        .field('postType', PostType.MovieReview);
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        message: 'this new post',
+        spoilers: false,
+        userId: activeUser._id.toString(),
+        images: [
+          {
+            image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+          {
+            image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+        ],
+      });
+    });
+
+    it('returns the expected response when the message only contains whitespace characters', async () => {
+      const feedPost7 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            images: [],
+            userId: activeUser._id,
+            postType: PostType.User,
+          },
+        ),
+      );
+      const response = await request(app.getHttpServer())
+        .patch(`/api/v1/feed-posts/${feedPost7._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('message', '     \n\n');
+      expect(response.body).toEqual({
+        statusCode: 400,
+        message: 'Posts must have some text or at least one image.',
+      });
+    });
+
+    it('when postType is movieReview and message is empty string than expected response', async () => {
       const feedPost8 = await feedPostsService.create(
         feedPostFactory.build(
           {
@@ -527,7 +572,7 @@ describe('Update Feed Post (e2e)', () => {
         ),
       );
       const response = await request(app.getHttpServer())
-      .patch(`/api/v1/feed-posts/${feedPost8._id}`)
+        .patch(`/api/v1/feed-posts/${feedPost8._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .set('Content-Type', 'multipart/form-data')
         .field('message', '');

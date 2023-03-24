@@ -388,6 +388,35 @@ describe('Feed-Comments/Replies File (e2e)', () => {
       expect(response.body.message).toContain('Comment not found');
     });
 
+    it('check trim is working for message in create feed reply', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/feed-comments/replies')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', '        This is a test reply message      ')
+        .field('feedCommentId', feedComment._id.toString());
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        feedCommentId: feedComment._id.toString(),
+        feedPostId: feedPost._id.toString(),
+        message: 'This is a test reply message',
+        userId: activeUser._id.toString(),
+        images: [],
+      });
+    });
+
+    it('returns the expected response when the message only contains whitespace characters', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/feed-comments/replies')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('message', '     \n\n')
+        .field('feedCommentId', feedComment._id.toString());
+      expect(response.body).toEqual({
+        statusCode: 400,
+        message: 'Reply must have some text or at least one image.',
+      });
+    });
+
     describe('when the feed post was created by a user with a non-public profile', () => {
       let user1;
       let feedPost1;

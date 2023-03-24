@@ -438,7 +438,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
-    it('check message has a black string or files or imagesToDelete is not exists', async () => {
+    it('check message has a empty string or files or imagesToDelete is not exists', async () => {
       const feedComment2 = await feedCommentsService.createFeedComment(
         feedCommentsFactory.build(
           {
@@ -450,10 +450,56 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
         ),
       );
       const response = await request(app.getHttpServer())
-      .patch(`/api/v1/feed-comments/${feedComment2._id}`)
-      .auth(activeUserAuthToken, { type: 'bearer' })
-      .set('Content-Type', 'multipart/form-data')
-      .field('message', '');
+        .patch(`/api/v1/feed-comments/${feedComment2._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', '');
+      expect(response.body).toEqual({
+        statusCode: 400,
+        message: 'Comment must have a message or at least one image.',
+      });
+    });
+
+    it('check trim is working for message in update feed comments', async () => {
+      const response = await request(app.getHttpServer())
+        .patch(`/api/v1/feed-comments/${feedComment._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', '       hello test user comment');
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        feedPostId: feedPost._id.toString(),
+        message: 'hello test user comment',
+        userId: activeUser._id.toString(),
+        images: [
+          {
+            image_path: 'https://picsum.photos/id/237/200/300',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+          {
+            image_path: 'https://picsum.photos/seed/picsum/200/300',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+        ],
+      });
+    });
+
+    it('returns the expected response when the message only contains whitespace characters', async () => {
+      const feedComment3 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id,
+            feedPostId: feedPost.id,
+            message: sampleFeedCommentsObject.message,
+            images: [],
+          },
+        ),
+      );
+      const response = await request(app.getHttpServer())
+        .patch(`/api/v1/feed-comments/${feedComment3._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', '          \n\n');
       expect(response.body).toEqual({
         statusCode: 400,
         message: 'Comment must have a message or at least one image.',

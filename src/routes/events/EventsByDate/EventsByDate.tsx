@@ -275,7 +275,7 @@ function EventsByDate() {
                     <Col md={6}>
                       <EventsPosterCard listDetail={eventDetail} />
                     </Col>
-                    {show && <PubWiseAd className="text-center my-3" id={EVENTS_BY_DATE_DIV_ID} autoSequencer />}
+                    {show && <PubWiseAd className="my-3" id={EVENTS_BY_DATE_DIV_ID} autoSequencer />}
                   </React.Fragment>
                 );
               }))}
@@ -283,7 +283,7 @@ function EventsByDate() {
         </InfiniteScroll>
         {noMoreData && renderNoMoreDataMessage()}
         {/* Show an ad on events page in-case when we have no events to show. */}
-        {(eventsList.length === 0) && <PubWiseAd className="text-center my-3" id={ALL_MOVIES_DIV_ID} autoSequencer />}
+        {(eventsList.length === 0) && <PubWiseAd className="my-3" id={ALL_MOVIES_DIV_ID} autoSequencer />}
       </div>
     </div>
   );

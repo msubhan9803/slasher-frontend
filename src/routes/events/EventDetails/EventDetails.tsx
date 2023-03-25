@@ -153,7 +153,7 @@ function EventDetails() {
         </div>
       </div>
       {showShareLinks && <ShareLinksModal show={showShareLinks} setShow={setShowShareLinks} />}
-      <PubWiseAd className="text-center my-3" id={EVENT_DETAIL_DIV_ID} autoSequencer />
+      <PubWiseAd className="my-3" id={EVENT_DETAIL_DIV_ID} autoSequencer />
     </div>
   );
 }

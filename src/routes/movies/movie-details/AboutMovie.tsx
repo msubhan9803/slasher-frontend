@@ -260,7 +260,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
           element={(
             <>
               <MovieOverview overView={aboutMovieData?.mainData?.overview} />
-              <PubWiseAd className="text-center my-3" id={MOVIE_INDIE_DIV} autoSequencer />
+              <PubWiseAd className="my-3" id={MOVIE_INDIE_DIV} autoSequencer />
               <MovieCasts castList={aboutMovieData?.cast as any} />
               {
                 aboutMovieData?.video?.length > 0

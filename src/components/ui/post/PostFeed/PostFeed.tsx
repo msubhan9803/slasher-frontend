@@ -475,13 +475,15 @@ function PostFeed({
           {/* Show ad after every three posts. */}
           {(i + 1) % 3 === 0 && pubWiseAdDivId && (
             <>
-              <PubWiseAd className="text-center" id={pubWiseAdDivId} autoSequencer />
+              <PubWiseAd id={pubWiseAdDivId} autoSequencer />
               <hr className="post-separator" />
             </>
           )}
         </div>
       ))}
-      {!isSinglePagePost && pubWiseAdDivId && postData.length < 3 && postData.length !== 0 && <PubWiseAd className="text-center my-3" id={pubWiseAdDivId} autoSequencer />}
+
+      {/* Show an ad if posts are less than 3 */}
+      {!isSinglePagePost && pubWiseAdDivId && postData.length < 3 && postData.length !== 0 && <PubWiseAd className="my-3" id={pubWiseAdDivId} autoSequencer />}
       {
         openLikeShareModal
         && (

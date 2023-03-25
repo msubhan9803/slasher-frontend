@@ -31,6 +31,19 @@ const STATES_TO_REMOVE_FROM_US = [
   'Puerto Rico',
   'Trust Territories',
   'Virgin Islands',
+  'Baker Island',
+  'Jarvis Island',
+  'Johnston Atoll',
+  'Kingman Reef',
+  'Midway Atoll',
+  'Navassa Island',
+  'Palmyra Atoll',
+  'United States Minor Outlying Islands',
+  'United States Virgin Islands',
+  'Wake Island',
+  'Howland Island',
+  // NOTE: We want to show `District of Columbia` in our list of US states.
+  // 'District of Columbia',
 ];
 // eslint-disable-next-line max-len
 const filterUndesirableStatesFn = (state: string) => !STATES_TO_REMOVE_FROM_US.map((s) => s.toLowerCase()).includes(state.toLowerCase());
@@ -40,9 +53,13 @@ function getStatesbyCountryName(countryName: string): string[] {
   const countryIso = Country.getAllCountries().find((c) => c.name === countryName)?.isoCode;
   // If no country iso code found then use `countryName` as `state`
   if (!countryIso) { return [countryName]; }
-  const statesOfCountry = State.getStatesOfCountry(
+  let statesOfCountry = State.getStatesOfCountry(
     countryIso,
-  ).map((state) => state.name).filter(filterUndesirableStatesFn);
+  ).map((state) => state.name);
+
+  if (countryIso === 'US') {
+    statesOfCountry = statesOfCountry.filter(filterUndesirableStatesFn);
+  }
   // If country has no states then use `countryName` as `state`
   return statesOfCountry.length === 0 ? [countryName] : statesOfCountry;
 }

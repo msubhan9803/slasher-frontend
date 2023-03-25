@@ -14,6 +14,7 @@ import ImagesContainer from '../../ImagesContainer';
 import { decryptMessage } from '../../../../utils/text-utils';
 import MessageTextarea from '../../MessageTextarea';
 import { FormatMentionProps } from '../../../../routes/posts/create-post/CreatePost';
+import ErrorMessageList from '../../ErrorMessageList';
 
 interface CommentInputProps {
   userData: any;
@@ -21,7 +22,7 @@ interface CommentInputProps {
   setIsReply?: (value: boolean) => void;
   inputFile: any;
   handleFileChange: (value: ChangeEvent<HTMLInputElement>, replyUserId?: string) => void;
-  sendComment: (value: string) => void;
+  sendComment: (commentId: string, message: string) => void;
   imageArray: any;
   handleRemoveFile: (postImage: File, replyUserId?: string) => void;
   dataId?: string;
@@ -34,6 +35,12 @@ interface CommentInputProps {
   commentID: string;
   commentReplyID?: string;
   checkCommnt?: string;
+  commentError?: string[];
+  commentReplyError?: string[];
+  commentSent?: boolean;
+  setCommentReplyErrorMessage?: (value: string[]) => void;
+  setReplyImageArray?: (value: any) => void;
+  isEdit?: boolean
 }
 
 interface InputProps {
@@ -57,8 +64,7 @@ const StyledCommentInputGroup = styled(InputGroup) <InputProps>`
   }
 
   ${(props) => props.focus && `
-    box-shadow: 0 0 0 3px var(--stroke-and-line-separator-color);
-    // opacity:0.5;
+    box-shadow: 0 0 0 1px var(--stroke-and-line-separator-color);
     border-radius: 1.875rem;
   `};
 
@@ -67,20 +73,26 @@ function CommentInput({
   userData, message, setIsReply, inputFile,
   handleFileChange, sendComment, imageArray, handleRemoveFile, dataId,
   handleSearch, mentionList, addUpdateComment, replyImageArray, isReply,
-  addUpdateReply, commentID, commentReplyID, checkCommnt,
+  addUpdateReply, commentID, commentReplyID, checkCommnt, commentError, commentReplyError,
+  commentSent, setCommentReplyErrorMessage, setReplyImageArray, isEdit,
 }: CommentInputProps) {
   const [editMessage, setEditMessage] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const [isFocosInput, setIsFocusInput] = useState<boolean>(false);
+
   useEffect(() => {
     if (message) {
       const regexMessgafe = isReply && commentReplyID
         ? `##LINK_ID##${commentReplyID}${message}##LINK_END## `
         : `##LINK_ID##${commentID}${message}##LINK_END## `;
+
       setEditMessage(regexMessgafe);
     } else {
       setEditMessage('');
+      setCommentReplyErrorMessage!([]);
+      setReplyImageArray!([]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [message, commentID, isReply, commentReplyID]);
 
   useEffect(() => {
@@ -99,25 +111,47 @@ function CommentInput({
       }
     }
   }, [editMessage]);
+
+  useEffect(() => {
+    if (commentError! && commentError.length) {
+      setEditMessage(editMessage);
+    } else if (message === '') {
+      setEditMessage('');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commentError]);
+
+  useEffect(() => {
+    if (commentReplyError! && commentReplyError.length) {
+      setEditMessage(editMessage);
+    } else if (message === '') {
+      setEditMessage('');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commentReplyError]);
+
+  useEffect(() => {
+    if (!commentSent) {
+      sendComment(dataId!, editMessage);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commentSent]);
+
   const onUpdatePost = (msg: string) => {
     const imageArr = isReply ? replyImageArray : imageArray;
-    if (msg || imageArr.length) {
-      if (isReply) {
-        addUpdateReply!({
-          replyMessage: msg,
-          commentId: dataId,
-          imageArr,
-          commentReplyID,
-        });
-      } else {
-        addUpdateComment!({
-          commentMessage: msg,
-          commentId: dataId,
-          imageArr,
-        });
-      }
-      sendComment(dataId! && dataId!);
-      setEditMessage('');
+    if (isReply) {
+      addUpdateReply!({
+        replyMessage: msg,
+        commentId: dataId,
+        imageArr,
+        commentReplyID,
+      });
+    } else {
+      addUpdateComment!({
+        commentMessage: msg,
+        commentId: dataId,
+        imageArr,
+      });
     }
   };
 
@@ -200,7 +234,7 @@ function CommentInput({
                 />
               </InputGroup.Text>
             </StyledCommentInputGroup>
-            <Button onClick={handleMessage} variant="link" aria-label="submit" className="ms-2 p-0">
+            <Button onClick={() => handleMessage()} variant="link" aria-label="submit" className="ms-2 p-0">
               <FontAwesomeIcon icon={solid('paper-plane')} style={{ fontSize: '26px' }} className="text-primary" />
             </Button>
           </div>
@@ -228,6 +262,14 @@ function CommentInput({
           </Col>
         ))}
       </Row>
+      {!isReply && !isEdit
+        && (
+          <ErrorMessageList
+            errorMessages={commentError}
+            divClass="mt-3 text-start"
+            className="m-0"
+          />
+        )}
     </Form>
   );
 }
@@ -241,6 +283,12 @@ CommentInput.defaultProps = {
   addUpdateComment: undefined,
   setIsReply: undefined,
   checkCommnt: '',
+  commentError: undefined,
+  commentReplyError: undefined,
+  commentSent: undefined,
+  setCommentReplyErrorMessage: undefined,
+  setReplyImageArray: undefined,
+  isEdit: undefined,
 };
 
 export default CommentInput;

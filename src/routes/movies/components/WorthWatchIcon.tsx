@@ -1,12 +1,9 @@
 /* eslint-disable max-len */
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
-import { useParams } from 'react-router-dom';
 import { MovieData, WorthWatchingStatus } from '../../../types';
-import { createOrUpdateWorthWatching } from '../../../api/movies';
-import { updateMovieUserData } from './updateMovieDataUtils';
 
 interface LikeProps {
   isLike?: boolean;
@@ -62,27 +59,49 @@ const StyleWatchWorthIcon = styled(FontAwesomeIcon)`
 `;
 type Props = {
   movieData?: MovieData;
-  setMovieData?: React.Dispatch<React.SetStateAction<MovieData | undefined>>;
+  setWorthIt?: any;
+  liked: boolean;
+  setLike: (val: boolean) => void;
+  disLiked: boolean;
+  setDisLike: (val: boolean) => void;
 };
-function WorthWatchIcon({ movieData, setMovieData }: Props) {
-  const [liked, setLike] = useState<boolean>(movieData!.userData?.worthWatching === WorthWatchingStatus.Up);
-  const [disLiked, setDisLike] = useState<boolean>(movieData!.userData?.worthWatching === WorthWatchingStatus.Down);
-  const params = useParams();
+function WorthWatchIcon({
+  movieData, setWorthIt, liked, setLike,
+  disLiked, setDisLike,
+}: Props) {
+  useEffect(() => {
+    if (movieData!.userData?.worthWatching === WorthWatchingStatus.Up) {
+      setLike(true);
+      setDisLike(false);
+    }
+    if (movieData!.userData?.worthWatching === WorthWatchingStatus.Down) {
+      setDisLike(true);
+      setLike(false);
+    }
+  }, [movieData, setLike, setDisLike]);
+
   const handleThumbsUp = useCallback(() => {
-    if (!params?.id) { return; }
-    createOrUpdateWorthWatching(params.id, WorthWatchingStatus.Up).then((res) => {
-      updateMovieUserData(res.data, 'worthWatching', setMovieData!);
+    const alreadyLiked = movieData?.userData?.worthWatching === WorthWatchingStatus.Up;
+    if (alreadyLiked) {
+      setLike(false); setDisLike(false);
+      setWorthIt(WorthWatchingStatus.NoRating);
+    } else {
       setLike(true); setDisLike(false);
-    });
-  }, [params, setMovieData]);
+      setWorthIt(WorthWatchingStatus.Up);
+    }
+  }, [movieData?.userData?.worthWatching, setLike, setDisLike, setWorthIt]);
 
   const handleThumbsDown = useCallback(() => {
-    if (!params?.id) { return; }
-    createOrUpdateWorthWatching(params.id, WorthWatchingStatus.Down).then((res) => {
-      updateMovieUserData(res.data, 'worthWatching', setMovieData!);
+    const alreadyDisLiked = movieData?.userData?.worthWatching === WorthWatchingStatus.Down;
+    if (alreadyDisLiked) {
+      setLike(false); setDisLike(false);
+      setWorthIt(WorthWatchingStatus.NoRating);
+    } else {
       setLike(false); setDisLike(true);
-    });
-  }, [params.id, setMovieData]);
+      setWorthIt(WorthWatchingStatus.Down);
+    }
+  }, [movieData?.userData?.worthWatching, setLike, setDisLike, setWorthIt]);
+
   return (
     <div className="mx-1 d-flex align-items-center justify-content-around">
       <div className="mt-2 d-flex justify-content-center ">
@@ -110,6 +129,6 @@ function WorthWatchIcon({ movieData, setMovieData }: Props) {
 }
 WorthWatchIcon.defaultProps = {
   movieData: null,
-  setMovieData: undefined,
+  setWorthIt: undefined,
 };
 export default WorthWatchIcon;

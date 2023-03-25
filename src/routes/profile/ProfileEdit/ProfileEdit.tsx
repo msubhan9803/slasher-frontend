@@ -196,7 +196,7 @@ function ProfileEdit({ user }: Props) {
                   <h1 className="h3 mb-2 fw-bold">Change cover photo</h1>
                   <div className="d-block justify-content-center">
                     <p className="fs-5 text-light mb-0">
-                      Recommended size: 830x467 pixels
+                      Recommended size: 830x320 pixels
                     </p>
                     <p className="fs-5 text-light mb-0">
                       (jpg, png)
@@ -309,7 +309,7 @@ function ProfileEdit({ user }: Props) {
           <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
           <Row className="mt-2">
             <Col xs={12} md={3} lg={4} xl={3}>
-              <ProgressButton label="Update profile" className="py-2 w-100 fs-3 fw-bold" onClick={updateProfile} />
+              <ProgressButton label="Update profile" className="w-100" onClick={updateProfile} />
             </Col>
           </Row>
         </div>

@@ -14,7 +14,7 @@ interface MovisHeaderProps {
   setShowKeys: React.Dispatch<React.SetStateAction<boolean>>;
   setSearch: React.Dispatch<string>;
   search: string;
-  sort?(e: React.ChangeEvent<HTMLSelectElement>): void | undefined;
+  sort?(value: string): void | undefined;
   selectedKey?: string;
   applyFilter?(keyValue: string, sortValue?: string): void;
   showMovieTab?: boolean;
@@ -57,10 +57,10 @@ function MoviesHeader({
           />
         </Col>
         <Col md={4} className="d-none d-lg-block">
-          <SortData sortVal={sortVal} onSelectSort={sort} sortoptions={sortoptions} title="Sort: " className="rounded-5" type="sort" />
+          <SortData sortVal={sortVal} onSelectSort={sort} sortoptions={sortoptions} title="Sort: " type="sort" />
         </Col>
         <Col md={4} className="order-first order-md-last">
-          <RoundButton className="py-2 d-lg-none w-100">Add your movie</RoundButton>
+          <RoundButton className="d-lg-none w-100">Add your movie</RoundButton>
         </Col>
       </Row>
       {showKeys

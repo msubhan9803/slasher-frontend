@@ -2,6 +2,8 @@
 // This file can be used for declaring TypeScript types/interfaces
 // that are shared across multiple places in the app.
 
+import { LatLngLiteral } from 'leaflet';
+
 export interface ValueLabelPair {
   value: string;
   label: string;
@@ -158,6 +160,8 @@ interface FeedCommentUserId {
 interface NotificationFeedPostId {
   _id: string;
   userId: string;
+  postType?: number;
+  movieId?: string;
 }
 
 interface NotificationRssFeedProviderId {
@@ -262,11 +266,16 @@ export enum WorthWatchingStatus {
   Down = 1,
   Up = 2,
 }
+export enum PostType {
+  User = 1,
+  News = 2,
+  MovieReview = 3,
+}
 export interface MovieData {
-  movieDBId : number;
+  movieDBId: number;
   // ratings
   rating: number;
-  goreFactorRating : number;
+  goreFactorRating: number;
   worthWatching: number;
   // number of users who rated for `rating`, `goreFactorRating` and `worthWatching`
   ratingUsersCount: number;
@@ -275,10 +284,24 @@ export interface MovieData {
   worthWatchingDownUsersCount: number;
   // ratings by logged-in user
   userData: {
-    rating:number;
+    rating: number;
     goreFactorRating: number;
     worthWatching: number;
+    reviewPostId: string;
   }
 }
+export type LocationPointType = {
+  type: 'Point',
+  coordinates: [number, number]
+};
+export type MarkerLocationType = {
+  id: string,
+  latLng: LatLngLiteral, // { lat: number; lng: number; }
+  dateRange: string,
+  address: string,
+  name: string,
+  linkText: string,
+  linkAddress: string,
+};
 
 export type PostButtonClickType = 'like' | 'share' | '';

@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { Form, InputGroup } from 'react-bootstrap';
+import { Button, Form, InputGroup } from 'react-bootstrap';
 import styled from 'styled-components';
 
 const StyledChatInputGroup = styled.div`
@@ -39,39 +39,45 @@ function ChatInput({
   sendMessageClick, setMessage, message, handleFileChange,
 }: ChatInputProps) {
   const inputFile = useRef<HTMLInputElement>(null);
-
+  const handleSubmit = (event: any) => {
+    event.preventDefault();
+    sendMessageClick!();
+  };
   return (
     <StyledChatInputGroup className="pt-4 pt-lg-3 pb-0 pb-lg-3 px-3 text-muted border-top-0 overflow-hidden">
-      <InputGroup className="pe-2">
-        <InputGroup.Text className="border-end-0">
-          <input
-            type="file"
-            name="post"
-            className="d-none"
-            accept="image/*"
-            onChange={(post) => {
-              handleFileChange!(post);
-            }}
-            multiple
-            ref={inputFile}
+      <Form onSubmit={handleSubmit}>
+        <InputGroup className="pe-2">
+          <InputGroup.Text className="border-end-0">
+            <input
+              type="file"
+              name="post"
+              className="d-none"
+              accept="image/*"
+              onChange={(post) => {
+                handleFileChange!(post);
+              }}
+              multiple
+              ref={inputFile}
+              aria-label="message"
+            />
+            <FontAwesomeIcon role="button" icon={solid('camera')} className="ps-1 text-white border-end-0" onClick={() => inputFile.current?.click()} />
+          </InputGroup.Text>
+          <Form.Control
+            placeholder="Type your message here..."
+            className="border-end-0 fs-5 border-start-0"
+            value={message}
+            onChange={
+              (messageInput) => setMessage!(messageInput.target.value)
+            }
             aria-label="message"
           />
-          <FontAwesomeIcon role="button" icon={solid('camera')} className="ps-1 text-white border-end-0" onClick={() => inputFile.current?.click()} />
-        </InputGroup.Text>
-        <Form.Control
-          placeholder="Type your message here..."
-          className="border-end-0 fs-5 border-start-0"
-          value={message}
-          onChange={
-            (messageInput) => setMessage!(messageInput.target.value)
-          }
-          aria-label="message"
-        />
-        <InputGroup.Text className="border-start-0">
-          <FontAwesomeIcon role="button" icon={solid('paper-plane')} className="text-primary pe-1" onClick={sendMessageClick} />
-        </InputGroup.Text>
-
-      </InputGroup>
+          <InputGroup.Text className="border-start-0">
+            <Button type="submit" className="bg-transparent border-0 p-0 pe-1">
+              <FontAwesomeIcon icon={solid('paper-plane')} className="text-primary" />
+            </Button>
+          </InputGroup.Text>
+        </InputGroup>
+      </Form>
     </StyledChatInputGroup>
   );
 }

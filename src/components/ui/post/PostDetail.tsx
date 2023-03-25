@@ -2,7 +2,9 @@
 import React, {
   useCallback, useEffect, useState, useRef,
 } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import {
+  useNavigate, useParams, useSearchParams,
+} from 'react-router-dom';
 import { createBlockUser } from '../../../api/blocks';
 import {
   addFeedComments, addFeedReplyComments, getFeedComments,
@@ -17,11 +19,11 @@ import { reportData } from '../../../api/report';
 import { getSuggestUserName } from '../../../api/users';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
-import { reviewComments, reviewPost } from '../../../routes/movies/movie-reviews/review-data';
 import { MentionProps } from '../../../routes/posts/create-post/CreatePost';
 import {
   CommentValue, FeedComments, Post, User,
 } from '../../../types';
+import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-utils';
 import { decryptMessage } from '../../../utils/text-utils';
 import FormatImageVideoList from '../../../utils/vido-utils';
 import { ContentPageWrapper } from '../../layout/main-site-wrapper/authenticated/ContentWrapper';
@@ -37,6 +39,7 @@ const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
 const postCreaterPopoverOptions = ['Delete', 'Report', 'Block user'];
 const newsPostPopoverOptions = ['Report'];
+const loginUserMoviePopoverOptions = ['Edit Review', 'Delete Review'];
 
 interface Props {
   user?: User;
@@ -44,11 +47,14 @@ interface Props {
 }
 
 function PostDetail({ user, postType }: Props) {
-  const { userName, postId, partnerId } = useParams<string>();
+  const {
+    userName, postId, id, partnerId,
+  } = useParams<string>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState<string[]>([]);
   const [commentErrorMessage, setCommentErrorMessage] = useState<string[]>([]);
+  const [commentReplyErrorMessage, setCommentReplyErrorMessage] = useState<string[]>([]);
   const [postData, setPostData] = useState<Post[]>([]);
   const [show, setShow] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
@@ -72,6 +78,7 @@ function PostDetail({ user, postType }: Props) {
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const [checkPostUpdate, setCheckPostUpdate] = useState<boolean>(false);
+  const [commentSent, setCommentSent] = useState<boolean>(false);
   const scrollPositionRef = useRef(scrollPosition);
 
   useEffect(() => {
@@ -97,11 +104,18 @@ function PostDetail({ user, postType }: Props) {
   }, [checkPostUpdate, postData, dispatch]);
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
+    if (value === 'Edit Review') {
+      navigate(`/app/movies/${id}/reviews`, { state: { movieId: popoverClickProps.id } });
+    }
+    if (value === 'Delete Review') {
+      setDropDownValue('Delete');
+    } else {
+      setDropDownValue(value);
+    }
     if (popoverClickProps.postImages) {
       setPostImages(popoverClickProps.postImages);
     }
     setShow(true);
-    setDropDownValue(value);
     setPopoverClick(popoverClickProps);
   };
 
@@ -161,6 +175,7 @@ function PostDetail({ user, postType }: Props) {
   };
 
   const addUpdateComment = (comment: CommentValue) => {
+    setCommentSent(true);
     let commentValueData: any = {
       feedPostId: '',
       images: [],
@@ -202,12 +217,17 @@ function PostDetail({ user, postType }: Props) {
           setCommentData(updateCommentArray);
           setUpdateState(true);
           setCommentErrorMessage([]);
+          setCommentSent(false);
           setIsEdit(false);
         })
         .catch((error) => {
-          setCommentErrorMessage(error.response?.data.message);
+          const msg = error.response.status === 0 && !error.response.data
+            ? 'Combined size of files is too large.'
+            : error.response.data.message;
+          setCommentErrorMessage(msg);
+          setCommentSent(false);
         });
-    } else if (comment.commentMessage || comment.imageArr?.length) {
+    } else {
       addFeedComments(
         postId!,
         comment.commentMessage,
@@ -222,6 +242,7 @@ function PostDetail({ user, postType }: Props) {
             message: comment.commentMessage,
             userId: { ...userData.user, _id: userData.user.id },
             replies: [],
+            likeCount: 0,
             createdAt: new Date().toISOString(),
           };
           newCommentArray = [commentValueData].concat(newCommentArray);
@@ -232,15 +253,22 @@ function PostDetail({ user, postType }: Props) {
             commentCount: postData[0].commentCount + 1,
           }]);
           setUpdateState(true);
+          setCommentSent(false);
           setCommentErrorMessage([]);
         })
         .catch((error) => {
-          setCommentErrorMessage(error.response.data.message);
+          const msg = error.response.status === 0 && !error.response.data
+            ? 'Combined size of files is too large.'
+            : error.response.data.message;
+          setCommentErrorMessage(msg);
+          setCommentSent(false);
         });
     }
   };
 
   const addUpdateReply = (reply: any) => {
+    setCommentSent(true);
+
     let replyValueData: any = {
       feedPostId: '',
       feedCommentId: '',
@@ -248,6 +276,7 @@ function PostDetail({ user, postType }: Props) {
       message: '',
       userId: { ...userData.user, _id: userData.user.id },
       deleteImage: [],
+      likeCount: 0,
       createdAt: new Date().toISOString(),
     };
 
@@ -282,12 +311,17 @@ function PostDetail({ user, postType }: Props) {
           });
           setCommentData(updateReplyArray);
           setUpdateState(true);
-          setCommentErrorMessage([]);
+          setCommentReplyErrorMessage([]);
           setIsEdit(false);
+          setCommentSent(false);
         }).catch((error) => {
-          setCommentErrorMessage(error.response.data.message);
+          const msg = error.response.status === 0 && !error.response.data
+            ? 'Combined size of files is too large.'
+            : error.response.data.message;
+          setCommentReplyErrorMessage(msg);
+          setCommentSent(false);
         });
-    } else if (reply.replyMessage || reply?.imageArr?.length) {
+    } else {
       addFeedReplyComments(
         postId!,
         reply.replyMessage,
@@ -302,6 +336,7 @@ function PostDetail({ user, postType }: Props) {
           message: reply.replyMessage,
           userId: { ...userData.user, _id: userData.user.id },
           createdAt: new Date().toISOString(),
+          likeCount: 0,
           new: true,
         };
         newReplyArray.map((comment: any) => {
@@ -313,10 +348,15 @@ function PostDetail({ user, postType }: Props) {
         });
         setCommentData(newReplyArray);
         setUpdateState(true);
-        setCommentErrorMessage([]);
+        setCommentReplyErrorMessage([]);
+        setCommentSent(false);
         setCommentID('');
       }).catch((error) => {
-        setCommentErrorMessage(error.response.data.message);
+        const msg = error.response.status === 0 && !error.response.data
+          ? 'Combined size of files is too large.'
+          : error.response.data.message;
+        setCommentReplyErrorMessage(msg);
+        setCommentSent(false);
       });
     }
   };
@@ -355,6 +395,12 @@ function PostDetail({ user, postType }: Props) {
           if (partnerId !== res.data.rssfeedProviderId?._id && !queryCommentId) {
             navigate(`/app/news/partner/${res.data.rssfeedProviderId?._id}/posts/${postId}`);
           }
+        } else if (postType === 'review') {
+          if (queryCommentId && queryReplyId) {
+            navigate(`/app/movies/${res.data.movieId}/reviews/${postId}?commentId=${queryCommentId}&replyId=${queryReplyId}`);
+          } else if (queryCommentId) {
+            navigate(`/app/movies/${res.data.movieId}/reviews/${postId}?commentId=${queryCommentId}`);
+          }
         } else if (res.data.userId.userName !== user?.userName) {
           navigate(`/${res.data.userId.userName}/posts/${feedPostId}`);
           return;
@@ -375,7 +421,29 @@ function PostDetail({ user, postType }: Props) {
             likeCount: res.data.likeCount,
             sharedList: res.data.sharedList,
             likeIcon: res.data.likedByUser,
+            likedByUser: res.data.likedByUser,
             rssfeedProviderId: res.data.rssfeedProviderId?._id,
+          };
+        } else if (postType === 'review') {
+          post = {
+            _id: res.data._id,
+            id: res.data._id,
+            postDate: res.data.createdAt,
+            content: res.data.message,
+            images: FormatImageVideoList(res.data.images, res.data.message),
+            userName: res.data.userId.userName,
+            profileImage: res.data.userId.profilePic,
+            userId: res.data.userId._id,
+            likeIcon: res.data.likedByUser,
+            likedByUser: res.data.likedByUser,
+            likeCount: res.data.likeCount,
+            commentCount: res.data.commentCount,
+            rating: res.data?.reviewData?.rating || 0,
+            goreFactor: res.data?.reviewData?.goreFactorRating || 0,
+            worthWatching: res.data?.reviewData?.worthWatching || 0,
+            contentHeading: res?.data?.title,
+            spoilers: res.data.spoilers,
+            movieId: res.data.movieId,
           };
         } else {
           // Regular post
@@ -390,6 +458,7 @@ function PostDetail({ user, postType }: Props) {
             profileImage: res.data.userId.profilePic,
             userId: res.data.userId._id,
             likeIcon: res.data.likedByUser,
+            likedByUser: res.data.likedByUser,
             likeCount: res.data.likeCount,
             commentCount: res.data.commentCount,
           };
@@ -400,7 +469,7 @@ function PostDetail({ user, postType }: Props) {
       .catch((error) => {
         setErrorMessage(error.response.data.message);
       });
-  }, [navigate, partnerId, postId, postType, queryCommentId, user]);
+  }, [navigate, partnerId, postId, postType, queryCommentId, user, queryReplyId]);
 
   useEffect(() => {
     if (postId) {
@@ -416,7 +485,10 @@ function PostDetail({ user, postType }: Props) {
         setCheckPostUpdate(true);
       })
         .catch((error) => {
-          setErrorMessage(error.response.data.message);
+          const msg = error.response.status === 0 && !error.response.data
+            ? 'Combined size of files is too large.'
+            : error.response.data.message;
+          setErrorMessage(msg);
         });
     } else {
       setShow(false);
@@ -577,6 +649,15 @@ function PostDetail({ user, postType }: Props) {
     }
   };
 
+  const handleSpoiler = (spoilerPostId: string) => {
+    const spoilerIdList = getLocalStorage('spoilersIds');
+    if (!spoilerIdList.includes(spoilerPostId)) {
+      spoilerIdList.push(spoilerPostId);
+      setLocalStorage('spoilersIds', JSON.stringify(spoilerIdList));
+      getFeedPostDetail(postId!);
+    }
+  };
+
   const reportPost = (reason: string) => {
     const reportPayload = {
       targetId: popoverClick?.id,
@@ -670,6 +751,10 @@ function PostDetail({ user, postType }: Props) {
                 commentImages={commentImages}
                 setCommentImages={setCommentImages}
                 commentError={commentErrorMessage}
+                commentReplyError={commentReplyErrorMessage}
+                commentSent={commentSent}
+                setCommentReplyErrorMessage={setCommentReplyErrorMessage}
+                setCommentErrorMessage={setCommentErrorMessage}
               />
               {dropDownValue !== 'Edit'
                 && (
@@ -704,13 +789,14 @@ function PostDetail({ user, postType }: Props) {
             <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
             <PostFeed
               detailPage
-              postFeedData={postType === 'review' ? [reviewPost[0]] : postData}
+              postFeedData={postData}
               popoverOptions={loginUserPopoverOptions}
               onPopoverClick={handlePopoverOption}
               otherUserPopoverOptions={otherUserPopoverOptions}
               postCreaterPopoverOptions={postCreaterPopoverOptions}
+              loginUserMoviePopoverOptions={loginUserMoviePopoverOptions}
               isCommentSection
-              commentsData={postType === 'review' ? reviewComments : commentData}
+              commentsData={commentData}
               removeComment={removeComment}
               setCommentID={setCommentID}
               setCommentReplyID={setCommentReplyID}
@@ -737,6 +823,11 @@ function PostDetail({ user, postType }: Props) {
               commentImages={commentImages}
               setCommentImages={setCommentImages}
               commentError={commentErrorMessage}
+              commentReplyError={commentReplyErrorMessage}
+              onSpoilerClick={handleSpoiler}
+              commentSent={commentSent}
+              setCommentReplyErrorMessage={setCommentReplyErrorMessage}
+              setCommentErrorMessage={setCommentErrorMessage}
             />
             {dropDownValue !== 'Edit'
               && (

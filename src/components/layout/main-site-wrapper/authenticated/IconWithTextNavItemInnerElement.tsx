@@ -40,7 +40,7 @@ function IconWithTextNavItemInnerElement({
             {badge}
           </BadgeSpan>
         )}
-      <p className={`mb-0 text-center mt-1 ${active ? 'text-primary' : 'text-white'} text-truncate`}>{label}</p>
+      <p style={{ marginTop: label === 'Me' ? '2px' : '0.25rem' }} className={`mb-0 text-center ${active ? 'text-primary' : 'text-white'} text-truncate`}>{label}</p>
     </div>
   );
 }

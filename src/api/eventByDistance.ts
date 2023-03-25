@@ -1,0 +1,14 @@
+import axios from 'axios';
+import Cookies from 'js-cookie';
+import { apiUrl } from '../constants';
+
+// TODO: Opinion? Might be useful in future as discussed.
+// eslint-disable-next-line max-len
+export async function getEventsByDistance(latitude: number, longitude: number, maxDistanceMiles: number) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  const queryParameter = `?latitude=${latitude}&longitude=${longitude}&maxDistanceMiles=${maxDistanceMiles}`;
+  return axios.get(`${apiUrl}/api/v1/events/by-distance${queryParameter}`, { headers });
+}

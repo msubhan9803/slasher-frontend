@@ -17,6 +17,7 @@ import { StyledBorder } from '../../../components/ui/StyledBorder';
 import { LinearIcon } from '../../../components/ui/FavoriteLinearIcon';
 import ShareLinksModal from '../../../components/ui/ShareLinksModal';
 import { enableDevFeatures } from '../../../utils/configEnvironment';
+import { customlinkifyOpts } from '../../../utils/linkify-utils';
 
 const EventBanner = styled.div`
   aspect-ratio : 1.78;
@@ -105,7 +106,7 @@ function EventDetails() {
               >
                 {eventDetails?.url}
               </a>
-              <RoundButton onClick={handleShowShareLinks} className="d-none d-md-flex d-lg-none d-xl-flex align-self-center rate-btn py-2" variant="black">
+              <RoundButton onClick={handleShowShareLinks} className="d-none d-md-flex d-lg-none d-xl-flex align-self-center rate-btn" variant="black">
                 <FontAwesomeIcon icon={solid('share-nodes')} className="align-self-center me-2" />
                 <h1 className="h3 m-0">Share</h1>
               </RoundButton>
@@ -114,7 +115,7 @@ function EventDetails() {
         </Row>
         <div className="d-flex d-md-none d-lg-flex d-xl-none justify-content-between">
           <div className="d-flex align-self-center">
-            <RoundButton onClick={handleShowShareLinks} className="d-flex align-self-center rate-btn bg-black py-2" variant="black">
+            <RoundButton onClick={handleShowShareLinks} className="d-flex align-self-center rate-btn bg-black" variant="black">
               <FontAwesomeIcon icon={solid('share-nodes')} className="align-self-center me-2" />
               <h1 className="h3 m-0">Share</h1>
             </RoundButton>
@@ -144,7 +145,7 @@ function EventDetails() {
             dangerouslySetInnerHTML={
               {
                 __html: newLineToBr(
-                  linkifyHtml(escapeHtmlSpecialCharacters(eventDetails?.event_info || '')),
+                  linkifyHtml(escapeHtmlSpecialCharacters(eventDetails?.event_info || ''), customlinkifyOpts),
                 ),
               }
             }

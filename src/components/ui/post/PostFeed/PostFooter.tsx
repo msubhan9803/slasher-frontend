@@ -25,7 +25,7 @@ interface PostFooterProps {
   commentCount?: string;
   postType?: string;
   handleLikeModal?: (value: PostButtonClickType, postId: string, openDialogue: number) => void;
-  setShowReviewDetail?: (value: boolean) => void;
+  movieId?: string;
 }
 const StyleDot = styled(FontAwesomeIcon)`
   width: 0.267rem;
@@ -38,7 +38,7 @@ const LinearIcon = styled.span<LinearIconProps>`
 `;
 function PostFooter({
   likeIcon, postId, userName, rssfeedProviderId, onLikeClick, onSelect,
-  likeCount, commentCount, handleLikeModal, postType, setShowReviewDetail,
+  likeCount, commentCount, handleLikeModal, postType, movieId,
 }: PostFooterProps) {
   const showRepost = enableDevFeatures;
   return (
@@ -82,10 +82,13 @@ function PostFooter({
           className={(postType !== 'group-post' && showRepost) ? 'text-xl-start text-lg-center text-md-start text-center ' : postType === 'group-post' ? 'text-center' : 'text-xl-center text-lg-end text-md-center text-end'}
         >
           <HashLink
-            onClick={() => (postType === 'review' ? setShowReviewDetail!(true) : onSelect!(rssfeedProviderId || postId))}
-            to={(postType === 'review' && '?view=self') || (rssfeedProviderId
-              ? `/app/news/partner/${rssfeedProviderId}/posts/${postId}#comments`
-              : `/${userName}/posts/${postId}#comments`)}
+            onClick={() => (postType !== 'review' && onSelect!(rssfeedProviderId || postId))}
+            to={
+              (postType === 'review' && movieId && `/app/movies/${movieId}/reviews/${postId}#comments`)
+              || (rssfeedProviderId
+                ? `/app/news/partner/${rssfeedProviderId}/posts/${postId}#comments`
+                : `/${userName}/posts/${postId}#comments`)
+            }
             className="text-decoration-none"
             scroll={scrollWithOffset}
           >
@@ -122,8 +125,8 @@ PostFooter.defaultProps = {
   onSelect: undefined,
   likeCount: '',
   commentCount: '',
-  handleLikeModal: () => {},
+  handleLikeModal: () => { },
   postType: '',
-  setShowReviewDetail: undefined,
+  movieId: '',
 };
 export default PostFooter;

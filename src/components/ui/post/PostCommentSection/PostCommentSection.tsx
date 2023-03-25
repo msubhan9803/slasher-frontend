@@ -16,6 +16,7 @@ import { createBlockUser } from '../../../../api/blocks';
 import { reportData } from '../../../../api/report';
 import ReportModal from '../../ReportModal';
 import EditCommentModal from '../../editCommentModal';
+import ErrorMessageList from '../../ErrorMessageList';
 
 const LoadMoreCommentsWrapper = styled.div.attrs({ className: 'text-center' })`
   margin: -1rem 0 1rem;
@@ -47,6 +48,10 @@ function PostCommentSection({
   commentImages,
   setCommentImages,
   commentError,
+  commentReplyError,
+  commentSent,
+  setCommentReplyErrorMessage,
+  setCommentErrorMessage,
 }: any) {
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [show, setShow] = useState<boolean>(false);
@@ -75,7 +80,6 @@ function PostCommentSection({
   const [scrollId, setScrollId] = useState<string>('');
   const [selectedReplyId, setSelectedReplyId] = useState<string | null>('');
   const [updatedReply, setUpdatedReply] = useState<boolean>(false);
-
   const checkPopover = (id: string) => {
     if (id === loginUserId) {
       return popoverOption;
@@ -208,34 +212,61 @@ function PostCommentSection({
 
   useEffect(() => {
     setReplyMessage('');
+    setCommentReplyErrorMessage([]);
+    setReplyImageArray([]);
+
     if (isReply && selectedReplyUserID !== loginUserId) {
       const mentionString = `@${replyUserName}`;
       setReplyMessage(mentionString);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [replyUserName, isReply, selectedReplyCommentId, loginUserId, selectedReplyUserID]);
+
+  useEffect(() => {
+    setCommentReplyErrorMessage([]);
+    setCommentErrorMessage([]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEdit]);
 
   useEffect(() => {
     if (!isReply) {
       setReplyImageArray([]);
       setSelectedReplyId('');
     }
-    setUploadPost([]);
-    setImageArray([]);
-  }, [isReply]);
 
-  const sendComment = (commentId?: string) => {
-    if (!commentId) {
+    if (isReply) {
+      setCommentErrorMessage([]);
       setMessage('');
-      setImageArray([]);
-    } else {
-      setIsReply(false);
-      setReplyMessage('');
-      setReplyImageArray([]);
-      setUpdatedReply(true);
     }
     setUploadPost([]);
-    setSelectedReplyId('');
-    setReplyUserName('');
+    setImageArray([]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isReply]);
+
+  const sendComment = (commentId?: string, msg?: string) => {
+    if (!commentId) {
+      if (commentError && commentError.length) {
+        setMessage(msg!);
+      } else {
+        setMessage('');
+        setImageArray([]);
+      }
+    }
+
+    if (replyImageArray.length > 0 || msg) {
+      if ((commentReplyError && commentReplyError.length)) {
+        setIsReply(true);
+        setReplyMessage(msg!);
+        setReplyUserName(replyUserName);
+      } else {
+        setIsReply(false);
+        setReplyMessage('');
+        setReplyUserName('');
+        setReplyImageArray([]);
+      }
+    }
+
+    setUploadPost([]);
   };
 
   const handlePopover = (value: string, popoverData: PopoverClickProps) => {
@@ -432,6 +463,12 @@ function PostCommentSection({
         addUpdateComment={addUpdateComment}
         commentID={selectedReplyCommentId}
         checkCommnt="comments"
+        commentError={commentError}
+        commentReplyError={commentReplyError}
+        commentSent={commentSent}
+        setCommentReplyErrorMessage={setCommentReplyErrorMessage}
+        setReplyImageArray={setReplyImageArray}
+        isEdit={isEdit}
       />
       {commentData && commentData.length > 0 && queryCommentId && previousCommentsAvailable
         && (
@@ -489,6 +526,44 @@ function PostCommentSection({
                             </div>
                           ))}
 
+                      {
+                        isReply
+                        && (selectedReplyCommentId === data.id
+                          || selectedReplyCommentId === data.commentReplySection[0]?.feedCommentId
+                          || data.commentReplySection.some(
+                            (item: any) => item.newComment === true && item.id === selectedReplyId,
+                          )
+                        ) && (
+                          <div id={scrollId} ref={tabsRef}>
+                            <CommentInput
+                              userData={userData}
+                              message={replyMessage}
+                              inputFile={replyInputFile}
+                              handleFileChange={handleFileChange}
+                              sendComment={sendComment}
+                              imageArray={replyImageArray}
+                              handleRemoveFile={handleRemoveFile}
+                              dataId={data.id}
+                              handleSearch={handleSearch}
+                              mentionList={mentionList}
+                              isReply
+                              replyImageArray={replyImageArray}
+                              addUpdateReply={addUpdateReply}
+                              commentID={selectedReplyCommentId}
+                              commentReplyID={selectedReplyId!}
+                              commentError={commentError}
+                              commentReplyError={commentReplyError}
+                              commentSent={commentSent}
+                              setCommentReplyErrorMessage={setCommentReplyErrorMessage}
+                              setReplyImageArray={setReplyImageArray}
+                              isEdit={isEdit}
+                            />
+                            {!isEdit && commentReplyError
+                              && <ErrorMessageList errorMessages={commentReplyError} divClass="mt-3 text-start" className="m-0 mb-4" />}
+                          </div>
+                        )
+                      }
+
                       {data.commentReplySection
                         && data.commentReplySection.length >= 1
                         && data.commentReplySection.length - data.isReplyIndex > 0
@@ -535,7 +610,7 @@ function PostCommentSection({
                                       ),
                                     ).length : 0
                                   )
-                                ) === 1 ? 'comment' : 'comments'}`}
+                                ) === 1 ? 'reply' : 'replies'}`}
                             </Button>
                           </LoadMoreCommentsWrapper>
                         )}
@@ -552,35 +627,7 @@ function PostCommentSection({
                           </div>
                         ),
                       )}
-                      {
-                        isReply
-                        && (selectedReplyCommentId === data.id
-                          || selectedReplyCommentId === data.commentReplySection[0]?.feedCommentId
-                          || data.commentReplySection.some(
-                            (item: any) => item.newComment === true && item.id === selectedReplyId,
-                          )
-                        ) && (
-                          <div id={scrollId} ref={tabsRef}>
-                            <CommentInput
-                              userData={userData}
-                              message={replyMessage}
-                              inputFile={replyInputFile}
-                              handleFileChange={handleFileChange}
-                              sendComment={sendComment}
-                              imageArray={replyImageArray}
-                              handleRemoveFile={handleRemoveFile}
-                              dataId={data.id}
-                              handleSearch={handleSearch}
-                              mentionList={mentionList}
-                              isReply
-                              replyImageArray={replyImageArray}
-                              addUpdateReply={addUpdateReply}
-                              commentID={selectedReplyCommentId}
-                              commentReplyID={selectedReplyId!}
-                            />
-                          </div>
-                        )
-                      }
+
                     </div>
                   </div>
                 </Col>
@@ -614,7 +661,7 @@ function PostCommentSection({
             setDeleteImageIds={setDeleteImageIds}
             postImages={commentImages}
             setPostImages={setCommentImages}
-            commentError={commentError}
+            commentError={commentError.length > 0 ? commentError : commentReplyError}
           />
         )
       }

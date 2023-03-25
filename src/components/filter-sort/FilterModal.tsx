@@ -40,7 +40,7 @@ function FilterModal({
   const generateAlphabet = () => {
     const alphabet = [...Array(26)].map((_, i) => String.fromCharCode(i + 97).toUpperCase());
     const number = [...Array(10)].map((_, i) => String.fromCharCode(i + 48));
-    setKeyboard([...number, ...alphabet, '#']);
+    setKeyboard(['#', ...number, ...alphabet]);
   };
   const generateGroupsType = () => {
     const groupsType = ['Review', 'Discussion', 'Help', 'Recommended', 'Opinions wanted', 'Hidden gem',
@@ -80,7 +80,7 @@ function FilterModal({
         {postType !== 'group-post' && (
           <div className="d-lg-none mb-4">
             <Modal.Title className="fs-3 mb-2">Sort</Modal.Title>
-            <SortData sortVal={selectedSortValue} onSelectSort={(e: React.ChangeEvent<HTMLSelectElement>) => seSelectedSortValue(e.target.value)} sortoptions={sortoptions} title="Sort: " type="sort" />
+            <SortData sortVal={selectedSortValue} onSelectSort={seSelectedSortValue} sortoptions={sortoptions} title="Sort: " type="sort" />
           </div>
         )}
         <h2 className={`fs-3 mb-3 ${postType === 'group-post' ? 'text-primary' : ''} text-center `}>{postType === 'group-post' ? 'Filters' : 'Title starts with:'}</h2>

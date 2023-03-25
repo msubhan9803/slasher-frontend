@@ -1,10 +1,8 @@
 /* eslint-disable max-lines */
 import React, { useState } from 'react';
 import {
-  Alert, Col, Form, Row,
+  Alert, Form,
 } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
 import { createPost } from '../../../api/feed-posts';
@@ -13,6 +11,7 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/la
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import CreatePostComponent from '../../../components/ui/CreatePostComponent';
+import { PostType } from '../../../types';
 
 export interface MentionProps {
   id: string;
@@ -34,13 +33,12 @@ function CreatePost() {
   const [searchParams] = useSearchParams();
 
   const navigate = useNavigate();
+  const location = useLocation();
   const paramsType = searchParams.get('type');
   const paramsGroupId = searchParams.get('groupId');
   const [titleContent, setTitleContent] = useState<string>('');
   const [containSpoiler, setContainSpoiler] = useState<boolean>(false);
   const [selectedPostType, setSelectedPostType] = useState<string>('');
-  const location = useLocation();
-
   const mentionReplacementMatchFunc = (match: string) => {
     if (match) {
       const finalString: any = formatMention.find(
@@ -68,23 +66,26 @@ function CreatePost() {
       };
       return groupPostData;
     }
-    return createPost(postContentWithMentionReplacements, imageArray)
+    const createPostData = {
+      message: postContentWithMentionReplacements,
+      postType: PostType.User,
+    };
+    return createPost(createPostData, imageArray)
       .then(() => {
         setErrorMessage([]);
         navigate(location.state);
       })
       .catch((error) => {
-        setErrorMessage(error.response.data.message);
+        const msg = error.response.status === 0 && !error.response.data
+          ? 'Combined size of files is too large.'
+          : error.response.data.message;
+        setErrorMessage(msg);
       });
   };
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
         {(paramsType === 'group-post' && !paramsGroupId) && <Alert variant="danger">Group id missing from URL</Alert>}
-        <Row className="d-md-none bg-dark">
-          <Col xs="auto" className="ms-2"><FontAwesomeIcon role="button" icon={solid('arrow-left')} size="lg" /></Col>
-          <Col><h1 className="h2 text-center">Create Post</h1></Col>
-        </Row>
         <Form className="bg-dark px-4 py-4 rounded-2">
           <Form.Group controlId="about-me">
             <div className="align-items-center d-flex form-label mb-4 w-100 mb-4">
@@ -109,6 +110,7 @@ function CreatePost() {
             setContainSpoiler={setContainSpoiler}
             selectedPostType={selectedPostType}
             setSelectedPostType={setSelectedPostType}
+            placeHolder="Create a post"
           />
         </Form>
       </ContentPageWrapper>

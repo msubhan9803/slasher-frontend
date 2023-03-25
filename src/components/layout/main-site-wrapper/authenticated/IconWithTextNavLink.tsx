@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { IconDefinition, SizeProp } from '@fortawesome/fontawesome-svg-core';
 import { Link, useLocation } from 'react-router-dom';
 import IconWithTextNavItemInnerElement from './IconWithTextNavItemInnerElement';
@@ -21,8 +21,24 @@ function IconWithTextNavLink({
   to, badge, badgeIconClassName, className, children,
 }: Props) {
   const { pathname } = useLocation();
+  const linkRef = useRef<any>(null);
+
+  useEffect(() => {
+    const handlePopstate = () => {
+      if (linkRef.current === document.activeElement) {
+        linkRef.current.blur();
+      }
+    };
+
+    window.addEventListener('popstate', handlePopstate);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopstate);
+    };
+  }, []);
+
   return (
-    <Link to={to} className={`shadow-none text-decoration-none ${className}`}>
+    <Link to={to} ref={linkRef} className={`text-decoration-none pb-1 mb-1 ${className}`}>
       <IconWithTextNavItemInnerElement
         label={label}
         userProfileIcon={userProfileIcon}

@@ -25,9 +25,9 @@ type WorthWatchUpdate = {
   },
 };
 type RateType = 'rating' | 'goreFactorRating' | 'worthWatching';
-type SetMovieDate = React.Dispatch<React.SetStateAction<MovieData | undefined>>;
+type SetMovieData = React.Dispatch<React.SetStateAction<MovieData | undefined>>;
 
-export const updateMovieUserData = (update: any, rateType: RateType, setMovieData: SetMovieDate) => {
+export const updateMovieUserData = (update: any, rateType: RateType, setMovieData: SetMovieData) => {
   if (!update || !rateType) { return; }
   setMovieData?.((prevMovieData) => {
     if (!prevMovieData) { return prevMovieData; }

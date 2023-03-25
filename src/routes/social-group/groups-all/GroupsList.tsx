@@ -13,7 +13,7 @@ function GroupsList() {
         tabKey="all"
         setSearch={setSearch}
         search={search}
-        sort={(e: React.ChangeEvent<HTMLSelectElement>) => setSortVal(e.target.value)}
+        sort={(value:string) => setSortVal(value)}
         applyFilter={applyFilter}
         noFilter
       />

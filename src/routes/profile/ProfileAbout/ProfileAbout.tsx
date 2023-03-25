@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -12,7 +12,10 @@ import { useAppSelector } from '../../../redux/hooks';
 import CharactersCounter from '../../../components/ui/CharactersCounter';
 import { updateUserAbout } from '../../../api/users';
 import useProgressButton from '../../../components/ui/ProgressButton';
-import { decryptMessage, escapeHtmlSpecialCharacters, newLineToBr } from '../../../utils/text-utils';
+import {
+  decryptMessage, escapeHtmlSpecialCharacters, newLineToBr,
+} from '../../../utils/text-utils';
+import { customlinkifyOpts } from '../../../utils/linkify-utils';
 
 interface Props {
   user: User
@@ -20,18 +23,26 @@ interface Props {
 function ProfileAbout({ user }: Props) {
   const [isEdit, setEdit] = useState<boolean>(false);
   const [aboutMeText, setAboutMeText] = useState<string>(user?.aboutMe || '');
+  const [updatedAboutMeText, setUpdatedAboutMeText] = useState('');
   const [charCount, setCharCount] = useState<number>(0);
   const loginUserId = useAppSelector((state) => state.user.user.id);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
 
+  useEffect(() => {
+    setUpdatedAboutMeText(aboutMeText);
+    setAboutMeText(aboutMeText);
+    setCharCount(aboutMeText.length);
+  }, [aboutMeText]);
+
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUpdatedAboutMeText(e.target.value);
     setCharCount(e.target.value.length);
-    setAboutMeText(e.target.value);
   };
   const handleUserAbout = (id: string) => {
     setProgressButtonStatus('loading');
-    updateUserAbout(id, aboutMeText).then((res) => {
+    updateUserAbout(id, updatedAboutMeText).then((res) => {
       setAboutMeText(res.data.aboutMe);
+      setCharCount(updatedAboutMeText.length);
       setProgressButtonStatus('success');
       setEdit(!isEdit);
     }).catch(() => {
@@ -39,10 +50,15 @@ function ProfileAbout({ user }: Props) {
     });
   };
 
+  const handleCancel = () => {
+    setAboutMeText(aboutMeText);
+    setUpdatedAboutMeText(aboutMeText);
+    setCharCount(aboutMeText.length);
+  };
   const renderAboutMeText = (text: string) => {
     if (text && text.length > 0) {
       const safeAboutMeText = newLineToBr(
-        linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(text))),
+        linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(text)), customlinkifyOpts),
       );
 
       return (
@@ -50,8 +66,18 @@ function ProfileAbout({ user }: Props) {
         <div className="text-break" dangerouslySetInnerHTML={{ __html: safeAboutMeText }} />
       );
     }
-
-    return <div className="text-light">This user has not added an &quot;About me&quot; section yet.</div>;
+    if (loginUserId === user?._id) {
+      return (
+        <div className="text-light">
+          To add some info about yourself, click on the
+          {' '}
+          <FontAwesomeIcon icon={solid('pen')} className="me-1 mt-1" size="sm" />
+          {' '}
+          to the right.
+        </div>
+      );
+    }
+    return false;
   };
 
   return (
@@ -77,7 +103,7 @@ function ProfileAbout({ user }: Props) {
                     maxLength={1000}
                     rows={10}
                     as="textarea"
-                    value={aboutMeText}
+                    value={updatedAboutMeText}
                     onChange={handleMessageChange}
                     placeholder="Write here..."
                     style={{ resize: 'none' }}
@@ -94,12 +120,12 @@ function ProfileAbout({ user }: Props) {
                 <Col xs={9} sm={7} md={5} lg={4} xxl={3}>
                   <Row>
                     <Col xs={6}>
-                      <RoundButton className="w-100 bg-black" variant="dark" onClick={() => setEdit(!isEdit)}>
+                      <RoundButton className="w-100 bg-black" variant="dark" onClick={() => { setEdit(!isEdit); handleCancel(); }}>
                         Cancel
                       </RoundButton>
                     </Col>
                     <Col xs={6}>
-                      <ProgressButton label="Save" className="py-2 w-100  fs-3 fw-bold" onClick={() => handleUserAbout(user?._id)} />
+                      <ProgressButton label="Save" className="w-100" onClick={() => handleUserAbout(user?._id)} />
                     </Col>
                   </Row>
                 </Col>

@@ -65,8 +65,3 @@ android-template/app/app.iml
 # Carthage and Carthage-built binaries
 Carthage
 *.xcframework.zip
-
-# prettier config file (keeping it ignored till we finalize prettier config for long-term ~Sahil)
-# NOTE for vscode users: Please use following setting in vscode to ensure that only the newly-added code is modified on format action is performed.
-# "editor.formatOnSaveMode": "modifications"
-.prettierrc.js

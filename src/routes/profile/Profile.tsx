@@ -10,7 +10,7 @@ import ProfileWatchList from './ProfileWatchList/ProfileWatchList';
 import ProfileEdit from './ProfileEdit/ProfileEdit';
 import ProfileFriendRequest from './ProfileFriends/ProfileFriendRequest/ProfileFriendRequest';
 import { getUser } from '../../api/users';
-import { ProfileVisibility, User } from '../../types';
+import { User } from '../../types';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { useAppSelector } from '../../redux/hooks';
 import NotFound from '../../components/NotFound';
@@ -21,12 +21,14 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layou
 import PostDetail from '../../components/ui/post/PostDetail';
 import ProfileLimitedView from './ProfileLimitedView/ProfileLimitedView';
 import RightSidebarAdOnly from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarAdOnly';
+import { friendship } from '../../api/friends';
 
 function Profile() {
   const loginUserData = useAppSelector((state) => state.user.user);
   const { userName: userNameOrId } = useParams<string>();
   const [user, setUser] = useState<User>();
   const [userNotFound, setUserNotFound] = useState<boolean>(false);
+  const [friendshipStatus, setFriendshipStatus] = useState();
   const navigate = useNavigate();
   const location = useLocation();
   const isSelfProfile = loginUserData.id === user?._id;
@@ -47,7 +49,13 @@ function Profile() {
         }).catch(() => setUserNotFound(true));
     }
   }, [userNameOrId, location.pathname, location.search, navigate]);
-
+  useEffect(() => {
+    if (user) {
+      friendship(user._id).then((res) => {
+        setFriendshipStatus(res.data.reaction);
+      });
+    }
+  }, [user]);
   if (userNotFound) {
     return (
       <NotFound />
@@ -58,7 +66,7 @@ function Profile() {
     return <LoadingIndicator />;
   }
 
-  if (!isSelfProfile && user.profile_status !== ProfileVisibility.Public) {
+  if (!isSelfProfile && friendshipStatus !== 3) {
     return (
       <ContentSidbarWrapper>
         <ContentPageWrapper>

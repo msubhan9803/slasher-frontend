@@ -4,7 +4,7 @@ import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import { DateTime } from 'luxon';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import RoundButton from '../../../components/ui/RoundButton';
 import WorthWatchIcon, { StyledDislikeIcon, StyledLikeIcon } from '../components/WorthWatchIcon';
@@ -88,6 +88,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
   const [liked, setLike] = useState<boolean>(false);
   const [disLiked, setDisLike] = useState<boolean>(false);
   const params = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (params.id && isWorthIt) {
@@ -97,6 +98,9 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
     }
   }, [isWorthIt, params, setMovieData]);
 
+  const handleReviwRedirect = () => {
+    navigate(`/app/movies/${params.id}/reviews`, { state: { movieId: params.id } });
+  };
   const toHoursAndMinutes = (totalMinutes: number) => {
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
@@ -219,7 +223,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                 </div>
               )}
             <div className="d-flex justify-content-center my-3 d-md-none ">
-              <RoundButton className="w-100 fw-bold">Write a review</RoundButton>
+              <RoundButton className="w-100 fw-bold">Write a review small</RoundButton>
             </div>
             <StyledBorder className="d-md-none" />
           </Col>
@@ -331,7 +335,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
             }
           </Col>
           <div className="d-none d-md-flex justify-content-center mt-3">
-            <RoundButton className="w-50 fs-3 fw-bold">Write a review</RoundButton>
+            <RoundButton className="w-50 fs-3 fw-bold" onClick={() => handleReviwRedirect()}>Write a review large</RoundButton>
           </div>
           <StyledBorder className="d-md-none my-3" />
         </Row>

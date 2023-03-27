@@ -64,10 +64,11 @@ type Props = {
   setLike: (val: boolean) => void;
   disLiked: boolean;
   setDisLike: (val: boolean) => void;
+  postType?: string;
 };
 function WorthWatchIcon({
   movieData, setWorthIt, liked, setLike,
-  disLiked, setDisLike,
+  disLiked, setDisLike, postType,
 }: Props) {
   useEffect(() => {
     if (movieData!.userData?.worthWatching === WorthWatchingStatus.Up) {
@@ -95,21 +96,27 @@ function WorthWatchIcon({
         <StyledLikeIcon isLike={liked} role="button" onClick={handleThumbsUp} className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
           <StyleWatchWorthIcon icon={regular('thumbs-up')} />
         </StyledLikeIcon>
-        <p className="m-0 fs-3 text-light">
-          (
-          {movieData!.worthWatchingUpUsersCount ? movieData!.worthWatchingUpUsersCount : 0}
-          )
-        </p>
+        {!postType
+          && (
+            <p className="m-0 fs-3 text-light">
+              (
+              {movieData!.worthWatchingUpUsersCount ? movieData!.worthWatchingUpUsersCount : 0}
+              )
+            </p>
+          )}
       </div>
       <div className="mt-2 d-flex justify-content-center ">
         <StyledDislikeIcon isDislike={disLiked} role="button" onClick={handleThumbsDown} className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
           <StyleWatchWorthIcon icon={regular('thumbs-down')} />
         </StyledDislikeIcon>
-        <p className="m-0 fs-3 text-light">
-          (
-          {movieData!.worthWatchingDownUsersCount ? movieData!.worthWatchingDownUsersCount : 0}
-          )
-        </p>
+        {!postType
+          && (
+            <p className="m-0 fs-3 text-light">
+              (
+              {movieData!.worthWatchingDownUsersCount ? movieData!.worthWatchingDownUsersCount : 0}
+              )
+            </p>
+          )}
       </div>
     </div>
   );
@@ -117,5 +124,6 @@ function WorthWatchIcon({
 WorthWatchIcon.defaultProps = {
   movieData: null,
   setWorthIt: undefined,
+  postType: '',
 };
 export default WorthWatchIcon;

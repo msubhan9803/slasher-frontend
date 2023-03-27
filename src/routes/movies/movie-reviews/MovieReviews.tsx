@@ -1,5 +1,7 @@
 /* eslint-disable max-lines */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -34,6 +36,7 @@ const otherUserPopoverOptions = ['Report', 'Block user'];
 function MovieReviews({ movieData, setMovieData }: Props) {
   const { id } = useParams();
   const location = useLocation();
+  const movieReviewRef = useRef<HTMLDivElement>(null);
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -66,6 +69,7 @@ function MovieReviews({ movieData, setMovieData }: Props) {
   };
   useEffect(() => {
     if (location.state && location.state.movieId && location.state.movieId.length) {
+      movieReviewRef?.current?.scrollIntoView({ behavior: 'smooth' });
       setShowReviewForm(true);
       getUserMovieReviewData(location.state.movieId);
     }
@@ -346,7 +350,7 @@ function MovieReviews({ movieData, setMovieData }: Props) {
     }
   };
   return (
-    <div>
+    <div ref={movieReviewRef}>
       {
         showReviewForm
           ? (

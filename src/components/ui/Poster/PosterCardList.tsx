@@ -59,7 +59,7 @@ function PosterCardList({ dataList, pubWiseAdUnitDivId, onSelect }: PosterCardPr
                 />
               </Link>
             </Col>
-            {pubWiseAdUnitDivId && show && <PubWiseAd className="text-center mb-3" id={pubWiseAdUnitDivId} autoSequencer />}
+            {pubWiseAdUnitDivId && show && <PubWiseAd className="mb-3" id={pubWiseAdUnitDivId} autoSequencer />}
           </React.Fragment>
         );
       })}

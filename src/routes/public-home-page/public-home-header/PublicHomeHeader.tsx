@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Navbar } from 'react-bootstrap';
+import { Col, Navbar, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { StyledNav } from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageHeader';
@@ -73,10 +73,7 @@ const StyledHeader = styled.header<HeaderStyleProps>`
 `;
 function PublicHomeHeader() {
   const navList = ['Home', 'About', 'Shop', 'Advertise', 'Help', 'Contact Us'];
-  const midIndex = Math.ceil(navList.length / 2);
   const [isOpen, setIsOpen] = useState(false);
-  const beforeBrand = navList.slice(0, midIndex);
-  const afterBrand = navList.slice(midIndex);
 
   useEffect(() => {
     const selectHeader = document.querySelector('#header');
@@ -120,49 +117,46 @@ function PublicHomeHeader() {
           expand="lg"
           bg="transparent"
           variant="dark"
-          className="mb-3"
+          className="mb-3 d-lg-flex justify-content-lg-center"
         >
           <NavbarToggle onClick={() => setIsOpen(!isOpen)} aria-controls="responsive-navbar-nav" className="toggle border-0" />
-          <Navbar.Brand as={Link} to="/" className="logo1 mx-auto pe-5 d-lg-none py-0">
+          <Navbar.Brand as={Link} to="/" className="mx-auto pe-4 logo2 d-lg-none py-0">
             <HeaderLogo logo={slasherLogo} height="6.5rem" />
           </Navbar.Brand>
           <StyledNavbarCollapse id="responsive-navbar-nav" className="bg-black mt-2 mt-lg-0">
-            <StyledNav className="w-100 justify-content-between px-3 mx-lg-5 small-screen">
-              <div className="before-link d-lg-flex align-items-lg-center">
-                {beforeBrand.map((nav) => (
-                  <StyledNavLink
-                    key={nav}
-                    to="/app/public-home-page"
-                    className="nav-link py-3 px-5 p-lg-3 text-lg-center fs-3 text-decoration-none text-white"
-                  >
-                    {nav}
-                  </StyledNavLink>
-                ))}
-              </div>
-              <Navbar.Brand as={Link} to="/" className="logo2 d-none d-lg-block mx-lg-auto py-0">
-                <HeaderLogo logo={slasherLogo} height="8rem" />
-              </Navbar.Brand>
-              <div className="after-link me-lg-1 d-lg-flex align-items-lg-center">
-                {afterBrand.map((nav) => (
-                  <StyledNavLink
-                    key={nav}
-                    to="/app/public-home-page"
-                    className="nav-link py-3 py-lg-0 px-5 px-lg-2 mx-xl-2 text-lg-center fs-3 text-decoration-none text-white"
-                  >
-                    {nav}
-                  </StyledNavLink>
-                ))}
-                <StyledNavLink
-                  to="/app/public-home-page"
-                  className="nav-link d-lg-none py-3 py-lg-0 px-5 px-lg-2 mx-xl-2 text-lg-center fs-3 text-decoration-none text-white"
-                >
-                  Login In
-                </StyledNavLink>
-              </div>
+            <StyledNav className="justify-content-between px-3 small-screen w-100">
+              <Row className="w-100 align-items-center">
+                <Col lg={3}>
+                  <Navbar.Brand as={Link} to="/" className="logo1 d-none d-lg-flex py-0">
+                    <HeaderLogo logo={slasherLogo} height="6.5rem" />
+                  </Navbar.Brand>
+                </Col>
+                <Col lg={7}>
+                  <div className="d-lg-flex justify-content-between">
+                    {navList.map((nav) => (
+                      <StyledNavLink
+                        key={nav}
+                        to="/app/public-home-page"
+                        className="nav-link py-3 px-5 p-lg-2 text-lg-center fs-3 text-decoration-none text-white"
+                      >
+                        {nav}
+                      </StyledNavLink>
+                    ))}
+                    <StyledNavLink
+                      to="/app/public-home-page"
+                      className="nav-link d-lg-none py-3 py-lg-0 px-5 px-lg-2 mx-xl-2 text-lg-center fs-3 text-decoration-none text-white"
+                    >
+                      Login In
+                    </StyledNavLink>
+                  </div>
+                </Col>
+                <Col lg={2}>
+                  <RoundButton className="login-btn mx-auto d-none d-lg-block px-4">Login</RoundButton>
+                </Col>
+              </Row>
             </StyledNav>
           </StyledNavbarCollapse>
         </Navbar>
-        <RoundButton className="login-btn d-none d-lg-block px-4 position-absolute">Login</RoundButton>
       </div>
     </StyledHeader>
   );

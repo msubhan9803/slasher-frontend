@@ -223,7 +223,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                 </div>
               )}
             <div className="d-flex justify-content-center my-3 d-md-none ">
-              <RoundButton className="w-100 fw-bold">Write a review small</RoundButton>
+              <RoundButton className="w-100 fw-bold" onClick={() => handleReviwRedirect()}> Write a review</RoundButton>
             </div>
             <StyledBorder className="d-md-none" />
           </Col>
@@ -335,7 +335,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
             }
           </Col>
           <div className="d-none d-md-flex justify-content-center mt-3">
-            <RoundButton className="w-50 fs-3 fw-bold" onClick={() => handleReviwRedirect()}>Write a review large</RoundButton>
+            <RoundButton className="w-50 fs-3 fw-bold" onClick={() => handleReviwRedirect()}>Write a review</RoundButton>
           </div>
           <StyledBorder className="d-md-none my-3" />
         </Row>

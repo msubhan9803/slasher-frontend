@@ -10,7 +10,7 @@ import ProfileWatchList from './ProfileWatchList/ProfileWatchList';
 import ProfileEdit from './ProfileEdit/ProfileEdit';
 import ProfileFriendRequest from './ProfileFriends/ProfileFriendRequest/ProfileFriendRequest';
 import { getUser } from '../../api/users';
-import { User } from '../../types';
+import { FriendRequestReaction, User } from '../../types';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { useAppSelector } from '../../redux/hooks';
 import NotFound from '../../components/NotFound';
@@ -66,7 +66,7 @@ function Profile() {
     return <LoadingIndicator />;
   }
 
-  if (!isSelfProfile && friendshipStatus !== 3) {
+  if (!isSelfProfile && friendshipStatus !== FriendRequestReaction.Accepted) {
     return (
       <ContentSidbarWrapper>
         <ContentPageWrapper>

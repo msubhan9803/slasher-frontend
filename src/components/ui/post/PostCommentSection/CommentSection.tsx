@@ -114,7 +114,7 @@ function CommentSection({
       </div>
       <div style={{ marginLeft: `${userCircleImageSizeInRems + 0.5}rem` }}>
         <div
-          className={`text-break ms-3 pt-3 px-3 pb-4 bg-dark rounded ${active ? 'border border-primary' : ''}`}
+          className={`text-break ms-3 pt-3 pb-4 px-3 bg-dark rounded ${active ? 'border border-primary' : ''}`}
           ref={active ? highlightRef : null}
         >
           <div className="d-flex justify-content-between">
@@ -169,8 +169,8 @@ function CommentSection({
           {
             likeCount! > 0
             && (
-              <Likes className="rounded d-flex justify-content-end position-absolute">
-                <LikesButton className="p-1 px-2 text-light me-2 mt-1 rounded-pill text-white">
+              <Likes className="d-flex position-relative justify-content-end">
+                <LikesButton className="p-1 px-2 text-light me-2 mt-2 rounded-pill text-white position-absolute">
                   <LinearIcon uniqueId="comment-like-count">
                     <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
                     <span className="fs-5">{likeCount}</span>
@@ -186,7 +186,7 @@ function CommentSection({
             )
           }
         </div>
-        <div className="mb-3 ms-md-1 ms-4">
+        <div className="mt-2 mb-3 ms-md-4 ms-4">
           <div className="p-0 d-flex me-2" aria-hidden="true">
             {
               likeIcon

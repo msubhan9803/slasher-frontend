@@ -1,6 +1,7 @@
-import React, { createRef, useEffect } from 'react';
+import React, { createRef, useEffect, useRef } from 'react';
 import Mentions from 'rc-mentions';
 import { OptionProps } from 'rc-mentions/lib/Option';
+import { MentionsRef } from 'rc-mentions/lib/Mentions';
 import styled from 'styled-components';
 import UserCircleImage from './UserCircleImage';
 
@@ -74,6 +75,7 @@ function MessageTextarea({
   onBlurHandler,
 }: MentionProps) {
   const { Option } = Mentions;
+  const textareaRef = useRef<MentionsRef>(null);
   const optionRef = createRef<HTMLInputElement>();
   const handleMessage = (e: string) => {
     setMessageContent(e);
@@ -103,8 +105,16 @@ function MessageTextarea({
     }
   };
 
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, []);
+
   return (
     <StyledMention
+      autoFocus
+      ref={textareaRef}
       iscommentinput={isCommentInput!}
       id={id}
       className={isCommentInput ? className : ''}

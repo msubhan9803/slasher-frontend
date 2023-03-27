@@ -125,7 +125,7 @@ function EventsByLocation() {
                     listDetail={eventDetail}
                   />
                 </Col>
-                {show && <PubWiseAd className="text-center my-3" id={EVENTS_BY_LOCATION_DIV_ID} autoSequencer />}
+                {show && <PubWiseAd className="my-3" id={EVENTS_BY_LOCATION_DIV_ID} autoSequencer />}
               </React.Fragment>
             );
           })}

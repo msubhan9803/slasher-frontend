@@ -12,18 +12,27 @@ import { useAppSelector } from '../../redux/hooks';
 import CustomSwiperZoomableImage from './CustomSwiperZoomableImage';
 
 interface SliderImage {
-  postId: string;
+  postId?: string;
   imageId: string;
   imageUrl: string;
   linkUrl?: string;
   videoKey?: string;
 }
 
+type SwiperContext = 'post' | 'comment';
+
 interface Props {
+  context: SwiperContext;
   images: SliderImage[];
   initialSlide?: number;
   onSelect?: (value: string) => void;
 }
+
+const heightForContext: Record<SwiperContext, string> = {
+  comment: '275px',
+  post: '450px',
+};
+
 const StyledYouTubeButton = styled(Button)`
   position: absolute;
   top: 50%;
@@ -33,7 +42,7 @@ const StyledYouTubeButton = styled(Button)`
   margin-top: -2em;
 `;
 const StyledSwiper = styled(Swiper)`
-  width: 100%;
+  width: auto;
   height: 100%;
   z-index: 0 !important;
 .swiper-button-prev {
@@ -46,7 +55,8 @@ const StyledSwiper = styled(Swiper)`
   text-align: center;
   font-size: 1.125rem;
   background: var(--bs-black);
-  height:450px;
+  height:100%;
+  width: fit-content;
 
   /* Center slide text vertically */
   display: -webkit-box;
@@ -75,7 +85,9 @@ const SwiperContentContainer = styled.div`
   }
 `;
 
-function CustomSwiper({ images, initialSlide, onSelect }: Props) {
+function CustomSwiper({
+  context, images, initialSlide, onSelect,
+}: Props) {
   const [showVideoPlayerModal, setShowYouTubeModal] = useState(false);
   const { placeholderUrlNoImageAvailable } = useAppSelector((state) => state.remoteConstants);
   const [hideSwiper, setHideSwiper] = useState(false);
@@ -110,7 +122,9 @@ function CustomSwiper({ images, initialSlide, onSelect }: Props) {
       return (
         <Link
           to={imageAndVideo.linkUrl}
-          onClick={() => onSelect!(imageAndVideo.postId)}
+          onClick={
+            imageAndVideo.postId ? () => onSelect!(imageAndVideo.postId as string) : undefined
+          }
           className="h-100"
         >
           <SwiperContentContainer>
@@ -151,7 +165,7 @@ function CustomSwiper({ images, initialSlide, onSelect }: Props) {
   };
 
   return (
-    <div style={{ height: '450px' }}>
+    <div style={{ height: heightForContext[context] }}>
       <StyledSwiper
         pagination={{ type: 'fraction' }}
         initialSlide={initialSlide}

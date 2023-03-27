@@ -84,10 +84,10 @@ function PostFooter({
           <HashLink
             onClick={() => (postType !== 'review' && onSelect!(rssfeedProviderId || postId))}
             to={
-              (postType === 'review' && movieId && `/app/movies/${movieId}/reviews/${postId}#comments`)
+              (postType === 'review' && movieId && `/app/movies/${movieId}/reviews/${postId}`)
               || (rssfeedProviderId
-                ? `/app/news/partner/${rssfeedProviderId}/posts/${postId}#comments`
-                : `/${userName}/posts/${postId}#comments`)
+                ? `/app/news/partner/${rssfeedProviderId}/posts/${postId}`
+                : `/${userName}/posts/${postId}`)
             }
             className="text-decoration-none"
             scroll={scrollWithOffset}

@@ -185,13 +185,13 @@ function CommentInput({
 
   return (
     <Form>
-      <Row className="ps-3 pt-2 order-last order-sm-0">
-        <Col xs="auto" className="pe-0">
-          <UserCircleImage src={userData.user.profilePic} alt="user picture" className="me-3 bg-secondary" />
+      <Row className="pt-2 order-last order-sm-0">
+        <Col xs="auto">
+          <UserCircleImage src={userData.user.profilePic} alt="user picture" className="bg-secondary" />
         </Col>
-        <Col className="ps-0 pe-4">
+        <Col className="ps-0">
           <div className="d-flex align-items-end mb-4">
-            <StyledCommentInputGroup focus={isFocosInput}>
+            <StyledCommentInputGroup focus={isFocosInput} className="mx-1">
               <MessageTextarea
                 rows={1}
                 id={checkCommnt}
@@ -234,7 +234,7 @@ function CommentInput({
                 />
               </InputGroup.Text>
             </StyledCommentInputGroup>
-            <Button onClick={() => handleMessage()} variant="link" aria-label="submit" className="ms-2 p-0">
+            <Button onClick={() => handleMessage()} variant="link" aria-label="submit" className="ms-2 mb-1 p-0">
               <FontAwesomeIcon icon={solid('paper-plane')} style={{ fontSize: '26px' }} className="text-primary" />
             </Button>
           </div>

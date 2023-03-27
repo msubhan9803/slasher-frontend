@@ -11,7 +11,7 @@ import UserCircleImage from '../../UserCircleImage';
 import CustomPopover, { PopoverClickProps } from '../../CustomPopover';
 import { customlinkifyOpts } from '../../../../utils/linkify-utils';
 import { decryptMessage, escapeHtmlSpecialCharacters, newLineToBr } from '../../../../utils/text-utils';
-import ZoomableImageThumbnail from '../../ZoomableImageThumbnail';
+import CustomSwiper from '../../CustomSwiper';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -50,7 +50,7 @@ interface ImageList {
   image_path: string;
   _id: string;
 }
-const CommentMessage = styled.h2`
+const CommentMessage = styled.div`
   color: #CCCCCC;
 `;
 const LinearIcon = styled.div<LinearIconProps>`
@@ -70,6 +70,8 @@ const LikesButton = styled.div`
 const Likes = styled.div`
   right:.063rem;
 `;
+
+const userCircleImageSizeInRems = 2.5;
 
 function CommentSection({
   id, image, name, time, commentMention, commentMsg, commentImg,
@@ -104,15 +106,15 @@ function CommentSection({
   };
 
   return (
-    <div key={id} className="d-flex">
-      <div className={`${!commentMention && 'mt-0 mt-md-3'} ${commentMention && 'ms-md-1'}`}>
+    <div key={id}>
+      <div className={`position-absolute ps-1 ${!commentMention && 'mt-0 mt-md-3'} ${commentMention && 'ms-md-1'}`}>
         <HashLink to={`/${name}#`}>
-          <UserCircleImage size="2.5rem" src={image} alt="user picture" className="me-0 me-md-3 bg-secondary" />
+          <UserCircleImage size={`${userCircleImageSizeInRems}rem`} src={image} alt="user picture" className="me-0 me-md-3 bg-secondary" />
         </HashLink>
       </div>
-      <div className="w-100">
+      <div style={{ marginLeft: `${userCircleImageSizeInRems + 0.5}rem` }}>
         <div
-          className={`text-break ms-3 ms-md-0 pt-3 px-3 pb-4 bg-dark rounded position-relative ${active ? 'border border-primary' : ''}`}
+          className={`text-break ms-3 pt-3 px-3 pb-4 bg-dark rounded ${active ? 'border border-primary' : ''}`}
           ref={active ? highlightRef : null}
         >
           <div className="d-flex justify-content-between">
@@ -141,7 +143,7 @@ function CommentSection({
           </span>
 
           <CommentMessage
-            className="mb-0 h4"
+            className={images?.length > 0 ? 'mb-3' : ''}
             dangerouslySetInnerHTML={
               {
                 __html: newLineToBr(
@@ -151,12 +153,18 @@ function CommentSection({
               }
             }
           />
-          <div className="d-flex flex-wrap">
-            {images && images.length > 0 && images.map((imageC: ImageList) => (
-              <div key={imageC._id} className="me-3">
-                <ZoomableImageThumbnail src={imageC.image_path} alt={`${imageC._id} picture`} className="mt-3" />
-              </div>
-            ))}
+          <div>
+            {images?.length > 0 && (
+              <CustomSwiper
+                context="comment"
+                images={
+                  images.map((imageData: any) => ({
+                    imageUrl: imageData.image_path,
+                    imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
+                  }))
+                }
+              />
+            )}
           </div>
           {
             likeCount! > 0

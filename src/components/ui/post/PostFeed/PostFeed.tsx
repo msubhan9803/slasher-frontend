@@ -92,6 +92,8 @@ interface StyledProps {
 }
 
 const StyledPostFeed = styled.div`
+    margin: 0 1rem;
+
     .post-separator {
       border-top: 1px solid var(--bs-light);
       margin: 1rem 0;
@@ -99,7 +101,7 @@ const StyledPostFeed = styled.div`
 
     @media (min-width: ${MD_MEDIA_BREAKPOINT}) {
       .post-separator {
-        margin: 1rem 1.5rem;
+        margin: 1rem 0;
       }
     }
 `;
@@ -360,7 +362,7 @@ function PostFeed({
       {postData.map((post: any, i) => (
         <div key={post.id}>
           <div className="post">
-            <Card className="bg-transparent border-0 rounded-3 mb-md-4 mb-0 pt-md-3 px-sm-0 px-md-4">
+            <Card className="bg-transparent border-0 rounded-3 mb-md-4 mb-0 pt-md-3 px-sm-0">
               <Card.Header className="border-0 px-0 bg-transparent">
                 <PostHeader
                   detailPage={detailPage}
@@ -384,6 +386,7 @@ function PostFeed({
                 {renderPostContent(post)}
                 {post?.images?.length > 0 && (
                   <CustomSwiper
+                    context="post"
                     images={
                       post.images.map((imageData: any) => ({
                         videoKey: imageData.videoKey,
@@ -475,13 +478,15 @@ function PostFeed({
           {/* Show ad after every three posts. */}
           {(i + 1) % 3 === 0 && pubWiseAdDivId && (
             <>
-              <PubWiseAd className="text-center" id={pubWiseAdDivId} autoSequencer />
+              <PubWiseAd id={pubWiseAdDivId} autoSequencer />
               <hr className="post-separator" />
             </>
           )}
         </div>
       ))}
-      {!isSinglePagePost && pubWiseAdDivId && postData.length < 3 && postData.length !== 0 && <PubWiseAd className="text-center my-3" id={pubWiseAdDivId} autoSequencer />}
+
+      {/* Show an ad if posts are less than 3 */}
+      {!isSinglePagePost && pubWiseAdDivId && postData.length < 3 && postData.length !== 0 && <PubWiseAd className="my-3" id={pubWiseAdDivId} autoSequencer />}
       {
         openLikeShareModal
         && (

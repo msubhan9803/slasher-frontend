@@ -20,6 +20,10 @@ const StyledImage = styled(Image).attrs({ className: 'rounded' })`
   object-fit: cover;
 `;
 
+/**
+ * Note: This component might not be in use anymore.
+ */
+
 function ZoomableImageThumbnail({ src, className, alt }: Props) {
   const [showZoomModal, setShowZoomModal] = useState(false);
 

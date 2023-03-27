@@ -51,30 +51,17 @@ function BuyMovieList() {
   }, [searchParams]);
   useEffect(() => {
     RouteURL(search, key, sortVal, navigate, searchParams);
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [search, key, sortVal]);
+  }, [search, key, sortVal, navigate, searchParams]);
   useEffect(() => {
     UIRouteURL(search, key, sortVal, navigate, callNavigate);
     setCallNavigate(false);
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [callNavigate]);
+  }, [search, key, sortVal, navigate, callNavigate]);
   useEffect(() => {
-    if (callNavigate
-      || (scrollPosition?.position === 0 && (search.length === 0 || key.length === 0))
-      || ((scrollPosition?.sortValue !== sortVal)
-        && ((scrollPosition?.searchValue === '' && scrollPosition?.keyValue === '')
-          || (scrollPosition?.searchValue !== search && scrollPosition?.keyValue !== key)
-          || (search.length === 0 || key.length === 0) || (search.length > 0 || key.length > 0))
-        && sortVal)
-      || (search === '' && key === '' && sortVal === 'name' && scrollPosition.position === 0)
-      || ((scrollPosition?.searchValue !== search || scrollPosition?.keyValue !== key) && sortVal === 'name')
-    ) {
-      setFilteredMovies([]);
+    if (search || key || sortVal) {
       setLastMovieId('');
       setRequestAdditionalMovies(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, sortVal, key, callNavigate]);
+  }, [search, sortVal, key]);
 
   useEffect(() => {
     if (requestAdditionalMovies && !loadingMovies && userId) {
@@ -129,10 +116,9 @@ function BuyMovieList() {
           );
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     requestAdditionalMovies, loadingMovies, search, sortVal, lastMovieId,
-    filteredMovies, scrollPosition, dispatch, userId, isKeyMoviesReady,
+    filteredMovies, scrollPosition, dispatch, userId, isKeyMoviesReady, key,
   ]);
 
   const applyFilter = (keyValue: string, sortValue?: string) => {

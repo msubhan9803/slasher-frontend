@@ -173,7 +173,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
         .field('message', '')
         .field('feedPostId', feedPost._id.toString())
         .expect(HttpStatus.BAD_REQUEST);
-      expect(response.body.message).toBe('Comment must have a message or at least one image.');
+      expect(response.body.message).toBe('Comments must have some text or at least one image.');
     });
 
     it('allows the creation of a comments with only files, but no message', async () => {
@@ -346,7 +346,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
         .field('feedPostId', feedPost._id.toString());
       expect(response.body).toEqual({
         statusCode: 400,
-        message: 'Comment must have a message or at least one image.',
+        message: 'Comments must have some text or at least one image.',
       });
     });
 

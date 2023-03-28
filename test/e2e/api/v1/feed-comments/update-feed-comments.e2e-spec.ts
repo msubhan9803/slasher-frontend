@@ -390,7 +390,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
           .field('message', '')
           .field('imagesToDelete', (feedComment0.images[0] as any).id)
           .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toBe('Comment must have a message or at least one image.');
+        expect(response.body.message).toBe('Comments must have some text or at least one image.');
       });
 
     it('when comment has a already 4 images and add more 2 images than expected response', async () => {
@@ -456,7 +456,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
         .field('message', '');
       expect(response.body).toEqual({
         statusCode: 400,
-        message: 'Comment must have a message or at least one image.',
+        message: 'Comments must have some text or at least one image.',
       });
     });
 
@@ -502,7 +502,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
         .field('message', '          \n\n');
       expect(response.body).toEqual({
         statusCode: 400,
-        message: 'Comment must have a message or at least one image.',
+        message: 'Comments must have some text or at least one image.',
       });
     });
 

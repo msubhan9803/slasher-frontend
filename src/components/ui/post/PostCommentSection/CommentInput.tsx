@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  useEffect, useState, ChangeEvent,
+  useEffect, useState, ChangeEvent, useCallback,
 } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -87,21 +87,27 @@ function CommentInput({
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const [isFocosInput, setIsFocusInput] = useState<boolean>(false);
 
+  const handleSetCommentReplyErrorMessage = useCallback((error: any) => {
+    setCommentReplyErrorMessage!(error);
+  }, [setCommentReplyErrorMessage]);
+
+  const handleSetReplyImageArray = useCallback((images: any) => {
+    setReplyImageArray!(images);
+  }, [setReplyImageArray]);
+
   useEffect(() => {
-    if (message) {
+    if (message && message.length > 0) {
       const regexMessgafe = isReply && commentReplyID
         ? `##LINK_ID##${commentReplyID}${message}##LINK_END## `
         : `##LINK_ID##${commentID}${message}##LINK_END## `;
-
       setEditMessage(regexMessgafe);
     } else {
       setEditMessage('');
-      setCommentReplyErrorMessage!([]);
-      setReplyImageArray!([]);
+      handleSetCommentReplyErrorMessage([]);
+      handleSetReplyImageArray([]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [message, commentID, isReply, commentReplyID]);
-
+  }, [message, commentID, isReply, commentReplyID,
+    handleSetCommentReplyErrorMessage, handleSetReplyImageArray]);
   useEffect(() => {
     if (editMessage) {
       const mentionStringList = editMessage.match(/##LINK_ID##[a-zA-Z0-9@_.-]+##LINK_END##/g);
@@ -121,28 +127,25 @@ function CommentInput({
 
   useEffect(() => {
     if (commentError! && commentError.length) {
-      setEditMessage(editMessage);
+      setEditMessage((prevEditMessage) => prevEditMessage);
     } else if (message === '') {
       setEditMessage('');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [commentError]);
+  }, [commentError, message]);
 
   useEffect(() => {
     if (commentReplyError! && commentReplyError.length) {
-      setEditMessage(editMessage);
+      setEditMessage((prevEditMessage) => prevEditMessage);
     } else if (message === '') {
       setEditMessage('');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [commentReplyError]);
+  }, [commentReplyError, message]);
 
   useEffect(() => {
-    if (!commentSent) {
+    if (!commentSent && dataId!.length === 0 && editMessage.length === 0) {
       sendComment(dataId!, editMessage);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [commentSent]);
+  }, [commentSent, dataId, editMessage, sendComment]);
 
   const onUpdatePost = (msg: string) => {
     const imageArr = isReply ? replyImageArray : imageArray;

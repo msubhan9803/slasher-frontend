@@ -170,6 +170,24 @@ export class FeedLikesController {
     if (!reply) {
       throw new HttpException('Reply not found', HttpStatus.NOT_FOUND);
     }
+
+    const feedPost = await this.feedPostsService.findById(reply.feedPostId.toString(), true);
+    if (!feedPost) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+
+    const blockData = await this.blocksService.blockExistsBetweenUsers(user.id, reply.userId.toString());
+    if (blockData) {
+      throw new HttpException('Request failed due to user block (reply owner).', HttpStatus.FORBIDDEN);
+    }
+
+    if (!feedPost.rssfeedProviderId) {
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
+      if (block) {
+        throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
+      }
+    }
+
     await this.feedLikesService.createFeedReplyLike(params.feedReplyId, user.id);
 
     // Create notification for comment creator, informing them that a like was added to their comment.

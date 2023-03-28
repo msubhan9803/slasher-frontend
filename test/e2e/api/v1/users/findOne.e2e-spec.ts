@@ -15,6 +15,7 @@ import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { FriendsService } from '../../../../../src/friends/providers/friends.service';
 
 describe('GET /users/:id (e2e)', () => {
   let app: INestApplication;
@@ -25,6 +26,7 @@ describe('GET /users/:id (e2e)', () => {
   let otherUserAuthToken: string;
   let otherUser: UserDocument;
   let configService: ConfigService;
+  let friendsService: FriendsService;
   let blocksModel: Model<BlockAndUnblockDocument>;
 
   beforeAll(async () => {
@@ -34,6 +36,7 @@ describe('GET /users/:id (e2e)', () => {
     connection = moduleRef.get<Connection>(getConnectionToken());
 
     usersService = moduleRef.get<UsersService>(UsersService);
+    friendsService = moduleRef.get<FriendsService>(FriendsService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     app = moduleRef.createNestApplication();
@@ -89,6 +92,11 @@ describe('GET /users/:id (e2e)', () => {
           aboutMe: 'Hello. This is me.',
           profile_status: 0,
           email: 'User1@Example.com',
+          friendshipStatus: {
+            reaction: null,
+            from: null,
+            to: null,
+          },
         });
       });
 
@@ -108,6 +116,11 @@ describe('GET /users/:id (e2e)', () => {
           coverPhoto: null,
           aboutMe: 'Hello. This is me.',
           profile_status: 0,
+          friendshipStatus: {
+            reaction: null,
+            from: null,
+            to: null,
+          },
         });
       });
 
@@ -139,6 +152,11 @@ describe('GET /users/:id (e2e)', () => {
           aboutMe: 'Hello. This is me.',
           profile_status: ProfileVisibility.Private,
           email: 'User2@Example.com',
+          friendshipStatus: {
+            reaction: null,
+            from: null,
+            to: null,
+          },
         });
       });
     });
@@ -158,6 +176,11 @@ describe('GET /users/:id (e2e)', () => {
           aboutMe: 'Hello. This is me.',
           profile_status: 0,
           email: 'User1@Example.com',
+          friendshipStatus: {
+            reaction: null,
+            from: null,
+            to: null,
+          },
         });
       });
 
@@ -190,6 +213,11 @@ describe('GET /users/:id (e2e)', () => {
           coverPhoto: null,
           aboutMe: 'Hello. This is me.',
           profile_status: 0,
+          friendshipStatus: {
+            reaction: null,
+            from: null,
+            to: null,
+          },
         });
       });
 
@@ -207,6 +235,11 @@ describe('GET /users/:id (e2e)', () => {
           coverPhoto: null,
           aboutMe: 'Hello. This is me.',
           profile_status: ProfileVisibility.Private,
+          friendshipStatus: {
+            reaction: null,
+            from: null,
+            to: null,
+          },
         });
       });
     });
@@ -247,8 +280,37 @@ describe('GET /users/:id (e2e)', () => {
           coverPhoto: null,
           aboutMe: 'Hello. This is me.',
           profile_status: 1,
+          friendshipStatus: {
+            reaction: null,
+            from: null,
+            to: null,
+          },
         });
       },
     );
+
+    it('when loggedInUser or otherUser is friend than expected response', async () => {
+      const user1 = await usersService.create(userFactory.build({ userName: 'Michael' }));
+      await friendsService.createFriendRequest(activeUser.id, user1.id);
+      await friendsService.acceptFriendRequest(activeUser.id, user1.id);
+      const response = await request(app.getHttpServer())
+        .get(`/api/v1/users/${user1._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          firstName: 'First name 3',
+          userName: 'Michael',
+          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          coverPhoto: null,
+          aboutMe: 'Hello. This is me.',
+          profile_status: ProfileVisibility.Public,
+          friendshipStatus: {
+            reaction: 3,
+            from: activeUser.id,
+            to: user1.id,
+          },
+        });
+    });
   });
 });

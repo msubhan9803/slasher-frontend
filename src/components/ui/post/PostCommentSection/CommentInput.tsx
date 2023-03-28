@@ -49,23 +49,30 @@ interface InputProps {
 
 const StyledCommentInputGroup = styled(InputGroup) <InputProps>`
   .form-control {
-    border-radius: 1.875rem;
-    border-bottom-right-radius: 0rem;
-    border-top-right-radius: 0rem;
+    border-radius: 24px !important;
+    border-bottom-right-radius: 0rem !important;
+    border-top-right-radius: 0rem !important;
     outline: none !important;
   }
   .input-group-text {
     background-color: var(--bs-dark);
     border-color: #3a3b46;
-    border-radius: 1.875rem;
+    border-radius: 24px !important;
+    border-bottom-left-radius: 0rem !important;
+    border-top-left-radius: 0rem !important;
+  }
+  textarea {
+    padding-left: 1.5rem !important;
   }
   svg {
     min-width: 1.875rem;
   }
-
+  .camera-btn {
+    right: 0 !important;
+  }
   ${(props) => props.focus && `
     box-shadow: 0 0 0 1px var(--stroke-and-line-separator-color);
-    border-radius: 1.875rem;
+    border-radius: 24px !important;
   `};
 
 `;
@@ -195,7 +202,7 @@ function CommentInput({
               <MessageTextarea
                 rows={1}
                 id={checkCommnt}
-                className="fs-5 form-control p-0"
+                className="fs-5 form-control p-0 pe-4"
                 placeholder={isReply ? 'Reply to comment' : 'Write a comment'}
                 handleSearch={handleSearch}
                 mentionLists={mentionList}
@@ -207,7 +214,7 @@ function CommentInput({
                 onFocusHandler={onFocusHandler}
                 onBlurHandler={onBlurHandler}
               />
-              <InputGroup.Text>
+              <InputGroup.Text className="position-relative px-3 border-start-0">
                 <FontAwesomeIcon
                   role="button"
                   onClick={() => {
@@ -217,6 +224,8 @@ function CommentInput({
                   }}
                   icon={solid('camera')}
                   size="lg"
+                  className="camera-btn position-absolute align-self-end me-3 mb-1"
+                  style={{ right: 0 }}
                 />
                 <input
                   type="file"

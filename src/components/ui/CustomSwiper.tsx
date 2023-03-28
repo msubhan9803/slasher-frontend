@@ -72,10 +72,6 @@ const StyledSwiper = styled(Swiper)`
   -webkit-align-items: center;
   align-items: center;
 }
-
-.swiper-pagination {
-  position: revert !important;
-}
 `;
 const SwiperContentContainer = styled.div`
   height: 100%;
@@ -85,9 +81,12 @@ const SwiperContentContainer = styled.div`
   }
 `;
 
+let instanceCounter = 0;
+
 function CustomSwiper({
   context, images, initialSlide, onSelect,
 }: Props) {
+  const uniqueId = `${instanceCounter += 1}`;
   const [showVideoPlayerModal, setShowYouTubeModal] = useState(false);
   const { placeholderUrlNoImageAvailable } = useAppSelector((state) => state.remoteConstants);
   const [hideSwiper, setHideSwiper] = useState(false);
@@ -165,9 +164,9 @@ function CustomSwiper({
   };
 
   return (
-    <div style={{ height: heightForContext[context] }}>
+    <div style={{ height: heightForContext[context] }} className={images.length > 1 ? 'mb-4' : ''}>
       <StyledSwiper
-        pagination={{ type: 'fraction' }}
+        pagination={{ type: 'fraction', el: `#swiper-pagination-el-${uniqueId}` }}
         initialSlide={initialSlide}
         navigation
         modules={[Pagination, Navigation]}
@@ -189,6 +188,7 @@ function CustomSwiper({
             videokey={images?.[0]?.videoKey}
           />
         )}
+      <div id={`swiper-pagination-el-${uniqueId}`} className="text-center my-2" />
     </div>
   );
 }

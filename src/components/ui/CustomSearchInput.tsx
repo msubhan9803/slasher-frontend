@@ -10,12 +10,6 @@ interface SearchProps {
   label: string;
 }
 const StyledSearchInput = styled(InputGroup)`
-  .form-control {
-    border-right: 1px solid var(--bs-input-border-color);
-    border-bottom-left-radius: 1.875rem;
-    border-top-left-radius: 1.875rem;
-    padding-left: 1rem;
-  }
   .input-group-text {
     background-color: var(--bs-dark);
     border-color: #3a3b46;
@@ -24,6 +18,8 @@ const StyledSearchInput = styled(InputGroup)`
   svg {
     color: var(--bs-primary);
     min-width: 1.875rem;
+    right: 12px;
+    z-index: 999;
   }
 `;
 
@@ -38,7 +34,7 @@ function CustomSearchInput({ label, setSearch, search }: SearchProps) {
     }
   };
   return (
-    <StyledSearchInput>
+    <StyledSearchInput className="position-relative align-items-center">
       <FormControl
         placeholder={label}
         addon-label="search"
@@ -50,16 +46,15 @@ function CustomSearchInput({ label, setSearch, search }: SearchProps) {
         }}
         onKeyUp={handleSearch}
         aria-label="search"
+        className="rounded-pill pe-5"
       />
-      <InputGroup.Text id="search" className="ps-0 border-start-0">
-        <FontAwesomeIcon
-          role="button"
-          icon={solid('magnifying-glass')}
-          className="text-primary"
-          size="lg"
-          onClick={handleSearch}
-        />
-      </InputGroup.Text>
+      <FontAwesomeIcon
+        role="button"
+        icon={solid('magnifying-glass')}
+        className="text-primary position-absolute"
+        size="lg"
+        onClick={handleSearch}
+      />
     </StyledSearchInput>
   );
 }

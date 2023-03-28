@@ -102,7 +102,7 @@ function AddYourBook() {
               <p className="my-4 fs-5">You can add more details later on the “Edit book” screen.</p>
               <Row>
                 <Col md={4} lg={6} xl={4} className="mt-1">
-                  <RoundButton className="w-100 p-1 fs-3" size="lg">Submit</RoundButton>
+                  <RoundButton className="w-100 fs-3" size="lg">Submit</RoundButton>
                 </Col>
               </Row>
             </Col>

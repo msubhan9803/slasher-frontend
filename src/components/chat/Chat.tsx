@@ -49,6 +49,9 @@ const StyledChatContainer = styled.div<Props>`
           height: ${(props) => (props.height ? 'calc(100dvh - 372px)' : 'calc(100dvh - 235px)')};
         }
       }
+      .image-container {
+        overflow-y: hidden !important;
+      }
     }
   }
   @media (max-width: 991px) {
@@ -67,7 +70,7 @@ function Chat({
           <ChatUserStatus userData={userData} />
           <ChatOptions userData={userData} />
         </Card.Header>
-        <Card.Body className="position-relative overflow-auto p-0">
+        <Card.Body className="position-relative overflow-visible p-0">
           <div className="conversation-container">
             <ChatMessage messages={messages} messageLoading={messageLoading} />
           </div>
@@ -77,7 +80,7 @@ function Chat({
             message={message}
             handleFileChange={handleFileChange}
           />
-          <div className="d-flex px-3 gap-3">
+          <div className="image-container overflow-auto d-flex mx-4 gap-3">
             {imageArray!.map((post: File) => (
               <Col xs="auto" key={post.name} className="mb-1">
                 <ImagesContainer

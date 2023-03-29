@@ -4,6 +4,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import mongoose, { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
+import { FriendRequestReaction } from '../../../../../src/schemas/friend/friend.enums';
 import { AppModule } from '../../../../../src/app.module';
 import { UsersService } from '../../../../../src/users/providers/users.service';
 import { userFactory } from '../../../../factories/user.factory';
@@ -306,7 +307,7 @@ describe('GET /users/:id (e2e)', () => {
           aboutMe: 'Hello. This is me.',
           profile_status: ProfileVisibility.Public,
           friendshipStatus: {
-            reaction: 3,
+            reaction: FriendRequestReaction.Accepted,
             from: activeUser.id,
             to: user1.id,
           },

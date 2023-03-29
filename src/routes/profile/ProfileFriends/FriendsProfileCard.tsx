@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import CircleButton from '../../../components/ui/CircleButton';
 import CustomPopover from '../../../components/ui/CustomPopover';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
+import { useAppSelector } from '../../../redux/hooks';
 
 const Container = styled.div`
   background: #1F1F1F;
@@ -13,6 +14,17 @@ function FriendsProfileCard({
   friend, popoverOption, handlePopoverOption, friendsType, onAcceptClick,
   onRejectClick, onSelect,
 }: any) {
+  const location = useLocation();
+  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  useEffect(() => {
+    if (scrollPosition.position > 0
+      && scrollPosition?.pathname === location.pathname) {
+      window.scrollTo({
+        top: scrollPosition?.position,
+        behavior: 'instant' as any,
+      });
+    }
+  }, [scrollPosition, location.pathname]);
   return (
     <Container className="d-flex p-2 justify-content-between pe-2 w-100 rounded mb-3">
       <div>
@@ -23,7 +35,7 @@ function FriendsProfileCard({
             </div>
           </Link>
 
-          <Link to={`/${friend.userName}`} className="text-decoration-none">
+          <Link to={`/${friend.userName}`} onClick={() => onSelect(friend.id)} className="text-decoration-none">
             <div className="d-grid">
               <h1 className="h3 mb-0 text-truncate">{friend.firstName}</h1>
               <p className="fs-6 mb-0 text-light text-truncate">

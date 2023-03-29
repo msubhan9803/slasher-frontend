@@ -56,8 +56,9 @@ function Profile() {
   if (!user) {
     return <LoadingIndicator />;
   }
-  // eslint-disable-next-line max-len
-  if (!isSelfProfile && user.profile_status !== ProfileVisibility.Public && user.friendshipStatus.reaction !== FriendRequestReaction.Accepted) {
+  if (!isSelfProfile
+     && user.profile_status !== ProfileVisibility.Public
+     && user.friendshipStatus.reaction !== FriendRequestReaction.Accepted) {
     return (
       <ContentSidbarWrapper>
         <ContentPageWrapper>

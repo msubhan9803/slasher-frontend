@@ -78,12 +78,26 @@ function ProfileFriends({ user }: Props) {
     setPopoverClick(popoverClickProps);
   };
 
+  useEffect(() => {
+    if (user.userName === params.userName) {
+      setUserId(user._id);
+      setFriendsList(scrollPosition.pathname === location.pathname
+        ? scrollPosition?.data : []);
+      setNoMoreData(false);
+      setSearch(scrollPosition.pathname === location.pathname
+        ? scrollPosition?.searchValue : '');
+      setAdditionalFriend(true);
+      setPage(scrollPosition.pathname === location.pathname
+        ? scrollPosition?.page : 0);
+    }
+  }, [params.userName, user.userName, user._id, scrollPosition, location.pathname]);
+
   const fetchMoreFriendList = useCallback(() => {
     let searchUser = search;
     while (searchUser.startsWith('@')) {
       searchUser = searchUser.substring(1);
     }
-    userProfileFriends(user._id, page, searchUser)
+    userProfileFriends(userId, page, searchUser)
       .then((res) => {
         setFriendsList((prev: any) => (page === 0
           ? res.data.friends
@@ -112,12 +126,8 @@ function ProfileFriends({ user }: Props) {
       .finally(
         () => { setAdditionalFriend(false); setLoadingFriends(false); },
       );
-  }, [search, user._id, page, scrollPosition, dispatch, friendsList, location]);
-  useEffect(() => {
-    if (user.userName === params.userName) {
-      setUserId(user._id);
-    }
-  }, [params.userName, user.userName, user._id]);
+  }, [search, userId, page, scrollPosition, dispatch, friendsList, location]);
+
   useEffect(() => {
     if (additionalFriend && !loadingFriends && userId && user.userName === params.userName) {
       if (scrollPosition === null

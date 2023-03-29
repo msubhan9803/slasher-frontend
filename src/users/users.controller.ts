@@ -464,12 +464,22 @@ export class UsersController {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
+    let friend;
+    if (loggedInUser.id !== user.id) {
+      friend = await this.friendsService.findFriendship(user.id, loggedInUser.id);
+    }
+    const friendshipStatus = friend ? pick(friend, ['reaction', 'from', 'to']) : {
+      reaction: null,
+      from: null,
+      to: null,
+    };
+
     const pickFields = ['_id', 'firstName', 'userName', 'profilePic', 'coverPhoto', 'aboutMe', 'profile_status'];
 
     // expose email to loggged in user only, when logged in user requests own user record
     if (loggedInUser.id === user.id) { pickFields.push('email'); }
 
-    return pick(user, pickFields);
+    return { ...pick(user, pickFields), friendshipStatus };
   }
 
   // eslint-disable-next-line class-methods-use-this

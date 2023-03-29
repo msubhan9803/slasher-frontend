@@ -10,7 +10,7 @@ import ProfileWatchList from './ProfileWatchList/ProfileWatchList';
 import ProfileEdit from './ProfileEdit/ProfileEdit';
 import ProfileFriendRequest from './ProfileFriends/ProfileFriendRequest/ProfileFriendRequest';
 import { getUser } from '../../api/users';
-import { ProfileVisibility, User } from '../../types';
+import { FriendRequestReaction, ProfileVisibility, User } from '../../types';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { useAppSelector } from '../../redux/hooks';
 import NotFound from '../../components/NotFound';
@@ -47,7 +47,6 @@ function Profile() {
         }).catch(() => setUserNotFound(true));
     }
   }, [userNameOrId, location.pathname, location.search, navigate]);
-
   if (userNotFound) {
     return (
       <NotFound />
@@ -57,8 +56,9 @@ function Profile() {
   if (!user) {
     return <LoadingIndicator />;
   }
-
-  if (!isSelfProfile && user.profile_status !== ProfileVisibility.Public) {
+  if (!isSelfProfile
+     && user.profile_status !== ProfileVisibility.Public
+     && user.friendshipStatus.reaction !== FriendRequestReaction.Accepted) {
     return (
       <ContentSidbarWrapper>
         <ContentPageWrapper>

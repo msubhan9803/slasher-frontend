@@ -50,7 +50,7 @@ function SortData({
     }),
     option: (base: any, state: any) => ({
       ...base,
-      backgroundColor: state.isFocused || state.isSelected ? '#2684ff' : null,
+      backgroundColor: state.isFocused || (state.isFocused && state.isSelected) ? '#2684ff' : null,
       '&:hover': {
         backgroundColor: '#2684ff',
       },

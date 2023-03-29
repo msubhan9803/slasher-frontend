@@ -145,7 +145,8 @@ function CommentInput({
     if (!commentSent && dataId!.length === 0 && editMessage.length === 0) {
       sendComment(dataId!, editMessage);
     }
-  }, [commentSent, dataId, editMessage, sendComment]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commentSent, dataId, editMessage]);
 
   const onUpdatePost = (msg: string) => {
     const imageArr = isReply ? replyImageArray : imageArray;

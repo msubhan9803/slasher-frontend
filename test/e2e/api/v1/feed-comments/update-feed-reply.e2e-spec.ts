@@ -415,7 +415,7 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
           .field('message', '')
           .field('imagesToDelete', (feedReply0.images[0] as any).id)
           .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toBe('Reply must have some text or at least one image.');
+        expect(response.body.message).toBe('Replies must have some text or at least one image.');
       });
 
     it('returns the expected response when the message only contains whitespace characters', async () => {
@@ -439,7 +439,7 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
         .field('imagesToDelete', (feedReply3.images[0] as any).id);
       expect(response.body).toEqual({
         statusCode: 400,
-        message: 'Reply must have some text or at least one image.',
+        message: 'Replies must have some text or at least one image.',
       });
     });
 
@@ -507,7 +507,7 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
         .field('message', '');
       expect(response.body).toEqual({
         statusCode: 400,
-        message: 'Reply must have some text or at least one image.',
+        message: 'Replies must have some text or at least one image.',
       });
     });
 

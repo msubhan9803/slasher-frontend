@@ -237,7 +237,7 @@ export class FeedCommentsController {
   ) {
     if (!files.length && createFeedReplyDto.message === '') {
       throw new HttpException(
-        'Reply must have some text or at least one image.',
+        'Replies must have some text or at least one image.',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -336,7 +336,7 @@ export class FeedCommentsController {
     const isReplyWithoutImgAndMsg = (imagesToDelete && !newReplyImages && message === '' && currentReplyImages === imagesToDelete) || (!currentReplyImages && !newReplyImages && message === '');
     if (isReplyWithoutImgAndMsg) {
       throw new HttpException(
-        'Reply must have some text or at least one image.',
+        'Replies must have some text or at least one image.',
         HttpStatus.BAD_REQUEST,
       );
     }

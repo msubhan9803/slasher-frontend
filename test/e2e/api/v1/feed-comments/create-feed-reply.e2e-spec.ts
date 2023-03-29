@@ -413,7 +413,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         .field('feedCommentId', feedComment._id.toString());
       expect(response.body).toEqual({
         statusCode: 400,
-        message: 'Reply must have some text or at least one image.',
+        message: 'Replies must have some text or at least one image.',
       });
     });
 

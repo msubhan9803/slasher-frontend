@@ -37,6 +37,7 @@ import { MovieIdDto } from './dto/movie-id.dto';
 import { MovieUserStatusService } from '../movie-user-status/providers/movie-user-status.service';
 import { User } from '../schemas/user/user.schema';
 import { getPostType } from '../utils/post-utils';
+import { UsersService } from '../users/providers/users.service';
 
 @Controller({ path: 'feed-posts', version: ['1'] })
 export class FeedPostsController {
@@ -51,6 +52,7 @@ export class FeedPostsController {
     private readonly friendsService: FriendsService,
     private readonly moviesService: MoviesService,
     private readonly movieUserStatusService: MovieUserStatusService,
+    private readonly usersService: UsersService,
   ) { }
 
   @TransformImageUrls('$.images[*].image_path')
@@ -135,13 +137,13 @@ export class FeedPostsController {
     // Create notifications if any users were mentioned
     const mentionedUserIds = extractUserMentionIdsFromMessage(createFeedPost?.message);
     for (const mentionedUserId of mentionedUserIds) {
-      await this.notificationsService.create({
+      await Promise.all([this.notificationsService.create({
         userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
         feedPostId: createFeedPost.id,
         senderId: user._id,
         notifyType: NotificationType.UserMentionedYouInPost,
         notificationMsg: 'mentioned you in a post',
-      });
+      }), this.usersService.updateNewNotificationCount(mentionedUserId)]);
     }
 
     return {
@@ -336,13 +338,13 @@ export class FeedPostsController {
     // Create notifications if any NEW users were mentioned after the edit
     const newMentionedUserIds = mentionedUserIdsAfterUpdate.filter((x) => !mentionedUserIdsBeforeUpdate.includes(x));
     for (const mentionedUserId of newMentionedUserIds) {
-      await this.notificationsService.create({
+      await Promise.all([this.notificationsService.create({
         userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
         feedPostId: updatedFeedPost.id,
         senderId: user._id,
         notifyType: NotificationType.UserMentionedYouInPost,
         notificationMsg: 'mentioned you in a post',
-      });
+      }), this.usersService.updateNewNotificationCount(mentionedUserId)]);
     }
 
     return {

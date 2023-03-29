@@ -165,4 +165,22 @@ export class UsersService {
   async getSocketUserCount(): Promise<number> {
     return this.socketUserModel.countDocuments();
   }
+
+  async updateNewNotificationCount(id: string): Promise<UserDocument> {
+    return this.userModel
+      .findOneAndUpdate({ _id: id }, { $inc: { newNotificationCount: 1 } }, { new: true })
+      .exec();
+  }
+
+  async updateNewFriendRequestCount(id: string): Promise<UserDocument> {
+    return this.userModel
+      .findOneAndUpdate({ _id: id }, { $inc: { newFriendRequestCount: 1 } }, { new: true })
+      .exec();
+  }
+
+  async updateNewMessageCount(id: string): Promise<UserDocument> {
+    return this.userModel
+      .findOneAndUpdate({ _id: id }, { $inc: { newMessageCount: 1 } }, { new: true })
+      .exec();
+  }
 }

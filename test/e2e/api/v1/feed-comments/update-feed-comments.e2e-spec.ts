@@ -185,6 +185,39 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
         //   notificationMsg: 'mentioned you in a comment',
         // });
       });
+
+      it('when notification is create for updateFeedComments than check newNotificationCount is increment in user', async () => {
+        const user4 = await usersService.create(userFactory.build({ userName: 'Divine' }));
+        const post = await feedPostsService.create(feedPostFactory.build({ userId: user0._id }));
+        const comment = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: commentCreatorUser.id,
+              feedPostId: post.id,
+              message: `Hello ##LINK_ID##${otherUser1._id.toString()}@OtherUser1##LINK_END## other user 1`,
+              images: [],
+            },
+          ),
+        );
+
+        await request(app.getHttpServer())
+          .patch(`/api/v1/feed-comments/${comment._id}`)
+          .auth(commentCreatorUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('feedPostId', post._id.toString())
+          .field(
+            'message',
+            `##LINK_ID##${user4._id.toString()}@Divine##LINK_END## post creator user`
+            + `##LINK_ID##${otherUser2._id.toString()}@OtherUser2##LINK_END## other user 2`,
+          )
+          .expect(HttpStatus.OK);
+
+        const user4NewNotificationCount = await usersService.findById(user4.id);
+        const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id);
+
+        expect(user4NewNotificationCount.newNotificationCount).toBe(1);
+        expect(otherUser2NewNotificationCount.newNotificationCount).toBe(1);
+      });
     });
 
     it('when feed comment id is not exists than expected response', async () => {

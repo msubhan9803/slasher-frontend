@@ -29,14 +29,14 @@ describe('#message-count-update', () => {
     })
       .compile();
 
-      connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = await moduleRef.get<Connection>(getConnectionToken());
 
-      usersService = moduleRef.get<UsersService>(UsersService);
-      chatService = moduleRef.get<ChatService>(ChatService);
-      chatGateway = moduleRef.get<ChatGateway>(ChatGateway);
-      messageCountUpdateConsumer = moduleRef.get(MessageCountUpdateConsumer);
+    usersService = moduleRef.get<UsersService>(UsersService);
+    chatService = moduleRef.get<ChatService>(ChatService);
+    chatGateway = moduleRef.get<ChatGateway>(ChatGateway);
+    messageCountUpdateConsumer = moduleRef.get(MessageCountUpdateConsumer);
 
-      app = moduleRef.createNestApplication();
+    app = moduleRef.createNestApplication();
   });
 
   afterAll(async () => app.close());
@@ -59,6 +59,13 @@ describe('#message-count-update', () => {
       await messageCountUpdateConsumer.sendUpdateIfMessageUnread({ data: { messageId: message._id.toString() } } as Job);
 
       expect(chatGateway.emitMessageCountUpdateEvent).toHaveBeenCalledWith(message.senderId.toString());
+    });
+
+    it('check newMessageCount increment in user', async () => {
+      const message = await chatService.sendPrivateDirectMessage(activeUser.id, user1.id, 'Hi, test message 1.');
+      await messageCountUpdateConsumer.sendUpdateIfMessageUnread({ data: { messageId: message._id.toString() } } as Job);
+      const user = await usersService.findById(user1.id);
+      expect(user.newMessageCount).toBe(1);
     });
   });
 });

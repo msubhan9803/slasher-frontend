@@ -194,6 +194,22 @@ describe('Create Feed Post Like (e2e)', () => {
       });
     });
 
+    describe('notifications', () => {
+      it('when notification is create for createFeedPostLike than check newNotificationCount is increment in user', async () => {
+        const postCreatorUser = await usersService.create(userFactory.build({ userName: 'Divine' }));
+        const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
+
+        await request(app.getHttpServer())
+        .post(`/api/v1/feed-likes/post/${post._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send()
+        .expect(HttpStatus.CREATED);
+
+        const postCreatorUserNewNotificationCount = await usersService.findById(postCreatorUser.id);
+        expect(postCreatorUserNewNotificationCount.newNotificationCount).toBe(1);
+      });
+    });
+
     describe('Validation', () => {
       it('feedPostId must be a mongodb id', async () => {
         const feedPostId = '634912b2@2c2f4f5e0e6228#';

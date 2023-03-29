@@ -149,6 +149,41 @@ describe('Create Feed Reply Like (e2e)', () => {
       expect(response.body.message).toBe('Reply not found');
     });
 
+    describe('notifications', () => {
+      it('when notification is create for createFeedReplyLike than check newNotificationCount is increment in user', async () => {
+        const postCreatorUser = await usersService.create(userFactory.build({ userName: 'Divine' }));
+        const otherUser1 = await usersService.create(userFactory.build({ userName: 'Denial' }));
+        const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
+        const comment = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: activeUser._id,
+              feedPostId: post.id,
+              message: 'This is a comment',
+              images: [],
+            },
+          ),
+        );
+        const reply = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: otherUser1._id,
+              feedCommentId: comment.id,
+              message: 'This is reply lie ',
+              images: [],
+            },
+          ),
+        );
+        await request(app.getHttpServer())
+        .post(`/api/v1/feed-likes/reply/${reply._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send()
+        .expect(HttpStatus.CREATED);
+        const otherUser1NewNotificationCount = await usersService.findById(otherUser1.id);
+        expect(otherUser1NewNotificationCount.newNotificationCount).toBe(1);
+      });
+    });
+
     describe('Validation', () => {
       it('feedReplyId must be a mongodb id', async () => {
         const feedReplyId = '634912b2@2c2f4f5e0e6228#';

@@ -459,4 +459,28 @@ describe('UsersService', () => {
       expect(await usersService.getSocketUserCount()).toBe(2);
     });
   });
+
+  describe('#updateNewNotificationCount', () => {
+    it('finds the expected user and update newNotificationCount', async () => {
+      const user = await usersService.create(userFactory.build());
+      const userData = await usersService.updateNewNotificationCount(user.id);
+      expect(userData.newNotificationCount).toBe(1);
+    });
+  });
+
+  describe('#updateNewMessageCount', () => {
+    it('finds the expected user and update newMessageCount', async () => {
+      const user = await usersService.create(userFactory.build());
+      const userData = await usersService.updateNewMessageCount(user.id);
+      expect(userData.newMessageCount).toBe(1);
+    });
+  });
+
+  describe('#updateNewFriendRequestCount', () => {
+    it('finds the expected user and update newFriendRequestCount', async () => {
+      const user = await usersService.create(userFactory.build());
+      const userData = await usersService.updateNewFriendRequestCount(user.id);
+      expect(userData.newFriendRequestCount).toBe(1);
+    });
+  });
 });

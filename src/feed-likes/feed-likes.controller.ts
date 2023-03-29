@@ -17,6 +17,7 @@ import { BlocksService } from '../blocks/providers/blocks.service';
 import { User } from '../schemas/user/user.schema';
 import { ProfileVisibility } from '../schemas/user/user.enums';
 import { FriendsService } from '../friends/providers/friends.service';
+import { UsersService } from '../users/providers/users.service';
 
 @Controller({ path: 'feed-likes', version: ['1'] })
 export class FeedLikesController {
@@ -27,6 +28,7 @@ export class FeedLikesController {
     private readonly notificationsService: NotificationsService,
     private readonly blocksService: BlocksService,
     private readonly friendsService: FriendsService,
+    private readonly usersService: UsersService,
 
   ) { }
 
@@ -70,7 +72,7 @@ export class FeedLikesController {
       || post.rssfeedProviderId
     );
     if (!skipPostCreatorNotification) {
-      await this.notificationsService.create({
+      await Promise.all([this.notificationsService.create({
         userId: ({
           _id: postUserId,
           profilePic: (post.userId as any).profilePic,
@@ -80,7 +82,7 @@ export class FeedLikesController {
         senderId: user._id,
         notifyType: NotificationType.UserLikedYourPost,
         notificationMsg: 'liked your post',
-      });
+      }), this.usersService.updateNewNotificationCount(postUserId)]);
     }
     return { success: true };
   }
@@ -140,14 +142,14 @@ export class FeedLikesController {
       user.id === comment.userId.toString()
     );
     if (!skipCommentCreatorNotification) {
-      await this.notificationsService.create({
+      await Promise.all([this.notificationsService.create({
         userId: comment.userId as any,
         feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
         feedCommentId: { _id: comment._id } as unknown as FeedComment,
         senderId: user._id,
         notifyType: NotificationType.UserLikedYourComment,
         notificationMsg: 'liked your comment',
-      });
+      }), this.usersService.updateNewNotificationCount(comment.userId.toString())]);
     }
     return { success: true };
   }
@@ -179,7 +181,7 @@ export class FeedLikesController {
       user.id === reply.userId.toString()
     );
     if (!skipCommentCreatorNotification) {
-      await this.notificationsService.create({
+      await Promise.all([this.notificationsService.create({
         userId: reply.userId as any,
         feedPostId: { _id: reply.feedPostId } as unknown as FeedPost,
         feedCommentId: { _id: reply.feedCommentId } as unknown as FeedComment,
@@ -187,7 +189,7 @@ export class FeedLikesController {
         senderId: user._id,
         notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
         notificationMsg: 'liked your reply',
-      });
+      }), this.usersService.updateNewNotificationCount(reply.userId.toString())]);
     }
 
     return { success: true };

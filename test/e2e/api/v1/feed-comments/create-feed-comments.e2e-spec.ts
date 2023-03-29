@@ -488,6 +488,28 @@ describe('Feed-Comments / Comments File (e2e)', () => {
           expect(notificationsService.create).toHaveBeenCalledTimes(3);
           // TODO: Examine notificationsService.create() arguments in greater detail to make sure the right ones went to the right users
         });
+
+      it('when notification is create for createFeedComments than check newNotificationCount is increment in user', async () => {
+        const user0 = await usersService.create(userFactory.build({ userName: 'Divine' }));
+        const post = await feedPostsService.create(feedPostFactory.build({ userId: user0._id }));
+
+        await request(app.getHttpServer())
+          .post('/api/v1/feed-comments').auth(otherUser1AuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('feedPostId', post._id.toString())
+          .field(
+            'message',
+            `##LINK_ID##${user0._id.toString()}@Divine##LINK_END## post creator user`
+            + `##LINK_ID##${otherUser2._id.toString()}@OtherUser2##LINK_END## other user 2`,
+          )
+          .expect(HttpStatus.CREATED);
+
+          const user0NewNotificationCount = await usersService.findById(user0.id);
+          const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id);
+
+          expect(user0NewNotificationCount.newNotificationCount).toBe(1);
+          expect(otherUser2NewNotificationCount.newNotificationCount).toBe(1);
+      });
     });
   });
 });

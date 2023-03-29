@@ -207,6 +207,49 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
         //   notificationMsg: 'mentioned you in a reply',
         // });
       });
+
+      it('when notification is create for updateFeedReply than check newNotificationCount is increment in user', async () => {
+        const user3 = await usersService.create(userFactory.build({ userName: 'Divine' }));
+        const post = await feedPostsService.create(feedPostFactory.build({ userId: user0._id }));
+        const comment = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: otherUser1._id,
+              feedPostId: post.id,
+              message: 'This is a comment',
+              images: [],
+            },
+          ),
+        );
+        const reply = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: commentCreatorUser._id,
+              feedCommentId: comment.id,
+              message: `Hello ##LINK_ID##${otherUser1._id.toString()}@OtherUser2##LINK_END## other user 1`,
+              images: [],
+            },
+          ),
+        );
+
+        await request(app.getHttpServer())
+        .patch(`/api/v1/feed-comments/replies/${reply._id}`)
+          .auth(commentCreatorUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('feedPostId', post._id.toString())
+          .field(
+            'message',
+            `##LINK_ID##${user3._id.toString()}@Divine##LINK_END## post creator user`
+            + `##LINK_ID##${otherUser2._id.toString()}@OtherUser2##LINK_END## other user 2`,
+          )
+          .expect(HttpStatus.OK);
+
+        const user3NewNotificationCount = await usersService.findById(user3.id);
+        const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id);
+
+        expect(user3NewNotificationCount.newNotificationCount).toBe(1);
+        expect(otherUser2NewNotificationCount.newNotificationCount).toBe(1);
+      });
     });
 
     it('when feed reply id is not exists than expected response', async () => {

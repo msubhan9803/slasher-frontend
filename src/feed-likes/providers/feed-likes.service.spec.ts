@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import { Connection } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { AppModule } from '../../app.module';
 import { userFactory } from '../../../test/factories/user.factory';
 import { UsersService } from '../../users/providers/users.service';
@@ -16,6 +16,9 @@ import { feedCommentsFactory } from '../../../test/factories/feed-comments.facto
 import { feedRepliesFactory } from '../../../test/factories/feed-reply.factory';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
+import { FriendsService } from '../../friends/providers/friends.service';
+import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndUnblock.enums';
+import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
 
 describe('FeedLikesService', () => {
   let app: INestApplication;
@@ -25,8 +28,12 @@ describe('FeedLikesService', () => {
   let usersService: UsersService;
   let activeUser: UserDocument;
   let user0: UserDocument;
+  let user1: UserDocument;
+  let user2: UserDocument;
   let feedPost: FeedPostDocument;
   let feedCommentsService: FeedCommentsService;
+  let friendsService: FriendsService;
+  let blocksModel: Model<BlockAndUnblockDocument>;
 
   const feedCommentsAndReplyObject = {
     images: [
@@ -49,6 +56,8 @@ describe('FeedLikesService', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     feedLikesService = moduleRef.get<FeedLikesService>(FeedLikesService);
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
+    friendsService = moduleRef.get<FriendsService>(FriendsService);
+    blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -59,8 +68,8 @@ describe('FeedLikesService', () => {
     await app.close();
   });
 
-  let feedComments; let
-    feedReply;
+  let feedComment;
+  let feedReply;
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
@@ -69,6 +78,9 @@ describe('FeedLikesService', () => {
     rewindAllFactories();
     activeUser = await usersService.create(userFactory.build());
     user0 = await usersService.create(userFactory.build());
+    user1 = await usersService.create(userFactory.build());
+    user2 = await usersService.create(userFactory.build());
+
     feedPost = await feedPostsService.create(
       feedPostFactory.build(
         {
@@ -79,7 +91,7 @@ describe('FeedLikesService', () => {
     await feedLikesService.createFeedPostLike(feedPost.id, activeUser.id);
     await feedLikesService.createFeedPostLike(feedPost.id, user0.id);
 
-    feedComments = await feedCommentsService.createFeedComment(
+    feedComment = await feedCommentsService.createFeedComment(
       feedCommentsFactory.build(
         {
           userId: activeUser._id,
@@ -93,15 +105,15 @@ describe('FeedLikesService', () => {
       feedRepliesFactory.build(
         {
           userId: activeUser._id,
-          feedCommentId: feedComments.id,
+          feedCommentId: feedComment.id,
           message: feedCommentsAndReplyObject.message,
           images: feedCommentsAndReplyObject.images,
         },
       ),
     );
 
-    await feedLikesService.createFeedCommentLike(feedComments.id, activeUser.id);
-    await feedLikesService.createFeedCommentLike(feedComments.id, user0.id);
+    await feedLikesService.createFeedCommentLike(feedComment.id, activeUser.id);
+    await feedLikesService.createFeedCommentLike(feedComment.id, user0.id);
     await feedLikesService.createFeedReplyLike(feedReply.id, activeUser.id);
     await feedLikesService.createFeedReplyLike(feedReply.id, user0.id);
   });
@@ -137,8 +149,8 @@ describe('FeedLikesService', () => {
 
   describe('#createFeedCommentLike', () => {
     it('successfully create a feed comments likes.', async () => {
-      await feedLikesService.createFeedCommentLike(feedComments.id, activeUser.id);
-      const feedCommentsData = await feedCommentsService.findFeedComment(feedComments.id);
+      await feedLikesService.createFeedCommentLike(feedComment.id, activeUser.id);
+      const feedCommentsData = await feedCommentsService.findFeedComment(feedComment.id);
       expect(feedCommentsData.likes).toContainEqual(activeUser._id);
     });
 
@@ -149,13 +161,88 @@ describe('FeedLikesService', () => {
 
   describe('#deleteFeedCommentLike', () => {
     it('successfully delete a feed comments likes.', async () => {
-      await feedLikesService.deleteFeedCommentLike(feedComments.id, activeUser.id);
-      const feedCommentsData = await feedCommentsService.findFeedComment(feedComments.id);
+      await feedLikesService.deleteFeedCommentLike(feedComment.id, activeUser.id);
+      const feedCommentsData = await feedCommentsService.findFeedComment(feedComment.id);
       expect(feedCommentsData.likes).toHaveLength(1);
     });
 
     it('when feed comments id is not found', async () => {
       await expect(feedLikesService.deleteFeedCommentLike('634fc8986a5897b88a2d971b', activeUser.id)).rejects.toThrow('Comment not found.');
+    });
+  });
+
+  describe('#getLikeUsersForFeedComment', () => {
+    beforeEach(async () => {
+      feedPost = await feedPostsService.create(
+        feedPostFactory.build({ userId: activeUser._id }),
+      );
+
+      // make user0 friend
+      await friendsService.createFriendRequest(activeUser.id, user0.id);
+      await friendsService.acceptFriendRequest(activeUser.id, user0.id);
+      // make user1 friend
+      await friendsService.createFriendRequest(activeUser.id, user1.id);
+      await friendsService.acceptFriendRequest(activeUser.id, user1.id);
+      // make user2 friend
+      await friendsService.createFriendRequest(activeUser.id, user2.id);
+      await friendsService.acceptFriendRequest(activeUser.id, user2.id);
+
+      await feedLikesService.createFeedCommentLike(feedComment.id, activeUser.id);
+      await feedLikesService.createFeedCommentLike(feedComment.id, user0.id);
+      await feedLikesService.createFeedCommentLike(feedComment.id, user1.id);
+      await feedLikesService.createFeedCommentLike(feedComment.id, user2.id);
+    });
+
+    it('successfully return list of like users for a comment', async () => {
+      const limit = 2;
+      const offset = 0;
+      const likeUsers1 = await feedLikesService.getLikeUsersForFeedComment(feedComment.id, limit, offset);
+      expect(likeUsers1.map((user) => user._id.toString())).toEqual(expect.arrayContaining([activeUser.id, user0.id]));
+
+      // Pagination
+      const newOffset = offset + limit;
+      const likeUsers2 = await feedLikesService.getLikeUsersForFeedComment(feedComment.id, limit, newOffset);
+      expect(likeUsers2.map((user) => user._id.toString())).toEqual(expect.arrayContaining([user1.id, user2.id]));
+    });
+
+    it('successfully return list of like users along with friendStatus', async () => {
+      const limit = 2;
+      const offset = 0;
+      const requestingContextUserId = user0.id;
+      const likeUsers = await feedLikesService.getLikeUsersForFeedComment(feedComment.id, limit, offset, requestingContextUserId);
+      expect(likeUsers.map((user) => user._id.toString())).toEqual(expect.arrayContaining([activeUser.id, user0.id]));
+      expect(likeUsers[0].friendship).toEqual({
+        reaction: 3,
+        from: new mongoose.Types.ObjectId(activeUser.id),
+        to: new mongoose.Types.ObjectId(user0.id),
+      });
+      expect(likeUsers[1].friendship).toBeNull();
+    });
+
+    it('when feed comments id is not found', async () => {
+      const limit = 2;
+      const offset = 0;
+      // eslint-disable-next-line max-len
+      await expect(feedLikesService.getLikeUsersForFeedComment('634fc8986a5897b88a2d971b', limit, offset)).rejects.toThrow('Comment not found.');
+    });
+
+    describe('should not return users blocked by `requestingContextUser`', () => {
+      beforeEach(async () => {
+        await blocksModel.create({
+          from: activeUser.id,
+          to: user0.id,
+          reaction: BlockAndUnblockReaction.Block,
+        });
+      });
+      it('blocker user should not be returned', async () => {
+        // limit=10 so that all like users are returned
+        const limit = 10;
+        const offset = 0;
+        const requestingContextUserId = activeUser.id;
+        const likeUsers = await feedLikesService.getLikeUsersForFeedComment(feedComment.id, limit, offset, requestingContextUserId);
+        const allLikeUsers = likeUsers.map((user) => user._id.toString());
+        expect(allLikeUsers).not.toContain(user0.id);
+      });
     });
   });
 
@@ -180,6 +267,81 @@ describe('FeedLikesService', () => {
 
     it('when feed reply id is not found', async () => {
       await expect(feedLikesService.deleteFeedReplyLike('634fc8986a5897b88a2d971b', activeUser.id)).rejects.toThrow('Reply not found.');
+    });
+  });
+
+  describe('#getLikeUsersForFeedReply', () => {
+    beforeEach(async () => {
+      feedPost = await feedPostsService.create(
+        feedPostFactory.build({ userId: activeUser._id }),
+      );
+
+      // make user0 friend
+      await friendsService.createFriendRequest(activeUser.id, user0.id);
+      await friendsService.acceptFriendRequest(activeUser.id, user0.id);
+      // make user1 friend
+      await friendsService.createFriendRequest(activeUser.id, user1.id);
+      await friendsService.acceptFriendRequest(activeUser.id, user1.id);
+      // make user2 friend
+      await friendsService.createFriendRequest(activeUser.id, user2.id);
+      await friendsService.acceptFriendRequest(activeUser.id, user2.id);
+
+      await feedLikesService.createFeedReplyLike(feedReply.id, activeUser.id);
+      await feedLikesService.createFeedReplyLike(feedReply.id, user0.id);
+      await feedLikesService.createFeedReplyLike(feedReply.id, user1.id);
+      await feedLikesService.createFeedReplyLike(feedReply.id, user2.id);
+    });
+
+    it('successfully return list of like users for a reply', async () => {
+      const limit = 2;
+      const offset = 0;
+      const likeUsers1 = await feedLikesService.getLikeUsersForFeedReply(feedReply.id, limit, offset);
+      expect(likeUsers1.map((user) => user._id.toString())).toEqual(expect.arrayContaining([activeUser.id, user0.id]));
+
+      // Pagination
+      const newOffset = offset + limit;
+      const likeUsers2 = await feedLikesService.getLikeUsersForFeedReply(feedReply.id, limit, newOffset);
+      expect(likeUsers2.map((user) => user._id.toString())).toEqual(expect.arrayContaining([user1.id, user2.id]));
+    });
+
+    it('successfully return list of like users along with friendStatus', async () => {
+      const limit = 2;
+      const offset = 0;
+      const requestingContextUserId = user0.id;
+      const likeUsers = await feedLikesService.getLikeUsersForFeedReply(feedReply.id, limit, offset, requestingContextUserId);
+      expect(likeUsers.map((user) => user._id.toString())).toEqual(expect.arrayContaining([activeUser.id, user0.id]));
+      expect(likeUsers[0].friendship).toEqual({
+        reaction: 3,
+        from: new mongoose.Types.ObjectId(activeUser.id),
+        to: new mongoose.Types.ObjectId(user0.id),
+      });
+      expect(likeUsers[1].friendship).toBeNull();
+    });
+
+    it('when feed reply id is not found', async () => {
+      const limit = 2;
+      const offset = 0;
+      // eslint-disable-next-line max-len
+      await expect(feedLikesService.getLikeUsersForFeedReply('634fc8986a5897b88a2d971b', limit, offset)).rejects.toThrow('Reply not found.');
+    });
+
+    describe('should not return users blocked by `requestingContextUser`', () => {
+      beforeEach(async () => {
+        await blocksModel.create({
+          from: activeUser.id,
+          to: user0.id,
+          reaction: BlockAndUnblockReaction.Block,
+        });
+      });
+      it('blocker user should not be returned', async () => {
+        // limit=10 so that all like users are returned
+        const limit = 10;
+        const offset = 0;
+        const requestingContextUserId = activeUser.id;
+        const likeUsers = await feedLikesService.getLikeUsersForFeedReply(feedReply.id, limit, offset, requestingContextUserId);
+        const allLikeUsers = likeUsers.map((user) => user._id.toString());
+        expect(allLikeUsers).not.toContain(user0.id);
+      });
     });
   });
 });

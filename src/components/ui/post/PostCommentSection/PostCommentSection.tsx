@@ -103,20 +103,20 @@ function PostCommentSection({
       setSelectedReplyCommentId(commentReplyId);
       setReplyUserName(replyName);
       setSelectedReplyUserID(userId!);
-      setCheckLoadMoreId([]);
+      // setCheckLoadMoreId([]);
       const updatedCommentData: FeedComments[] = [];
       commentData.map((comment: any) => {
         /* eslint-disable no-param-reassign */
         if (comment.id === commentReplyId) {
           setReplyIndex(replyCommentIndex!);
-          comment.isReplyIndex = scrollReplyId?.includes('comment') ? 0 : replyCommentIndex! + 1;
-          updatedCommentData.push(comment);
-        } else {
-          updatedCommentData.push(comment);
+          //   comment.isReplyIndex = scrollReplyId?.includes('comment') ? 0 : replyCommentIndex! + 1;
+          //   updatedCommentData.push(comment);
+          // } else {
+          // updatedCommentData.push(comment);
         }
         return null;
       });
-      setCommentData(updatedCommentData);
+      // setCommentData(updatedCommentData);
     }
   }, [commentData]);
 
@@ -360,19 +360,13 @@ function PostCommentSection({
           checkLoadMoreId.find(
             (id: any) => {
               if (id !== loadId) {
-                const loadMoreData = checkLoadMoreId.push(
-                  {
-                    id: loadId,
-                    isReplyIndex: comment.isReplyIndex,
-                  },
-                );
-                return loadMoreData;
+                setCheckLoadMoreId([...checkLoadMoreId, loadId]);
               }
               return id;
             },
           );
         } else {
-          checkLoadMoreId.push({ id: loadId, isReplyIndex: comment.isReplyIndex });
+          setCheckLoadMoreId([...checkLoadMoreId, loadId]);
         }
       } else {
         updatedCommentData.push(comment);
@@ -508,30 +502,18 @@ function PostCommentSection({
               />
               <div className="ms-5 ps-2">
                 <div className="ms-md-4">
-                  {data.commentReplySection && data.commentReplySection.length > 0
-                    && data.commentReplySection
-                      .slice(0, data.isReplyIndex)
-                      .map((comment: any, replyCommentIndex: number) => (
-                        <div key={comment.id}>
-                          {(replyCommentIndex !== (data.commentReplySection.length - 1))
-                            || ((replyCommentIndex === (data.commentReplySection.length - 1))
-                              && !comment.newComment)
-                            || ((replyCommentIndex === (data.commentReplySection.length - 1))
-                              && (comment.newComment)
-                              && (isReply || selectedReplyCommentId !== data.id))
-                            ? oldReply(comment, replyCommentIndex)
-                            : null}
-                        </div>
-                      ))}
-
                   {
                     isReply
-                    && (selectedReplyCommentId === data.id
-                      || selectedReplyCommentId === data.commentReplySection[0]?.feedCommentId
-                      || data.commentReplySection.some(
-                        (item: any) => item.newComment === true && item.id === selectedReplyId,
-                      )
-                    ) && (
+                    && selectedReplyCommentId === data.id
+                    && !selectedReplyId
+                    // && selectedReplyCommentId === data.commentReplySection[0]?.feedCommentId
+                    // && selectedReplyId === comment.id
+                    // || data.commentReplySection.some(
+                    //   (item: any) => item.newComment === true && item.id === selectedReplyId,
+                    // )
+                    // )
+                    // && index === replyIndex
+                    && (
                       <div id={scrollId} ref={tabsRef}>
                         <CommentInput
                           userData={userData}
@@ -561,19 +543,93 @@ function PostCommentSection({
                       </div>
                     )
                   }
+                  {data.commentReplySection && data.commentReplySection.length > 0
+                    && data.commentReplySection
+                      .slice(0, data.isReplyIndex)
+                      .map((comment: any, replyCommentIndex: number) => (
+                        <div key={comment.id}>
+                          {(replyCommentIndex !== (data.commentReplySection.length - 1))
+                            || ((replyCommentIndex === (data.commentReplySection.length - 1))
+                              && !comment.newComment)
+                            || ((replyCommentIndex === (data.commentReplySection.length - 1))
+                              && (comment.newComment)
+                              && (isReply || selectedReplyCommentId !== data.id))
+                            ? oldReply(comment, replyCommentIndex)
+                            : null}
+                          {
+                            isReply
+                            // && (selectedReplyCommentId === data.id
+                            && selectedReplyCommentId === data.commentReplySection[0]?.feedCommentId
+                            && selectedReplyId === comment.id
+                            // || data.commentReplySection.some(
+                            //   (item: any) => item.newComment === true && item.id === selectedReplyId,
+                            // )
+                            // )
+                            && replyCommentIndex === replyIndex
+                            && (
+                              <div id={scrollId} ref={tabsRef}>
+                                <CommentInput
+                                  userData={userData}
+                                  message={replyMessage}
+                                  inputFile={replyInputFile}
+                                  handleFileChange={handleFileChange}
+                                  sendComment={sendComment}
+                                  imageArray={replyImageArray}
+                                  handleRemoveFile={handleRemoveFile}
+                                  dataId={data.id}
+                                  handleSearch={handleSearch}
+                                  mentionList={mentionList}
+                                  isReply
+                                  replyImageArray={replyImageArray}
+                                  addUpdateReply={addUpdateReply}
+                                  commentID={selectedReplyCommentId}
+                                  commentReplyID={selectedReplyId!}
+                                  commentError={commentError}
+                                  commentReplyError={commentReplyError}
+                                  commentSent={commentSent}
+                                  setCommentReplyErrorMessage={setCommentReplyErrorMessage}
+                                  setReplyImageArray={setReplyImageArray}
+                                  isEdit={isEdit}
+                                />
+                                {!isEdit && commentReplyError
+                                  && <ErrorMessageList errorMessages={commentReplyError} divClass="mt-3 text-start" className="m-0 mb-4" />}
+                              </div>
+                            )
+                          }
+                        </div>
+                      ))}
+
+                  {data.commentReplySection.map(
+                    (comment: any, replyCommentIndex: number) => (
+                      <div key={comment.id}>
+                        {(replyCommentIndex === (data.commentReplySection.length - 1))
+                          && (comment.newComment)
+                          && !isReply
+                          && data.id === selectedReplyCommentId
+                          ? oldReply(comment, replyCommentIndex)
+                          : null}
+                      </div>
+                    ),
+                  )}
 
                   {data.commentReplySection
                     && data.commentReplySection.length >= 1
+                    && !checkLoadMoreId.includes(data.id)
                     && data.commentReplySection.length - data.isReplyIndex > 0
-                    && data.commentReplySection.length - data.isReplyIndex - (
-                      data.commentReplySection.filter(
-                        (reply: any, index: any) => (
-                          index === data.commentReplySection.length - 1
-                          && reply.newComment
-                          && !isReply
-                          && data.id === selectedReplyCommentId
-                        ),
-                      )).length > 0
+                    && !(
+                      data.commentReplySection.findLastIndex(
+                        (item: any) => item.newComment,
+                      ) === data.commentReplySection.length - 1
+                    )
+                    // && data.commentReplySection.length - data.isReplyIndex - (
+                    //   data.commentReplySection.filter(
+                    //     (reply: any, index: any) => (
+                    //       index === data.commentReplySection.length - 1
+                    //       && reply.newComment
+                    //       && !isReply
+                    //       && data.id === selectedReplyCommentId
+                    //     ),
+                    //   )).length > 0
                     && (
                       <LoadMoreCommentsWrapper>
                         <Button
@@ -581,6 +637,7 @@ function PostCommentSection({
                           className="text-primary shadow-none"
                           onClick={() => {
                             handleShowMoreComments(data.commentReplySection[0]?.feedCommentId);
+                            setIsReply(false);
                           }}
                         >
                           {`Load
@@ -612,19 +669,6 @@ function PostCommentSection({
                         </Button>
                       </LoadMoreCommentsWrapper>
                     )}
-
-                  {data.commentReplySection.map(
-                    (comment: any, replyCommentIndex: number) => (
-                      <div key={comment.id}>
-                        {(replyCommentIndex === (data.commentReplySection.length - 1))
-                          && (comment.newComment)
-                          && !isReply
-                          && data.id === selectedReplyCommentId
-                          ? oldReply(comment, replyCommentIndex)
-                          : null}
-                      </div>
-                    ),
-                  )}
 
                 </div>
               </div>

@@ -52,11 +52,22 @@ import { AppController } from './app/app.controller';
     }),
     MongooseModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: async (config: ConfigService) => ({
-        uri: config.get<string>('DB_CONNECTION_URL'),
-        useNewUrlParser: true, // for MongoDB >= 3.1.0
-        useUnifiedTopology: true, // for MongoDB >= 3.1.0
-      }),
+      useFactory: async (config: ConfigService) => {
+        if (
+          config.get<string>('DB_CONNECTION_URL').startsWith('"')
+          || config.get<string>('DB_CONNECTION_URL').startsWith("'")) {
+          throw new Error(
+            "Hey! Your DB connection URL starts with a quote character! If you're using docker "
+            + 'and reading in a .env file while running the container, docker will treat the '
+            + 'quote character as a literal quote and the connection to the DB will fail!',
+          );
+        }
+        return {
+          uri: config.get<string>('DB_CONNECTION_URL'),
+          useNewUrlParser: true, // for MongoDB >= 3.1.0
+          useUnifiedTopology: true, // for MongoDB >= 3.1.0
+        };
+      },
     }),
     UploadsModule,
     NotificationsModule,

@@ -92,6 +92,14 @@ If you want to monitor memory usage during tests, you can add the `--logHeapUsag
 "test": "jest --config ./test/jest-config.json --runInBand --logHeapUsage"
 ```
 
+### Testing out a Docker build of the app or cron images
+
+The command below will build the image and then run it (reading in the environment variables from .env.development). Watch out though!
+
+```
+docker build -t slasher-web-new-app:latest --file app.Dockerfile . && docker run --rm -ti --env-file ./.env.development slasher-web-new-app:latest
+```
+
 ## Scripts
 
 ### Local scripts

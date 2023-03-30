@@ -304,4 +304,6 @@ export type MarkerLocationType = {
   linkAddress: string,
 };
 
-export type PostButtonClickType = 'like' | 'share' | '';
+export type LikeShareModalTabName = 'like' | 'share' | '';
+
+export type LikeShareModalResourceName = 'feedpost' | 'comment' | 'reply';

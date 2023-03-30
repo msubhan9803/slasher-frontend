@@ -219,14 +219,13 @@ function PostCommentSection({
       const mentionString = `@${replyUserName}`;
       setReplyMessage(mentionString);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [replyUserName, isReply, selectedReplyCommentId, loginUserId, selectedReplyUserID]);
+  }, [replyUserName, isReply, selectedReplyCommentId,
+    loginUserId, selectedReplyUserID, setCommentReplyErrorMessage]);
 
   useEffect(() => {
     setCommentReplyErrorMessage([]);
     setCommentErrorMessage([]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit]);
+  }, [isEdit, setCommentReplyErrorMessage, setCommentErrorMessage]);
 
   useEffect(() => {
     if (!isReply) {
@@ -240,8 +239,7 @@ function PostCommentSection({
     }
     setUploadPost([]);
     setImageArray([]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isReply]);
+  }, [isReply, setCommentErrorMessage]);
 
   const sendComment = (commentId?: string, msg?: string) => {
     if (!commentId) {

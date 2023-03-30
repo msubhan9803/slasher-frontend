@@ -10,7 +10,11 @@ import SidebarNavContent from '../../sidebar-nav/SidebarNavContent';
 import AuthenticatedPageHeader from './AuthenticatedPageHeader';
 import MobileOnlySidebarContent from '../../sidebar-nav/MobileOnlySidebarContent';
 import { userInitialData } from '../../../../api/users';
-import { incrementUnreadNotificationCount, setUserInitialData, handleUpdatedUnreadMessageCount } from '../../../../redux/slices/userSlice';
+import {
+  setUserInitialData, handleUpdatedUnreadMessageCount, resetUnreadNotificationCount,
+  resetNewFriendRequestCountCount, incrementUnreadNotificationCount,
+  incrementFriendReuqestCount,
+} from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { signOut } from '../../../../utils/session-utils';
 import { SocketContext } from '../../../../context/socket';
@@ -107,6 +111,17 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const onNotificationReceivedHandler = useCallback(() => {
     dispatch(incrementUnreadNotificationCount());
   }, [dispatch]);
+  const onFriendReuqestReceivedHandler = useCallback(() => {
+    dispatch(incrementFriendReuqestCount());
+  }, [dispatch]);
+
+  const onClearNewNotificationCount = useCallback(() => {
+    dispatch(resetUnreadNotificationCount());
+  }, [dispatch]);
+
+  const onClearNewFriendReuqestCount = useCallback(() => {
+    dispatch(resetNewFriendRequestCountCount());
+  }, [dispatch]);
 
   const onUnreadMessageCountUpdate = useCallback((count: any) => {
     dispatch(handleUpdatedUnreadMessageCount(count.unreadMessageCount));
@@ -115,14 +130,24 @@ function AuthenticatedPageWrapper({ children }: Props) {
   useEffect(() => {
     if (socket) {
       socket.on('notificationReceived', onNotificationReceivedHandler);
+      socket.on('friendRequestReceived', onFriendReuqestReceivedHandler);
       socket.on('unreadMessageCountUpdate', onUnreadMessageCountUpdate);
+      socket.on('clearNewNotificationCount', onClearNewNotificationCount);
+      socket.on('clearNewFriendReuqestCount', onClearNewFriendReuqestCount);
       return () => {
         socket.off('notificationReceived', onNotificationReceivedHandler);
+        socket.off('friendRequestReceived', onFriendReuqestReceivedHandler);
         socket.off('unreadMessageCountUpdate', onUnreadMessageCountUpdate);
+        socket.off('clearNewNotificationCount', onClearNewNotificationCount);
+        socket.off('clearNewFriendReuqestCount', onClearNewFriendReuqestCount);
       };
     }
     return () => { };
-  }, [onNotificationReceivedHandler, onUnreadMessageCountUpdate, socket]);
+  }, [
+    onNotificationReceivedHandler, onFriendReuqestReceivedHandler,
+    onUnreadMessageCountUpdate, onClearNewFriendReuqestCount,
+    onClearNewNotificationCount,
+    socket]);
 
   if (!token || !userData.user) {
     return <LoadingIndicator />;

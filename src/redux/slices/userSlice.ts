@@ -3,7 +3,6 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 export const userSlice = createSlice({
   name: 'user',
   initialState: {
-    friendRequestCount: 0,
     recentFriendRequests: [],
     unreadNotificationCount: 0,
     unreadMessageCount: 0,
@@ -12,13 +11,14 @@ export const userSlice = createSlice({
       userName: '',
       id: '',
       profilePic: '',
+      newFriendRequestCount: 0,
+      newNotificationCount: 0,
     },
     forceFriendListReload: false,
   },
   reducers: {
     setUserInitialData: (state, action) => ({
       ...state,
-      friendRequestCount: action.payload.friendRequestCount,
       recentFriendRequests: action.payload.recentFriendRequests,
       unreadNotificationCount: action.payload.unreadNotificationCount,
       unreadMessageCount: action.payload.unreadMessageCount,
@@ -31,7 +31,16 @@ export const userSlice = createSlice({
     },
     /* eslint-disable no-param-reassign */
     incrementUnreadNotificationCount: (state) => {
-      state.unreadNotificationCount += 1;
+      state.user.newNotificationCount += 1;
+    },
+    incrementFriendReuqestCount: (state) => {
+      state.user.newFriendRequestCount += 1;
+    },
+    resetUnreadNotificationCount: (state) => {
+      state.user.newNotificationCount = 0;
+    },
+    resetNewFriendRequestCountCount: (state) => {
+      state.user.newFriendRequestCount = 0;
     },
     handleUpdatedUnreadMessageCount: (state, payload) => {
       state.unreadMessageCount = payload.payload;
@@ -47,7 +56,10 @@ export const userSlice = createSlice({
 
 export const {
   setUserInitialData,
+  incrementFriendReuqestCount,
   incrementUnreadNotificationCount,
+  resetUnreadNotificationCount,
+  resetNewFriendRequestCountCount,
   handleUpdatedUnreadMessageCount,
   updateUserProfilePic,
   setUserRecentFriendRequests,

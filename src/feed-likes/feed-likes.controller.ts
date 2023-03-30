@@ -262,8 +262,6 @@ export class FeedLikesController {
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: LikesLimitOffSetDto,
   ) {
     const user = getUserFromRequest(request);
-    // TODO: *Opinion?* Should we be check if the `comment` exists (comment not delete) as we are doing check for
-    // TODO: `feedPost`  below. (i.e, parent of this `reply`),
     const reply = await this.feedCommentsService.findFeedReply(params.feedReplyId.toString());
     if (!reply) {
       throw new HttpException('Reply not found', HttpStatus.NOT_FOUND);

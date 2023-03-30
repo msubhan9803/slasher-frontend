@@ -173,20 +173,21 @@ export class MoviesService {
       { $group: { _id: 'movieId', averageRating: { $avg: '$rating' }, count: { $sum: 1 } } },
     ]);
 
-    type ReturnType = Partial<Movie & { userData: MovieUserStatus }>;
-    // assign default values for simplistic usage in client side
-    let returnValue: ReturnType = { rating: 0, ratingUsersCount: 0 };
+    // assign default values for simplistic usage in client side and document update
+    const update: Partial<Movie> = { rating: 0, ratingUsersCount: 0 };
     if (aggregate.length !== 0) {
       const [{ averageRating, count }] = aggregate;
-      // Update the new average
-      const movie = (await this.moviesModel.findOneAndUpdate(
-        { _id: new mongoose.Types.ObjectId(movieId) },
-        { $set: { rating: averageRating.toFixed(1), ratingUsersCount: count } },
-        { new: true },
-      )).toObject();
-      returnValue = { ...movie };
+      update.rating = averageRating.toFixed(1);
+      update.ratingUsersCount = count;
     }
-    return { ...returnValue, userData: movieUserStatus };
+    // Update properties related to `rating`
+    const movie = (await this.moviesModel.findOneAndUpdate(
+      { _id: new mongoose.Types.ObjectId(movieId) },
+      { $set: update },
+      { new: true },
+    )).toObject();
+
+    return { ...movie, userData: movieUserStatus };
   }
 
   async createOrUpdateGoreFactorRating(movieId: string, goreFactorRating: number, userId: string) {
@@ -202,20 +203,21 @@ export class MoviesService {
       { $group: { _id: 'movieId', averageGoreFactorRating: { $avg: '$goreFactorRating' }, count: { $sum: 1 } } },
     ]);
 
-    type ReturnType = Partial<Movie & { userData: MovieUserStatus }>;
-    // assign default values for simplistic usage in client side
-    let returnValue: ReturnType = { goreFactorRating: 0, goreFactorRatingUsersCount: 0 };
+    // assign default values for simplistic usage in client side and document update
+    const update: Partial<Movie> = { goreFactorRating: 0, goreFactorRatingUsersCount: 0 };
     if (aggregate.length !== 0) {
       const [{ averageGoreFactorRating, count }] = aggregate;
-      // Update the new average
-      const movie = (await this.moviesModel.findOneAndUpdate(
-        { _id: new mongoose.Types.ObjectId(movieId) },
-        { $set: { goreFactorRating: averageGoreFactorRating.toFixed(1), goreFactorRatingUsersCount: count } },
-        { new: true },
-      )).toObject();
-      returnValue = { ...movie };
+      update.goreFactorRating = averageGoreFactorRating.toFixed(1);
+      update.goreFactorRatingUsersCount = count;
     }
-    return { ...returnValue, userData: movieUserStatus };
+    // Update properties related to `goreFactorRating`
+    const movie = (await this.moviesModel.findOneAndUpdate(
+      { _id: new mongoose.Types.ObjectId(movieId) },
+      { $set: update },
+      { new: true },
+    )).toObject();
+
+    return { ...movie, userData: movieUserStatus };
   }
 
   async getUserMovieStatusRatings(movieId: string, userId: string) {
@@ -238,7 +240,7 @@ export class MoviesService {
       { $group: { _id: 'movieId', averageWorthWatching: { $avg: '$worthWatching' } } },
     ]);
 
-    // assign default values for simplistic usage in client side
+    // assign default values for simplistic usage in client side and document update
     const update: Partial<Movie> = { worthWatching: 0, worthWatchingUpUsersCount: 0, worthWatchingDownUsersCount: 0 };
     if (aggregate.length !== 0) {
       const [{ averageWorthWatching }] = aggregate;
@@ -253,7 +255,7 @@ export class MoviesService {
     const movie = (await this.moviesModel.findOneAndUpdate(
       { _id: new mongoose.Types.ObjectId(movieId) },
       { $set: update },
-      { upsert: true, new: true },
+      { new: true },
     )).toObject();
 
     return { ...movie, userData: movieUserStatus };

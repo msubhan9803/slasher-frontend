@@ -183,4 +183,22 @@ export class UsersService {
       .findOneAndUpdate({ _id: id }, { $inc: { newMessageCount: 1 } }, { new: true })
       .exec();
   }
+
+  async clearMessageCount(id: string): Promise<UserDocument> {
+    return this.userModel
+      .findOneAndUpdate({ _id: id }, { $set: { newMessageCount: 0 } }, { new: true })
+      .exec();
+  }
+
+  async clearNotificationCount(id: string): Promise<UserDocument> {
+    return this.userModel
+      .findOneAndUpdate({ _id: id }, { $set: { newNotificationCount: 0 } }, { new: true })
+      .exec();
+  }
+
+  async clearFriendRequestCount(id: string): Promise<UserDocument> {
+    return this.userModel
+      .findOneAndUpdate({ _id: id }, { $set: { newFriendRequestCount: 0 } }, { new: true })
+      .exec();
+  }
 }

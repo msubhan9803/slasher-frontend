@@ -7,6 +7,7 @@ import { User, UserSchema } from '../schemas/user/user.schema';
 import { SuggestBlock, SuggestBlockSchema } from '../schemas/suggestBlock/suggestBlock.schema';
 import { BlockAndUnblock, BlockAndUnblockSchema } from '../schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlocksService } from '../blocks/providers/blocks.service';
+import { FriendsGateway } from './providers/friends.gateway';
 
 @Global()
 @Module({
@@ -16,8 +17,8 @@ import { BlocksService } from '../blocks/providers/blocks.service';
     MongooseModule.forFeature([{ name: SuggestBlock.name, schema: SuggestBlockSchema }]),
     MongooseModule.forFeature([{ name: BlockAndUnblock.name, schema: BlockAndUnblockSchema }]),
   ],
-  providers: [FriendsService, BlocksService],
-  exports: [FriendsService],
+  providers: [FriendsService, BlocksService, FriendsGateway],
+  exports: [FriendsService, FriendsGateway],
   controllers: [FriendsController],
 })
 export class FriendsModule { }

@@ -483,4 +483,28 @@ describe('UsersService', () => {
       expect(userData.newFriendRequestCount).toBe(1);
     });
   });
+
+  describe('#clearMessageCount', () => {
+    it('finds the expected user and update newMessageCount', async () => {
+      const user = await usersService.create(userFactory.build());
+      const userData = await usersService.clearMessageCount(user.id);
+      expect(userData.newMessageCount).toBe(0);
+    });
+  });
+
+  describe('#clearNotificationCount', () => {
+    it('finds the expected user and update newNotificationCount', async () => {
+      const user = await usersService.create(userFactory.build());
+      const userData = await usersService.clearNotificationCount(user.id);
+      expect(userData.newNotificationCount).toBe(0);
+    });
+  });
+
+  describe('#clearFriendRequestCount', () => {
+    it('finds the expected user and update newFriendRequestCount', async () => {
+      const user = await usersService.create(userFactory.build());
+      const userData = await usersService.clearFriendRequestCount(user.id);
+      expect(userData.newFriendRequestCount).toBe(0);
+    });
+  });
 });

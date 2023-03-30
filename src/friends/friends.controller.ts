@@ -18,6 +18,7 @@ import { BlocksService } from '../blocks/providers/blocks.service';
 import { NotificationType } from '../schemas/notification/notification.enums';
 import { NotificationsService } from '../notifications/providers/notifications.service';
 import { UsersService } from '../users/providers/users.service';
+import { FriendsGateway } from './providers/friends.gateway';
 
 @Controller({ path: 'friends', version: ['1'] })
 export class FriendsController {
@@ -26,6 +27,7 @@ export class FriendsController {
     private readonly blocksService: BlocksService,
     private readonly notificationsService: NotificationsService,
     private readonly usersService: UsersService,
+    private readonly friendsGateway: FriendsGateway,
   ) { }
 
   @Post()
@@ -38,7 +40,7 @@ export class FriendsController {
     if (block) {
       throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
     }
-    await this.friendsService.createFriendRequest(user.id, createFriendRequestDto.userId);
+    const friend = await this.friendsService.createFriendRequest(user.id, createFriendRequestDto.userId);
 
     const recentNotificationExists = await this.notificationsService.similarRecentNotificationExists(
       createFriendRequestDto.userId,
@@ -58,7 +60,8 @@ export class FriendsController {
       }),
       this.usersService.updateNewNotificationCount(createFriendRequestDto.userId),
       this.usersService.updateNewFriendRequestCount(createFriendRequestDto.userId),
-    ]);
+      this.friendsGateway.friendRequestReceived(friend),
+      ]);
     }
     return { success: true };
   }

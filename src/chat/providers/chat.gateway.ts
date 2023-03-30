@@ -11,7 +11,6 @@ import { ConfigService } from '@nestjs/config';
 import { Server, Socket } from 'socket.io';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
-import { log } from 'console';
 import { SHARED_GATEWAY_OPTS, UNREAD_MESSAGE_NOTIFICATION_DELAY } from '../../constants';
 import { UsersService } from '../../users/providers/users.service';
 import { ChatService } from './chat.service';
@@ -148,5 +147,13 @@ export class ChatGateway {
         });
       });
     });
+  }
+
+  @SubscribeMessage('clearNewMessageCount')
+  async clearNewMessageCount(@ConnectedSocket() client: Socket): Promise<any> {
+    const user = await this.usersService.findBySocketId(client.id);
+    const userId = user._id.toString();
+    const clearMessageCount = await this.usersService.clearMessageCount(userId);
+    return clearMessageCount;
   }
 }

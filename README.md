@@ -94,7 +94,7 @@ If you want to monitor memory usage during tests, you can add the `--logHeapUsag
 
 ### Testing out a Docker build of the app or cron images
 
-The command below will build the image and then run it (reading in the environment variables from .env.development). Watch out though!
+The command below will build the image and then run it (reading in the environment variables from .env.development). Watch out though: when Docker reads in a .env file, and reads in a value like `somekey="somevalue"`, it will actually store the leading and trailing quotes IN the string.  So make sure not to wrap .env values
 
 ```
 docker build -t slasher-web-new-app:latest --file app.Dockerfile . && docker run --rm -ti --env-file ./.env.development slasher-web-new-app:latest

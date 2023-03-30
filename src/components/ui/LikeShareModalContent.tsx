@@ -53,7 +53,7 @@ function FriendAction({ postLike }: { postLike: PostLike }) {
 }
 
 type PostLikesProp = { postLikesList: PostLike[] };
-function PostLikes({ postLikesList } : PostLikesProp) {
+function PostLikes({ postLikesList }: PostLikesProp) {
   return (
     <div>
       {postLikesList?.map((postLike: PostLike) => (
@@ -128,7 +128,7 @@ function LikeShareModalContent({ feedPostId }: Props) {
         }}
       >
         <InfiniteScroll
-          threshold={250}
+          threshold={1000}
           pageStart={0}
           initialLoad
           loadMore={fetchMorePostLikesList}

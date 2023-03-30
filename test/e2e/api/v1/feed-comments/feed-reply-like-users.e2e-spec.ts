@@ -29,6 +29,8 @@ import { FriendsService } from '../../../../../src/friends/providers/friends.ser
 import { RssFeedProviderFollowsService } from '../../../../../src/rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
 import { RssFeedProvider } from '../../../../../src/schemas/rssFeedProvider/rssFeedProvider.schema';
 import { FeedCommentDocument } from '../../../../../src/schemas/feedComment/feedComment.schema';
+import { feedRepliesFactory } from '../../../../factories/feed-reply.factory';
+import { FeedReplyDocument } from '../../../../../src/schemas/feedReply/feedReply.schema';
 
 describe('Feed-Comments / Likes Users of Comment  (e2e)', () => {
   let app: INestApplication;
@@ -44,6 +46,7 @@ describe('Feed-Comments / Likes Users of Comment  (e2e)', () => {
   let feedPost: FeedPostDocument;
   let feedPostsService: FeedPostsService;
   let feedComment: FeedCommentDocument;
+  let feedReply: FeedReplyDocument;
   let notificationsService: NotificationsService;
   let blocksModel: Model<BlockAndUnblockDocument>;
   let rssFeedProvidersService: RssFeedProvidersService;
@@ -133,6 +136,17 @@ describe('Feed-Comments / Likes Users of Comment  (e2e)', () => {
       }),
     );
 
+    feedReply = await feedCommentsService.createFeedReply(
+      feedRepliesFactory.build(
+        {
+          userId: activeUser._id,
+          feedCommentId: feedComment.id,
+          message: feedCommentsAndReplyObject.message,
+          images: feedCommentsAndReplyObject.images,
+        },
+      ),
+    );
+
     // make user0 friend
     await friendsService.createFriendRequest(activeUser._id.toString(), user0._id.toString());
     await friendsService.acceptFriendRequest(activeUser._id.toString(), user0._id.toString());
@@ -147,22 +161,22 @@ describe('Feed-Comments / Likes Users of Comment  (e2e)', () => {
       },
     );
 
-    // Create 3 comment like by the user itself, user0, user1
-    await feedLikesService.createFeedCommentLike(feedComment._id.toString(), activeUser._id.toString());
-    await feedLikesService.createFeedCommentLike(feedComment._id.toString(), user0._id.toString());
-    await feedLikesService.createFeedCommentLike(feedComment._id.toString(), user1._id.toString());
+    // Create 3 reply like by the user itself, user0, user1
+    await feedLikesService.createFeedReplyLike(feedReply._id.toString(), activeUser._id.toString());
+    await feedLikesService.createFeedReplyLike(feedReply._id.toString(), user0._id.toString());
+    await feedLikesService.createFeedReplyLike(feedReply._id.toString(), user1._id.toString());
   });
 
-  describe('GET /api/v1/feed-likes/comment/:feedCommentId/users', () => {
+  describe('GET /api/v1/feed-likes/reply/:feedReplyId/users', () => {
     it('requires authentication', async () => {
-      const feedCommentId = new mongoose.Types.ObjectId();
-      await request(app.getHttpServer()).get(`/api/v1/feed-likes/comment/${feedCommentId}/users`).expect(HttpStatus.UNAUTHORIZED);
+      const feedReplyId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).get(`/api/v1/feed-likes/reply/${feedReplyId}/users`).expect(HttpStatus.UNAUTHORIZED);
     });
 
     it('returns the expected response upon successful request', async () => {
       const limit = 5;
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/feed-likes/comment/${feedComment.id}/users?limit=${limit}`)
+        .get(`/api/v1/feed-likes/reply/${feedReply.id}/users?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
 
@@ -202,12 +216,12 @@ describe('Feed-Comments / Likes Users of Comment  (e2e)', () => {
     describe('when `offset` argument is supplied', () => {
       beforeEach(async () => {
         // Create 4th like by `user2`
-        await feedLikesService.createFeedCommentLike(feedComment._id.toString(), user2._id.toString());
+        await feedLikesService.createFeedReplyLike(feedReply._id.toString(), user2._id.toString());
       });
       it('get expected first and second sets of paginated results', async () => {
         const limit = 2;
         const firstResponse = await request(app.getHttpServer())
-          .get(`/api/v1/feed-likes/comment/${feedComment.id}/users?limit=${limit}`)
+          .get(`/api/v1/feed-likes/reply/${feedReply.id}/users?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(firstResponse.body).toHaveLength(2);
@@ -233,7 +247,7 @@ describe('Feed-Comments / Likes Users of Comment  (e2e)', () => {
         ]);
 
         const secondResponse = await request(app.getHttpServer())
-          .get(`/api/v1/feed-likes/comment/${feedComment.id}/users?limit=${limit}&offset=2`)
+          .get(`/api/v1/feed-likes/reply/${feedReply.id}/users?limit=${limit}&offset=2`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(secondResponse.body).toHaveLength(2);
@@ -261,22 +275,24 @@ describe('Feed-Comments / Likes Users of Comment  (e2e)', () => {
     });
 
     describe('should expect empty array response when no likes exists for the given comment', () => {
-      let feedCommentNotLiked;
+      let feedReplyNotLiked;
       beforeEach(async () => {
-        feedCommentNotLiked = await feedCommentsService.createFeedComment(
-          feedCommentsFactory.build({
-            userId: activeUser._id,
-            feedPostId: feedPost.id,
-            message: feedCommentsAndReplyObject.message,
-            images: feedCommentsAndReplyObject.images,
-          }),
+        feedReplyNotLiked = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: activeUser._id,
+              feedCommentId: feedComment.id,
+              message: feedCommentsAndReplyObject.message,
+              images: feedCommentsAndReplyObject.images,
+            },
+          ),
         );
       });
 
       it('return empty array when no likes exists found for the given `feedpost`', async () => {
         const limit = 2;
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/feed-likes/comment/${feedCommentNotLiked.id}/users?limit=${limit}`)
+          .get(`/api/v1/feed-likes/reply/${feedReplyNotLiked.id}/users?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([]);
@@ -284,13 +300,15 @@ describe('Feed-Comments / Likes Users of Comment  (e2e)', () => {
     });
 
     it('when user is block than expected response.', async () => {
-      const feedCommentNew = await feedCommentsService.createFeedComment(
-        feedCommentsFactory.build({
-          userId: user1._id,
-          feedPostId: feedPost.id,
-          message: feedCommentsAndReplyObject.message,
-          images: feedCommentsAndReplyObject.images,
-        }),
+      const feedReplyNew = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: user1._id,
+            feedCommentId: feedComment.id,
+            message: feedCommentsAndReplyObject.message,
+            images: feedCommentsAndReplyObject.images,
+          },
+        ),
       );
       await blocksModel.create({
         from: activeUser._id.toString(),
@@ -299,12 +317,12 @@ describe('Feed-Comments / Likes Users of Comment  (e2e)', () => {
       });
       const limit = 5;
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/feed-likes/comment/${feedCommentNew.id}/users?limit=${limit}`)
+        .get(`/api/v1/feed-likes/reply/${feedReplyNew.id}/users?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.status).toEqual(HttpStatus.FORBIDDEN);
       expect(response.body).toEqual({
-        message: 'Request failed due to user block (comment owner).',
+        message: 'Request failed due to user block (reply owner).',
         statusCode: HttpStatus.FORBIDDEN,
       });
     });
@@ -327,9 +345,19 @@ describe('Feed-Comments / Likes Users of Comment  (e2e)', () => {
           images: feedCommentsAndReplyObject.images,
         }),
       );
+      const feedReplyNew = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: user1._id,
+            feedCommentId: feedCommentNew.id,
+            message: feedCommentsAndReplyObject.message,
+            images: feedCommentsAndReplyObject.images,
+          },
+        ),
+      );
       const limit = 5;
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/feed-likes/comment/${feedCommentNew.id}/users?limit=${limit}`)
+        .get(`/api/v1/feed-likes/reply/${feedReplyNew.id}/users?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toEqual({ statusCode: 403, message: 'You must be friends with this user to perform this action.' });
@@ -353,15 +381,24 @@ describe('Feed-Comments / Likes Users of Comment  (e2e)', () => {
           images: feedCommentsAndReplyObject.images,
         }),
       );
-
-      // Create 3 comment like by the user itself, user0, user1
-      await feedLikesService.createFeedCommentLike(feedCommentNew._id.toString(), activeUser._id.toString());
-      await feedLikesService.createFeedCommentLike(feedCommentNew._id.toString(), user0._id.toString());
-      await feedLikesService.createFeedCommentLike(feedCommentNew._id.toString(), user1._id.toString());
+      const feedReplyNew = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: user1._id,
+            feedCommentId: feedCommentNew.id,
+            message: feedCommentsAndReplyObject.message,
+            images: feedCommentsAndReplyObject.images,
+          },
+        ),
+      );
+      // Create 3 reply like by the user itself, user0, user1
+      await feedLikesService.createFeedReplyLike(feedReplyNew._id.toString(), activeUser._id.toString());
+      await feedLikesService.createFeedReplyLike(feedReplyNew._id.toString(), user0._id.toString());
+      await feedLikesService.createFeedReplyLike(feedReplyNew._id.toString(), user1._id.toString());
 
       const limit = 5;
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/feed-likes/comment/${feedCommentNew.id}/users?limit=${limit}`)
+        .get(`/api/v1/feed-likes/reply/${feedReplyNew.id}/users?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toEqual([
@@ -398,19 +435,19 @@ describe('Feed-Comments / Likes Users of Comment  (e2e)', () => {
     });
 
     describe('Validation', () => {
-      it('return expected response when feed comment not found', async () => {
-        const nonExistingFeedCommentId = new mongoose.Types.ObjectId().toString();
+      it('return expected response when feed reply not found', async () => {
+        const nonExistingFeedReplyId = new mongoose.Types.ObjectId().toString();
         const limit = 5;
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/feed-likes/comment/${nonExistingFeedCommentId}/users?limit=${limit}`)
+          .get(`/api/v1/feed-likes/reply/${nonExistingFeedReplyId}/users?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toBe('Comment not found');
+        expect(response.body.message).toBe('Reply not found');
       });
 
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/feed-likes/comment/${feedComment._id.toString()}/users`)
+          .get(`/api/v1/feed-likes/reply/${feedReply._id.toString()}/users`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({
@@ -427,7 +464,7 @@ describe('Feed-Comments / Likes Users of Comment  (e2e)', () => {
       it('limit should be a number', async () => {
         const limit = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/feed-likes/comment/${feedComment.id}/users?limit=${limit}`)
+          .get(`/api/v1/feed-likes/reply/${feedReply.id}/users?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toEqual([
@@ -439,7 +476,7 @@ describe('Feed-Comments / Likes Users of Comment  (e2e)', () => {
       it('limit should not be greter than 30', async () => {
         const limit = 31;
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/feed-likes/comment/${feedComment._id.toString()}/users?limit=${limit}`)
+          .get(`/api/v1/feed-likes/reply/${feedReply._id.toString()}/users?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({
@@ -453,7 +490,7 @@ describe('Feed-Comments / Likes Users of Comment  (e2e)', () => {
         const limit = 3;
         const offset = 'abc';
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/feed-likes/comment/${feedComment._id.toString()}/users?limit=${limit}&offset=${offset}`)
+          .get(`/api/v1/feed-likes/reply/${feedReply._id.toString()}/users?limit=${limit}&offset=${offset}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({

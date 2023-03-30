@@ -262,6 +262,8 @@ export class FeedLikesController {
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: LikesLimitOffSetDto,
   ) {
     const user = getUserFromRequest(request);
+    // TODO: *Opinion?* Should we be check if the `comment` exists (comment not delete) as we are doing check for
+    // TODO: `feedPost`  below. (i.e, parent of this `reply`),
     const reply = await this.feedCommentsService.findFeedReply(params.feedReplyId.toString());
     if (!reply) {
       throw new HttpException('Reply not found', HttpStatus.NOT_FOUND);
@@ -273,7 +275,7 @@ export class FeedLikesController {
 
     const blockData = await this.blocksService.blockExistsBetweenUsers(user.id, reply.userId.toString());
     if (blockData) {
-      throw new HttpException('Request failed due to user block (comment owner).', HttpStatus.FORBIDDEN);
+      throw new HttpException('Request failed due to user block (reply owner).', HttpStatus.FORBIDDEN);
     }
 
     if (!feedPost.rssfeedProviderId) {

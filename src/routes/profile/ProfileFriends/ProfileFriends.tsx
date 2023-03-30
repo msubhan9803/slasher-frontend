@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { userProfileFriends } from '../../../api/users';
 import CustomSearchInput from '../../../components/ui/CustomSearchInput';
 import ReportModal from '../../../components/ui/ReportModal';
@@ -13,11 +13,12 @@ import { User } from '../../../types';
 import ProfileHeader from '../ProfileHeader';
 import FriendsProfileCard from './FriendsProfileCard';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
-import { useAppSelector } from '../../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { reportData } from '../../../api/report';
 import { createBlockUser } from '../../../api/blocks';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 
 interface FriendProps {
   _id?: string;
@@ -32,13 +33,10 @@ interface Props {
 function ProfileFriends({ user }: Props) {
   const navigate = useNavigate();
   const params = useParams();
-  const [search, setSearch] = useState<string>('');
   const [show, setShow] = useState(false);
-  const [page, setPage] = useState<number>(0);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [friendCount, setFriendCount] = useState<number>();
-  const [friendsList, setFriendsList] = useState<FriendProps[]>([]);
   const [dropDownValue, setDropDownValue] = useState('');
   const [loadingFriends, setLoadingFriends] = useState<boolean>(false);
   const popoverOption = ['View profile', 'Message', 'Unfriend', 'Report', 'Block user'];
@@ -47,6 +45,22 @@ function ProfileFriends({ user }: Props) {
   const loginUserData = useAppSelector((state) => state.user.user);
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
   const [additionalFriend, setAdditionalFriend] = useState<boolean>(false);
+  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  const location = useLocation();
+  const dispatch = useAppDispatch();
+  const [userId, setUserId] = useState('');
+  const [friendsList, setFriendsList] = useState<FriendProps[]>(
+    scrollPosition.pathname === location.pathname
+      ? scrollPosition?.data : [],
+  );
+  const [page, setPage] = useState<number>(
+    scrollPosition.pathname === location.pathname
+      ? scrollPosition?.page : 0,
+  );
+  const [search, setSearch] = useState<string>(
+    scrollPosition.pathname === location.pathname
+      ? scrollPosition?.searchValue : '',
+  );
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
@@ -71,7 +85,6 @@ function ProfileFriends({ user }: Props) {
     }
     userProfileFriends(user._id, page, searchUser)
       .then((res) => {
-        setLoadingFriends(false);
         setFriendsList((prev: any) => (page === 0
           ? res.data.friends
           : [
@@ -82,20 +95,45 @@ function ProfileFriends({ user }: Props) {
         if (res.data.friends.length === 0) {
           setNoMoreData(true);
         }
-        setLoadingFriends(false);
+        if (scrollPosition.pathname === location.pathname
+          && friendsList.length >= scrollPosition.data.length + 10) {
+          const positionData = {
+            pathname: '',
+            position: 0,
+            data: [],
+            positionElementId: '',
+            page: 0,
+            searchValue: '',
+          };
+          dispatch(setScrollPosition(positionData));
+        }
       })
       .catch((error) => setErrorMessage(error.response.data.message))
       .finally(
         () => { setAdditionalFriend(false); setLoadingFriends(false); },
       );
-  }, [search, user._id, page]);
+  }, [search, user._id, page, scrollPosition, dispatch, friendsList, location]);
   useEffect(() => {
-    if (additionalFriend && !loadingFriends && user._id) {
-      setTimeout(() => {
-        fetchMoreFriendList();
-      }, 0);
+    if (user.userName === params.userName) {
+      setUserId(user._id);
     }
-  }, [additionalFriend, loadingFriends, search, user._id, page, fetchMoreFriendList]);
+  }, [params.userName, user.userName, user._id]);
+  useEffect(() => {
+    if (additionalFriend && !loadingFriends && userId && user.userName === params.userName) {
+      if (scrollPosition === null
+        || scrollPosition?.position === 0
+        || friendsList.length >= scrollPosition?.data?.length
+        || friendsList.length === 0
+        || scrollPosition.pathname !== location.pathname
+      ) {
+        setTimeout(() => {
+          setLoadingFriends(true);
+          fetchMoreFriendList();
+        }, 0);
+      }
+    }
+  }, [additionalFriend, loadingFriends, search, friendsList, userId, location.pathname,
+    page, fetchMoreFriendList, scrollPosition, user.userName, params.userName]);
 
   const renderNoMoreDataMessage = () => {
     const message = friendsList.length === 0 && search
@@ -146,14 +184,25 @@ function ProfileFriends({ user }: Props) {
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
   };
+  const persistScrollPosition = (id: string) => {
+    const positionData = {
+      pathname: location.pathname,
+      position: window.pageYOffset === 0 ? 1 : window.pageYOffset,
+      data: friendsList,
+      positionElementId: id,
+      page,
+      searchValue: search,
+    };
+    dispatch(setScrollPosition(positionData));
+  };
   return (
     <div>
       <ProfileHeader tabKey="friends" user={user} />
       <div className="mt-3">
-        <div className="d-sm-flex d-block justify-content-between">
-          <div>
+        <Row className="justify-content-between">
+          <Col md={4}>
             <CustomSearchInput label="Search friends..." setSearch={handleSearch} search={search} />
-          </div>
+          </Col>
           {/* <div className="d-flex align-self-center mt-3 mt-md-0">
       {
         friendCount
@@ -167,11 +216,12 @@ function ProfileFriends({ user }: Props) {
           : ''
       } */}
           {/* </div> */}
-        </div>
+        </Row>
         <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
           {loginUserData.userName === user.userName
             && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="" />}
           <InfiniteScroll
+            threshold={3000}
             pageStart={0}
             initialLoad
             loadMore={() => { setAdditionalFriend(true); }}
@@ -184,6 +234,7 @@ function ProfileFriends({ user }: Props) {
                     friend={friend}
                     popoverOption={popoverOption}
                     handlePopoverOption={handlePopoverOption}
+                    onSelect={persistScrollPosition}
                   />
                 </Col>
               ))}

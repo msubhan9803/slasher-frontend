@@ -147,7 +147,7 @@ function LikeShareModalContent({ modaResourceName, resourceId }: Props) {
         }}
       >
         <InfiniteScroll
-          threshold={250}
+          threshold={1000}
           pageStart={0}
           initialLoad
           loadMore={fetchMoreLikeUsers}

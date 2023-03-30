@@ -208,7 +208,7 @@ function FavoriteMovies() {
         <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
         <div className="m-md-2">
           <InfiniteScroll
-            threshold={2000}
+            threshold={3000}
             pageStart={0}
             initialLoad
             loadMore={() => { setRequestAdditionalMovies(true); }}

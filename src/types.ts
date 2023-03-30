@@ -41,6 +41,7 @@ export interface User {
   coverPhoto: string;
   aboutMe: string;
   profile_status: number;
+  friendshipStatus: FriendshipStatus;
 }
 
 export interface NewsPartnerPostProps {
@@ -307,3 +308,8 @@ export type MarkerLocationType = {
 export type LikeShareModalTabName = 'like' | 'share' | '';
 
 export type LikeShareModalResourceName = 'feedpost' | 'comment' | 'reply';
+export interface FriendshipStatus {
+  reaction: number;
+  from: string;
+  to: string;
+}

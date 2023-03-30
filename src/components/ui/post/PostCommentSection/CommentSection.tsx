@@ -47,10 +47,10 @@ interface Props {
   setIsReply?: (value: boolean) => void;
   replyCommentIndex?: number;
   handleLikeModal: (
-    click: LikeShareModalTabName,
-    postId: string,
-    postLikeCount: number,
-    modalForValue: LikeShareModalResourceName,
+    modalTabNameValue: LikeShareModalTabName,
+    modaResourceNameValue: LikeShareModalResourceName,
+    modalResourceIdValue: string,
+    modalLikeCountValue: number,
   ) => void;
 }
 interface ImageList {
@@ -114,7 +114,7 @@ function CommentSection({
 
   const handleLikeCountClick = () => {
     // Note: isReply = true then `id` = `replyId` else `id` = `commentId`
-    handleLikeModal?.('like', id, Number(likeCount), isReply ? 'reply' : 'comment');
+    handleLikeModal?.('like', isReply ? 'reply' : 'comment', id, Number(likeCount));
   };
 
   return (

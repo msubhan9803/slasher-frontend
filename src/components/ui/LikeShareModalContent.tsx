@@ -25,28 +25,28 @@ type LikeUsersType = {
 
 type FriendType = { from: string, to: string, reaction: FriendRequestReaction } | null;
 
-function FriendAction({ postLike }: { postLike: LikeUsersType }) {
+function FriendAction({ likeUser }: { likeUser: LikeUsersType }) {
   const [friendshipStatus, setFriendshipStatus] = useState<any>();
   const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(
-    postLike.friendship
-      ? postLike.friendship.reaction
+    likeUser.friendship
+      ? likeUser.friendship.reaction
       : FriendRequestReaction.DeclinedOrCancelled,
   );
   const [friendData, setFriendData] = useState<FriendType>(
-    postLike.friendship ?? ({ reaction: FriendRequestReaction.DeclinedOrCancelled } as any),
+    likeUser.friendship ?? ({ reaction: FriendRequestReaction.DeclinedOrCancelled } as any),
   );
 
   useEffect(() => {
-    friendship(postLike._id).then((res) => {
+    friendship(likeUser._id).then((res) => {
       setFriendData(res.data);
       setFriendStatus(res.data.reaction);
     });
-  }, [friendshipStatus, postLike._id]);
+  }, [friendshipStatus, likeUser._id]);
 
   return (
     <FriendActionButtons
       friendStatus={friendStatus}
-      user={({ _id: postLike._id } as any)}
+      user={({ _id: likeUser._id } as any)}
       friendData={friendData}
       setFriendshipStatus={setFriendshipStatus}
       showOnlyAddAndSend
@@ -58,19 +58,19 @@ type LikeUsersProp = { likeUsers: LikeUsersType[] };
 function LikeUsers({ likeUsers }: LikeUsersProp) {
   return (
     <div>
-      {likeUsers?.map((postLike: LikeUsersType) => (
-        <div className="pb-4 pt-0 py-3 d-flex align-items-center" key={postLike._id}>
+      {likeUsers?.map((likeUser: LikeUsersType) => (
+        <div className="pb-4 pt-0 py-3 d-flex align-items-center" key={likeUser._id}>
           <div>
-            <UserCircleImage src={postLike.profilePic} />
+            <UserCircleImage src={likeUser.profilePic} />
           </div>
           <div className="px-3 flex-grow-1 min-width-0">
-            <Link className="text-decoration-none" to={`/${postLike.userName}/posts`}>
+            <Link className="text-decoration-none" to={`/${likeUser.userName}/posts`}>
               <p className="mb-0">
-                {postLike.userName}
+                {likeUser.userName}
               </p>
             </Link>
           </div>
-          <FriendAction postLike={postLike} />
+          <FriendAction likeUser={likeUser} />
         </div>
       ))}
     </div>
@@ -86,7 +86,7 @@ function LikeShareModalContent({ modaResourceName, resourceId }: Props) {
   const parentRef = useRef<HTMLInputElement>(null);
 
   // eslint-disable-next-line max-len
-  const getLikeUsersApi = useMemo<(id: string, pageNumber: number) => Promise<AxiosResponse<any, any>>>(() => {
+  const likeUsersApi = useMemo<(id: string, pageNumber: number) => Promise<AxiosResponse<any, any>>>(() => {
     if (!modaResourceName) { return () => { }; }
     const fns: Record<LikeShareModalResourceName, any> = {
       comment: getLikeUsersForComment,
@@ -95,22 +95,22 @@ function LikeShareModalContent({ modaResourceName, resourceId }: Props) {
     };
     return fns[modaResourceName];
   }, [modaResourceName]);
-  const getLikeUsers = useCallback((postLikesPage: number) => {
+  const getLikeUsers = useCallback((pageNumber: number) => {
     if (!modaResourceName) {
       return;
     }
 
     // Call one of the methods of `fns`
-    getLikeUsersApi(resourceId, postLikesPage)
+    likeUsersApi(resourceId, pageNumber)
       .then((res: any) => {
         setLikeUsers(res.data);
-        setPage(postLikesPage + 1);
+        setPage(pageNumber + 1);
         if (res.data.length === 0) {
           setNoMoreData(true);
         }
       })
       .catch((error: any) => setErrorMessage(error.response.data.message));
-  }, [resourceId, getLikeUsersApi, modaResourceName]);
+  }, [resourceId, likeUsersApi, modaResourceName]);
 
   useEffect(() => {
     getLikeUsers(0);
@@ -119,7 +119,7 @@ function LikeShareModalContent({ modaResourceName, resourceId }: Props) {
   const fetchMoreLikeUsers = () => {
     if (page > 0) {
       if (modaResourceName === 'feedpost') {
-        getLikeUsersApi(resourceId, page)
+        likeUsersApi(resourceId, page)
           .then((res: any) => {
             setLikeUsers((prev: any) => [...prev, ...res.data]);
             setPage(page + 1);

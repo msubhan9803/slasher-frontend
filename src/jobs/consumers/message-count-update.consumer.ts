@@ -16,8 +16,8 @@ export class MessageCountUpdateConsumer {
     async sendUpdateIfMessageUnread(job: Job<any>) {
         const message = await this.chatService.findByMessageId(job.data.messageId);
         if (!message.isRead) {
-            await this.chatGateway.emitConversationCountUpdateEvent(message.senderId.toString());
             await this.usersService.updateNewConversationIds(message.senderId.toString(), message.matchId.toString());
+            await this.chatGateway.emitConversationCountUpdateEvent(message.senderId.toString());
         }
         // as long as this job completes without throwing an error, we will consider it successful
         return { success: true };

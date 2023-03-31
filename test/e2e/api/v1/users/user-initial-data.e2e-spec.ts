@@ -140,6 +140,7 @@ describe('Users suggested friends (e2e)', () => {
         expect(response.body).toEqual({
           user: pick(activeUser, ['id', 'userName', 'profilePic', 'newNotificationCount', 'newFriendRequestCount']),
           recentMessages,
+          unreadNotificationCount: 5,
           newConversationIds: 0,
           recentFriendRequests: [
             {

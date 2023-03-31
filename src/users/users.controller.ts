@@ -419,10 +419,12 @@ export class UsersController {
     const user: UserDocument = getUserFromRequest(request);
     const recentMessages: any = await this.chatService.getConversations(user.id, 3);
     const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user.id, 3);
+    const unreadNotificationCount = await this.notificationsService.getUnreadNotificationCount(user.id);
     return {
       user: pick(user, ['id', 'userName', 'profilePic', 'newNotificationCount', 'newFriendRequestCount']),
       recentMessages,
       recentFriendRequests: receivedFriendRequestsData,
+      unreadNotificationCount,
       newConversationIds: user.newConversationIds.length,
     };
   }

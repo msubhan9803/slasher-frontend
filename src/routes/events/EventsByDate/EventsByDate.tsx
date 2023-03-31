@@ -14,7 +14,7 @@ import { getEvents, getEventsDateCount } from '../../../api/eventByDate';
 import checkAdsEventByDate from './checkAdsEventByDate';
 import useBootstrapBreakpointName from '../../../hooks/useBootstrapBreakpoint';
 import PubWiseAd from '../../../components/ui/PubWiseAd';
-import { EVENTS_BY_DATE_DIV_ID } from '../../../utils/pubwise-ad-units';
+import { ALL_MOVIES_DIV_ID, EVENTS_BY_DATE_DIV_ID } from '../../../utils/pubwise-ad-units';
 
 const EventCalender = styled(Calendar)`
   .react-calendar__tile--now {
@@ -211,7 +211,7 @@ function EventsByDate() {
   };
 
   const renderNoMoreDataMessage = () => (
-    <p className="text-center">
+    <p className="text-center mt-3">
       {
         eventsList.length === 0
           ? 'No events on the selected date.'
@@ -275,13 +275,15 @@ function EventsByDate() {
                     <Col md={6}>
                       <EventsPosterCard listDetail={eventDetail} />
                     </Col>
-                    {show && <PubWiseAd className="text-center my-3" id={EVENTS_BY_DATE_DIV_ID} autoSequencer />}
+                    {show && <PubWiseAd className="my-3" id={EVENTS_BY_DATE_DIV_ID} autoSequencer />}
                   </React.Fragment>
                 );
               }))}
           </Row>
         </InfiniteScroll>
         {noMoreData && renderNoMoreDataMessage()}
+        {/* Show an ad on events page in-case when we have no events to show. */}
+        {(eventsList.length === 0) && <PubWiseAd className="my-3" id={ALL_MOVIES_DIV_ID} autoSequencer />}
       </div>
     </div>
   );

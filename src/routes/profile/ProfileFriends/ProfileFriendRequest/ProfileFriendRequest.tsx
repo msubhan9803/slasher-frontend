@@ -148,11 +148,11 @@ function ProfileFriendRequest({ user }: Props) {
     <div>
       <ProfileHeader tabKey="friends" user={user} />
       <div className="mt-3">
-        <div className="d-sm-flex d-block justify-content-between">
-          <div>
+        <Row className="justify-content-between">
+          <Col md={4}>
             <CustomSearchInput label="Search friends..." setSearch={setSearch} search={search} />
-          </div>
-        </div>
+          </Col>
+        </Row>
         <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
           {loginUserName === user.userName
             && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="request" />}

@@ -78,9 +78,13 @@ interface Props {
   handleSearch?: (val: string) => void;
   mentionList?: MentionListProps[];
   commentImages?: string[];
+  commentReplyError?: string[];
   setCommentImages?: (val: any) => void;
   commentError?: string[];
   onSpoilerClick?: (value: string) => void;
+  commentSent?: boolean;
+  setCommentReplyErrorMessage?: (value: string[]) => void;
+  setCommentErrorMessage?: (value: string[]) => void;
 }
 
 interface StyledProps {
@@ -88,6 +92,8 @@ interface StyledProps {
 }
 
 const StyledPostFeed = styled.div`
+    margin: 0 1rem;
+
     .post-separator {
       border-top: 1px solid var(--bs-light);
       margin: 1rem 0;
@@ -95,7 +101,7 @@ const StyledPostFeed = styled.div`
 
     @media (min-width: ${MD_MEDIA_BREAKPOINT}) {
       .post-separator {
-        margin: 1rem 1.5rem;
+        margin: 1rem 0;
       }
     }
 `;
@@ -117,10 +123,11 @@ function PostFeed({
   noMoreData, isEdit, loadingPosts, onLikeClick, newsPostPopoverOptions,
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
   addUpdateComment, updateState, setUpdateState, isSinglePagePost, onSelect,
-  handleSearch, mentionList, commentImages, setCommentImages, commentError, postType,
-  onSpoilerClick,
+  handleSearch, mentionList, commentImages, setCommentImages, commentError,
+  commentReplyError, postType, onSpoilerClick,
+  commentSent, setCommentReplyErrorMessage, setCommentErrorMessage,
 }: Props) {
-  const [postData, setPostData] = useState<Post[]>([]);
+  const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<PostButtonClickType>('');
   const [searchParams] = useSearchParams();
@@ -325,15 +332,14 @@ function PostFeed({
   }
 
   useEffect(() => {
-    if (postData.length > 1
-      && scrollPosition.position > 0
+    if (scrollPosition.position > 0
       && scrollPosition?.pathname === location.pathname) {
       window.scrollTo({
         top: scrollPosition?.position,
         behavior: 'instant' as any,
       });
     }
-  }, [postData, scrollPosition, location.pathname]);
+  }, [scrollPosition, location.pathname]);
   const renderGroupPostContent = (posts: any) => (
     <>
       <p>
@@ -350,12 +356,13 @@ function PostFeed({
       </h1>
     </>
   );
+
   return (
     <StyledPostFeed>
       {postData.map((post: any, i) => (
         <div key={post.id}>
           <div className="post">
-            <Card className="bg-transparent border-0 rounded-3 mb-md-4 mb-0 pt-md-3 px-sm-0 px-md-4">
+            <Card className="bg-transparent border-0 rounded-3 mb-md-4 mb-0 pt-md-3 px-sm-0">
               <Card.Header className="border-0 px-0 bg-transparent">
                 <PostHeader
                   detailPage={detailPage}
@@ -377,8 +384,9 @@ function PostFeed({
                 {postType === 'group-post' && renderGroupPostContent(post)}
                 {post?.rssFeedTitle && <h1 className="h2">{post.rssFeedTitle}</h1>}
                 {renderPostContent(post)}
-                {post?.images && (
+                {post?.images?.length > 0 && (
                   <CustomSwiper
+                    context="post"
                     images={
                       post.images.map((imageData: any) => ({
                         videoKey: imageData.videoKey,
@@ -451,6 +459,10 @@ function PostFeed({
                       commentImages={commentImages}
                       setCommentImages={setCommentImages}
                       commentError={commentError}
+                      commentReplyError={commentReplyError}
+                      commentSent={commentSent}
+                      setCommentReplyErrorMessage={setCommentReplyErrorMessage}
+                      setCommentErrorMessage={setCommentErrorMessage}
                     />
                   </InfiniteScroll>
                   {loadingPosts && <LoadingIndicator />}
@@ -466,13 +478,15 @@ function PostFeed({
           {/* Show ad after every three posts. */}
           {(i + 1) % 3 === 0 && pubWiseAdDivId && (
             <>
-              <PubWiseAd className="text-center" id={pubWiseAdDivId} autoSequencer />
+              <PubWiseAd id={pubWiseAdDivId} autoSequencer />
               <hr className="post-separator" />
             </>
           )}
         </div>
       ))}
-      {!isSinglePagePost && pubWiseAdDivId && postData.length < 3 && postData.length !== 0 && <PubWiseAd className="text-center my-3" id={pubWiseAdDivId} autoSequencer />}
+
+      {/* Show an ad if posts are less than 3 */}
+      {!isSinglePagePost && pubWiseAdDivId && postData.length < 3 && postData.length !== 0 && <PubWiseAd className="my-3" id={pubWiseAdDivId} autoSequencer />}
       {
         openLikeShareModal
         && (
@@ -520,8 +534,12 @@ PostFeed.defaultProps = {
   handleSearch: undefined,
   mentionList: null,
   commentError: undefined,
+  commentReplyError: undefined,
   commentImages: [],
   setCommentImages: () => { },
   onSpoilerClick: () => { },
+  commentSent: undefined,
+  setCommentReplyErrorMessage: undefined,
+  setCommentErrorMessage: undefined,
 };
 export default PostFeed;

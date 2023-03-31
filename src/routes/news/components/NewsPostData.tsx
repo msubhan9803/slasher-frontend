@@ -198,6 +198,7 @@ function NewsPostData({ partnerId }: Props) {
         initialLoad
         loadMore={() => { setRequestAdditionalPosts(true); }}
         hasMore={!noMoreData}
+        threshold={3000}
       >
         {
           postData.length > 0

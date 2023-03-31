@@ -52,7 +52,7 @@ function NewsIndex() {
                       </Card>
                     </Link>
                   </Col>
-                  {show && <PubWiseAd className="text-center my-3" id={NEWS_DIV_ID} autoSequencer />}
+                  {show && <PubWiseAd className="my-3" id={NEWS_DIV_ID} autoSequencer />}
                 </React.Fragment>
               );
             })}

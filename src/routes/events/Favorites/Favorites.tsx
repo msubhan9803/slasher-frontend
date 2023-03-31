@@ -64,7 +64,7 @@ function Favorites() {
                 <Col md={6}>
                   <EventsPosterCard listDetail={eventDetail} />
                 </Col>
-                {show && <PubWiseAd className="text-center my-3" id={EVENTS_FAVOURITES_DIV_ID} autoSequencer />}
+                {show && <PubWiseAd className="my-3" id={EVENTS_FAVOURITES_DIV_ID} autoSequencer />}
               </React.Fragment>
             );
           })}

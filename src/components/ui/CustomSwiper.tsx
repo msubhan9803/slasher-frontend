@@ -12,18 +12,27 @@ import { useAppSelector } from '../../redux/hooks';
 import CustomSwiperZoomableImage from './CustomSwiperZoomableImage';
 
 interface SliderImage {
-  postId: string;
+  postId?: string;
   imageId: string;
   imageUrl: string;
   linkUrl?: string;
   videoKey?: string;
 }
 
+type SwiperContext = 'post' | 'comment';
+
 interface Props {
+  context: SwiperContext;
   images: SliderImage[];
   initialSlide?: number;
   onSelect?: (value: string) => void;
 }
+
+const heightForContext: Record<SwiperContext, string> = {
+  comment: '275px',
+  post: '450px',
+};
+
 const StyledYouTubeButton = styled(Button)`
   position: absolute;
   top: 50%;
@@ -33,7 +42,7 @@ const StyledYouTubeButton = styled(Button)`
   margin-top: -2em;
 `;
 const StyledSwiper = styled(Swiper)`
-  width: 100%;
+  width: auto;
   height: 100%;
   z-index: 0 !important;
 .swiper-button-prev {
@@ -46,7 +55,8 @@ const StyledSwiper = styled(Swiper)`
   text-align: center;
   font-size: 1.125rem;
   background: var(--bs-black);
-  height:450px;
+  height:100%;
+  width: fit-content;
 
   /* Center slide text vertically */
   display: -webkit-box;
@@ -62,10 +72,6 @@ const StyledSwiper = styled(Swiper)`
   -webkit-align-items: center;
   align-items: center;
 }
-
-.swiper-pagination {
-  position: revert !important;
-}
 `;
 const SwiperContentContainer = styled.div`
   height: 100%;
@@ -75,7 +81,12 @@ const SwiperContentContainer = styled.div`
   }
 `;
 
-function CustomSwiper({ images, initialSlide, onSelect }: Props) {
+let instanceCounter = 0;
+
+function CustomSwiper({
+  context, images, initialSlide, onSelect,
+}: Props) {
+  const uniqueId = `${instanceCounter += 1}`;
   const [showVideoPlayerModal, setShowYouTubeModal] = useState(false);
   const { placeholderUrlNoImageAvailable } = useAppSelector((state) => state.remoteConstants);
   const [hideSwiper, setHideSwiper] = useState(false);
@@ -110,7 +121,9 @@ function CustomSwiper({ images, initialSlide, onSelect }: Props) {
       return (
         <Link
           to={imageAndVideo.linkUrl}
-          onClick={() => onSelect!(imageAndVideo.postId)}
+          onClick={
+            imageAndVideo.postId ? () => onSelect!(imageAndVideo.postId as string) : undefined
+          }
           className="h-100"
         >
           <SwiperContentContainer>
@@ -151,9 +164,9 @@ function CustomSwiper({ images, initialSlide, onSelect }: Props) {
   };
 
   return (
-    <>
+    <div style={{ height: heightForContext[context] }} className={images.length > 1 ? 'mb-4' : ''}>
       <StyledSwiper
-        pagination={{ type: 'fraction' }}
+        pagination={{ type: 'fraction', el: `#swiper-pagination-el-${uniqueId}` }}
         initialSlide={initialSlide}
         navigation
         modules={[Pagination, Navigation]}
@@ -175,7 +188,8 @@ function CustomSwiper({ images, initialSlide, onSelect }: Props) {
             videokey={images?.[0]?.videoKey}
           />
         )}
-    </>
+      <div id={`swiper-pagination-el-${uniqueId}`} className="text-center my-2" />
+    </div>
   );
 }
 CustomSwiper.defaultProps = {

@@ -59,7 +59,7 @@ function ChatMessage({ messages, messageLoading }: ChatProps) {
       );
     }
   };
-
+  const addLineBreaks = (text: string) => text?.replace(/\n/g, '<br>');
   const renderMessage = (message: any) => (
     <React.Fragment key={message.id}>
       {(!lastTimeStampMessage || DateTime.fromISO(lastTimeStampMessage).toISODate()
@@ -79,7 +79,8 @@ function ChatMessage({ messages, messageLoading }: ChatProps) {
               )
               : (
                 <p className="fs-4 mb-0 p-3 text-small text-white">
-                  {decodeURIComponent(message.message)}
+                  {/* eslint-disable-next-line react/no-danger */}
+                  <div dangerouslySetInnerHTML={{ __html: addLineBreaks(message.message) }} />
                 </p>
               )}
           </div>
@@ -103,7 +104,8 @@ function ChatMessage({ messages, messageLoading }: ChatProps) {
               )
               : (
                 <p className="fs-4 mb-0 p-3 text-small text-white">
-                  {decodeURIComponent(message.message)}
+                  {/* eslint-disable-next-line react/no-danger */}
+                  <div dangerouslySetInnerHTML={{ __html: addLineBreaks(message.message) }} />
                 </p>
               )}
           </div>

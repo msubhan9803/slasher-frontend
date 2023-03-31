@@ -105,7 +105,7 @@ function AddYourMovie() {
             <p className="my-4 fs-4">You can add more details later on the “Edit movie” screen.</p>
             <Row>
               <Col md={4} className="mt-1">
-                <RoundButton className="w-100 p-1 fs-3" size="lg">Submit</RoundButton>
+                <RoundButton className="w-100 fs-3" size="lg">Submit</RoundButton>
               </Col>
             </Row>
           </Col>

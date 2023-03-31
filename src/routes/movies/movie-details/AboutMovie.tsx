@@ -95,6 +95,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
     if (params['*'] === 'edit' && !selfView) { navigate(`/app/movies/${params.id}/details`); }
   });
 
+  // TODO: Can this be removed, now that the comment button no longer links to the comment input?
   useEffect(() => {
     if (location.hash === '#comments') {
       setReviewDetail(true);
@@ -260,7 +261,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
           element={(
             <>
               <MovieOverview overView={aboutMovieData?.mainData?.overview} />
-              <PubWiseAd className="text-center my-3" id={MOVIE_INDIE_DIV} autoSequencer />
+              <PubWiseAd className="my-3" id={MOVIE_INDIE_DIV} autoSequencer />
               <MovieCasts castList={aboutMovieData?.cast as any} />
               {
                 aboutMovieData?.video?.length > 0

@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  useEffect, useState, ChangeEvent,
+  useEffect, useState, ChangeEvent, useCallback,
 } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -14,6 +14,7 @@ import ImagesContainer from '../../ImagesContainer';
 import { decryptMessage } from '../../../../utils/text-utils';
 import MessageTextarea from '../../MessageTextarea';
 import { FormatMentionProps } from '../../../../routes/posts/create-post/CreatePost';
+import ErrorMessageList from '../../ErrorMessageList';
 
 interface CommentInputProps {
   userData: any;
@@ -21,7 +22,7 @@ interface CommentInputProps {
   setIsReply?: (value: boolean) => void;
   inputFile: any;
   handleFileChange: (value: ChangeEvent<HTMLInputElement>, replyUserId?: string) => void;
-  sendComment: (value: string) => void;
+  sendComment: (commentId: string, message: string) => void;
   imageArray: any;
   handleRemoveFile: (postImage: File, replyUserId?: string) => void;
   dataId?: string;
@@ -34,6 +35,12 @@ interface CommentInputProps {
   commentID: string;
   commentReplyID?: string;
   checkCommnt?: string;
+  commentError?: string[];
+  commentReplyError?: string[];
+  commentSent?: boolean;
+  setCommentReplyErrorMessage?: (value: string[]) => void;
+  setReplyImageArray?: (value: any) => void;
+  isEdit?: boolean
 }
 
 interface InputProps {
@@ -42,23 +49,30 @@ interface InputProps {
 
 const StyledCommentInputGroup = styled(InputGroup) <InputProps>`
   .form-control {
-    border-radius: 1.875rem;
-    border-bottom-right-radius: 0rem;
-    border-top-right-radius: 0rem;
+    border-radius: 24px !important;
+    border-bottom-right-radius: 0rem !important;
+    border-top-right-radius: 0rem !important;
     outline: none !important;
   }
   .input-group-text {
     background-color: var(--bs-dark);
     border-color: #3a3b46;
-    border-radius: 1.875rem;
+    border-radius: 24px !important;
+    border-bottom-left-radius: 0rem !important;
+    border-top-left-radius: 0rem !important;
+  }
+  textarea {
+    padding-left: 1.5rem !important;
   }
   svg {
     min-width: 1.875rem;
   }
-
+  .camera-btn {
+    right: 0 !important;
+  }
   ${(props) => props.focus && `
     box-shadow: 0 0 0 1px var(--stroke-and-line-separator-color);
-    border-radius: 1.875rem;
+    border-radius: 24px !important;
   `};
 
 `;
@@ -66,22 +80,34 @@ function CommentInput({
   userData, message, setIsReply, inputFile,
   handleFileChange, sendComment, imageArray, handleRemoveFile, dataId,
   handleSearch, mentionList, addUpdateComment, replyImageArray, isReply,
-  addUpdateReply, commentID, commentReplyID, checkCommnt,
+  addUpdateReply, commentID, commentReplyID, checkCommnt, commentError, commentReplyError,
+  commentSent, setCommentReplyErrorMessage, setReplyImageArray, isEdit,
 }: CommentInputProps) {
   const [editMessage, setEditMessage] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const [isFocosInput, setIsFocusInput] = useState<boolean>(false);
+
+  const handleSetCommentReplyErrorMessage = useCallback((error: any) => {
+    setCommentReplyErrorMessage!(error);
+  }, [setCommentReplyErrorMessage]);
+
+  const handleSetReplyImageArray = useCallback((images: any) => {
+    setReplyImageArray!(images);
+  }, [setReplyImageArray]);
+
   useEffect(() => {
-    if (message) {
+    if (message && message.length > 0) {
       const regexMessgafe = isReply && commentReplyID
         ? `##LINK_ID##${commentReplyID}${message}##LINK_END## `
         : `##LINK_ID##${commentID}${message}##LINK_END## `;
       setEditMessage(regexMessgafe);
     } else {
       setEditMessage('');
+      handleSetCommentReplyErrorMessage([]);
+      handleSetReplyImageArray([]);
     }
-  }, [message, commentID, isReply, commentReplyID]);
-
+  }, [message, commentID, isReply, commentReplyID,
+    handleSetCommentReplyErrorMessage, handleSetReplyImageArray]);
   useEffect(() => {
     if (editMessage) {
       const mentionStringList = editMessage.match(/##LINK_ID##[a-zA-Z0-9@_.-]+##LINK_END##/g);
@@ -98,25 +124,45 @@ function CommentInput({
       }
     }
   }, [editMessage]);
+
+  useEffect(() => {
+    if (commentError! && commentError.length) {
+      setEditMessage((prevEditMessage) => prevEditMessage);
+    } else if (message === '') {
+      setEditMessage('');
+    }
+  }, [commentError, message]);
+
+  useEffect(() => {
+    if (commentReplyError! && commentReplyError.length) {
+      setEditMessage((prevEditMessage) => prevEditMessage);
+    } else if (message === '') {
+      setEditMessage('');
+    }
+  }, [commentReplyError, message]);
+
+  useEffect(() => {
+    if (!commentSent && dataId!.length === 0 && editMessage.length === 0) {
+      sendComment(dataId!, editMessage);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commentSent, dataId, editMessage]);
+
   const onUpdatePost = (msg: string) => {
     const imageArr = isReply ? replyImageArray : imageArray;
-    if (msg || imageArr.length) {
-      if (isReply) {
-        addUpdateReply!({
-          replyMessage: msg,
-          commentId: dataId,
-          imageArr,
-          commentReplyID,
-        });
-      } else {
-        addUpdateComment!({
-          commentMessage: msg,
-          commentId: dataId,
-          imageArr,
-        });
-      }
-      sendComment(dataId! && dataId!);
-      setEditMessage('');
+    if (isReply) {
+      addUpdateReply!({
+        replyMessage: msg,
+        commentId: dataId,
+        imageArr,
+        commentReplyID,
+      });
+    } else {
+      addUpdateComment!({
+        commentMessage: msg,
+        commentId: dataId,
+        imageArr,
+      });
     }
   };
 
@@ -150,17 +196,17 @@ function CommentInput({
 
   return (
     <Form>
-      <Row className="ps-3 pt-2 order-last order-sm-0">
-        <Col xs="auto" className="pe-0">
-          <UserCircleImage src={userData.user.profilePic} alt="user picture" className="me-3 bg-secondary" />
+      <Row className="pt-2 order-last order-sm-0">
+        <Col xs="auto">
+          <UserCircleImage src={userData.user.profilePic} alt="user picture" className="bg-secondary" />
         </Col>
-        <Col className="ps-0 pe-4">
+        <Col className="ps-0">
           <div className="d-flex align-items-end mb-4">
-            <StyledCommentInputGroup focus={isFocosInput}>
+            <StyledCommentInputGroup focus={isFocosInput} className="mx-1">
               <MessageTextarea
                 rows={1}
                 id={checkCommnt}
-                className="fs-5 form-control p-0"
+                className="fs-5 form-control p-0 pe-4"
                 placeholder={isReply ? 'Reply to comment' : 'Write a comment'}
                 handleSearch={handleSearch}
                 mentionLists={mentionList}
@@ -172,7 +218,7 @@ function CommentInput({
                 onFocusHandler={onFocusHandler}
                 onBlurHandler={onBlurHandler}
               />
-              <InputGroup.Text>
+              <InputGroup.Text className="position-relative px-3 border-start-0">
                 <FontAwesomeIcon
                   role="button"
                   onClick={() => {
@@ -182,6 +228,8 @@ function CommentInput({
                   }}
                   icon={solid('camera')}
                   size="lg"
+                  className="camera-btn position-absolute align-self-end me-3 mb-1"
+                  style={{ right: 0 }}
                 />
                 <input
                   type="file"
@@ -199,7 +247,7 @@ function CommentInput({
                 />
               </InputGroup.Text>
             </StyledCommentInputGroup>
-            <Button onClick={handleMessage} variant="link" aria-label="submit" className="ms-2 p-0">
+            <Button onClick={() => handleMessage()} variant="link" aria-label="submit" className="ms-2 mb-1 p-0">
               <FontAwesomeIcon icon={solid('paper-plane')} style={{ fontSize: '26px' }} className="text-primary" />
             </Button>
           </div>
@@ -227,6 +275,14 @@ function CommentInput({
           </Col>
         ))}
       </Row>
+      {!isReply && !isEdit
+        && (
+          <ErrorMessageList
+            errorMessages={commentError}
+            divClass="mt-3 text-start"
+            className="m-0"
+          />
+        )}
     </Form>
   );
 }
@@ -240,6 +296,12 @@ CommentInput.defaultProps = {
   addUpdateComment: undefined,
   setIsReply: undefined,
   checkCommnt: '',
+  commentError: undefined,
+  commentReplyError: undefined,
+  commentSent: undefined,
+  setCommentReplyErrorMessage: undefined,
+  setReplyImageArray: undefined,
+  isEdit: undefined,
 };
 
 export default CommentInput;

@@ -193,7 +193,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                 : (
                   <div className="d-flex mt-md-3 justify-content-md-center">
                     <CustomRatingText
-                      rating={movieData.userData ? movieData.userData?.rating : 0}
+                      rating={movieData.rating}
                       icon={solid('star')}
                       ratingType="star"
                       customWidth="1.638rem"

@@ -52,6 +52,7 @@ function PostCommentSection({
   commentSent,
   setCommentReplyErrorMessage,
   setCommentErrorMessage,
+  handleLikeModal,
 }: any) {
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [show, setShow] = useState<boolean>(false);
@@ -430,6 +431,7 @@ function PostCommentSection({
         isReply
         setIsReply={setIsReply}
         replyCommentIndex={replyCommentIndex}
+        handleLikeModal={handleLikeModal}
       />
     </div>
   );
@@ -503,6 +505,7 @@ function PostCommentSection({
                 userId={data.userId?._id}
                 active={!queryReplyId ? data.id === queryCommentId : false}
                 setIsReply={setIsReply}
+                handleLikeModal={handleLikeModal}
               />
               <div className="ms-5 ps-2">
                 <div className="ms-md-4">

@@ -9,7 +9,7 @@ import { HashLink } from 'react-router-hash-link';
 import { scrollWithOffset } from '../../../../utils/scrollFunctions';
 import ShareLinkButton from '../../ShareLinkButton';
 import { enableDevFeatures } from '../../../../utils/configEnvironment';
-import { PostButtonClickType } from '../../../../types';
+import { LikeShareModalResourceName, LikeShareModalTabName } from '../../../../types';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -24,7 +24,12 @@ interface PostFooterProps {
   likeCount?: number;
   commentCount?: string;
   postType?: string;
-  handleLikeModal?: (value: PostButtonClickType, postId: string, openDialogue: number) => void;
+  handleLikeModal?: (
+    modalTabNameValue: LikeShareModalTabName,
+    modaResourceNameValue: LikeShareModalResourceName | null,
+    modalResourceIdValue: string,
+    modalLikeCountValue: number,
+  ) => void;
   movieId?: string;
 }
 const StyleDot = styled(FontAwesomeIcon)`
@@ -67,7 +72,7 @@ function PostFooter({
             <StyleDot icon={solid('circle')} size="xs" className="py-1 me-2" />
             <Button
               className="bg-transparent border-0 btn btn-primary p-0 text-white"
-              onClick={() => handleLikeModal?.('like', postId, Number(likeCount))}
+              onClick={() => handleLikeModal?.('like', 'feedpost', postId, Number(likeCount))}
             >
               <span className="fs-3">{likeCount}</span>
             </Button>

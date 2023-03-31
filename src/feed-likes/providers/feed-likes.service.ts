@@ -10,10 +10,10 @@ import { FeedReply, FeedReplyDocument } from '../../schemas/feedReply/feedReply.
 import { FeedReplyLike, FeedReplyLikeDocument } from '../../schemas/feedReplyLike/feedReplyLike.schema';
 import { BlocksService } from '../../blocks/providers/blocks.service';
 import { User, UserDocument } from '../../schemas/user/user.schema';
-import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
 import { FriendsService } from '../../friends/providers/friends.service';
 import { relativeToFullImagePath } from '../../utils/image-utils';
 import { pick } from '../../utils/object-utils';
+import { LikeUserAndFriendship } from '../../types';
 
 @Injectable()
 export class FeedLikesService {
@@ -77,15 +77,6 @@ export class FeedLikesService {
   }
 
   async getLikeUsersForFeedComment(feedCommentId: string, limit: number, offset = 0, requestingContextUserId?: string) {
-    type FriendShip = { from?: User, to?: User, friendship?: FriendRequestReaction } | null;
-    type LikeUserForComment = {
-      _id: mongoose.Schema.Types.ObjectId;
-      userName: string;
-      profilePic: string;
-      firstName: string;
-      friendship?: FriendShip;
-    };
-
     const feedCommentsDetails = await this.feedCommentModel.findById({ _id: feedCommentId });
     if (!feedCommentsDetails) {
       throw new NotFoundError('Comment not found.');
@@ -116,8 +107,8 @@ export class FeedLikesService {
         .findFriendshipBulk(requestingContextUserId, users.map((u) => u._id.toString()));
     }
 
-    const likeUsersForComment: LikeUserForComment[] = users.map((u) => {
-      const likeUserForComment: LikeUserForComment = {
+    const likeUsersForComment: LikeUserAndFriendship[] = users.map((u) => {
+      const likeUserForComment: LikeUserAndFriendship = {
         _id: u._id,
         userName: u.userName,
         profilePic: relativeToFullImagePath(this.configService, u.profilePic),
@@ -165,15 +156,6 @@ export class FeedLikesService {
   }
 
   async getLikeUsersForFeedReply(feedReplyId: string, limit: number, offset = 0, requestingContextUserId?: string) {
-    type FriendShip = { from?: User, to?: User, friendship?: FriendRequestReaction } | null;
-    type LikeUserForReply = {
-      _id: mongoose.Schema.Types.ObjectId;
-      userName: string;
-      profilePic: string;
-      firstName: string;
-      friendship?: FriendShip;
-    };
-
     const feedReplyDetails = await this.feedReplyModel.findById({ _id: feedReplyId });
     if (!feedReplyDetails) {
       throw new NotFoundError('Reply not found.');
@@ -204,9 +186,9 @@ export class FeedLikesService {
       userIdToFriendRecord = await this.friendsService
         .findFriendshipBulk(requestingContextUserId, feedReplyLikes.map((feedReplyLike) => feedReplyLike.userId._id.toString()));
     }
-    const likeUsersForReply: LikeUserForReply[] = feedReplyLikes.map((feedReplyLike) => {
+    const likeUsersForReply: LikeUserAndFriendship[] = feedReplyLikes.map((feedReplyLike) => {
       const feedReplyLikeUser = feedReplyLike.userId;
-      const likeUserForReply: LikeUserForReply = {
+      const likeUserForReply: LikeUserAndFriendship = {
         _id: feedReplyLikeUser._id,
         userName: feedReplyLikeUser.userName,
         profilePic: relativeToFullImagePath(this.configService, feedReplyLikeUser.profilePic),

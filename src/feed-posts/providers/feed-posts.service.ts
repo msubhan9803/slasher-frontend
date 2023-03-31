@@ -309,6 +309,7 @@ export class FeedPostsService {
 
     const filter: any = [{ feedPostId: postId }];
 
+    // Do not return likes by blocked users
     if (requestingContextUserId) {
       const blockUserIds = await this.blocksService.getBlockedUserIdsBySender(requestingContextUserId);
       filter.push({ userId: { $nin: blockUserIds } });
@@ -324,13 +325,13 @@ export class FeedPostsService {
       return [];
     }
 
-    const likeUsersForPost: LikeUserForPost[] = [];
     let userIdToFriendRecord;
     if (requestingContextUserId) {
       userIdToFriendRecord = await this.friendsService
         .findFriendshipBulk(requestingContextUserId, feedPostLikes.map((feedPostLike) => feedPostLike.userId._id.toString()));
     }
-    feedPostLikes.forEach((feedPostLike) => {
+
+    const likeUsersForPost: LikeUserForPost[] = feedPostLikes.map((feedPostLike) => {
       const feedPostLikeUser = feedPostLike.userId;
       const likeUserForPost: LikeUserForPost = {
         _id: feedPostLikeUser._id,
@@ -343,7 +344,7 @@ export class FeedPostsService {
         const friendship: FriendShip = friend ? pick(friend, ['reaction', 'from', 'to']) : null;
         likeUserForPost.friendship = friendship;
       }
-      likeUsersForPost.push(likeUserForPost);
+      return likeUserForPost;
     });
 
     return likeUsersForPost;

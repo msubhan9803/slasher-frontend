@@ -8,9 +8,11 @@ import { FeedReplyLike, FeedReplyLikeSchema } from '../schemas/feedReplyLike/fee
 import { FeedReply, FeedReplySchema } from '../schemas/feedReply/feedReply.schema';
 import { FeedLikesController } from './feed-likes.controller';
 import { BlocksModule } from '../blocks/blocks.module';
+import { User, UserSchema } from '../schemas/user/user.schema';
 
 @Module({
   imports: [
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: FeedPostLike.name, schema: FeedPostLikeSchema }]),
     MongooseModule.forFeature([{ name: FeedReply.name, schema: FeedReplySchema }]),
     MongooseModule.forFeature([{ name: FeedComment.name, schema: FeedCommentSchema }]),

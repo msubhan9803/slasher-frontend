@@ -429,6 +429,7 @@ export class FeedPostsController {
     return { success: true };
   }
 
+  // TODO: Move this endpoint to `feed-likes` controller in future.
   @Get(':id/likes')
   async getLikeUsersForPost(
     @Req() request: Request,

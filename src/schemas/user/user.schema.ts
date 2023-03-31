@@ -140,15 +140,15 @@ export class User extends UserUnusedFields {
 
   // The number of new notifications that have been received since the user looked at their notifications page
   @Prop({ default: 0 })
-  newNotificationCount : number;
+  newNotificationCount: number;
 
   // The number of new notifications that have been received since the user looked at their messages page
-  @Prop({ default: 0 })
-  newMessageCount : number;
+  @Prop({ default: [] })
+  newConversationIds: string[];
 
   // The number of new notifications that have been received since the user looked at their friend requests page
   @Prop({ default: 0 })
-  newFriendRequestCount : number;
+  newFriendRequestCount: number;
 
   /***********
    * Methods *

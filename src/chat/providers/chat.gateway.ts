@@ -93,7 +93,7 @@ export class ChatGateway {
     // since the user is requesting the LATEST messages in the chat and will then be caught up.
     if (!before) {
       await this.chatService.markAllReceivedMessagesReadForChat(user.id, matchList.id);
-      await this.emitMessageCountUpdateEvent(user.id);
+      await this.emitConversationCountUpdateEvent(user.id);
     }
 
     const messages = await this.chatService.getMessages(matchListId, userId, RECENT_MESSAGES_LIMIT, before);
@@ -125,13 +125,12 @@ export class ChatGateway {
     return { success: false, error: 'Unauthorized' };
   }
 
-  async emitMessageCountUpdateEvent(userId: string) {
+  async emitConversationCountUpdateEvent(userId: string) {
     const targetUserSocketIds = await this.usersService.findSocketIdsForUser(userId);
-
-    const unreadMessageCount = await this.chatService.getUnreadDirectPrivateMessageCount(userId);
-
+    const user = await this.usersService.findById(userId);
+    const unreadConversationCount = user.newConversationIds.length;
     targetUserSocketIds.forEach((socketId) => {
-      this.server.to(socketId).emit('unreadMessageCountUpdate', { unreadMessageCount });
+      this.server.to(socketId).emit('unreadConversationCountUpdate', { unreadConversationCount });
     });
   }
 
@@ -147,13 +146,5 @@ export class ChatGateway {
         });
       });
     });
-  }
-
-  @SubscribeMessage('clearNewMessageCount')
-  async clearNewMessageCount(@ConnectedSocket() client: Socket): Promise<any> {
-    const user = await this.usersService.findBySocketId(client.id);
-    const userId = user._id.toString();
-    const clearMessageCount = await this.usersService.clearMessageCount(userId);
-    return clearMessageCount;
   }
 }

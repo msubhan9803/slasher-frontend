@@ -52,20 +52,20 @@ describe('#message-count-update', () => {
     user1 = await usersService.create(userFactory.build({ userName: 'Hannibal' }));
   });
 
-  describe('should call `#chatGateway.emitMessageCountUpdateEvent` with appropriate userId', () => {
+  describe('should call `#chatGateway.emitConversationCountUpdateEvent` with appropriate userId', () => {
     it('adds a job', async () => {
       const message = await chatService.sendPrivateDirectMessage(activeUser.id, user1.id, 'Hi, test message 1.');
-      jest.spyOn(chatGateway, 'emitMessageCountUpdateEvent').mockImplementation(() => Promise.resolve(undefined));
+      jest.spyOn(chatGateway, 'emitConversationCountUpdateEvent').mockImplementation(() => Promise.resolve(undefined));
       await messageCountUpdateConsumer.sendUpdateIfMessageUnread({ data: { messageId: message._id.toString() } } as Job);
 
-      expect(chatGateway.emitMessageCountUpdateEvent).toHaveBeenCalledWith(message.senderId.toString());
+      expect(chatGateway.emitConversationCountUpdateEvent).toHaveBeenCalledWith(message.senderId.toString());
     });
 
-    it('check newMessageCount increment in user', async () => {
+    it('when add matchId in newConversationIds', async () => {
       const message = await chatService.sendPrivateDirectMessage(activeUser.id, user1.id, 'Hi, test message 1.');
       await messageCountUpdateConsumer.sendUpdateIfMessageUnread({ data: { messageId: message._id.toString() } } as Job);
       const user = await usersService.findById(user1.id);
-      expect(user.newMessageCount).toBe(1);
+      expect(user.newConversationIds).toEqual([message.matchId.toString()]);
     });
   });
 });

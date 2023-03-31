@@ -178,16 +178,15 @@ export class UsersService {
       .exec();
   }
 
-  async updateNewMessageCount(id: string): Promise<UserDocument> {
-    return this.userModel
-      .findOneAndUpdate({ _id: id }, { $inc: { newMessageCount: 1 } }, { new: true })
-      .exec();
-  }
-
-  async clearMessageCount(id: string): Promise<UserDocument> {
-    return this.userModel
-      .findOneAndUpdate({ _id: id }, { $set: { newMessageCount: 0 } }, { new: true })
-      .exec();
+  async updateNewConversationIds(id: string, matchId: string): Promise<UserDocument> {
+    const user = await this.userModel.findOne({ _id: id, newConversationIds: matchId });
+    if (!user) {
+      const updateUserData = await this.userModel
+        .findOneAndUpdate({ _id: id }, { $push: { newConversationIds: matchId } }, { new: true })
+        .exec();
+      return updateUserData;
+    }
+    return user;
   }
 
   async clearNotificationCount(id: string): Promise<UserDocument> {
@@ -200,5 +199,12 @@ export class UsersService {
     return this.userModel
       .findOneAndUpdate({ _id: id }, { $set: { newFriendRequestCount: 0 } }, { new: true })
       .exec();
+  }
+
+  async updateNewConversationIdsByMatchId(id: string, matchId: string): Promise<UserDocument> {
+    const updateUserData = await this.userModel
+      .findOneAndUpdate({ _id: id }, { $pull: { newConversationIds: matchId } }, { new: true })
+      .exec();
+    return updateUserData;
   }
 }

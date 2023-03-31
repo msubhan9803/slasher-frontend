@@ -17,6 +17,7 @@ import { BlocksService } from '../../blocks/providers/blocks.service';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
+import { ChatService } from '../../chat/providers/chat.service';
 
 describe('UsersService', () => {
   let app: INestApplication;
@@ -25,6 +26,7 @@ describe('UsersService', () => {
   let socketUsersModel: Model<SocketUserDocument>;
   let blocksModel: Model<BlockAndUnblockDocument>;
   let blocksService: BlocksService;
+  let chatService: ChatService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -32,6 +34,7 @@ describe('UsersService', () => {
     }).compile();
     connection = moduleRef.get<Connection>(getConnectionToken());
     usersService = moduleRef.get<UsersService>(UsersService);
+    chatService = moduleRef.get<ChatService>(ChatService);
     socketUsersModel = moduleRef.get<Model<SocketUserDocument>>(getModelToken(SocketUser.name));
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     blocksService = moduleRef.get<BlocksService>(BlocksService);
@@ -468,11 +471,27 @@ describe('UsersService', () => {
     });
   });
 
-  describe('#updateNewMessageCount', () => {
-    it('finds the expected user and update newMessageCount', async () => {
-      const user = await usersService.create(userFactory.build());
-      const userData = await usersService.updateNewMessageCount(user.id);
-      expect(userData.newMessageCount).toBe(1);
+  describe('#updateNewConversationIds', () => {
+    it('finds the expected user and update newConversationIds', async () => {
+      const user1 = await usersService.create(userFactory.build());
+      const user2 = await usersService.create(userFactory.build());
+      const matchList = await chatService.createPrivateDirectMessageConversation([user1.id, user2.id]);
+
+      const userData = await usersService.updateNewConversationIds(user1.id, matchList.id);
+      expect(userData.newConversationIds).toEqual([matchList.id]);
+    });
+
+    it('when same newConversationIds is exists than expected response', async () => {
+      const user1 = await usersService.create(userFactory.build());
+      const user2 = await usersService.create(userFactory.build());
+      const matchList1 = await chatService.createPrivateDirectMessageConversation([user1.id, user2.id]);
+      const matchList2 = await chatService.createPrivateDirectMessageConversation([user1.id, user2.id]);
+      const user3 = await usersService.create(userFactory.build({
+        newConversationIds: [matchList1.id, matchList2.id],
+      }));
+
+      const userData = await usersService.updateNewConversationIds(user3.id, matchList1.id);
+      expect(userData.newConversationIds).toEqual([matchList1.id, matchList2.id]);
     });
   });
 
@@ -481,14 +500,6 @@ describe('UsersService', () => {
       const user = await usersService.create(userFactory.build());
       const userData = await usersService.updateNewFriendRequestCount(user.id);
       expect(userData.newFriendRequestCount).toBe(1);
-    });
-  });
-
-  describe('#clearMessageCount', () => {
-    it('finds the expected user and update newMessageCount', async () => {
-      const user = await usersService.create(userFactory.build());
-      const userData = await usersService.clearMessageCount(user.id);
-      expect(userData.newMessageCount).toBe(0);
     });
   });
 
@@ -505,6 +516,20 @@ describe('UsersService', () => {
       const user = await usersService.create(userFactory.build());
       const userData = await usersService.clearFriendRequestCount(user.id);
       expect(userData.newFriendRequestCount).toBe(0);
+    });
+  });
+
+  describe('#updateNewConversationIdsByMatchId', () => {
+    it('finds the expected user and updateNewConversationIdsByMatchId', async () => {
+      const user1 = await usersService.create(userFactory.build());
+      const user2 = await usersService.create(userFactory.build());
+      const matchList = await chatService.createPrivateDirectMessageConversation([user1.id, user2.id]);
+      const user3 = await usersService.create(userFactory.build({
+        newConversationIds: [matchList.id],
+      }));
+
+      const userData = await usersService.updateNewConversationIdsByMatchId(user3.id, matchList.id);
+      expect(userData.newConversationIds).toEqual([]);
     });
   });
 });

@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  useCallback, useEffect, useRef, useState, useContext,
+  useCallback, useEffect, useRef, useState,
 } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -19,8 +19,6 @@ import { reportData } from '../../../api/report';
 import { createBlockUser } from '../../../api/blocks';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
-import { resetNewFriendRequestCountCount } from '../../../redux/slices/userSlice';
-import { SocketContext } from '../../../context/socket';
 
 interface FriendProps {
   _id?: string;
@@ -68,12 +66,6 @@ function ProfileFriends({ user }: Props) {
     { value: '', label: 'All friends' },
     { value: 'request', label: 'Friend requests', badge: friendsReqCount },
   ];
-  const socket = useContext(SocketContext);
-
-  useEffect(() => {
-    socket?.emit('clearNewFriendRequestCount', {});
-    dispatch(resetNewFriendRequestCountCount());
-  }, [dispatch, socket]);
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (value === 'Report' || value === 'Block user') {

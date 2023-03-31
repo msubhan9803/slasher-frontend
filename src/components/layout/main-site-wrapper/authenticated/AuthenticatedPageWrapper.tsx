@@ -11,7 +11,7 @@ import AuthenticatedPageHeader from './AuthenticatedPageHeader';
 import MobileOnlySidebarContent from '../../sidebar-nav/MobileOnlySidebarContent';
 import { userInitialData } from '../../../../api/users';
 import {
-  setUserInitialData, handleUpdatedUnreadMessageCount, resetUnreadNotificationCount,
+  setUserInitialData, handleUpdatedUnreadConversationCount, resetUnreadNotificationCount,
   resetNewFriendRequestCountCount, incrementUnreadNotificationCount,
   incrementFriendReuqestCount,
 } from '../../../../redux/slices/userSlice';
@@ -123,21 +123,21 @@ function AuthenticatedPageWrapper({ children }: Props) {
     dispatch(resetNewFriendRequestCountCount());
   }, [dispatch]);
 
-  const onUnreadMessageCountUpdate = useCallback((count: any) => {
-    dispatch(handleUpdatedUnreadMessageCount(count.unreadMessageCount));
+  const onUnreadConversationCountUpdate = useCallback((count: any) => {
+    dispatch(handleUpdatedUnreadConversationCount(count.unreadConversationCount));
   }, [dispatch]);
 
   useEffect(() => {
     if (socket) {
       socket.on('notificationReceived', onNotificationReceivedHandler);
       socket.on('friendRequestReceived', onFriendReuqestReceivedHandler);
-      socket.on('unreadMessageCountUpdate', onUnreadMessageCountUpdate);
+      socket.on('unreadConversationCountUpdate', onUnreadConversationCountUpdate);
       socket.on('clearNewNotificationCount', onClearNewNotificationCount);
       socket.on('clearNewFriendReuqestCount', onClearNewFriendReuqestCount);
       return () => {
         socket.off('notificationReceived', onNotificationReceivedHandler);
         socket.off('friendRequestReceived', onFriendReuqestReceivedHandler);
-        socket.off('unreadMessageCountUpdate', onUnreadMessageCountUpdate);
+        socket.off('unreadMessageCountUpdate', onUnreadConversationCountUpdate);
         socket.off('clearNewNotificationCount', onClearNewNotificationCount);
         socket.off('clearNewFriendReuqestCount', onClearNewFriendReuqestCount);
       };
@@ -145,7 +145,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
     return () => { };
   }, [
     onNotificationReceivedHandler, onFriendReuqestReceivedHandler,
-    onUnreadMessageCountUpdate, onClearNewFriendReuqestCount,
+    onUnreadConversationCountUpdate, onClearNewFriendReuqestCount,
     onClearNewNotificationCount,
     socket]);
 

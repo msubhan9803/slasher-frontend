@@ -103,20 +103,13 @@ function PostCommentSection({
       setSelectedReplyCommentId(commentReplyId);
       setReplyUserName(replyName);
       setSelectedReplyUserID(userId!);
-      // setCheckLoadMoreId([]);
-      const updatedCommentData: FeedComments[] = [];
       commentData.map((comment: any) => {
         /* eslint-disable no-param-reassign */
         if (comment.id === commentReplyId) {
           setReplyIndex(replyCommentIndex!);
-          //   comment.isReplyIndex = scrollReplyId?.includes('comment') ? 0 : replyCommentIndex! + 1;
-          //   updatedCommentData.push(comment);
-          // } else {
-          // updatedCommentData.push(comment);
         }
         return null;
       });
-      // setCommentData(updatedCommentData);
     }
   }, [commentData]);
 
@@ -150,6 +143,21 @@ function PostCommentSection({
       });
     }
   }, [isReply, commentData, tabsRef, replyIndex, selectedReplyCommentId, scrollId]);
+
+  const generateReplyInddx = (comment: any) => {
+    const updateComment = comment;
+    let updateReplyIndex = 2;
+    const newReplyData = updateComment.replies.filter((reply: any) => reply?.new === true);
+    const loadedComment = checkLoadMoreId.includes(updateComment._id);
+
+    if (loadedComment) {
+      updateReplyIndex = updateComment.replies.length;
+    } else if (newReplyData.length > 0 && !loadedComment) {
+      updateReplyIndex = newReplyData.length + updateReplyIndex;
+    }
+
+    return updateReplyIndex;
+  };
 
   useEffect(() => {
     if (commentSectionData || updateState) {
@@ -185,16 +193,8 @@ function PostCommentSection({
             likeIcon: comment.likedByUser,
             likeCount: comment.likeCount,
             commentCount: comment.commentCount,
-            isReplyIndex: checkLoadMoreId.find(
-              (loadedComment: any) => loadedComment.id === comment._id,
-            )?.isReplyIndex
-              ?? commentData.find(
-                (replyComment: any) => replyComment.id === comment._id,
-              )?.isReplyIndex! >= 0
-              ? commentData.find(
-                (replyComment: any) => replyComment.id === comment._id,
-              )?.isReplyIndex
-              : 2,
+            isReplyIndex:
+              generateReplyInddx(comment),
           };
           return feedComment;
         });
@@ -504,13 +504,6 @@ function PostCommentSection({
                     isReply
                     && selectedReplyCommentId === data.id
                     && !selectedReplyId
-                    // && selectedReplyCommentId === data.commentReplySection[0]?.feedCommentId
-                    // && selectedReplyId === comment.id
-                    // || data.commentReplySection.some(
-                    //   (item: any) => item.newComment === true && item.id === selectedReplyId,
-                    // )
-                    // )
-                    // && index === replyIndex
                     && (
                       <div id={scrollId} ref={tabsRef}>
                         <CommentInput
@@ -556,13 +549,8 @@ function PostCommentSection({
                             : null}
                           {
                             isReply
-                            // && (selectedReplyCommentId === data.id
                             && selectedReplyCommentId === data.commentReplySection[0]?.feedCommentId
                             && selectedReplyId === comment.id
-                            // || data.commentReplySection.some(
-                            //   (item: any) => item.newComment === true && item.id === selectedReplyId,
-                            // )
-                            // )
                             && replyCommentIndex === replyIndex
                             && (
                               <div id={scrollId} ref={tabsRef}>
@@ -619,15 +607,6 @@ function PostCommentSection({
                         (item: any) => item.newComment,
                       ) === data.commentReplySection.length - 1
                     )
-                    // && data.commentReplySection.length - data.isReplyIndex - (
-                    //   data.commentReplySection.filter(
-                    //     (reply: any, index: any) => (
-                    //       index === data.commentReplySection.length - 1
-                    //       && reply.newComment
-                    //       && !isReply
-                    //       && data.id === selectedReplyCommentId
-                    //     ),
-                    //   )).length > 0
                     && (
                       <LoadMoreCommentsWrapper>
                         <Button

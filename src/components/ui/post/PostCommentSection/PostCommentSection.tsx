@@ -142,7 +142,8 @@ function PostCommentSection({
         return null;
       });
     }
-  }, [isReply, commentData, tabsRef, replyIndex, selectedReplyCommentId, scrollId]);
+  }, [isReply, commentData, tabsRef, replyIndex,
+    selectedReplyCommentId, scrollId]);
 
   const generateReplyIndex = useCallback((comment: any) => {
     const updateComment = comment;
@@ -438,6 +439,42 @@ function PostCommentSection({
       });
     }
   }, [queryCommentId, queryReplyId, commentData]);
+
+  const generateReplyInput = (dataId: any) => {
+    console.log('(generateReplyInput(data.id))');
+    return (
+      <div id={scrollId} ref={tabsRef}>
+        <CommentInput
+          userData={userData}
+          message={replyMessage}
+          inputFile={replyInputFile}
+          handleFileChange={handleFileChange}
+          sendComment={sendComment}
+          imageArray={replyImageArray}
+          handleRemoveFile={handleRemoveFile}
+          dataId={dataId}
+          handleSearch={handleSearch}
+          mentionList={mentionList}
+          isReply
+          replyImageArray={replyImageArray}
+          addUpdateReply={addUpdateReply}
+          commentID={selectedReplyCommentId}
+          commentReplyID={selectedReplyId!}
+          commentError={commentError}
+          commentReplyError={commentReplyError}
+          commentSent={commentSent}
+          setCommentReplyErrorMessage={setCommentReplyErrorMessage}
+          setReplyImageArray={setReplyImageArray}
+          isEdit={isEdit}
+          updateState={updateState}
+        />
+        {
+          !isEdit && commentReplyError
+          && <ErrorMessageList errorMessages={commentReplyError} divClass="mt-3 text-start" className="m-0 mb-4" />
+        }
+      </div>
+    );
+  };
   return (
     <>
       <CommentInput
@@ -503,35 +540,7 @@ function PostCommentSection({
                     isReply
                     && selectedReplyCommentId === data.id
                     && !selectedReplyId
-                    && (
-                      <div id={scrollId} ref={tabsRef}>
-                        <CommentInput
-                          userData={userData}
-                          message={replyMessage}
-                          inputFile={replyInputFile}
-                          handleFileChange={handleFileChange}
-                          sendComment={sendComment}
-                          imageArray={replyImageArray}
-                          handleRemoveFile={handleRemoveFile}
-                          dataId={data.id}
-                          handleSearch={handleSearch}
-                          mentionList={mentionList}
-                          isReply
-                          replyImageArray={replyImageArray}
-                          addUpdateReply={addUpdateReply}
-                          commentID={selectedReplyCommentId}
-                          commentReplyID={selectedReplyId!}
-                          commentError={commentError}
-                          commentReplyError={commentReplyError}
-                          commentSent={commentSent}
-                          setCommentReplyErrorMessage={setCommentReplyErrorMessage}
-                          setReplyImageArray={setReplyImageArray}
-                          isEdit={isEdit}
-                        />
-                        {!isEdit && commentReplyError
-                          && <ErrorMessageList errorMessages={commentReplyError} divClass="mt-3 text-start" className="m-0 mb-4" />}
-                      </div>
-                    )
+                    && (generateReplyInput(data.id))
                   }
                   {data.commentReplySection && data.commentReplySection.length > 0
                     && data.commentReplySection
@@ -551,35 +560,7 @@ function PostCommentSection({
                             && selectedReplyCommentId === data.commentReplySection[0]?.feedCommentId
                             && selectedReplyId === comment.id
                             && replyCommentIndex === replyIndex
-                            && (
-                              <div id={scrollId} ref={tabsRef}>
-                                <CommentInput
-                                  userData={userData}
-                                  message={replyMessage}
-                                  inputFile={replyInputFile}
-                                  handleFileChange={handleFileChange}
-                                  sendComment={sendComment}
-                                  imageArray={replyImageArray}
-                                  handleRemoveFile={handleRemoveFile}
-                                  dataId={data.id}
-                                  handleSearch={handleSearch}
-                                  mentionList={mentionList}
-                                  isReply
-                                  replyImageArray={replyImageArray}
-                                  addUpdateReply={addUpdateReply}
-                                  commentID={selectedReplyCommentId}
-                                  commentReplyID={selectedReplyId!}
-                                  commentError={commentError}
-                                  commentReplyError={commentReplyError}
-                                  commentSent={commentSent}
-                                  setCommentReplyErrorMessage={setCommentReplyErrorMessage}
-                                  setReplyImageArray={setReplyImageArray}
-                                  isEdit={isEdit}
-                                />
-                                {!isEdit && commentReplyError
-                                  && <ErrorMessageList errorMessages={commentReplyError} divClass="mt-3 text-start" className="m-0 mb-4" />}
-                              </div>
-                            )
+                            && (generateReplyInput(data.id))
                           }
                         </div>
                       ))}

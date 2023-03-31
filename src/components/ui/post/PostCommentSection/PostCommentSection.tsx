@@ -144,7 +144,7 @@ function PostCommentSection({
     }
   }, [isReply, commentData, tabsRef, replyIndex, selectedReplyCommentId, scrollId]);
 
-  const generateReplyInddx = (comment: any) => {
+  const generateReplyIndex = useCallback((comment: any) => {
     const updateComment = comment;
     let updateReplyIndex = 2;
     const newReplyData = updateComment.replies.filter((reply: any) => reply?.new === true);
@@ -157,7 +157,7 @@ function PostCommentSection({
     }
 
     return updateReplyIndex;
-  };
+  }, [checkLoadMoreId]);
 
   useEffect(() => {
     if (commentSectionData || updateState) {
@@ -194,7 +194,7 @@ function PostCommentSection({
             likeCount: comment.likeCount,
             commentCount: comment.commentCount,
             isReplyIndex:
-              generateReplyInddx(comment),
+              generateReplyIndex(comment),
           };
           return feedComment;
         });
@@ -204,10 +204,9 @@ function PostCommentSection({
       };
       feedCommentData();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     commentSectionData, updateState, checkLoadMoreId, commentReplyID,
-    setUpdateState, updatedReply,
+    setUpdateState, updatedReply, generateReplyIndex,
   ]);
 
   useEffect(() => {

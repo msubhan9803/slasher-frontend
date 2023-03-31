@@ -207,4 +207,10 @@ export class UsersService {
       .exec();
     return updateUserData;
   }
+
+  async clearConverstionIds(id: string): Promise<UserDocument> {
+    return this.userModel
+      .findOneAndUpdate({ _id: id }, { $set: { newConversationIds: [] } }, { new: true })
+      .exec();
+  }
 }

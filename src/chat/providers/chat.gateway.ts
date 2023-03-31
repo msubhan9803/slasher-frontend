@@ -147,4 +147,12 @@ export class ChatGateway {
       });
     });
   }
+
+  @SubscribeMessage('clearNewConversationIds')
+  async clearConverstionIds(@ConnectedSocket() client: Socket): Promise<any> {
+    const user = await this.usersService.findBySocketId(client.id);
+    const userId = user._id.toString();
+    const clearNewConversationIds = await this.usersService.clearConverstionIds(userId);
+    return { newConversationIds: clearNewConversationIds.newConversationIds };
+  }
 }

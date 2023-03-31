@@ -532,4 +532,12 @@ describe('UsersService', () => {
       expect(userData.newConversationIds).toEqual([]);
     });
   });
+
+  describe('#clearConverstionIdsCount', () => {
+    it('finds the expected user and update converstionIdsCount', async () => {
+      const user = await usersService.create(userFactory.build());
+      const userData = await usersService.clearConverstionIds(user.id);
+      expect(userData.newConversationIds).toEqual([]);
+    });
+  });
 });

@@ -315,3 +315,7 @@ textarea {
   font-family: "SearsTower";
   src: url("../fonts/Sears_Tower.ttf") format(truetype);
 }
+
+.form-select:focus {
+  box-shadow: 0 0 0 1px var(--stroke-and-line-separator-color);
+}

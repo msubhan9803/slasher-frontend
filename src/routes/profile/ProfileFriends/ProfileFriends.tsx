@@ -221,7 +221,7 @@ function ProfileFriends({ user }: Props) {
           {loginUserData.userName === user.userName
             && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="" />}
           <InfiniteScroll
-            threshold={2000}
+            threshold={3000}
             pageStart={0}
             initialLoad
             loadMore={() => { setAdditionalFriend(true); }}

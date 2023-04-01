@@ -7,12 +7,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import LikeShareModalContent from './LikeShareModalContent';
 import { enableDevFeatures } from '../../utils/configEnvironment';
-import { PostButtonClickType } from '../../types';
+import { LikeShareModalResourceName, LikeShareModalTabName } from '../../types';
 
 interface Props {
+  modaResourceName: LikeShareModalResourceName | null;
   show: boolean;
   setShow: (value: boolean) => void;
-  click: PostButtonClickType;
+  click: LikeShareModalTabName;
   clickedPostId: string;
   clickedPostLikeCount: number;
 }
@@ -43,7 +44,7 @@ const StyleTabs = styled(Tabs)`
 `;
 const CustomModal = styled(Modal)`
   .modal-content {
-    background-var(--bs-black)
+    background: var(--bs-black);
   }
   .btn-close {
     display:none;
@@ -54,7 +55,7 @@ border-bottom: 1px solid #3A3B46;
 `;
 
 function LikeShareModal({
-  show, setShow, click, clickedPostId, clickedPostLikeCount,
+  modaResourceName, show, setShow, click, clickedPostId, clickedPostLikeCount,
 }: Props) {
   const [tab, setTab] = useState<string>(click);
   const closeModal = () => {
@@ -100,7 +101,7 @@ function LikeShareModal({
         <FontAwesomeIcon icon={solid('xmark')} size="lg" className="me-2" onClick={closeModal} />
       </CustomModalHeader>
       <Modal.Body className="d-flex flex-column pt-4 px-4">
-        {(tab === 'like' || tab === 'share') && <LikeShareModalContent feedPostId={clickedPostId} />}
+        {(tab === 'like' || tab === 'share') && <LikeShareModalContent modaResourceName={modaResourceName} resourceId={clickedPostId} />}
       </Modal.Body>
     </CustomModal>
   );

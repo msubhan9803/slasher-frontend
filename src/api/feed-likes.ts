@@ -49,3 +49,23 @@ export async function unlikeFeedReply(feedCommentId: string) {
   };
   return axios.delete(`${apiUrl}/api/v1/feed-likes/reply/${feedCommentId}`, { headers });
 }
+
+export async function getLikeUsersForReply(replyId: string, page: number) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  const limit = 20;
+  const queryParameter = `?limit=${limit}&offset=${page * limit}`;
+  return axios.get(`${apiUrl}/api/v1/feed-likes/reply/${replyId}/users${queryParameter}`, { headers });
+}
+
+export async function getLikeUsersForComment(commentId: string, page: number) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  const limit = 20;
+  const queryParameter = `?limit=${limit}&offset=${page * limit}`;
+  return axios.get(`${apiUrl}/api/v1/feed-likes/comment/${commentId}/users${queryParameter}`, { headers });
+}

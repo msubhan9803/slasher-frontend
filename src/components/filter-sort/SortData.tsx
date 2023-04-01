@@ -38,7 +38,7 @@ function SortData({
     }),
     menu: (base: any) => ({
       ...base,
-      backgroundColor: 'black',
+      backgroundColor: 'var(--bs-secondary)',
       color: '#ffffff',
       borderRadius: '10',
       border: '1px solid #ffffff',
@@ -50,12 +50,15 @@ function SortData({
     }),
     option: (base: any, state: any) => ({
       ...base,
-      backgroundColor: state.isFocused || (state.isFocused && state.isSelected) ? '#2684ff' : null,
+      backgroundColor: state.isFocused || (state.isFocused && state.isSelected) ? 'var(--bs-primary)' : null,
+      color: state.isFocused || (state.isFocused && state.isSelected) ? 'var(--bs-secondary)' : null,
       '&:hover': {
-        backgroundColor: '#2684ff',
+        backgroundColor: 'var(--bs-primary)',
+        color: 'var(--bs-secondary)',
       },
       '&:focus-visible': {
-        backgroundColor: '#2684ff',
+        backgroundColor: 'var(--bs-primary)',
+        color: 'var(--bs-secondary)',
       },
     }),
   };

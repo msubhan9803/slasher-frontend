@@ -118,6 +118,7 @@ function MoviesModal({
       )}
       {show && (
         <ModalContainer
+          $modalContentWidth={348}
           show={show}
           centered
           onHide={closeModal}
@@ -140,7 +141,7 @@ function MoviesModal({
             )}
             {ButtonType === 'rating' && (
               <Modal.Body className="d-flex flex-column align-items-center text-center pb-5">
-                <div className="px-5">
+                <div>
                   <h1 className="text-primary h2">Rate this movie</h1>
                 </div>
                 <RatingButtonGroups
@@ -167,7 +168,7 @@ function MoviesModal({
             )}
             {ButtonType === 'goreFactorRating' && (
               <Modal.Body className="d-flex flex-column align-items-center text-center pb-5">
-                <div className="px-5">
+                <div className="px-4">
                   <h1 className="text-primary h2">How gory is this?</h1>
                 </div>
                 <RatingGore className="star-rating my-3">

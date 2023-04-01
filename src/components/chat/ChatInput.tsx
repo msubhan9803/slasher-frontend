@@ -92,7 +92,7 @@ function ChatInput({
   };
   return (
     <Form onSubmit={handleSubmit}>
-      <div className="d-flex align-items-end mb-4 px-3">
+      <div className="d-flex align-items-end mb-4 px-3 mt-3">
         <StyledChatInputGroup focus={isFocusInput} className="me-2">
           <InputGroup.Text className="camera-btn position-relative border-end-0">
             <div className="position-absolute align-self-end d-flex p-0">
@@ -128,7 +128,7 @@ function ChatInput({
               (messageInput) => setMessage!(messageInput.target.value)
             }
             aria-label="message"
-            style={{ paddingLeft: '38px', resize: 'none' }}
+            style={{ paddingLeft: '38px', resize: 'none', height: `${rows * 24}px` }}
             onFocus={() => setIsFocusInput(true)}
             onBlur={() => setIsFocusInput(false)}
             ref={textareaRef}

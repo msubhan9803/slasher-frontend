@@ -50,31 +50,18 @@ function AllMovies() {
 
   useEffect(() => {
     RouteURL(search, key, sortVal, navigate, searchParams);
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [search, key, sortVal]);
+  }, [search, key, sortVal, navigate, searchParams]);
 
   useEffect(() => {
     UIRouteURL(search, key, sortVal, navigate, callNavigate);
     setCallNavigate(false);
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [callNavigate]);
+  }, [search, key, sortVal, navigate, callNavigate]);
   useEffect(() => {
-    if (callNavigate
-      || (scrollPosition?.position === 0 && (search.length === 0 || key.length === 0))
-      || ((scrollPosition?.sortValue !== sortVal)
-        && ((scrollPosition?.searchValue === '' && scrollPosition?.keyValue === '')
-          || (scrollPosition?.searchValue !== search && scrollPosition?.keyValue !== key)
-          || (search.length === 0 || key.length === 0) || (search.length > 0 || key.length > 0))
-        && sortVal)
-      || (search === '' && key === '' && sortVal === 'name' && scrollPosition.position === 0)
-      || ((scrollPosition?.searchValue !== search || scrollPosition?.keyValue !== key) && sortVal === 'name')
-    ) {
-      setFilteredMovies([]);
+    if (search || key || sortVal) {
       setLastMovieId('');
       setRequestAdditionalMovies(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, sortVal, key, callNavigate]);
+  }, [search, sortVal, key]);
   useEffect(() => {
     if (requestAdditionalMovies && !loadingPosts) {
       if (scrollPosition === null
@@ -123,10 +110,9 @@ function AllMovies() {
           );
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     requestAdditionalMovies, loadingPosts, search, sortVal, lastMovieId,
-    filteredMovies, scrollPosition, dispatch, isKeyMoviesReady,
+    filteredMovies, scrollPosition, dispatch, isKeyMoviesReady, key,
   ]);
 
   const applyFilter = (keyValue: string, sortValue?: string) => {
@@ -202,7 +188,7 @@ function AllMovies() {
         <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
         <div className="m-md-2">
           <InfiniteScroll
-            threshold={2000}
+            threshold={3000}
             pageStart={0}
             initialLoad
             loadMore={() => { setRequestAdditionalMovies(true); }}

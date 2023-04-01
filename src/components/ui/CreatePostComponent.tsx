@@ -153,6 +153,7 @@ function CreatePostComponent({
                   setLike={setLike!}
                   disLiked={disLiked!}
                   setDisLike={setDisLike!}
+                  postType={postType}
                 />
                 {isWorthIt !== WorthWatchingStatus.NoRating
                   && (

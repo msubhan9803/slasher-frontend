@@ -43,7 +43,6 @@ function FavoriteMovies() {
   );
   const [callNavigate, setCallNavigate] = useState<boolean>(false);
   const userId = Cookies.get('userId');
-  // debugger
   useEffect(() => {
     setSearch(searchParams.get('q') || '');
     setKey(searchParams.get('startsWith')?.toLowerCase() || '');
@@ -51,30 +50,18 @@ function FavoriteMovies() {
   }, [searchParams]);
   useEffect(() => {
     RouteURL(search, key, sortVal, navigate, searchParams);
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [search, key, sortVal]);
+  }, [search, key, sortVal, navigate, searchParams]);
   useEffect(() => {
     UIRouteURL(search, key, sortVal, navigate, callNavigate);
     setCallNavigate(false);
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [callNavigate]);
+  }, [search, key, sortVal, navigate, callNavigate]);
+
   useEffect(() => {
-    if (callNavigate
-      || (scrollPosition?.position === 0 && (search.length === 0 || key.length === 0))
-      || ((scrollPosition?.sortValue !== sortVal)
-        && ((scrollPosition?.searchValue === '' && scrollPosition?.keyValue === '')
-          || (scrollPosition?.searchValue !== search && scrollPosition?.keyValue !== key)
-          || (search.length === 0 || key.length === 0) || (search.length > 0 || key.length > 0))
-        && sortVal)
-      || (search === '' && key === '' && sortVal === 'name' && scrollPosition.position === 0)
-      || ((scrollPosition?.searchValue !== search || scrollPosition?.keyValue !== key) && sortVal === 'name')
-    ) {
-      setFilteredMovies([]);
+    if (search || key || sortVal) {
       setLastMovieId('');
       setRequestAdditionalMovies(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, sortVal, key, callNavigate]);
+  }, [search, sortVal, key]);
 
   useEffect(() => {
     if (requestAdditionalMovies && !loadingMovies && userId) {
@@ -129,10 +116,9 @@ function FavoriteMovies() {
           );
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     requestAdditionalMovies, loadingMovies, search, sortVal, lastMovieId,
-    filteredMovies, scrollPosition, dispatch, userId, isKeyMoviesReady,
+    filteredMovies, scrollPosition, dispatch, userId, isKeyMoviesReady, key,
   ]);
 
   const applyFilter = (keyValue: string, sortValue?: string) => {
@@ -157,7 +143,7 @@ function FavoriteMovies() {
     setKeyMoviesReady(false);
     setFilteredMovies([]);
     if (userId) {
-      getUserMoviesList('favorites', search, userId, sortVal, '')
+      getUserMoviesList('favorite-list', search, userId, sortVal, '')
         .then((result: any) => {
           setFilteredMovies(result.data);
         });
@@ -208,7 +194,7 @@ function FavoriteMovies() {
         <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
         <div className="m-md-2">
           <InfiniteScroll
-            threshold={2000}
+            threshold={3000}
             pageStart={0}
             initialLoad
             loadMore={() => { setRequestAdditionalMovies(true); }}

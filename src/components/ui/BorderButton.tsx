@@ -9,6 +9,7 @@ interface BorderButtonProps {
   variant?: string;
   icon?: IconDefinition;
   iconClass?: string;
+  iconStyle?: React.CSSProperties | undefined;
   iconSize?: SizeProp;
   lable?: string;
   handleClick?: (value: boolean) => void;
@@ -52,7 +53,7 @@ const StyleBorderButton = styled(RoundButton) <StylButtonProps>`
 `;
 
 function BorderButton({
-  buttonClass, variant, icon, iconClass, iconSize, lable,
+  buttonClass, variant, icon, iconClass, iconSize, iconStyle, lable,
   handleClick, toggleBgColor, toggleButton, customButtonCss,
 }: BorderButtonProps) {
   return (
@@ -73,7 +74,7 @@ function BorderButton({
       >
         {icon ? (
           <>
-            <FontAwesomeIcon icon={icon} size={iconSize} className={iconClass} />
+            <FontAwesomeIcon icon={icon} size={iconSize} className={iconClass} style={iconStyle} />
             <p className="m-0">{lable}</p>
           </>
         ) : (
@@ -89,6 +90,7 @@ BorderButton.defaultProps = {
   variant: '',
   icon: null,
   iconClass: '',
+  iconStyle: {},
   lable: '',
   iconSize: null,
   toggleBgColor: false,

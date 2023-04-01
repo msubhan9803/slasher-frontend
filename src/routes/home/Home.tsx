@@ -318,7 +318,7 @@ function Home() {
           )
         }
         <InfiniteScroll
-          threshold={2000}
+          threshold={3000}
           pageStart={0}
           initialLoad
           loadMore={() => { setRequestAdditionalPosts(true); }}

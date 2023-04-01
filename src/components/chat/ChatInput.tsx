@@ -122,11 +122,11 @@ function ChatInput({
             as="textarea"
             rows={rows}
             placeholder="Type your message here..."
-            className="shadow-none border-start-0 border-end-0 fs-5"
+            className="shadow-none border-start-0 border-end-0"
             value={message}
             onChange={
-                (messageInput) => setMessage!(messageInput.target.value)
-              }
+              (messageInput) => setMessage!(messageInput.target.value)
+            }
             aria-label="message"
             style={{ paddingLeft: '38px', resize: 'none' }}
             onFocus={() => setIsFocusInput(true)}

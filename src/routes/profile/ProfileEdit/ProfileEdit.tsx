@@ -221,7 +221,7 @@ function ProfileEdit({ user }: Props) {
                   onChange={
                     (changeData: ChangeEvent<HTMLInputElement>) => handleChange(changeData.target.value, 'firstName')
                   }
-                  className="my-3 fs-5"
+                  className="my-3"
                   aria-label="Name"
                 />
                 <div className="d-flex pe-5">
@@ -242,7 +242,7 @@ function ProfileEdit({ user }: Props) {
                   onChange={
                     (changeData: ChangeEvent<HTMLInputElement>) => handleChange(changeData.target.value, 'userName')
                   }
-                  className="my-3 fs-5"
+                  className="my-3"
                   aria-label="Username"
                 />
                 <Form.Text className="text-muted fs-4">
@@ -263,7 +263,7 @@ function ProfileEdit({ user }: Props) {
                   onChange={
                     (changeData: ChangeEvent<HTMLInputElement>) => handleChange(changeData.target.value, 'email')
                   }
-                  className="my-3 fs-5"
+                  className="my-3"
                   aria-label="Email"
                 />
                 <Form.Text className="text-muted fs-4">

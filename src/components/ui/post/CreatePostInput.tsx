@@ -20,7 +20,7 @@ const CameraIcon = styled(FontAwesomeIcon)`
 function CreatePostInput() {
   return (
     <RoundButton variant="dark" className="w-100 border-0 p-md-0 pb-4">
-      <StyledDiv className="d-flex justify-content-between px-2 py-2">
+      <StyledDiv className="d-flex justify-content-between px-2">
         <div>
           <CommentProfileImage src="https://i.pravatar.cc/300?img=12" alt="user picture" className="rounded-circle" />
           <span className="ms-2 text-light fs-5">Create a post</span>

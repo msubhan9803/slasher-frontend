@@ -151,14 +151,14 @@ function MoviesModal({
                 {/* Remove Star Rating Button */}
                 { hasRating
                   && (
-                  <BorderButton
-                    buttonClass="d-flex rate-btn bg-black py-2 w-100 d-flex justify-content-center"
-                    variant="secondary"
-                    iconClass="me-2"
-                    iconSize="sm"
-                    lable="Clear rating"
-                    handleClick={() => setRating(-1)}
-                  />
+                    <BorderButton
+                      buttonClass="d-flex rate-btn bg-black w-100 d-flex justify-content-center"
+                      variant="secondary"
+                      iconClass="me-2"
+                      iconSize="sm"
+                      lable="Clear rating"
+                      handleClick={() => setRating(-1)}
+                    />
                   )}
                 <RoundButton onClick={handleRatingSubmit} className="mt-3 w-100 border-0 bg-primary fw-bold">
                   Submit
@@ -190,14 +190,14 @@ function MoviesModal({
                 {/* Remove Gore Factor Rating Button */}
                 { hasGoreFactor
                   && (
-                  <BorderButton
-                    buttonClass="d-flex rate-btn bg-black py-2 w-100 d-flex justify-content-center"
-                    variant="secondary"
-                    iconClass="me-2"
-                    iconSize="sm"
-                    lable="Clear rating"
-                    handleClick={() => setRating(-1)}
-                  />
+                    <BorderButton
+                      buttonClass="d-flex rate-btn bg-black w-100 d-flex justify-content-center"
+                      variant="secondary"
+                      iconClass="me-2"
+                      iconSize="sm"
+                      lable="Clear rating"
+                      handleClick={() => setRating(-1)}
+                    />
                   )}
                 <RoundButton onClick={handleGoreFactorSubmit} className="mt-3 w-100 border-0 bg-primary fw-bold">
                   Submit

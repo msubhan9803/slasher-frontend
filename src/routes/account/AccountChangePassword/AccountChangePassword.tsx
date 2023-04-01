@@ -43,13 +43,13 @@ function AccountChangePassword() {
                 <Form.Control
                   type={showCurrentPassword ? 'text' : 'password'}
                   placeholder="Current Password"
-                  className="fs-5 border-end-0"
+                  className="border-end-0"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   autoComplete="password"
                   aria-label="Current Password"
                 />
-                <CustomVisibilityButton className="fs-5 fw-normal text-light border border-start-0 shadow-none" onClick={() => setShowCurrentPassword(!showCurrentPassword)}>
+                <CustomVisibilityButton className="fw-normal text-light border border-start-0 shadow-none" onClick={() => setShowCurrentPassword(!showCurrentPassword)}>
                   {showCurrentPassword ? 'Hide' : 'Show'}
                 </CustomVisibilityButton>
               </InputGroup>
@@ -57,13 +57,13 @@ function AccountChangePassword() {
                 <Form.Control
                   type={showNewPassword ? 'text' : 'password'}
                   placeholder="New password"
-                  className="fs-5 border-end-0 my-3"
+                  className="border-end-0 my-3"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   autoComplete="new-password"
                   aria-label="New Password"
                 />
-                <CustomVisibilityButton className="fs-5 fw-normal text-light border border-start-0 shadow-none my-3" onClick={() => setShowNewPassword(!showNewPassword)}>
+                <CustomVisibilityButton className="fw-normal text-light border border-start-0 shadow-none my-3" onClick={() => setShowNewPassword(!showNewPassword)}>
                   {showNewPassword ? 'Hide' : 'Show'}
                 </CustomVisibilityButton>
               </InputGroup>

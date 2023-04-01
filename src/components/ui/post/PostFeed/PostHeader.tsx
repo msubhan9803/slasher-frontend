@@ -8,7 +8,6 @@ import styled from 'styled-components';
 import CustomPopover, { PopoverClickProps } from '../../CustomPopover';
 import { scrollToTop } from '../../../../utils/scrollFunctions';
 import UserCircleImage from '../../UserCircleImage';
-import ShareLinkButton from '../../ShareLinkButton';
 import BorderButton from '../../BorderButton';
 
 interface PostHeaderProps {
@@ -125,11 +124,6 @@ function PostHeader({
                   <p className="m-0 ms-2 fs-3">{saved ? 'Unsave' : 'Save'}</p>
                 </StyledSaveButton>
               </div>
-            </div>
-          )}
-          {postType !== 'group-post' && (
-            <div className="d-md-none d-lg-block d-xl-none me-2">
-              <ShareLinkButton />
             </div>
           )}
           <CustomPopover

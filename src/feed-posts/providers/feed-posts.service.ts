@@ -8,11 +8,11 @@ import { RssFeedProviderFollowsService } from '../../rss-feed-provider-follows/p
 import { FeedPostDeletionState, FeedPostStatus, PostType } from '../../schemas/feedPost/feedPost.enums';
 import { FeedPost, FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 import { User, UserDocument } from '../../schemas/user/user.schema';
-import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
 import { relativeToFullImagePath } from '../../utils/image-utils';
 import { FeedPostLike, FeedPostLikeDocument } from '../../schemas/feedPostLike/feedPostLike.schema';
 import { BlocksService } from '../../blocks/providers/blocks.service';
 import { pick } from '../../utils/object-utils';
+import { FriendShip, LikeUserAndFriendship } from '../../types';
 
 @Injectable()
 export class FeedPostsService {
@@ -298,17 +298,9 @@ export class FeedPostsService {
   }
 
   async getLikeUsersForPost(postId: string, limit: number, offset = 0, requestingContextUserId?: string) {
-    type FriendShip = { from?: User, to?: User, friendship?: FriendRequestReaction } | null;
-    type LikeUserForPost = {
-      _id: mongoose.Schema.Types.ObjectId;
-      userName: string;
-      profilePic: string;
-      firstName: string;
-      friendship?: FriendShip;
-    };
-
     const filter: any = [{ feedPostId: postId }];
 
+    // Do not return likes by blocked users
     if (requestingContextUserId) {
       const blockUserIds = await this.blocksService.getBlockedUserIdsBySender(requestingContextUserId);
       filter.push({ userId: { $nin: blockUserIds } });
@@ -324,15 +316,15 @@ export class FeedPostsService {
       return [];
     }
 
-    const likeUsersForPost: LikeUserForPost[] = [];
     let userIdToFriendRecord;
     if (requestingContextUserId) {
       userIdToFriendRecord = await this.friendsService
         .findFriendshipBulk(requestingContextUserId, feedPostLikes.map((feedPostLike) => feedPostLike.userId._id.toString()));
     }
-    feedPostLikes.forEach((feedPostLike) => {
+
+    const likeUsersForPost: LikeUserAndFriendship[] = feedPostLikes.map((feedPostLike) => {
       const feedPostLikeUser = feedPostLike.userId;
-      const likeUserForPost: LikeUserForPost = {
+      const likeUserForPost: LikeUserAndFriendship = {
         _id: feedPostLikeUser._id,
         userName: feedPostLikeUser.userName,
         profilePic: relativeToFullImagePath(this.configService, feedPostLikeUser.profilePic),
@@ -343,7 +335,7 @@ export class FeedPostsService {
         const friendship: FriendShip = friend ? pick(friend, ['reaction', 'from', 'to']) : null;
         likeUserForPost.friendship = friendship;
       }
-      likeUsersForPost.push(likeUserForPost);
+      return likeUserForPost;
     });
 
     return likeUsersForPost;

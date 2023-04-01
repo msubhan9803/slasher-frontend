@@ -1053,10 +1053,15 @@ describe('MoviesService', () => {
       const rating = 3;
       const movieUserStatus = await moviesService.createOrUpdateRating(movie.id, rating, activeUser.id);
       expect(movieUserStatus.rating).toBe(rating);
-
-      // Verify that rating is updated in movie
       const updatedMovie = await moviesService.findById(movie.id, false);
       expect(updatedMovie.rating).toBe(rating);
+
+      // Delete rating should update `movieUserStatus.rating`, `movie.rating` and `movie.ratingUsersCount` properly
+      const movieUserStatusAfter = await moviesService.createOrUpdateRating(movie.id, 0, activeUser.id);
+      expect(movieUserStatusAfter.rating).toBe(0);
+      const movieDataAfter = await moviesService.findById(movie.id, false);
+      expect(movieDataAfter.rating).toBe(0);
+      expect(movieDataAfter.ratingUsersCount).toBe(0);
     });
 
     it('verify that average of all `rating` of movierUserStatus is updated in movie', async () => {
@@ -1079,10 +1084,17 @@ describe('MoviesService', () => {
       const goreFactorRating = 3;
       const movieUserStatus = await moviesService.createOrUpdateGoreFactorRating(movie.id, goreFactorRating, activeUser.id);
       expect(movieUserStatus.goreFactorRating).toBe(goreFactorRating);
-
-      // Verify that goreFactorRating is updated in movie
       const updatedMovie = await moviesService.findById(movie.id, false);
       expect(updatedMovie.goreFactorRating).toBe(goreFactorRating);
+      expect(updatedMovie.goreFactorRatingUsersCount).toBe(1);
+
+      // Delete rating should update `movieUserStatus.goreFactorRating`, `movie.goreFactorRating`
+      // and `movie.goreFactorRatingUsersCount` properly
+      const movieUserStatusAfter = await moviesService.createOrUpdateGoreFactorRating(movie.id, 0, activeUser.id);
+      expect(movieUserStatusAfter.goreFactorRating).toBe(0);
+      const movieDataAfter = await moviesService.findById(movie.id, false);
+      expect(movieDataAfter.goreFactorRating).toBe(0);
+      expect(movieDataAfter.goreFactorRatingUsersCount).toBe(0);
     });
 
     it('verify that average of all `goreFactorRating` of movierUserStatus is updated in movie', async () => {
@@ -1105,10 +1117,19 @@ describe('MoviesService', () => {
       const worthWatching = WorthWatchingStatus.Up;
       const movieUserStatus = await moviesService.createOrUpdateWorthWatching(movie.id, worthWatching, activeUser.id);
       expect(movieUserStatus.worthWatching).toBe(worthWatching);
-
-      // Verify that WorthWatching is updated in movie
       const updatedMovie = await moviesService.findById(movie.id, false);
       expect(updatedMovie.worthWatching).toBe(WorthWatchingStatus.Up);
+      expect(updatedMovie.worthWatchingUpUsersCount).toBe(1);
+      expect(updatedMovie.worthWatchingDownUsersCount).toBe(0);
+
+      // Delete rating should update `movieUserStatus.worthWatching`, `movie.goreFactorRating`
+      // and `movie.goreFactorRatingUsersCount` properly
+      const movieUserStatusAfter = await moviesService.createOrUpdateWorthWatching(movie.id, 0, activeUser.id);
+      expect(movieUserStatusAfter.worthWatching).toBe(0);
+      const movieAfter = await moviesService.findById(movie.id, false);
+      expect(movieAfter.worthWatching).toBe(WorthWatchingStatus.NoRating);
+      expect(movieAfter.worthWatchingUpUsersCount).toBe(0);
+      expect(movieAfter.worthWatchingDownUsersCount).toBe(0);
     });
 
     it('verify that average of all WorthWatching of movierUserStatus is updated in movie', async () => {

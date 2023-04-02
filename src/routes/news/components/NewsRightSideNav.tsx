@@ -27,24 +27,24 @@ function NewsRightSideNav({
             <RoundButton
               variant={following ? 'black' : 'primary'}
               onClick={followUnfollowClick}
-              className="w-100 fs-3 rounded-pill"
+              className="w-100 rounded-pill"
             >
               {following ? 'Unfollow' : 'Follow'}
             </RoundButton>
           </Col>
         </Row>
         {following
-            && (
-              <Row className="mt-3">
-                <Col>
-                  <p className="fs-3 fw-bold">Get updates for this news partner</p>
-                  <div className="fs-3 mb-2 lh-lg d-flex justify-content-between">
-                    <span>Push notifications</span>
-                    <Switch id="pushNotificationSwitch" className="ms-0 ms-md-3" onSwitchToggle={onOffNotificationClick} isChecked={notificationToggle} />
-                  </div>
-                </Col>
-              </Row>
-            )}
+          && (
+            <Row className="mt-3">
+              <Col>
+                <p className="fs-3 fw-bold">Get updates for this news partner</p>
+                <div className="fs-3 mb-2 lh-lg d-flex justify-content-between">
+                  <span>Push notifications</span>
+                  <Switch id="pushNotificationSwitch" className="ms-0 ms-md-3" onSwitchToggle={onOffNotificationClick} isChecked={notificationToggle} />
+                </div>
+              </Col>
+            </Row>
+          )}
       </div>
       <AdvertisementBox />
       <RecentMessages />

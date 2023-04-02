@@ -257,7 +257,7 @@ function PostFeed({
               </div>
             )}
             {post?.goreFactor !== 0 && (
-              <div className={`align-items-center bg-dark d-flex px-3 py-2 rounded-pill ${post.rating && 'ms-3'} ${post.worthWatching && 'me-3'}`}>
+              <div className={`align-items-center bg-dark d-flex px-3 rounded-pill ${post.rating && 'ms-3'} ${post.worthWatching && 'me-3'}`}>
                 <CustomRatingText
                   rating={post.goreFactor}
                   icon={solid('burst')}

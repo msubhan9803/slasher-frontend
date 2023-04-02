@@ -33,7 +33,7 @@ function FilterOptions({
     <>
       <StyledFilterOptionButton
         onClick={handleFiltrOptions}
-        className={`${buttonClass} fs-3 bg-transparent border-0 ${!showSort ? 'd-none d-lg-inline' : 'd-inline'} ${showKeys || activeKey ? 'text-primary' : 'text-white'}`}
+        className={`${buttonClass} bg-transparent border-0 ${!showSort ? 'd-none d-lg-inline' : 'd-inline'} ${showKeys || activeKey ? 'text-primary' : 'text-white'}`}
       >
         Filter
         <StyledFilterIcon icon={solid('arrow-down-wide-short')} className="ms-2" />
@@ -43,7 +43,7 @@ function FilterOptions({
           onClick={handleFiltrOptions}
           className={`py-3 bg-transparent border-0 d-lg-none ${showKeys || activeKey || activeSort ? 'text-primary' : 'text-white'}`}
         >
-          <span className="fs-3">Sort/Filter</span>
+          <span className="">Sort/Filter</span>
           <StyledFilterIcon icon={solid('arrow-down-wide-short')} className="ms-2" size="lg" />
         </StyledFilterOptionButton>
       )}

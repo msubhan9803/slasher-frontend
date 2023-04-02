@@ -181,7 +181,7 @@ function CommentSection({
           {
             likeCount! > 0
             && (
-              <Likes className="d-flex position-relative justify-content-end">
+              <Likes role="button" className="d-flex position-relative justify-content-end">
                 <LikesButton onClick={handleLikeCountClick} className="p-1 px-2 text-light me-2 mt-2 rounded-pill text-white position-absolute">
                   <LinearIcon uniqueId="comment-like-count">
                     <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />

@@ -1,33 +1,54 @@
-import React, { ChangeEvent, useRef } from 'react';
+import React, {
+  ChangeEvent, useRef, useState,
+} from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Button, Form, InputGroup } from 'react-bootstrap';
 import styled from 'styled-components';
 
-const StyledChatInputGroup = styled.div`
-  .input-group{
-    .form-control {
-      border-radius: 1.875rem;
-      border-bottom-right-radius: 0rem;
-      border-top-right-radius: 0rem;
+interface InputProps {
+  focus: boolean;
+}
+
+const StyledChatInputGroup = styled(InputGroup) <InputProps>`
+  .input-group-text {
+    background-color: var(--bs-dark);
+    border-color: #3a3b46;
+    border-radius: 24px !important;
+    z-index: 999;
+    &.camera-btn{
+      border-bottom-right-radius: 0rem !important;
+      border-top-right-radius: 0rem !important;
+      div{
+        left: 12px;
+        .fa-camera {
+          width: 1.508rem;
+          height: 1.5rem;
+        }
+      }
     }
-    .input-group-text {
-      background-color: var(--bs-dark);
-      border-color: #3a3b46;
-      border-radius: 1.875rem;
-      padding: 0.75rem !important;
-      .fa-camera {
-        width: 1.508rem;
-        height: 1.5rem;
+    &.send-btn{
+      border-bottom-left-radius: 0rem !important;
+      border-top-left-radius: 0rem !important;
+      .btn {
+        right: 12px;
+        .fa-paper-plane {
+          width: 1.5rem;
+          height: 1.5rem;
+        }
       }
-      .fa-paper-plane {
-        width: 1.5rem;
-        height: 1.5rem;
-      }
+    }
+    svg {
+      min-width: 1.875rem;
     }
   }
-`;
+  
+  ${(props) => props.focus && `
+    box-shadow: 0 0 0 1px var(--stroke-and-line-separator-color);
+    border-radius: 24px !important;
+  `};
 
+`;
 interface ChatInputProps {
   sendMessageClick?: () => void;
   setMessage?: (value: string) => void;
@@ -38,47 +59,90 @@ interface ChatInputProps {
 function ChatInput({
   sendMessageClick, setMessage, message, handleFileChange,
 }: ChatInputProps) {
+  const [isFocusInput, setIsFocusInput] = useState<boolean>(false);
   const inputFile = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<any>(null);
+  const [rows, setRows] = useState(1);
+
   const handleSubmit = (event: any) => {
     event.preventDefault();
     sendMessageClick!();
+    setRows(1);
+  };
+  const calculateRows = () => {
+    const textareaLineHeight = 24;
+    const previousRows = rows;
+    textareaRef.current.rows = 1;
+    const currentRows = Math.floor(textareaRef.current.scrollHeight / textareaLineHeight);
+    if (currentRows === previousRows) {
+      textareaRef.current.rows = currentRows;
+    } else if (currentRows > 3) {
+      textareaRef.current.rows = 3;
+      setRows(3);
+    } else {
+      textareaRef.current.rows = currentRows;
+      setRows(currentRows);
+    }
+  };
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (event.key === 'Enter' && !event.shiftKey && !isMobile) {
+      handleSubmit(event);
+    }
   };
   return (
-    <StyledChatInputGroup className="pt-4 pt-lg-3 pb-0 pb-lg-3 px-3 text-muted border-top-0 overflow-hidden">
-      <Form onSubmit={handleSubmit}>
-        <InputGroup className="pe-2">
-          <InputGroup.Text className="border-end-0">
-            <input
-              type="file"
-              name="post"
-              className="d-none"
-              accept="image/*"
-              onChange={(post) => {
-                handleFileChange!(post);
-              }}
-              multiple
-              ref={inputFile}
-              aria-label="message"
-            />
-            <FontAwesomeIcon role="button" icon={solid('camera')} className="ps-1 text-white border-end-0" onClick={() => inputFile.current?.click()} />
+    <Form onSubmit={handleSubmit}>
+      <div className="d-flex align-items-end mb-4 px-3 mt-3">
+        <StyledChatInputGroup focus={isFocusInput} className="me-2">
+          <InputGroup.Text className="camera-btn position-relative border-end-0">
+            <div className="position-absolute align-self-end d-flex p-0">
+              <FontAwesomeIcon
+                onClick={() => {
+                  inputFile.current?.click();
+                }}
+                icon={solid('camera')}
+                size="lg"
+                className=""
+              />
+              <input
+                type="file"
+                name="post"
+                className="d-none"
+                accept="image/*"
+                onChange={(post) => {
+                  handleFileChange!(post);
+                }}
+                multiple
+                ref={inputFile}
+                aria-label="image"
+              />
+            </div>
           </InputGroup.Text>
           <Form.Control
+            as="textarea"
+            rows={rows}
             placeholder="Type your message here..."
-            className="border-end-0 fs-5 border-start-0"
+            className="shadow-none border-start-0 border-end-0 fs-5"
             value={message}
             onChange={
               (messageInput) => setMessage!(messageInput.target.value)
             }
             aria-label="message"
+            style={{ paddingLeft: '38px', resize: 'none', height: `${rows * 24}px` }}
+            onFocus={() => setIsFocusInput(true)}
+            onBlur={() => setIsFocusInput(false)}
+            ref={textareaRef}
+            onInput={calculateRows}
+            onKeyDown={handleKeyDown}
           />
-          <InputGroup.Text className="border-start-0">
-            <Button type="submit" className="bg-transparent border-0 p-0 pe-1">
-              <FontAwesomeIcon icon={solid('paper-plane')} className="text-primary" />
+          <InputGroup.Text className="position-relative ps-5 border-start-0 send-btn">
+            <Button type="submit" variant="link" aria-label="submit" className="position-absolute d-flex align-self-end p-0">
+              <FontAwesomeIcon icon={solid('paper-plane')} style={{ fontSize: '26px' }} className="text-primary" />
             </Button>
           </InputGroup.Text>
-        </InputGroup>
-      </Form>
-    </StyledChatInputGroup>
+        </StyledChatInputGroup>
+      </div>
+    </Form>
   );
 }
 

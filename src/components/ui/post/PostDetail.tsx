@@ -341,8 +341,9 @@ function PostDetail({ user, postType }: Props) {
         };
         newReplyArray.map((comment: any) => {
           const staticReplies = comment.replies;
+          const index = staticReplies.findIndex((obj: any) => obj._id === reply.commentReplyID);
           if (comment._id === reply.commentId) {
-            staticReplies.push({ ...replyValueData, _id: res.data._id });
+            staticReplies.splice(index + 1, 0, { ...replyValueData, _id: res.data._id });
           }
           return null;
         });

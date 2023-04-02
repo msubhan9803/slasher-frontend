@@ -1,31 +1,35 @@
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import { InputGroup, FormControl, Button } from 'react-bootstrap';
 import styled from 'styled-components';
 
-interface StyleInputProps {
-  addoncontent: React.ReactNode
-}
-const StyledInputGroup = styled(InputGroup) <StyleInputProps>`
-  .form-control {
-    ${((props) => props.addoncontent && 'border-left: 1px solid var(--bs-input-border-color)')}
+const StyledInputGroup = styled(InputGroup)`
+  .addon{
+    z-index: 999;
+  }
+  .passowrd {
+    right: 0.5px;
+    padding: 11px 14px;
   }
   .btn {
     background-color: rgb(31, 31, 31);
     border-color: #3a3b46 !important;
   }
   .input-group-text {
-    background-color: var(--bs-dark);
+    background-color: var(--bs - dark);
     border-color: #3a3b46;
     border-radius: 10px;
   }
   svg {
     color: var(--bs-primary);
     min-width: 30px;
+    height: 25px;
   }
 `;
 
 interface Props {
-  addonContent?: React.ReactNode;
+  addonContent?: IconDefinition;
   label: string;
   size: string;
   inputType?: string;
@@ -42,8 +46,9 @@ function CustomInputGroup({
   size, addonContent, label, inputType = 'text', showPassword, passwordVisiblility, password, onChangeValue, name, value, autoComplete,
 }: Props) {
   return (
-    <StyledInputGroup addoncontent={addonContent} className="mb-3" size={size}>
-      {addonContent && <InputGroup.Text id="addon-label text-primary">{addonContent}</InputGroup.Text>}
+    <StyledInputGroup className="mb-3 align-items-center" size={size}>
+      {addonContent
+        && <FontAwesomeIcon className="addon ms-3 position-absolute" icon={addonContent} size="lg" />}
       <FormControl
         placeholder={label}
         aria-label={label}
@@ -52,10 +57,14 @@ function CustomInputGroup({
         autoComplete={autoComplete}
         value={value}
         onChange={onChangeValue}
-        className={`${password && 'border-end-0'}`}
+        className="rounded-3"
+        style={{ paddingLeft: addonContent ? '76px' : '', paddingRight: addonContent && password ? '60px' : '' }}
       />
       {password && (
-        <Button className="fs-5 text-light border border-start-0 shadow-none" onClick={passwordVisiblility}>
+        <Button
+          className="addon passowrd fs-5 text-light border-0 position-absolute shadow-none"
+          onClick={passwordVisiblility}
+        >
           {showPassword ? 'Hide' : 'Show'}
         </Button>
       )}

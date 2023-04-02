@@ -12,6 +12,7 @@ import CustomPopover, { PopoverClickProps } from '../../CustomPopover';
 import { customlinkifyOpts } from '../../../../utils/linkify-utils';
 import { decryptMessage, escapeHtmlSpecialCharacters, newLineToBr } from '../../../../utils/text-utils';
 import CustomSwiper from '../../CustomSwiper';
+import { LikeShareModalResourceName, LikeShareModalTabName } from '../../../../types';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -45,6 +46,12 @@ interface Props {
   isReply?: boolean;
   setIsReply?: (value: boolean) => void;
   replyCommentIndex?: number;
+  handleLikeModal: (
+    modalTabNameValue: LikeShareModalTabName,
+    modaResourceNameValue: LikeShareModalResourceName,
+    modalResourceIdValue: string,
+    modalLikeCountValue: number,
+  ) => void;
 }
 interface ImageList {
   image_path: string;
@@ -77,7 +84,7 @@ function CommentSection({
   id, image, name, time, commentMention, commentMsg, commentImg,
   onIconClick, likeIcon, popoverOptions, onPopoverClick,
   feedCommentId, content, userId, userName, handleSeeCompleteList,
-  likeCount, active, isReply, setIsReply, replyCommentIndex,
+  likeCount, active, isReply, setIsReply, replyCommentIndex, handleLikeModal,
 }: Props) {
   const [images, setImages] = useState<ImageList[]>([]);
   const highlightRef = useRef<any>();
@@ -105,6 +112,11 @@ function CommentSection({
     }
   };
 
+  const handleLikeCountClick = () => {
+    // Note: isReply = true then `id` = `replyId` else `id` = `commentId`
+    handleLikeModal?.('like', isReply ? 'reply' : 'comment', id, Number(likeCount));
+  };
+
   return (
     <div key={id}>
       <div className={`position-absolute ps-1 ${!commentMention && 'mt-0 mt-md-3'} ${commentMention && 'ms-md-1'}`}>
@@ -114,7 +126,7 @@ function CommentSection({
       </div>
       <div style={{ marginLeft: `${userCircleImageSizeInRems + 0.5}rem` }}>
         <div
-          className={`text-break ms-3 pt-3 px-3 pb-4 bg-dark rounded ${active ? 'border border-primary' : ''}`}
+          className={`text-break ms-3 pt-3 pb-4 px-3 bg-dark rounded ${active ? 'border border-primary' : ''}`}
           ref={active ? highlightRef : null}
         >
           <div className="d-flex justify-content-between">
@@ -169,8 +181,8 @@ function CommentSection({
           {
             likeCount! > 0
             && (
-              <Likes className="rounded d-flex justify-content-end position-absolute">
-                <LikesButton className="p-1 px-2 text-light me-2 mt-1 rounded-pill text-white">
+              <Likes className="d-flex position-relative justify-content-end">
+                <LikesButton onClick={handleLikeCountClick} className="p-1 px-2 text-light me-2 mt-2 rounded-pill text-white position-absolute">
                   <LinearIcon uniqueId="comment-like-count">
                     <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
                     <span className="fs-5">{likeCount}</span>
@@ -186,7 +198,7 @@ function CommentSection({
             )
           }
         </div>
-        <div className="mb-3 ms-md-1 ms-4">
+        <div className="mt-2 mb-3 ms-md-4 ms-4">
           <div className="p-0 d-flex me-2" aria-hidden="true">
             {
               likeIcon

@@ -136,7 +136,7 @@ function Conversation() {
             setMessageLoading(false);
           },
         );
-    } else {
+    } else if (message.length > 0) {
       socket?.emit('chatMessage', { message, toUserId: chatUser?._id }, (chatMessageResponse: any) => {
         if (chatMessageResponse.success) {
           setMessageList((prev: any) => [

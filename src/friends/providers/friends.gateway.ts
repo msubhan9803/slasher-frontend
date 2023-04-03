@@ -30,7 +30,7 @@ export class FriendsGateway {
     return { newFriendRequestCount: clearFriendRequestCount.newFriendRequestCount };
   }
 
-  async friendRequestReceived(friend: Friend) {
+  async emitFriendRequestReceivedEvent(friend: Friend) {
     const targetUserSocketIds = await this.usersService.findSocketIdsForUser(friend.to.toString());
     targetUserSocketIds.forEach((socketId) => {
       this.server.to(socketId).emit('friendRequestReceived', {

@@ -178,11 +178,11 @@ export class UsersService {
       .exec();
   }
 
-  async updateNewConversationIds(id: string, matchId: string): Promise<UserDocument> {
+  async addAndUpdateNewConversationId(id: string, matchId: string): Promise<UserDocument> {
     const user = await this.userModel.findOne({ _id: id, newConversationIds: matchId });
     if (!user) {
       const updateUserData = await this.userModel
-        .findOneAndUpdate({ _id: id }, { $push: { newConversationIds: matchId } }, { new: true })
+        .findOneAndUpdate({ _id: id }, { $addToSet: { newConversationIds: matchId } }, { new: true })
         .exec();
       return updateUserData;
     }
@@ -201,7 +201,7 @@ export class UsersService {
       .exec();
   }
 
-  async updateNewConversationIdsByMatchId(id: string, matchId: string): Promise<UserDocument> {
+  async removeAndUpdateNewConversationId(id: string, matchId: string): Promise<UserDocument> {
     const updateUserData = await this.userModel
       .findOneAndUpdate({ _id: id }, { $pull: { newConversationIds: matchId } }, { new: true })
       .exec();

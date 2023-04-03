@@ -137,13 +137,13 @@ export class FeedPostsController {
     // Create notifications if any users were mentioned
     const mentionedUserIds = extractUserMentionIdsFromMessage(createFeedPost?.message);
     for (const mentionedUserId of mentionedUserIds) {
-      await Promise.all([this.notificationsService.create({
+      await this.notificationsService.create({
         userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
         feedPostId: createFeedPost.id,
         senderId: user._id,
         notifyType: NotificationType.UserMentionedYouInPost,
         notificationMsg: 'mentioned you in a post',
-      }), this.usersService.updateNewNotificationCount(mentionedUserId)]);
+      });
     }
 
     return {
@@ -338,13 +338,13 @@ export class FeedPostsController {
     // Create notifications if any NEW users were mentioned after the edit
     const newMentionedUserIds = mentionedUserIdsAfterUpdate.filter((x) => !mentionedUserIdsBeforeUpdate.includes(x));
     for (const mentionedUserId of newMentionedUserIds) {
-      await Promise.all([this.notificationsService.create({
+      await this.notificationsService.create({
         userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
         feedPostId: updatedFeedPost.id,
         senderId: user._id,
         notifyType: NotificationType.UserMentionedYouInPost,
         notificationMsg: 'mentioned you in a post',
-      }), this.usersService.updateNewNotificationCount(mentionedUserId)]);
+      });
     }
 
     return {

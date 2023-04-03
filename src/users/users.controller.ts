@@ -425,7 +425,7 @@ export class UsersController {
       recentMessages,
       recentFriendRequests: receivedFriendRequestsData,
       unreadNotificationCount,
-      newConversationIds: user.newConversationIds.length,
+      newConversationIdsCount: user.newConversationIds.length,
     };
   }
 

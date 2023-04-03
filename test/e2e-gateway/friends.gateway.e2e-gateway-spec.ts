@@ -97,7 +97,7 @@ describe('Friends Gateway (e2e)', () => {
       await waitForAuthSuccessMessage(receiverClient);
 
       const friend = await friendsService.createFriendRequest(activeUser.id, user0.id);
-      await friendsGateway.friendRequestReceived(friend);
+      await friendsGateway.emitFriendRequestReceivedEvent(friend);
 
       let receivedPayload;
       const socketListenPromise = new Promise<void>((resolve) => {

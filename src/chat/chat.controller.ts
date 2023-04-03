@@ -117,7 +117,7 @@ export class ChatController {
     if (!matchUserIds.length) {
       throw new HttpException('You are not a member of this conversation', HttpStatus.UNAUTHORIZED);
     }
-    const userData = await this.usersService.updateNewConversationIdsByMatchId(user.id, param.matchListId);
+    const userData = await this.usersService.removeAndUpdateNewConversationId(user.id, param.matchListId);
 
     await Promise.all([
       this.chatGateway.emitConversationCountUpdateEvent(userData.id),

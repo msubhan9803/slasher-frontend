@@ -142,7 +142,7 @@ export class User extends UserUnusedFields {
   @Prop({ default: 0 })
   newNotificationCount: number;
 
-  // The number of new notifications that have been received since the user looked at their messages page
+  // The unique list of conversation ids where the user has received new messages since looking at their messages page
   @Prop({ default: [] })
   newConversationIds: string[];
 

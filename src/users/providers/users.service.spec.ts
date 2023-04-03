@@ -471,27 +471,14 @@ describe('UsersService', () => {
     });
   });
 
-  describe('#updateNewConversationIds', () => {
+  describe('#addAndUpdateNewConversationId', () => {
     it('finds the expected user and update newConversationIds', async () => {
       const user1 = await usersService.create(userFactory.build());
       const user2 = await usersService.create(userFactory.build());
       const matchList = await chatService.createPrivateDirectMessageConversation([user1.id, user2.id]);
 
-      const userData = await usersService.updateNewConversationIds(user1.id, matchList.id);
+      const userData = await usersService.addAndUpdateNewConversationId(user1.id, matchList.id);
       expect(userData.newConversationIds).toEqual([matchList.id]);
-    });
-
-    it('when same newConversationIds is exists than expected response', async () => {
-      const user1 = await usersService.create(userFactory.build());
-      const user2 = await usersService.create(userFactory.build());
-      const matchList1 = await chatService.createPrivateDirectMessageConversation([user1.id, user2.id]);
-      const matchList2 = await chatService.createPrivateDirectMessageConversation([user1.id, user2.id]);
-      const user3 = await usersService.create(userFactory.build({
-        newConversationIds: [matchList1.id, matchList2.id],
-      }));
-
-      const userData = await usersService.updateNewConversationIds(user3.id, matchList1.id);
-      expect(userData.newConversationIds).toEqual([matchList1.id, matchList2.id]);
     });
   });
 
@@ -519,8 +506,8 @@ describe('UsersService', () => {
     });
   });
 
-  describe('#updateNewConversationIdsByMatchId', () => {
-    it('finds the expected user and updateNewConversationIdsByMatchId', async () => {
+  describe('#addAndUpdateNewConversationIdByMatchId', () => {
+    it('finds the expected user and addAndUpdateNewConversationIdByMatchId', async () => {
       const user1 = await usersService.create(userFactory.build());
       const user2 = await usersService.create(userFactory.build());
       const matchList = await chatService.createPrivateDirectMessageConversation([user1.id, user2.id]);
@@ -528,7 +515,7 @@ describe('UsersService', () => {
         newConversationIds: [matchList.id],
       }));
 
-      const userData = await usersService.updateNewConversationIdsByMatchId(user3.id, matchList.id);
+      const userData = await usersService.removeAndUpdateNewConversationId(user3.id, matchList.id);
       expect(userData.newConversationIds).toEqual([]);
     });
   });

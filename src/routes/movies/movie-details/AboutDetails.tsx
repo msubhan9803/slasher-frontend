@@ -208,9 +208,9 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
               <BorderButton
                 buttonClass="mx-md-auto rate-btn bg-black mt-md-4 justify-content-md-center d-flex"
                 variant="black"
-                icon={solid('star')}
+                icon={hasRating ? solid('star') : regular('star')}
                 iconClass="me-2"
-                iconStyle={{ color: 'var(--bs-orange)' }}
+                iconStyle={{ color: hasRating ? 'var(--bs-orange)' : 'white' }}
                 iconSize="sm"
                 lable={hasRating ? String(movieData.userData ? movieData.userData?.rating : 'Rate') : 'Rate'}
                 handleClick={() => setShowRating(true)}
@@ -281,7 +281,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                 buttonClass="d-flex rate-btn bg-black d-flex"
                 variant="black"
                 icon={solid('burst')}
-                iconClass="me-2 text-primary"
+                iconClass={`me-2 ${hasGoreFactor ? 'text-primary' : ''}`}
                 iconSize="sm"
                 lable={hasGoreFactor ? String(movieData.userData ? movieData.userData?.goreFactorRating : 'Rate') : 'Rate'}
                 handleClick={() => setShowGoreRating(true)}

@@ -13,7 +13,7 @@ import { userInitialData } from '../../../../api/users';
 import {
   setUserInitialData, handleUpdatedUnreadConversationCount, resetUnreadNotificationCount,
   resetNewFriendRequestCountCount, incrementUnreadNotificationCount,
-  incrementFriendReuqestCount,
+  incrementFriendRequestCount,
 } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { signOut } from '../../../../utils/session-utils';
@@ -111,15 +111,15 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const onNotificationReceivedHandler = useCallback(() => {
     dispatch(incrementUnreadNotificationCount());
   }, [dispatch]);
-  const onFriendReuqestReceivedHandler = useCallback(() => {
-    dispatch(incrementFriendReuqestCount());
+  const onFriendRequestReceivedHandler = useCallback(() => {
+    dispatch(incrementFriendRequestCount());
   }, [dispatch]);
 
   const onClearNewNotificationCount = useCallback(() => {
     dispatch(resetUnreadNotificationCount());
   }, [dispatch]);
 
-  const onClearNewFriendReuqestCount = useCallback(() => {
+  const onClearNewFriendRequestCount = useCallback(() => {
     dispatch(resetNewFriendRequestCountCount());
   }, [dispatch]);
 
@@ -130,22 +130,22 @@ function AuthenticatedPageWrapper({ children }: Props) {
   useEffect(() => {
     if (socket) {
       socket.on('notificationReceived', onNotificationReceivedHandler);
-      socket.on('friendRequestReceived', onFriendReuqestReceivedHandler);
+      socket.on('friendRequestReceived', onFriendRequestReceivedHandler);
       socket.on('unreadConversationCountUpdate', onUnreadConversationCountUpdate);
       socket.on('clearNewNotificationCount', onClearNewNotificationCount);
-      socket.on('clearNewFriendReuqestCount', onClearNewFriendReuqestCount);
+      socket.on('clearNewFriendRequestCount', onClearNewFriendRequestCount);
       return () => {
         socket.off('notificationReceived', onNotificationReceivedHandler);
-        socket.off('friendRequestReceived', onFriendReuqestReceivedHandler);
+        socket.off('friendRequestReceived', onFriendRequestReceivedHandler);
         socket.off('unreadMessageCountUpdate', onUnreadConversationCountUpdate);
         socket.off('clearNewNotificationCount', onClearNewNotificationCount);
-        socket.off('clearNewFriendReuqestCount', onClearNewFriendReuqestCount);
+        socket.off('clearNewFriendRequestCount', onClearNewFriendRequestCount);
       };
     }
     return () => { };
   }, [
-    onNotificationReceivedHandler, onFriendReuqestReceivedHandler,
-    onUnreadConversationCountUpdate, onClearNewFriendReuqestCount,
+    onNotificationReceivedHandler, onFriendRequestReceivedHandler,
+    onUnreadConversationCountUpdate, onClearNewFriendRequestCount,
     onClearNewNotificationCount,
     socket]);
 

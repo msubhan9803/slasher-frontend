@@ -11,7 +11,9 @@ import {
 import InfiniteScroll from 'react-infinite-scroller';
 import { DateTime } from 'luxon';
 import Chat from '../../components/chat/Chat';
-import { getConversation, createOrFindConversation, attachFile } from '../../api/messages';
+import {
+  getConversation, createOrFindConversation, attachFile, markAllReadForSingleConversation,
+} from '../../api/messages';
 import NotFound from '../../components/NotFound';
 import useGlobalSocket from '../../hooks/useGlobalSocket';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
@@ -84,7 +86,8 @@ function Conversation() {
   useEffect(() => {
     socket?.emit('clearNewConversationIds', {});
     dispatch(resetUnreadConversationCount());
-  }, [dispatch, socket]);
+    markAllReadForSingleConversation(conversationId!);
+  }, [dispatch, socket, conversationId]);
 
   useEffect(() => {
     if (conversationId && !location.pathname.includes('new')) {

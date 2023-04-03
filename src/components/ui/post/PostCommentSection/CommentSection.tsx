@@ -65,13 +65,17 @@ const LinearIcon = styled.div<LinearIconProps>`
     fill: url(#${(props) => props.uniqueId});
   }
 `;
-const LikesButton = styled.div`
-  width: 3.81rem;
+const LikesButton = styled(Button)`
+  min-width: 3.81rem;
   height: 1.875rem;
   background-color: #383838;
   border: none;
   &:hover {
     background-color: #383838;
+  }
+  .like-count {
+    position: relative;
+    top: -1px;
   }
 `;
 const Likes = styled.div`
@@ -182,10 +186,10 @@ function CommentSection({
             likeCount! > 0
             && (
               <Likes className="d-flex position-relative justify-content-end">
-                <LikesButton onClick={handleLikeCountClick} className="p-1 px-2 text-light me-2 mt-2 rounded-pill text-white position-absolute">
+                <LikesButton onClick={handleLikeCountClick} className="py-1 btn-filter text-light me-2 mt-2 rounded-pill text-white position-absolute">
                   <LinearIcon uniqueId="comment-like-count">
-                    <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                    <span className="fs-5">{likeCount}</span>
+                    <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-1" />
+                    <span className="like-count fs-5">{likeCount}</span>
                   </LinearIcon>
                 </LikesButton>
                 <svg width="0" height="0">

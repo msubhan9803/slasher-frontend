@@ -146,6 +146,11 @@ function EventSuggestion() {
     handleChange(e.target.value, 'eventInfo');
   };
   useEffect(() => {
+    // Make sure that page is at top when this component is mounted (Issue discussed in SD-961).
+    window.scrollTo({
+      top: 0,
+      behavior: 'instant' as any,
+    });
     setLoadingEventCategories(true);
     getEventCategoriesOption().then((res) => {
       setLoadingEventCategories(false);

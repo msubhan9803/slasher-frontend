@@ -282,9 +282,9 @@ function EventsByDate() {
           </Row>
         </InfiniteScroll>
         {noMoreData && renderNoMoreDataMessage()}
-        {/* Show an ad on events page in-case when we have no events to show. */}
-        {(eventsList.length === 0) && <PubWiseAd className="my-3" id={ALL_MOVIES_DIV_ID} autoSequencer />}
       </div>
+      {/* Show an ad on events page in-case when we have no events to show. */}
+      {(eventsList.length === 0) && <PubWiseAd className="my-3" id={ALL_MOVIES_DIV_ID} autoSequencer />}
     </div>
   );
 }

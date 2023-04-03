@@ -118,6 +118,7 @@ function MoviesModal({
       )}
       {show && (
         <ModalContainer
+          $modalContentWidth={348}
           show={show}
           centered
           onHide={closeModal}
@@ -140,7 +141,7 @@ function MoviesModal({
             )}
             {ButtonType === 'rating' && (
               <Modal.Body className="d-flex flex-column align-items-center text-center pb-5">
-                <div className="px-5">
+                <div>
                   <h1 className="text-primary h2">Rate this movie</h1>
                 </div>
                 <RatingButtonGroups
@@ -151,14 +152,14 @@ function MoviesModal({
                 {/* Remove Star Rating Button */}
                 { hasRating
                   && (
-                  <BorderButton
-                    buttonClass="d-flex rate-btn bg-black py-2 w-100 d-flex justify-content-center"
-                    variant="secondary"
-                    iconClass="me-2"
-                    iconSize="sm"
-                    lable="Clear rating"
-                    handleClick={() => setRating(-1)}
-                  />
+                    <BorderButton
+                      buttonClass="d-flex rate-btn bg-black w-100 d-flex justify-content-center"
+                      variant="secondary"
+                      iconClass="me-2"
+                      iconSize="sm"
+                      lable="Clear rating"
+                      handleClick={() => setRating(-1)}
+                    />
                   )}
                 <RoundButton onClick={handleRatingSubmit} className="mt-3 w-100 border-0 bg-primary fw-bold">
                   Submit
@@ -167,7 +168,7 @@ function MoviesModal({
             )}
             {ButtonType === 'goreFactorRating' && (
               <Modal.Body className="d-flex flex-column align-items-center text-center pb-5">
-                <div className="px-5">
+                <div className="px-4">
                   <h1 className="text-primary h2">How gory is this?</h1>
                 </div>
                 <RatingGore className="star-rating my-3">
@@ -190,14 +191,14 @@ function MoviesModal({
                 {/* Remove Gore Factor Rating Button */}
                 { hasGoreFactor
                   && (
-                  <BorderButton
-                    buttonClass="d-flex rate-btn bg-black py-2 w-100 d-flex justify-content-center"
-                    variant="secondary"
-                    iconClass="me-2"
-                    iconSize="sm"
-                    lable="Clear rating"
-                    handleClick={() => setRating(-1)}
-                  />
+                    <BorderButton
+                      buttonClass="d-flex rate-btn bg-black w-100 d-flex justify-content-center"
+                      variant="secondary"
+                      iconClass="me-2"
+                      iconSize="sm"
+                      lable="Clear rating"
+                      handleClick={() => setRating(-1)}
+                    />
                   )}
                 <RoundButton onClick={handleGoreFactorSubmit} className="mt-3 w-100 border-0 bg-primary fw-bold">
                   Submit

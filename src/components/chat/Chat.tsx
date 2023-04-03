@@ -16,17 +16,17 @@ interface Props {
 }
 
 const StyledChatContainer = styled.div<Props>`
-  height: calc(100dvh - 170px);
+  height: calc(100dvh - 111px);
   .card {
     height: 100%;
     .card-header {
       z-index: 1;
     }
     .card-body {
-      height: calc(100dvh - 165px);
+      height: calc(100dvh - 145px);
       z-index: 0;
       .conversation-container {
-        height: ${(props) => (props.height ? 'calc(100dvh - 500px)' : 'calc(100dvh - 355px)')};
+        height: ${(props) => (props.height ? 'calc(100dvh - 440px)' : 'calc(100dvh - 300px)')};
         overflow-x: hidden;
       }
       * {
@@ -46,7 +46,7 @@ const StyledChatContainer = styled.div<Props>`
       @media (max-width: ${LG_MEDIA_BREAKPOINT}) {
         height: calc(100dvh - 165px);
         .conversation-container {
-          height: ${(props) => (props.height ? 'calc(100dvh - 372px)' : 'calc(100dvh - 235px)')};
+          height: ${(props) => (props.height ? 'calc(100dvh - 372px)' : 'calc(100dvh - 240px)')};
         }
       }
       .image-container {
@@ -82,15 +82,17 @@ function Chat({
           />
           <div className="image-container overflow-auto d-flex mx-4 gap-3">
             {imageArray!.map((post: File) => (
-              <Col xs="auto" key={post.name} className="mb-1">
+              <Col xs="auto" key={post.name} className="mb-2">
                 <ImagesContainer
                   containerWidth="7.25rem"
                   containerHeight="7.25rem"
                   containerBorder="0.125rem solid var(--bs-input-border-color)"
                   image={post}
-                  alt="post image"
+                  alt="" // TODO: set any existing alt text here (when editing existing image)
+                  // eslint-disable-next-line no-console
+                  onAltTextChange={(newValue) => { console.log(`TODO: Use this to set alt text.  New value is: ${newValue}`); }}
                   handleRemoveImage={() => handleRemoveFile!(post)}
-                  containerClass="mt-4 position-relative d-flex justify-content-center align-items-center rounded border-0"
+                  containerClass="position-relative d-flex justify-content-center align-items-center rounded border-0"
                   removeIconStyle={{
                     padding: '0.313rem 0.438rem',
                     top: '6.313rem',

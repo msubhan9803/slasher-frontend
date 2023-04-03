@@ -52,6 +52,7 @@ function PostCommentSection({
   commentSent,
   setCommentReplyErrorMessage,
   setCommentErrorMessage,
+  handleLikeModal,
 }: any) {
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [show, setShow] = useState<boolean>(false);
@@ -103,20 +104,13 @@ function PostCommentSection({
       setSelectedReplyCommentId(commentReplyId);
       setReplyUserName(replyName);
       setSelectedReplyUserID(userId!);
-      setCheckLoadMoreId([]);
-      const updatedCommentData: FeedComments[] = [];
       commentData.map((comment: any) => {
         /* eslint-disable no-param-reassign */
         if (comment.id === commentReplyId) {
           setReplyIndex(replyCommentIndex!);
-          comment.isReplyIndex = scrollReplyId?.includes('comment') ? 0 : replyCommentIndex! + 1;
-          updatedCommentData.push(comment);
-        } else {
-          updatedCommentData.push(comment);
         }
         return null;
       });
-      setCommentData(updatedCommentData);
     }
   }, [commentData]);
 
@@ -149,7 +143,23 @@ function PostCommentSection({
         return null;
       });
     }
-  }, [isReply, commentData, tabsRef, replyIndex, selectedReplyCommentId, scrollId]);
+  }, [isReply, commentData, tabsRef, replyIndex,
+    selectedReplyCommentId, scrollId]);
+
+  const generateReplyIndex = useCallback((comment: any) => {
+    const updateComment = comment;
+    let updateReplyIndex = 2;
+    const newReplyData = updateComment.replies.filter((reply: any) => reply?.new === true);
+    const loadedComment = checkLoadMoreId.includes(updateComment._id);
+
+    if (loadedComment) {
+      updateReplyIndex = updateComment.replies.length;
+    } else if (newReplyData.length > 0 && !loadedComment) {
+      updateReplyIndex = newReplyData.length + updateReplyIndex;
+    }
+
+    return updateReplyIndex;
+  }, [checkLoadMoreId]);
 
   useEffect(() => {
     if (commentSectionData || updateState) {
@@ -185,16 +195,8 @@ function PostCommentSection({
             likeIcon: comment.likedByUser,
             likeCount: comment.likeCount,
             commentCount: comment.commentCount,
-            isReplyIndex: checkLoadMoreId.find(
-              (loadedComment: any) => loadedComment.id === comment._id,
-            )?.isReplyIndex
-              ?? commentData.find(
-                (replyComment: any) => replyComment.id === comment._id,
-              )?.isReplyIndex! >= 0
-              ? commentData.find(
-                (replyComment: any) => replyComment.id === comment._id,
-              )?.isReplyIndex
-              : 2,
+            isReplyIndex:
+              generateReplyIndex(comment),
           };
           return feedComment;
         });
@@ -204,10 +206,9 @@ function PostCommentSection({
       };
       feedCommentData();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     commentSectionData, updateState, checkLoadMoreId, commentReplyID,
-    setUpdateState, updatedReply,
+    setUpdateState, updatedReply, generateReplyIndex,
   ]);
 
   useEffect(() => {
@@ -358,19 +359,13 @@ function PostCommentSection({
           checkLoadMoreId.find(
             (id: any) => {
               if (id !== loadId) {
-                const loadMoreData = checkLoadMoreId.push(
-                  {
-                    id: loadId,
-                    isReplyIndex: comment.isReplyIndex,
-                  },
-                );
-                return loadMoreData;
+                setCheckLoadMoreId([...checkLoadMoreId, loadId]);
               }
               return id;
             },
           );
         } else {
-          checkLoadMoreId.push({ id: loadId, isReplyIndex: comment.isReplyIndex });
+          setCheckLoadMoreId([...checkLoadMoreId, loadId]);
         }
       } else {
         updatedCommentData.push(comment);
@@ -430,6 +425,7 @@ function PostCommentSection({
         isReply
         setIsReply={setIsReply}
         replyCommentIndex={replyCommentIndex}
+        handleLikeModal={handleLikeModal}
       />
     </div>
   );
@@ -445,6 +441,42 @@ function PostCommentSection({
       });
     }
   }, [queryCommentId, queryReplyId, commentData]);
+
+  const generateReplyInput = (dataId: any) => {
+    console.log('(generateReplyInput(data.id))');
+    return (
+      <div id={scrollId} ref={tabsRef}>
+        <CommentInput
+          userData={userData}
+          message={replyMessage}
+          inputFile={replyInputFile}
+          handleFileChange={handleFileChange}
+          sendComment={sendComment}
+          imageArray={replyImageArray}
+          handleRemoveFile={handleRemoveFile}
+          dataId={dataId}
+          handleSearch={handleSearch}
+          mentionList={mentionList}
+          isReply
+          replyImageArray={replyImageArray}
+          addUpdateReply={addUpdateReply}
+          commentID={selectedReplyCommentId}
+          commentReplyID={selectedReplyId!}
+          commentError={commentError}
+          commentReplyError={commentReplyError}
+          commentSent={commentSent}
+          setCommentReplyErrorMessage={setCommentReplyErrorMessage}
+          setReplyImageArray={setReplyImageArray}
+          isEdit={isEdit}
+          updateState={updateState}
+        />
+        {
+          !isEdit && commentReplyError
+          && <ErrorMessageList errorMessages={commentReplyError} divClass="mt-3 text-start" className="m-0 mb-4" />
+        }
+      </div>
+    );
+  };
   return (
     <>
       <CommentInput
@@ -503,9 +535,16 @@ function PostCommentSection({
                 userId={data.userId?._id}
                 active={!queryReplyId ? data.id === queryCommentId : false}
                 setIsReply={setIsReply}
+                handleLikeModal={handleLikeModal}
               />
               <div className="ms-5 ps-2">
                 <div className="ms-md-4">
+                  {
+                    isReply
+                    && selectedReplyCommentId === data.id
+                    && !selectedReplyId
+                    && (generateReplyInput(data.id))
+                  }
                   {data.commentReplySection && data.commentReplySection.length > 0
                     && data.commentReplySection
                       .slice(0, data.isReplyIndex)
@@ -519,59 +558,38 @@ function PostCommentSection({
                               && (isReply || selectedReplyCommentId !== data.id))
                             ? oldReply(comment, replyCommentIndex)
                             : null}
+                          {
+                            isReply
+                            && selectedReplyCommentId === data.commentReplySection[0]?.feedCommentId
+                            && selectedReplyId === comment.id
+                            && replyCommentIndex === replyIndex
+                            && (generateReplyInput(data.id))
+                          }
                         </div>
                       ))}
 
-                  {
-                    isReply
-                    && (selectedReplyCommentId === data.id
-                      || selectedReplyCommentId === data.commentReplySection[0]?.feedCommentId
-                      || data.commentReplySection.some(
-                        (item: any) => item.newComment === true && item.id === selectedReplyId,
-                      )
-                    ) && (
-                      <div id={scrollId} ref={tabsRef}>
-                        <CommentInput
-                          userData={userData}
-                          message={replyMessage}
-                          inputFile={replyInputFile}
-                          handleFileChange={handleFileChange}
-                          sendComment={sendComment}
-                          imageArray={replyImageArray}
-                          handleRemoveFile={handleRemoveFile}
-                          dataId={data.id}
-                          handleSearch={handleSearch}
-                          mentionList={mentionList}
-                          isReply
-                          replyImageArray={replyImageArray}
-                          addUpdateReply={addUpdateReply}
-                          commentID={selectedReplyCommentId}
-                          commentReplyID={selectedReplyId!}
-                          commentError={commentError}
-                          commentReplyError={commentReplyError}
-                          commentSent={commentSent}
-                          setCommentReplyErrorMessage={setCommentReplyErrorMessage}
-                          setReplyImageArray={setReplyImageArray}
-                          isEdit={isEdit}
-                        />
-                        {!isEdit && commentReplyError
-                          && <ErrorMessageList errorMessages={commentReplyError} divClass="mt-3 text-start" className="m-0 mb-4" />}
+                  {data.commentReplySection.map(
+                    (comment: any, replyCommentIndex: number) => (
+                      <div key={comment.id}>
+                        {(replyCommentIndex === (data.commentReplySection.length - 1))
+                          && (comment.newComment)
+                          && !isReply
+                          && data.id === selectedReplyCommentId
+                          ? oldReply(comment, replyCommentIndex)
+                          : null}
                       </div>
-                    )
-                  }
+                    ),
+                  )}
 
                   {data.commentReplySection
                     && data.commentReplySection.length >= 1
+                    && !checkLoadMoreId.includes(data.id)
                     && data.commentReplySection.length - data.isReplyIndex > 0
-                    && data.commentReplySection.length - data.isReplyIndex - (
-                      data.commentReplySection.filter(
-                        (reply: any, index: any) => (
-                          index === data.commentReplySection.length - 1
-                          && reply.newComment
-                          && !isReply
-                          && data.id === selectedReplyCommentId
-                        ),
-                      )).length > 0
+                    && !(
+                      data.commentReplySection.findLastIndex(
+                        (item: any) => item.newComment,
+                      ) === data.commentReplySection.length - 1
+                    )
                     && (
                       <LoadMoreCommentsWrapper>
                         <Button
@@ -579,6 +597,7 @@ function PostCommentSection({
                           className="text-primary shadow-none"
                           onClick={() => {
                             handleShowMoreComments(data.commentReplySection[0]?.feedCommentId);
+                            setIsReply(false);
                           }}
                         >
                           {`Load
@@ -610,19 +629,6 @@ function PostCommentSection({
                         </Button>
                       </LoadMoreCommentsWrapper>
                     )}
-
-                  {data.commentReplySection.map(
-                    (comment: any, replyCommentIndex: number) => (
-                      <div key={comment.id}>
-                        {(replyCommentIndex === (data.commentReplySection.length - 1))
-                          && (comment.newComment)
-                          && !isReply
-                          && data.id === selectedReplyCommentId
-                          ? oldReply(comment, replyCommentIndex)
-                          : null}
-                      </div>
-                    ),
-                  )}
 
                 </div>
               </div>

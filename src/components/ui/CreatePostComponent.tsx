@@ -153,11 +153,12 @@ function CreatePostComponent({
                   setLike={setLike!}
                   disLiked={disLiked!}
                   setDisLike={setDisLike!}
+                  postType={postType}
                 />
                 {isWorthIt !== WorthWatchingStatus.NoRating
                   && (
                     <CustomWortItText
-                      divClass="align-items-center py-2 px-3 bg-black rounded-pill"
+                      divClass="align-items-center px-3 bg-black rounded-pill"
                       textClass="fs-4"
                       customCircleWidth="20px"
                       customCircleHeight="20px"
@@ -221,7 +222,7 @@ function CreatePostComponent({
                 as="input"
                 type="button"
                 value={type}
-                className={`${type === selectedPostType ? 'bg-primary text-black' : 'bg-secondary text-white'} rounded-pill py-2 px-3 m-1`}
+                className={`${type === selectedPostType ? 'bg-primary text-black' : 'bg-secondary text-white'} rounded-pill px-3 m-1`}
                 onClick={() => setSelectedPostType!(type)}
               />
             ))}
@@ -269,7 +270,9 @@ function CreatePostComponent({
                   containerHeight="7.25rem"
                   containerBorder="0.125rem solid #3A3B46"
                   image={post}
-                  alt="post image"
+                  alt="" // TODO: set any existing alt text here (when editing existing image)
+                  // eslint-disable-next-line no-console
+                  onAltTextChange={(newValue) => { console.log(`TODO: Use this to set alt text.  New value is: ${newValue}`); }}
                   handleRemoveImage={handleRemoveFile}
                   containerClass="mt-4 position-relative d-flex justify-content-center align-items-center rounded border-0"
                   removeIconStyle={{

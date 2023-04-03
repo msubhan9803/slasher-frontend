@@ -91,7 +91,7 @@ function FilterModal({
                 <Button
                   key={keys}
                   onClick={() => { onClickApplyFilter(keys); }}
-                  className={`py-2 px-3 text-white fs-3 border align-items-center d-flex fw-normal justify-content-center m-2 rounded-pill ${key !== keys ? 'bg-dark' : ' bg-primary'}`}
+                  className={`px-3 text-white fs-3 border align-items-center d-flex fw-normal justify-content-center m-2 rounded-pill ${key !== keys ? 'bg-dark' : ' bg-primary'}`}
                 >
                   {keys}
                 </Button>
@@ -111,7 +111,7 @@ function FilterModal({
           <RoundButton
             variant="primary"
             type="submit"
-            className="w-100 fs-3"
+            className="w-100"
             onClick={onClickApplyFilter}
           >
             Apply filter

@@ -305,10 +305,11 @@ export type MarkerLocationType = {
   linkAddress: string,
 };
 
+export type LikeShareModalTabName = 'like' | 'share' | '';
+
+export type LikeShareModalResourceName = 'feedpost' | 'comment' | 'reply';
 export interface FriendshipStatus {
   reaction: number;
   from: string;
   to: string;
 }
-
-export type PostButtonClickType = 'like' | 'share' | '';

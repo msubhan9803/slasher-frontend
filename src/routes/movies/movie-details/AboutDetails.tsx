@@ -4,8 +4,8 @@ import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import { DateTime } from 'luxon';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useParams } from 'react-router-dom';
 import RoundButton from '../../../components/ui/RoundButton';
 import WorthWatchIcon, { StyledDislikeIcon, StyledLikeIcon } from '../components/WorthWatchIcon';
 import MoviesModal from '../components/MoviesModal';
@@ -53,7 +53,8 @@ const AboutMovieDetails = styled.div`
     height: 1.563rem;
   }
   .rate-btn {
-    padding: 0 1.438rem;
+    padding-right: 1.438rem;
+    padding-left: 1.438rem;
     svg {
       width: 1.179rem;
       height: 1.125rem;
@@ -63,7 +64,8 @@ const AboutMovieDetails = styled.div`
     }
   }
   .share-btn {
-    padding: 0 1.25rem;
+    padding-right: 0 1.25rem;
+    padding-left: 0 1.25rem;
     svg {
       width: 1.055rem;
       height: 1.125rem;
@@ -92,6 +94,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
     movieData.userData.worthWatching === WorthWatchingStatus.Down,
   );
   const params = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (params.id && worthIt !== null) {
@@ -108,6 +111,9 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
     }
   }, [worthIt, params, setMovieData]);
 
+  const handleReviwRedirect = () => {
+    navigate(`/app/movies/${params.id}/reviews`, { state: { movieId: params.id } });
+  };
   const toHoursAndMinutes = (totalMinutes: number) => {
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
@@ -189,7 +195,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                 : (
                   <div className="d-flex mt-md-3 justify-content-md-center">
                     <CustomRatingText
-                      rating={movieData.userData ? movieData.userData?.rating : 0}
+                      rating={movieData.rating}
                       icon={solid('star')}
                       ratingType="star"
                       customWidth="1.638rem"
@@ -202,15 +208,16 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
               <BorderButton
                 buttonClass="mx-md-auto rate-btn bg-black mt-md-4 justify-content-md-center d-flex"
                 variant="black"
-                icon={regular('star')}
+                icon={hasRating ? solid('star') : regular('star')}
                 iconClass="me-2"
+                iconStyle={{ color: hasRating ? 'var(--bs-orange)' : 'white' }}
                 iconSize="sm"
                 lable={hasRating ? String(movieData.userData ? movieData.userData?.rating : 'Rate') : 'Rate'}
                 handleClick={() => setShowRating(true)}
               />
             </div>
             <div className="d-flex justify-content-center my-3 d-md-none ">
-              <RoundButton className="w-100 fw-bold">Write a review</RoundButton>
+              <RoundButton className="w-100 fw-bold" onClick={() => handleReviwRedirect()}> Write a review</RoundButton>
             </div>
             <StyledBorder className="d-md-none" />
           </Col>
@@ -271,10 +278,10 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
               )}
             <div className="mt-4 d-flex justify-content-center">
               <BorderButton
-                buttonClass="d-flex rate-btn bg-black py-2 d-flex"
+                buttonClass="d-flex rate-btn bg-black d-flex"
                 variant="black"
                 icon={solid('burst')}
-                iconClass="me-2"
+                iconClass={`me-2 ${hasGoreFactor ? 'text-primary' : ''}`}
                 iconSize="sm"
                 lable={hasGoreFactor ? String(movieData.userData ? movieData.userData?.goreFactorRating : 'Rate') : 'Rate'}
                 handleClick={() => setShowGoreRating(true)}
@@ -282,7 +289,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
             </div>
           </Col>
           <div className="d-none d-md-flex justify-content-center mt-3">
-            <RoundButton className="w-50 fs-3 fw-bold">Write a review</RoundButton>
+            <RoundButton className="w-50 fw-bold" onClick={() => handleReviwRedirect()}>Write a review</RoundButton>
           </div>
           <StyledBorder className="d-md-none my-3" />
         </Row>

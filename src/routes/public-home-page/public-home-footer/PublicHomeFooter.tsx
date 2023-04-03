@@ -79,6 +79,15 @@ function PublicHomeFooter() {
                 <Image fluid src={PlayStoreImage} alt="play store" className="border rounded" />
               </Link>
             </StyledBadge>
+            <Row className="mt-4 mt-md-5 align-item-center justify-content-center justify-content-md-end">
+              <Col xs={8} sm={6} md={10} lg={6} xl={4}>
+                <div className="d-flex justify-content-between">
+                  {['Terms', 'Privacy', 'Eula'].map((policy: string) => (
+                    <p key={policy} className="text-lignt m-0">{policy}</p>
+                  ))}
+                </div>
+              </Col>
+            </Row>
           </Col>
         </Row>
       </div>

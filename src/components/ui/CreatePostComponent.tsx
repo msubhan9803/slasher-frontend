@@ -270,7 +270,9 @@ function CreatePostComponent({
                   containerHeight="7.25rem"
                   containerBorder="0.125rem solid #3A3B46"
                   image={post}
-                  alt="post image"
+                  alt="" // TODO: set any existing alt text here (when editing existing image)
+                  // eslint-disable-next-line no-console
+                  onAltTextChange={(newValue) => { console.log(`TODO: Use this to set alt text.  New value is: ${newValue}`); }}
                   handleRemoveImage={handleRemoveFile}
                   containerClass="mt-4 position-relative d-flex justify-content-center align-items-center rounded border-0"
                   removeIconStyle={{

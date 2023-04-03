@@ -1,6 +1,7 @@
 /* eslint-disable react/destructuring-assignment */
 /* eslint-disable max-lines */
 import React, {
+  useCallback,
   useEffect, useMemo, useRef, useState,
 } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
@@ -46,14 +47,29 @@ function MapDebugger() {
   return null;
 }
 
-function RegisterPanAndZoomEvents({ handlePanAndZoom }: { handlePanAndZoom: Function }) {
+type RegisterPanZoomProps = {
+  handlePanAndZoom: Function;
+  setMessage: React.Dispatch<React.SetStateAction<string | null>>;
+  zoomThreshold: number;
+};
+function RegisterPanAndZoomEvents({
+  handlePanAndZoom, setMessage, zoomThreshold,
+}: RegisterPanZoomProps) {
+  const handlePanAndZoomFn = useCallback((map: Leaflet.Map) => {
+    if (map.getZoom() < zoomThreshold) {
+      setMessage('You are too far out, please zoom in');
+    } else {
+      setMessage(null);
+      handlePanAndZoom();
+    }
+  }, [handlePanAndZoom, setMessage, zoomThreshold]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const map = useMapEvents({
     moveend: () => {
-      handlePanAndZoom();
+      handlePanAndZoomFn(map);
     },
     zoomend: () => {
-      handlePanAndZoom();
+      handlePanAndZoomFn(map);
     },
   });
   return null;
@@ -72,6 +88,9 @@ const Map = styled(MapContainer)`
   }
   .leaflet-popup {
     bottom : 0 !important;
+  }
+  .leaflet-control-zoom {
+    margin-top: 30px;
   }
 `;
 
@@ -96,10 +115,20 @@ interface Props {
   onCenterChange: (newCenter: LatLngLiteral) => void,
   markerLocations: Array<MarkerLocationType>,
   handlePanAndZoom: Function,
+  zoomThreshold: number;
 }
 
+const MapNotifiyMessage = styled.div`
+  margin-bottom: -22px;
+  color: white;
+  position: relative;
+  background: rgb(0 0 0 / 51%);
+  z-index: 1;
+  padding: 0px 25px;
+`;
+
 function MapComponent({
-  defaultCenter, defaultZoomLevel, onCenterChange, markerLocations, handlePanAndZoom,
+  defaultCenter, defaultZoomLevel, onCenterChange, markerLocations, handlePanAndZoom, zoomThreshold,
 }: Props, mapRef: any) {
   const [center, setCenter] = useState<LatLngLiteral>(defaultCenter);
   const [errors, setErrors] = useState<string[]>([]);
@@ -108,6 +137,7 @@ function MapComponent({
   ] = useState<string | null>(null);
   const [locationSearchQuery, setLocationSearchQuery] = useState('');
   const lastLocationQueryRef = useRef('');
+  const [mapNotifiyMessage, setMapNotifiyMessage] = useState<string | null>(null);
 
   const setMapLocationFromLocationSearchQueryNew = useMemo(() => debounce(
     async (value: string) => {
@@ -203,6 +233,7 @@ function MapComponent({
           </Alert>
         )
       }
+      {mapNotifiyMessage && <MapNotifiyMessage>{mapNotifiyMessage}</MapNotifiyMessage>}
       <Map
         key={`${center.lat}-${center.lng}`}
         center={[center.lat, center.lng]}
@@ -240,7 +271,11 @@ function MapComponent({
           icon={userMarkerIcon}
         />
 
-        <RegisterPanAndZoomEvents handlePanAndZoom={handlePanAndZoom} />
+        <RegisterPanAndZoomEvents
+          setMessage={setMapNotifiyMessage}
+          handlePanAndZoom={handlePanAndZoom}
+          zoomThreshold={zoomThreshold}
+        />
 
         {/* For development only */}
         {/* { enableDevFeatures && <MapDebugger /> } */}

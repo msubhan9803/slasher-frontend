@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Card, Col,
 } from 'react-bootstrap';
@@ -13,20 +13,20 @@ import ImagesContainer from '../ui/ImagesContainer';
 
 interface Props {
   height: number;
+  rows: number;
 }
 
 const StyledChatContainer = styled.div<Props>`
-  height: calc(100dvh - 111px);
   .card {
     height: 100%;
     .card-header {
       z-index: 1;
     }
     .card-body {
-      height: calc(100dvh - 145px);
+      height:${(props) => ((props.rows) ? 'calc(100dvh - 205px )' : 'calc(100dvh - 183px)')} ;
       z-index: 0;
       .conversation-container {
-        height: ${(props) => (props.height ? 'calc(100dvh - 440px)' : 'calc(100dvh - 300px)')};
+        height: ${(props) => (props.rows ? `calc(100dvh - 224px - ${props.rows * 24}px)` : 'calc(100dvh - 274px)')};
         overflow-x: hidden;
       }
       * {
@@ -63,8 +63,25 @@ function Chat({
   messages, userData, sendMessageClick, setMessage, message, handleFileChange, handleRemoveFile,
   imageArray, messageLoading,
 }: ChatProps) {
+  const textareaRef = useRef<any>(null);
+  const [rows, setRows] = useState(1);
+  const calculateRows = () => {
+    const textareaLineHeight = 24;
+    const previousRows = rows;
+    textareaRef.current.rows = 1;
+    const currentRows = Math.floor(textareaRef.current.scrollHeight / textareaLineHeight);
+    if (currentRows === previousRows) {
+      textareaRef.current.rows = currentRows;
+    } else if (currentRows > 3) {
+      textareaRef.current.rows = 3;
+      setRows(3);
+    } else {
+      textareaRef.current.rows = currentRows;
+      setRows(currentRows);
+    }
+  };
   return (
-    <StyledChatContainer height={imageArray && imageArray.length ? 1 : 0}>
+    <StyledChatContainer height={imageArray && imageArray.length ? 1 : 0} rows={rows}>
       <Card className="bg-black bg-mobile-transparent rounded-3 border-0">
         <Card.Header className="d-flex justify-content-between position-relative border-bottom border-opacity-25 border-secondary px-0 px-lg-3 py-lg-4">
           <ChatUserStatus userData={userData} />
@@ -74,33 +91,37 @@ function Chat({
           <div className="conversation-container">
             <ChatMessage messages={messages} messageLoading={messageLoading} />
           </div>
-          <ChatInput
-            sendMessageClick={sendMessageClick}
-            setMessage={setMessage}
-            message={message}
-            handleFileChange={handleFileChange}
-          />
-          <div className="image-container overflow-auto d-flex mx-4 gap-3">
-            {imageArray!.map((post: File) => (
-              <Col xs="auto" key={post.name} className="mb-2">
-                <ImagesContainer
-                  containerWidth="7.25rem"
-                  containerHeight="7.25rem"
-                  containerBorder="0.125rem solid var(--bs-input-border-color)"
-                  image={post}
-                  alt="post image"
-                  handleRemoveImage={() => handleRemoveFile!(post)}
-                  containerClass="position-relative d-flex justify-content-center align-items-center rounded border-0"
-                  removeIconStyle={{
-                    padding: '0.313rem 0.438rem',
-                    top: '6.313rem',
-                    left: '6.313rem',
-                  }}
-                />
-              </Col>
-            ))}
-          </div>
         </Card.Body>
+        <ChatInput
+          sendMessageClick={sendMessageClick}
+          setMessage={setMessage}
+          message={message}
+          handleFileChange={handleFileChange}
+          rows={rows}
+          setRows={setRows}
+          calculateRows={calculateRows}
+          textareaRef={textareaRef}
+        />
+        <div className="image-container overflow-auto d-flex mx-4 gap-3 mt-3">
+          {imageArray!.map((post: File) => (
+            <Col xs="auto" key={post.name} className="mb-2">
+              <ImagesContainer
+                containerWidth="7.25rem"
+                containerHeight="7.25rem"
+                containerBorder="0.125rem solid var(--bs-input-border-color)"
+                image={post}
+                alt="post image"
+                handleRemoveImage={() => handleRemoveFile!(post)}
+                containerClass="position-relative d-flex justify-content-center align-items-center rounded border-0"
+                removeIconStyle={{
+                  padding: '0.313rem 0.438rem',
+                  top: '6.313rem',
+                  left: '6.313rem',
+                }}
+              />
+            </Col>
+          ))}
+        </div>
       </Card>
     </StyledChatContainer>
   );

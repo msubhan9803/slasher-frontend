@@ -12,6 +12,7 @@ import CustomPopover, { PopoverClickProps } from '../../CustomPopover';
 import { customlinkifyOpts } from '../../../../utils/linkify-utils';
 import { decryptMessage, escapeHtmlSpecialCharacters, newLineToBr } from '../../../../utils/text-utils';
 import CustomSwiper from '../../CustomSwiper';
+import { LikeShareModalResourceName, LikeShareModalTabName } from '../../../../types';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -45,6 +46,12 @@ interface Props {
   isReply?: boolean;
   setIsReply?: (value: boolean) => void;
   replyCommentIndex?: number;
+  handleLikeModal: (
+    modalTabNameValue: LikeShareModalTabName,
+    modaResourceNameValue: LikeShareModalResourceName,
+    modalResourceIdValue: string,
+    modalLikeCountValue: number,
+  ) => void;
 }
 interface ImageList {
   image_path: string;
@@ -58,13 +65,17 @@ const LinearIcon = styled.div<LinearIconProps>`
     fill: url(#${(props) => props.uniqueId});
   }
 `;
-const LikesButton = styled.div`
-  width: 3.81rem;
+const LikesButton = styled(Button)`
+  min-width: 3.81rem;
   height: 1.875rem;
   background-color: #383838;
   border: none;
   &:hover {
     background-color: #383838;
+  }
+  .like-count {
+    position: relative;
+    top: -1px;
   }
 `;
 const Likes = styled.div`
@@ -77,7 +88,7 @@ function CommentSection({
   id, image, name, time, commentMention, commentMsg, commentImg,
   onIconClick, likeIcon, popoverOptions, onPopoverClick,
   feedCommentId, content, userId, userName, handleSeeCompleteList,
-  likeCount, active, isReply, setIsReply, replyCommentIndex,
+  likeCount, active, isReply, setIsReply, replyCommentIndex, handleLikeModal,
 }: Props) {
   const [images, setImages] = useState<ImageList[]>([]);
   const highlightRef = useRef<any>();
@@ -103,6 +114,11 @@ function CommentSection({
     if (handleSeeCompleteList) {
       handleSeeCompleteList(feedCommentId || id, name, isReply ? id : '', scrollId, replyCommentIndex, userId);
     }
+  };
+
+  const handleLikeCountClick = () => {
+    // Note: isReply = true then `id` = `replyId` else `id` = `commentId`
+    handleLikeModal?.('like', isReply ? 'reply' : 'comment', id, Number(likeCount));
   };
 
   return (
@@ -170,10 +186,10 @@ function CommentSection({
             likeCount! > 0
             && (
               <Likes className="d-flex position-relative justify-content-end">
-                <LikesButton className="p-1 px-2 text-light me-2 mt-2 rounded-pill text-white position-absolute">
+                <LikesButton onClick={handleLikeCountClick} className="py-1 btn-filter text-light me-2 mt-2 rounded-pill text-white position-absolute">
                   <LinearIcon uniqueId="comment-like-count">
-                    <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                    <span className="fs-5">{likeCount}</span>
+                    <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-1" />
+                    <span className="like-count fs-5">{likeCount}</span>
                   </LinearIcon>
                 </LikesButton>
                 <svg width="0" height="0">

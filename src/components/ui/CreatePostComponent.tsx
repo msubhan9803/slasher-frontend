@@ -153,11 +153,12 @@ function CreatePostComponent({
                   setLike={setLike!}
                   disLiked={disLiked!}
                   setDisLike={setDisLike!}
+                  postType={postType}
                 />
                 {isWorthIt !== WorthWatchingStatus.NoRating
                   && (
                     <CustomWortItText
-                      divClass="align-items-center py-2 px-3 bg-black rounded-pill"
+                      divClass="align-items-center px-3 bg-black rounded-pill"
                       textClass="fs-4"
                       customCircleWidth="20px"
                       customCircleHeight="20px"
@@ -221,7 +222,7 @@ function CreatePostComponent({
                 as="input"
                 type="button"
                 value={type}
-                className={`${type === selectedPostType ? 'bg-primary text-black' : 'bg-secondary text-white'} rounded-pill py-2 px-3 m-1`}
+                className={`${type === selectedPostType ? 'bg-primary text-black' : 'bg-secondary text-white'} rounded-pill px-3 m-1`}
                 onClick={() => setSelectedPostType!(type)}
               />
             ))}

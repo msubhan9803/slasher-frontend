@@ -29,7 +29,7 @@ function RatingButtonGroups({
   rating, setRating, label, size, isGoreFator,
 }: RatingButtonGroupProps) {
   return (
-    <Form.Group>
+    <Form.Group className="my-3">
       {label && <Form.Label className="fw-bold h3">{label}</Form.Label>}
       <RatingStar className="align-items-center bg-black d-flex px-2 rounded-pill star-rating">
         {[...Array(5)].map((star, index) => (

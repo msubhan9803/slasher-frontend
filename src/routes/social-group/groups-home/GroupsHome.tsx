@@ -93,7 +93,7 @@ function GroupsHome() {
             size="sm"
             variant="form"
             name="all-groups"
-            className={`${postsType === 'all-groups' ? 'text-black' : 'text-white'} py-2 px-4 mx-2`}
+            className={`${postsType === 'all-groups' ? 'text-black' : 'text-white'} px-4 mx-2`}
             active={postsType === 'all-groups'}
             onClick={(e: any) => setPostsType((e.target as HTMLButtonElement).name)}
           >
@@ -103,7 +103,7 @@ function GroupsHome() {
             variant="form"
             size="sm"
             name="your-groups"
-            className={`${postsType === 'your-groups' ? 'text-black' : 'text-white'} py-2 px-4`}
+            className={`${postsType === 'your-groups' ? 'text-black' : 'text-white'} px-4`}
             active={postsType === 'your-groups'}
             onClick={(e: any) => setPostsType((e.target as HTMLButtonElement).name)}
           >

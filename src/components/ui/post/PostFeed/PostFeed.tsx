@@ -15,7 +15,8 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import * as stringSimilarity from 'string-similarity';
 import PostFooter from './PostFooter';
 import {
-  CommentValue, Post, PostButtonClickType, ReplyValue, WorthWatchingStatus,
+  CommentValue, LikeShareModalResourceName, Post, LikeShareModalTabName,
+  ReplyValue, WorthWatchingStatus,
 } from '../../../../types';
 import LikeShareModal from '../../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
@@ -36,7 +37,7 @@ import RoundButton from '../../RoundButton';
 import CustomRatingText from '../../CustomRatingText';
 import CustomWortItText from '../../CustomWortItText';
 import { useAppSelector } from '../../../../redux/hooks';
-import { HOME_WEB_DIV_ID, NEWS_PARTNER_DETAILS_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
+import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
 import LoadingIndicator from '../../LoadingIndicator';
 import { customlinkifyOpts } from '../../../../utils/linkify-utils';
 import { getLocalStorage } from '../../../../utils/localstorage-utils';
@@ -128,17 +129,20 @@ function PostFeed({
   commentSent, setCommentReplyErrorMessage, setCommentErrorMessage,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
-  const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
-  const [buttonClick, setButtonClck] = useState<PostButtonClickType>('');
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
   const location = useLocation();
   const navigate = useNavigate();
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
-  const [clickedPostId, setClickedPostId] = useState('');
   const spoilerId = getLocalStorage('spoilersIds');
-  const [clickedPostLikeCount, setClickedPostLikeCount] = useState(0);
+  // Below states (prefixed by `modal`) are useful for `LikeShareModal` component
+  const [showLikeShareModal, setShowLikeShareModal] = useState<boolean>(false);
+  const [modaResourceName, setModaResourceName] = useState<LikeShareModalResourceName | null>(null);
+  const [modalTabName, setModalTabName] = useState<LikeShareModalTabName>('');
+  const [modalResourceId, setModalResourceId] = useState('');
+  const [modalLikeCount, setModalLikeCount] = useState(0);
+
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
       return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
@@ -150,12 +154,18 @@ function PostFeed({
     setPostData(postFeedData);
   }, [postFeedData]);
 
-  const openDialogue = (click: PostButtonClickType, postId: string, postLikeCount: number) => {
-    setOpenLikeShareModal(true);
+  const handleLikeModal = (
+    modalTabNameValue: LikeShareModalTabName,
+    modaResourceNameValue: LikeShareModalResourceName | null,
+    modalResourceIdValue: string,
+    modalLikeCountValue: number,
+  ) => {
+    setShowLikeShareModal(true);
+    setModaResourceName(modaResourceNameValue);
     // Set other useful info for the `modal`
-    setClickedPostId(postId);
-    setButtonClck(click);
-    setClickedPostLikeCount(postLikeCount);
+    setModalResourceId(modalResourceIdValue);
+    setModalTabName(modalTabNameValue);
+    setModalLikeCount(modalLikeCountValue);
   };
 
   const imageLinkUrl = (post: any, imageId: string) => {
@@ -247,7 +257,7 @@ function PostFeed({
               </div>
             )}
             {post?.goreFactor !== 0 && (
-              <div className={`align-items-center bg-dark d-flex px-3 py-2 rounded-pill ${post.rating && 'ms-3'} ${post.worthWatching && 'me-3'}`}>
+              <div className={`align-items-center bg-dark d-flex px-3 rounded-pill ${post.rating && 'ms-3'} ${post.worthWatching && 'me-3'}`}>
                 <CustomRatingText
                   rating={post.goreFactor}
                   icon={solid('burst')}
@@ -411,7 +421,7 @@ function PostFeed({
                       onSelect={onSelect}
                       likeCount={post.likeCount}
                       commentCount={post.commentCount}
-                      handleLikeModal={openDialogue}
+                      handleLikeModal={handleLikeModal}
                       postType={postType}
                       movieId={post.movieId}
                     />
@@ -463,6 +473,7 @@ function PostFeed({
                       commentSent={commentSent}
                       setCommentReplyErrorMessage={setCommentReplyErrorMessage}
                       setCommentErrorMessage={setCommentErrorMessage}
+                      handleLikeModal={handleLikeModal}
                     />
                   </InfiniteScroll>
                   {loadingPosts && <LoadingIndicator />}
@@ -470,8 +481,9 @@ function PostFeed({
               )
             }
           </div>
-          { /* Below ad is to be shown in the end of a single pgae post */}
-          {isSinglePagePost && <PubWiseAd className="text-center mt-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />}
+          {/* NOTE: Below ad is temporarily removed as per request on SD-1019 */}
+          {/* Below ad is to be shown in the end of a single page post */}
+          {/* {isSinglePagePost && <PubWiseAd className="text-center mt-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />} */}
 
           {!detailPage && <hr className="post-separator" />}
 
@@ -488,14 +500,15 @@ function PostFeed({
       {/* Show an ad if posts are less than 3 */}
       {!isSinglePagePost && pubWiseAdDivId && postData.length < 3 && postData.length !== 0 && <PubWiseAd className="my-3" id={pubWiseAdDivId} autoSequencer />}
       {
-        openLikeShareModal
+        showLikeShareModal
         && (
           <LikeShareModal
-            show={openLikeShareModal}
-            setShow={setOpenLikeShareModal}
-            click={buttonClick}
-            clickedPostId={clickedPostId}
-            clickedPostLikeCount={clickedPostLikeCount}
+            modaResourceName={modaResourceName}
+            show={showLikeShareModal}
+            setShow={setShowLikeShareModal}
+            click={modalTabName} // "like"
+            clickedPostId={modalResourceId}
+            clickedPostLikeCount={modalLikeCount} // e.g., 23
           />
         )
       }

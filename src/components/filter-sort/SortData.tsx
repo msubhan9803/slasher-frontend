@@ -15,9 +15,9 @@ interface OptionsProps {
 }
 
 const StyledSelect = styled(Select)`
-    .css-1dimb5e-singleValue {
-      color: #ffffff !important;
-    }
+  .css-1dimb5e-singleValue {
+    color: #ffffff !important;
+  }
 `;
 function SortData({
   title, sortoptions, type, onSelectSort, sortVal,
@@ -30,7 +30,7 @@ function SortData({
       background: 'var(--bs-dark)',
       borderRadius: '20px',
       border: '1px solid #3A3B46',
-      boxShadow: state.isFocused ? '0 0 0 0.25rem rgba(255, 24, 0, 0.25)' : null,
+      boxShadow: state.isFocused ? '0 0 0 1px var(--stroke-and-line-separator-color)' : null,
       paddingLeft: 5,
       '&:hover': {
         border: '1px solid #3A3B46',
@@ -38,7 +38,7 @@ function SortData({
     }),
     menu: (base: any) => ({
       ...base,
-      backgroundColor: 'black',
+      backgroundColor: 'var(--bs-secondary)',
       color: '#ffffff',
       borderRadius: '10',
       border: '1px solid #ffffff',
@@ -50,12 +50,15 @@ function SortData({
     }),
     option: (base: any, state: any) => ({
       ...base,
-      backgroundColor: state.isFocused || (state.isFocused && state.isSelected) ? '#2684ff' : null,
+      backgroundColor: state.isFocused || (state.isFocused && state.isSelected) ? 'var(--bs-primary)' : null,
+      color: state.isFocused || (state.isFocused && state.isSelected) ? 'var(--bs-secondary)' : null,
       '&:hover': {
-        backgroundColor: '#2684ff',
+        backgroundColor: 'var(--bs-primary)',
+        color: 'var(--bs-secondary)',
       },
       '&:focus-visible': {
-        backgroundColor: '#2684ff',
+        backgroundColor: 'var(--bs-primary)',
+        color: 'var(--bs-secondary)',
       },
     }),
   };

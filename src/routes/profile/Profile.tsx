@@ -76,7 +76,7 @@ function Profile() {
     <ContentSidbarWrapper>
       <ContentPageWrapper>
         <Routes>
-          <Route path="/" element={<Navigate to="posts" replace />} />
+          <Route path="/" element={<Navigate to="about" replace />} />
           <Route path="/posts" element={<ProfilePosts user={user} />} />
           <Route path="/posts/:postId" element={<PostDetail user={user} />} />
           <Route path="/friends" element={<ProfileFriends user={user} />} />

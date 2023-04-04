@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   Card, Col,
 } from 'react-bootstrap';
@@ -23,10 +23,10 @@ const StyledChatContainer = styled.div<Props>`
       z-index: 1;
     }
     .card-body {
-      height:${(props) => ((props.rows) ? 'calc(100dvh - 205px )' : 'calc(100dvh - 183px)')} ;
+      height:${(props) => ((props.height) ? 'calc(100dvh - 340px)' : 'calc(100dvh - 221px )')} ;
       z-index: 0;
       .conversation-container {
-        height: ${(props) => (props.rows ? `calc(100dvh - 224px - ${props.rows * 24}px)` : 'calc(100dvh - 274px)')};
+        height: ${(props) => (props.height ? `calc(100dvh - ${props.height ? '360px' : '224px'}  - ${props.rows * 24}px)` : `calc(100dvh -  236px  - ${props.rows * 24}px)`)};
         overflow-x: hidden;
       }
       * {
@@ -44,9 +44,9 @@ const StyledChatContainer = styled.div<Props>`
           background: rgba(255, 255, 255, .1);
       }
       @media (max-width: ${LG_MEDIA_BREAKPOINT}) {
-        height: calc(100dvh - 165px);
+        height: ${(props) => (props.height ? 'calc(100dvh - 278px)' : 'calc(100dvh - 170px)')};;
         .conversation-container {
-          height: ${(props) => (props.height ? 'calc(100dvh - 372px)' : 'calc(100dvh - 240px)')};
+          height: ${(props) => (props.height ? 'calc(100dvh - 348px)' : 'calc(100dvh - 235px)')};
         }
       }
       .image-container {
@@ -80,6 +80,11 @@ function Chat({
       setRows(currentRows);
     }
   };
+  useEffect(() => {
+    if (message?.length === 0) {
+      setRows(1);
+    }
+  }, [message]);
   return (
     <StyledChatContainer height={imageArray && imageArray.length ? 1 : 0} rows={rows}>
       <Card className="bg-black bg-mobile-transparent rounded-3 border-0">

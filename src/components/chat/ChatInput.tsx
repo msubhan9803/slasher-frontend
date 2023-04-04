@@ -55,8 +55,8 @@ interface ChatInputProps {
   message?: string;
   handleFileChange?: (value: ChangeEvent<HTMLInputElement>) => void;
   rows: number;
-  setRows: any;
-  calculateRows: any;
+  setRows: (value: number) => void;
+  calculateRows: () => void;
   textareaRef: any;
 }
 

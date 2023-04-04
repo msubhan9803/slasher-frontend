@@ -264,7 +264,9 @@ function CommentInput({
               containerBorder="0.125rem solid #3A3B46"
               image={post}
               dataId={dataId}
-              alt="Post comment image"
+              alt="" // TODO: set any existing alt text here (when editing existing image)
+              // eslint-disable-next-line no-console
+              onAltTextChange={(newValue) => { console.log(`TODO: Use this to set alt text.  New value is: ${newValue}`); }}
               handleRemoveImage={handleRemoveFile}
               containerClass="mt-2 mb-3 position-relative d-flex justify-content-center align-items-center rounded border-0"
               removeIconStyle={{

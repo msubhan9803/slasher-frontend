@@ -63,15 +63,6 @@ const StyledLink = styled(Link)`
 export const CustomDropDown = styled(Dropdown)`
   .dropdown-toggle {
     border: none;
-    &:hover {
-      box-shadow: none;
-    }
-    &:focus {
-      box-shadow: none;
-    }
-    &:active {
-      box-shadow: none;
-    }
     &:after {
       display: none;
     }

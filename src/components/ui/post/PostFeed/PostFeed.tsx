@@ -115,6 +115,9 @@ const StyleSpoilerButton = styled(RoundButton)`
 const StyledContentContainer = styled.div<StyledProps>`
   max-width: max-content;
   cursor: ${(props) => (!props?.detailsPage ? 'pointer' : 'auto')};
+  a {
+    display: inline-block;
+  }
 `;
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
@@ -200,6 +203,14 @@ function PostFeed({
       return loginUserMoviePopoverOptions;
     }
     return popoverOptions;
+  };
+  const handlePostContentKeyDown = (event: React.KeyboardEvent, post: any) => {
+    if (event.key === 'Enter') {
+      const shouldCallPostContentClick = !detailPage;
+      if (shouldCallPostContentClick) {
+        onPostContentClick(post);
+      }
+    }
   };
 
   const renderPostContent = (post: any) => {
@@ -305,6 +316,9 @@ function PostFeed({
                   }
                 }
                 onClick={() => !detailPage && onPostContentClick(post)}
+                aria-label="post-content"
+                tabIndex={0}
+                onKeyDown={(e) => handlePostContentKeyDown(e, post)}
               />
               {
                 post.hashTag?.map((hashtag: string) => (

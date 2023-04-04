@@ -6,7 +6,6 @@ import { Notification, NotificationDocument } from '../../schemas/notification/n
 import { NotificationDeletionStatus, NotificationReadStatus } from '../../schemas/notification/notification.enums';
 import { NotificationsGateway } from './notifications.gateway';
 import { UsersService } from '../../users/providers/users.service';
-import { User } from '../../schemas/user/user.schema';
 
 @Injectable()
 export class NotificationsService {
@@ -23,7 +22,7 @@ export class NotificationsService {
     // This can be processed in the background instead of adding a small delay to each notification creation.
 
     await Promise.all([this.processNotification(newNotification.id),
-      this.usersService.updateNewNotificationCount((notification.userId as unknown as User)._id.toString())]);
+      this.usersService.updateNewNotificationCount((notification.userId).toString())]);
     return newNotification;
   }
 

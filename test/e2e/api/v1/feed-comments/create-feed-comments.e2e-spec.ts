@@ -76,332 +76,125 @@ describe('Feed-Comments / Comments File (e2e)', () => {
         configService.get<string>('JWT_SECRET_KEY'),
       );
       feedPost = await feedPostsService.create(feedPostFactory.build({ userId: activeUser._id }));
-      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
     });
 
     it('requires authentication', async () => {
       await request(app.getHttpServer()).post('/api/v1/feed-comments').expect(HttpStatus.UNAUTHORIZED);
     });
 
-    it('returns the expected response upon successful request', async () => {
-      await createTempFiles(async (tempPaths) => {
+    describe('with mocked notificationService.create', () => {
+      beforeEach(async () => {
+        jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
+      });
+
+      it('returns the expected response upon successful request', async () => {
+        await createTempFiles(async (tempPaths) => {
+          const response = await request(app.getHttpServer())
+            .post('/api/v1/feed-comments')
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('message', 'hello test user')
+            .field('feedPostId', feedPost._id.toString())
+            .attach('images', tempPaths[0])
+            .attach('images', tempPaths[1])
+            .attach('images', tempPaths[2])
+            .attach('images', tempPaths[3])
+            .expect(HttpStatus.CREATED);
+          expect(response.body).toEqual({
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            feedPostId: feedPost._id.toString(),
+            message: 'hello test user',
+            userId: activeUser._id.toString(),
+            images: [
+              {
+                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+              {
+                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+              {
+                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+              {
+                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+            ],
+          });
+        }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+
+        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+        expect(allFilesNames).toEqual(['.keep']);
+      });
+
+      it('responds expected response when one or more uploads files user an unallowed extension', async () => {
+        await createTempFiles(async (tempPaths) => {
+          const response = await request(app.getHttpServer())
+            .post('/api/v1/feed-comments')
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('message', 'hello test user')
+            .field('feedPostId', feedPost._id.toString())
+            .attach('images', tempPaths[0])
+            .attach('images', tempPaths[1])
+            .attach('images', tempPaths[2])
+            .attach('images', tempPaths[3])
+            .expect(HttpStatus.BAD_REQUEST);
+          expect(response.body.message).toBe('Invalid file type');
+        }, [{ extension: 'png' }, { extension: 'tjpg' }, { extension: 'tjpg' }, { extension: 'zpng' }]);
+
+        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+        expect(allFilesNames).toEqual(['.keep']);
+      });
+
+      it('allows the creation of a comments with only a message, but no files', async () => {
+        const message = 'This is a test message';
         const response = await request(app.getHttpServer())
           .post('/api/v1/feed-comments')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
-          .field('message', 'hello test user')
+          .field('message', message)
           .field('feedPostId', feedPost._id.toString())
-          .attach('images', tempPaths[0])
-          .attach('images', tempPaths[1])
-          .attach('images', tempPaths[2])
-          .attach('images', tempPaths[3])
           .expect(HttpStatus.CREATED);
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           feedPostId: feedPost._id.toString(),
-          message: 'hello test user',
+          message: 'This is a test message',
           userId: activeUser._id.toString(),
-          images: [
-            {
-              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            },
-            {
-              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            },
-            {
-              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            },
-            {
-              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            },
-          ],
+          images: [],
         });
-      }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+      });
 
-      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
-      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-      expect(allFilesNames).toEqual(['.keep']);
-    });
-
-    it('responds expected response when one or more uploads files user an unallowed extension', async () => {
-      await createTempFiles(async (tempPaths) => {
+      it('responds expected response when neither message nor file are present in request', async () => {
         const response = await request(app.getHttpServer())
           .post('/api/v1/feed-comments')
           .auth(activeUserAuthToken, { type: 'bearer' })
-          .set('Content-Type', 'multipart/form-data')
-          .field('message', 'hello test user')
+          .field('message', '')
           .field('feedPostId', feedPost._id.toString())
-          .attach('images', tempPaths[0])
-          .attach('images', tempPaths[1])
-          .attach('images', tempPaths[2])
-          .attach('images', tempPaths[3])
           .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toBe('Invalid file type');
-      }, [{ extension: 'png' }, { extension: 'tjpg' }, { extension: 'tjpg' }, { extension: 'zpng' }]);
-
-      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
-      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-      expect(allFilesNames).toEqual(['.keep']);
-    });
-
-    it('allows the creation of a comments with only a message, but no files', async () => {
-      const message = 'This is a test message';
-      const response = await request(app.getHttpServer())
-        .post('/api/v1/feed-comments')
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .set('Content-Type', 'multipart/form-data')
-        .field('message', message)
-        .field('feedPostId', feedPost._id.toString())
-        .expect(HttpStatus.CREATED);
-      expect(response.body).toEqual({
-        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-        feedPostId: feedPost._id.toString(),
-        message: 'This is a test message',
-        userId: activeUser._id.toString(),
-        images: [],
-      });
-    });
-
-    it('responds expected response when neither message nor file are present in request', async () => {
-      const response = await request(app.getHttpServer())
-        .post('/api/v1/feed-comments')
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .field('message', '')
-        .field('feedPostId', feedPost._id.toString())
-        .expect(HttpStatus.BAD_REQUEST);
-      expect(response.body.message).toBe('Comments must have some text or at least one image.');
-    });
-
-    it('allows the creation of a comments with only files, but no message', async () => {
-      await createTempFiles(async (tempPaths) => {
-        const response = await request(app.getHttpServer())
-          .post('/api/v1/feed-comments')
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .set('Content-Type', 'multipart/form-data')
-
-          .field('feedPostId', feedPost._id.toString())
-          .attach('images', tempPaths[0])
-          .attach('images', tempPaths[1]);
-
-        expect(response.body).toEqual({
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          feedPostId: feedPost._id.toString(),
-          message: null,
-          userId: activeUser._id.toString(),
-          images: [
-            {
-              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            },
-            {
-              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            },
-          ],
-        });
-      }, [{ extension: 'png' }, { extension: 'jpg' }]);
-
-      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
-      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-      expect(allFilesNames).toEqual(['.keep']);
-    });
-
-    it('only allows a maximum of four images', async () => {
-      await createTempFiles(async (tempPaths) => {
-        const response = await request(app.getHttpServer())
-          .post('/api/v1/feed-comments')
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .set('Content-Type', 'multipart/form-data')
-          .field('message', 'hello test user')
-          .field('feedPostId', feedPost._id.toString())
-          .attach('images', tempPaths[0])
-          .attach('images', tempPaths[1])
-          .attach('images', tempPaths[2])
-          .attach('images', tempPaths[3])
-          .attach('images', tempPaths[4])
-          .attach('images', tempPaths[5])
-          .expect(HttpStatus.BAD_REQUEST);
-
-        expect(response.body).toEqual({ statusCode: 400, message: 'Too many files uploaded. Maximum allowed: 4' });
-      }, [
-        { extension: 'png' },
-        { extension: 'jpg' },
-        { extension: 'jpg' },
-        { extension: 'png' },
-        { extension: 'png' },
-        { extension: 'png' },
-      ]);
-
-      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
-      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-      expect(allFilesNames).toEqual(['.keep']);
-    });
-
-    it('responds expected response if file size should not larger than 20MB', async () => {
-      await createTempFiles(async (tempPaths) => {
-        const response = await request(app.getHttpServer())
-          .post('/api/v1/feed-comments')
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .set('Content-Type', 'multipart/form-data')
-          .field('message', 'hello test user')
-
-          .field('feedPostId', feedPost._id.toString())
-          .attach('images', tempPaths[0])
-          .attach('images', tempPaths[1])
-          .expect(HttpStatus.PAYLOAD_TOO_LARGE);
-        expect(response.body.message).toBe('File too large');
-      }, [{ extension: 'png' },
-      { extension: 'jpg', size: 1024 * 1024 * 21 }]);
-
-      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
-      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-      expect(allFilesNames).toEqual(['.keep']);
-    });
-
-    it('check message length validation', async () => {
-      await createTempFiles(async (tempPaths) => {
-        const response = await request(app.getHttpServer())
-          .post('/api/v1/feed-comments')
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .set('Content-Type', 'multipart/form-data')
-          .field('message', new Array(8002).join('z'))
-
-          .field('feedPostId', feedPost._id.toString())
-          .attach('images', tempPaths[0])
-          .attach('images', tempPaths[1])
-          .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('message cannot be longer than 8,000 characters');
-      }, [{ extension: 'png' }, { extension: 'jpg' }]);
-
-      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
-      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-      expect(allFilesNames).toEqual(['.keep']);
-    });
-
-    it('returns the expected error response if the post cannot be found', async () => {
-      const nonExistentPostId = '239ae2550dae24b30c70f6c7';
-      const response = await request(app.getHttpServer())
-        .post('/api/v1/feed-comments')
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .set('Content-Type', 'multipart/form-data')
-        .field('message', 'Hello')
-        .field('feedPostId', nonExistentPostId)
-        .expect(HttpStatus.NOT_FOUND);
-      expect(response.body.message).toContain('Post not found');
-    });
-
-    it('when a block exists between the post creator and the commenter, it returns the expected response', async () => {
-      const user1 = await usersService.create(userFactory.build({}));
-      const feedPost1 = await feedPostsService.create(
-        feedPostFactory.build(
-          {
-            userId: user1._id,
-          },
-        ),
-      );
-      await blocksModel.create({
-        from: activeUser._id,
-        to: user1._id,
-        reaction: BlockAndUnblockReaction.Block,
-      });
-      const response = await request(app.getHttpServer())
-        .post('/api/v1/feed-comments')
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .set('Content-Type', 'multipart/form-data')
-        .field('message', 'hello test user')
-        .field('feedPostId', feedPost1._id.toString());
-      expect(response.status).toEqual(HttpStatus.FORBIDDEN);
-      expect(response.body).toEqual({
-        message: 'Request failed due to user block.',
-        statusCode: HttpStatus.FORBIDDEN,
-      });
-    });
-
-    it('check trim is working for message in create feed comments', async () => {
-      const response = await request(app.getHttpServer())
-        .post('/api/v1/feed-comments')
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .field('message', '     this is new post comment  ')
-        .field('userId', activeUser._id.toString())
-        .field('feedPostId', feedPost._id.toString());
-      expect(response.body).toEqual({
-        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-        feedPostId: feedPost._id.toString(),
-        message: 'this is new post comment',
-        userId: activeUser._id.toString(),
-        images: [],
-      });
-    });
-
-    it('returns the expected response when the message only contains whitespace characters', async () => {
-      const response = await request(app.getHttpServer())
-        .post('/api/v1/feed-comments')
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .field('message', '     \n\n')
-        .field('userId', activeUser._id.toString())
-        .field('feedPostId', feedPost._id.toString());
-      expect(response.body).toEqual({
-        statusCode: 400,
-        message: 'Comments must have some text or at least one image.',
-      });
-    });
-
-    describe('when the feed post was created by a user with a non-public profile', () => {
-      let user1;
-      let feedPost1;
-      beforeEach(async () => {
-        user1 = await usersService.create(userFactory.build({
-          profile_status: ProfileVisibility.Private,
-        }));
-        feedPost1 = await feedPostsService.create(
-          feedPostFactory.build(
-            {
-              userId: user1._id,
-            },
-          ),
-        );
+        expect(response.body.message).toBe('Comments must have some text or at least one image.');
       });
 
-      it('should not allow the creation of a feed comments when commenter is not a friend of the post creator', async () => {
+      it('allows the creation of a comments with only files, but no message', async () => {
         await createTempFiles(async (tempPaths) => {
           const response = await request(app.getHttpServer())
             .post('/api/v1/feed-comments')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
-            .field('message', 'hello test user')
-            .field('feedPostId', feedPost1._id.toString())
-            .attach('images', tempPaths[0])
-            .attach('images', tempPaths[1]);
-          expect(response.status).toBe(HttpStatus.FORBIDDEN);
-          expect(response.body).toEqual({ statusCode: 403, message: 'You must be friends with this user to perform this action.' });
-        }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
-      });
 
-      it('when post has an rssfeedProviderId, it returns a successful response', async () => {
-        const rssFeedProvider = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
-        const feedPost2 = await feedPostsService.create(
-          feedPostFactory.build({
-            userId: rssFeedProvider._id,
-            rssfeedProviderId: rssFeedProvider._id,
-          }),
-        );
-        await createTempFiles(async (tempPaths) => {
-          const response = await request(app.getHttpServer())
-            .post('/api/v1/feed-comments')
-            .auth(activeUserAuthToken, { type: 'bearer' })
-            .set('Content-Type', 'multipart/form-data')
-            .field('message', 'hello test user')
-            .field('feedPostId', feedPost2._id.toString())
+            .field('feedPostId', feedPost._id.toString())
             .attach('images', tempPaths[0])
             .attach('images', tempPaths[1]);
+
           expect(response.body).toEqual({
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            feedPostId: feedPost2._id.toString(),
-            message: 'hello test user',
+            feedPostId: feedPost._id.toString(),
+            message: null,
             userId: activeUser._id.toString(),
             images: [
               {
@@ -414,27 +207,157 @@ describe('Feed-Comments / Comments File (e2e)', () => {
               },
             ],
           });
-        }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
-      });
-    });
+        }, [{ extension: 'png' }, { extension: 'jpg' }]);
 
-    describe('notifications', () => {
-      let postCreatorUser;
-      let postCreatorAuthToken;
-      let otherUser1;
-      let otherUser1AuthToken;
-      let otherUser2;
-      let otherUser3;
-      beforeEach(async () => {
-        postCreatorUser = await usersService.create(userFactory.build());
-        postCreatorAuthToken = postCreatorUser.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
-        otherUser1 = await usersService.create(userFactory.build());
-        otherUser1AuthToken = otherUser1.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
-        otherUser2 = await usersService.create(userFactory.build());
-        otherUser3 = await usersService.create(userFactory.build());
+        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+        expect(allFilesNames).toEqual(['.keep']);
+      });
+
+      it('only allows a maximum of four images', async () => {
+        await createTempFiles(async (tempPaths) => {
+          const response = await request(app.getHttpServer())
+            .post('/api/v1/feed-comments')
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('message', 'hello test user')
+            .field('feedPostId', feedPost._id.toString())
+            .attach('images', tempPaths[0])
+            .attach('images', tempPaths[1])
+            .attach('images', tempPaths[2])
+            .attach('images', tempPaths[3])
+            .attach('images', tempPaths[4])
+            .attach('images', tempPaths[5])
+            .expect(HttpStatus.BAD_REQUEST);
+
+          expect(response.body).toEqual({ statusCode: 400, message: 'Too many files uploaded. Maximum allowed: 4' });
+        }, [
+          { extension: 'png' },
+          { extension: 'jpg' },
+          { extension: 'jpg' },
+          { extension: 'png' },
+          { extension: 'png' },
+          { extension: 'png' },
+        ]);
+
+        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+        expect(allFilesNames).toEqual(['.keep']);
+      });
+
+      it('responds expected response if file size should not larger than 20MB', async () => {
+        await createTempFiles(async (tempPaths) => {
+          const response = await request(app.getHttpServer())
+            .post('/api/v1/feed-comments')
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('message', 'hello test user')
+
+            .field('feedPostId', feedPost._id.toString())
+            .attach('images', tempPaths[0])
+            .attach('images', tempPaths[1])
+            .expect(HttpStatus.PAYLOAD_TOO_LARGE);
+          expect(response.body.message).toBe('File too large');
+        }, [{ extension: 'png' },
+        { extension: 'jpg', size: 1024 * 1024 * 21 }]);
+
+        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+        expect(allFilesNames).toEqual(['.keep']);
+      });
+
+      it('check message length validation', async () => {
+        await createTempFiles(async (tempPaths) => {
+          const response = await request(app.getHttpServer())
+            .post('/api/v1/feed-comments')
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('message', new Array(8002).join('z'))
+
+            .field('feedPostId', feedPost._id.toString())
+            .attach('images', tempPaths[0])
+            .attach('images', tempPaths[1])
+            .expect(HttpStatus.BAD_REQUEST);
+          expect(response.body.message).toContain('message cannot be longer than 8,000 characters');
+        }, [{ extension: 'png' }, { extension: 'jpg' }]);
+
+        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+        expect(allFilesNames).toEqual(['.keep']);
+      });
+
+      it('returns the expected error response if the post cannot be found', async () => {
+        const nonExistentPostId = '239ae2550dae24b30c70f6c7';
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-comments')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'Hello')
+          .field('feedPostId', nonExistentPostId)
+          .expect(HttpStatus.NOT_FOUND);
+        expect(response.body.message).toContain('Post not found');
+      });
+
+      it('when a block exists between the post creator and the commenter, it returns the expected response', async () => {
+        const user1 = await usersService.create(userFactory.build({}));
+        const feedPost1 = await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: user1._id,
+            },
+          ),
+        );
+        await blocksModel.create({
+          from: activeUser._id,
+          to: user1._id,
+          reaction: BlockAndUnblockReaction.Block,
+        });
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-comments')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'hello test user')
+          .field('feedPostId', feedPost1._id.toString());
+        expect(response.status).toEqual(HttpStatus.FORBIDDEN);
+        expect(response.body).toEqual({
+          message: 'Request failed due to user block.',
+          statusCode: HttpStatus.FORBIDDEN,
+        });
+      });
+
+      it('check trim is working for message in create feed comments', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-comments')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .field('message', '     this is new post comment  ')
+          .field('userId', activeUser._id.toString())
+          .field('feedPostId', feedPost._id.toString());
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          feedPostId: feedPost._id.toString(),
+          message: 'this is new post comment',
+          userId: activeUser._id.toString(),
+          images: [],
+        });
+      });
+
+      it('returns the expected response when the message only contains whitespace characters', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-comments')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .field('message', '     \n\n')
+          .field('userId', activeUser._id.toString())
+          .field('feedPostId', feedPost._id.toString());
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'Comments must have some text or at least one image.',
+        });
       });
 
       it('sends the expected notifications when the commenter user is not the post creator user', async () => {
+        const postCreatorUser = await usersService.create(userFactory.build());
+        const otherUser1 = await usersService.create(userFactory.build());
+        const otherUser1AuthToken = otherUser1.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
         const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
         await request(app.getHttpServer())
           .post('/api/v1/feed-comments').auth(otherUser1AuthToken, { type: 'bearer' })
@@ -458,9 +381,11 @@ describe('Feed-Comments / Comments File (e2e)', () => {
       });
 
       it('does not send any notifications when the commenter user is the post creator user', async () => {
-        const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
+        const postCreatorUser1 = await usersService.create(userFactory.build());
+        const postCreatorAuthToken1 = postCreatorUser1.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
+        const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser1._id }));
         await request(app.getHttpServer())
-          .post('/api/v1/feed-comments').auth(postCreatorAuthToken, { type: 'bearer' })
+          .post('/api/v1/feed-comments').auth(postCreatorAuthToken1, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('feedPostId', post._id.toString())
           .field('message', 'hello test user')
@@ -472,16 +397,21 @@ describe('Feed-Comments / Comments File (e2e)', () => {
 
       it('sends the expected notifications when the commenter user is not the post creator user, '
         + 'AND there are three users mentioned in the message and one is the post creator', async () => {
+          const postCreatorUser = await usersService.create(userFactory.build());
+          const otherUser2 = await usersService.create(userFactory.build());
+          const otherUser3 = await usersService.create(userFactory.build());
+          const otherUser4 = await usersService.create(userFactory.build());
+          const otherUser2AuthToken = otherUser2.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
           const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
           await request(app.getHttpServer())
-            .post('/api/v1/feed-comments').auth(otherUser1AuthToken, { type: 'bearer' })
+            .post('/api/v1/feed-comments').auth(otherUser2AuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('feedPostId', post._id.toString())
             .field(
               'message',
               `##LINK_ID##${postCreatorUser._id.toString()}@PostCreatorUser##LINK_END## post creator user`
-              + `##LINK_ID##${otherUser2._id.toString()}@OtherUser2##LINK_END## other user 2`
-              + `##LINK_ID##${otherUser3._id.toString()}@OtherUser3##LINK_END## other user 3`,
+              + `##LINK_ID##${otherUser3._id.toString()}@OtherUser3##LINK_END## other user 3`
+              + `##LINK_ID##${otherUser4._id.toString()}@OtherUser4##LINK_END## other user 4`,
             )
             .expect(HttpStatus.CREATED);
 
@@ -489,10 +419,87 @@ describe('Feed-Comments / Comments File (e2e)', () => {
           // TODO: Examine notificationsService.create() arguments in greater detail to make sure the right ones went to the right users
         });
 
+      describe('when the feed post was created by a user with a non-public profile', () => {
+        let user1;
+        let feedPost1;
+        beforeEach(async () => {
+          user1 = await usersService.create(userFactory.build({
+            profile_status: ProfileVisibility.Private,
+          }));
+          feedPost1 = await feedPostsService.create(
+            feedPostFactory.build(
+              {
+                userId: user1._id,
+              },
+            ),
+          );
+        });
+
+        it('should not allow the creation of a feed comments when commenter is not a friend of the post creator', async () => {
+          await createTempFiles(async (tempPaths) => {
+            const response = await request(app.getHttpServer())
+              .post('/api/v1/feed-comments')
+              .auth(activeUserAuthToken, { type: 'bearer' })
+              .set('Content-Type', 'multipart/form-data')
+              .field('message', 'hello test user')
+              .field('feedPostId', feedPost1._id.toString())
+              .attach('images', tempPaths[0])
+              .attach('images', tempPaths[1]);
+            expect(response.status).toBe(HttpStatus.FORBIDDEN);
+            expect(response.body).toEqual({ statusCode: 403, message: 'You must be friends with this user to perform this action.' });
+          }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+        });
+
+        it('when post has an rssfeedProviderId, it returns a successful response', async () => {
+          const rssFeedProvider = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+          const feedPost2 = await feedPostsService.create(
+            feedPostFactory.build({
+              userId: rssFeedProvider._id,
+              rssfeedProviderId: rssFeedProvider._id,
+            }),
+          );
+          await createTempFiles(async (tempPaths) => {
+            const response = await request(app.getHttpServer())
+              .post('/api/v1/feed-comments')
+              .auth(activeUserAuthToken, { type: 'bearer' })
+              .set('Content-Type', 'multipart/form-data')
+              .field('message', 'hello test user')
+              .field('feedPostId', feedPost2._id.toString())
+              .attach('images', tempPaths[0])
+              .attach('images', tempPaths[1]);
+            expect(response.body).toEqual({
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              feedPostId: feedPost2._id.toString(),
+              message: 'hello test user',
+              userId: activeUser._id.toString(),
+              images: [
+                {
+                  image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                  _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                },
+                {
+                  image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                  _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                },
+              ],
+            });
+          }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+        });
+      });
+    });
+    describe('notifications', () => {
+      let otherUser1;
+      let otherUser1AuthToken;
+      let otherUser2;
+      beforeEach(async () => {
+        otherUser1 = await usersService.create(userFactory.build());
+        otherUser1AuthToken = otherUser1.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
+        otherUser2 = await usersService.create(userFactory.build());
+      });
+
       it('when notification is create for createFeedComments than check newNotificationCount is increment in user', async () => {
         const user0 = await usersService.create(userFactory.build({ userName: 'Divine' }));
         const post = await feedPostsService.create(feedPostFactory.build({ userId: user0._id }));
-
         await request(app.getHttpServer())
           .post('/api/v1/feed-comments').auth(otherUser1AuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
@@ -504,11 +511,11 @@ describe('Feed-Comments / Comments File (e2e)', () => {
           )
           .expect(HttpStatus.CREATED);
 
-          const user0NewNotificationCount = await usersService.findById(user0.id);
-          const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id);
+        const user0NewNotificationCount = await usersService.findById(user0.id);
+        const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id);
 
-          expect(user0NewNotificationCount.newNotificationCount).toBe(1);
-          expect(otherUser2NewNotificationCount.newNotificationCount).toBe(1);
+        expect(user0NewNotificationCount.newNotificationCount).toBe(1);
+        expect(otherUser2NewNotificationCount.newNotificationCount).toBe(1);
       });
     });
   });

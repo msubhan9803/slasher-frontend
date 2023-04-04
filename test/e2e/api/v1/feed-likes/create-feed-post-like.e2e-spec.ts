@@ -110,11 +110,7 @@ describe('Create Feed Post Like (e2e)', () => {
         senderId: activeUser._id,
         notifyType: NotificationType.UserLikedYourPost,
         notificationMsg: 'liked your post',
-        userId: {
-          _id: feedPostDataObject._id.toString(),
-          profilePic: feedPostDataObject.profilePic,
-          userName: feedPostDataObject.userName,
-        },
+        userId: feedPostDataObject._id.toString(),
       });
     });
 

@@ -78,7 +78,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
   describe('PATCH /api/v1/feed-comments/:feedCommentId', () => {
     let feedComment;
     beforeEach(async () => {
-      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
+      // jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
 
       activeUser = await usersService.create(userFactory.build());
       user0 = await usersService.create(userFactory.build());
@@ -109,48 +109,360 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
       const feedCommentId = new mongoose.Types.ObjectId();
       await request(app.getHttpServer()).patch(`/api/v1/feed-comments/${feedCommentId}`).expect(HttpStatus.UNAUTHORIZED);
     });
-
-    it('successfully update feed comments messages', async () => {
-      const response = await request(app.getHttpServer())
-        .patch(`/api/v1/feed-comments/${feedComment._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .field('message', sampleFeedCommentsObject.message);
-      expect(response.status).toEqual(HttpStatus.OK);
-      expect(response.body).toEqual({
-        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-        feedPostId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-        message: 'hello all test user upload your feed comments',
-        userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-        images: [
-          {
-            image_path: 'https://picsum.photos/id/237/200/300',
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          },
-          {
-            image_path: 'https://picsum.photos/seed/picsum/200/300',
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          },
-        ],
-      });
-    });
-
-    describe('notifications', () => {
-      let postCreatorUser;
-      let commentCreatorUser;
-      let commentCreatorUserAuthToken;
-      let otherUser1;
-      let otherUser2;
-      let otherUser3;
+    describe('with mocked notificationService.create', () => {
       beforeEach(async () => {
-        postCreatorUser = await usersService.create(userFactory.build());
-        commentCreatorUser = await usersService.create(userFactory.build());
-        commentCreatorUserAuthToken = commentCreatorUser.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
-        otherUser1 = await usersService.create(userFactory.build());
-        otherUser2 = await usersService.create(userFactory.build());
-        otherUser3 = await usersService.create(userFactory.build());
+        jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
+      });
+      it('successfully update feed comments messages', async () => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-comments/${feedComment._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .field('message', sampleFeedCommentsObject.message);
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          feedPostId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'hello all test user upload your feed comments',
+          userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          images: [
+            {
+              image_path: 'https://picsum.photos/id/237/200/300',
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: 'https://picsum.photos/seed/picsum/200/300',
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
+      });
+
+      it('when feed comment id is not exists than expected response', async () => {
+        const feedComments1 = '6386f95401218469e30dbd25';
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-comments/${feedComments1}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .field('message', sampleFeedCommentsObject.message)
+          .expect(HttpStatus.NOT_FOUND);
+
+        expect(response.body.message).toContain('Not found.');
+      });
+
+      it('when feed comment id and login user id is not match than expected response', async () => {
+        const feedComments1 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: user0._id,
+              feedPostId: feedPost.id,
+              message: sampleFeedCommentsObject.message,
+              images: sampleFeedCommentsObject.images,
+            },
+          ),
+        );
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-comments/${feedComments1._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .field('message', sampleFeedCommentsObject.message);
+
+        expect(response.body.message).toContain('Permission denied.');
+      });
+
+      it('when imagesToDelete is exist than check files length, return the expected response', async () => {
+        await createTempFiles(async (tempPaths) => {
+          const response = await request(app.getHttpServer())
+            .patch(`/api/v1/feed-comments/${feedComment._id}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('message', 'hello test user')
+            .field('imagesToDelete', (feedComment.images[0] as any).id)
+            .attach('files', tempPaths[0])
+            .attach('files', tempPaths[1])
+            .attach('files', tempPaths[2])
+            .attach('files', tempPaths[3]);
+          expect(response.body).toEqual({
+            statusCode: 400,
+            message: 'Cannot include more than 4 images on a comment.',
+          });
+        }, [
+          { extension: 'png' }, { extension: 'png' }, { extension: 'png' },
+          { extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' },
+        ]);
+
+        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+        expect(allFilesNames).toEqual(['.keep']);
+      });
+
+      it('when imagesToDelete and files is exist than expected response', async () => {
+        await createTempFiles(async (tempPaths) => {
+          const response = await request(app.getHttpServer())
+            .patch(`/api/v1/feed-comments/${feedComment._id}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('message', 'hello test user')
+            .field('imagesToDelete', (feedComment.images[0] as any).id)
+            .attach('files', tempPaths[0])
+            .attach('files', tempPaths[1]);
+          const feedCommentData = await feedCommentsService.findFeedComment(response.body._id);
+          expect(response.body).toEqual({
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            message: 'hello test user',
+            feedPostId: feedPost.id,
+            userId: activeUser._id.toString(),
+            images: [
+              {
+                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+              {
+                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+              {
+                image_path: 'https://picsum.photos/seed/picsum/200/300',
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+            ],
+          });
+          expect(feedCommentData.images).toHaveLength(3);
+        }, [{ extension: 'png' }, { extension: 'png' }]);
+        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+        expect(allFilesNames).toEqual(['.keep']);
+      });
+
+      it('when imagesToDelete not exist and files is exist than expected response', async () => {
+        await createTempFiles(async (tempPaths) => {
+          const response = await request(app.getHttpServer())
+            .patch(`/api/v1/feed-comments/${feedComment._id}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('message', 'hello test user')
+            .attach('files', tempPaths[0])
+            .attach('files', tempPaths[1]);
+          const feedCommentData = await feedCommentsService.findFeedComment(response.body._id);
+
+          expect(response.body).toEqual({
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            message: 'hello test user',
+            feedPostId: feedPost.id,
+            userId: activeUser._id.toString(),
+            images: [
+              {
+                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+              {
+                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+              {
+                image_path: 'https://picsum.photos/id/237/200/300',
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+              {
+                image_path: 'https://picsum.photos/seed/picsum/200/300',
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+            ],
+          });
+          expect(feedCommentData.images).toHaveLength(4);
+        }, [{ extension: 'png' }, { extension: 'png' }]);
+        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+        expect(allFilesNames).toEqual(['.keep']);
+      });
+
+      it('when imagesToDelete exist and files is not exist than expected response', async () => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-comments/${feedComment._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('imagesToDelete', (feedComment.images[0] as any).id)
+          .field('message', 'hello test user');
+        const feedCommentData = await feedCommentsService.findFeedComment(response.body._id);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'hello test user',
+          feedPostId: feedPost.id,
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: 'https://picsum.photos/seed/picsum/200/300',
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
+        expect(feedCommentData.images).toHaveLength(1);
+      });
+
+      it('only allows a maximum of 4 images', async () => {
+        await createTempFiles(async (tempPaths) => {
+          const response = await request(app.getHttpServer())
+            .patch(`/api/v1/feed-comments/${feedComment._id}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('message', sampleFeedCommentsObject.message)
+            .attach('files', tempPaths[0])
+            .attach('files', tempPaths[1])
+            .attach('files', tempPaths[2])
+            .attach('files', tempPaths[3])
+            .attach('files', tempPaths[4]);
+          expect(response.body.message).toBe('Too many files uploaded. Maximum allowed: 4');
+        }, [
+          { extension: 'png' }, { extension: 'png' },
+          { extension: 'png' }, { extension: 'png' },
+          { extension: 'jpg' }, { extension: 'png' },
+        ]);
+
+        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+        expect(allFilesNames).toEqual(['.keep']);
+      });
+
+      it('responds expected response when neither message nor file are present in request'
+        + 'and db images length or body imagesToDelete length is same', async () => {
+          const feedComment0 = await feedCommentsService.createFeedComment(
+            feedCommentsFactory.build(
+              {
+                userId: activeUser._id,
+                feedPostId: feedPost.id,
+                message: sampleFeedCommentsObject.message,
+                images: [{
+                  image_path: '/feed/feed_sample1.jpg',
+                }],
+              },
+            ),
+          );
+          const response = await request(app.getHttpServer())
+            .patch(`/api/v1/feed-comments/${feedComment0._id}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .field('message', '')
+            .field('imagesToDelete', (feedComment0.images[0] as any).id)
+            .expect(HttpStatus.BAD_REQUEST);
+          expect(response.body.message).toBe('Comments must have some text or at least one image.');
+        });
+
+      it('when comment has a already 4 images and add more 2 images than expected response', async () => {
+        const feedComment1 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: activeUser._id,
+              feedPostId: feedPost.id,
+              message: sampleFeedCommentsObject.message,
+              images: [
+                {
+                  image_path: '/feed/feed_sample1.jpg',
+                },
+                {
+                  image_path: '/feed/feed_sample2.jpg',
+                },
+                {
+                  image_path: '/feed/feed_sample3.jpg',
+                },
+                {
+                  image_path: '/feed/feed_sample4.jpg',
+                },
+              ],
+            },
+          ),
+        );
+        await createTempFiles(async (tempPaths) => {
+          const response = await request(app.getHttpServer())
+            .patch(`/api/v1/feed-comments/${feedComment1._id}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .attach('files', tempPaths[0])
+            .attach('files', tempPaths[1]);
+          expect(response.body).toEqual({
+            statusCode: 400,
+            message: 'Cannot include more than 4 images on a comment.',
+          });
+        }, [
+          { extension: 'png' }, { extension: 'png' },
+          { extension: 'png' }, { extension: 'png' },
+          { extension: 'png' }, { extension: 'png' },
+        ]);
+        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+        expect(allFilesNames).toEqual(['.keep']);
+      });
+
+      it('check message has a empty string or files or imagesToDelete is not exists', async () => {
+        const feedComment2 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: activeUser._id,
+              feedPostId: feedPost.id,
+              message: sampleFeedCommentsObject.message,
+              images: [],
+            },
+          ),
+        );
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-comments/${feedComment2._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', '');
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'Comments must have some text or at least one image.',
+        });
+      });
+
+      it('check trim is working for message in update feed comments', async () => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-comments/${feedComment._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', '       hello test user comment');
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          feedPostId: feedPost._id.toString(),
+          message: 'hello test user comment',
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: 'https://picsum.photos/id/237/200/300',
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: 'https://picsum.photos/seed/picsum/200/300',
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
+      });
+
+      it('returns the expected response when the message only contains whitespace characters', async () => {
+        const feedComment3 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: activeUser._id,
+              feedPostId: feedPost.id,
+              message: sampleFeedCommentsObject.message,
+              images: [],
+            },
+          ),
+        );
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-comments/${feedComment3._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', '          \n\n');
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'Comments must have some text or at least one image.',
+        });
       });
 
       it('sends notifications to newly-added users in the message', async () => {
+        const postCreatorUser = await usersService.create(userFactory.build());
+        const commentCreatorUser = await usersService.create(userFactory.build());
+        const commentCreatorUserAuthToken = commentCreatorUser.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
+        const otherUser1 = await usersService.create(userFactory.build());
+        const otherUser2 = await usersService.create(userFactory.build());
+        const otherUser3 = await usersService.create(userFactory.build());
         const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
         const comment = await feedCommentsService.createFeedComment(
           feedCommentsFactory.build(
@@ -185,6 +497,19 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
         //   notificationMsg: 'mentioned you in a comment',
         // });
       });
+    });
+
+    describe('notifications', () => {
+      let commentCreatorUser;
+      let commentCreatorUserAuthToken;
+      let otherUser1;
+      let otherUser2;
+      beforeEach(async () => {
+        commentCreatorUser = await usersService.create(userFactory.build());
+        commentCreatorUserAuthToken = commentCreatorUser.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
+        otherUser1 = await usersService.create(userFactory.build());
+        otherUser2 = await usersService.create(userFactory.build());
+      });
 
       it('when notification is create for updateFeedComments than check newNotificationCount is increment in user', async () => {
         const user4 = await usersService.create(userFactory.build({ userName: 'Divine' }));
@@ -217,325 +542,6 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
 
         expect(user4NewNotificationCount.newNotificationCount).toBe(1);
         expect(otherUser2NewNotificationCount.newNotificationCount).toBe(1);
-      });
-    });
-
-    it('when feed comment id is not exists than expected response', async () => {
-      const feedComments1 = '6386f95401218469e30dbd25';
-      const response = await request(app.getHttpServer())
-        .patch(`/api/v1/feed-comments/${feedComments1}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .field('message', sampleFeedCommentsObject.message)
-        .expect(HttpStatus.NOT_FOUND);
-
-      expect(response.body.message).toContain('Not found.');
-    });
-
-    it('when feed comment id and login user id is not match than expected response', async () => {
-      const feedComments1 = await feedCommentsService.createFeedComment(
-        feedCommentsFactory.build(
-          {
-            userId: user0._id,
-            feedPostId: feedPost.id,
-            message: sampleFeedCommentsObject.message,
-            images: sampleFeedCommentsObject.images,
-          },
-        ),
-      );
-      const response = await request(app.getHttpServer())
-        .patch(`/api/v1/feed-comments/${feedComments1._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .field('message', sampleFeedCommentsObject.message);
-
-      expect(response.body.message).toContain('Permission denied.');
-    });
-
-    it('when imagesToDelete is exist than check files length, return the expected response', async () => {
-      await createTempFiles(async (tempPaths) => {
-        const response = await request(app.getHttpServer())
-          .patch(`/api/v1/feed-comments/${feedComment._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .set('Content-Type', 'multipart/form-data')
-          .field('message', 'hello test user')
-          .field('imagesToDelete', (feedComment.images[0] as any).id)
-          .attach('files', tempPaths[0])
-          .attach('files', tempPaths[1])
-          .attach('files', tempPaths[2])
-          .attach('files', tempPaths[3]);
-        expect(response.body).toEqual({
-          statusCode: 400,
-          message: 'Cannot include more than 4 images on a comment.',
-        });
-      }, [
-        { extension: 'png' }, { extension: 'png' }, { extension: 'png' },
-        { extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' },
-      ]);
-
-      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
-      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-      expect(allFilesNames).toEqual(['.keep']);
-    });
-
-    it('when imagesToDelete and files is exist than expected response', async () => {
-      await createTempFiles(async (tempPaths) => {
-        const response = await request(app.getHttpServer())
-          .patch(`/api/v1/feed-comments/${feedComment._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .set('Content-Type', 'multipart/form-data')
-          .field('message', 'hello test user')
-          .field('imagesToDelete', (feedComment.images[0] as any).id)
-          .attach('files', tempPaths[0])
-          .attach('files', tempPaths[1]);
-        const feedCommentData = await feedCommentsService.findFeedComment(response.body._id);
-        expect(response.body).toEqual({
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          message: 'hello test user',
-          feedPostId: feedPost.id,
-          userId: activeUser._id.toString(),
-          images: [
-            {
-              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            },
-            {
-              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            },
-            {
-              image_path: 'https://picsum.photos/seed/picsum/200/300',
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            },
-          ],
-        });
-        expect(feedCommentData.images).toHaveLength(3);
-      }, [{ extension: 'png' }, { extension: 'png' }]);
-      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
-      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-      expect(allFilesNames).toEqual(['.keep']);
-    });
-
-    it('when imagesToDelete not exist and files is exist than expected response', async () => {
-      await createTempFiles(async (tempPaths) => {
-        const response = await request(app.getHttpServer())
-          .patch(`/api/v1/feed-comments/${feedComment._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .set('Content-Type', 'multipart/form-data')
-          .field('message', 'hello test user')
-          .attach('files', tempPaths[0])
-          .attach('files', tempPaths[1]);
-        const feedCommentData = await feedCommentsService.findFeedComment(response.body._id);
-
-        expect(response.body).toEqual({
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          message: 'hello test user',
-          feedPostId: feedPost.id,
-          userId: activeUser._id.toString(),
-          images: [
-            {
-              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            },
-            {
-              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            },
-            {
-              image_path: 'https://picsum.photos/id/237/200/300',
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            },
-            {
-              image_path: 'https://picsum.photos/seed/picsum/200/300',
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            },
-          ],
-        });
-        expect(feedCommentData.images).toHaveLength(4);
-      }, [{ extension: 'png' }, { extension: 'png' }]);
-      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
-      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-      expect(allFilesNames).toEqual(['.keep']);
-    });
-
-    it('when imagesToDelete exist and files is not exist than expected response', async () => {
-      const response = await request(app.getHttpServer())
-        .patch(`/api/v1/feed-comments/${feedComment._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .set('Content-Type', 'multipart/form-data')
-        .field('imagesToDelete', (feedComment.images[0] as any).id)
-        .field('message', 'hello test user');
-      const feedCommentData = await feedCommentsService.findFeedComment(response.body._id);
-      expect(response.body).toEqual({
-        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-        message: 'hello test user',
-        feedPostId: feedPost.id,
-        userId: activeUser._id.toString(),
-        images: [
-          {
-            image_path: 'https://picsum.photos/seed/picsum/200/300',
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          },
-        ],
-      });
-      expect(feedCommentData.images).toHaveLength(1);
-    });
-
-    it('only allows a maximum of 4 images', async () => {
-      await createTempFiles(async (tempPaths) => {
-        const response = await request(app.getHttpServer())
-          .patch(`/api/v1/feed-comments/${feedComment._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .set('Content-Type', 'multipart/form-data')
-          .field('message', sampleFeedCommentsObject.message)
-          .attach('files', tempPaths[0])
-          .attach('files', tempPaths[1])
-          .attach('files', tempPaths[2])
-          .attach('files', tempPaths[3])
-          .attach('files', tempPaths[4]);
-        expect(response.body.message).toBe('Too many files uploaded. Maximum allowed: 4');
-      }, [
-        { extension: 'png' }, { extension: 'png' },
-        { extension: 'png' }, { extension: 'png' },
-        { extension: 'jpg' }, { extension: 'png' },
-      ]);
-
-      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
-      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-      expect(allFilesNames).toEqual(['.keep']);
-    });
-
-    it('responds expected response when neither message nor file are present in request'
-      + 'and db images length or body imagesToDelete length is same', async () => {
-        const feedComment0 = await feedCommentsService.createFeedComment(
-          feedCommentsFactory.build(
-            {
-              userId: activeUser._id,
-              feedPostId: feedPost.id,
-              message: sampleFeedCommentsObject.message,
-              images: [{
-                image_path: '/feed/feed_sample1.jpg',
-              }],
-            },
-          ),
-        );
-        const response = await request(app.getHttpServer())
-          .patch(`/api/v1/feed-comments/${feedComment0._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .field('message', '')
-          .field('imagesToDelete', (feedComment0.images[0] as any).id)
-          .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toBe('Comments must have some text or at least one image.');
-      });
-
-    it('when comment has a already 4 images and add more 2 images than expected response', async () => {
-      const feedComment1 = await feedCommentsService.createFeedComment(
-        feedCommentsFactory.build(
-          {
-            userId: activeUser._id,
-            feedPostId: feedPost.id,
-            message: sampleFeedCommentsObject.message,
-            images: [
-              {
-                image_path: '/feed/feed_sample1.jpg',
-              },
-              {
-                image_path: '/feed/feed_sample2.jpg',
-              },
-              {
-                image_path: '/feed/feed_sample3.jpg',
-              },
-              {
-                image_path: '/feed/feed_sample4.jpg',
-              },
-            ],
-          },
-        ),
-      );
-      await createTempFiles(async (tempPaths) => {
-        const response = await request(app.getHttpServer())
-          .patch(`/api/v1/feed-comments/${feedComment1._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .set('Content-Type', 'multipart/form-data')
-          .attach('files', tempPaths[0])
-          .attach('files', tempPaths[1]);
-        expect(response.body).toEqual({
-          statusCode: 400,
-          message: 'Cannot include more than 4 images on a comment.',
-        });
-      }, [
-        { extension: 'png' }, { extension: 'png' },
-        { extension: 'png' }, { extension: 'png' },
-        { extension: 'png' }, { extension: 'png' },
-      ]);
-      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
-      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-      expect(allFilesNames).toEqual(['.keep']);
-    });
-
-    it('check message has a empty string or files or imagesToDelete is not exists', async () => {
-      const feedComment2 = await feedCommentsService.createFeedComment(
-        feedCommentsFactory.build(
-          {
-            userId: activeUser._id,
-            feedPostId: feedPost.id,
-            message: sampleFeedCommentsObject.message,
-            images: [],
-          },
-        ),
-      );
-      const response = await request(app.getHttpServer())
-        .patch(`/api/v1/feed-comments/${feedComment2._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .set('Content-Type', 'multipart/form-data')
-        .field('message', '');
-      expect(response.body).toEqual({
-        statusCode: 400,
-        message: 'Comments must have some text or at least one image.',
-      });
-    });
-
-    it('check trim is working for message in update feed comments', async () => {
-      const response = await request(app.getHttpServer())
-        .patch(`/api/v1/feed-comments/${feedComment._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .set('Content-Type', 'multipart/form-data')
-        .field('message', '       hello test user comment');
-      expect(response.body).toEqual({
-        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-        feedPostId: feedPost._id.toString(),
-        message: 'hello test user comment',
-        userId: activeUser._id.toString(),
-        images: [
-          {
-            image_path: 'https://picsum.photos/id/237/200/300',
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          },
-          {
-            image_path: 'https://picsum.photos/seed/picsum/200/300',
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          },
-        ],
-      });
-    });
-
-    it('returns the expected response when the message only contains whitespace characters', async () => {
-      const feedComment3 = await feedCommentsService.createFeedComment(
-        feedCommentsFactory.build(
-          {
-            userId: activeUser._id,
-            feedPostId: feedPost.id,
-            message: sampleFeedCommentsObject.message,
-            images: [],
-          },
-        ),
-      );
-      const response = await request(app.getHttpServer())
-        .patch(`/api/v1/feed-comments/${feedComment3._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .set('Content-Type', 'multipart/form-data')
-        .field('message', '          \n\n');
-      expect(response.body).toEqual({
-        statusCode: 400,
-        message: 'Comments must have some text or at least one image.',
       });
     });
 

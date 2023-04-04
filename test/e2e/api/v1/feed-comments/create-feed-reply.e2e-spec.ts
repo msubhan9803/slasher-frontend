@@ -92,8 +92,6 @@ describe('Feed-Comments/Replies File (e2e)', () => {
     });
 
     beforeEach(async () => {
-      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
-
       activeUser = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
@@ -110,6 +108,11 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         ),
       );
     });
+
+    describe('with mocked notificationService.create', () => {
+      beforeEach(async () => {
+        jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
+      });
 
     it('returns the expected response upon successful request', async () => {
       await createTempFiles(async (tempPaths) => {
@@ -668,6 +671,20 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           //   notificationMsg: 'mentioned you in a comment reply',
           // });
         });
+    });
+    });
+
+    describe('notifications', () => {
+      let commentCreatorUser;
+      let otherUser1;
+      let otherUser1AuthToken;
+      let otherUser2;
+      beforeEach(async () => {
+        commentCreatorUser = await usersService.create(userFactory.build());
+        otherUser1 = await usersService.create(userFactory.build());
+        otherUser1AuthToken = otherUser1.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
+        otherUser2 = await usersService.create(userFactory.build());
+      });
 
       it('when notification is create for createFeedReply than check newNotificationCount is increment in user', async () => {
         const user0 = await usersService.create(userFactory.build({ userName: 'Divine' }));

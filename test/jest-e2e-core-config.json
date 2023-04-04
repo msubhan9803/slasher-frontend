@@ -8,6 +8,6 @@
   },
   "maxWorkers": 1,
   "maxConcurrency": 1,
-  "resetMocks": true,
+  "restoreMocks": true,
   "testTimeout": 20000
 }

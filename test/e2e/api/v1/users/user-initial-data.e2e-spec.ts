@@ -12,7 +12,6 @@ import { FriendsService } from '../../../../../src/friends/providers/friends.ser
 import { ChatService } from '../../../../../src/chat/providers/chat.service';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { relativeToFullImagePath } from '../../../../../src/utils/image-utils';
-import { pick } from '../../../../../src/utils/object-utils';
 import { NotificationsService } from '../../../../../src/notifications/providers/notifications.service';
 import { notificationFactory } from '../../../../factories/notification.factory';
 import { NotificationDeletionStatus, NotificationReadStatus } from '../../../../../src/schemas/notification/notification.enums';
@@ -138,10 +137,16 @@ describe('Users suggested friends (e2e)', () => {
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
-          user: pick(activeUser, ['id', 'userName', 'profilePic', 'newNotificationCount', 'newFriendRequestCount']),
+          user: {
+            id: activeUser.id,
+            userName: 'Username1',
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+            newNotificationCount: 6,
+            newFriendRequestCount: 0,
+          },
           recentMessages,
           unreadNotificationCount: 5,
-          newConversationIds: 0,
+          newConversationIdsCount: 0,
           recentFriendRequests: [
             {
               _id: user2.id,

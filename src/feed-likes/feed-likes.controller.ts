@@ -76,11 +76,7 @@ export class FeedLikesController {
     );
     if (!skipPostCreatorNotification) {
       await this.notificationsService.create({
-        userId: ({
-          _id: postUserId,
-          profilePic: (post.userId as any).profilePic,
-          userName: (post.userId as any).userName,
-        } as any),
+        userId: postUserId as any,
         feedPostId: { _id: post._id.toString() } as unknown as FeedPost,
         senderId: user._id,
         notifyType: NotificationType.UserLikedYourPost,

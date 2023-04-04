@@ -543,7 +543,7 @@ export class FeedCommentsController {
     if (!skipPostCreatorNotification) {
       userIdsToSkip.push(postCreatorUserId);
       await this.notificationsService.create({
-        userId: post.userId as any,
+        userId: (post.userId as unknown as User)._id,
         feedPostId: comment.feedPostId as any,
         feedCommentId: comment._id as any,
         senderId: commentCreatorUser._id,
@@ -607,7 +607,7 @@ export class FeedCommentsController {
     if (!skipPostCreatorNotification) {
       userIdsToSkip.push(postCreatorUserId);
       await this.notificationsService.create({
-        userId: post.userId as any,
+        userId: (post.userId as unknown as User)._id,
         feedPostId: reply.feedPostId as any,
         feedCommentId: reply.feedCommentId as any,
         feedReplyId: reply._id,

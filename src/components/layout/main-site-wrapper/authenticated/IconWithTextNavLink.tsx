@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import { IconDefinition, SizeProp } from '@fortawesome/fontawesome-svg-core';
 import { Link, useLocation } from 'react-router-dom';
 import IconWithTextNavItemInnerElement from './IconWithTextNavItemInnerElement';
+import { useAppDispatch } from '../../../../redux/hooks';
+import { setHomeDataReload } from '../../../../redux/slices/userSlice';
 
 interface Props {
   label: string;
@@ -36,9 +38,14 @@ function IconWithTextNavLink({
       window.removeEventListener('popstate', handlePopstate);
     };
   }, []);
-
+  const dispatch = useAppDispatch();
+  const handleRefresh = () => {
+    if (label === 'Home') {
+      dispatch(setHomeDataReload(true));
+    }
+  };
   return (
-    <Link to={to} ref={linkRef} className={`text-decoration-none pb-1 mb-1 ${className}`}>
+    <Link to={to} onClick={handleRefresh} ref={linkRef} className={`text-decoration-none pb-1 mb-1 ${className}`}>
       <IconWithTextNavItemInnerElement
         label={label}
         userProfileIcon={userProfileIcon}
@@ -47,7 +54,7 @@ function IconWithTextNavLink({
         iconSize={iconSize}
         badge={badge}
         badgeIconClassName={badgeIconClassName}
-        active={pathname.startsWith(to)}
+        active={pathname.startsWith(label === 'Home' ? '/app/home' : to)}
       />
       {children}
     </Link>

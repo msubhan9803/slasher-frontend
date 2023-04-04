@@ -43,7 +43,7 @@ function MoviesModal({
   const initialRating = rateType ? movieData?.userData?.[rateType] ?? 0 : 0;
   // We're using `intialRating` as 1 less than actual value to work for `start`/`goreIcon` component
   const [rating, setRating] = useState<RatingValue>(
-    initialRating === 0 ? 0 : (initialRating - 1) as RatingValue,
+    initialRating === 0 ? -1 : (initialRating - 1) as RatingValue,
   );
   const params = useParams();
   const closeModal = () => {

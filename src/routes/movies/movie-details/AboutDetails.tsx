@@ -224,28 +224,29 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
           <Col xs={6} md={5} className="p-0">
             <StyledVerticalBorder className="mt-4 mt-md-0">
               <p className="fw-bold text-center">Worth watching?</p>
-              {movieData.worthWatching === WorthWatchingStatus.Up
+              <div className="d-flex justify-content-center" style={{ height: 30 }}>
+                {movieData.worthWatching === WorthWatchingStatus.Up
                 && (
-                  <div className="mt-2 d-flex justify-content-center">
+                  <>
                     <StyledLikeIcon className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
                       <StyleWatchWorthIcon icon={regular('thumbs-up')} />
                     </StyledLikeIcon>
                     <p className="fw-bold m-0 align-self-center" style={{ color: 'var(--bs-success)' }}>Worth it!</p>
-                  </div>
+                  </>
                 )}
-
-              {movieData.worthWatching === WorthWatchingStatus.Down
+                {movieData.worthWatching === WorthWatchingStatus.Down
                 && (
-                  <div className="mt-2 d-flex justify-content-center">
+                  <>
                     <StyledDislikeIcon role="button" className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
                       <StyleWatchWorthIcon icon={regular('thumbs-down')} />
                     </StyledDislikeIcon>
                     <p className="fs-3 fw-bold m-0 align-self-center" style={{ color: '#FF1800' }}>Not worth it!</p>
-                  </div>
+                  </>
                 )}
 
-              {movieData.worthWatching === WorthWatchingStatus.NoRating
-                && <p className="fw-bold m-0 align-self-center text-light text-center">Not yet rated</p>}
+                {movieData.worthWatching === WorthWatchingStatus.NoRating
+                && <div className="fw-bold m-0 align-self-center text-light text-center">Not yet rated</div>}
+              </div>
 
               {/* Worth Watch Icons */}
               <div className="mt-3">

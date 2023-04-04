@@ -21,6 +21,7 @@ import debounce from 'lodash/debounce';
 import ErrorMessageList from './ErrorMessageList';
 import { MarkerLocationType } from '../../types';
 import RoundButton from './RoundButton';
+import { LG_MEDIA_BREAKPOINT } from '../../constants';
 
 const lookUpLocation = async (locationString: string) => {
   let query = locationString;
@@ -120,6 +121,9 @@ interface Props {
 
 const MapNotifiyMessage = styled.div`
   margin-bottom: -22px;
+  @media (min-width: ${LG_MEDIA_BREAKPOINT}) {
+    margin-bottom: -23px;
+  }
   color: white;
   position: relative;
   background: rgb(0 0 0 / 51%);

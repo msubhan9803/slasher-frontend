@@ -60,7 +60,7 @@ function PostFooter({
               ) : (
                 <>
                   <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
-                  <span className="fs-3 d-none d-md-inline d-lg-none d-xl-inline me-2">Like</span>
+                  <span className="fs-3 d-none d-md-inline me-2">Like</span>
                 </>
               )}
             </Button>

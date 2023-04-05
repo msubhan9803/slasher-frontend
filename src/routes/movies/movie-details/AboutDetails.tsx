@@ -18,6 +18,7 @@ import ShareLinksModal from '../../../components/ui/ShareLinksModal';
 import CustomRatingText from '../../../components/ui/CustomRatingText';
 import { createOrUpdateWorthWatching, deleteWorthWatching } from '../../../api/movies';
 import { updateMovieUserData } from '../components/updateMovieDataUtils';
+import { urlForMovie } from '../../../utils/url-utils';
 
 const StyleWatchWorthIcon = styled(FontAwesomeIcon)`
   width: 0.995rem;
@@ -297,7 +298,14 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
       </div>
       {showRating && <MoviesModal rateType="rating" show={showRating} setShow={setShowRating} movieData={movieData} setMovieData={setMovieData} ButtonType="rating" hasRating={hasRating} />}
       {showGoreRating && <MoviesModal rateType="goreFactorRating" show={showGoreRating} setShow={setShowGoreRating} movieData={movieData} setMovieData={setMovieData} ButtonType="goreFactorRating" hasGoreFactor={hasGoreFactor} />}
-      {showShareLinks && <ShareLinksModal show={showShareLinks} setShow={setShowShareLinks} />}
+      {showShareLinks
+        && (
+        <ShareLinksModal
+          copyLinkUrl={urlForMovie(params?.id!)}
+          show={showShareLinks}
+          setShow={setShowShareLinks}
+        />
+        )}
     </AboutMovieDetails>
   );
 }

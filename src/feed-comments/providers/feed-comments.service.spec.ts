@@ -155,6 +155,26 @@ describe('FeedCommentsService', () => {
       const feedCommentData = await feedCommentsModel.findById(feedComments._id);
       expect(feedCommentData.is_deleted).toEqual(FeedCommentDeletionState.Deleted);
     });
+
+    it('when feedCommentId equals the comment _id than deleting comment and replies', async () => {
+      const reply1 = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser._id,
+            feedCommentId: feedComments.id,
+            message: sampleFeedCommentsObject.message,
+            images: sampleFeedCommentsObject.images,
+          },
+        ),
+      );
+      await feedCommentsService.deleteFeedComment(feedComments.id);
+      const feedCommentData = await feedCommentsModel.findById(feedComments._id);
+      expect(feedCommentData.is_deleted).toEqual(FeedCommentDeletionState.Deleted);
+      const feedreplyData1 = await feedReplyModel.findOne({ _id: feedReply._id });
+      expect(feedreplyData1.deleted).toEqual(FeedReplyDeletionState.Deleted);
+      const feedreplyData2 = await feedReplyModel.findOne({ _id: reply1._id });
+      expect(feedreplyData2.deleted).toEqual(FeedReplyDeletionState.Deleted);
+    });
   });
 
   describe('#createFeedReply', () => {

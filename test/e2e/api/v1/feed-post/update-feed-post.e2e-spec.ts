@@ -337,6 +337,7 @@ describe('Update Feed Post (e2e)', () => {
             {
               images: [{
                 image_path: '/feed/feed_sample1.jpg',
+                description: 'this feed comment description 1',
               }],
               userId: activeUser._id,
             },
@@ -358,30 +359,39 @@ describe('Update Feed Post (e2e)', () => {
             images: [
               {
                 image_path: '/feed/feed_sample1.jpg',
+                description: 'this feed comment description 1',
               },
               {
                 image_path: '/feed/feed_sample2.jpg',
+                description: 'this feed comment description 2',
               },
               {
                 image_path: '/feed/feed_sample3.jpg',
+                description: null,
               },
               {
                 image_path: '/feed/feed_sample4.jpg',
+                description: 'this feed comment description 3',
               },
               {
                 image_path: '/feed/feed_sample5.jpg',
+                description: 'this feed comment description 4',
               },
               {
                 image_path: '/feed/feed_sample6.jpg',
+                description: 'this feed comment description 5',
               },
               {
                 image_path: '/feed/feed_sample7.jpg',
+                description: 'this feed comment description 6',
               },
               {
                 image_path: '/feed/feed_sample8.jpg',
+                description: 'this feed comment description 7',
               },
               {
                 image_path: '/feed/feed_sample9.jpg',
+                description: 'this feed comment description 8',
               },
             ],
             userId: activeUser._id,

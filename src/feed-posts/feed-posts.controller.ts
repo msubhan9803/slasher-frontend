@@ -79,16 +79,25 @@ export class FeedPostsController {
         HttpStatus.BAD_REQUEST,
       );
     }
+
+    if (files?.length !== createFeedPostsDto.imageDescriptions?.length) {
+      throw new HttpException(
+        'files length and imagesDescriptions length should be same',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const user = getUserFromRequest(request);
     const images = [];
-    for (const file of files) {
+    for (const [index, file] of files.entries()) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
       if (this.config.get<string>('FILE_STORAGE') === 's3') {
         await this.s3StorageService.write(storageLocation, file);
       } else {
         this.localStorageService.write(storageLocation, file);
       }
-      images.push({ image_path: storageLocation });
+      const imageDescriptions = createFeedPostsDto?.imageDescriptions[index] === '' ? null : createFeedPostsDto?.imageDescriptions[index];
+      images.push({ image_path: storageLocation, description: imageDescriptions });
     }
 
     const feedPost = new FeedPost(createFeedPostsDto);
@@ -278,15 +287,24 @@ export class FeedPostsController {
     if (updateFeedPostsDto.imagesToDelete) {
       imagesToKeep = feedPost.images.filter((image) => !updateFeedPostsDto.imagesToDelete.includes((image as any)._id.toString()));
     }
+
+    if (files?.length !== updateFeedPostsDto.imageDescriptions?.length) {
+      throw new HttpException(
+        'files length and imagesDescriptions length should be same',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const images = [];
-    for (const file of files) {
+    for (const [index, file] of files.entries()) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
       if (this.config.get<string>('FILE_STORAGE') === 's3') {
         await this.s3StorageService.write(storageLocation, file);
       } else {
         this.localStorageService.write(storageLocation, file);
       }
-      images.push({ image_path: storageLocation });
+      const imageDescriptions = updateFeedPostsDto.imageDescriptions[index] === '' ? null : updateFeedPostsDto.imageDescriptions[index];
+      images.push({ image_path: storageLocation, description: imageDescriptions });
     }
 
     if (newPostImages || imagesToDelete) {

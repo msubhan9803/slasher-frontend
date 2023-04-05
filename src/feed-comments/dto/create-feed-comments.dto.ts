@@ -1,8 +1,10 @@
 import { Transform, TransformFnParams } from 'class-transformer';
 import {
-  IsMongoId, IsNotEmpty, IsOptional, MaxLength,
+  ArrayMaxSize,
+  IsMongoId, IsNotEmpty, IsOptional, IsString, MaxLength,
 } from 'class-validator';
 import mongoose from 'mongoose';
+import { MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT } from '../../constants';
 
 export class CreateFeedCommentsDto {
   @IsOptional()
@@ -13,4 +15,11 @@ export class CreateFeedCommentsDto {
   @IsNotEmpty()
   @IsMongoId()
   feedPostId: mongoose.Schema.Types.ObjectId;
+
+  @IsOptional()
+  @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
+  @ArrayMaxSize(MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT)
+  @MaxLength(250, { each: true }) // set maximum length of each string inside the array
+  @IsString({ each: true })
+  imageDescriptions: string[];
 }

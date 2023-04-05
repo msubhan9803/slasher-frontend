@@ -40,9 +40,11 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
     images: [
       {
         image_path: 'https://picsum.photos/id/237/200/300',
+        description: 'this update feed comment description 1',
       },
       {
         image_path: 'https://picsum.photos/seed/picsum/200/300',
+        description: 'this update feed comment description 2',
       },
     ],
   };
@@ -380,6 +382,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
               message: sampleFeedCommentsObject.message,
               images: [{
                 image_path: '/feed/feed_sample1.jpg',
+                description: 'this update feed comment description 1',
               }],
             },
           ),
@@ -403,15 +406,19 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
             images: [
               {
                 image_path: '/feed/feed_sample1.jpg',
+                description: 'this update feed comment description 1',
               },
               {
                 image_path: '/feed/feed_sample2.jpg',
+                description: 'this update feed comment description 2',
               },
               {
                 image_path: '/feed/feed_sample3.jpg',
+                description: 'this update feed comment description 3',
               },
               {
                 image_path: '/feed/feed_sample4.jpg',
+                description: 'this update feed comment description 4',
               },
             ],
           },

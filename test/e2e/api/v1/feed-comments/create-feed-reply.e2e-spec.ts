@@ -47,9 +47,11 @@ describe('Feed-Comments/Replies File (e2e)', () => {
     images: [
       {
         image_path: 'https://picsum.photos/id/237/200/300',
+        description: 'this create feed reply description 1',
       },
       {
         image_path: 'https://picsum.photos/seed/picsum/200/300',
+        description: 'this create feed reply description 2',
       },
     ],
     message: 'Hello Reply Test Message 1',

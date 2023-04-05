@@ -41,9 +41,11 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
     images: [
       {
         image_path: 'https://picsum.photos/id/237/200/300',
+        description: 'this update feed reply description 1',
       },
       {
         image_path: 'https://picsum.photos/seed/picsum/200/300',
+        description: 'this update feed reply description 2',
       },
     ],
   };
@@ -405,6 +407,7 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
               message: 'Hello Reply Test Message 1',
               images: [{
                 image_path: '/feed/feed_sample1.jpg',
+                description: 'this update feed reply description 1',
               }],
             },
           ),
@@ -427,6 +430,7 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
             message: 'Hello Reply Test Message 1',
             images: [{
               image_path: '/feed/feed_sample1.jpg',
+              description: 'this update feed reply description 1',
             }],
           },
         ),
@@ -453,15 +457,19 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
             images: [
               {
                 image_path: '/feed/feed_sample1.jpg',
+                description: 'this update feed reply description 1',
               },
               {
                 image_path: '/feed/feed_sample2.jpg',
+                description: 'this update feed reply description 2',
               },
               {
                 image_path: '/feed/feed_sample3.jpg',
+                description: 'this update feed reply description 3',
               },
               {
                 image_path: '/feed/feed_sample4.jpg',
+                description: 'this update feed reply description 4',
               },
             ],
           },

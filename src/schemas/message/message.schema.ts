@@ -47,6 +47,9 @@ export class Message extends MessageUnusedFields {
   @Prop({ default: null })
   image: string;
 
+  @Prop({ default: null })
+  imageDescription: string;
+
   // Note: We don't query on this field in this app, but we set it to ensure compatibility with the
   // old API app.  We will probably be able to get rid of it when the old API app is retired.
   @Prop()

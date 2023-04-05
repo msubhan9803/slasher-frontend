@@ -95,15 +95,24 @@ export class FeedCommentsController {
       }
     }
 
+    if (files?.length !== createFeedCommentsDto.imageDescriptions?.length) {
+      throw new HttpException(
+        'files length and imagesDescriptions length should be same',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const images = [];
-    for (const file of files) {
+    for (const [index, file] of files.entries()) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
       if (this.config.get<string>('FILE_STORAGE') === 's3') {
         await this.s3StorageService.write(storageLocation, file);
       } else {
         this.localStorageService.write(storageLocation, file);
       }
-      images.push({ image_path: storageLocation });
+      // eslint-disable-next-line max-len
+      const imageDescriptions = createFeedCommentsDto.imageDescriptions[index] === '' ? null : createFeedCommentsDto.imageDescriptions[index];
+      images.push({ image_path: storageLocation, description: imageDescriptions });
     }
 
     const feedComment = new FeedComment(createFeedCommentsDto);
@@ -174,15 +183,24 @@ export class FeedCommentsController {
       imagesToKeep = comment.images.filter((image) => !updateFeedCommentsDto.imagesToDelete.includes((image as any)._id.toString()));
     }
 
+    if (files?.length !== updateFeedCommentsDto.imageDescriptions?.length) {
+      throw new HttpException(
+        'files length and imagesDescriptions length should be same',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const images = [];
-    for (const file of files) {
+    for (const [index, file] of files.entries()) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
       if (this.config.get<string>('FILE_STORAGE') === 's3') {
         await this.s3StorageService.write(storageLocation, file);
       } else {
         this.localStorageService.write(storageLocation, file);
       }
-      images.push({ image_path: storageLocation });
+      // eslint-disable-next-line max-len
+      const imageDescriptions = updateFeedCommentsDto.imageDescriptions[index] === '' ? null : updateFeedCommentsDto.imageDescriptions[index];
+      images.push({ image_path: storageLocation, description: imageDescriptions });
     }
     if (newCommentImages || imagesToDelete) {
       const feedCommentImages = images.concat(imagesToKeep);
@@ -274,15 +292,23 @@ export class FeedCommentsController {
       }
     }
 
+    if (files?.length !== createFeedReplyDto.imageDescriptions?.length) {
+      throw new HttpException(
+        'files length and imagesDescriptions length should be same',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const images = [];
-    for (const file of files) {
+    for (const [index, file] of files.entries()) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
       if (this.config.get<string>('FILE_STORAGE') === 's3') {
         await this.s3StorageService.write(storageLocation, file);
       } else {
         this.localStorageService.write(storageLocation, file);
       }
-      images.push({ image_path: storageLocation });
+      const imageDescriptions = createFeedReplyDto.imageDescriptions[index] === '' ? null : createFeedReplyDto.imageDescriptions[index];
+      images.push({ image_path: storageLocation, description: imageDescriptions });
     }
 
     const feedReply = new FeedReply(createFeedReplyDto);
@@ -354,15 +380,23 @@ export class FeedCommentsController {
       imagesToKeep = reply.images.filter((image) => !updateFeedReplyDto.imagesToDelete.includes((image as any)._id.toString()));
     }
 
+    if (files?.length !== updateFeedReplyDto.imageDescriptions?.length) {
+      throw new HttpException(
+        'files length and imagesDescriptions length should be same',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const images = [];
-    for (const file of files) {
+    for (const [index, file] of files.entries()) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
       if (this.config.get<string>('FILE_STORAGE') === 's3') {
         await this.s3StorageService.write(storageLocation, file);
       } else {
         this.localStorageService.write(storageLocation, file);
       }
-      images.push({ image_path: storageLocation });
+      const imageDescriptions = updateFeedReplyDto.imageDescriptions[index] === '' ? null : updateFeedReplyDto.imageDescriptions[index];
+      images.push({ image_path: storageLocation, description: imageDescriptions });
     }
 
     if (newReplyImages || imagesToDelete) {

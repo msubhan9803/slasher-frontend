@@ -367,9 +367,11 @@ describe('FeedPostsService', () => {
         images: [
           {
             image_path: '/feed/feed_sample1.jpg',
+            description: 'this feed post description 1',
           },
           {
             image_path: '/feed/feed_sample2.jpg',
+            description: 'this feed post description 2',
           },
         ],
       };

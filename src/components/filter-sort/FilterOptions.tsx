@@ -20,7 +20,7 @@ const StyledFilterIcon = styled(FontAwesomeIcon)`
 
 const StyledFilterOptionButton = styled(Button)`
   &:focus-visible {
-    box-shadow: 0 0 0 1px var(--stroke-and-line-separator-color) !important;
+    box-shadow: 0 0 0 2px var(--stroke-and-line-separator-color) !important;
   }
 `;
 function FilterOptions({

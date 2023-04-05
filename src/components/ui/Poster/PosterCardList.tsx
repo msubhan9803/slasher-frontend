@@ -31,8 +31,8 @@ function PosterCardList({ dataList, pubWiseAdUnitDivId, onSelect }: PosterCardPr
   const location = useLocation();
   useEffect(() => {
     if (dataList.length > 0
-        && scrollPosition.position > 0
-        && scrollPosition?.pathname === location.pathname) {
+      && scrollPosition.position > 0
+      && scrollPosition?.pathname === location.pathname) {
       window.scrollTo({
         top: scrollPosition?.position,
         behavior: 'instant' as any,
@@ -47,6 +47,7 @@ function PosterCardList({ dataList, pubWiseAdUnitDivId, onSelect }: PosterCardPr
           <React.Fragment key={listDetail._id}>
             <Col xs={4} md={3} lg={4} xl={3} key={listDetail._id}>
               <Link
+                className="m-1"
                 onClick={() => onSelect!(listDetail._id!)}
                 to={`/app/movies/${listDetail._id}`}
               >

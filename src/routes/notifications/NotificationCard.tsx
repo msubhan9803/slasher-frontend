@@ -89,7 +89,7 @@ function NotificationCard({ notification, lastCard, onSelect }: Props) {
       <Link
         onClick={() => { markRead(notification._id); onSelect!(notification._id); }}
         to={urlForNotification(notification)}
-        className="text-decoration-none px-0 shadow-none text-white text-start d-flex align-items-center bg-transparent border-0"
+        className="text-decoration-none px-0 text-white text-start d-flex align-items-center bg-transparent border-0"
       >
         {notification.senderId && (
           <UserCircleImageContainer className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">

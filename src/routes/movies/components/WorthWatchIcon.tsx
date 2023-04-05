@@ -106,7 +106,7 @@ function WorthWatchIcon({
   return (
     <div className="mx-1 d-flex align-items-center justify-content-around">
       <div className="mt-2 d-flex justify-content-center ">
-        <StyledLikeIcon isLike={liked} role="button" onClick={handleThumbsUp} className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
+        <StyledLikeIcon tabIndex={0} isLike={liked} role="button" onClick={handleThumbsUp} onKeyDown={(e) => { if (e.key === 'Enter') { handleThumbsUp(); } }} className="d-flex justify-content-center align-items-center bg-transparent me-2 rounded-circle">
           <StyleWatchWorthIcon icon={regular('thumbs-up')} />
         </StyledLikeIcon>
         {!postType
@@ -119,7 +119,7 @@ function WorthWatchIcon({
           )}
       </div>
       <div className="mt-2 d-flex justify-content-center ">
-        <StyledDislikeIcon isDislike={disLiked} role="button" onClick={handleThumbsDown} className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
+        <StyledDislikeIcon tabIndex={0} isDislike={disLiked} role="button" onClick={handleThumbsDown} onKeyDown={(e) => { if (e.key === 'Enter') { handleThumbsDown(); } }} className="d-flex justify-content-center align-items-center bg-transparent me-2 rounded-circle">
           <StyleWatchWorthIcon icon={regular('thumbs-down')} />
         </StyledDislikeIcon>
         {!postType

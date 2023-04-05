@@ -1,7 +1,5 @@
 /* eslint-disable react/require-default-props */
 import React from 'react';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Dropdown,
 } from 'react-bootstrap';
@@ -9,6 +7,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import UserCircleImage from '../UserCircleImage';
 import { markAllReadForSingleConversation } from '../../../api/messages';
+import CustomPopover from '../CustomPopover';
 
 interface Props {
   userName: string;
@@ -84,7 +83,7 @@ export const CustomDropDown = styled(Dropdown)`
     }
   }
 `;
-
+const popoverOption = ['Mark as read', 'Delete', 'Block user'];
 function UserMessageListItem({
   userName, message, image, count = 0, timeStamp = null,
   handleDropdownOption = () => { }, matchListId = null,
@@ -95,13 +94,20 @@ function UserMessageListItem({
     if (!matchListId) { return; }
     markAllReadForSingleConversation(matchListId);
   };
+  const handleMessagePopover = (value: string) => {
+    if (value === 'Mark as read') {
+      handleMarkConversationRead();
+    } else {
+      handleDropdownOption(value);
+    }
+  };
 
   return (
     <StyledItem ref={ref} className="bg-dark bg-mobile-transparent">
       <div className="d-flex px-2 px-lg-4 align-items-stretch">
         <StyledLink to={`/app/messages/conversation/${matchListId}`} className={`d-flex flex-grow-1 align-items-center ps-2 pe-1 ps-lg-3 pe-lg-2 ${sharedYPadding} message-bottom-border`}>
           <div>
-            <UserCircleImage src={image} alt="user picture" />
+            <UserCircleImage src={image} alt="user picture" className="rounded-circle" />
           </div>
           <div className="flex-grow-1 min-width-0 ps-3">
             <div className="d-flex justify-content-between align-items-center">
@@ -122,21 +128,11 @@ function UserMessageListItem({
             </div>
           </div>
         </StyledLink>
-        <div className={`${sharedYPadding} message-bottom-border`}>
-          <CustomDropDown onSelect={handleDropdownOption}>
-            <Dropdown.Toggle aria-label="dropdown" className="d-flex justify-content-end bg-transparent px-3 px-lg-3 text-white">
-              <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-            </Dropdown.Toggle>
-            <Dropdown.Menu className="bg-black">
-              <Dropdown.Item eventKey="markAsRead" className="text-light" onClick={handleMarkConversationRead}>
-                Mark as read
-              </Dropdown.Item>
-              <Dropdown.Item eventKey="delete" className="text-light">Delete</Dropdown.Item>
-              <Dropdown.Item eventKey="blockUser" className="text-light">
-                Block user
-              </Dropdown.Item>
-            </Dropdown.Menu>
-          </CustomDropDown>
+        <div className={`${sharedYPadding} message-bottom-border px-3`}>
+          <CustomPopover
+            popoverOptions={popoverOption}
+            onPopoverClick={handleMessagePopover}
+          />
         </div>
       </div>
     </StyledItem>

@@ -23,6 +23,7 @@ import FormatImageVideoList from '../../utils/vido-utils';
 import { useAppSelector, useAppDispatch } from '../../redux/hooks';
 import { setScrollPosition } from '../../redux/slices/scrollPositionSlice';
 import EditPostModal from '../../components/ui/post/EditPostModal';
+import { setHomeDataReload } from '../../redux/slices/userSlice';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
@@ -48,6 +49,7 @@ function Home() {
     scrollPosition.pathname === location.pathname
       ? scrollPosition?.data : [],
   );
+  const reloadData = useAppSelector((state) => state.user.homeDataReload);
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (value === 'Hide') {
       const postIdToHide = popoverClickProps.id;
@@ -83,6 +85,7 @@ function Home() {
         || posts.length >= scrollPosition?.data?.length
         || posts.length === 0
         || scrollPosition.pathname !== location.pathname
+        || reloadData
       ) {
         setLoadingPosts(true);
         getHomeFeedPosts(
@@ -147,9 +150,21 @@ function Home() {
     }
   }, [
     requestAdditionalPosts, loadingPosts, loginUserId, posts, scrollPosition,
-    dispatch, location.pathname,
+    dispatch, location.pathname, reloadData,
   ]);
 
+  useEffect(() => {
+    if (reloadData) {
+      dispatch(setHomeDataReload(false));
+      const positionData = {
+        pathname: '',
+        position: 0,
+        data: [],
+        positionElementId: '',
+      };
+      dispatch(setScrollPosition(positionData));
+    }
+  }, [reloadData, dispatch]);
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -198,18 +213,17 @@ function Home() {
   };
 
   const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
-    updateFeedPost(postId, message, images, imageDelete).then(() => {
+    updateFeedPost(postId, message, images, imageDelete).then((res) => {
       setShow(false);
       const updatePost = posts.map((post: any) => {
         if (post._id === postId) {
           return {
-            ...post, content: message,
+            ...post, content: res.data.message, images: res.data.images,
           };
         }
         return post;
       });
       setPosts(updatePost);
-      callLatestFeedPost();
     })
       .catch((error) => {
         const msg = error.response.status === 0 && !error.response.data

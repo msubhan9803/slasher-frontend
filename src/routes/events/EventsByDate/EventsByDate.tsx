@@ -159,6 +159,14 @@ function EventsByDate() {
   });
 
   useEffect(() => {
+    // Make sure that page is at top when this component is mounted (Issue discussed in SD-961).
+    window.scrollTo({
+      top: 0,
+      behavior: 'instant' as any,
+    });
+  }, []);
+
+  useEffect(() => {
     let monthRange = [];
     if (!viewChange) {
       monthRange = getDateRange(selectedDate);
@@ -257,15 +265,16 @@ function EventsByDate() {
             return null;
           }}
         />
-        <InfiniteScroll
-          pageStart={0}
-          initialLoad={false}
-          loadMore={fetchMoreEvent}
-          hasMore={!noMoreData}
-          element="span"
-        >
-          <Row ref={eventContainerElementRef}>
-            {eventsList && eventsList.length > 0
+      </div>
+      <InfiniteScroll
+        pageStart={0}
+        initialLoad={false}
+        loadMore={fetchMoreEvent}
+        hasMore={!noMoreData}
+        element="span"
+      >
+        <Row ref={eventContainerElementRef}>
+          {eventsList && eventsList.length > 0
               && (eventsList.map((eventDetail, i, arr) => {
                 // (*temporary*) DEBUGGING TIP: Use `Array(15).fill(eventsList[0]).map(..)`
                 // inplace of `eventsList.map(..)`  to mimic sample data from a single data item.
@@ -279,12 +288,11 @@ function EventsByDate() {
                   </React.Fragment>
                 );
               }))}
-          </Row>
-        </InfiniteScroll>
-        {noMoreData && renderNoMoreDataMessage()}
-      </div>
+        </Row>
+      </InfiniteScroll>
       {/* Show an ad on events page in-case when we have no events to show. */}
       {(eventsList.length === 0) && <PubWiseAd className="my-3" id={ALL_MOVIES_DIV_ID} autoSequencer />}
+      {noMoreData && renderNoMoreDataMessage()}
     </div>
   );
 }

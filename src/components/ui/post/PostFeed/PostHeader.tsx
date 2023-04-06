@@ -57,10 +57,10 @@ function PostHeader({
                 ? `/app/news/partner/${rssfeedProviderId}#`
                 : `/${userName}#`}
               scroll={scrollToTop}
-              className="text-decoration-none"
+              className="text-decoration-none rounded-circle"
             >
               <div className="rounded-circle">
-                <UserCircleImage size="3.313rem" src={profileImage} alt={`${userName} profile picture`} className="bg-secondary" />
+                <UserCircleImage size="3.313rem" src={profileImage} alt={`${userName} profile picture`} className="bg-secondary d-flex" />
               </div>
             </HashLink>
           </Col>
@@ -75,7 +75,7 @@ function PostHeader({
                 ? `/app/news/partner/${rssfeedProviderId}#`
                 : `/${userName}#`}
               scroll={scrollToTop}
-              className="text-decoration-none"
+              className="text-decoration-none d-block"
             >
               <h1 className="mb-0 h3 text-capitalize">{userName}</h1>
             </HashLink>

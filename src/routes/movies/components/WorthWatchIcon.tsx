@@ -107,8 +107,8 @@ function WorthWatchIcon({
   return (
     <div className="mx-1 d-flex align-items-center justify-content-around">
       <div className="mt-2 d-flex justify-content-center ">
-        <Button className="bg-transparent p-0 border-0" onClick={handleThumbsUp}>
-          <StyledLikeIcon isLike={liked} className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
+        <Button className="bg-transparent p-0 border-0 me-2 rounded-circle" onClick={handleThumbsUp}>
+          <StyledLikeIcon isLike={liked} className="d-flex justify-content-center align-items-center bg-transparent rounded-circle">
             <StyleWatchWorthIcon icon={regular('thumbs-up')} />
           </StyledLikeIcon>
         </Button>
@@ -122,8 +122,8 @@ function WorthWatchIcon({
           )}
       </div>
       <div className="mt-2 d-flex justify-content-center ">
-        <Button className="bg-transparent p-0 border-0" onClick={handleThumbsDown}>
-          <StyledDislikeIcon isDislike={disLiked} className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
+        <Button className="bg-transparent p-0 border-0 me-2 rounded-circle" onClick={handleThumbsDown}>
+          <StyledDislikeIcon isDislike={disLiked} className="d-flex justify-content-center align-items-center bg-transparent rounded-circle">
             <StyleWatchWorthIcon icon={regular('thumbs-down')} />
           </StyledDislikeIcon>
         </Button>

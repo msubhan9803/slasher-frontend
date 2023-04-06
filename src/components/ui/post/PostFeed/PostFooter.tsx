@@ -86,7 +86,7 @@ function PostFooter({
                 ? `/app/news/partner/${rssfeedProviderId}/posts/${postId}`
                 : `/${userName}/posts/${postId}`)
             }
-            className="text-decoration-none"
+            className="d-inline-block text-decoration-none"
             scroll={scrollWithOffset}
           >
             <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />

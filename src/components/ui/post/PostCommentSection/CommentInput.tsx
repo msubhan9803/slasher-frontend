@@ -67,6 +67,9 @@ const StyledCommentInputGroup = styled(InputGroup) <InputProps>`
   }
   svg {
     min-width: 1.875rem;
+    &:focus {
+      outline: none;
+    }
   }
   .camera-btn {
     right: 0 !important;
@@ -199,7 +202,7 @@ function CommentInput({
     <Form>
       <Row className="pt-2 order-last order-sm-0">
         <Col xs="auto">
-          <UserCircleImage src={userData.user.profilePic} alt="user picture" className="bg-secondary" />
+          <UserCircleImage src={userData.user.profilePic} tabIndex={0} alt="user picture" className="bg-secondary d-flex" />
         </Col>
         <Col className="ps-0">
           <div className="d-flex align-items-end mb-4">
@@ -231,6 +234,14 @@ function CommentInput({
                   size="lg"
                   className="camera-btn position-absolute align-self-end me-3 mb-1"
                   style={{ right: 0 }}
+                  tabIndex={0}
+                  onKeyDown={(e: any) => {
+                    if (e.key === 'Enter') {
+                      inputFile.current?.click();
+                      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+                      setIsReply!(false);
+                    }
+                  }}
                 />
                 <input
                   type="file"

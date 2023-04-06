@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Cookies from 'js-cookie';
@@ -15,7 +15,7 @@ import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import RoundButton from '../../../components/ui/RoundButton';
 import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
-import { RouteURL, UIRouteURL } from '../RouteURL';
+import { UIRouteURL } from '../RouteURL';
 
 function BuyMovieList() {
   const [searchParams] = useSearchParams();
@@ -43,6 +43,9 @@ function BuyMovieList() {
   );
   const [callNavigate, setCallNavigate] = useState<boolean>(false);
   const userId = Cookies.get('userId');
+  const prevSearchRef = useRef(search);
+  const prevKeyRef = useRef(key);
+  const prevSortValRef = useRef(sortVal);
 
   useEffect(() => {
     setSearch(searchParams.get('q') || '');
@@ -50,18 +53,24 @@ function BuyMovieList() {
     setSortVal(searchParams.get('sort') || 'name');
   }, [searchParams]);
   useEffect(() => {
-    RouteURL(search, key, sortVal, navigate, searchParams);
-  }, [search, key, sortVal, navigate, searchParams]);
-  useEffect(() => {
     UIRouteURL(search, key, sortVal, navigate, callNavigate);
     setCallNavigate(false);
   }, [search, key, sortVal, navigate, callNavigate]);
   useEffect(() => {
-    if (search || key || sortVal) {
+    if (
+      callNavigate
+      || search !== prevSearchRef.current
+      || key !== prevKeyRef.current
+      || sortVal !== prevSortValRef.current
+    ) {
+      setFilteredMovies([]);
       setLastMovieId('');
       setRequestAdditionalMovies(true);
     }
-  }, [search, sortVal, key]);
+    prevSearchRef.current = search;
+    prevKeyRef.current = key;
+    prevSortValRef.current = sortVal;
+  }, [callNavigate, search, key, sortVal]);
 
   useEffect(() => {
     if (requestAdditionalMovies && !loadingMovies && userId) {

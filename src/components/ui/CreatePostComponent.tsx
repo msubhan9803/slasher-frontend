@@ -1,12 +1,16 @@
+/* eslint-disable max-len */
 /* eslint-disable max-lines */
-import React, { ChangeEvent, useRef, useState } from 'react';
+import React, {
+  ChangeEvent, useEffect, useRef, useState,
+} from 'react';
 import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Row, Col, Button, Form,
+  Row, Col, Button, Form, Image,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { useSearchParams } from 'react-router-dom';
+import { DateTime } from 'luxon';
 import { getSuggestUserName } from '../../api/users';
 import ErrorMessageList from './ErrorMessageList';
 import ImagesContainer from './ImagesContainer';
@@ -17,7 +21,9 @@ import RatingButtonGroups from './RatingButtonGroups';
 import CustomWortItText from './CustomWortItText';
 import { StyledBorder } from './StyledBorder';
 import WorthWatchIcon from '../../routes/movies/components/WorthWatchIcon';
-import { MovieData, WorthWatchingStatus } from '../../types';
+import { AdditionalMovieData, MovieData, WorthWatchingStatus } from '../../types';
+import { getMoviesById, getMoviesDataById } from '../../api/movies';
+import { StyledMoviePoster } from '../../routes/movies/movie-details/StyledUtils';
 
 interface MentionProps {
   id: string;
@@ -85,6 +91,16 @@ function CreatePostComponent({
   const [uploadPost, setUploadPost] = useState<string[]>([]);
   const [searchParams] = useSearchParams();
   const paramsType = searchParams.get('type');
+  const movieId = searchParams.get('movieId');
+  const [aboutMovieDetail, setAboutMovieDetail] = useState<AdditionalMovieData>();
+
+  useEffect(() => {
+    if (!movieId) { return; }
+
+    getMoviesById(movieId)
+      .then((res1) => getMoviesDataById(res1.data.movieDBId)
+        .then((res2) => setAboutMovieDetail(res2.data)));
+  }, [movieData, movieId]);
 
   const handleRemoveFile = (postImage: any) => {
     const removePostImage = imageArray.filter((image: File) => image !== postImage);
@@ -122,6 +138,25 @@ function CreatePostComponent({
 
   return (
     <div className={postType === 'review' ? 'bg-dark mb-3 px-4 py-4 rounded-2' : ''}>
+      {aboutMovieDetail
+        && (
+          <Row className="m-0">
+            <Col className="p-0" xs={4} md={3} lg={3} xl={2}>
+              <StyledMoviePoster>
+                <Image src={aboutMovieDetail?.mainData?.poster_path} alt="movie poster" className="rounded-3 w-100 h-100" />
+              </StyledMoviePoster>
+            </Col>
+            <Col className="m-auto ps-3">
+              <div className="fw-bold mb-3">
+                {aboutMovieDetail?.mainData.title}
+              </div>
+              <div className="text-light mb-3">
+                {aboutMovieDetail?.mainData?.release_date
+                  && DateTime.fromJSDate(new Date(aboutMovieDetail?.mainData?.release_date)).toFormat('yyyy')}
+              </div>
+            </Col>
+          </Row>
+        )}
 
       {postType === 'review' && (
         <>

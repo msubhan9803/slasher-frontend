@@ -1,11 +1,11 @@
 import React from 'react';
 import {
-  Col, Image, Row,
+  Button, Col, Image, Row,
 } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 import AppStoreImage from '../../../images/app-store-badge.png';
 import PlayStoreImage from '../../../images/google-play-badge.png';
 import DownloadMobileApp from '../../../images/download-slasher-mobile.png';
+import { handleAppLink } from '../navigate-link';
 
 function DownloadAppSection() {
   return (
@@ -20,9 +20,9 @@ function DownloadAppSection() {
             <h3 className="fw-bold h2 mb-3">GET IT TODAY ON</h3>
             <h4 className="fw-bolder h1 mb-3">Google Play</h4>
             <h5 className="fw-bold h2 mb-3">IT&#39;S FREE!</h5>
-            <Link to="/">
+            <Button variant="link" onClick={() => handleAppLink('play-store')}>
               <Image fluid src={PlayStoreImage} alt="play store" />
-            </Link>
+            </Button>
           </Col>
           <Col md={4} className="d-none d-md-block text-center">
             <Image fluid src={DownloadMobileApp} alt="download mobile" />
@@ -32,9 +32,9 @@ function DownloadAppSection() {
             <h4 className="fw-bolder h1 mb-3">iOS</h4>
             <h5 className="fw-bold h2 mb-3">IT&#39;S FREE!</h5>
             <div>
-              <Link to="/" className="mb-3 mb-md-0 me-0 me-md-3">
+              <Button variant="link" onClick={() => handleAppLink('app-store')} className="mb-3 mb-md-0 me-0 me-md-3">
                 <Image fluid src={AppStoreImage} alt="app store" className="ios-badge" />
-              </Link>
+              </Button>
             </div>
           </Col>
         </Row>

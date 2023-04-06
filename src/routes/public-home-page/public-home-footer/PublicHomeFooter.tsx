@@ -1,6 +1,8 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Col, Image, Row } from 'react-bootstrap';
+import {
+  Button, Col, Image, Row,
+} from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import {
@@ -10,6 +12,7 @@ import slasherLogo from '../../../images/slasher-logo-medium.png';
 import HeaderLogo from '../../../components/ui/HeaderLogo';
 import AppStoreImage from '../../../images/app-store-badge.png';
 import PlayStoreImage from '../../../images/google-play-badge.png';
+import { handleAppLink, handleNavLink } from '../navigate-link';
 
 const socialMediaSites = [
   { icon: faFacebookF, to: '/', bgColor: '#3b5998' },
@@ -22,6 +25,13 @@ interface SocialMediaIcon {
   bgcolor?: string;
 }
 
+const StyledFooter = styled.footer`
+  padding: 0 0 30px 0;
+  .nav-link {
+    font-weight: 500;
+  }
+`;
+
 const StyledMediaIcon = styled.div <SocialMediaIcon>`
   width: 30px;
   height: 30px;
@@ -31,18 +41,22 @@ const StyledMediaIcon = styled.div <SocialMediaIcon>`
   }
 `;
 
-const StyledBadge = styled.div`
-`;
-
-const footerNavList = ['HOME', 'ADVERTICE', 'ABOUT', 'SHOP', 'HELP', 'CONTACT US'];
+const footerNavList = [
+  { value: 'public-home-page', label: 'HOME' },
+  { value: 'about', label: 'ABOUT' },
+  { value: 'help', label: 'HELP' },
+  { value: 'advertise', label: 'ADVERTISE' },
+  { value: 'shop', label: 'SHOP' },
+  { value: 'contact-us', label: 'CONTACT US' },
+];
 function PublicHomeFooter() {
   return (
-    <footer>
-      <div className="p-4 w-100 bottom-0">
-        <Row>
-          <Col md={4} lg={3} className="text-center text-md-start mb-3 mb-md-0">
+    <StyledFooter>
+      <div className="w-100 bottom-0 p-2">
+        <Row className="m-0 align-items-center">
+          <Col md={3} className="me-md-5 p-2 text-center text-md-start">
             <div className="mb-3">
-              <HeaderLogo logo={slasherLogo} height="8rem" />
+              <HeaderLogo logo={slasherLogo} height="9rem" />
             </div>
             <div className="align-items-center d-flex mb-3 justify-content-center justify-content-md-start">
               {socialMediaSites.map((site: any) => (
@@ -57,41 +71,37 @@ function PublicHomeFooter() {
               <p className="text-light m-0 fs-5">&copy; 2022 Slasher Corp</p>
             </div>
           </Col>
-          <Col md={4} className="mb-3 mb-md-0 text-center text-md-start">
-            <div>
-              <Row>
-                {footerNavList.map((navList) => (
-                  <Col xs={4} md={6} key={navList} className="my-4">
-                    <Link to="/" className="text-decoration-none">
-                      <h1 className="h3 m-0">{navList}</h1>
-                    </Link>
-                  </Col>
-                ))}
-              </Row>
-            </div>
+          <Col xs={6} md={2} className="mb-md-3">
+            {footerNavList.slice(0, 3).map((navList) => (
+              <Button key={navList.value} variant="link" onClick={() => handleNavLink(navList.value)} className="text-decoration-none px-0 px-md-4 py-3 p-md-4 nav-link fs-3">
+                {navList.label}
+              </Button>
+            ))}
           </Col>
-          <Col md={4} lg={5} className="my-md-auto">
-            <StyledBadge className="d-flex justify-content-center justify-content-md-end">
-              <Link to="/" className="me-3">
-                <Image fluid src={AppStoreImage} alt="app store" className="border rounded ios-badge" />
-              </Link>
-              <Link to="/">
-                <Image fluid src={PlayStoreImage} alt="play store" className="border rounded" />
-              </Link>
-            </StyledBadge>
-            <Row className="mt-4 mt-md-5 align-item-center justify-content-center justify-content-md-end">
-              <Col xs={8} sm={6} md={10} lg={6} xl={4}>
-                <div className="d-flex justify-content-between">
-                  {['Terms', 'Privacy', 'Eula'].map((policy: string) => (
-                    <p key={policy} className="text-lignt m-0">{policy}</p>
-                  ))}
-                </div>
+          <Col xs={6} md={3} className="mb-md-3">
+            {footerNavList.slice(-3).map((navList) => (
+              <Button key={navList.value} variant="link" onClick={() => handleNavLink(navList.value)} className="text-decoration-none px-0 px-md-4 py-3 p-md-4 nav-link fs-3">
+                {navList.label}
+              </Button>
+            ))}
+          </Col>
+          <Col md={3} className="p-2 mt-md-5 pt-md-0">
+            <Row>
+              <Col>
+                <Button variant="link" onClick={() => handleAppLink('app-store')} className="p-0 h-100">
+                  <Image fluid src={AppStoreImage} alt="app store" className="border rounded ios-badge" />
+                </Button>
+              </Col>
+              <Col>
+                <Button variant="link" onClick={() => handleAppLink('play-store')} className="p-0 h-100">
+                  <Image fluid src={PlayStoreImage} alt="play store" className="border rounded h-100" />
+                </Button>
               </Col>
             </Row>
           </Col>
         </Row>
       </div>
-    </footer>
+    </StyledFooter>
   );
 }
 

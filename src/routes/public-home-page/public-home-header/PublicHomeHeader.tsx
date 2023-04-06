@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   Button, Col, Navbar, Row,
 } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { StyledNav } from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageHeader';
 import HeaderLogo from '../../../components/ui/HeaderLogo';
@@ -75,16 +75,24 @@ const StyledHeader = styled.header<HeaderStyleProps>`
     }
   }
 `;
+const navList = [
+  { value: 'home', label: 'Home' },
+  { value: 'about', label: 'About' },
+  { value: 'shop', label: 'Shop' },
+  { value: 'advertise', label: 'Advertise' },
+  { value: 'help', label: 'Help' },
+  { value: 'contact-us', label: 'Contact Us' },
+];
 function PublicHomeHeader() {
-  const navList = [
-    { value: 'public-home-page', label: 'Home' },
-    { value: 'public-home-page', label: 'About' },
-    { value: 'public-home-page', label: 'Shop' },
-    { value: 'public-home-page', label: 'Advertise' },
-    { value: 'public-home-page', label: 'Help' },
-    { value: 'public-home-page', label: 'Contact Us' },
-  ];
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const headerNavLink = (link: string) => {
+    if (link === 'home') {
+      navigate('/app/public-home-page');
+    } else {
+      handleNavLink(link);
+    }
+  };
 
   useEffect(() => {
     const selectHeader = document.querySelector('#header');
@@ -131,14 +139,14 @@ function PublicHomeHeader() {
           className="mb-3 d-lg-flex justify-content-lg-center"
         >
           <NavbarToggle onClick={() => setIsOpen(!isOpen)} aria-controls="responsive-navbar-nav" className="toggle border-0" />
-          <Navbar.Brand as={Link} to="/" onClick={() => handleNavLink('pulic-home-page')} style={{ marginTop: isOpen ? '-10px' : '0' }} className={`mx-auto pe-4 ${!isOpen ? 'logo2' : ''} d-lg-none py-0`}>
+          <Navbar.Brand as={Link} to="/app/public-home-page" style={{ marginTop: isOpen ? '-10px' : '0' }} className={`mx-auto pe-4 ${!isOpen ? 'logo2' : ''} d-lg-none py-0`}>
             <HeaderLogo logo={slasherLogo} height="8rem" />
           </Navbar.Brand>
           <StyledNavbarCollapse id="responsive-navbar-nav" className="bg-black mt-2 mt-lg-0">
             <StyledNav className="justify-content-between px-3 small-screen w-100">
               <Row className="w-100 align-items-center">
                 <Col lg={3}>
-                  <Navbar.Brand as={Link} to="/" onClick={() => handleNavLink('pulic-home-page')} className="logo1 d-none d-lg-flex py-0">
+                  <Navbar.Brand as={Link} to="/app/public-home-page" className="logo1 d-none d-lg-flex py-0">
                     <HeaderLogo logo={slasherLogo} height="9rem" />
                   </Navbar.Brand>
                 </Col>
@@ -149,12 +157,14 @@ function PublicHomeHeader() {
                         key={nav.value}
                         variant="link"
                         className="text-start w-100 rounded-0 nav-link py-3 px-5 p-lg-2 text-lg-center fs-3 text-decoration-none text-white"
-                        onClick={() => handleNavLink(nav.value)}
+                        onClick={() => headerNavLink(nav.value)}
                       >
                         {nav.label}
                       </StyledNavLink>
                     ))}
                     <StyledNavLink
+                      to="/app/home"
+                      onClick={() => navigate('/app/home')}
                       variant="link"
                       className="text-start w-100 rounded-0 nav-link d-lg-none py-3 py-lg-0 px-5 px-lg-2 mx-xl-2 text-lg-center fs-3 text-decoration-none text-white"
                     >
@@ -163,7 +173,7 @@ function PublicHomeHeader() {
                   </div>
                 </Col>
                 <Col lg={1}>
-                  <RoundButton className="login-btn mx-auto d-none d-lg-block px-4">Login</RoundButton>
+                  <RoundButton onClick={() => navigate('/app/home')} className="login-btn mx-auto d-none d-lg-block px-4">Login</RoundButton>
                 </Col>
               </Row>
             </StyledNav>

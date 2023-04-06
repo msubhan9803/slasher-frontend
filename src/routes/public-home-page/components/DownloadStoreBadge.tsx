@@ -18,7 +18,7 @@ export const StyledBadge = styled.div`
 function DownloadStoreBadge() {
   return (
     <StyledBadge className="d-flex flex-column flex-sm-row">
-      <Button variant="link" onClick={() => handleAppLink('play-store')} className="mb-3 mb-md-0 me-0 me-md-3">
+      <Button variant="link" onClick={() => handleAppLink('app-store')} className="mb-3 mb-md-0 me-0 me-md-3">
         <Image fluid src={AppStoreImage} alt="app store" className="ios-badge" />
       </Button>
       <Button variant="link" onClick={() => handleAppLink('play-store')}>

@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Button, Col, Image, Row,
 } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import {
   faFacebookF, faTwitter, faYoutube, faInstagram,
@@ -42,7 +42,7 @@ const StyledMediaIcon = styled.div <SocialMediaIcon>`
 `;
 
 const footerNavList = [
-  { value: 'public-home-page', label: 'HOME' },
+  { value: 'home', label: 'HOME' },
   { value: 'about', label: 'ABOUT' },
   { value: 'help', label: 'HELP' },
   { value: 'advertise', label: 'ADVERTISE' },
@@ -50,6 +50,15 @@ const footerNavList = [
   { value: 'contact-us', label: 'CONTACT US' },
 ];
 function PublicHomeFooter() {
+  const navigate = useNavigate();
+  const footerNavLink = (link: string) => {
+    if (link === 'home') {
+      navigate('/app/public-home-page');
+    } else {
+      handleNavLink(link);
+    }
+  };
+
   return (
     <StyledFooter>
       <div className="w-100 bottom-0 p-2">
@@ -73,14 +82,14 @@ function PublicHomeFooter() {
           </Col>
           <Col xs={6} md={2} className="mb-md-3">
             {footerNavList.slice(0, 3).map((navList) => (
-              <Button key={navList.value} variant="link" onClick={() => handleNavLink(navList.value)} className="text-decoration-none px-0 px-md-4 py-3 p-md-4 nav-link fs-3">
+              <Button key={navList.value} variant="link" onClick={() => { footerNavLink(navList.value); }} className="text-decoration-none px-0 px-md-4 py-3 p-md-4 nav-link fs-3">
                 {navList.label}
               </Button>
             ))}
           </Col>
           <Col xs={6} md={3} className="mb-md-3">
             {footerNavList.slice(-3).map((navList) => (
-              <Button key={navList.value} variant="link" onClick={() => handleNavLink(navList.value)} className="text-decoration-none px-0 px-md-4 py-3 p-md-4 nav-link fs-3">
+              <Button key={navList.value} variant="link" onClick={() => footerNavLink(navList.value)} className="text-decoration-none px-0 px-md-4 py-3 p-md-4 nav-link fs-3">
                 {navList.label}
               </Button>
             ))}

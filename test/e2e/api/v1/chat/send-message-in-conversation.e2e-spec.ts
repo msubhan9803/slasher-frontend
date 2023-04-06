@@ -87,8 +87,10 @@ describe('Send Message In Conversation / (e2e)', () => {
             .set('Content-Type', 'multipart/form-data')
             .attach('files', tempPath[0])
             .attach('files', tempPath[1])
-            .attach('files', tempPath[2]);
-
+            .attach('files', tempPath[2])
+            .field('imageDescriptions', 'this is chat description 1')
+            .field('imageDescriptions', 'this is chat description 2')
+            .field('imageDescriptions', 'this is chat description 3');
           const expectedImageValueMatcher = expect.stringMatching(/\/chat\/chat.+\.png|jpe?g|gif/);
           expect(response.body).toEqual(
             {
@@ -96,6 +98,7 @@ describe('Send Message In Conversation / (e2e)', () => {
                 {
                   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                   image: expectedImageValueMatcher,
+                  imageDescription: 'this is chat description 1',
                   message: 'Image',
                   fromId: activeUser._id.toString(),
                   senderId: user1._id.toString(),
@@ -109,6 +112,7 @@ describe('Send Message In Conversation / (e2e)', () => {
                 {
                   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                   image: expectedImageValueMatcher,
+                  imageDescription: 'this is chat description 2',
                   message: 'Image',
                   fromId: activeUser._id.toString(),
                   senderId: user1._id.toString(),
@@ -122,6 +126,7 @@ describe('Send Message In Conversation / (e2e)', () => {
                 {
                   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                   image: expectedImageValueMatcher,
+                  imageDescription: 'this is chat description 3',
                   message: 'Image',
                   fromId: activeUser._id.toString(),
                   senderId: user1._id.toString(),
@@ -235,6 +240,7 @@ describe('Send Message In Conversation / (e2e)', () => {
             {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               image: null,
+              imageDescription: null,
               message: 'test chat message',
               fromId: activeUser._id.toString(),
               senderId: user1._id.toString(),
@@ -247,6 +253,57 @@ describe('Send Message In Conversation / (e2e)', () => {
             },
           ],
         });
+      });
+
+      it('when files length is not equal imageDescriptions length than expected response', async () => {
+        await createTempFiles(async (tempPaths) => {
+          const matchListId = message1.matchId._id;
+          const response = await request(app.getHttpServer())
+            .post(`/api/v1/chat/conversation/${matchListId}/message`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('message', 'hello test user')
+            .attach('files', tempPaths[0])
+            .attach('files', tempPaths[1])
+            .field('imageDescriptions', 'this is create feed comments description 2');
+          expect(response.body).toEqual({
+            statusCode: 400,
+            message: 'files length and imagesDescriptions length should be same',
+          });
+        }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+      });
+
+      it('when imageDescriptions is empty string than expected response', async () => {
+        await createTempFiles(async (tempPath) => {
+          const matchListId = message1.matchId._id;
+          const response = await request(app.getHttpServer())
+            .post(`/api/v1/chat/conversation/${matchListId}/message`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .attach('files', tempPath[0])
+            .field('imageDescriptions', '');
+          const expectedImageValueMatcher = expect.stringMatching(/\/chat\/chat.+\.png|jpe?g|gif/);
+          expect(response.body).toEqual(
+            {
+              messages: [
+                {
+                  _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                  image: expectedImageValueMatcher,
+                  imageDescription: null,
+                  message: 'Image',
+                  fromId: activeUser._id.toString(),
+                  senderId: user1._id.toString(),
+                  matchId: message1.matchId._id.toString(),
+                  createdAt: expect.any(String),
+                  messageType: 0,
+                  isRead: false,
+                  status: 1,
+                  deleted: false,
+                },
+              ],
+            },
+          );
+        }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpeg' }, { extension: 'gif' }]);
       });
     });
 

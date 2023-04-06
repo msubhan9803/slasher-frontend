@@ -95,7 +95,7 @@ export class FeedCommentsController {
       }
     }
 
-    if (files?.length !== createFeedCommentsDto.imageDescriptions?.length) {
+    if (files && files.length && files?.length !== createFeedCommentsDto.imageDescriptions?.length) {
       throw new HttpException(
         'files length and imagesDescriptions length should be same',
         HttpStatus.BAD_REQUEST,
@@ -183,7 +183,7 @@ export class FeedCommentsController {
       imagesToKeep = comment.images.filter((image) => !updateFeedCommentsDto.imagesToDelete.includes((image as any)._id.toString()));
     }
 
-    if (files?.length !== updateFeedCommentsDto.imageDescriptions?.length) {
+    if (files && files.length && files?.length !== updateFeedCommentsDto.imageDescriptions?.length) {
       throw new HttpException(
         'files length and imagesDescriptions length should be same',
         HttpStatus.BAD_REQUEST,
@@ -292,7 +292,7 @@ export class FeedCommentsController {
       }
     }
 
-    if (files?.length !== createFeedReplyDto.imageDescriptions?.length) {
+    if (files && files.length && files?.length !== createFeedReplyDto.imageDescriptions?.length) {
       throw new HttpException(
         'files length and imagesDescriptions length should be same',
         HttpStatus.BAD_REQUEST,
@@ -380,7 +380,7 @@ export class FeedCommentsController {
       imagesToKeep = reply.images.filter((image) => !updateFeedReplyDto.imagesToDelete.includes((image as any)._id.toString()));
     }
 
-    if (files?.length !== updateFeedReplyDto.imageDescriptions?.length) {
+    if (files && files.length && files?.length !== updateFeedReplyDto.imageDescriptions?.length) {
       throw new HttpException(
         'files length and imagesDescriptions length should be same',
         HttpStatus.BAD_REQUEST,

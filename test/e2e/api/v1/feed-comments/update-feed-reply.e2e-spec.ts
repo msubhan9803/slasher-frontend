@@ -41,11 +41,11 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
     images: [
       {
         image_path: 'https://picsum.photos/id/237/200/300',
-        description: 'this update feed reply description 1',
+        description: 'this is update feed reply description 1',
       },
       {
         image_path: 'https://picsum.photos/seed/picsum/200/300',
-        description: 'this update feed reply description 2',
+        description: 'this is update feed reply description 2',
       },
     ],
   };
@@ -135,10 +135,12 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
         images: [
           {
             image_path: 'https://picsum.photos/id/237/200/300',
+            description: 'this is update feed reply description 1',
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           },
           {
             image_path: 'https://picsum.photos/seed/picsum/200/300',
+            description: 'this is update feed reply description 2',
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           },
         ],
@@ -276,7 +278,9 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
           .field('message', 'hello test user')
           .field('imagesToDelete', (feedReply.images[0] as any).id)
           .attach('files', tempPaths[0])
-          .attach('files', tempPaths[1]);
+          .attach('files', tempPaths[1])
+          .field('imageDescriptions', 'this is update feed reply description 1')
+          .field('imageDescriptions', 'this is update feed reply description 2');
         const feedReplyData = await feedCommentsService.findFeedReply(response.body._id);
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -287,14 +291,17 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              description: 'this is update feed reply description 1',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              description: 'this is update feed reply description 2',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
               image_path: 'https://picsum.photos/seed/picsum/200/300',
+              description: 'this is update feed reply description 2',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
           ],
@@ -314,7 +321,9 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
           .attach('files', tempPaths[0])
-          .attach('files', tempPaths[1]);
+          .attach('files', tempPaths[1])
+          .field('imageDescriptions', 'this is update feed reply description 1')
+          .field('imageDescriptions', 'this is update feed reply description 2');
         const feedReplyData = await feedCommentsService.findFeedReply(response.body._id);
 
         expect(response.body).toEqual({
@@ -326,18 +335,22 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              description: 'this is update feed reply description 1',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              description: 'this is update feed reply description 2',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
               image_path: 'https://picsum.photos/id/237/200/300',
+              description: 'this is update feed reply description 1',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
               image_path: 'https://picsum.photos/seed/picsum/200/300',
+              description: 'this is update feed reply description 2',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
           ],
@@ -366,6 +379,7 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
         images: [
           {
             image_path: 'https://picsum.photos/seed/picsum/200/300',
+            description: 'this is update feed reply description 2',
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           },
         ],
@@ -534,10 +548,12 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
         images: [
           {
             image_path: 'https://picsum.photos/id/237/200/300',
+            description: 'this is update feed reply description 1',
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           },
           {
             image_path: 'https://picsum.photos/seed/picsum/200/300',
+            description: 'this is update feed reply description 2',
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           },
         ],
@@ -562,6 +578,63 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
         .field('message', sampleFeedCommentsObject.message);
       const postAfterUpdate = await feedPostsService.findById(response.body.feedPostId, false);
       expect(postAfterUpdate.lastUpdateAt > postBeforeUpdate.lastUpdateAt).toBeTruthy();
+    });
+
+    it('when files length is not equal imageDescriptions length than expected response', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-comments/replies/${feedReply._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'hello test user')
+          .field('feedPostId', feedPost._id.toString())
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1])
+          .field('imageDescriptions', 'this is create feed comments description 2');
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'files length and imagesDescriptions length should be same',
+        });
+      }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when imageDescriptions is empty string than expected response', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-comments/replies/${feedReply._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .field('message', sampleFeedCommentsObject.message)
+          .attach('files', tempPaths[0])
+          .field('imageDescriptions', '');
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          feedPostId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'hello all test user upload your feed reply',
+          images: [
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              description: null,
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: 'https://picsum.photos/id/237/200/300',
+              description: 'this is update feed reply description 1',
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: 'https://picsum.photos/seed/picsum/200/300',
+              description: 'this is update feed reply description 2',
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+          feedCommentId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        });
+      }, [{ extension: 'png' }]);
     });
 
     describe('Validation', () => {

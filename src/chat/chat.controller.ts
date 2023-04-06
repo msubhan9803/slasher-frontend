@@ -152,7 +152,7 @@ export class ChatController {
       throw new HttpException('You are not friends with the given user.', HttpStatus.UNAUTHORIZED);
     }
 
-    if (files?.length !== messageDto.imageDescriptions?.length) {
+    if (files && files.length && files?.length !== messageDto.imageDescriptions?.length) {
       throw new HttpException(
         'files length and imagesDescriptions length should be same',
         HttpStatus.BAD_REQUEST,

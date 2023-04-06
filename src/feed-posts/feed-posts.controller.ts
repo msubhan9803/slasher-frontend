@@ -80,7 +80,7 @@ export class FeedPostsController {
       );
     }
 
-    if (files?.length !== createFeedPostsDto.imageDescriptions?.length) {
+    if (files && files.length && files.length && files?.length !== createFeedPostsDto.imageDescriptions?.length) {
       throw new HttpException(
         'files length and imagesDescriptions length should be same',
         HttpStatus.BAD_REQUEST,
@@ -288,7 +288,7 @@ export class FeedPostsController {
       imagesToKeep = feedPost.images.filter((image) => !updateFeedPostsDto.imagesToDelete.includes((image as any)._id.toString()));
     }
 
-    if (files?.length !== updateFeedPostsDto.imageDescriptions?.length) {
+    if (files && files.length && files?.length !== updateFeedPostsDto.imageDescriptions?.length) {
       throw new HttpException(
         'files length and imagesDescriptions length should be same',
         HttpStatus.BAD_REQUEST,

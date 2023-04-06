@@ -110,10 +110,12 @@ describe('Update Feed Post (e2e)', () => {
         images: [
           {
             image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+            description: 'this is test description',
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           },
           {
             image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+            description: 'this is test description',
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           },
         ],
@@ -198,7 +200,9 @@ describe('Update Feed Post (e2e)', () => {
           .field('message', 'hello test user')
           .field('imagesToDelete', (feedPost.images[0] as any).id)
           .attach('files', tempPaths[0])
-          .attach('files', tempPaths[1]);
+          .attach('files', tempPaths[1])
+          .field('imageDescriptions', 'this is update post description 0')
+          .field('imageDescriptions', 'this is update post description 1');
         const feedPostDetails = await feedPostsService.findById(response.body._id, true);
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -207,14 +211,17 @@ describe('Update Feed Post (e2e)', () => {
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              description: 'this is update post description 0',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              description: 'this is update post description 1',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              description: 'this is test description',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
           ],
@@ -235,7 +242,9 @@ describe('Update Feed Post (e2e)', () => {
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
           .attach('files', tempPaths[0])
-          .attach('files', tempPaths[1]);
+          .attach('files', tempPaths[1])
+          .field('imageDescriptions', 'this is update post description 0')
+          .field('imageDescriptions', 'this is update post description 1');
         const feedPostDetails = await feedPostsService.findById(response.body._id, true);
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -244,18 +253,22 @@ describe('Update Feed Post (e2e)', () => {
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              description: 'this is update post description 0',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              description: 'this is update post description 1',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              description: 'this is test description',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              description: 'this is test description',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
           ],
@@ -283,6 +296,7 @@ describe('Update Feed Post (e2e)', () => {
         images: [
           {
             image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+            description: 'this is test description',
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           },
         ],
@@ -458,7 +472,9 @@ describe('Update Feed Post (e2e)', () => {
           .field('message', 'this new post')
           .field('moviePostFields[spoilers]', true)
           .attach('files', tempPaths[0])
-          .attach('files', tempPaths[1]);
+          .attach('files', tempPaths[1])
+          .field('imageDescriptions', 'this is update post description 0')
+          .field('imageDescriptions', 'this is update post description 1');
         expect(response.body).toEqual({
           statusCode: 400,
           message: 'When submitting moviePostFields, post type must be MovieReview.',
@@ -488,7 +504,9 @@ describe('Update Feed Post (e2e)', () => {
           .field('message', 'this new post')
           .field('moviePostFields[spoilers]', true)
           .attach('files', tempPaths[0])
-          .attach('files', tempPaths[1]);
+          .attach('files', tempPaths[1])
+          .field('imageDescriptions', 'this is update post description 0')
+          .field('imageDescriptions', 'this is update post description 1');
         const post = await feedPostsService.findById(response.body._id, true);
         expect(post.spoilers).toBe(true);
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
@@ -515,7 +533,9 @@ describe('Update Feed Post (e2e)', () => {
           .field('message', 'this new post')
           .field('moviePostFields[spoilers]', true)
           .attach('files', tempPaths[0])
-          .attach('files', tempPaths[1]);
+          .attach('files', tempPaths[1])
+          .field('imageDescriptions', 'this is update post description 0')
+          .field('imageDescriptions', 'this is update post description 1');
         expect(response.body).toEqual({
           statusCode: 400,
           message: 'When submitting moviePostFields, movieId is required.',
@@ -542,10 +562,12 @@ describe('Update Feed Post (e2e)', () => {
         images: [
           {
             image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+            description: 'this is test description',
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           },
           {
             image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+            description: 'this is test description',
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           },
         ],
@@ -589,6 +611,62 @@ describe('Update Feed Post (e2e)', () => {
       expect(response.body).toEqual(
         { statusCode: 400, message: 'Review must have a some text' },
       );
+    });
+
+    it('when files length is not equal imageDescriptions length than expected response', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-posts/${feedPost._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'hello test user')
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1])
+          .field('imageDescriptions', 'this is create feed comments description 2');
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'files length and imagesDescriptions length should be same',
+        });
+      }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when imageDescriptions is empty string than expected response', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-posts/${feedPost._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', sampleFeedPostObject.message)
+          .attach('files', tempPaths[0])
+          .field('imageDescriptions', '');
+          expect(response.body).toEqual({
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            message: 'hello all test user upload your feed post',
+            userId: activeUser._id.toString(),
+            images: [
+              {
+                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                description: null,
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+              {
+                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                description: 'this is test description',
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+              {
+                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                description: 'this is test description',
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+            ],
+            spoilers: false,
+          });
+      }, [{ extension: 'png' }]);
     });
   });
 

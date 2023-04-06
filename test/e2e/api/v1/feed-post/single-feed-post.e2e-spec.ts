@@ -142,10 +142,12 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         images: [
           {
             image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+            description: 'this is test description',
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           },
           {
             image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+            description: 'this is test description',
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           },
         ],
@@ -230,10 +232,12 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         images: [
           {
             image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+            description: 'this is test description',
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           },
           {
             image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+            description: 'this is test description',
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           },
         ],
@@ -274,11 +278,13 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         images: [
           {
             image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+            description: 'this is test description',
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           },
           {
             image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
-        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            description: 'this is test description',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           },
         ],
         userId: {

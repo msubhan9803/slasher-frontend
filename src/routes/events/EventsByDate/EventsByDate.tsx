@@ -243,6 +243,7 @@ function EventsByDate() {
       }
     }
   }, [yPositionOfLastEventElement, fetchMoreEvent]);
+
   return (
     <div>
       <EventHeader tabKey="by-date" />
@@ -290,9 +291,9 @@ function EventsByDate() {
               }))}
         </Row>
       </InfiniteScroll>
-      {/* Show an ad on events page in-case when we have no events to show. */}
-      {(eventsList.length === 0) && <PubWiseAd className="my-3" id={ALL_MOVIES_DIV_ID} autoSequencer />}
       {noMoreData && renderNoMoreDataMessage()}
+      {/* Show an end in the end of page at all times */}
+      <PubWiseAd className="my-3" id={ALL_MOVIES_DIV_ID} autoSequencer />
     </div>
   );
 }

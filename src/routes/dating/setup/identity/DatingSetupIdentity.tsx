@@ -7,15 +7,32 @@ import {
 import RoundButton from '../../../../components/ui/RoundButton';
 import { generate18OrOlderYearList, generateMonthOptions, generateDayOptions } from '../../../../utils/date-utils';
 import DatingPageWrapper from '../../components/DatingPageWrapper';
+import SortData from '../../../../components/filter-sort/SortData';
 
 const yearOptions = generate18OrOlderYearList();
 const monthOptions = generateMonthOptions();
 const dayOptions = generateDayOptions(1, 31);
-
+const sexualOrientationOptions = [
+  { value: 'Straight', label: 'Straight' },
+  { value: 'Gay', label: 'Gay' },
+  { value: 'Lesbian', label: 'Lesbian' },
+  { value: 'Bisexual', label: 'Bisexual' },
+  { value: 'Asexual', label: 'Asexual' },
+  { value: 'Demisexual', label: 'Demisexual' },
+  { value: 'Pansexual', label: 'Pansexual' },
+  { value: 'Queer', label: 'Queer' },
+  { value: 'Questioning', label: 'Questioning' },
+  { value: 'Prefer not to say', label: 'Prefer not to say' },
+];
 function DatingSetupIdentity() {
+  const convertedDayOptions = dayOptions.map((day) => ({ value: day, label: day }));
+  const convertedYearOptions = yearOptions.map((year) => ({ value: year, label: year }));
   const [gender, setGender] = useState('male');
   const [selectGender, setSelectGender] = useState('');
-
+  const [selectedMonth, setSelectedMonth] = useState('disabled');
+  const [selectedDay, setSelectedDay] = useState('disabled');
+  const [selectedYear, setSelectedYear] = useState('disabled');
+  const [selectedSexualOrentation, setSelectedSexualOrentation] = useState('disabled');
   return (
     <DatingPageWrapper>
       <Row>
@@ -35,34 +52,28 @@ function DatingSetupIdentity() {
           <Row>
             <p>Date of birth</p>
             <Col sm={12} md={4} className="mb-3">
-              <Form.Select aria-label="Month selection" defaultValue="">
-                <option value="" disabled>
-                  Month
-                </option>
-                {monthOptions.map((month) => (
-                  <option key={month.value} value={month.value}>{month.label}</option>
-                ))}
-              </Form.Select>
+              <SortData
+                sortVal={selectedMonth}
+                onSelectSort={(val) => setSelectedMonth(val)}
+                sortoptions={[{ value: 'disabled', label: 'Month' }, ...monthOptions]}
+                type="form"
+              />
             </Col>
             <Col sm={12} md={4} className="mb-3">
-              <Form.Select aria-label="Day selection" defaultValue="">
-                <option value="" disabled>
-                  Day
-                </option>
-                {dayOptions.map((day) => (
-                  <option key={day} value={day}>{day}</option>
-                ))}
-              </Form.Select>
+              <SortData
+                sortVal={selectedDay}
+                onSelectSort={(val) => setSelectedDay(val)}
+                sortoptions={[{ value: 'disabled', label: 'Day' }, ...convertedDayOptions]}
+                type="form"
+              />
             </Col>
             <Col sm={12} md={4} className="mb-3">
-              <Form.Select aria-label="Year selection" defaultValue="">
-                <option value="" disabled>
-                  Year
-                </option>
-                {yearOptions.map((year) => (
-                  <option key={year} value={year}>{year}</option>
-                ))}
-              </Form.Select>
+              <SortData
+                sortVal={selectedYear}
+                onSelectSort={(val) => setSelectedYear(val)}
+                sortoptions={[{ value: 'disabled', label: 'Year' }, ...convertedYearOptions]}
+                type="form"
+              />
             </Col>
           </Row>
         </Col>
@@ -144,19 +155,12 @@ function DatingSetupIdentity() {
       <Row className="mt-3">
         <p>My sexual orientation is</p>
         <Col sm={12} md={4} className="">
-          <Form.Select aria-label="Sexual orientation selection" defaultValue="">
-            <option value="" disabled>Select One</option>
-            <option value="Straight">Straight</option>
-            <option value="Gay">Gay</option>
-            <option value="Lesbian">Lesbian</option>
-            <option value="Bisexual">Bisexual</option>
-            <option value="Asexual">Asexual</option>
-            <option value="Demisexual">Demisexual</option>
-            <option value="Pansexual">Pansexual</option>
-            <option value="Queer">Queer</option>
-            <option value="Questioning">Questioning</option>
-            <option value="Prefer not to say">Prefer not to say</option>
-          </Form.Select>
+          <SortData
+            sortVal={selectedSexualOrentation}
+            onSelectSort={(val) => setSelectedSexualOrentation(val)}
+            sortoptions={[{ value: 'disabled', label: 'Selct one' }, ...sexualOrientationOptions]}
+            type="form"
+          />
           <p className="mt-2">
             This will display on your profile, unless you choose “Prefer not to
             say”.

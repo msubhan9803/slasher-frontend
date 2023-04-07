@@ -24,7 +24,7 @@ interface CommentInputProps {
   handleFileChange: (value: ChangeEvent<HTMLInputElement>, replyUserId?: string) => void;
   sendComment: (commentId: string, message: string) => void;
   imageArray: any;
-  handleRemoveFile: (postImage: File, replyUserId?: string) => void;
+  handleRemoveFile: (postImage: File, index?:number ,replyUserId?: string) => void;
   dataId?: string;
   handleSearch: (value: string) => void;
   mentionList: any;
@@ -42,6 +42,10 @@ interface CommentInputProps {
   setReplyImageArray?: (value: any) => void;
   isEdit?: boolean;
   updateState?: boolean;
+  descriptionArray?: string[];
+  setDescriptionArray?: (value: string[]) => void;
+  replyDescriptionArray?: string[];
+  setReplyDescriptionArray?: (value: string[]) => void;
 }
 
 interface InputProps {
@@ -86,7 +90,7 @@ function CommentInput({
   handleSearch, mentionList, addUpdateComment, replyImageArray, isReply,
   addUpdateReply, commentID, commentReplyID, checkCommnt, commentError, commentReplyError,
   commentSent, setCommentReplyErrorMessage, setReplyImageArray, isEdit,
-  updateState,
+  updateState, descriptionArray, setDescriptionArray, replyDescriptionArray, setReplyDescriptionArray
 }: CommentInputProps) {
   const [editMessage, setEditMessage] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
@@ -154,18 +158,22 @@ function CommentInput({
 
   const onUpdatePost = (msg: string) => {
     const imageArr = isReply ? replyImageArray : imageArray;
+    const descriptionArr = isReply ? replyDescriptionArray : descriptionArray;
+    
     if (isReply) {
       addUpdateReply!({
         replyMessage: msg,
         commentId: dataId,
         imageArr,
         commentReplyID,
+        descriptionArr
       });
     } else {
       addUpdateComment!({
         commentMessage: msg,
         commentId: dataId,
         imageArr,
+        descriptionArr
       });
     }
   };
@@ -197,6 +205,47 @@ function CommentInput({
   const onBlurHandler = () => {
     setIsFocusInput(false);
   };
+
+  const setAltTextValue = (index: number) => {
+    if (descriptionArray?.length && !isReply) {
+      const altText = descriptionArray![index]
+      return altText
+    } else if (replyDescriptionArray?.length && !isReply) {
+      const altText = replyDescriptionArray![index]
+      return altText
+    } else {
+      return ""
+    }
+  }
+
+  // useEffect(() => {
+  //   // debugger
+  //   const descriptionArrayList: string[] = []
+  //   if (imageArray) {
+  //     imageArray.map((postImage: any) => {
+  //       if (postImage.description) {
+  //         descriptionArrayList.push(postImage?.description)
+  //       } else {
+  //         descriptionArrayList.push("")
+  //       }
+  //     })
+  //   }
+  //   setDescriptionArray!(descriptionArrayList);
+  // }, [])
+
+  const onChangeDescription = (newValue:string, index: number) => {
+    const descriptionArrayList:string[] = isReply ? [...replyDescriptionArray!] :[...descriptionArray!]
+    if(isReply) {
+      descriptionArrayList![index] = newValue;
+      setReplyDescriptionArray!([...descriptionArrayList])
+    } else if(!isReply) {
+      descriptionArrayList![index] = newValue;
+      setDescriptionArray!([...descriptionArrayList])
+    }
+  }
+
+  // console.log("descriptionaRRAY**", descriptionArray)
+  // console.log("replyDescriptionArray**", replyDescriptionArray)
 
   return (
     <Form>
@@ -267,7 +316,7 @@ function CommentInput({
       </Row>
 
       <Row className="mx-5 px-3">
-        {imageArray.map((post: File) => (
+        {imageArray.map((post: File, index:number) => (
           <Col xs="auto" key={post.name} className="px-3 mb-1">
             <ImagesContainer
               containerWidth="4.25rem"
@@ -275,10 +324,11 @@ function CommentInput({
               containerBorder="0.125rem solid #3A3B46"
               image={post}
               dataId={dataId}
-              alt="" // TODO: set any existing alt text here (when editing existing image)
-              // eslint-disable-next-line no-console
-              onAltTextChange={(newValue) => { console.log(`TODO: Use this to set alt text.  New value is: ${newValue}`); }}
+              alt={setAltTextValue(index)}
+              onAltTextChange={(newValue) => { onChangeDescription!(newValue, index) }}
+              // onAltTextChange={(newValue) => { console.log(`TODO: Use this to set alt text.  New value is: ${newValue}`); }}
               handleRemoveImage={handleRemoveFile}
+              index={index}
               containerClass="mt-2 mb-3 position-relative d-flex justify-content-center align-items-center rounded border-0"
               removeIconStyle={{
                 padding: '0.313rem 0.438rem',
@@ -317,6 +367,7 @@ CommentInput.defaultProps = {
   setReplyImageArray: undefined,
   isEdit: undefined,
   updateState: false,
+
 };
 
 export default CommentInput;

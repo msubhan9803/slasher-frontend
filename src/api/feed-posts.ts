@@ -23,11 +23,14 @@ export async function feedPostDetail(id: string) {
   return axios.get(`${apiUrl}/api/v1/feed-posts/${id}`, { headers });
 }
 
-export async function createPost(postData: any, file: any) {
+export async function createPost(postData: any, file: any, descriptionArray?: string[]) {
   const token = Cookies.get('sessionToken');
   const formData = new FormData();
   for (let i = 0; i < file.length; i += 1) {
     formData.append('files', file[i]);
+    if (descriptionArray) {
+      formData.append('imageDescriptions', descriptionArray![i])
+    }
   }
   formData.append('message', postData.message);
   formData.append('postType', postData.postType);
@@ -50,6 +53,8 @@ export async function createPost(postData: any, file: any) {
     'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
+  console.log("createPost", formData.getAll("imageDescriptions"))
+
   return axios.post(`${apiUrl}/api/v1/feed-posts`, formData, { headers });
 }
 
@@ -59,12 +64,18 @@ export async function updateFeedPost(
   file?: string[],
   imagesToDelete?: string[] | undefined,
   movieReviewPostData?: any,
+  descriptionArray?: string[],
 ) {
+  console.log("final***", descriptionArray)
+
   const token = Cookies.get('sessionToken');
   const formData = new FormData();
   if (file && file.length) {
     for (let i = 0; i < file.length; i += 1) {
       formData.append('files', file[i]);
+      if (descriptionArray) {
+        formData.append('imageDescriptions', descriptionArray![i])
+      }
     }
   }
   formData.append('message', message);
@@ -90,6 +101,7 @@ export async function updateFeedPost(
     'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
+  console.log("formData", formData.getAll("imageDescriptions"))
   return axios.patch(`${apiUrl}/api/v1/feed-posts/${postId}`, formData, { headers });
 }
 

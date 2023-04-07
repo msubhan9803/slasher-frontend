@@ -11,7 +11,7 @@ interface Props {
   setShow: (value: boolean) => void;
   setPostContent: (val: string) => void;
   postContent: string;
-  onUpdatePost: (value: string, images: string[], deleteImageIds: string[] | undefined) => void;
+  onUpdatePost: (value: string, images: string[], deleteImageIds: string[] | undefined, descriptionArray?: string[] ) => void;
   postImages: string[];
   setPostImages: any;
   deleteImageIds?: string[];
@@ -30,6 +30,7 @@ function EditPostModal({
   setDeleteImageIds,
 }: Props) {
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
+  const [descriptionArray, setDescriptionArray] = useState<string[]>([]);
   useEffect(() => {
     if (postContent) {
       const mentionStringList = postContent.match(/##LINK_ID##[a-zA-Z0-9@_.-]+##LINK_END##/g);
@@ -64,8 +65,24 @@ function EditPostModal({
   const updatePost = () => {
     const postContentWithMentionReplacements = (postContent.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
     const files = postImages.filter((images: any) => images instanceof File);
-    onUpdatePost(postContentWithMentionReplacements, files, deleteImageIds);
+    onUpdatePost(postContentWithMentionReplacements, files, deleteImageIds, descriptionArray);
   };
+
+  // useEffect(() => {
+  //   de
+  //   const descriptionArrayList:string[] = []
+  //   if(postImages) {
+  //     postImages.map((postImage: any) => {
+  //       if(postImage.description) {
+  //         descriptionArrayList.push(postImage?.description)
+  //       } else {
+  //         descriptionArrayList.push("")
+  //       }
+  //     })
+  //   }
+  //   setDescriptionArray([...descriptionArrayList]);
+  // }, [])
+
   return (
     <ModalContainer
       show={show}
@@ -88,6 +105,8 @@ function EditPostModal({
           deleteImageIds={deleteImageIds}
           setDeleteImageIds={setDeleteImageIds}
           placeHolder="Create a post"
+          descriptionArray={descriptionArray}
+          setDescriptionArray={setDescriptionArray}
         />
       </Modal.Body>
     </ModalContainer>

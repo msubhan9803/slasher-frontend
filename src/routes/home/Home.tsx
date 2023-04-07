@@ -51,6 +51,7 @@ function Home() {
   );
   const reloadData = useAppSelector((state) => state.user.homeDataReload);
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
+    console.log("popoverClickProps=>>", popoverClickProps)
     if (value === 'Hide') {
       const postIdToHide = popoverClickProps.id;
       if (!postIdToHide) { return; }
@@ -212,8 +213,8 @@ function Home() {
     });
   };
 
-  const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
-    updateFeedPost(postId, message, images, imageDelete).then((res) => {
+  const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined, descriptionArray?: string[]) => {
+    updateFeedPost(postId, message, images, imageDelete,null, descriptionArray).then((res) => {
       setShow(false);
       const updatePost = posts.map((post: any) => {
         if (post._id === postId) {

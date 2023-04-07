@@ -8,9 +8,11 @@ export interface ChatProps {
   setMessage?: (value: string) => void;
   message?: string;
   handleFileChange?: (value: ChangeEvent<HTMLInputElement>) => void;
-  handleRemoveFile?: (value: File) => void;
+  handleRemoveFile?: (value: File, index: number) => void;
   imageArray?: any[];
   messageLoading?: boolean;
+  descriptionArray?: string[];
+  setDescriptionArray?: (value: string[]) => void;
 }
 interface MessageProps {
   id: string;

@@ -191,6 +191,7 @@ function PostDetail({ user, postType }: Props) {
         comment?.commentId,
         comment?.images,
         comment?.deleteImage,
+        comment?.descriptionArr
       )
         .then((res) => {
           const updateCommentArray: any = commentData;
@@ -232,6 +233,7 @@ function PostDetail({ user, postType }: Props) {
         postId!,
         comment.commentMessage,
         comment.imageArr,
+        comment.descriptionArr
       )
         .then((res) => {
           let newCommentArray: any = commentData;
@@ -287,6 +289,7 @@ function PostDetail({ user, postType }: Props) {
         reply.replyId,
         reply.images,
         reply.deleteImage,
+        reply.descriptionArr
       )
         .then((res) => {
           const updateReplyArray: any = commentData;
@@ -327,6 +330,7 @@ function PostDetail({ user, postType }: Props) {
         reply.replyMessage,
         reply?.imageArr,
         reply.commentId!,
+        reply.descriptionArr
       ).then((res) => {
         const newReplyArray: any = commentData;
         replyValueData = {

@@ -33,6 +33,7 @@ function EditCommentModal({
 }: Props) {
   const [editMessage, setEditMessage] = useState<string>(editContent! || '');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
+  const [descriptionArray, setDescriptionArray] = useState<string[]>([]);
   useEffect(() => {
     if (editContent) {
       const mentionStringList = editContent.match(/##LINK_ID##[a-zA-Z0-9@_.-]+##LINK_END##/g);
@@ -61,6 +62,7 @@ function EditCommentModal({
         commentId: commentID,
         images: imagesList,
         deleteImage: deleteImages,
+        descriptionArr: descriptionArray
       });
     } else {
       setCommentID(commentID);
@@ -71,6 +73,7 @@ function EditCommentModal({
         commentId: commentID,
         images: postImages,
         deleteImage: deleteImages,
+        descriptionArr: descriptionArray
       });
     }
   };
@@ -117,6 +120,8 @@ function EditCommentModal({
           deleteImageIds={deleteImageIds}
           setDeleteImageIds={setDeleteImageIds}
           placeHolder={`${commentID ? 'Write a comment' : 'Reply to comment'}`}
+          descriptionArray={descriptionArray}
+          setDescriptionArray={setDescriptionArray}
         />
       </Modal.Body>
     </ModalContainer>

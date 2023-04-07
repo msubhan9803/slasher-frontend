@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, { ChangeEvent, useRef, useState } from 'react';
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -59,6 +59,8 @@ interface Props {
   setDisLike?: (val: boolean) => void;
   isWorthIt?: number;
   placeHolder?: string;
+  descriptionArray?: string[];
+  setDescriptionArray?: (value: string[]) => void;
 }
 
 const AddPhotosButton = styled(RoundButton)`
@@ -78,7 +80,7 @@ function CreatePostComponent({
   deleteImageIds, setDeleteImageIds, postType, titleContent, setTitleContent,
   containSpoiler, setContainSpoiler, rating, setRating, goreFactor, setGoreFactor,
   selectedPostType, setSelectedPostType, setWorthIt, liked, setLike,
-  disLiked, setDisLike, isWorthIt, placeHolder,
+  disLiked, setDisLike, isWorthIt, placeHolder, descriptionArray, setDescriptionArray
 }: Props) {
   const inputFile = useRef<HTMLInputElement>(null);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
@@ -86,10 +88,14 @@ function CreatePostComponent({
   const [searchParams] = useSearchParams();
   const paramsType = searchParams.get('type');
 
-  const handleRemoveFile = (postImage: any) => {
+  const handleRemoveFile = (postImage: any, index?:number) => {
     const removePostImage = imageArray.filter((image: File) => image !== postImage);
     setDeleteImageIds([...deleteImageIds, postImage._id].filter(Boolean));
     setImageArray(removePostImage);
+
+    const descriptionArrayList = descriptionArray
+    descriptionArrayList!.splice(index!, 1);
+    setDescriptionArray!(descriptionArrayList!)
   };
 
   const handleFileChange = (postImage: ChangeEvent<HTMLInputElement>) => {
@@ -105,6 +111,7 @@ function CreatePostComponent({
           const image = postImage.target.files[list];
           uploadedPostList.push(image);
           imageArrayList.push(postImage.target.files[list]);
+          descriptionArray?.push("")
         }
       }
       setUploadPost(uploadedPostList);
@@ -119,6 +126,36 @@ function CreatePostComponent({
         .then((res) => setMentionList(res.data));
     }
   };
+
+  const onChangeDescription = (newValue:string, index: number) => {
+    // debugger
+    const descriptionArrayList = [...descriptionArray!]
+    descriptionArrayList![index] = newValue;
+    setDescriptionArray!([...descriptionArrayList!])
+  }
+
+  const setAltTextValue = (index: number) => {
+    const altText = descriptionArray![index]
+    return altText
+  }
+
+  useEffect(() => {
+    // debugger
+
+     const descriptionArrayList: string[] = []
+     if (imageArray) {
+       imageArray.map((postImage: any) => {
+         if (postImage.description) {
+           descriptionArrayList.push(postImage?.description)
+          } else {
+            descriptionArrayList.push("")
+          }
+        })
+        setDescriptionArray!([...descriptionArrayList]);
+     }
+   
+  }, [])
+
 
   return (
     <div className={postType === 'review' ? 'bg-dark mb-3 px-4 py-4 rounded-2' : ''}>
@@ -263,17 +300,17 @@ function CreatePostComponent({
       <Row>
         <Col xs={12} className="order-1 order-md-0">
           <Row>
-            {imageArray && imageArray.map((post: File) => (
+            {imageArray && imageArray.map((post: File, index:number) => (
               <Col xs="auto" key={post.name} className="mb-1">
                 <ImagesContainer
                   containerWidth="7.25rem"
                   containerHeight="7.25rem"
                   containerBorder="0.125rem solid #3A3B46"
                   image={post}
-                  alt="" // TODO: set any existing alt text here (when editing existing image)
-                  // eslint-disable-next-line no-console
-                  onAltTextChange={(newValue) => { console.log(`TODO: Use this to set alt text.  New value is: ${newValue}`); }}
+                  alt={setAltTextValue(index)}
+                  onAltTextChange={(newValue) => { onChangeDescription(newValue, index) }}
                   handleRemoveImage={handleRemoveFile}
+                  index={index}
                   containerClass="mt-4 position-relative d-flex justify-content-center align-items-center rounded border-0"
                   removeIconStyle={{
                     padding: '0.313rem 0.438rem',
@@ -331,5 +368,7 @@ CreatePostComponent.defaultProps = {
   setDisLike: () => { },
   isWorthIt: 0,
   placeHolder: 'Write a something...',
+  descriptionArray: [],
+  setDescriptionArray: undefined
 };
 export default CreatePostComponent;

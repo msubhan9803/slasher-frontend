@@ -253,6 +253,7 @@ export interface CommentValue {
   commentId?: string,
   images?: any,
   deleteImage?: string[],
+  descriptionArr?: string[]
 }
 export interface ReplyValue {
   replyMessage: string,
@@ -261,6 +262,7 @@ export interface ReplyValue {
   replyId?: string,
   images?: any,
   deleteImage?: string[],
+  descriptionArr?: string[]
 }
 export enum WorthWatchingStatus {
   NoRating = 0,

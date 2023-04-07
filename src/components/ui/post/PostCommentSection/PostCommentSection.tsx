@@ -53,6 +53,8 @@ function PostCommentSection({
   setCommentReplyErrorMessage,
   setCommentErrorMessage,
   handleLikeModal,
+  // descriptionArray, 
+  // setDescriptionArray,
 }: any) {
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [show, setShow] = useState<boolean>(false);
@@ -81,6 +83,9 @@ function PostCommentSection({
   const [scrollId, setScrollId] = useState<string>('');
   const [selectedReplyId, setSelectedReplyId] = useState<string | null>('');
   const [updatedReply, setUpdatedReply] = useState<boolean>(false);
+  const [descriptionArray, setDescriptionArray] = useState<string[]>([]);
+  const [replyDescriptionArray, setReplyDescriptionArray] = useState<string[]>([]);
+  
   const checkPopover = (id: string) => {
     if (id === loginUserId) {
       return popoverOption;
@@ -319,32 +324,43 @@ function PostCommentSection({
     if (postImage.target.name === fileName && postImage.target && postImage.target.files) {
       const uploadedPostList = [...uploadPost];
       const imageArrayList = selectedReplyUserId ? [...replyImageArray] : [...imageArray];
+      const descriptionArrayList = selectedReplyUserId ? [...replyDescriptionArray] : [...descriptionArray]
       const fileList = postImage.target.files;
       for (let list = 0; list < fileList.length; list += 1) {
         if (uploadedPostList.length < 4) {
           const image = URL.createObjectURL(postImage.target.files[list]);
           uploadedPostList.push(image);
           imageArrayList.push(postImage.target.files[list]);
+          descriptionArrayList?.push("")
         }
       }
       setUploadPost(uploadedPostList);
       if (selectedReplyUserId) {
         setReplyImageArray(imageArrayList);
+        setReplyDescriptionArray(descriptionArrayList);
       } else {
         setImageArray(imageArrayList);
+        setDescriptionArray(descriptionArrayList)
       }
     }
   };
 
-  const handleRemoveFile = (postImage: File, selectedReplyUserId?: string) => {
+  const handleRemoveFile = (postImage: File, index?:number, selectedReplyUserId?: string) => {
     const images = selectedReplyUserId ? replyImageArray : imageArray;
+    const descriptionArrayList = selectedReplyUserID ? [...replyDescriptionArray] : [...descriptionArray]
     const removePostImage = images.filter((image: File) => image !== postImage);
     const findImageIndex = images.findIndex((image: File) => image === postImage);
     uploadPost.splice(findImageIndex, 1);
     if (selectedReplyUserId) {
       setReplyImageArray(removePostImage);
+      descriptionArrayList!.splice(index!, 1);
+      setReplyDescriptionArray([...descriptionArrayList])
+
     } else {
       setImageArray(removePostImage);
+
+      descriptionArrayList!.splice(index!, 1);
+      setDescriptionArray([...descriptionArrayList!])
     }
   };
 
@@ -469,6 +485,9 @@ function PostCommentSection({
           setReplyImageArray={setReplyImageArray}
           isEdit={isEdit}
           updateState={updateState}
+          replyDescriptionArray={replyDescriptionArray}
+          setReplyDescriptionArray={setReplyDescriptionArray}
+
         />
         {
           !isEdit && commentReplyError
@@ -477,6 +496,16 @@ function PostCommentSection({
       </div>
     );
   };
+
+  // const onChangeDescription = (newValue:string, index: number) => {
+  //   // debugger
+  //   const descriptionArrayList:string[] = [...descriptionArray]
+  //   descriptionArrayList![index] = newValue;
+  //   console.log("descriptionlist", descriptionArrayList)
+  //   setDescriptionArray([...descriptionArrayList])
+  // }
+
+  // console.log("descriptionArra=>POSTCOMMENTSECTION", descriptionArray)
   return (
     <>
       <CommentInput
@@ -499,6 +528,9 @@ function PostCommentSection({
         setCommentReplyErrorMessage={setCommentReplyErrorMessage}
         setReplyImageArray={setReplyImageArray}
         isEdit={isEdit}
+        descriptionArray={descriptionArray}
+        setDescriptionArray={setDescriptionArray}
+        // onChangeDescription={onChangeDescription}
       />
       {commentData && commentData.length > 0 && queryCommentId && previousCommentsAvailable
         && (

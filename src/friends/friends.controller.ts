@@ -58,10 +58,10 @@ export class FriendsController {
         notifyType: NotificationType.UserSentYouAFriendRequest,
         notificationMsg: 'sent you a friend request',
       }),
-      this.usersService.updateNewFriendRequestCount(createFriendRequestDto.userId),
-      this.friendsGateway.emitFriendRequestReceivedEvent(friend),
       ]);
     }
+    await Promise.all([this.usersService.updateNewFriendRequestCount(createFriendRequestDto.userId),
+      this.friendsGateway.emitFriendRequestReceivedEvent(friend)]);
     return { success: true };
   }
 

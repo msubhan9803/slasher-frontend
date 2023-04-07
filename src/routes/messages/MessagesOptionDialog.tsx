@@ -35,25 +35,25 @@ function MessagesOptionDialog({
       onHide={closeModal}
       size="sm"
     >
-      {slectedMessageDropdownValue === 'delete' && (
+      {slectedMessageDropdownValue === 'Delete' && (
         <>
-          <Modal.Header className="border-0 shadow-none" closeButton />
+          <Modal.Header className="border-0" closeButton />
           <Modal.Body className="d-flex flex-column align-items-center text-center">
             <h1 className="text-primary"> Delete </h1>
             <p className="px-3">Are you sure you want to delete this conversation?</p>
             <RoundButton className="mb-3 w-100" onClick={handleDeleteConversationMessages}>Yes</RoundButton>
-            <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none" onClick={closeModal}>Cancel</RoundButton>
+            <RoundButton className="mb-3 w-100 bg-dark border-dark text-white" onClick={closeModal}>Cancel</RoundButton>
           </Modal.Body>
         </>
       )}
-      {slectedMessageDropdownValue === 'blockUser' && (
+      {slectedMessageDropdownValue === 'Block user' && (
         <>
-          <Modal.Header className="border-0 shadow-none" closeButton />
+          <Modal.Header className="border-0" closeButton />
           <Modal.Body className="d-flex flex-column align-items-center text-center">
             <h1 className="text-primary"> Block </h1>
             <p className="px-3">Are you sure you want to block this user?</p>
             <RoundButton className="mb-3 w-100">Yes</RoundButton>
-            <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none" onClick={closeModal}>Cancel</RoundButton>
+            <RoundButton className="mb-3 w-100 bg-dark border-dark" onClick={closeModal}>Cancel</RoundButton>
           </Modal.Body>
         </>
       )}

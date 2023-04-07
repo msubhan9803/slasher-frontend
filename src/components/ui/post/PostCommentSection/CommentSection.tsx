@@ -59,19 +59,26 @@ interface ImageList {
 }
 const CommentMessage = styled.div`
   color: #CCCCCC;
+  a {
+    display: inline-block;
+  }
 `;
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
     fill: url(#${(props) => props.uniqueId});
   }
 `;
-const LikesButton = styled.div`
-  width: 3.81rem;
+const LikesButton = styled(Button)`
+  min-width: 3.81rem;
   height: 1.875rem;
   background-color: #383838;
   border: none;
   &:hover {
     background-color: #383838;
+  }
+  .like-count {
+    position: relative;
+    top: -1px;
   }
 `;
 const Likes = styled.div`
@@ -121,7 +128,7 @@ function CommentSection({
     <div key={id}>
       <div className={`position-absolute ps-1 ${!commentMention && 'mt-0 mt-md-3'} ${commentMention && 'ms-md-1'}`}>
         <HashLink to={`/${name}#`}>
-          <UserCircleImage size={`${userCircleImageSizeInRems}rem`} src={image} alt="user picture" className="me-0 me-md-3 bg-secondary" />
+          <UserCircleImage size={`${userCircleImageSizeInRems}rem`} src={image} alt="user picture" className="rounded-circle d-flex me-0 me-md-3 bg-secondary" />
         </HashLink>
       </div>
       <div style={{ marginLeft: `${userCircleImageSizeInRems + 0.5}rem` }}>
@@ -182,10 +189,10 @@ function CommentSection({
             likeCount! > 0
             && (
               <Likes className="d-flex position-relative justify-content-end">
-                <LikesButton onClick={handleLikeCountClick} className="p-1 px-2 text-light me-2 mt-2 rounded-pill text-white position-absolute">
+                <LikesButton onClick={handleLikeCountClick} className="py-1 btn-filter text-light me-2 mt-2 rounded-pill text-white position-absolute">
                   <LinearIcon uniqueId="comment-like-count">
-                    <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                    <span className="fs-5">{likeCount}</span>
+                    <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-1" />
+                    <span className="like-count fs-5">{likeCount}</span>
                   </LinearIcon>
                 </LikesButton>
                 <svg width="0" height="0">
@@ -205,7 +212,7 @@ function CommentSection({
                 ? (
                   <>
                     <LinearIcon uniqueId="like-button-comment">
-                      <Button variant="link" className="shadow-none me-2" onClick={() => onIconClick(id)}>
+                      <Button variant="link" className="me-2" onClick={() => onIconClick(id)}>
                         <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
                         <span className="fs-5">Like</span>
                       </Button>
@@ -219,7 +226,7 @@ function CommentSection({
                   </>
                 )
                 : (
-                  <Button variant="link" className="shadow-none me-2" onClick={() => onIconClick(id)}>
+                  <Button variant="link" className="me-2" onClick={() => onIconClick(id)}>
                     <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
                     <span className="fs-5">Like</span>
                   </Button>
@@ -227,7 +234,6 @@ function CommentSection({
             }
             <Button
               variant="link"
-              className="shadow-none"
               onClick={handleReply}
             >
               <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />

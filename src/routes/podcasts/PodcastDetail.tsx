@@ -101,7 +101,7 @@ function PodcastDetail() {
                       </div>
                     </span>
                     <BorderButton
-                      buttonClass="d-flex rate-btn ypx-4"
+                      buttonClass="d-flex rate-btn px-4"
                       variant="lg"
                       icon={regular('star')}
                       iconClass="mb-1 me-2"

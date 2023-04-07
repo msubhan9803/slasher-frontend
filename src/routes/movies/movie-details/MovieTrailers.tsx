@@ -57,7 +57,7 @@ function MovieTrailers({ trailerList }: MovieTrailerList) {
     <div className="bg-dark p-3 pb-4 rounded-2 mt-3">
       <h1 className="h2 fw-bold">Trailers</h1>
       <div className="d-flex align-items-center mt-3">
-        <Button variant="link" aria-label="chevron left icon" className="prev shadow-none" onClick={slideTrailerLeft}>
+        <Button variant="link" aria-label="chevron left icon" className="prev p-1 me-3" onClick={slideTrailerLeft}>
           <FontAwesomeIcon icon={solid('chevron-left')} size="lg" />
         </Button>
         <StyledMovieTrailer
@@ -89,7 +89,7 @@ function MovieTrailers({ trailerList }: MovieTrailerList) {
             </Col>
           ))}
         </StyledMovieTrailer>
-        <Button aria-label="chevron right icon" variant="link" className="next shadow-none" onClick={slideTrailerRight}>
+        <Button aria-label="chevron right icon" variant="link" className="next p-1 ms-3" onClick={slideTrailerRight}>
           <FontAwesomeIcon icon={solid('chevron-right')} size="lg" />
         </Button>
       </div>

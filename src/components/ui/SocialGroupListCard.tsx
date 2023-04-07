@@ -22,7 +22,7 @@ function SocialGroupListCard({ item, classname }: Props) {
             size="sm"
             variant="form"
             name="leave-join"
-            className={`${item.ljGroup ? 'text-black' : 'text-white'} py-2 px-4 mx-2 d-none d-md-inline d-lg-none d-xl-inline`}
+            className={`${item.ljGroup ? 'text-black' : 'text-white'} px-4 mx-2 d-none d-md-inline d-lg-none d-xl-inline`}
             active={item.ljGroup}
           >
             {item.ljGroup ? 'Join Group' : 'Leave Group'}
@@ -38,7 +38,7 @@ function SocialGroupListCard({ item, classname }: Props) {
         size="sm"
         variant="form"
         name="leave-join"
-        className={`${item.ljGroup ? 'text-black' : 'text-white'} w-100 py-2 mt-2 d-md-none d-lg-inline d-xl-none`}
+        className={`${item.ljGroup ? 'text-black' : 'text-white'} w-100 mt-2 d-md-none d-lg-inline d-xl-none`}
         active={item.ljGroup}
       >
         {item.ljGroup ? 'Join Group' : 'Leave Group'}

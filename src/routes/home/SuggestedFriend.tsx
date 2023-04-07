@@ -163,9 +163,9 @@ function SuggestedFriend() {
                     <Link className="text-decoration-none" to={`/${user.userName}/about`}>
                       <div className=" d-flex justify-content-center position-relative">
                         <UserCircleImage size="6.25rem" src={user.profilePic} alt="suggested friend" />
-                        <div className="position-absolute" style={{ right: '0' }}>
-                          <FontAwesomeIcon role="button" onClick={(e: React.MouseEvent<SVGSVGElement, MouseEvent>) => { onCloseClick(e, user._id); }} icon={solid('xmark')} size="lg" />
-                        </div>
+                        <Button variant="link" className="position-absolute p-0 px-1" style={{ right: '0' }} onClick={(e: any) => onCloseClick(e, user._id)}>
+                          <FontAwesomeIcon icon={solid('xmark')} size="lg" />
+                        </Button>
                       </div>
                       <p className="text-center my-2">{user.userName}</p>
                     </Link>

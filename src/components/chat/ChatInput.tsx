@@ -103,6 +103,12 @@ function ChatInput({
                 icon={solid('camera')}
                 size="lg"
                 className=""
+                tabIndex={0}
+                onKeyDown={(e: any) => {
+                  if (e.key === 'Enter') {
+                    inputFile.current?.click();
+                  }
+                }}
               />
               <input
                 type="file"
@@ -122,7 +128,7 @@ function ChatInput({
             as="textarea"
             rows={rows}
             placeholder="Type your message here..."
-            className="shadow-none border-start-0 border-end-0 fs-5"
+            className="shadow-none border-start-0 border-end-0"
             value={message}
             onChange={
               (messageInput) => setMessage!(messageInput.target.value)

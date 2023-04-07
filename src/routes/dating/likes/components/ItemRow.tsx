@@ -40,7 +40,7 @@ function ItemRow({
   const shouldShowPopover = popoverOptions?.length !== 0;
 
   return (
-    <StyledBorder key={item.id} className="d-flex justify-content-between py-2">
+    <StyledBorder key={item.id} className="d-flex justify-content-between">
       <Button className="px-0 shadow-none text-white text-start d-flex align-items-center bg-transparent border-0" onClick={() => handleLikesOption && handleLikesOption('')}>
         {!item.imageUrl
           ? (

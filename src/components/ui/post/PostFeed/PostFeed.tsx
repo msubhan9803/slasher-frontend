@@ -37,7 +37,7 @@ import RoundButton from '../../RoundButton';
 import CustomRatingText from '../../CustomRatingText';
 import CustomWortItText from '../../CustomWortItText';
 import { useAppSelector } from '../../../../redux/hooks';
-import { HOME_WEB_DIV_ID, NEWS_PARTNER_DETAILS_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
+import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
 import LoadingIndicator from '../../LoadingIndicator';
 import { customlinkifyOpts } from '../../../../utils/linkify-utils';
 import { getLocalStorage } from '../../../../utils/localstorage-utils';
@@ -115,6 +115,9 @@ const StyleSpoilerButton = styled(RoundButton)`
 const StyledContentContainer = styled.div<StyledProps>`
   max-width: max-content;
   cursor: ${(props) => (!props?.detailsPage ? 'pointer' : 'auto')};
+  a {
+    display: inline-block;
+  }
 `;
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
@@ -201,6 +204,14 @@ function PostFeed({
     }
     return popoverOptions;
   };
+  const handlePostContentKeyDown = (event: React.KeyboardEvent, post: any) => {
+    if (event.key === 'Enter') {
+      const shouldCallPostContentClick = !detailPage;
+      if (shouldCallPostContentClick) {
+        onPostContentClick(post);
+      }
+    }
+  };
 
   const renderPostContent = (post: any) => {
     let { content } = post;
@@ -257,7 +268,7 @@ function PostFeed({
               </div>
             )}
             {post?.goreFactor !== 0 && (
-              <div className={`align-items-center bg-dark d-flex px-3 py-2 rounded-pill ${post.rating && 'ms-3'} ${post.worthWatching && 'me-3'}`}>
+              <div className={`align-items-center bg-dark d-flex px-3 rounded-pill ${post.rating && 'ms-3'} ${post.worthWatching && 'me-3'}`}>
                 <CustomRatingText
                   rating={post.goreFactor}
                   icon={solid('burst')}
@@ -305,6 +316,9 @@ function PostFeed({
                   }
                 }
                 onClick={() => !detailPage && onPostContentClick(post)}
+                aria-label="post-content"
+                tabIndex={0}
+                onKeyDown={(e) => handlePostContentKeyDown(e, post)}
               />
               {
                 post.hashTag?.map((hashtag: string) => (
@@ -481,8 +495,9 @@ function PostFeed({
               )
             }
           </div>
-          { /* Below ad is to be shown in the end of a single pgae post */}
-          {isSinglePagePost && <PubWiseAd className="text-center mt-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />}
+          {/* NOTE: Below ad is temporarily removed as per request on SD-1019 */}
+          {/* Below ad is to be shown in the end of a single page post */}
+          {/* {isSinglePagePost && <PubWiseAd className="text-center mt-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />} */}
 
           {!detailPage && <hr className="post-separator" />}
 

@@ -26,7 +26,8 @@ const AboutBookDetails = styled.div`
     height: 1.563rem;
   }
   .rate-btn {
-    padding: 0 1.438rem;
+    padding-right: 1.438rem;
+    padding-left: 1.438rem;
     svg {
       width: 1.179rem;
       height: 1.125rem;
@@ -36,7 +37,8 @@ const AboutBookDetails = styled.div`
     }
   }
   .share-btn {
-    padding: 0 1.25rem;
+    padding-right: 0 1.25rem;
+    padding-left: 0 1.25rem;
     svg {
       width: 1.055rem;
       height: 1.125rem;

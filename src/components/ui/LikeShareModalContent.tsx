@@ -59,17 +59,19 @@ function LikeUsers({ likeUsers }: LikeUsersProp) {
   return (
     <div>
       {likeUsers?.map((likeUser: LikeUsersType) => (
-        <div className="pb-4 pt-0 py-3 d-flex align-items-center" key={likeUser._id}>
-          <div>
-            <UserCircleImage src={likeUser.profilePic} />
-          </div>
-          <div className="px-3 flex-grow-1 min-width-0">
-            <Link className="text-decoration-none" to={`/${likeUser.userName}/posts`}>
-              <p className="mb-0">
-                {likeUser.userName}
-              </p>
-            </Link>
-          </div>
+        <div className="pb-4 pt-0 py-3 d-flex align-items-center justify-content-between" key={likeUser._id}>
+          <Link className="text-decoration-none" to={`/${likeUser.userName}/posts`}>
+            <div className="d-flex align-items-center">
+              <div>
+                <UserCircleImage src={likeUser.profilePic} />
+              </div>
+              <div className="px-3 flex-grow-1 min-width-0">
+                <p className="mb-0">
+                  {likeUser.userName}
+                </p>
+              </div>
+            </div>
+          </Link>
           <FriendAction likeUser={likeUser} />
         </div>
       ))}

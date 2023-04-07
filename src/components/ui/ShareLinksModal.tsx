@@ -10,7 +10,7 @@ import FacebookIcon from '../../images/share-links-modal-facebook.png';
 import InstagramIcon from '../../images/share-links-modal-instagram.png';
 import TwitterIcon from '../../images/share-links-modal-twitter.png';
 import { MD_MEDIA_BREAKPOINT } from '../../constants';
-import { enableDevFeatures } from '../../utils/configEnvironment';
+import { FRONTEND_URL, enableDevFeatures } from '../../utils/configEnvironment';
 
 const StyledModalBody = styled(Modal.Body)`
   @media (min-width: ${MD_MEDIA_BREAKPOINT}){
@@ -18,9 +18,8 @@ const StyledModalBody = styled(Modal.Body)`
   }
 `;
 
-export const copyUrlToClipboard = () => {
-  const { protocol, host, pathname } = window.location;
-  copy(`${protocol}/${host}${pathname}`);
+export const copyUrlToClipboard = (copyLinkUrl: string) => {
+  copy(`${FRONTEND_URL}${copyLinkUrl}`);
 };
 
 function ShareIconButton({ label, onClick, imgSrc }: any) {
@@ -32,7 +31,7 @@ function ShareIconButton({ label, onClick, imgSrc }: any) {
   );
 }
 
-function ShareLinksModal({ show, setShow }: any) {
+function ShareLinksModal({ copyLinkUrl, show, setShow }: any) {
   const handleCloseModal = () => {
     setShow(false);
   };
@@ -61,7 +60,7 @@ function ShareLinksModal({ show, setShow }: any) {
             )
           }
           <Col className="pb-5">
-            <ShareIconButton label="Copy link" onClick={() => { handleCloseModal(); copyUrlToClipboard(); }} imgSrc={CopyLinkIcon} />
+            <ShareIconButton label="Copy link" onClick={() => { handleCloseModal(); copyUrlToClipboard(copyLinkUrl); }} imgSrc={CopyLinkIcon} />
           </Col>
           {
             enableDevFeatures && (

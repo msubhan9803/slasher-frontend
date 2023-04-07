@@ -18,7 +18,10 @@ definitions:
           - terraform validate
           - terraform plan --var-file=env.tfvars/staging.tfvars
           - terraform apply --var-file=env.tfvars/staging.tfvars -auto-approve
-        when: changeset(terraform/**/*)
+        condition:
+            changesets:
+                includePaths:
+                - "terraform/*"
         services:
           - docker
 

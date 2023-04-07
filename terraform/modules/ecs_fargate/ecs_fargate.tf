@@ -19,7 +19,7 @@ resource "aws_ecs_service" "slasher-web-new-service" {
     container_port   = 4000
   }
   lifecycle {
-    # ignore_changes = [task_definition] #added task definition in lifecycle block to ignore changes while deploying terraform
+    ignore_changes = [task_definition] #added task definition in lifecycle block to ignore changes while deploying terraform
   }
 }
 

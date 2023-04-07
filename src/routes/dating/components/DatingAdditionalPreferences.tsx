@@ -24,7 +24,7 @@ function DatingAdditionalPreferences() {
   const [distType, setDistType] = useState('mi');
   const [distance, setDistance] = useState(50);
   const [age, setAge] = useState([20, 26]);
-  const selectOptios = [
+  const distanceOptions = [
     { value: 'ml', label: distance === 1 ? 'Mile' : 'Miles' },
     { value: 'km', label: distance === 1 ? 'kilometer' : 'Kilometers' },
   ];
@@ -62,7 +62,7 @@ function DatingAdditionalPreferences() {
               <SortData
                 sortVal={distType}
                 onSelectSort={setDistType}
-                sortoptions={selectOptios}
+                sortoptions={distanceOptions}
                 type="form"
               />
             </InputGroup>

@@ -1,9 +1,8 @@
 import React from 'react';
-import { Form } from 'react-bootstrap';
+import SortData from '../filter-sort/SortData';
 
 interface CustomSelectProps {
   options: CustomOption[],
-  name: string,
   label: string
 }
 
@@ -15,24 +14,16 @@ interface CustomOption {
 function CustomSelect({
   options,
   label,
-  name,
 }: CustomSelectProps) {
   return (
     <>
       <p className="m-1">{label}</p>
-      <Form.Select
-        name={name}
-        defaultValue=""
-      >
-        <option value="" disabled>
-          Select one
-        </option>
-        {options.map((option: CustomOption) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </Form.Select>
+      <SortData
+        sortVal="Select one"
+        onSelectSort={() => { }}
+        sortoptions={[{ value: 'disabled', label: 'Select one' }, ...options]}
+        type="form"
+      />
     </>
   );
 }

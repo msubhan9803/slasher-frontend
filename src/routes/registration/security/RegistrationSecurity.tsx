@@ -40,7 +40,8 @@ function RegistrationSecurity({ activeStep }: Props) {
   const [selectedYear, setSelectedYear] = useState('disabled');
   const [selectedSecurityQuestion, setSelectedSecurityQuestion] = useState('disabled');
   const RegistartionSecurityQuestions = RegistartionSecurityList.map(
-    (list) => ({ value: list, label: list }));
+    (list) => ({ value: list, label: list }),
+  );
 
   const handleChange = (value: string, key: string) => {
     const registerInfoTemp = { ...securityInfo };

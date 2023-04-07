@@ -159,6 +159,7 @@ function ProfileHeader({ tabKey, user, showTabs }: Props) {
                         friendData={friendData}
                         friendStatus={friendStatus}
                         setFriendshipStatus={setFriendshipStatus}
+                        buttonType="send-message"
                       />
                       <StyledPopoverContainer className="d-none d-md-block d-lg-none d-xl-block">
                         <CustomPopover

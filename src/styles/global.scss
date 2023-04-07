@@ -303,12 +303,17 @@ textarea {
 
 .form-control:focus-visible {
   outline: none !important;
-  box-shadow: 0 0 0 1px rgba($stroke-and-line-separator-color, .5);
+  box-shadow: 0 0 0 2px rgba($stroke-and-line-separator-color, 1);
+}
+
+.btn:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba($stroke-and-line-separator-color, 1);
 }
 
 :focus-visible {
   outline: none !important;
-  box-shadow: 0 0 0 1px rgba($stroke-and-line-separator-color, .5);
+  box-shadow: 0 0 0 2px rgba($stroke-and-line-separator-color, 1);
 }
 
 @font-face {
@@ -318,4 +323,8 @@ textarea {
 
 .form-select:focus {
   box-shadow: 0 0 0 1px var(--stroke-and-line-separator-color);
+}
+
+a {
+  display: block;
 }

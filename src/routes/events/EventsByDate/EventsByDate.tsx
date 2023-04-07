@@ -243,6 +243,7 @@ function EventsByDate() {
       }
     }
   }, [yPositionOfLastEventElement, fetchMoreEvent]);
+
   return (
     <div>
       <EventHeader tabKey="by-date" />
@@ -265,15 +266,16 @@ function EventsByDate() {
             return null;
           }}
         />
-        <InfiniteScroll
-          pageStart={0}
-          initialLoad={false}
-          loadMore={fetchMoreEvent}
-          hasMore={!noMoreData}
-          element="span"
-        >
-          <Row ref={eventContainerElementRef}>
-            {eventsList && eventsList.length > 0
+      </div>
+      <InfiniteScroll
+        pageStart={0}
+        initialLoad={false}
+        loadMore={fetchMoreEvent}
+        hasMore={!noMoreData}
+        element="span"
+      >
+        <Row ref={eventContainerElementRef}>
+          {eventsList && eventsList.length > 0
               && (eventsList.map((eventDetail, i, arr) => {
                 // (*temporary*) DEBUGGING TIP: Use `Array(15).fill(eventsList[0]).map(..)`
                 // inplace of `eventsList.map(..)`  to mimic sample data from a single data item.
@@ -287,12 +289,11 @@ function EventsByDate() {
                   </React.Fragment>
                 );
               }))}
-          </Row>
-        </InfiniteScroll>
-        {noMoreData && renderNoMoreDataMessage()}
-      </div>
-      {/* Show an ad on events page in-case when we have no events to show. */}
-      {(eventsList.length === 0) && <PubWiseAd className="my-3" id={ALL_MOVIES_DIV_ID} autoSequencer />}
+        </Row>
+      </InfiniteScroll>
+      {noMoreData && renderNoMoreDataMessage()}
+      {/* Show an end in the end of page at all times */}
+      <PubWiseAd className="my-3" id={ALL_MOVIES_DIV_ID} autoSequencer />
     </div>
   );
 }

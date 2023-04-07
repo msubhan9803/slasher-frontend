@@ -78,6 +78,9 @@ definitions:
           # If ADD_NOINDEX_ROBOTS_TXT is true, add a no-index robots.txt file to the build
           - |
             [ "$ADD_NOINDEX_ROBOTS_TXT" = true ] && echo 'Adding no-index robots.txt file to build' && echo -e "User-agent: *\nDisallow: /" > ./build/robots.txt
+          # Add Cloudflare _redirects file to the build, if file exists present
+          - |
+            [ -f "./deploy-cloudflare/_redirects.${BITBUCKET_BRANCH}" ] && echo 'Adding Cloudflare _redirects file to build' && cp ./deploy-cloudflare/_redirects.${BITBUCKET_BRANCH} ./build/_redirects
           # Deploy build to Cloudflare Pages
           # See: https://developers.cloudflare.com/pages/how-to/use-direct-upload-with-continuous-integration/
           # Note: Need to specify "--branch main" below to get Cloudflare to treat this as a

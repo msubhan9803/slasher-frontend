@@ -106,7 +106,11 @@ function EventsByLocation() {
           ref={mapRef}
           defaultCenter={userLocation}
           onCenterChange={onCenterChangeDebounced}
-          defaultZoomLevel={5}
+          // NOTE: zoomLevel=5 shows an approximate of 300miles radius area.
+          // NOTE: We must keep defaultZoomLevel >= zoomThreshold
+          defaultZoomLevel={6}
+          // NOTE: Warning will be shown when zoom level is smaller or equal to zoomThreshold value
+          zoomThreshold={4}
           markerLocations={markerLocations}
           handlePanAndZoom={fetchAndSetEventsDebounced}
         />

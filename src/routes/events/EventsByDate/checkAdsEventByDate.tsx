@@ -19,18 +19,12 @@ export default function checkAdsEventByDate(
 
   if (is2ColumnsView || is1ColumnView) {
     if (is1ColumnView) {
-      if ((index + 1) % 3 === 0) {
-        show = true;
-      }
-      if (allItems.length < 3 && allItems.length > 0 && index + 1 === allItems.length) {
+      if (((index + 1) % 3 === 0) && (index + 1 !== allItems.length)) {
         show = true;
       }
     }
     if (is2ColumnsView) {
-      if ((index + 1) % 6 === 0) {
-        show = true;
-      }
-      if (allItems.length < 6 && allItems.length > 0 && index + 1 === allItems.length) {
+      if ((index + 1) % 6 === 0 && (index + 1 !== allItems.length)) {
         show = true;
       }
     }

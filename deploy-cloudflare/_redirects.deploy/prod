@@ -1,0 +1,15 @@
+# Redirect rules: https://developers.cloudflare.com/pages/platform/redirects/
+
+# Shop pages
+/shop https://pages.slasher.tv/shop 302
+/shop/* https://pages.slasher.tv/shop 302
+/cart https://pages.slasher.tv/shop 302
+/cart/* https://pages.slasher.tv/shop 302
+/checkout https://pages.slasher.tv/shop 302
+/checkout/* https://pages.slasher.tv/shop 302
+/product/* https://pages.slasher.tv/shop 302
+/product-category/* https://pages.slasher.tv/shop 302
+
+# Other pages
+/terms https://pages.slasher.tv/terms 302
+/terms/* https://pages.slasher.tv/terms 302

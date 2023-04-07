@@ -54,9 +54,12 @@ function CustomGroupIcons({
   label, icon, iconColor: color, width, height, addData, onClickIcon,
 }: GroupIconProps) {
   const uniqueId = `${instanceCounter += 1}`;
+  const handleClickIcon = () => {
+    onClickIcon(label);
+  };
   return (
     <div className="position-relative">
-      <LinearIcon role="button" onClick={() => onClickIcon(label)} width={width} height={height} uniqueId={uniqueId} className="d-flex flex-column align-items-center">
+      <LinearIcon tabIndex={0} role="button" onClick={handleClickIcon} onKeyDown={(e) => { if (e.key === 'Enter') { onClickIcon(label); } }} width={width} height={height} uniqueId={uniqueId} className="d-flex flex-column align-items-center">
         <div className="detail-book-icon align-items-center bg-white d-flex justify-content-center rounded-circle">
           <FontAwesomeIcon icon={icon} />
         </div>
@@ -69,7 +72,7 @@ function CustomGroupIcons({
         </svg>
       </LinearIcon>
       {addData && (
-        <StyledRemoveWatchlist role="button" onClick={() => onClickIcon(label)} className="align-items-center bg-black d-flex justify-content-center position-absolute rounded-circle">
+        <StyledRemoveWatchlist role="button" onClick={handleClickIcon} onKeyDown={(e) => { if (e.key === 'Enter') { onClickIcon(label); } }} className="align-items-center bg-black d-flex justify-content-center position-absolute rounded-circle">
           <FontAwesomeIcon icon={solid('times')} size="lg" className="text-primary " />
         </StyledRemoveWatchlist>
       )}

@@ -1,5 +1,3 @@
-image: atlassian/default-image:3
-
 definitions:
   services:
     docker:
@@ -9,7 +7,7 @@ definitions:
         caches:
           - docker
         name: 'terraform plan and apply'
-        image: hashicorp/terraform:full
+        image: hashicorp/terraform:1.1.1
         script:
           - echo "Deploying infra"
           - cd terraform

@@ -1,8 +1,6 @@
 image: atlassian/default-image:3
 
 definitions:
-  caches:
-    node: node_modules
   services:
     docker:
       # Below, increase the default available docker memory to speed up docker apps.
@@ -10,221 +8,103 @@ definitions:
       # to the main process. 4096 MB is the total available amount for a default "1x" pipeline instance.
       memory: 2048
   steps:
-    - step: &lint-test-build
-        # If our test runs for more than the number of minutes specified below, something is
-        # probably wrong. We'll limit test run time so we don't waste CI build minutes.
-        max-time: 25
-        name: Lint, test, and build
-        image: node:16.13.1
-        services:
-          - docker
-        caches:
-          - node
-          - docker
-        script:
-          # Install NPM dependencies
-          - npm ci
-          # Run linter
-          - npm run lint
-          # Start docker mongo
-          - >
-            DOCKER_MONGO_CONTAINER_ID=$(
-            docker run --detach -p 27017:27017
-            --env MONGO_INITDB_ROOT_USERNAME=root --env MONGO_INITDB_ROOT_PASSWORD=rootpassword
-            $(docker build -q ./docker/mongo)
-            )
-          # Start redis mongo
-          - >
-            DOCKER_REDIS_CONTAINER_ID=$(
-            docker run --detach -p 6389:6379
-            $(docker build -q ./docker/redis)
-            )
-          # Copy template env file to .env.test (to support testing)
-          - cp .env.test.template .env.test
-          # Run tests
-          - npm run test
-          - npm run test:e2e-core
-          - npm run test:e2e-gateway
-          # Stop docker mongo (kill for speed, since this is CI and clean shutdown doesn't matter)
-          - docker container kill $DOCKER_MONGO_CONTAINER_ID
-          # Stop docker redis (kill for speed, since this is CI and clean shutdown doesn't matter)
-          - docker container kill $DOCKER_REDIS_CONTAINER_ID
-          # Run build (to ensure that build succeeds)
-          - npm run build
-
-    - step: &deploy-ecs
-        name: Deploy to AWS (incomplete)
+    - step: &terraform-deploy
         caches:
           - docker
+        name: 'terraform plan and apply'
+        image: hashicorp/terraform:full
+          script:
+            - echo "Deploying infra"
+            - cd terraform
+            - export AWS_DEFAULT_REGION="us-east-1"
+            - terraform init
+            - terraform workspace select staging || terraform workspace new staging
+            - terraform version
+            - terraform validate
+            - terraform plan --var-file=env.tfvars/staging.tfvars
+            - terraform apply --var-file=env.tfvars/staging.tfvars -auto-approve
         services:
           - docker
+
+    - step: &build-and-push-web-new-docker-image-to-ecr
+        caches:
+          - docker
+        name: 'Build and push slasher-web new Docker image to ECR'
+        image: atlassian/pipelines-awscli
         script:
-          # Load environment variables from appropriate deployment env file
-          - set -o allexport; source ./deploy/.env.${BITBUCKET_BRANCH}
-
-          # Set tag variables
-          - NGINX_TAG="${CLUSTER_NAME}_${STAGE}_${TYPE_PROJECT}_nginx"
-          - APP_TAG="${CLUSTER_NAME}_${STAGE}_${TYPE_PROJECT}_app"
-          - CRON_TAG="${CLUSTER_NAME}_${STAGE}_${TYPE_PROJECT}_cron"
-
-          # Build containers
-          - >
-            cd ${BITBUCKET_CLONE_DIR}/docker/nginx &&
-            docker build --tag $NGINX_TAG --file Dockerfile .
-            --build-arg NGINX_PORT=${NGINX_PORT}
-            --build-arg APP_HOST_NAME=$APP_TAG
-            --build-arg APP_PORT=${APP_PORT}
-          - >
-            cd ${BITBUCKET_CLONE_DIR} &&
-            docker build --tag $APP_TAG --file app.Dockerfile .
-          - >
-            cd ${BITBUCKET_CLONE_DIR} &&
-            docker build --tag $CRON_TAG --file cron.Dockerfile .
-
-          # Push containers to Amazon ECR
-          - pipe: atlassian/aws-ecr-push-image:1.5.0
+          - docker build --tag slasher-web-new-staging --file app.Dockerfile .
+          - pipe: atlassian/aws-ecr-push-image:1.4.2
             variables:
-              IMAGE_NAME: "$NGINX_TAG"
-              TAGS: "${BITBUCKET_BUILD_NUMBER} latest"
-              #DEBUG: "true"
-          - pipe: atlassian/aws-ecr-push-image:1.5.0
-            variables:
-              IMAGE_NAME: "$APP_TAG"
-              TAGS: "${BITBUCKET_BUILD_NUMBER} latest"
-              #DEBUG: "true"
-          - pipe: atlassian/aws-ecr-push-image:1.5.0
-            variables:
-              IMAGE_NAME: "$CRON_TAG"
-              TAGS: "${BITBUCKET_BUILD_NUMBER} latest"
-              #DEBUG: "true"
+              IMAGE_NAME: "slasher-web-new-staging"
+              TAGS: "${BITBUCKET_BUILD_NUMBER}"
+              DEBUG: "true"
+        services:
+          - docker
 
-          # Deploy the AWS Elastic Load Balancing service
-          - cd ${BITBUCKET_CLONE_DIR}
-          - pipe: atlassian/aws-cloudformation-deploy:0.13.0
+    - step: &build-and-push-server-cron-docker-image-to-ecr
+        name: 'Build and push slasher-cron Docker image to ECR'
+        caches:
+          - docker
+        image: atlassian/pipelines-awscli
+        script:
+          - docker build --tag slasher-cron-staging --file cron.Dockerfile .
+          - pipe: atlassian/aws-ecr-push-image:1.4.2
             variables:
-              STACK_NAME: '${CLUSTER_NAME}-${STAGE}-${TYPE_PROJECT}-service-elb'
-              TEMPLATE: 'deploy/cloudformation/service/service-elb.yml'
-              WAIT: 'true'
-              STACK_PARAMETERS: >
-                [
-                  {
-                    "ParameterKey": "ClusterName",
-                    "ParameterValue": "${CLUSTER_NAME}"
-                  },
-                  {
-                    "ParameterKey": "Stage",
-                    "ParameterValue": "${STAGE}"
-                  },
-                  {
-                    "ParameterKey": "TypeProject",
-                    "ParameterValue": "${TYPE_PROJECT}"
-                  },
-                  {
-                    "ParameterKey": "NginxPort",
-                    "ParameterValue": "${NGINX_PORT}"
-                  },
-                  {
-                    "ParameterKey": "DefaultAcmCertificateArn",
-                    "ParameterValue": "${CERTIFICATE_ARN}"
-                  },
-                  {
-                    "ParameterKey": "BackendSiteDomain",
-                    "ParameterValue": "${BACKEND_SITE_DOMAIN}"
-                  }
-                ]
-              #DEBUG: "true"
+              IMAGE_NAME: "slasher-cron-staging"
+              TAGS: "${BITBUCKET_BUILD_NUMBER}"
+              DEBUG: "true"
+        services:
+          - docker
 
-          # Deploy the AWS Elastic Container Service
-          - cd ${BITBUCKET_CLONE_DIR}
-          - pipe: atlassian/aws-cloudformation-deploy:0.13.0
+    - step: &ECS-deploy-web-new
+        name: 'ECS deployment Slasher-Web new'
+        caches:
+          - docker
+        image: atlassian/pipelines-awscli
+        script:
+          - AWS_REGION="us-east-1"
+          - ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" | tr -d '"')
+          - IMAGE_URL="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/slasher-web-new-staging:${BITBUCKET_BUILD_NUMBER}"
+          - aws ecs describe-task-definition --task-definition slasher-web-new-task-defination-staging --query taskDefinition --region us-east-1 | jq '.taskDefinition.containerDefinitions[0].image = "$IMAGE_URL"' > task-definition.json
+          - pipe: atlassian/aws-ecs-deploy:1.7.0
             variables:
-              STACK_NAME: '${CLUSTER_NAME}-${STAGE}-${TYPE_PROJECT}-service-ecs'
-              TEMPLATE: 'deploy/cloudformation/service/service-ecs.yml'
-              WAIT: 'true'
-              STACK_PARAMETERS: >
-                [
-                  {
-                    "ParameterKey": "BuildNumber",
-                    "ParameterValue": "${BITBUCKET_BUILD_NUMBER}"
-                  },
-                  {
-                    "ParameterKey": "ClusterName",
-                    "ParameterValue": "${CLUSTER_NAME}"
-                  },
-                  {
-                    "ParameterKey": "Stage",
-                    "ParameterValue": "${STAGE}"
-                  },
-                  {
-                    "ParameterKey": "TypeProject",
-                    "ParameterValue": "${TYPE_PROJECT}"
-                  },
-                  {
-                    "ParameterKey": "BackendSiteDomain",
-                    "ParameterValue": "${BACKEND_SITE_DOMAIN}"
-                  },
-                  {
-                    "ParameterKey": "FrontendSiteDomain",
-                    "ParameterValue": "${FRONTEND_SITE_DOMAIN}"
-                  },
-                  {
-                    "ParameterKey": "NginxPort",
-                    "ParameterValue": "${NGINX_PORT}"
-                  },
-                  {
-                    "ParameterKey": "AppPort",
-                    "ParameterValue": "${APP_PORT}"
-                  },
-                  {
-                    "ParameterKey": "AppVirtualCPUs",
-                    "ParameterValue": "${APP_CPU}"
-                  },
-                  {
-                    "ParameterKey": "AppMemoryMin",
-                    "ParameterValue": "${APP_MEMORY_MIN}"
-                  },
-                  {
-                    "ParameterKey": "AppMemoryMax",
-                    "ParameterValue": "${APP_MEMORY_MAX}"
-                  },
-                  {
-                    "ParameterKey": "CronVirtualCPUs",
-                    "ParameterValue": "${CRON_CPU}"
-                  },
-                  {
-                    "ParameterKey": "CronMemoryMin",
-                    "ParameterValue": "${CRON_MEMORY_MIN}"
-                  },
-                  {
-                    "ParameterKey": "CronMemoryMax",
-                    "ParameterValue": "${CRON_MEMORY_MAX}"
-                  },
-                  {
-                    "ParameterKey": "NginxVirtualCPUs",
-                    "ParameterValue": "${NGINX_CPU}"
-                  },
-                  {
-                    "ParameterKey": "NginxMemoryMin",
-                    "ParameterValue": "${NGINX_MEMORY_MIN}"
-                  },
-                  {
-                    "ParameterKey": "NginxMemoryMax",
-                    "ParameterValue": "${NGINX_MEMORY_MAX}"
-                  }
-                ]
-              DEBUG: 'true'
+              AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+              AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+              AWS_DEFAULT_REGION: 'us-east-1'
+              CLUSTER_NAME: 'ecs-fargate-cluster-staging'
+              SERVICE_NAME: 'slasher-web-new-service-staging'
+              TASK_DEFINITION: 'task-definition.json'
+              FORCE_NEW_DEPLOYMENT: 'true'
+        services:
+          - docker
+
+    - step: &ECS-deploy-cron
+        name: 'ECS deployment Slasher-Cron'
+        caches:
+          - docker
+        image: atlassian/pipelines-awscli
+        script:
+          - AWS_REGION="us-east-1"
+          - ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" | tr -d '"')
+          - IMAGE_URL="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/slasher-cron-staging:${BITBUCKET_BUILD_NUMBER}"
+          - aws ecs describe-task-definition --task-definition slasher-cron-task-defination-staging --query taskDefinition --region us-east-1 | jq '.containerDefinitions[0].image = "$IMAGE_URL"' > task-definition.json
+          - pipe: atlassian/aws-ecs-deploy:1.7.0
+            variables:
+              AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+              AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+              AWS_DEFAULT_REGION: 'us-east-1'
+              CLUSTER_NAME: 'ecs-fargate-cluster-staging'
+              SERVICE_NAME: 'slasher-cron-service-staging'
+              TASK_DEFINITION: 'task-definition.json'
+              FORCE_NEW_DEPLOYMENT: 'true'
+        services:
+          - docker
 
 pipelines:
   branches:
-    main:
-      - step: *lint-test-build
-    deploy/staging:
-      - step: *lint-test-build
-      #- step: *deploy-ecs
-    deploy/prod:
-      - step: *lint-test-build
-      #- step: *deploy-ecs
-  pull-requests:
-    # Run for any branch that has an open pull request
-    '**':
-      - step: *lint-test-build
+    service-infra-setup:
+    - step: *terraform-deploy
+    - step: *build-and-push-web-new-docker-image-to-ecr
+    - step: *build-and-push-server-cron-docker-image-to-ecr
+    - step: *ECS-deploy-web-new
+    - step: *ECS-deploy-cron

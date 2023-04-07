@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  useCallback, useEffect, useRef, useState,
+  useEffect, useRef, useState,
 } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
@@ -126,6 +126,7 @@ const EventCalender = styled(Calendar)`
 `;
 
 function EventsByDate() {
+  // Tip: For static testing use a static date as "2023, 3, 2"
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewChange, onViewChange] = useState<Date | null>(null);
   const [eventsList, setEventList] = useState<any[]>([]);
@@ -135,8 +136,10 @@ function EventsByDate() {
   const startDate = `${selectedDateString}T00:00:00Z`;
   const endDate = `${selectedDateString}T23:59:59Z`;
   const eventContainerElementRef = useRef<any>(null);
-  const [yPositionOfLastEventElement, setYPositionOfLastEventElement] = useState<number>(0);
   const bp = useBootstrapBreakpointName();
+  const [requestAdditionalEvents, setRequestAdditionalEvents] = useState(false);
+  const [loadingEvents, setLoadingEvents] = useState(false);
+  const previousSelectedDate = useRef(selectedDateString);
 
   const getDateRange = (dateValue: Date) => {
     const startDateRange = DateTime.fromJSDate(dateValue).startOf('month').minus({ days: 7 }).toFormat('yyyy-MM-dd');
@@ -164,7 +167,8 @@ function EventsByDate() {
       top: 0,
       behavior: 'instant' as any,
     });
-  }, []);
+    setRequestAdditionalEvents(true);
+  }, [endDate, startDate]);
 
   useEffect(() => {
     let monthRange = [];
@@ -179,32 +183,6 @@ function EventsByDate() {
       setMarkDateList(formatDateList);
     });
   }, [viewChange, selectedDate]);
-
-  useEffect(() => {
-    setNoMoreData(false); // reset when day changes
-    getEvents(startDate, endDate).then((res) => {
-      setEventList(eventsFromResponse(res));
-      if (res.data.length === 0) {
-        setNoMoreData(true);
-      }
-    }).catch(() => { });
-  }, [startDate, endDate]);
-
-  const fetchMoreEvent = useCallback(() => {
-    if (eventsList && eventsList.length > 0) {
-      getEvents(startDate, endDate, eventsList[eventsList.length - 1]._id)
-        .then((res) => {
-          setEventList((prev: any) => [
-            ...prev,
-            ...eventsFromResponse(res),
-          ]);
-          if (res.data.length === 0) {
-            setNoMoreData(true);
-          }
-        })
-        .catch(() => { });
-    }
-  }, [endDate, eventsList, startDate]);
 
   const onActiveStartDateChange = (data: ViewCallbackProperties) => {
     if (data.view === 'month') {
@@ -227,22 +205,50 @@ function EventsByDate() {
       }
     </p>
   );
-  const getYPosition = () => {
-    const yPosition = eventContainerElementRef.current?.lastElementChild?.offsetTop;
-    setYPositionOfLastEventElement(yPosition);
-  };
-  useEffect(() => {
-    getYPosition();
-  }, [eventsList]);
 
   useEffect(() => {
-    if (yPositionOfLastEventElement) {
-      const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastEventElement;
-      if (bottomLine) {
-        fetchMoreEvent();
-      }
+    const isSameDate = previousSelectedDate.current === selectedDateString;
+
+    if (noMoreData && !isSameDate) {
+      setNoMoreData(false);
     }
-  }, [yPositionOfLastEventElement, fetchMoreEvent]);
+  }, [noMoreData, selectedDateString]);
+
+  useEffect(() => {
+    let ignore = false;
+
+    if (requestAdditionalEvents && !loadingEvents) {
+      let lastEventId = null;
+      const isSameDate = previousSelectedDate.current === selectedDateString;
+      if (!isSameDate) {
+        previousSelectedDate.current = selectedDateString;
+      }
+      if (isSameDate) {
+        lastEventId = eventsList[eventsList.length - 1]?._id ?? null;
+      }
+
+      getEvents(startDate, endDate, lastEventId ?? null)
+        .then((res) => {
+          if (!ignore) {
+            setEventList((prev: any) => [
+              ...(isSameDate ? prev : []),
+              ...eventsFromResponse(res),
+            ]);
+            if (res.data.length === 0) { setNoMoreData(true); }
+          }
+        })
+        .catch(() => { })
+        .finally(() => {
+          if (!ignore) {
+            setRequestAdditionalEvents(false);
+            setLoadingEvents(false);
+          }
+        });
+    }
+    return () => {
+      ignore = true;
+    };
+  }, [startDate, endDate, eventsList, loadingEvents, requestAdditionalEvents, selectedDateString]);
 
   return (
     <div>
@@ -268,11 +274,14 @@ function EventsByDate() {
         />
       </div>
       <InfiniteScroll
+        initialLoad
         pageStart={0}
-        initialLoad={false}
-        loadMore={fetchMoreEvent}
         hasMore={!noMoreData}
+        loadMore={() => {
+          setRequestAdditionalEvents(true);
+        }}
         element="span"
+        threshold={100} // TODO: Use higher values for production
       >
         <Row ref={eventContainerElementRef}>
           {eventsList && eventsList.length > 0

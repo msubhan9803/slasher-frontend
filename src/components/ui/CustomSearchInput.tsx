@@ -19,7 +19,7 @@ const StyledSearchInput = styled(InputGroup)`
     color: var(--bs-primary);
     min-width: 1.875rem;
     right: 12px;
-    z-index: 999;
+    z-index: 9;
   }
 `;
 

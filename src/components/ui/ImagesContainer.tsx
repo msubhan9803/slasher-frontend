@@ -80,9 +80,13 @@ function ImagesContainer({
           onKeyDown={handleKeydown}
         />
       </StyledImageContainer>
-      <div className="text-center mt-2">
-        <RoundButton variant="black" onClick={() => { setShowAltTextEditModal(true); }}>Edit alt text</RoundButton>
-      </div>
+      {
+        onAltTextChange && (
+          <div className="text-center mt-2">
+            <RoundButton variant="black" onClick={() => { setShowAltTextEditModal(true); }}>Edit alt text</RoundButton>
+          </div>
+        )
+      }
       <CustomModal
         show={showAltTextEditModal}
         onHide={() => { setShowAltTextEditModal(false); }}

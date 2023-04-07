@@ -30,7 +30,7 @@ function SortData({
       background: 'var(--bs-dark)',
       borderRadius: '20px',
       border: '1px solid #3A3B46',
-      boxShadow: state.isFocused ? '0 0 0 1px var(--stroke-and-line-separator-color)' : null,
+      boxShadow: state.isFocused ? '0 0 0 2px var(--stroke-and-line-separator-color)' : null,
       paddingLeft: 5,
       '&:hover': {
         border: '1px solid #3A3B46',

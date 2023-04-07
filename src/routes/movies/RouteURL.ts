@@ -15,23 +15,3 @@ export const UIRouteURL = (
     navigate(`?sort=${sortVal}`);
   }
 };
-
-export const RouteURL = (
-  search: string,
-  key: string,
-  sortVal: string,
-  navigate: any,
-  searchParams: any,
-) => {
-  if (!searchParams.get('sort')) {
-    if (search?.length === 0 && key?.length === 0 && sortVal && !searchParams.get('q') && !searchParams.get('startsWith')?.toLowerCase()) {
-      navigate(`?sort=${searchParams.get('sort') || sortVal}`);
-    } else if (search?.length > 0 && key?.length > 0 && sortVal) {
-      navigate(`?q=${search}&startsWith=${key}&sort=${sortVal}`);
-    } else if (search?.length > 0 && sortVal) {
-      navigate(`?q=${search}&sort=${sortVal}`);
-    } else if (key?.length > 0 && sortVal) {
-      navigate(`?startsWith=${key}&sort=${sortVal}`);
-    }
-  }
-};

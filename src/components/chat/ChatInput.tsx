@@ -91,6 +91,12 @@ function ChatInput({
                 icon={solid('camera')}
                 size="lg"
                 className=""
+                tabIndex={0}
+                onKeyDown={(e: any) => {
+                  if (e.key === 'Enter') {
+                    inputFile.current?.click();
+                  }
+                }}
               />
               <input
                 type="file"

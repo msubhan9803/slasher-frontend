@@ -1,7 +1,7 @@
 # This file is committed to the repository.  Do not put passwords or sensitive data in this file.
 
 # For deployment
-CLOUDFLARE_PROJECT_NAME=slasher-app-staging
+CLOUDFLARE_PROJECT_NAME=slasher-frontend-staging
 ADD_NOINDEX_ROBOTS_TXT=true
 
 # For react app build

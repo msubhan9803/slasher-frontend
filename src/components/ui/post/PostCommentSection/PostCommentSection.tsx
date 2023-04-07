@@ -594,7 +594,7 @@ function PostCommentSection({
                       <LoadMoreCommentsWrapper>
                         <Button
                           variant="link"
-                          className="text-primary shadow-none"
+                          className="text-primary"
                           onClick={() => {
                             handleShowMoreComments(data.commentReplySection[0]?.feedCommentId);
                             setIsReply(false);

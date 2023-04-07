@@ -3,6 +3,7 @@ import React, { useCallback, useEffect } from 'react';
 import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
+import { Button } from 'react-bootstrap';
 import { MovieData, WorthWatchingStatus } from '../../../types';
 
 interface LikeProps {
@@ -106,12 +107,14 @@ function WorthWatchIcon({
   return (
     <div className="mx-1 d-flex align-items-center justify-content-around">
       <div className="mt-2 d-flex justify-content-center ">
-        <StyledLikeIcon isLike={liked} role="button" onClick={handleThumbsUp} className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
-          <StyleWatchWorthIcon icon={regular('thumbs-up')} />
-        </StyledLikeIcon>
+        <Button className="bg-transparent p-0 border-0 me-2 rounded-circle" onClick={handleThumbsUp}>
+          <StyledLikeIcon isLike={liked} className="d-flex justify-content-center align-items-center bg-transparent rounded-circle">
+            <StyleWatchWorthIcon icon={regular('thumbs-up')} />
+          </StyledLikeIcon>
+        </Button>
         {!postType
           && (
-            <p className="m-0 fs-3 text-light">
+            <p className="m-0 fs-3 text-light d-flex align-items-center">
               (
               {movieData!.worthWatchingUpUsersCount ? movieData!.worthWatchingUpUsersCount : 0}
               )
@@ -119,12 +122,14 @@ function WorthWatchIcon({
           )}
       </div>
       <div className="mt-2 d-flex justify-content-center ">
-        <StyledDislikeIcon isDislike={disLiked} role="button" onClick={handleThumbsDown} className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
-          <StyleWatchWorthIcon icon={regular('thumbs-down')} />
-        </StyledDislikeIcon>
+        <Button className="bg-transparent p-0 border-0 me-2 rounded-circle" onClick={handleThumbsDown}>
+          <StyledDislikeIcon isDislike={disLiked} className="d-flex justify-content-center align-items-center bg-transparent rounded-circle">
+            <StyleWatchWorthIcon icon={regular('thumbs-down')} />
+          </StyledDislikeIcon>
+        </Button>
         {!postType
           && (
-            <p className="m-0 fs-3 text-light">
+            <p className="m-0 fs-3 text-light d-flex align-items-center">
               (
               {movieData!.worthWatchingDownUsersCount ? movieData!.worthWatchingDownUsersCount : 0}
               )

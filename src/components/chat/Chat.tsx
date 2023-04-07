@@ -96,6 +96,7 @@ function Chat({
           <div className="conversation-container">
             <ChatMessage messages={messages} messageLoading={messageLoading} />
           </div>
+
         </Card.Body>
         <ChatInput
           sendMessageClick={sendMessageClick}
@@ -115,7 +116,9 @@ function Chat({
                 containerHeight="7.25rem"
                 containerBorder="0.125rem solid var(--bs-input-border-color)"
                 image={post}
-                alt="post image"
+                alt="" // TODO: set any existing alt text here (when editing existing image)
+                // eslint-disable-next-line no-console
+                // onAltTextChange={(newValue) => { console.log(`New value is: ${newValue}`); }}
                 handleRemoveImage={() => handleRemoveFile!(post)}
                 containerClass="position-relative d-flex justify-content-center align-items-center rounded border-0"
                 removeIconStyle={{

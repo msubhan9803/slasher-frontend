@@ -26,6 +26,7 @@ export const userSlice = createSlice({
       unreadMessageCount: action.payload.unreadMessageCount,
       recentMessages: action.payload.recentMessages,
       user: action.payload.user,
+      newConversationIdsCount: action.payload.newConversationIdsCount,
     }),
     /* eslint-disable no-param-reassign */
     updateUserProfilePic: (state, action: PayloadAction<string>) => {

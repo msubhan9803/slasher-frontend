@@ -834,4 +834,21 @@ describe('FeedPostsService', () => {
       expect(post.userId.toString()).toEqual(activeUser.id);
     });
   });
+
+  describe('#updateLastUpdateAt', () => {
+    let feedPost;
+    beforeEach(async () => {
+      feedPost = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: activeUser.id,
+        }),
+      );
+    });
+    it('finds the expected feed post and update the lastUpdateAt time', async () => {
+      const postBeforeUpdate = await feedPostsService.findById(feedPost.id, false);
+      const updatedPost = await feedPostsService.updateLastUpdateAt(feedPost.id);
+      const reloadedPost = await feedPostsService.findById(updatedPost.id, false);
+      expect(reloadedPost.lastUpdateAt > postBeforeUpdate.lastUpdateAt).toBeTruthy();
+    });
+  });
 });

@@ -66,8 +66,8 @@ export class FeedPostsService {
     feedPostQuery.push({ userId: new mongoose.Types.ObjectId(userId) });
     //remove postType query when we have support for postType.User
     feedPostQuery.push(
-    { postType: { $ne: PostType.MovieReview } },
-          { postType: { $ne: PostType.News } },
+      { postType: { $ne: PostType.MovieReview } },
+      { postType: { $ne: PostType.News } },
     );
     if (before) {
       const feedPost = await this.feedPostModel.findById(before).exec();
@@ -100,7 +100,7 @@ export class FeedPostsService {
     activeOnly: boolean,
     before?: mongoose.Types.ObjectId,
     requestingContextUserId?: string,
-    ): Promise<FeedPostDocument[]> {
+  ): Promise<FeedPostDocument[]> {
     const feedPostFindAllQuery: any = {};
     const feedPostQuery = [];
     feedPostQuery.push({ movieId: new mongoose.Types.ObjectId(movieId) });
@@ -343,13 +343,19 @@ export class FeedPostsService {
 
   async findFeedPost(userId: string, movieId: string) {
     const feedPost = await this.feedPostModel
-    .findOne({
-      $and: [
-        { userId: new mongoose.Types.ObjectId(userId) },
-        { movieId: new mongoose.Types.ObjectId(movieId) },
-        { is_deleted: FeedPostDeletionState.NotDeleted }],
-    })
-    .exec();
+      .findOne({
+        $and: [
+          { userId: new mongoose.Types.ObjectId(userId) },
+          { movieId: new mongoose.Types.ObjectId(movieId) },
+          { is_deleted: FeedPostDeletionState.NotDeleted }],
+      })
+      .exec();
     return feedPost;
+  }
+
+  async updateLastUpdateAt(id: string): Promise<FeedPostDocument> {
+    return this.feedPostModel
+      .findOneAndUpdate({ _id: id }, { $set: { lastUpdateAt: Date.now() } }, { new: true })
+      .exec();
   }
 }

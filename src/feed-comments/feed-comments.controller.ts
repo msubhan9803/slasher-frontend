@@ -195,13 +195,13 @@ export class FeedCommentsController {
         },
       );
     }
-
     const updatedComment = await this.feedCommentsService.updateFeedComment(params.feedCommentId, updateFeedCommentsDto);
+    await this.feedPostsService.updateLastUpdateAt(comment.feedPostId.toString());
+
     const mentionedUserIdsBeforeUpdate = extractUserMentionIdsFromMessage(comment.message);
     const mentionedUserIdsAfterUpdate = extractUserMentionIdsFromMessage(updatedComment?.message);
 
     await this.sendFeedCommentUpdateNotifications(user, updatedComment, mentionedUserIdsBeforeUpdate, mentionedUserIdsAfterUpdate);
-
     return pick(updatedComment, ['_id', 'feedPostId', 'message', 'userId', 'images']);
   }
 
@@ -373,11 +373,12 @@ export class FeedCommentsController {
     }
 
     const updatedReply = await this.feedCommentsService.updateFeedReply(params.feedReplyId, updateFeedReplyDto);
+    await this.feedPostsService.updateLastUpdateAt(reply.feedPostId.toString());
+
     const mentionedUserIdsBeforeUpdate = extractUserMentionIdsFromMessage(reply.message);
     const mentionedUserIdsAfterUpdate = extractUserMentionIdsFromMessage(updatedReply?.message);
 
     await this.sendFeedReplyUpdateNotifications(user, updatedReply, mentionedUserIdsBeforeUpdate, mentionedUserIdsAfterUpdate);
-
     return pick(updatedReply, ['_id', 'feedPostId', 'message', 'images', 'feedCommentId', 'userId']);
   }
 

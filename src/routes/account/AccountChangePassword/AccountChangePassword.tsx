@@ -13,8 +13,10 @@ import AccountHeader from '../AccountHeader';
 
 const StyledVisibilityButton = styled(CustomVisibilityButton)`
   top: 0.7px;
-  right: 1px;
+  right: 0;
   z-index: 9 !important;
+  margin-right: 0.7px;
+  width: 4rem;
 `;
 
 function AccountChangePassword() {
@@ -63,8 +65,8 @@ function AccountChangePassword() {
               <InputGroup>
                 <Form.Control
                   type={showNewPassword ? 'text' : 'password'}
-                  placeholder="New password rounded-2"
-                  className="my-3"
+                  placeholder="New password"
+                  className="my-3 rounded-2"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   autoComplete="new-password"
@@ -81,8 +83,8 @@ function AccountChangePassword() {
               <InputGroup className="position-relative">
                 <Form.Control
                   type={showConfirmPassword ? 'text' : 'password'}
-                  placeholder="Re-enter new password rounded-2"
-                  className="fs-5 my-4"
+                  placeholder="Re-enter new password"
+                  className="fs-5 my-4 rounded-2"
                   value={newPasswordConfirmation}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   aria-label="Re-enter new password"

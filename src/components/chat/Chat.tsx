@@ -96,7 +96,6 @@ function Chat({
           <div className="conversation-container">
             <ChatMessage messages={messages} messageLoading={messageLoading} />
           </div>
-
         </Card.Body>
         <ChatInput
           sendMessageClick={sendMessageClick}

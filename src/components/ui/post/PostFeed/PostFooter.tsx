@@ -60,7 +60,7 @@ function PostFooter({
               ) : (
                 <>
                   <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
-                  <span className="fs-3 d-none d-md-inline me-2">Like</span>
+                  <span className="fs-3 d-none d-md-inline d-lg-none d-xl-inline me-2">Like</span>
                 </>
               )}
             </Button>
@@ -90,13 +90,13 @@ function PostFooter({
             scroll={scrollWithOffset}
           >
             <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-            <span className="fs-3 d-none d-md-inline me-2">Comment</span>
+            <span className="fs-3 d-none d-md-inline d-lg-none d-xl-inline me-2">Comment</span>
             <StyleDot icon={solid('circle')} size="xs" className="py-1 me-2" />
             <span className="fs-3">{commentCount}</span>
           </HashLink>
         </Col>
         <Col xs={4} className={'text-end \'d-inline\'}'}>
-          <ShareLinkButton text textClass={postType === 'group-post' ? 'd-none d-md-inline d-lg-none d-xl-inline' : 'd-none d-md-inline'} />
+          <ShareLinkButton text textClass={postType === 'group-post' ? 'd-none d-md-inline d-lg-none d-xl-inline' : 'd-none d-md-inline d-lg-none d-xl-inline'} />
         </Col>
         <svg width="0" height="0">
           <linearGradient id="like-button-footer" x1="100%" y1="0%" x2="0%" y2="100%">

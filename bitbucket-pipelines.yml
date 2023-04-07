@@ -3,53 +3,53 @@ definitions:
     docker:
       memory: 2048
   steps:
-    # - step: &terraform-deploy
-    #     caches:
-    #       - docker
-    #     name: 'terraform plan and apply'
-    #     image: hashicorp/terraform:1.1.1
-    #     script:
-    #       - echo "Deploying infra"
-    #       - cd terraform
-    #       - export AWS_DEFAULT_REGION="us-east-1"
-    #       - terraform init
-    #       - terraform workspace select staging || terraform workspace new staging
-    #       - terraform version
-    #       - terraform validate
-    #       - terraform plan --var-file=env.tfvars/staging.tfvars
-    #       - terraform apply --var-file=env.tfvars/staging.tfvars -auto-approve
-    #     services:
-    #       - docker
+    - step: &terraform-deploy
+        caches:
+          - docker
+        name: 'terraform plan and apply'
+        image: hashicorp/terraform:1.1.1
+        script:
+          - echo "Deploying infra"
+          - cd terraform
+          - export AWS_DEFAULT_REGION="us-east-1"
+          - terraform init
+          - terraform workspace select staging || terraform workspace new staging
+          - terraform version
+          - terraform validate
+          - terraform plan --var-file=env.tfvars/staging.tfvars
+          - terraform apply --var-file=env.tfvars/staging.tfvars -auto-approve
+        services:
+          - docker
 
-    # - step: &build-and-push-web-new-docker-image-to-ecr
-    #     caches:
-    #       - docker
-    #     name: 'Build and push slasher-web new Docker image to ECR'
-    #     image: atlassian/pipelines-awscli
-    #     script:
-    #       - docker build --tag slasher-web-new-staging --file app.Dockerfile .
-    #       - pipe: atlassian/aws-ecr-push-image:1.4.2
-    #         variables:
-    #           IMAGE_NAME: "slasher-web-new-staging"
-    #           TAGS: "${BITBUCKET_BUILD_NUMBER}"
-    #           DEBUG: "true"
-    #     services:
-    #       - docker
+    - step: &build-and-push-web-new-docker-image-to-ecr
+        caches:
+          - docker
+        name: 'Build and push slasher-web new Docker image to ECR'
+        image: atlassian/pipelines-awscli
+        script:
+          - docker build --tag slasher-web-new-staging --file app.Dockerfile .
+          - pipe: atlassian/aws-ecr-push-image:1.4.2
+            variables:
+              IMAGE_NAME: "slasher-web-new-staging"
+              TAGS: "${BITBUCKET_BUILD_NUMBER}"
+              DEBUG: "true"
+        services:
+          - docker
 
-    # - step: &build-and-push-server-cron-docker-image-to-ecr
-    #     name: 'Build and push slasher-cron Docker image to ECR'
-    #     caches:
-    #       - docker
-    #     image: atlassian/pipelines-awscli
-    #     script:
-    #       - docker build --tag slasher-cron-staging --file cron.Dockerfile .
-    #       - pipe: atlassian/aws-ecr-push-image:1.4.2
-    #         variables:
-    #           IMAGE_NAME: "slasher-cron-staging"
-    #           TAGS: "${BITBUCKET_BUILD_NUMBER}"
-    #           DEBUG: "true"
-    #     services:
-    #       - docker
+    - step: &build-and-push-server-cron-docker-image-to-ecr
+        name: 'Build and push slasher-cron Docker image to ECR'
+        caches:
+          - docker
+        image: atlassian/pipelines-awscli
+        script:
+          - docker build --tag slasher-cron-staging --file cron.Dockerfile .
+          - pipe: atlassian/aws-ecr-push-image:1.4.2
+            variables:
+              IMAGE_NAME: "slasher-cron-staging"
+              TAGS: "${BITBUCKET_BUILD_NUMBER}"
+              DEBUG: "true"
+        services:
+          - docker
 
     - step: &ECS-deploy-web-new
         name: 'ECS deployment Slasher-Web new'
@@ -59,7 +59,7 @@ definitions:
         script:
           - AWS_REGION="us-east-1"
           - ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" | tr -d '"')
-          - IMAGE_URL="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/slasher-web-new-staging:1416"
+          - IMAGE_URL="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/slasher-web-new-staging:${BITBUCKET_BUILD_NUMBER}"
           - aws ecs describe-task-definition --task-definition slasher-web-new-task-defination-staging --query taskDefinition --region us-east-1 | jq '.containerDefinitions[0].image = "'$IMAGE_URL'" | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities) | del(.registeredAt) | del(.registeredBy)' > task-definition.json
           - cat task-definition.json
           - pipe: atlassian/aws-ecs-deploy:1.7.0
@@ -71,6 +71,7 @@ definitions:
               SERVICE_NAME: 'slasher-web-new-service-staging'
               TASK_DEFINITION: 'task-definition.json'
               FORCE_NEW_DEPLOYMENT: 'true'
+              WAIT: 'true'
         services:
           - docker
 
@@ -82,7 +83,7 @@ definitions:
         script:
           - AWS_REGION="us-east-1"
           - ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" | tr -d '"')
-          - IMAGE_URL="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/slasher-cron-staging:1416"
+          - IMAGE_URL="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/slasher-cron-staging:${BITBUCKET_BUILD_NUMBER}"
           - aws ecs describe-task-definition --task-definition slasher-cron-task-defination-staging --query taskDefinition --region us-east-1 | jq '.containerDefinitions[0].image = "'$IMAGE_URL'" | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities) | del(.registeredAt) | del(.registeredBy)' > task-definition.json
           - pipe: atlassian/aws-ecs-deploy:1.7.0
             variables:
@@ -93,14 +94,15 @@ definitions:
               SERVICE_NAME: 'slasher-cron-service-staging'
               TASK_DEFINITION: 'task-definition.json'
               FORCE_NEW_DEPLOYMENT: 'true'
+              WAIT: 'true'
         services:
           - docker
 
 pipelines:
   branches:
     service-infra-setup:
-    # - step: *terraform-deploy
-    # - step: *build-and-push-web-new-docker-image-to-ecr
-    # - step: *build-and-push-server-cron-docker-image-to-ecr
+    - step: *terraform-deploy
+    - step: *build-and-push-web-new-docker-image-to-ecr
+    - step: *build-and-push-server-cron-docker-image-to-ecr
     - step: *ECS-deploy-web-new
     - step: *ECS-deploy-cron

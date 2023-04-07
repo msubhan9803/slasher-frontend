@@ -3,9 +3,6 @@ image: atlassian/default-image:3
 definitions:
   services:
     docker:
-      # Below, increase the default available docker memory to speed up docker apps.
-      # Note: Whatever amount is allocated here will be deducted from the amount of memory allocated
-      # to the main process. 4096 MB is the total available amount for a default "1x" pipeline instance.
       memory: 2048
   steps:
     - step: &terraform-deploy
@@ -13,16 +10,16 @@ definitions:
           - docker
         name: 'terraform plan and apply'
         image: hashicorp/terraform:full
-          script:
-            - echo "Deploying infra"
-            - cd terraform
-            - export AWS_DEFAULT_REGION="us-east-1"
-            - terraform init
-            - terraform workspace select staging || terraform workspace new staging
-            - terraform version
-            - terraform validate
-            - terraform plan --var-file=env.tfvars/staging.tfvars
-            - terraform apply --var-file=env.tfvars/staging.tfvars -auto-approve
+        script:
+          - echo "Deploying infra"
+          - cd terraform
+          - export AWS_DEFAULT_REGION="us-east-1"
+          - terraform init
+          - terraform workspace select staging || terraform workspace new staging
+          - terraform version
+          - terraform validate
+          - terraform plan --var-file=env.tfvars/staging.tfvars
+          - terraform apply --var-file=env.tfvars/staging.tfvars -auto-approve
         services:
           - docker
 

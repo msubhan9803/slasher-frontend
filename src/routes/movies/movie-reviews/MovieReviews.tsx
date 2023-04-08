@@ -410,7 +410,6 @@ function MovieReviews({ movieData, setMovieData }: Props) {
         dropDownValue === 'Delete'
         && (
           <ReportModal
-            deleteText="Are you sure you want to delete this post?"
             onConfirmClick={deletePostClick}
             show={show}
             setShow={setShow}

@@ -19,6 +19,10 @@ function HeaderLogo({ logo, height }: Props) {
   return <StyledLogoImage height={height!} src={logo!} alt="Slasher logo" />;
 }
 
+export function HeaderLogo2({ logo, height, style }: any) {
+  return <StyledLogoImage height={height!} style={style} src={logo!} alt="Slasher logo" />;
+}
+
 HeaderLogo.defaultProps = {
   logo: slasherLogo,
   height: '5rem',

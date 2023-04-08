@@ -15,11 +15,12 @@ import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { signOut } from '../../../../utils/session-utils';
 import { SocketContext } from '../../../../context/socket';
 import { LG_MEDIA_BREAKPOINT, analyticsId, MAIN_CONTENT_ID } from '../../../../constants';
-import LoadingIndicator from '../../../ui/LoadingIndicator';
 import useGoogleAnalytics from '../../../../hooks/useGoogleAnalytics';
 import SkipToMainContent from '../../sidebar-nav/SkipToMainContent';
 import { setRemoteConstantsData } from '../../../../redux/slices/remoteConstantsSlice';
 import { fetchRemoteConstants } from '../../../../api/remote-constants';
+import { HeaderLogo2 } from '../../../ui/HeaderLogo';
+import slasherLogo from '../../../../images/slasher-logo-medium.png';
 
 interface Props {
   children: React.ReactNode;
@@ -124,8 +125,17 @@ function AuthenticatedPageWrapper({ children }: Props) {
     return () => { };
   }, [onNotificationReceivedHandler, onUnreadMessageCountUpdate, socket]);
 
-  if (!token || !userData.user) {
-    return <LoadingIndicator />;
+  if (!token || !userData.user.id) {
+    return (
+      <HeaderLogo2
+        logo={slasherLogo}
+        height="6.5rem"
+        style={{
+          marginTop: '42vh',
+          marginLeft: '43vw',
+        }}
+      />
+    );
   }
   return (
     <div className="page-wrapper full">

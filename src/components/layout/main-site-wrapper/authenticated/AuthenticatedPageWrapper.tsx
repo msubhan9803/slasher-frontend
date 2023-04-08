@@ -19,8 +19,8 @@ import useGoogleAnalytics from '../../../../hooks/useGoogleAnalytics';
 import SkipToMainContent from '../../sidebar-nav/SkipToMainContent';
 import { setRemoteConstantsData } from '../../../../redux/slices/remoteConstantsSlice';
 import { fetchRemoteConstants } from '../../../../api/remote-constants';
-import { HeaderLogo2 } from '../../../ui/HeaderLogo';
 import slasherLogo from '../../../../images/slasher-logo-medium.png';
+import HeaderLogo from '../../../ui/HeaderLogo';
 
 interface Props {
   children: React.ReactNode;
@@ -127,14 +127,13 @@ function AuthenticatedPageWrapper({ children }: Props) {
 
   if (!token || !userData.user.id) {
     return (
-      <HeaderLogo2
-        logo={slasherLogo}
-        height="6.5rem"
-        style={{
-          marginTop: '42vh',
-          marginLeft: '43vw',
-        }}
-      />
+      <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+        <HeaderLogo
+          logo={slasherLogo}
+          height="6.5rem"
+        />
+      </div>
+
     );
   }
   return (

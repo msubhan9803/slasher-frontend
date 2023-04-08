@@ -2,15 +2,13 @@ import { Modal } from 'react-bootstrap';
 import styled, { css } from 'styled-components';
 import closeIcon from '../../images/x-circle.svg';
 
-// Usage Tip: You can pass prop `$modalContentWidth` to provide have custom width
-// for the modal content. For example refer: src/routes/movies/components/MoviesModal.tsx
 const CustomModal = styled(Modal)`
   .modal-content {
     // border: 1px solid var(--bs-black);
     box-shadow: 0 0 0 1px var(--bs-dark);
     background-color: var(--bs-black);
-    ${(props) => props.$modalContentWidth && css`
-      width: ${props.$modalContentWidth}px;
+    ${(props) => (props.$widthMarginAuto) && css`
+      width: auto;
       margin: auto;
     `}
   }

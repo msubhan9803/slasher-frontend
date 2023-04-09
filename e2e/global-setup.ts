@@ -17,6 +17,9 @@ async function globalSetup(config: FullConfig) {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
 
+  // Increase navigation timeout to support slow systems.
+  page.context().setDefaultNavigationTimeout(180_000); // Default = 10_000
+
   await performSignIn(page, baseURL!);
 
   // Wait a moment for sign-in to finish, otherwise storageState

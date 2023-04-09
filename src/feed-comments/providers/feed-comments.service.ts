@@ -33,9 +33,14 @@ export class FeedCommentsService {
   }
 
   async deleteFeedComment(feedCommentId: string): Promise<void> {
-    await this.feedCommentModel
-      .updateOne({ _id: feedCommentId }, { $set: { is_deleted: FeedCommentDeletionState.Deleted } }, { new: true })
-      .exec();
+    await Promise.all([
+      this.feedCommentModel
+        .updateOne({ _id: feedCommentId }, { $set: { is_deleted: FeedCommentDeletionState.Deleted } }, { new: true })
+        .exec(),
+      this.feedReplyModel
+        .updateMany({ feedCommentId }, { $set: { deleted: FeedReplyDeletionState.Deleted } })
+        .exec(),
+    ]);
     const getFeedPostData = await this.findFeedComment(feedCommentId);
     await this.feedPostService.decrementCommentCount(getFeedPostData.feedPostId.toString());
   }

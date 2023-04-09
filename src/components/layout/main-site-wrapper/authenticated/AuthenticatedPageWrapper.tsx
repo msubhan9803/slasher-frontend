@@ -90,7 +90,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
       });
     }
 
-    if (userData.user.userName === '') {
+    if (userData.user?.userName === '') {
       userInitialData().then((res) => {
         dispatch(setUserInitialData(res.data));
       }).catch((err) => {
@@ -99,7 +99,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
         }
       });
     }
-  }, [dispatch, navigate, pathname, userData.user.userName, remoteConstantsData.loaded, token]);
+  }, [dispatch, navigate, pathname, userData.user?.userName, remoteConstantsData.loaded, token]);
 
   useCallback(() => {
     dispatch(setUserInitialData(userData));
@@ -125,7 +125,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
     return () => { };
   }, [onNotificationReceivedHandler, onUnreadMessageCountUpdate, socket]);
 
-  if (!token || !userData.user.id) {
+  if (!token || !userData.user?.id) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
         <HeaderLogo
@@ -140,7 +140,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
     <div className="page-wrapper full">
       <SkipToMainContent />
       <AuthenticatedPageHeader
-        userName={userData.user.userName}
+        userName={userData.user?.userName}
         onToggleClick={showOffcanvasSidebar}
         offcanvasSidebarExpandBreakPoint={desktopBreakPoint}
         ariaToggleTargetId={offcanvasId}

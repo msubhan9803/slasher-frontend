@@ -151,6 +151,12 @@ export class ChatGateway {
   @SubscribeMessage('clearNewConversationIds')
   async clearConverstionIds(@ConnectedSocket() client: Socket): Promise<any> {
     const user = await this.usersService.findBySocketId(client.id);
+    if (!user) {
+      // If the user severs the socket connection in the middle of message handling, then we will
+      // not find a user associated with the socket id, and that also means that there's no one to
+      // send a message back to.  So we can return an empty object.
+      return {};
+    }
     const userId = user._id.toString();
     const clearNewConversationIds = await this.usersService.clearConverstionIds(userId);
     return { newConversationIds: clearNewConversationIds.newConversationIds };

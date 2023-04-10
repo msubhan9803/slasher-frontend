@@ -20,6 +20,7 @@ import CustomWortItText from './CustomWortItText';
 import { StyledBorder } from './StyledBorder';
 import WorthWatchIcon from '../../routes/movies/components/WorthWatchIcon';
 import { MovieData, WorthWatchingStatus } from '../../types';
+import { DescriptionArray } from '../../routes/posts/create-post/CreatePost';
 
 interface MentionProps {
   id: string;
@@ -61,8 +62,8 @@ interface Props {
   setDisLike?: (val: boolean) => void;
   isWorthIt?: number;
   placeHolder?: string;
-  descriptionArray?: string[];
-  setDescriptionArray?: (value: string[]) => void;
+  descriptionArray?: DescriptionArray[];
+  setDescriptionArray?: (value: DescriptionArray[]) => void;
   isEditingCommentOrReply?: boolean;
 }
 
@@ -114,7 +115,7 @@ function CreatePostComponent({
           const image = postImage.target.files[list];
           uploadedPostList.push(image);
           imageArrayList.push(postImage.target.files[list]);
-          descriptionArray?.push('');
+          descriptionArray?.push({description: ""})
         }
       }
       setUploadPost(uploadedPostList);
@@ -132,41 +133,36 @@ function CreatePostComponent({
 
   const onChangeDescription = (newValue: string, index: number) => {
     // debugger
-    const descriptionArrayList = [...descriptionArray!];
-    descriptionArrayList![index] = newValue;
-    setDescriptionArray!([...descriptionArrayList!]);
-  };
+    const descriptionArrayList = [...descriptionArray!]
+    descriptionArrayList[index].description = newValue;
+    setDescriptionArray!([...descriptionArrayList!])
+  }
 
   const setAltTextValue = (index: number) => {
-    const altText = descriptionArray![index];
-    return altText;
-  };
+    debugger
+    const altText = descriptionArray![index]?.description
+    return altText
+  }
 
   useEffect(() => {
     // debugger
 
-    const descriptionArrayList: string[] = [];
-    if (imageArray) {
-      imageArray.map((postImage: any) => {
-        if (postImage.description) {
-          descriptionArrayList.push(postImage?.description);
-        } else {
-          descriptionArrayList.push('');
-        }
-        return null;
-      });
-      setDescriptionArray!([...descriptionArrayList]);
-    }
-  }, [imageArray, setDescriptionArray]);
+     const descriptionArrayList: DescriptionArray[] = []
+     if (imageArray) {
+       imageArray.map((postImage: any) => {
+         if (postImage.description) {
+          debugger
+          console.log(":postImage?.description=>>", postImage?.description)
+           descriptionArrayList.push({description:postImage?.description, id:postImage?._id})
+          } else {
+            descriptionArrayList.push({description: ""})
+          }
+        })
+        setDescriptionArray!([...descriptionArrayList]);
+     }
+   
+  }, [])
 
-  let actionText;
-  if (postType === 'review') {
-    actionText = 'Submit';
-  } else if (isEditingCommentOrReply) {
-    actionText = 'Save';
-  } else {
-    actionText = 'Post';
-  }
 
   return (
     <div className={postType === 'review' ? 'bg-dark mb-3 px-4 py-4 rounded-2' : ''}>

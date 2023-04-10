@@ -24,10 +24,15 @@ export interface FormatMentionProps {
   format: string;
 }
 
+export interface DescriptionArray {
+  description: string;
+  id?: string;
+}
+
 function CreatePost() {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [imageArray, setImageArray] = useState<any>([]);
-  const [descriptionArray, setDescriptionArray] = useState<string[]>([]);
+  const [descriptionArray, setDescriptionArray] = useState<DescriptionArray[]>([]);
   const [postContent, setPostContent] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const loggedInUser = useAppSelector((state) => state.user.user);

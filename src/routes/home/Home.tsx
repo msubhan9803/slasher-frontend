@@ -212,8 +212,12 @@ function Home() {
     });
   };
 
-  const onUpdatePost = (message: string, images: string[],
-    imageDelete: string[] | undefined, descriptionArray?: string[]) => {
+  const onUpdatePost = (
+    message: string,
+    images: string[],
+    imageDelete: string[] | undefined,
+    descriptionArray?: string[],
+  ) => {
     updateFeedPost(postId, message, images, imageDelete, null, descriptionArray)
       .then((res) => {
         setShow(false);

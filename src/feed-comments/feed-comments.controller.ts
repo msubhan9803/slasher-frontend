@@ -111,7 +111,7 @@ export class FeedCommentsController {
         this.localStorageService.write(storageLocation, file);
       }
       // eslint-disable-next-line max-len
-      const imageDescriptions = createFeedCommentsDto.imageDescriptions[index] === '' ? null : createFeedCommentsDto.imageDescriptions[index];
+      const imageDescriptions = createFeedCommentsDto.imageDescriptions[index].description === '' ? null : createFeedCommentsDto.imageDescriptions[index].description;
       images.push({ image_path: storageLocation, description: imageDescriptions });
     }
 
@@ -183,11 +183,29 @@ export class FeedCommentsController {
       imagesToKeep = comment.images.filter((image) => !updateFeedCommentsDto.imagesToDelete.includes((image as any)._id.toString()));
     }
 
-    if (files && files.length && files?.length !== updateFeedCommentsDto.imageDescriptions?.length) {
+    let oldImagesDescription;
+    let newImagesDescription;
+    if (updateFeedCommentsDto.imageDescriptions) {
+      oldImagesDescription = updateFeedCommentsDto.imageDescriptions.filter((item) => item._id);
+      newImagesDescription = updateFeedCommentsDto.imageDescriptions.filter((item) => !item._id);
+    }
+
+    if (files && files.length && files?.length !== newImagesDescription?.length) {
       throw new HttpException(
         'files length and imagesDescriptions length should be same',
         HttpStatus.BAD_REQUEST,
       );
+    }
+
+    if (oldImagesDescription && oldImagesDescription.length) {
+      comment.images.map((image) => {
+        const matchingDesc = oldImagesDescription.find((desc) => desc._id === (image as any)._id.toString());
+        if (matchingDesc) {
+          // eslint-disable-next-line no-param-reassign
+          image.description = matchingDesc.description;
+        }
+        return image;
+      });
     }
 
     const images = [];
@@ -199,7 +217,7 @@ export class FeedCommentsController {
         this.localStorageService.write(storageLocation, file);
       }
       // eslint-disable-next-line max-len
-      const imageDescriptions = updateFeedCommentsDto.imageDescriptions[index] === '' ? null : updateFeedCommentsDto.imageDescriptions[index];
+      const imageDescriptions = newImagesDescription[index]?.description === '' ? null : newImagesDescription[index]?.description;
       images.push({ image_path: storageLocation, description: imageDescriptions });
     }
     if (newCommentImages || imagesToDelete) {
@@ -307,7 +325,8 @@ export class FeedCommentsController {
       } else {
         this.localStorageService.write(storageLocation, file);
       }
-      const imageDescriptions = createFeedReplyDto.imageDescriptions[index] === '' ? null : createFeedReplyDto.imageDescriptions[index];
+      const { description } = createFeedReplyDto.imageDescriptions[index];
+      const imageDescriptions = description === '' ? null : description;
       images.push({ image_path: storageLocation, description: imageDescriptions });
     }
 
@@ -380,11 +399,29 @@ export class FeedCommentsController {
       imagesToKeep = reply.images.filter((image) => !updateFeedReplyDto.imagesToDelete.includes((image as any)._id.toString()));
     }
 
-    if (files && files.length && files?.length !== updateFeedReplyDto.imageDescriptions?.length) {
+    let oldImagesDescription;
+    let newImagesDescription;
+    if (updateFeedReplyDto.imageDescriptions) {
+      oldImagesDescription = updateFeedReplyDto.imageDescriptions.filter((item) => item._id);
+      newImagesDescription = updateFeedReplyDto.imageDescriptions.filter((item) => !item._id);
+    }
+
+    if (files && files.length && files?.length !== newImagesDescription?.length) {
       throw new HttpException(
         'files length and imagesDescriptions length should be same',
         HttpStatus.BAD_REQUEST,
       );
+    }
+
+    if (oldImagesDescription && oldImagesDescription.length) {
+      reply.images.map((image) => {
+        const matchingDesc = oldImagesDescription.find((desc) => desc._id === (image as any)._id.toString());
+        if (matchingDesc) {
+          // eslint-disable-next-line no-param-reassign
+          image.description = matchingDesc.description;
+        }
+        return image;
+      });
     }
 
     const images = [];
@@ -395,7 +432,7 @@ export class FeedCommentsController {
       } else {
         this.localStorageService.write(storageLocation, file);
       }
-      const imageDescriptions = updateFeedReplyDto.imageDescriptions[index] === '' ? null : updateFeedReplyDto.imageDescriptions[index];
+      const imageDescriptions = newImagesDescription[index].description === '' ? null : newImagesDescription[index].description;
       images.push({ image_path: storageLocation, description: imageDescriptions });
     }
 

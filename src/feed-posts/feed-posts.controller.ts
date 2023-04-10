@@ -96,7 +96,8 @@ export class FeedPostsController {
       } else {
         this.localStorageService.write(storageLocation, file);
       }
-      const imageDescriptions = createFeedPostsDto?.imageDescriptions[index] === '' ? null : createFeedPostsDto?.imageDescriptions[index];
+      const description = createFeedPostsDto?.imageDescriptions[index].description;
+      const imageDescriptions = description === '' ? null : description;
       images.push({ image_path: storageLocation, description: imageDescriptions });
     }
 
@@ -288,11 +289,29 @@ export class FeedPostsController {
       imagesToKeep = feedPost.images.filter((image) => !updateFeedPostsDto.imagesToDelete.includes((image as any)._id.toString()));
     }
 
-    if (files && files.length && files?.length !== updateFeedPostsDto.imageDescriptions?.length) {
+    let oldImagesDescription;
+    let newImagesDescription;
+    if (updateFeedPostsDto.imageDescriptions) {
+      oldImagesDescription = updateFeedPostsDto.imageDescriptions.filter((item) => item._id);
+      newImagesDescription = updateFeedPostsDto.imageDescriptions.filter((item) => !item._id);
+    }
+
+    if (files && files.length && files?.length !== newImagesDescription?.length) {
       throw new HttpException(
         'files length and imagesDescriptions length should be same',
         HttpStatus.BAD_REQUEST,
       );
+    }
+
+    if (oldImagesDescription && oldImagesDescription.length) {
+      feedPost.images.map((image) => {
+        const matchingDesc = oldImagesDescription.find((desc) => desc._id === (image as any)._id.toString());
+        if (matchingDesc) {
+          // eslint-disable-next-line no-param-reassign
+          image.description = matchingDesc.description;
+        }
+        return image;
+      });
     }
 
     const images = [];
@@ -303,7 +322,7 @@ export class FeedPostsController {
       } else {
         this.localStorageService.write(storageLocation, file);
       }
-      const imageDescriptions = updateFeedPostsDto.imageDescriptions[index] === '' ? null : updateFeedPostsDto.imageDescriptions[index];
+      const imageDescriptions = newImagesDescription[index]?.description === '' ? null : newImagesDescription[index]?.description;
       images.push({ image_path: storageLocation, description: imageDescriptions });
     }
 
@@ -346,7 +365,6 @@ export class FeedPostsController {
       }
       await Promise.all(ratingPromises);
     }
-
     const updatedFeedPost = await this.feedPostsService.update(param.id, updateFeedPostsDto);
     const mentionedUserIdsBeforeUpdate = extractUserMentionIdsFromMessage(feedPost.message);
     const mentionedUserIdsAfterUpdate = extractUserMentionIdsFromMessage(updateFeedPostsDto?.message);

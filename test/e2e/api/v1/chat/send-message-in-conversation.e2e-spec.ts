@@ -88,9 +88,9 @@ describe('Send Message In Conversation / (e2e)', () => {
             .attach('files', tempPath[0])
             .attach('files', tempPath[1])
             .attach('files', tempPath[2])
-            .field('imageDescriptions', 'this is chat description 1')
-            .field('imageDescriptions', 'this is chat description 2')
-            .field('imageDescriptions', 'this is chat description 3');
+            .field('imageDescriptions[0][description]', 'this is chat description 1')
+            .field('imageDescriptions[1][description]', 'this is chat description 2')
+            .field('imageDescriptions[2][description]', 'this is chat description 3');
           const expectedImageValueMatcher = expect.stringMatching(/\/chat\/chat.+\.png|jpe?g|gif/);
           expect(response.body).toEqual(
             {
@@ -265,7 +265,7 @@ describe('Send Message In Conversation / (e2e)', () => {
             .field('message', 'hello test user')
             .attach('files', tempPaths[0])
             .attach('files', tempPaths[1])
-            .field('imageDescriptions', 'this is create feed comments description 2');
+            .field('imageDescriptions[0][description]', 'this is create feed comments description 2');
           expect(response.body).toEqual({
             statusCode: 400,
             message: 'files length and imagesDescriptions length should be same',
@@ -281,7 +281,7 @@ describe('Send Message In Conversation / (e2e)', () => {
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .attach('files', tempPath[0])
-            .field('imageDescriptions', '');
+            .field('imageDescriptions[0][description]', '');
           const expectedImageValueMatcher = expect.stringMatching(/\/chat\/chat.+\.png|jpe?g|gif/);
           expect(response.body).toEqual(
             {
@@ -304,6 +304,27 @@ describe('Send Message In Conversation / (e2e)', () => {
             },
           );
         }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpeg' }, { extension: 'gif' }]);
+      });
+
+      it('cannot add more than 10 description on post', async () => {
+        const matchListId = message1.matchId._id;
+        const response = await request(app.getHttpServer())
+          .post(`/api/v1/chat/conversation/${matchListId}/message`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('imageDescriptions[0][description]', 'this is create feed post description 0')
+          .field('imageDescriptions[1][description]', 'this is create feed post description 1')
+          .field('imageDescriptions[2][description]', 'this is create feed post description 2')
+          .field('imageDescriptions[3][description]', 'this is create feed post description 3')
+          .field('imageDescriptions[4][description]', 'this is create feed post description 4')
+          .field('imageDescriptions[5][description]', 'this is create feed post description 5')
+          .field('imageDescriptions[6][description]', 'this is create feed post description 6')
+          .field('imageDescriptions[7][description]', 'this is create feed post description 7')
+          .field('imageDescriptions[8][description]', 'this is create feed post description 8')
+          .field('imageDescriptions[9][description]', 'this is create feed post description 9')
+          .field('imageDescriptions[10][description]', 'this is create feed post description 10');
+        expect(response.body.statusCode).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('Only allow maximum of 10 description');
       });
     });
 

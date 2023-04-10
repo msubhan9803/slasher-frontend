@@ -201,8 +201,8 @@ describe('Update Feed Post (e2e)', () => {
           .field('imagesToDelete', (feedPost.images[0] as any).id)
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1])
-          .field('imageDescriptions', 'this is update post description 0')
-          .field('imageDescriptions', 'this is update post description 1');
+          .field('imageDescriptions[0][description]', 'this is update post description 0')
+          .field('imageDescriptions[1][description]', 'this is update post description 1');
         const feedPostDetails = await feedPostsService.findById(response.body._id, true);
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -243,8 +243,8 @@ describe('Update Feed Post (e2e)', () => {
           .field('message', 'hello test user')
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1])
-          .field('imageDescriptions', 'this is update post description 0')
-          .field('imageDescriptions', 'this is update post description 1');
+          .field('imageDescriptions[0][description]', 'this is update post description 0')
+          .field('imageDescriptions[1][description]', 'this is update post description 1');
         const feedPostDetails = await feedPostsService.findById(response.body._id, true);
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -473,8 +473,8 @@ describe('Update Feed Post (e2e)', () => {
           .field('moviePostFields[spoilers]', true)
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1])
-          .field('imageDescriptions', 'this is update post description 0')
-          .field('imageDescriptions', 'this is update post description 1');
+          .field('imageDescriptions[0][description]', 'this is update post description 0')
+          .field('imageDescriptions[1][description]', 'this is update post description 1');
         expect(response.body).toEqual({
           statusCode: 400,
           message: 'When submitting moviePostFields, post type must be MovieReview.',
@@ -505,8 +505,8 @@ describe('Update Feed Post (e2e)', () => {
           .field('moviePostFields[spoilers]', true)
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1])
-          .field('imageDescriptions', 'this is update post description 0')
-          .field('imageDescriptions', 'this is update post description 1');
+          .field('imageDescriptions[0][description]', 'this is update post description 0')
+          .field('imageDescriptions[1][description]', 'this is update post description 1');
         const post = await feedPostsService.findById(response.body._id, true);
         expect(post.spoilers).toBe(true);
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
@@ -534,8 +534,8 @@ describe('Update Feed Post (e2e)', () => {
           .field('moviePostFields[spoilers]', true)
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1])
-          .field('imageDescriptions', 'this is update post description 0')
-          .field('imageDescriptions', 'this is update post description 1');
+          .field('imageDescriptions[0][description]', 'this is update post description 0')
+          .field('imageDescriptions[1][description]', 'this is update post description 1');
         expect(response.body).toEqual({
           statusCode: 400,
           message: 'When submitting moviePostFields, movieId is required.',
@@ -622,7 +622,7 @@ describe('Update Feed Post (e2e)', () => {
           .field('message', 'hello test user')
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1])
-          .field('imageDescriptions', 'this is create feed comments description 2');
+          .field('imageDescriptions[1][description]', 'this is create feed comments description 2');
         expect(response.body).toEqual({
           statusCode: 400,
           message: 'files length and imagesDescriptions length should be same',
@@ -642,31 +642,51 @@ describe('Update Feed Post (e2e)', () => {
           .set('Content-Type', 'multipart/form-data')
           .field('message', sampleFeedPostObject.message)
           .attach('files', tempPaths[0])
-          .field('imageDescriptions', '');
-          expect(response.body).toEqual({
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            message: 'hello all test user upload your feed post',
-            userId: activeUser._id.toString(),
-            images: [
-              {
-                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
-                description: null,
-                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-              },
-              {
-                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
-                description: 'this is test description',
-                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-              },
-              {
-                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
-                description: 'this is test description',
-                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-              },
-            ],
-            spoilers: false,
-          });
+          .field('imageDescriptions[0][description]', '');
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'hello all test user upload your feed post',
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              description: null,
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              description: 'this is test description',
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              description: 'this is test description',
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+          spoilers: false,
+        });
       }, [{ extension: 'png' }]);
+    });
+
+    it('cannot add more than 10 description on post', async () => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-posts/${feedPost._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('imageDescriptions[0][description]', 'this is update feeed post description 0')
+          .field('imageDescriptions[1][description]', 'this is update feeed post description 1')
+          .field('imageDescriptions[2][description]', 'this is update feeed post description 2')
+          .field('imageDescriptions[3][description]', 'this is update feeed post description 3')
+          .field('imageDescriptions[4][description]', 'this is update feeed post description 4')
+          .field('imageDescriptions[5][description]', 'this is update feeed post description 5')
+          .field('imageDescriptions[6][description]', 'this is update feeed post description 6')
+          .field('imageDescriptions[7][description]', 'this is update feeed post description 7')
+          .field('imageDescriptions[8][description]', 'this is update feeed post description 8')
+          .field('imageDescriptions[9][description]', 'this is update feeed post description 9')
+          .field('imageDescriptions[10][description]', 'this is update feeed post description 10');
+        expect(response.body.statusCode).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('Only allow maximum of 10 description');
     });
   });
 

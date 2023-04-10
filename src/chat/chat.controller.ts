@@ -167,7 +167,8 @@ export class ChatController {
       } else {
         this.localStorageService.write(storageLocation, file);
       }
-      const imageDescription = messageDto.imageDescriptions[index] === '' ? null : messageDto.imageDescriptions[index];
+      const description = messageDto?.imageDescriptions[index].description;
+      const imageDescription = description === '' ? null : description;
       images.push({ image_path: storageLocation, description: imageDescription });
     }
 

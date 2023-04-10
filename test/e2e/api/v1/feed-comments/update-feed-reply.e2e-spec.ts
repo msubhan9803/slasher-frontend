@@ -279,8 +279,8 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
           .field('imagesToDelete', (feedReply.images[0] as any).id)
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1])
-          .field('imageDescriptions', 'this is update feed reply description 1')
-          .field('imageDescriptions', 'this is update feed reply description 2');
+          .field('imageDescriptions[0][description]', 'this is update feed reply description 1')
+          .field('imageDescriptions[1][description]', 'this is update feed reply description 2');
         const feedReplyData = await feedCommentsService.findFeedReply(response.body._id);
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -322,8 +322,8 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
           .field('message', 'hello test user')
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1])
-          .field('imageDescriptions', 'this is update feed reply description 1')
-          .field('imageDescriptions', 'this is update feed reply description 2');
+          .field('imageDescriptions[0][description]', 'this is update feed reply description 1')
+          .field('imageDescriptions[1][description]', 'this is update feed reply description 2');
         const feedReplyData = await feedCommentsService.findFeedReply(response.body._id);
 
         expect(response.body).toEqual({
@@ -590,7 +590,7 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
           .field('feedPostId', feedPost._id.toString())
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1])
-          .field('imageDescriptions', 'this is create feed comments description 2');
+          .field('imageDescriptions[0][description]', 'this is create feed comments description 2');
         expect(response.body).toEqual({
           statusCode: 400,
           message: 'files length and imagesDescriptions length should be same',
@@ -609,7 +609,7 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .field('message', sampleFeedCommentsObject.message)
           .attach('files', tempPaths[0])
-          .field('imageDescriptions', '');
+          .field('imageDescriptions[0][description]', '');
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           feedPostId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -635,6 +635,20 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
           userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
         });
       }, [{ extension: 'png' }]);
+    });
+
+    it('cannot add more than 4 description on reply', async () => {
+      const response = await request(app.getHttpServer())
+        .patch(`/api/v1/feed-comments/replies/${feedReply._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('imageDescriptions[0][description]', 'this is update feed reply description 0')
+        .field('imageDescriptions[1][description]', 'this is update feed reply description 1')
+        .field('imageDescriptions[2][description]', 'this is update feed reply description 2')
+        .field('imageDescriptions[3][description]', 'this is update feed reply description 3')
+        .field('imageDescriptions[4][description]', 'this is update feed reply description 4');
+      expect(response.body.statusCode).toEqual(HttpStatus.BAD_REQUEST);
+      expect(response.body.message).toContain('Only allow maximum of 4 description');
     });
 
     describe('Validation', () => {

@@ -1,8 +1,9 @@
-import { Transform, TransformFnParams } from 'class-transformer';
+import { Transform, TransformFnParams, Type } from 'class-transformer';
 import {
- ArrayMaxSize, IsOptional, IsString, MaxLength,
+  ArrayMaxSize, IsOptional, MaxLength, ValidateNested,
 } from 'class-validator';
 import { MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT } from '../../constants';
+import { UpdateImageDescriptionsDto } from '../../feed-posts/dto/update-feed-posts.dto';
 
 export class UpdateFeedCommentsDto {
   @IsOptional()
@@ -16,8 +17,10 @@ export class UpdateFeedCommentsDto {
 
   @IsOptional()
   @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
-  @ArrayMaxSize(MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT)
-  @MaxLength(250, { each: true }) // set maximum length of each string inside the array
-  @IsString({ each: true })
-  imageDescriptions: string[];
+  @ArrayMaxSize(MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, {
+    message: `Only allow maximum of ${MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT} description`,
+  })
+  @Type(() => UpdateImageDescriptionsDto)
+  @ValidateNested({ each: true })
+  imageDescriptions: UpdateImageDescriptionsDto[];
 }

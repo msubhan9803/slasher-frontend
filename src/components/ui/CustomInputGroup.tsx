@@ -11,6 +11,7 @@ const StyledInputGroup = styled(InputGroup)`
   .passowrd {
     right: 0.5px;
     padding: 11px 14px;
+    width: 4rem;
   }
   .btn {
     background-color: rgb(31, 31, 31);
@@ -62,7 +63,7 @@ function CustomInputGroup({
       />
       {password && (
         <Button
-          className="addon passowrd fs-5 text-light border-0 position-absolute shadow-none"
+          className="addon passowrd fs-5 text-light border-0 position-absolute"
           onClick={passwordVisiblility}
         >
           {showPassword ? 'Hide' : 'Show'}

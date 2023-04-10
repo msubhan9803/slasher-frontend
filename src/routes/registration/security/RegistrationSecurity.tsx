@@ -100,11 +100,11 @@ function RegistrationSecurity({ activeStep }: Props) {
                     aria-label="Password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Password"
-                    className="border-end-0"
+                    className="rounded-2"
                     value={securityInfo.password}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'password')}
                   />
-                  <CustomVisibilityButton className="fs-5 fw-normal text-light border border-start-0 shadow-none" onClick={() => setShowPassword(!showPassword)}>
+                  <CustomVisibilityButton className="fw-normal text-light position-absolute border-0" onClick={() => setShowPassword(!showPassword)}>
                     {showPassword ? 'Hide' : 'Show'}
                   </CustomVisibilityButton>
                 </InputGroup>
@@ -117,9 +117,9 @@ function RegistrationSecurity({ activeStep }: Props) {
                     onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'passwordConfirmation')}
                     type={showConfirmPassword ? 'text' : 'password'}
                     placeholder="Confirm Password"
-                    className="border-end-0"
+                    className="rounded"
                   />
-                  <CustomVisibilityButton className="fs-5 fw-normal text-light border border-start-0 shadow-none" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                  <CustomVisibilityButton className="fw-normal text-light position-absolute border-0" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                     {showConfirmPassword ? 'Hide' : 'Show'}
                   </CustomVisibilityButton>
                 </InputGroup>

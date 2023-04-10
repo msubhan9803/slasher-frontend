@@ -15,11 +15,12 @@ import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { signOut } from '../../../../utils/session-utils';
 import { SocketContext } from '../../../../context/socket';
 import { LG_MEDIA_BREAKPOINT, analyticsId, MAIN_CONTENT_ID } from '../../../../constants';
-import LoadingIndicator from '../../../ui/LoadingIndicator';
 import useGoogleAnalytics from '../../../../hooks/useGoogleAnalytics';
 import SkipToMainContent from '../../sidebar-nav/SkipToMainContent';
 import { setRemoteConstantsData } from '../../../../redux/slices/remoteConstantsSlice';
 import { fetchRemoteConstants } from '../../../../api/remote-constants';
+import slasherLogo from '../../../../images/slasher-logo-medium.png';
+import HeaderLogo from '../../../ui/HeaderLogo';
 
 interface Props {
   children: React.ReactNode;
@@ -89,7 +90,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
       });
     }
 
-    if (userData.user.userName === '') {
+    if (userData.user?.userName === '') {
       userInitialData().then((res) => {
         dispatch(setUserInitialData(res.data));
       }).catch((err) => {
@@ -98,7 +99,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
         }
       });
     }
-  }, [dispatch, navigate, pathname, userData.user.userName, remoteConstantsData.loaded, token]);
+  }, [dispatch, navigate, pathname, userData.user?.userName, remoteConstantsData.loaded, token]);
 
   useCallback(() => {
     dispatch(setUserInitialData(userData));
@@ -124,14 +125,22 @@ function AuthenticatedPageWrapper({ children }: Props) {
     return () => { };
   }, [onNotificationReceivedHandler, onUnreadMessageCountUpdate, socket]);
 
-  if (!token || !userData.user) {
-    return <LoadingIndicator />;
+  if (!token || !userData.user?.id) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+        <HeaderLogo
+          logo={slasherLogo}
+          height="6.5rem"
+        />
+      </div>
+
+    );
   }
   return (
     <div className="page-wrapper full">
       <SkipToMainContent />
       <AuthenticatedPageHeader
-        userName={userData.user.userName}
+        userName={userData.user?.userName}
         onToggleClick={showOffcanvasSidebar}
         offcanvasSidebarExpandBreakPoint={desktopBreakPoint}
         ariaToggleTargetId={offcanvasId}

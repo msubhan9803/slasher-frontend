@@ -7,11 +7,11 @@ interface SortDataProps {
   sortoptions?: OptionsProps[];
   type?: string;
   onSelectSort?(value: string): void | null;
-  sortVal?: string
+  sortVal?: string;
 }
 interface OptionsProps {
-  value: string;
-  label: string;
+  value: any;
+  label: any;
 }
 
 const StyledSelect = styled(Select)`
@@ -22,13 +22,13 @@ const StyledSelect = styled(Select)`
 function SortData({
   title, sortoptions, type, onSelectSort, sortVal,
 }: SortDataProps) {
-  const options = sortoptions!.map(({ value, label }) => ({ value, label: title + label })) || [];
+  const options = sortoptions!.map(({ value, label }) => ({ value, label: type === 'form' ? label : title + label })) || [];
 
   const customStyles = {
     control: (base: any, state: any) => ({
       ...base,
       background: 'var(--bs-dark)',
-      borderRadius: '20px',
+      borderRadius: type === 'form' ? '0.375rem' : '20px',
       border: '1px solid #3A3B46',
       boxShadow: state.isFocused ? '0 0 0 2px var(--stroke-and-line-separator-color)' : null,
       paddingLeft: 5,
@@ -47,6 +47,7 @@ function SortData({
     menuList: (base: any) => ({
       ...base,
       padding: 0,
+      maxHeight: '150px',
     }),
     option: (base: any, state: any) => ({
       ...base,
@@ -65,6 +66,7 @@ function SortData({
 
   return (
     <StyledSelect
+      defaultValue={type === 'form' ? options[0] : null}
       value={options.find((option) => option.value === sortVal)}
       onChange={(selectedOption: any) => onSelectSort!(selectedOption.value)}
       className="fs-5"
@@ -73,6 +75,7 @@ function SortData({
       components={{ IndicatorSeparator: () => null }}
       styles={customStyles}
       isSearchable={false}
+      isOptionDisabled={(option: any) => option.value === 'disabled'}
     />
   );
 }

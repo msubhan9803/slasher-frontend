@@ -16,6 +16,7 @@ import RegistartionSecurityList from '../components/RegistrationSecurityList';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import { validateRegistrationFields } from '../../../api/users';
 import useProgressButton from '../../../components/ui/ProgressButton';
+import SortData from '../../../components/filter-sort/SortData';
 
 const yearOptions = generate18OrOlderYearList();
 const monthOptions = generateMonthOptions();
@@ -32,6 +33,15 @@ function RegistrationSecurity({ activeStep }: Props) {
   const [errorMessages, setErrorMessages] = useState<string[]>();
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const navigate = useNavigate();
+  const convertedDayOptions = dayOptions.map((day) => ({ value: day, label: day }));
+  const convertedYearOptions = yearOptions.map((year) => ({ value: year, label: year }));
+  const [selectedMonth, setSelectedMonth] = useState('disabled');
+  const [selectedDay, setSelectedDay] = useState('disabled');
+  const [selectedYear, setSelectedYear] = useState('disabled');
+  const [selectedSecurityQuestion, setSelectedSecurityQuestion] = useState('disabled');
+  const RegistartionSecurityQuestions = RegistartionSecurityList.map(
+    (list) => ({ value: list, label: list }),
+  );
 
   const handleChange = (value: string, key: string) => {
     const registerInfoTemp = { ...securityInfo };
@@ -123,16 +133,12 @@ function RegistrationSecurity({ activeStep }: Props) {
             </Row>
           </Col>
           <Col sm={12} md={9} className="mt-4">
-            <Form.Select
-              value={securityInfo.securityQuestion}
-              onChange={(e: ChangeEvent<{ value: string }>) => handleChange(e.target.value, 'securityQuestion')}
-              aria-label="Security question selection"
-            >
-              <option value="" disabled className="text-light">Select a security question</option>
-              {RegistartionSecurityList.map((securityQuestion: string) => (
-                <option key={securityQuestion} value={securityQuestion}>{securityQuestion}</option>
-              ))}
-            </Form.Select>
+            <SortData
+              sortVal={selectedSecurityQuestion}
+              onSelectSort={(val) => setSelectedSecurityQuestion(val)}
+              sortoptions={[{ value: 'disabled', label: 'Select a security question' }, ...RegistartionSecurityQuestions]}
+              type="form"
+            />
             <p className="mt-3 text-light">
               By selecting a security question, you will be able to verify that
               this is your account. This will be needed if you ever want to change
@@ -162,41 +168,28 @@ function RegistrationSecurity({ activeStep }: Props) {
                 <p className="mb-4 text-light">Your age will not be shown in your profile.</p>
               </Col>
               <Col sm={12} md={4}>
-                <Form.Select
-                  value={securityInfo.month}
-                  onChange={(e: ChangeEvent<{ value: string }>) => handleChange(e.target.value, 'month')}
-                  aria-label="Month selection"
-                >
-                  <option value="" disabled className="text-light">Month</option>
-                  {monthOptions.map((months) => (
-                    <option key={months.value} value={months.value}>{months.label}</option>
-                  ))}
-                </Form.Select>
+                <SortData
+                  sortVal={selectedMonth}
+                  onSelectSort={(val) => setSelectedMonth(val)}
+                  sortoptions={[{ value: 'disabled', label: 'Month' }, ...monthOptions]}
+                  type="form"
+                />
               </Col>
               <Col sm={12} md={4} className="my-2 my-md-0">
-                <Form.Select
-                  value={securityInfo.day}
-                  onChange={(e: ChangeEvent<{ value: string }>) => handleChange(e.target.value, 'day')}
-                  aria-label="Day selection"
-                >
-                  <option value="" disabled className="text-light">Day</option>
-                  {dayOptions.map((dayOption) => (
-                    <option key={dayOption} value={dayOption}>{dayOption}</option>
-                  ))}
-                </Form.Select>
+                <SortData
+                  sortVal={selectedDay}
+                  onSelectSort={(val) => setSelectedDay(val)}
+                  sortoptions={[{ value: 'disabled', label: 'Day' }, ...convertedDayOptions]}
+                  type="form"
+                />
               </Col>
               <Col sm={12} md={4}>
-
-                <Form.Select
-                  value={securityInfo.year}
-                  onChange={(e: ChangeEvent<{ value: string }>) => handleChange(e.target.value, 'year')}
-                  aria-label="Year selection"
-                >
-                  <option value="" disabled className="text-light">Year</option>
-                  {yearOptions.map((yearOption) => (
-                    <option key={yearOption} value={yearOption}>{yearOption}</option>
-                  ))}
-                </Form.Select>
+                <SortData
+                  sortVal={selectedYear}
+                  onSelectSort={(val) => setSelectedYear(val)}
+                  sortoptions={[{ value: 'disabled', label: 'Year' }, ...convertedYearOptions]}
+                  type="form"
+                />
               </Col>
             </Row>
           </Col>

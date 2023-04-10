@@ -19,8 +19,6 @@ import useGlobalSocket from '../../hooks/useGlobalSocket';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
-import { useAppDispatch } from '../../redux/hooks';
-import { resetUnreadConversationCount } from '../../redux/slices/userSlice';
 
 function Conversation() {
   const userId = Cookies.get('userId');
@@ -41,7 +39,6 @@ function Conversation() {
   const [imageArray, setImageArray] = useState<any>([]);
   const [uploadPost, setUploadPost] = useState<string[]>([]);
   const [messageLoading, setMessageLoading] = useState<boolean>(false);
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (location.pathname.includes('/new')) {
@@ -85,7 +82,7 @@ function Conversation() {
 
   useEffect(() => {
     markAllReadForSingleConversation(conversationId!);
-  }, [dispatch, socket, conversationId]);
+  }, [conversationId]);
 
   useEffect(() => {
     if (conversationId && !location.pathname.includes('new')) {

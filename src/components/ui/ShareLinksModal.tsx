@@ -37,7 +37,7 @@ function ShareLinksModal({ copyLinkUrl, show, setShow }: any) {
       size="lg"
     >
       <Modal.Header className="border-0 shadow-none justify-content-end" closeButton />
-      <Modal.Body className="d-flex flex-column align-items-center text-center mx-5 px-5 pt-0 pb-0">
+      <Modal.Body className="d-flex flex-column align-items-center text-center mx-5 px-5 pt-0 pb-0 mb-5">
         <h1 className="mb-0 text-primary text-center mx-4">Share</h1>
         <Row xs={3} lg="auto" className="mt-4">
           {

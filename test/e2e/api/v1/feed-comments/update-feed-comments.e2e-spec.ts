@@ -506,26 +506,6 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
       });
     });
 
-    it('finds the expected feed post and update the lastUpdateAt time', async () => {
-      const feedComments2 = await feedCommentsService.createFeedComment(
-        feedCommentsFactory.build(
-          {
-            userId: activeUser._id,
-            feedPostId: feedPost.id,
-            message: sampleFeedCommentsObject.message,
-            images: sampleFeedCommentsObject.images,
-          },
-        ),
-      );
-      const postBeforeUpdate = await feedPostsService.findById(feedComments2.feedPostId.toString(), false);
-      const response = await request(app.getHttpServer())
-        .patch(`/api/v1/feed-comments/${feedComments2._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .field('message', sampleFeedCommentsObject.message);
-      const postAfterUpdate = await feedPostsService.findById(response.body.feedPostId, false);
-      expect(postAfterUpdate.lastUpdateAt > postBeforeUpdate.lastUpdateAt).toBeTruthy();
-    });
-
     describe('Validation', () => {
       it('check message length validation', async () => {
         const message = new Array(8002).join('z');

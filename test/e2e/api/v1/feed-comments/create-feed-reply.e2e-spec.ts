@@ -417,6 +417,17 @@ describe('Feed-Comments/Replies File (e2e)', () => {
       });
     });
 
+    it('when add a reply to a post than check update post lastUpdateAt value', async () => {
+      const postBeforeUpdate = await feedPostsService.findById(feedPost._id.toString(), false);
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/feed-comments/replies')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('message', 'hello test user')
+        .field('feedCommentId', feedComment._id.toString());
+      const postAfterUpdate = await feedPostsService.findById(response.body.feedPostId, false);
+      expect(postAfterUpdate.lastUpdateAt > postBeforeUpdate.lastUpdateAt).toBeTruthy();
+    });
+
     describe('when the feed post was created by a user with a non-public profile', () => {
       let user1;
       let feedPost1;

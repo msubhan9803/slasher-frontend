@@ -110,6 +110,7 @@ export class FeedCommentsController {
     feedComment.images = images;
     feedComment.userId = user._id;
     const comment = await this.feedCommentsService.createFeedComment(feedComment);
+    await this.feedPostsService.updateLastUpdateAt(comment.feedPostId.toString());
 
     if (!post.rssfeedProviderId) {
       await this.sendFeedCommentCreationNotifications(user, comment, post);
@@ -194,7 +195,6 @@ export class FeedCommentsController {
       );
     }
     const updatedComment = await this.feedCommentsService.updateFeedComment(params.feedCommentId, updateFeedCommentsDto);
-    await this.feedPostsService.updateLastUpdateAt(comment.feedPostId.toString());
 
     const mentionedUserIdsBeforeUpdate = extractUserMentionIdsFromMessage(comment.message);
     const mentionedUserIdsAfterUpdate = extractUserMentionIdsFromMessage(updatedComment?.message);
@@ -290,6 +290,8 @@ export class FeedCommentsController {
     feedReply.userId = user._id;
     feedReply.feedPostId = comment.feedPostId;
     const reply = await this.feedCommentsService.createFeedReply(feedReply);
+    await this.feedPostsService.updateLastUpdateAt(reply.feedPostId.toString());
+
     if (!feedPost.rssfeedProviderId) {
       await this.sendFeedReplyCreationNotifications(user, reply);
     }
@@ -371,7 +373,6 @@ export class FeedCommentsController {
     }
 
     const updatedReply = await this.feedCommentsService.updateFeedReply(params.feedReplyId, updateFeedReplyDto);
-    await this.feedPostsService.updateLastUpdateAt(reply.feedPostId.toString());
 
     const mentionedUserIdsBeforeUpdate = extractUserMentionIdsFromMessage(reply.message);
     const mentionedUserIdsAfterUpdate = extractUserMentionIdsFromMessage(updatedReply?.message);

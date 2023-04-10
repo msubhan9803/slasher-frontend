@@ -117,7 +117,7 @@ function EditCommentModal({
           deleteImageIds={deleteImageIds}
           setDeleteImageIds={setDeleteImageIds}
           placeHolder={`${commentID ? 'Write a comment' : 'Reply to comment'}`}
-          isEditingCommentOrReply
+          showSaveButton
         />
       </Modal.Body>
     </ModalContainer>

@@ -88,6 +88,7 @@ function EditPostModal({
           deleteImageIds={deleteImageIds}
           setDeleteImageIds={setDeleteImageIds}
           placeHolder="Create a post"
+          showSaveButton
         />
       </Modal.Body>
     </ModalContainer>

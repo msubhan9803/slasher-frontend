@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -174,7 +175,12 @@ function CustomSwiper({
       >
         {
           images.map((image: SliderImage) => (
-            <SwiperSlide key={`${image.imageId}${image.postId}`}>
+            <SwiperSlide
+              key={`${image.imageId}${image.postId}`}
+              onError={(e: any) => {
+                e.target.src = placeholderUrlNoImageAvailable;
+              }}
+            >
               {displayVideoAndImage(image)}
             </SwiperSlide>
           ))

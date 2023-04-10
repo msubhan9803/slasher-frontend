@@ -90,7 +90,7 @@ function Chat({
                   image={post}
                   alt="" // TODO: set any existing alt text here (when editing existing image)
                   // eslint-disable-next-line no-console
-                  onAltTextChange={(newValue) => { console.log(`TODO: Use this to set alt text.  New value is: ${newValue}`); }}
+                  // onAltTextChange={(newValue) => { console.log(`New value is: ${newValue}`); }}
                   handleRemoveImage={() => handleRemoveFile!(post)}
                   containerClass="position-relative d-flex justify-content-center align-items-center rounded border-0"
                   removeIconStyle={{

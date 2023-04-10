@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
@@ -14,7 +14,7 @@ import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
-import { RouteURL, UIRouteURL } from '../RouteURL';
+import { UIRouteURL } from '../RouteURL';
 
 function AllMovies() {
   const [requestAdditionalMovies, setRequestAdditionalMovies] = useState<boolean>(false);
@@ -41,7 +41,9 @@ function AllMovies() {
       ? (scrollPosition?.data[scrollPosition?.data.length - 1]?._id)
       : '',
   );
-
+  const prevSearchRef = useRef(search);
+  const prevKeyRef = useRef(key);
+  const prevSortValRef = useRef(sortVal);
   useEffect(() => {
     setSearch(searchParams.get('q') || '');
     setKey(searchParams.get('startsWith')?.toLowerCase() || '');
@@ -49,19 +51,25 @@ function AllMovies() {
   }, [searchParams]);
 
   useEffect(() => {
-    RouteURL(search, key, sortVal, navigate, searchParams);
-  }, [search, key, sortVal, navigate, searchParams]);
-
-  useEffect(() => {
     UIRouteURL(search, key, sortVal, navigate, callNavigate);
     setCallNavigate(false);
   }, [search, key, sortVal, navigate, callNavigate]);
   useEffect(() => {
-    if (search || key || sortVal) {
+    if (
+      callNavigate
+      || search !== prevSearchRef.current
+      || key !== prevKeyRef.current
+      || sortVal !== prevSortValRef.current
+    ) {
+      setFilteredMovies([]);
       setLastMovieId('');
       setRequestAdditionalMovies(true);
     }
-  }, [search, sortVal, key]);
+    prevSearchRef.current = search;
+    prevKeyRef.current = key;
+    prevSortValRef.current = sortVal;
+  }, [callNavigate, search, key, sortVal]);
+
   useEffect(() => {
     if (requestAdditionalMovies && !loadingPosts) {
       if (scrollPosition === null

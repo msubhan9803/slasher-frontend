@@ -1,5 +1,5 @@
 /* eslint-disable class-methods-use-this */
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Ip } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { relativeToFullImagePath } from '../utils/image-utils';
 
@@ -30,6 +30,14 @@ export class AppController {
   remoteConstants() {
     return {
       placeholderUrlNoImageAvailable: relativeToFullImagePath(this.configService, '/placeholders/no_image_available.png'),
+    };
+  }
+
+  // Returns the detected IP address
+  @Get('api/v1/ip-check')
+  ipCheck(@Ip() ip) {
+    return {
+      requestingIp: ip,
     };
   }
 

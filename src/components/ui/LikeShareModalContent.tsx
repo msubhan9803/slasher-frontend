@@ -2,8 +2,8 @@ import React, {
   useCallback, useEffect, useMemo, useRef, useState,
 } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
-import { Link } from 'react-router-dom';
 import { AxiosResponse } from 'axios';
+import { HashLink } from 'react-router-hash-link';
 import UserCircleImage from './UserCircleImage';
 import { FriendRequestReaction, LikeShareModalResourceName } from '../../types';
 import { getLikeUsersForPost } from '../../api/feed-posts';
@@ -54,13 +54,20 @@ function FriendAction({ likeUser }: { likeUser: LikeUsersType }) {
   );
 }
 
-type LikeUsersProp = { likeUsers: LikeUsersType[] };
-function LikeUsers({ likeUsers }: LikeUsersProp) {
+type LikeUsersProp = {
+  likeUsers: LikeUsersType[], onSelect?: (value: string) => void,
+  resourceId: string
+};
+function LikeUsers({ likeUsers, onSelect, resourceId }: LikeUsersProp) {
   return (
     <div>
       {likeUsers?.map((likeUser: LikeUsersType) => (
         <div className="pb-4 pt-0 py-3 d-flex align-items-center justify-content-between" key={likeUser._id}>
-          <Link className="text-decoration-none" to={`/${likeUser.userName}/posts`}>
+          <HashLink
+            onClick={() => onSelect?.(resourceId)}
+            to={`/${likeUser.userName}/posts`}
+            className="text-decoration-none"
+          >
             <div className="d-flex align-items-center">
               <div>
                 <UserCircleImage src={likeUser.profilePic} />
@@ -71,16 +78,20 @@ function LikeUsers({ likeUsers }: LikeUsersProp) {
                 </p>
               </div>
             </div>
-          </Link>
+          </HashLink>
           <FriendAction likeUser={likeUser} />
         </div>
       ))}
     </div>
   );
 }
+LikeUsers.defaultProps = { onSelect: undefined };
 
-type Props = { resourceId: string, modaResourceName: LikeShareModalResourceName | null };
-function LikeShareModalContent({ modaResourceName, resourceId }: Props) {
+type Props = {
+  resourceId: string, modaResourceName: LikeShareModalResourceName | null,
+  onSelect?: (value: string) => void;
+};
+function LikeShareModalContent({ modaResourceName, resourceId, onSelect }: Props) {
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [likeUsers, setLikeUsers] = useState<LikeUsersType[]>([]);
@@ -158,12 +169,14 @@ function LikeShareModalContent({ modaResourceName, resourceId }: Props) {
           useWindow={false}
           getScrollParent={() => parentRef.current}
         >
-          <LikeUsers likeUsers={likeUsers} />
+          <LikeUsers likeUsers={likeUsers} onSelect={onSelect} resourceId={resourceId} />
         </InfiniteScroll>
       </div>
     </>
 
   );
 }
-
+LikeShareModalContent.defaultProps = {
+  onSelect: undefined,
+};
 export default LikeShareModalContent;

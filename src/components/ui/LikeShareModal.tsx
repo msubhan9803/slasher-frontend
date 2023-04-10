@@ -16,6 +16,7 @@ interface Props {
   click: LikeShareModalTabName;
   clickedPostId: string;
   clickedPostLikeCount: number;
+  onSelect?: (value: string) => void;
 }
 interface LinearIconProps {
   uniqueId?: string
@@ -55,7 +56,7 @@ border-bottom: 1px solid #3A3B46;
 `;
 
 function LikeShareModal({
-  modaResourceName, show, setShow, click, clickedPostId, clickedPostLikeCount,
+  modaResourceName, show, setShow, click, clickedPostId, clickedPostLikeCount, onSelect,
 }: Props) {
   const [tab, setTab] = useState<string>(click);
   const closeModal = () => {
@@ -101,10 +102,14 @@ function LikeShareModal({
         <FontAwesomeIcon icon={solid('xmark')} size="lg" className="me-2" onClick={closeModal} />
       </CustomModalHeader>
       <Modal.Body className="d-flex flex-column pt-4 px-4">
-        {(tab === 'like' || tab === 'share') && <LikeShareModalContent modaResourceName={modaResourceName} resourceId={clickedPostId} />}
+        {(tab === 'like' || tab === 'share') && <LikeShareModalContent modaResourceName={modaResourceName} resourceId={clickedPostId} onSelect={onSelect} />}
       </Modal.Body>
     </CustomModal>
   );
 }
+
+LikeShareModal.defaultProps = {
+  onSelect: undefined,
+};
 
 export default LikeShareModal;

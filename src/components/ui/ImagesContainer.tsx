@@ -34,14 +34,14 @@ const StyledImageContainer = styled.div<StyledImageContainerProps>`
 
 function ImagesContainer({
   image, alt, handleRemoveImage, containerClass, removeIconStyle,
-  containerWidth, containerHeight, containerBorder, dataId, onAltTextChange, index
+  containerWidth, containerHeight, containerBorder, dataId, onAltTextChange, index,
 }: ImageContainerProps) {
   const [altText, setAltText] = useState<string>();
   const [showAltTextEditModal, setShowAltTextEditModal] = useState(false);
 
   useEffect(() => {
-      setAltText(alt)
-  }, [alt])
+    setAltText(alt);
+  }, [alt]);
 
   const onSave = () => {
     onAltTextChange?.(altText!);
@@ -76,7 +76,9 @@ function ImagesContainer({
           role="button"
           className="position-absolute bg-primary text-black rounded-circle"
           style={removeIconStyle}
-          onClick={() => (dataId ? handleRemoveImage(image, index && index, dataId) : handleRemoveImage(image, index && index))}
+          onClick={() => (dataId
+            ? handleRemoveImage(image, index && index, dataId)
+            : handleRemoveImage(image, index && index))}
           onKeyDown={handleKeydown}
         />
       </StyledImageContainer>
@@ -117,7 +119,7 @@ function ImagesContainer({
 ImagesContainer.defaultProps = {
   dataId: undefined,
   onAltTextChange: undefined,
-  index: undefined
+  index: undefined,
 };
 
 export default ImagesContainer;

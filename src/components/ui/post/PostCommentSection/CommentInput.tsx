@@ -24,7 +24,7 @@ interface CommentInputProps {
   handleFileChange: (value: ChangeEvent<HTMLInputElement>, replyUserId?: string) => void;
   sendComment: (commentId: string, message: string) => void;
   imageArray: any;
-  handleRemoveFile: (postImage: File, index?:number ,replyUserId?: string) => void;
+  handleRemoveFile: (postImage: File, index?: number, replyUserId?: string) => void;
   dataId?: string;
   handleSearch: (value: string) => void;
   mentionList: any;
@@ -90,7 +90,8 @@ function CommentInput({
   handleSearch, mentionList, addUpdateComment, replyImageArray, isReply,
   addUpdateReply, commentID, commentReplyID, checkCommnt, commentError, commentReplyError,
   commentSent, setCommentReplyErrorMessage, setReplyImageArray, isEdit,
-  updateState, descriptionArray, setDescriptionArray, replyDescriptionArray, setReplyDescriptionArray
+  updateState, descriptionArray, setDescriptionArray, replyDescriptionArray,
+  setReplyDescriptionArray,
 }: CommentInputProps) {
   const [editMessage, setEditMessage] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
@@ -159,21 +160,21 @@ function CommentInput({
   const onUpdatePost = (msg: string) => {
     const imageArr = isReply ? replyImageArray : imageArray;
     const descriptionArr = isReply ? replyDescriptionArray : descriptionArray;
-    
+
     if (isReply) {
       addUpdateReply!({
         replyMessage: msg,
         commentId: dataId,
         imageArr,
         commentReplyID,
-        descriptionArr
+        descriptionArr,
       });
     } else {
       addUpdateComment!({
         commentMessage: msg,
         commentId: dataId,
         imageArr,
-        descriptionArr
+        descriptionArr,
       });
     }
   };
@@ -208,15 +209,14 @@ function CommentInput({
 
   const setAltTextValue = (index: number) => {
     if (descriptionArray?.length && !isReply) {
-      const altText = descriptionArray![index]
-      return altText
-    } else if (replyDescriptionArray?.length && !isReply) {
-      const altText = replyDescriptionArray![index]
-      return altText
-    } else {
-      return ""
+      const altText = descriptionArray![index];
+      return altText;
+    } if (replyDescriptionArray?.length && !isReply) {
+      const altText = replyDescriptionArray![index];
+      return altText;
     }
-  }
+    return '';
+  };
 
   // useEffect(() => {
   //   // debugger
@@ -233,16 +233,17 @@ function CommentInput({
   //   setDescriptionArray!(descriptionArrayList);
   // }, [])
 
-  const onChangeDescription = (newValue:string, index: number) => {
-    const descriptionArrayList:string[] = isReply ? [...replyDescriptionArray!] :[...descriptionArray!]
-    if(isReply) {
+  const onChangeDescription = (newValue: string, index: number) => {
+    const descriptionArrayList: string[] = isReply
+      ? [...replyDescriptionArray!] : [...descriptionArray!];
+    if (isReply) {
       descriptionArrayList![index] = newValue;
-      setReplyDescriptionArray!([...descriptionArrayList])
-    } else if(!isReply) {
+      setReplyDescriptionArray!([...descriptionArrayList]);
+    } else if (!isReply) {
       descriptionArrayList![index] = newValue;
-      setDescriptionArray!([...descriptionArrayList])
+      setDescriptionArray!([...descriptionArrayList]);
     }
-  }
+  };
 
   // console.log("descriptionaRRAY**", descriptionArray)
   // console.log("replyDescriptionArray**", replyDescriptionArray)
@@ -316,7 +317,7 @@ function CommentInput({
       </Row>
 
       <Row className="mx-5 px-3">
-        {imageArray.map((post: File, index:number) => (
+        {imageArray.map((post: File, index: number) => (
           <Col xs="auto" key={post.name} className="px-3 mb-1">
             <ImagesContainer
               containerWidth="4.25rem"
@@ -325,8 +326,7 @@ function CommentInput({
               image={post}
               dataId={dataId}
               alt={setAltTextValue(index)}
-              onAltTextChange={(newValue) => { onChangeDescription!(newValue, index) }}
-              // onAltTextChange={(newValue) => { console.log(`TODO: Use this to set alt text.  New value is: ${newValue}`); }}
+              onAltTextChange={(newValue) => { onChangeDescription!(newValue, index); }}
               handleRemoveImage={handleRemoveFile}
               index={index}
               containerClass="mt-2 mb-3 position-relative d-flex justify-content-center align-items-center rounded border-0"
@@ -367,7 +367,10 @@ CommentInput.defaultProps = {
   setReplyImageArray: undefined,
   isEdit: undefined,
   updateState: false,
-
+  descriptionArray: undefined,
+  setDescriptionArray: undefined,
+  replyDescriptionArray: undefined,
+  setReplyDescriptionArray: undefined,
 };
 
 export default CommentInput;

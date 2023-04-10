@@ -191,7 +191,7 @@ function PostDetail({ user, postType }: Props) {
         comment?.commentId,
         comment?.images,
         comment?.deleteImage,
-        comment?.descriptionArr
+        comment?.descriptionArr,
       )
         .then((res) => {
           const updateCommentArray: any = commentData;
@@ -233,7 +233,7 @@ function PostDetail({ user, postType }: Props) {
         postId!,
         comment.commentMessage,
         comment.imageArr,
-        comment.descriptionArr
+        comment.descriptionArr,
       )
         .then((res) => {
           let newCommentArray: any = commentData;
@@ -289,7 +289,7 @@ function PostDetail({ user, postType }: Props) {
         reply.replyId,
         reply.images,
         reply.deleteImage,
-        reply.descriptionArr
+        reply.descriptionArr,
       )
         .then((res) => {
           const updateReplyArray: any = commentData;
@@ -330,7 +330,7 @@ function PostDetail({ user, postType }: Props) {
         reply.replyMessage,
         reply?.imageArr,
         reply.commentId!,
-        reply.descriptionArr
+        reply.descriptionArr,
       ).then((res) => {
         const newReplyArray: any = commentData;
         replyValueData = {
@@ -763,15 +763,14 @@ function PostDetail({ user, postType }: Props) {
               />
               {dropDownValue !== 'Edit'
                 && (
-                  <ReportModal
-                    deleteText="Are you sure you want to delete this post?"
-                    onConfirmClick={deletePostClick}
-                    show={show}
-                    setShow={setShow}
-                    slectedDropdownValue={dropDownValue}
-                    handleReport={reportPost}
-                    onBlockYesClick={onBlockYesClick}
-                  />
+                <ReportModal
+                  onConfirmClick={deletePostClick}
+                  show={show}
+                  setShow={setShow}
+                  slectedDropdownValue={dropDownValue}
+                  handleReport={reportPost}
+                  onBlockYesClick={onBlockYesClick}
+                />
                 )}
               {postType !== 'news' && dropDownValue === 'Edit'
                 && (
@@ -836,15 +835,14 @@ function PostDetail({ user, postType }: Props) {
             />
             {dropDownValue !== 'Edit'
               && (
-                <ReportModal
-                  deleteText="Are you sure you want to delete this post?"
-                  onConfirmClick={deletePostClick}
-                  show={show}
-                  setShow={setShow}
-                  slectedDropdownValue={dropDownValue}
-                  handleReport={reportPost}
-                  onBlockYesClick={onBlockYesClick}
-                />
+              <ReportModal
+                onConfirmClick={deletePostClick}
+                show={show}
+                setShow={setShow}
+                slectedDropdownValue={dropDownValue}
+                handleReport={reportPost}
+                onBlockYesClick={onBlockYesClick}
+              />
               )}
             {postType !== 'news' && dropDownValue === 'Edit'
               && (

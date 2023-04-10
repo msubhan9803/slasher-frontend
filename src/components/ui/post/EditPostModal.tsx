@@ -11,7 +11,11 @@ interface Props {
   setShow: (value: boolean) => void;
   setPostContent: (val: string) => void;
   postContent: string;
-  onUpdatePost: (value: string, images: string[], deleteImageIds: string[] | undefined, descriptionArray?: string[] ) => void;
+  onUpdatePost: (
+    value: string,
+    images: string[],
+    deleteImageIds: string[] | undefined,
+    descriptionArray?: string[]) => void;
   postImages: string[];
   setPostImages: any;
   deleteImageIds?: string[];

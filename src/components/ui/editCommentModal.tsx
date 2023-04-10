@@ -62,7 +62,7 @@ function EditCommentModal({
         commentId: commentID,
         images: imagesList,
         deleteImage: deleteImages,
-        descriptionArr: descriptionArray
+        descriptionArr: descriptionArray,
       });
     } else {
       setCommentID(commentID);
@@ -73,7 +73,7 @@ function EditCommentModal({
         commentId: commentID,
         images: postImages,
         deleteImage: deleteImages,
-        descriptionArr: descriptionArray
+        descriptionArr: descriptionArray,
       });
     }
   };
@@ -122,6 +122,7 @@ function EditCommentModal({
           placeHolder={`${commentID ? 'Write a comment' : 'Reply to comment'}`}
           descriptionArray={descriptionArray}
           setDescriptionArray={setDescriptionArray}
+          isEditingCommentOrReply
         />
       </Modal.Body>
     </ModalContainer>

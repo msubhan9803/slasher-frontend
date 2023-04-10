@@ -198,55 +198,61 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
             />
           </Col>
         </Row>
-        {enableDevFeatures
-          && (
-            <Row className="d-xl-none justify-content-center mt-3">
-              <Col xs={12} sm={7} md={5} lg={9} className="text-center">
-                <span className="fs-5">Your lists</span>
-                <div className="mt-2 d-flex justify-content-around">
-                  {movieIconListData.map((iconList: MovieIconProps) => (
-                    <CustomGroupIcons
-                      key={iconList.key}
-                      label={iconList.label}
-                      icon={iconList.icon}
-                      iconColor={iconList.iconColor}
-                      width={iconList.width}
-                      height={iconList.height}
-                      addData={iconList.addMovie}
-                      onClickIcon={() => handleMovieAddRemove(iconList.key, iconList.addMovie)}
-                    />
-                  ))}
-                </div>
-                <div className="p-3 d-xl-none justify-content-center mt-xl-2">
-                  <RoundButton variant="black" className="w-100">Add to list</RoundButton>
-                </div>
-              </Col>
-            </Row>
-          )}
-        <Row className="d-lg-none text-center">
-          <StyledBorder />
-          <Col xs={12}>
-            <p className="text-center fw-bold  mt-3">Get updates for this movie</p>
-          </Col>
-          <Col xs={12} sm={7} md={5} className="m-auto">
-            <BorderButton
-              customButtonCss="width: 100% !important;"
-              buttonClass=""
-              variant="lg"
-              toggleBgColor={bgColor}
-              handleClick={setBgColor}
-              toggleButton
-            />
-          </Col>
-        </Row>
-        <Row className="align-items-center justify-content-center mt-4 d-lg-none">
-          <Col sm={5}>
-            <div className="align-items-center d-flex justify-content-evenly">
-              <span className="mb-2">Push notifications</span>
-              <Switch id="pushNotificationsSwitch" className="ms-4" />
+        <Row className="d-xl-none justify-content-center mt-3">
+          <Col xs={12} sm={7} md={5} lg={9} className="text-center">
+            <span className="fs-5">Your lists</span>
+            <div className="mt-2 d-flex justify-content-around">
+              {movieIconListData.map((iconList: MovieIconProps) => (
+                <CustomGroupIcons
+                  key={iconList.key}
+                  label={iconList.label}
+                  icon={iconList.icon}
+                  iconColor={iconList.iconColor}
+                  width={iconList.width}
+                  height={iconList.height}
+                  addData={iconList.addMovie}
+                  onClickIcon={() => handleMovieAddRemove(iconList.key, iconList.addMovie)}
+                />
+              ))}
+            </div>
+            <div className="p-3 d-xl-none justify-content-center mt-xl-2">
+              <RoundButton variant="black" className="w-100">Add to list</RoundButton>
             </div>
           </Col>
         </Row>
+
+        {enableDevFeatures
+          && (
+            <Row className="d-lg-none text-center">
+              <StyledBorder />
+              <Col xs={12}>
+                <p className="text-center fw-bold  mt-3">Get updates for this movie</p>
+              </Col>
+              <Col xs={12} sm={7} md={5} className="m-auto">
+                <BorderButton
+                  customButtonCss="width: 100% !important;"
+                  buttonClass=""
+                  variant="lg"
+                  toggleBgColor={bgColor}
+                  handleClick={setBgColor}
+                  toggleButton
+                />
+              </Col>
+            </Row>
+          )}
+
+        {enableDevFeatures
+          && (
+          <Row className="align-items-center justify-content-center mt-4 d-lg-none">
+            <Col sm={5}>
+              <div className="align-items-center d-flex justify-content-evenly">
+                <span className="mb-2">Push notifications</span>
+                <Switch id="pushNotificationsSwitch" className="ms-4" />
+              </div>
+            </Col>
+          </Row>
+          )}
+
         <Row className="justify-content-center">
           <Col xs={12}>
             <TabLinks tabsClass="start" tabsClassSmall="start" tabLink={tabs} toLink={`/app/movies/${params.id}`} selectedTab={isReviewDetail ? 'reviews' : params['*']} params={selfView ? '?view=self' : ''} />

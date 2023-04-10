@@ -21,6 +21,7 @@ import CharactersCounter from '../../../components/ui/CharactersCounter';
 import CustomText from '../../../components/ui/CustomText';
 import { sortInPlace } from '../../../utils/text-utils';
 import useProgressButton from '../../../components/ui/ProgressButton';
+import SortData from '../../../components/filter-sort/SortData';
 
 // NOTE: From the state list of US, we get US states along with US territories.
 // We don't want to show US territories as states of US but individual countries.
@@ -49,11 +50,11 @@ const STATES_TO_REMOVE_FROM_US = [
 // eslint-disable-next-line max-len
 const filterUndesirableStatesFn = (state: string) => !STATES_TO_REMOVE_FROM_US.map((s) => s.toLowerCase()).includes(state.toLowerCase());
 
-function getStatesbyCountryName(countryName: string): string[] {
+function getStatesbyCountryName(countryName: string) {
   if (!countryName) { return []; }
   const countryIso = Country.getAllCountries().find((c) => c.name === countryName)?.isoCode;
   // If no country iso code found then use `countryName` as `state`
-  if (!countryIso) { return [countryName]; }
+  if (!countryIso) { return [{ value: countryName, label: countryName }]; }
   let statesOfCountry = State.getStatesOfCountry(
     countryIso,
   ).map((state) => state.name);
@@ -61,19 +62,23 @@ function getStatesbyCountryName(countryName: string): string[] {
   if (countryIso === 'US') {
     statesOfCountry = statesOfCountry.filter(filterUndesirableStatesFn);
   }
+  // const statesOfCountryBJect =
   // If country has no states then use `countryName` as `state`
-  return statesOfCountry.length === 0 ? [countryName] : statesOfCountry;
+  return statesOfCountry.length === 0
+    ? [{ value: countryName, label: countryName }]
+    : statesOfCountry.map((state) => ({ value: state, label: state }));
 }
 
 const COUNTRIES_TO_ADD = ['Trust Territories'];
 function getCountries() {
   const fromLibraray = Country.getAllCountries().map((c) => c.name);
-  return sortInPlace([...fromLibraray, ...COUNTRIES_TO_ADD]);
+  const countries = sortInPlace([...fromLibraray, ...COUNTRIES_TO_ADD]);
+  return countries.map((country) => ({ value: country, label: country }));
 }
 
 interface Option {
-  event_name: string;
-  _id: string;
+  label: string;
+  value: string;
 }
 interface EventForm {
   name: string;
@@ -125,6 +130,7 @@ function EventSuggestion() {
   const [errors, setErrors] = useState<string[]>([]);
   const [isEventSuggestionSuccessful, setIsEventSuggestionSuccessful] = useState(false);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
+  const [selectedEventState, setSelectedEventState] = useState('disabled');
 
   const resetFormData = () => {
     setImageUpload(undefined);
@@ -154,7 +160,10 @@ function EventSuggestion() {
     setLoadingEventCategories(true);
     getEventCategoriesOption().then((res) => {
       setLoadingEventCategories(false);
-      setOptions(res.data);
+      const eventCategory = res.data.map(
+        (event: any) => ({ value: event._id, label: event.event_name }),
+      );
+      setOptions(eventCategory);
     }).catch(() => { });
   }, []);
   const onSendEventData = () => {
@@ -209,13 +218,16 @@ function EventSuggestion() {
         <h2 className="d-md-block mt-4">Event Information</h2>
         <Row>
           <Col md={6} className="mt-3">
-            <Form.Select aria-label="Event category" value={eventForm.eventType} className="fs-4" onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e.target.value, 'eventType')}>
-              <option value="" disabled>Event category</option>
-              {loadingEventCategories ? <option value="" disabled>Loading event categories…</option>
-                : options.map((option: Option) => (
-                  <option key={option._id} value={option._id}>{option.event_name}</option>
-                ))}
-            </Form.Select>
+
+            <SortData
+              sortVal={eventForm.eventType}
+              onSelectSort={(val) => { handleChange(val, 'eventType'); }}
+              sortoptions={loadingEventCategories
+                ? [{ value: 'disabled', label: 'Event category' },
+                  { value: 'disabled', label: 'Loading event categories…' }]
+                : [{ value: 'disabled', label: 'Event category' }, ...options]}
+              type="form"
+            />
           </Col>
           <Col md={6} className="mt-3">
             <Form.Control value={eventForm.name} aria-label="Event Name" type="text" placeholder="Event Name" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'name')} />
@@ -258,25 +270,20 @@ function EventSuggestion() {
         </Row>
         <Row>
           <Col md={6} className="mt-3">
-            <Form.Select aria-label="Country" value={eventForm.country} className="fs-4" onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e.target.value, 'country')}>
-              <option value="">Country</option>
-              {getCountries().map((country) => (
-                <option
-                  key={country}
-                  value={country}
-                >
-                  {country}
-                </option>
-              ))}
-            </Form.Select>
+            <SortData
+              sortVal={eventForm.country}
+              onSelectSort={(val) => { handleChange(val, 'country'); }}
+              sortoptions={[{ value: 'disabled', label: 'Country' }, ...getCountries()]}
+              type="form"
+            />
           </Col>
           <Col md={6} className="mt-3">
-            <Form.Select aria-label="State/Province" value={eventForm.state} className="fs-4" onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e.target.value, 'state')}>
-              <option value="">State/Province</option>
-              {getStatesbyCountryName(eventForm.country).map((state) => (
-                <option key={state} value={state}>{state}</option>
-              ))}
-            </Form.Select>
+            <SortData
+              sortVal={selectedEventState}
+              onSelectSort={(val) => { setSelectedEventState(val); }}
+              sortoptions={[{ value: 'disabled', label: 'State/Province' }, ...getStatesbyCountryName(eventForm.country)]}
+              type="form"
+            />
           </Col>
         </Row>
         <Row>

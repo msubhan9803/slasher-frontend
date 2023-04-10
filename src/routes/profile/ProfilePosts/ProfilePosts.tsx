@@ -303,15 +303,14 @@ function ProfilePosts({ user }: Props) {
       />
       {dropDownValue !== 'Edit'
         && (
-          <ReportModal
-            deleteText="Are you sure you want to delete this post?"
-            onConfirmClick={deletePostClick}
-            show={showReportModal}
-            setShow={setShowReportModal}
-            slectedDropdownValue={dropDownValue}
-            onBlockYesClick={onBlockYesClick}
-            handleReport={reportProfilePost}
-          />
+        <ReportModal
+          onConfirmClick={deletePostClick}
+          show={showReportModal}
+          setShow={setShowReportModal}
+          slectedDropdownValue={dropDownValue}
+          onBlockYesClick={onBlockYesClick}
+          handleReport={reportProfilePost}
+        />
         )}
       {dropDownValue === 'Edit'
         && (

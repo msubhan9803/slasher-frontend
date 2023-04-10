@@ -24,13 +24,13 @@ export async function addFeedComments(
   feedPostId: string,
   message: string,
   file: any,
-  descriptionArray?: string[]
+  descriptionArray?: string[],
 ) {
   const token = Cookies.get('sessionToken');
   const formData = new FormData();
   for (let i = 0; i < file.length; i += 1) {
     formData.append('images', file[i]);
-    formData.append('imageDescriptions', descriptionArray![i])
+    formData.append('imageDescriptions', descriptionArray![i]);
   }
   formData.append('message', message);
   formData.append('feedPostId', feedPostId);
@@ -38,7 +38,6 @@ export async function addFeedComments(
     'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
-  console.log("addFeedCommentaddFeedComment=>", formData.getAll("imageDescriptions"))
   return axios.post(`${apiUrl}/api/v1/feed-comments`, formData, { headers });
 }
 
@@ -47,13 +46,13 @@ export async function addFeedReplyComments(
   message: string,
   file: any,
   commentReplyId: string,
-  descriptionArray?: string[]
+  descriptionArray?: string[],
 ) {
   const token = Cookies.get('sessionToken');
   const formData = new FormData();
   for (let i = 0; i < file.length; i += 1) {
     formData.append('images', file[i]);
-    formData.append('imageDescriptions', descriptionArray![i])
+    formData.append('imageDescriptions', descriptionArray![i]);
   }
   formData.append('message', message);
   formData.append('feedPostId', feedPostId);
@@ -62,8 +61,6 @@ export async function addFeedReplyComments(
     'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
-  console.log("addFeedReplyCommentsaddFeedReplyComments=>", formData.getAll("imageDescriptions"))
-
   return axios.post(`${apiUrl}/api/v1/feed-comments/replies`, formData, { headers });
 }
 
@@ -89,13 +86,13 @@ export async function updateFeedComments(
   feedCommentId: string,
   file: string[],
   imagesToDelete: string[] | undefined,
-  descriptionArray?: string[] 
+  descriptionArray?: string[],
 ) {
   const token = Cookies.get('sessionToken');
   const formData = new FormData();
   for (let i = 0; i < file.length; i += 1) {
     formData.append('files', file[i]);
-    formData.append('imageDescriptions', descriptionArray![i])
+    formData.append('imageDescriptions', descriptionArray![i]);
   }
   formData.append('message', message);
   formData.append('feedPostId', feedPostId);
@@ -108,8 +105,6 @@ export async function updateFeedComments(
     'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
-  console.log("updateFeedCommentsupdateFeedComments=>", formData.getAll("imageDescriptions"))
-  
   return axios.patch(`${apiUrl}/api/v1/feed-comments/${feedCommentId}`, formData, { headers });
 }
 
@@ -119,7 +114,7 @@ export async function updateFeedCommentReply(
   feedReplyId: string,
   file: string[],
   imagesToDelete: string[] | undefined,
-  descriptionArray?: string[] 
+  descriptionArray?: string[],
 ) {
   const token = Cookies.get('sessionToken');
   const formData = new FormData();
@@ -137,8 +132,6 @@ export async function updateFeedCommentReply(
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  console.log("updateFeedCommentReplyupdateFeedCommentReply=>", formData.getAll("imageDescriptions"))
-
   return axios.patch(`${apiUrl}/api/v1/feed-comments/replies/${feedReplyId}`, formData, { headers });
 }
 

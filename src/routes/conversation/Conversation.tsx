@@ -219,7 +219,7 @@ function Conversation() {
           const image = URL.createObjectURL(postImage.target.files[list]);
           uploadedPostList.push(image);
           imageArrayList.push(postImage.target.files[list]);
-          descriptionArray.push("")
+          descriptionArray.push('');
         }
       }
       setUploadPost(uploadedPostList);
@@ -231,9 +231,9 @@ function Conversation() {
     const removePostImage = imageArray.filter((image: File) => image !== postImage);
     setImageArray(removePostImage);
 
-    const descriptionArrayList = [...descriptionArray!]
+    const descriptionArrayList = [...descriptionArray!];
     descriptionArrayList!.splice(index!, 1);
-    setDescriptionArray!([...descriptionArrayList!])
+    setDescriptionArray!([...descriptionArrayList!]);
   };
 
   return (

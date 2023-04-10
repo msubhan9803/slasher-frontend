@@ -357,10 +357,9 @@ function Home() {
         {loadingPosts && <LoadingIndicator />}
         {noMoreData && renderNoMoreDataMessage()}
         {
-          dropDownValue === 'Delete'
+          (dropDownValue === 'Block user' || dropDownValue === 'Report' || dropDownValue === 'Delete')
           && (
             <ReportModal
-              deleteText="Are you sure you want to delete this post?"
               onConfirmClick={deletePostClick}
               show={show}
               setShow={setShow}

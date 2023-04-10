@@ -9,13 +9,12 @@ interface Props {
   setShow: (value: boolean) => void;
   slectedDropdownValue: string;
   onConfirmClick?: () => void | undefined;
-  deleteText?: string;
   onBlockYesClick?: () => void | undefined;
   handleReport?: (value: string) => void;
   removeComment?: () => void;
 }
 function ReportModal({
-  show, setShow, slectedDropdownValue, onConfirmClick, deleteText, onBlockYesClick,
+  show, setShow, slectedDropdownValue, onConfirmClick, onBlockYesClick,
   handleReport, removeComment,
 }: Props) {
   const blockOptions = ['It’s inappropriate for Slasher', 'It’s fake or spam', 'Other'];
@@ -36,7 +35,7 @@ function ReportModal({
     setReports(value);
   };
 
-  const handleClickModal = () => {
+  const handleBlockUser = () => {
     if (onBlockYesClick) { onBlockYesClick(); }
     closeModal();
   };
@@ -60,7 +59,7 @@ function ReportModal({
       {slectedDropdownValue === 'Delete' && (
         <Modal.Body className="d-flex flex-column align-items-center text-center pt-0">
           <h1 className="h3 mb-0 text-primary">Delete</h1>
-          <p className="px-3">{deleteText}</p>
+          <p className="px-3">Are you sure you want to delete?</p>
           <RoundButton onClick={removeData} className="mb-3 w-100">Yes</RoundButton>
           <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none text-white" onClick={closeModal}>Cancel</RoundButton>
         </Modal.Body>
@@ -70,7 +69,7 @@ function ReportModal({
           <Modal.Body className="d-flex flex-column align-items-center text-center pt-0">
             <h1 className="h3 mb-0 text-primary">Block</h1>
             <p className="px-3">Are you sure you want to block this user?</p>
-            <RoundButton className="mb-3 w-100 fs-3" onClick={handleClickModal}>Yes</RoundButton>
+            <RoundButton className="mb-3 w-100 fs-3" onClick={handleBlockUser}>Yes</RoundButton>
             <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none text-white fs-3" onClick={closeModal}>Cancel</RoundButton>
           </Modal.Body>
         )
@@ -116,7 +115,6 @@ function ReportModal({
 }
 ReportModal.defaultProps = {
   onConfirmClick: undefined,
-  deleteText: 'Are you sure you want to delete?',
   onBlockYesClick: undefined,
   handleReport: undefined,
   removeComment: undefined,

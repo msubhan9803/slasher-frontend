@@ -1,7 +1,8 @@
 /* eslint-disable class-methods-use-this */
-import { Controller, Get, Ip } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { relativeToFullImagePath } from '../utils/image-utils';
+import { IpOrForwardedIp } from './decorators/ip-or-forwarded-ip.decorator';
 
 @Controller()
 export class AppController {
@@ -35,9 +36,9 @@ export class AppController {
 
   // Returns the detected IP address
   @Get('api/v1/ip-check')
-  ipCheck(@Ip() ip) {
+  ipCheck(@IpOrForwardedIp() ip: string) {
     return {
-      requestingIp: ip,
+      ip,
     };
   }
 

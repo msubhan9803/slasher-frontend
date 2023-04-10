@@ -15,7 +15,6 @@ import {
   UploadedFile,
   UseInterceptors,
   Delete,
-  Ip,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
@@ -67,6 +66,7 @@ import { DisallowedUsernameService } from '../disallowedUsername/providers/disal
 import { MoviesService } from '../movies/providers/movies.service';
 import { FindAllMoviesDto } from '../movies/dto/find-all-movies.dto';
 import { relativeToFullImagePath } from '../utils/image-utils';
+import { IpOrForwardedIp } from '../app/decorators/ip-or-forwarded-ip.decorator';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -91,7 +91,7 @@ export class UsersController {
   ) { }
 
   @Post('sign-in')
-  async signIn(@Body() userSignInDto: UserSignInDto, @Ip() ip) {
+  async signIn(@Body() userSignInDto: UserSignInDto, @IpOrForwardedIp() ip) {
     const user = await this.usersService.findByEmailOrUsername(
       userSignInDto.emailOrUsername,
     );
@@ -247,7 +247,7 @@ export class UsersController {
   }
 
   @Post('register')
-  async register(@Body() userRegisterDto: UserRegisterDto, @Ip() ip) {
+  async register(@Body() userRegisterDto: UserRegisterDto, @IpOrForwardedIp() ip) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
 
     // TODO: Move values below into the database instead of hard-coding here

@@ -30,7 +30,7 @@ export async function addFeedComments(
   const formData = new FormData();
   for (let i = 0; i < file.length; i += 1) {
     formData.append('images', file[i]);
-    formData.append('imageDescriptions', descriptionArray![i]);
+    formData.append(`imageDescriptions[${[i]}][description]`, descriptionArray![i]);
   }
   formData.append('message', message);
   formData.append('feedPostId', feedPostId);
@@ -52,7 +52,7 @@ export async function addFeedReplyComments(
   const formData = new FormData();
   for (let i = 0; i < file.length; i += 1) {
     formData.append('images', file[i]);
-    formData.append('imageDescriptions', descriptionArray![i]);
+    formData.append(`imageDescriptions[${[i]}][description]`, descriptionArray![i]);
   }
   formData.append('message', message);
   formData.append('feedPostId', feedPostId);
@@ -92,7 +92,7 @@ export async function updateFeedComments(
   const formData = new FormData();
   for (let i = 0; i < file.length; i += 1) {
     formData.append('files', file[i]);
-    formData.append('imageDescriptions', descriptionArray![i]);
+    formData.append(`imageDescriptions[${[i]}][description]`, descriptionArray![i]);
   }
   formData.append('message', message);
   formData.append('feedPostId', feedPostId);

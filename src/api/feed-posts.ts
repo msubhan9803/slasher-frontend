@@ -1,8 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
-import { PostType } from '../types';
-import { DescriptionArray } from '../routes/posts/create-post/CreatePost';
+import { DescriptionArray, PostType } from '../types';
 
 export async function getHomeFeedPosts(lastRetrievedPostId?: string) {
   const token = Cookies.get('sessionToken');
@@ -27,11 +26,10 @@ export async function feedPostDetail(id: string) {
 export async function createPost(postData: any, file: any, descriptionArray?: DescriptionArray[]) {
   const token = Cookies.get('sessionToken');
   const formData = new FormData();
-  console.log("final", descriptionArray)
   for (let i = 0; i < file.length; i += 1) {
     formData.append('files', file[i]);
     if (descriptionArray) {
-      formData.append('imageDescriptions',  JSON.stringify(descriptionArray![i]))
+      formData.append(`imageDescriptions[${[i]}][description]`, descriptionArray![i].description);
     }
   }
   formData.append('message', postData.message);
@@ -64,7 +62,7 @@ export async function updateFeedPost(
   file?: string[],
   imagesToDelete?: string[] | undefined,
   movieReviewPostData?: any,
-  descriptionArray?: string[],
+  descriptionArray?: DescriptionArray[] | any,
 ) {
   const token = Cookies.get('sessionToken');
   const formData = new FormData();
@@ -72,7 +70,14 @@ export async function updateFeedPost(
     for (let i = 0; i < file.length; i += 1) {
       formData.append('files', file[i]);
       if (descriptionArray) {
-        formData.append('imageDescriptions', descriptionArray![i]);
+        formData.append(`imageDescriptions[${[i]}][description]`, descriptionArray![i].description);
+      }
+    }
+  } else {
+    for (let i = 0; i < descriptionArray.length; i += 1) {
+      formData.append('files', descriptionArray[i]);
+      if (descriptionArray) {
+        formData.append(`imageDescriptions[${[i]}][description]`, descriptionArray![i].description);
       }
     }
   }
@@ -99,7 +104,6 @@ export async function updateFeedPost(
     'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
-  console.log("formData", (formData.getAll("imageDescriptions")))
   return axios.patch(`${apiUrl}/api/v1/feed-posts/${postId}`, formData, { headers });
 }
 

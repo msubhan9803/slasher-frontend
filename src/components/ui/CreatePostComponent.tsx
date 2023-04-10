@@ -19,8 +19,7 @@ import RatingButtonGroups from './RatingButtonGroups';
 import CustomWortItText from './CustomWortItText';
 import { StyledBorder } from './StyledBorder';
 import WorthWatchIcon from '../../routes/movies/components/WorthWatchIcon';
-import { MovieData, WorthWatchingStatus } from '../../types';
-import { DescriptionArray } from '../../routes/posts/create-post/CreatePost';
+import { DescriptionArray, MovieData, WorthWatchingStatus } from '../../types';
 
 interface MentionProps {
   id: string;
@@ -115,14 +114,21 @@ function CreatePostComponent({
           const image = postImage.target.files[list];
           uploadedPostList.push(image);
           imageArrayList.push(postImage.target.files[list]);
-          descriptionArray?.push({description: ""})
+          descriptionArray?.push({ description: '' });
         }
       }
       setUploadPost(uploadedPostList);
       setImageArray(imageArrayList);
     }
   };
-
+  let actionText;
+  if (postType === 'review') {
+    actionText = 'Submit';
+  } else if (isEditingCommentOrReply) {
+    actionText = 'Save';
+  } else {
+    actionText = 'Post';
+  }
   const handleSearch = (text: string) => {
     setMentionList([]);
     if (text) {
@@ -132,37 +138,30 @@ function CreatePostComponent({
   };
 
   const onChangeDescription = (newValue: string, index: number) => {
-    // debugger
-    const descriptionArrayList = [...descriptionArray!]
+    const descriptionArrayList = [...descriptionArray!];
     descriptionArrayList[index].description = newValue;
-    setDescriptionArray!([...descriptionArrayList!])
-  }
+    setDescriptionArray!([...descriptionArrayList!]);
+  };
 
   const setAltTextValue = (index: number) => {
-    debugger
-    const altText = descriptionArray![index]?.description
-    return altText
-  }
+    const altText = descriptionArray![index]?.description;
+    return altText;
+  };
 
   useEffect(() => {
-    // debugger
-
-     const descriptionArrayList: DescriptionArray[] = []
-     if (imageArray) {
-       imageArray.map((postImage: any) => {
-         if (postImage.description) {
-          debugger
-          console.log(":postImage?.description=>>", postImage?.description)
-           descriptionArrayList.push({description:postImage?.description, id:postImage?._id})
-          } else {
-            descriptionArrayList.push({description: ""})
-          }
-        })
-        setDescriptionArray!([...descriptionArrayList]);
-     }
-   
-  }, [])
-
+    const descriptionArrayList: DescriptionArray[] = [];
+    if (imageArray) {
+      imageArray.map((postImage: any) => {
+        if (postImage.description) {
+          descriptionArrayList.push({ description: postImage?.description, id: postImage?._id });
+        } else {
+          descriptionArrayList.push({ description: '', id: postImage?._id });
+        }
+        return null;
+      });
+      setDescriptionArray!([...descriptionArrayList]);
+    }
+  }, [imageArray, setDescriptionArray]);
 
   return (
     <div className={postType === 'review' ? 'bg-dark mb-3 px-4 py-4 rounded-2' : ''}>

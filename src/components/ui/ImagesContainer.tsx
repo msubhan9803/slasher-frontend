@@ -50,7 +50,7 @@ function ImagesContainer({
 
   const handleKeydown = (e: any) => {
     if (e.key === 'Enter') {
-      return dataId ? handleRemoveImage(image,index, dataId) : handleRemoveImage(image, index);
+      return dataId ? handleRemoveImage(image, index, dataId) : handleRemoveImage(image, index);
     }
     return null;
   };

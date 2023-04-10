@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Modal } from 'react-bootstrap';
-import { FormatMentionProps } from '../../../routes/posts/create-post/CreatePost';
+import { DescriptionArray, FormatMentionProps } from '../../../routes/posts/create-post/CreatePost';
 import CreatePostComponent from '../CreatePostComponent';
 import ModalContainer from '../CustomModal';
 import { decryptMessage } from '../../../utils/text-utils';
@@ -15,7 +15,7 @@ interface Props {
     value: string,
     images: string[],
     deleteImageIds: string[] | undefined,
-    descriptionArray?: string[]) => void;
+    descriptionArray?: DescriptionArray[]) => void;
   postImages: string[];
   setPostImages: any;
   deleteImageIds?: string[];
@@ -34,7 +34,7 @@ function EditPostModal({
   setDeleteImageIds,
 }: Props) {
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
-  const [descriptionArray, setDescriptionArray] = useState<string[]>([]);
+  const [descriptionArray, setDescriptionArray] = useState<DescriptionArray[]>([]);
   useEffect(() => {
     if (postContent) {
       const mentionStringList = postContent.match(/##LINK_ID##[a-zA-Z0-9@_.-]+##LINK_END##/g);
@@ -71,22 +71,6 @@ function EditPostModal({
     const files = postImages.filter((images: any) => images instanceof File);
     onUpdatePost(postContentWithMentionReplacements, files, deleteImageIds, descriptionArray);
   };
-
-  // useEffect(() => {
-  //   de
-  //   const descriptionArrayList:string[] = []
-  //   if(postImages) {
-  //     postImages.map((postImage: any) => {
-  //       if(postImage.description) {
-  //         descriptionArrayList.push(postImage?.description)
-  //       } else {
-  //         descriptionArrayList.push("")
-  //       }
-  //     })
-  //   }
-  //   setDescriptionArray([...descriptionArrayList]);
-  // }, [])
-
   return (
     <ModalContainer
       show={show}

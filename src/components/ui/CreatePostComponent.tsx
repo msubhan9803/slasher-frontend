@@ -59,6 +59,7 @@ interface Props {
   setDisLike?: (val: boolean) => void;
   isWorthIt?: number;
   placeHolder?: string;
+  isEditingCommentOrReply?: boolean;
 }
 
 const AddPhotosButton = styled(RoundButton)`
@@ -78,7 +79,7 @@ function CreatePostComponent({
   deleteImageIds, setDeleteImageIds, postType, titleContent, setTitleContent,
   containSpoiler, setContainSpoiler, rating, setRating, goreFactor, setGoreFactor,
   selectedPostType, setSelectedPostType, setWorthIt, liked, setLike,
-  disLiked, setDisLike, isWorthIt, placeHolder,
+  disLiked, setDisLike, isWorthIt, placeHolder, isEditingCommentOrReply,
 }: Props) {
   const inputFile = useRef<HTMLInputElement>(null);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
@@ -119,6 +120,15 @@ function CreatePostComponent({
         .then((res) => setMentionList(res.data));
     }
   };
+
+  let actionText;
+  if (postType === 'review') {
+    actionText = 'Submit';
+  } else if (isEditingCommentOrReply) {
+    actionText = 'Save';
+  } else {
+    actionText = 'Post';
+  }
 
   return (
     <div className={postType === 'review' ? 'bg-dark mb-3 px-4 py-4 rounded-2' : ''}>
@@ -297,7 +307,7 @@ function CreatePostComponent({
           )}
         <Col md="auto" className={postType === 'review' ? '' : 'order-2 ms-auto'}>
           <RoundButton className="px-4 mt-4 w-100" size="md" onClick={createUpdatePost}>
-            <span className="h3">{postType === 'review' ? 'Submit' : 'Post'}</span>
+            <span className="h3">{actionText}</span>
           </RoundButton>
         </Col>
       </Row>
@@ -331,5 +341,6 @@ CreatePostComponent.defaultProps = {
   setDisLike: () => { },
   isWorthIt: 0,
   placeHolder: 'Write a something...',
+  isEditingCommentOrReply: false,
 };
 export default CreatePostComponent;

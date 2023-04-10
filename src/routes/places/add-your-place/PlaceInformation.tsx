@@ -2,6 +2,7 @@ import React, { ChangeEvent } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
 import CharactersCounter from '../../../components/ui/CharactersCounter';
 import CustomDatePicker from '../../../components/ui/CustomDatePicker';
+import SortData from '../../../components/filter-sort/SortData';
 
 interface InformationProps {
   description: string;
@@ -20,9 +21,12 @@ function PlaceInformation({
     <>
       <Row>
         <Col md={6} lg={12} xl={6} className="mt-3">
-          <Form.Select defaultValue="">
-            <option value="" disabled> Category </option>
-          </Form.Select>
+          <SortData
+            sortVal="Category"
+            onSelectSort={() => { }}
+            sortoptions={[{ value: 'disabled', label: 'Category' }]}
+            type="form"
+          />
         </Col>
         <Col md={6} lg={12} xl={6} className="mt-3">
           <Form.Control type="text" placeholder="Place name" className="fs-4" />
@@ -64,14 +68,20 @@ function PlaceInformation({
       </Row>
       <Row>
         <Col md={6} lg={12} xl={6} className="mt-3">
-          <Form.Select defaultValue="">
-            <option value="" disabled> State/Province </option>
-          </Form.Select>
+          <SortData
+            sortVal="State/Province"
+            onSelectSort={() => { }}
+            sortoptions={[{ value: 'disabled', label: 'State/Province' }]}
+            type="form"
+          />
         </Col>
         <Col md={6} lg={12} xl={6} className="mt-3">
-          <Form.Select defaultValue="">
-            <option value="" disabled> Country  </option>
-          </Form.Select>
+          <SortData
+            sortVal="Country"
+            onSelectSort={() => { }}
+            sortoptions={[{ value: 'disabled', label: 'Country' }]}
+            type="form"
+          />
         </Col>
       </Row>
     </>

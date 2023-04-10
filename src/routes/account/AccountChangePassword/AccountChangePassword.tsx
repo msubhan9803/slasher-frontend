@@ -3,19 +3,12 @@ import {
   Col, Form, InputGroup, Row,
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import styled from 'styled-components';
 import { changePassword } from '../../../api/users';
 import { CustomVisibilityButton } from '../../../components/ui/CustomVisibilityButton';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
 import { signOut } from '../../../utils/session-utils';
 import AccountHeader from '../AccountHeader';
-
-const StyledVisibilityButton = styled(CustomVisibilityButton)`
-  top: 0.7px;
-  right: 1px;
-  z-index: 9 !important;
-`;
 
 function AccountChangePassword() {
   const [currentPassword, setCurrentPassword] = useState<string>('');
@@ -34,7 +27,7 @@ function AccountChangePassword() {
   return (
     <div>
       <AccountHeader tabKey="change-password" />
-      <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-4  my-3">
+      <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-4 my-3">
         <p className="fs-5 m-0">Enter your current password, then enter a new password below to change your password.</p>
         <p className="fs-5">
           If you do not remember your current password&nbsp;
@@ -56,40 +49,40 @@ function AccountChangePassword() {
                   autoComplete="password"
                   aria-label="Current Password"
                 />
-                <StyledVisibilityButton className="position-absolute fw-normal text-light border-0" onClick={() => setShowCurrentPassword(!showCurrentPassword)}>
+                <CustomVisibilityButton className="position-absolute fw-normal text-light border-0" onClick={() => setShowCurrentPassword(!showCurrentPassword)}>
                   {showCurrentPassword ? 'Hide' : 'Show'}
-                </StyledVisibilityButton>
+                </CustomVisibilityButton>
               </InputGroup>
-              <InputGroup>
+              <InputGroup className="my-3">
                 <Form.Control
                   type={showNewPassword ? 'text' : 'password'}
-                  placeholder="New password rounded-2"
-                  className="my-3"
+                  placeholder="New password"
+                  className="rounded-2"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   autoComplete="new-password"
                   aria-label="New Password"
                 />
-                <StyledVisibilityButton className="position-absolute fw-normal text-light border-0 my-3" onClick={() => setShowNewPassword(!showNewPassword)}>
+                <CustomVisibilityButton className="position-absolute fw-normal text-light border-0" onClick={() => setShowNewPassword(!showNewPassword)}>
                   {showNewPassword ? 'Hide' : 'Show'}
-                </StyledVisibilityButton>
+                </CustomVisibilityButton>
               </InputGroup>
               <p className="fs-4 text-light">
                 Your new password must be at least 8 characters and contain at least one (1)
                 special character and atleast one (1) capital letter.
               </p>
-              <InputGroup className="position-relative">
+              <InputGroup className="position-relative my-4">
                 <Form.Control
                   type={showConfirmPassword ? 'text' : 'password'}
-                  placeholder="Re-enter new password rounded-2"
-                  className="fs-5 my-4"
+                  placeholder="Re-enter new password"
+                  className="fs-5 rounded-2"
                   value={newPasswordConfirmation}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   aria-label="Re-enter new password"
                 />
-                <StyledVisibilityButton className="position-absolute fs-5 fw-normal text-light border-0 my-4" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                <CustomVisibilityButton className="position-absolute fs-5 fw-normal text-light border-0" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                   {showConfirmPassword ? 'Hide' : 'Show'}
-                </StyledVisibilityButton>
+                </CustomVisibilityButton>
               </InputGroup>
               <p className="fs-4 text-light">
                 Please note that after you change your password,

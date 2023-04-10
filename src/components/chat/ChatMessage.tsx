@@ -92,7 +92,7 @@ function ChatMessage({ messages, messageLoading }: ChatProps) {
         </div>
       ) : (
         <div className="self-message align-items-end d-flex flex-column mb-3">
-          <div className={`mb-2 d-flex justify-content-end ${message.image ? 'w-100' : 'w-auto'}`}>
+          <div className={`mb-2 d-flex justify-content-end ${message.image ? 'w-100' : 'w-auto'}`} style={{ maxWidth: '100%' }}>
             {message.image
               ? (
                 <Image
@@ -103,7 +103,7 @@ function ChatMessage({ messages, messageLoading }: ChatProps) {
                 />
               )
               : (
-                <p className="fs-4 mb-0 p-3 text-small text-white">
+                <p className="fs-4 mb-0 p-3 text-small text-white" style={{ maxWidth: '100%' }}>
                   {/* eslint-disable-next-line react/no-danger */}
                   <div dangerouslySetInnerHTML={{ __html: addLineBreaks(message.message) }} />
                 </p>

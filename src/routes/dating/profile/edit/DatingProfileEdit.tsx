@@ -8,11 +8,11 @@ import {
 } from 'react-bootstrap';
 import RoundButton from '../../../../components/ui/RoundButton';
 import DatingAdditionalInfo from '../../components/DatingAdditionalInfo/DatingAdditionalInfo';
-import CustomSelect from '../../../../components/ui/CustomSelect';
 import { sexualOrientationOptions } from '../../components/DatingAdditionalInfo/additional-info-form-options';
 import DatingPageWrapper from '../../components/DatingPageWrapper';
 import ProfilePhotoGallery from '../../components/ProfilePhotoGallery';
 import { Heading, Section } from '../../components/styledUtils';
+import SortData from '../../../../components/filter-sort/SortData';
 
 interface Images {
   title: string;
@@ -39,6 +39,7 @@ function DatingProfileEdit() {
   ]);
   const [gender, setGender] = useState('male');
   const [message, setMessage] = useState('');
+  const [selectedSexualOrentation, setSelectedSexualOrentation] = useState('disabled');
 
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(e.target.value);
@@ -117,10 +118,11 @@ function DatingProfileEdit() {
                   </Row>
                 </Col>
                 <Col sm={12} xl={6}>
-                  <CustomSelect
-                    name="sexualOrientation"
-                    options={sexualOrientationOptions}
-                    label="My sexual orientation is"
+                  <SortData
+                    sortVal={selectedSexualOrentation}
+                    onSelectSort={(val) => setSelectedSexualOrentation(val)}
+                    sortoptions={[{ value: 'disabled', label: 'Selct one' }, ...sexualOrientationOptions]}
+                    type="form"
                   />
                   <p className="mt-2">
                     This will display on your profile, unless you choose “Prefer not to

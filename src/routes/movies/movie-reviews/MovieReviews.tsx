@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  useCallback, useEffect, useRef, useState,
+  useCallback, useEffect, useLayoutEffect, useRef, useState,
 } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -67,9 +67,17 @@ function MovieReviews({ movieData, setMovieData }: Props) {
       setContainSpoiler(res.data.spoilers);
     });
   };
+
   useEffect(() => {
+    setTimeout(() => {
+      if (location.state && location.state.movieId && location.state.movieId.length) {
+        movieReviewRef?.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }, 500);
+  }, [location]);
+
+  useLayoutEffect(() => {
     if (location.state && location.state.movieId && location.state.movieId.length) {
-      movieReviewRef?.current?.scrollIntoView({ behavior: 'smooth' });
       setShowReviewForm(true);
       getUserMovieReviewData(location.state.movieId);
     }

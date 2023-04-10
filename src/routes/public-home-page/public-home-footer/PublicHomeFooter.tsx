@@ -1,9 +1,9 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Button, Col, Image, Row,
+  Col, Image, Row,
 } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import {
   faFacebookF, faTwitter, faYoutube, faInstagram,
@@ -12,13 +12,12 @@ import slasherLogo from '../../../images/slasher-logo-medium.png';
 import HeaderLogo from '../../../components/ui/HeaderLogo';
 import AppStoreImage from '../../../images/app-store-badge.png';
 import PlayStoreImage from '../../../images/google-play-badge.png';
-import { handleAppLink, handleNavLink } from '../navigate-link';
 
 const socialMediaSites = [
-  { icon: faFacebookF, to: '/', bgColor: '#3b5998' },
-  { icon: faTwitter, to: '/', bgColor: '#1da1f2' },
-  { icon: faYoutube, to: '/', bgColor: '#CD201F' },
-  { icon: faInstagram, to: '/', bgColor: '#AF1C9D' },
+  { icon: faFacebookF, to: 'https://www.facebook.com/TheSlasherApp', bgColor: '#3b5998' },
+  { icon: faTwitter, to: 'https://twitter.com/theslasherapp', bgColor: '#1da1f2' },
+  { icon: faYoutube, to: 'https://www.youtube.com/channel/UCUcGxsG2u55zlVoe_s8TjcA', bgColor: '#CD201F' },
+  { icon: faInstagram, to: 'https://www.instagram.com/theslasherapp/', bgColor: '#AF1C9D' },
 ];
 
 interface SocialMediaIcon {
@@ -50,30 +49,21 @@ const footerNavList = [
   { value: 'contact-us', label: 'CONTACT US' },
 ];
 function PublicHomeFooter() {
-  const navigate = useNavigate();
-  const footerNavLink = (link: string) => {
-    if (link === 'home') {
-      navigate('/app/public-home-page');
-    } else {
-      handleNavLink(link);
-    }
-  };
-
   return (
     <StyledFooter>
       <div className="w-100 bottom-0 p-2">
         <Row className="m-0 align-items-center">
           <Col md={3} className="me-md-5 p-2 text-center text-md-start">
-            <div className="mb-3">
+            <Link to="/" className="mb-3">
               <HeaderLogo logo={slasherLogo} height="9rem" />
-            </div>
+            </Link>
             <div className="align-items-center d-flex mb-3 justify-content-center justify-content-md-start">
               {socialMediaSites.map((site: any) => (
-                <Link to={site.to} key={site.icon}>
+                <a href={site.to} key={site.icon}>
                   <StyledMediaIcon bgcolor={site.bgColor} className="m-2 align-items-center bg-white d-flex justify-content-center rounded-circle text-black">
                     <FontAwesomeIcon icon={site.icon} className="" />
                   </StyledMediaIcon>
-                </Link>
+                </a>
               ))}
             </div>
             <div>
@@ -81,30 +71,31 @@ function PublicHomeFooter() {
             </div>
           </Col>
           <Col xs={6} md={2} className="mb-md-3">
-            {footerNavList.slice(0, 3).map((navList) => (
-              <Button key={navList.value} variant="link" onClick={() => { footerNavLink(navList.value); }} className="text-decoration-none px-0 px-md-4 py-3 p-md-4 nav-link fs-3">
+            <Link to="/" className="text-decoration-none px-0 px-md-4 py-3 p-md-4 nav-link fs-3">Home</Link>
+            {footerNavList.slice(1, 3).map((navList) => (
+              <a key={navList.value} href={`https://pages.slasher.tv/${navList.value}`} className="text-decoration-none px-0 px-md-4 py-3 p-md-4 nav-link fs-3">
                 {navList.label}
-              </Button>
+              </a>
             ))}
           </Col>
           <Col xs={6} md={3} className="mb-md-3">
             {footerNavList.slice(-3).map((navList) => (
-              <Button key={navList.value} variant="link" onClick={() => footerNavLink(navList.value)} className="text-decoration-none px-0 px-md-4 py-3 p-md-4 nav-link fs-3">
+              <a key={navList.value} href={`https://pages.slasher.tv/${navList.value}`} className="text-decoration-none px-0 px-md-4 py-3 p-md-4 nav-link fs-3">
                 {navList.label}
-              </Button>
+              </a>
             ))}
           </Col>
           <Col md={3} className="p-2 mt-md-5 pt-md-0">
             <Row>
               <Col>
-                <Button variant="link" onClick={() => handleAppLink('app-store')} className="p-0 h-100">
+                <a href="https://apps.apple.com/app/id1458216326" target="_blank" className="p-0 h-100" rel="noreferrer">
                   <Image fluid src={AppStoreImage} alt="app store" className="border rounded ios-badge" />
-                </Button>
+                </a>
               </Col>
               <Col>
-                <Button variant="link" onClick={() => handleAppLink('play-store')} className="p-0 h-100">
+                <a href="https://play.google.com/store/apps/details?id=com.sdei.slasher&hl=en&pli=1'" target="_blank" className="p-0 h-100" rel="noreferrer">
                   <Image fluid src={PlayStoreImage} alt="play store" className="border rounded h-100" />
-                </Button>
+                </a>
               </Col>
             </Row>
           </Col>

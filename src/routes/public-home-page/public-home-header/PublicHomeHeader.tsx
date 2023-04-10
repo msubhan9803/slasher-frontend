@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Button, Col, Navbar, Row,
+  Col, Navbar, Row,
 } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { StyledNav } from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageHeader';
 import HeaderLogo from '../../../components/ui/HeaderLogo';
-import RoundButton from '../../../components/ui/RoundButton';
 import { LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT, XL_MEDIA_BREAKPOINT } from '../../../constants';
 import slasherLogo from '../../../images/slasher-logo-medium.png';
-import { handleNavLink } from '../navigate-link';
 
 interface HeaderStyleProps {
   isOpen: boolean;
@@ -21,7 +19,7 @@ const NavbarToggle = styled(Navbar.Toggle)`
   }
 `;
 
-const StyledNavLink = styled(Button)`
+const StyledNavLink = styled.a`
   @media (min-width: ${LG_MEDIA_BREAKPOINT}){
     text-transform: uppercase;
     font-weight: bold;
@@ -84,15 +82,7 @@ const navList = [
   { value: 'contact-us', label: 'Contact Us' },
 ];
 function PublicHomeHeader() {
-  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const headerNavLink = (link: string) => {
-    if (link === 'home') {
-      navigate('/app/public-home-page');
-    } else {
-      handleNavLink(link);
-    }
-  };
 
   useEffect(() => {
     const selectHeader = document.querySelector('#header');
@@ -139,14 +129,14 @@ function PublicHomeHeader() {
           className="mb-3 d-lg-flex justify-content-lg-center"
         >
           <NavbarToggle onClick={() => setIsOpen(!isOpen)} aria-controls="responsive-navbar-nav" className="toggle border-0" />
-          <Navbar.Brand as={Link} to="/app/public-home-page" style={{ marginTop: isOpen ? '-10px' : '0' }} className={`mx-auto pe-4 ${!isOpen ? 'logo2' : ''} d-lg-none py-0`}>
+          <Navbar.Brand as={Link} to="/" style={{ marginTop: isOpen ? '-10px' : '0' }} className={`mx-auto pe-4 ${!isOpen ? 'logo2' : ''} d-lg-none py-0`}>
             <HeaderLogo logo={slasherLogo} height="8rem" />
           </Navbar.Brand>
           <StyledNavbarCollapse id="responsive-navbar-nav" className="bg-black mt-2 mt-lg-0">
             <StyledNav className="justify-content-between px-3 small-screen w-100">
               <Row className="w-100 align-items-center">
                 <Col lg={3}>
-                  <Navbar.Brand as={Link} to="/app/public-home-page" className="logo1 d-none d-lg-flex py-0">
+                  <Navbar.Brand as={Link} to="/" className="logo1 d-none d-lg-flex py-0">
                     <HeaderLogo logo={slasherLogo} height="9rem" />
                   </Navbar.Brand>
                 </Col>
@@ -155,25 +145,22 @@ function PublicHomeHeader() {
                     {navList.map((nav) => (
                       <StyledNavLink
                         key={nav.value}
-                        variant="link"
+                        href={nav.value === 'home' ? '/' : `https://pages.slasher.tv/${nav.value}`}
                         className="text-start w-100 rounded-0 nav-link py-3 px-5 p-lg-2 text-lg-center fs-3 text-decoration-none text-white"
-                        onClick={() => headerNavLink(nav.value)}
                       >
                         {nav.label}
                       </StyledNavLink>
                     ))}
                     <StyledNavLink
-                      to="/app/home"
-                      onClick={() => navigate('/app/home')}
-                      variant="link"
+                      href="/app/home"
                       className="text-start w-100 rounded-0 nav-link d-lg-none py-3 py-lg-0 px-5 px-lg-2 mx-xl-2 text-lg-center fs-3 text-decoration-none text-white"
                     >
                       Login In
                     </StyledNavLink>
                   </div>
                 </Col>
-                <Col lg={1}>
-                  <RoundButton onClick={() => navigate('/app/home')} className="login-btn mx-auto d-none d-lg-block px-4">Login</RoundButton>
+                <Col lg={1} className="d-none d-lg-block">
+                  <Link to="/app/home" className="btn btn-primary d-flex justify-content-center mx-auto px-5 rounded-pill">Login</Link>
                 </Col>
               </Row>
             </StyledNav>

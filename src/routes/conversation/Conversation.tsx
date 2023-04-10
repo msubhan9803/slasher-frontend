@@ -84,8 +84,6 @@ function Conversation() {
   }, [onChatMessageReceivedHandler, socket]);
 
   useEffect(() => {
-    socket?.emit('clearNewConversationIds', {});
-    dispatch(resetUnreadConversationCount());
     markAllReadForSingleConversation(conversationId!);
   }, [dispatch, socket, conversationId]);
 

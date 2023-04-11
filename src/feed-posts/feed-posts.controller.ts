@@ -314,6 +314,10 @@ export class FeedPostsController {
       });
     }
 
+    if(oldImagesDescription && oldImagesDescription.length && !newImagesDescription.length){
+      Object.assign(updateFeedPostsDto, { images: feedPost.images})
+    }
+
     const images = [];
     for (const [index, file] of files.entries()) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);

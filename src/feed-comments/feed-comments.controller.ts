@@ -207,7 +207,9 @@ export class FeedCommentsController {
         return image;
       });
     }
-
+    if (oldImagesDescription && oldImagesDescription.length && !newImagesDescription.length) {
+      Object.assign(updateFeedCommentsDto, { images: comment.images })
+    }
     const images = [];
     for (const [index, file] of files.entries()) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
@@ -412,7 +414,6 @@ export class FeedCommentsController {
         HttpStatus.BAD_REQUEST,
       );
     }
-
     if (oldImagesDescription && oldImagesDescription.length) {
       reply.images.map((image) => {
         const matchingDesc = oldImagesDescription.find((desc) => desc._id === (image as any)._id.toString());
@@ -423,7 +424,9 @@ export class FeedCommentsController {
         return image;
       });
     }
-
+    if (oldImagesDescription && oldImagesDescription.length && !newImagesDescription.length) {
+      Object.assign(updateFeedReplyDto, { images: reply.images })
+    }
     const images = [];
     for (const [index, file] of files.entries()) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);

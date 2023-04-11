@@ -12,7 +12,7 @@ export class UpdateImageDescriptionsDto {
   _id: string;
 
   @IsOptional()
-  @MaxLength(250, { each: true }) // set maximum length of each string inside the array
+  @MaxLength(250, { message: 'description cannot be longer than 250 characters', each: true })
   description: string;
 }
 

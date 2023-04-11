@@ -45,7 +45,7 @@ export class MoviePostDto {
 }
 
 export class ImageDescriptionsDto {
-  @MaxLength(250, { each: true }) // set maximum length of each string inside the array
+  @MaxLength(250, { message: 'description cannot be longer than 250 characters', each: true })
   description: string;
 }
 
@@ -73,7 +73,7 @@ export class CreateFeedPostsDto {
   @IsOptional()
   @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
   @ArrayMaxSize(MAX_ALLOWED_UPLOAD_FILES_FOR_POST, { message: 'Only allow maximum of 10 description' })
-  @Type(() => ImageDescriptionsDto)
   @ValidateNested({ each: true })
+  @Type(() => ImageDescriptionsDto)
   imageDescriptions: ImageDescriptionsDto[];
 }

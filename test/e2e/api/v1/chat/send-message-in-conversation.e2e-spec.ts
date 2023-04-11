@@ -326,6 +326,17 @@ describe('Send Message In Conversation / (e2e)', () => {
         expect(response.body.statusCode).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('Only allow maximum of 10 description');
       });
+
+      it('check description length validation', async () => {
+        const matchListId = message1.matchId._id;
+        const response = await request(app.getHttpServer())
+          .post(`/api/v1/chat/conversation/${matchListId}/message`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('imageDescriptions[0][description]', new Array(252).join('z'))
+          .expect(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('description cannot be longer than 250 characters');
+      });
     });
 
     describe('Validation', () => {

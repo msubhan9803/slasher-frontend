@@ -620,6 +620,16 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
       expect(response.body.message).toContain('Only allow maximum of 4 description');
     });
 
+    it('check description length validation', async () => {
+      const response = await request(app.getHttpServer())
+        .patch(`/api/v1/feed-comments/${feedComment._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('imageDescriptions[0][description]', new Array(252).join('z'))
+        .expect(HttpStatus.BAD_REQUEST);
+      expect(response.body.message).toContain('description cannot be longer than 250 characters');
+    });
+
     describe('Validation', () => {
       it('check message length validation', async () => {
         const message = new Array(8002).join('z');

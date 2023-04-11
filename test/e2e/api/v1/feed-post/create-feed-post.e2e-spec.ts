@@ -586,6 +586,25 @@ describe('Feed-Post / Post File (e2e)', () => {
           .field('postType', 4);
         expect(response.body.message).toContain('postType must be one of the following values: 3, 2, 1');
       });
+
+      it('check description length validation', async () => {
+        await createTempFiles(async (tempPaths) => {
+          const response = await request(app.getHttpServer())
+            .post('/api/v1/feed-posts')
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('message', 'create feed post message')
+            .field('userId', activeUser._id.toString())
+            .attach('files', tempPaths[0])
+            .field('imageDescriptions[0][description]', new Array(252).join('z'))
+            .expect(HttpStatus.BAD_REQUEST);
+          expect(response.body.message).toContain('description cannot be longer than 250 characters');
+        }, [{ extension: 'png' }, { extension: 'jpg' }]);
+
+        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+        expect(allFilesNames).toEqual(['.keep']);
+      });
     });
   });
 });

@@ -502,6 +502,16 @@ describe('Feed-Comments/Replies File (e2e)', () => {
       expect(response.body.message).toContain('Only allow maximum of 4 description');
     });
 
+    it('check description length validation', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/feed-comments/replies')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('imageDescriptions[0][description]', new Array(252).join('z'))
+        .expect(HttpStatus.BAD_REQUEST);
+      expect(response.body.message).toContain('description cannot be longer than 250 characters');
+    });
+
     describe('when the feed post was created by a user with a non-public profile', () => {
       let user1;
       let feedPost1;

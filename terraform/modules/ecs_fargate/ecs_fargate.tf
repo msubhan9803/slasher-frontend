@@ -57,39 +57,39 @@ resource "aws_ecs_task_definition" "slasher-web-task-new-defination" {
       },
       {
         "name" : "CRON_ENABLED",
-        "value" : "false"
+        "value" : "${var.cron_enabled_web}"
       },
       {
         "name" : "DEFAULT_SMTP_HOST",
-        "value" : "mail.slasher.tv"
+        "value" : "${var.default_smtp_host}"
       },
       {
         "name" : "DEFAULT_SMTP_PORT",
-        "value" : "465"
+        "value" : "${var.default_smtp_port}"
       },
       {
         "name" : "REPORT_EMAIL_RECIPIENT",
-        "value" : "test@slasher.tv"
+        "value" : "${var.report_email_recipient}"
       },
       {
         "name" : "HELP_EMAIL",
-        "value" : "help@slasher.tv"
+        "value" : "${var.help_email}"
       },
       {
         "name" : "UPLOAD_DIR",
-        "value" : "/tmp"
+        "value" : "${var.upload_dir}"
       },
       {
         "name" : "STORAGE_LOCATION_GENERATOR_PREFIX",
-        "value" : "/staging"
+        "value" : "${var.storage_location_generator_prefix}"
       },
       {
         "name" : "FILE_STORAGE",
-        "value" : "s3"
+        "value" : "${var.file_storage}"
       },
       {
         "name" : "S3_REGION",
-        "value" : "us-east-1"
+        "value" : "${var.AWSRegion}"
       },
       {
         "name" : "FRONTEND_URL",

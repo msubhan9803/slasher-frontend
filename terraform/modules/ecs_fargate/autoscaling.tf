@@ -55,7 +55,7 @@ resource "aws_cloudwatch_metric_alarm" "slasher-web-service-new_cpu_high" {
   evaluation_periods  = "2"
   metric_name         = "CPUUtilization"
   namespace           = "AWS/ECS"
-  period              = "10"
+  period              = "60"
   statistic           = "Average"
   threshold           = "70"
 

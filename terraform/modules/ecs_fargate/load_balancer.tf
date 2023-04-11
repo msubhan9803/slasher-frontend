@@ -15,7 +15,7 @@ resource "aws_lb_target_group" "target-group-slasher-web-app-new" {
     timeout             = 10
     path                = "/health-check"
     unhealthy_threshold = 10
-    matcher             = "200,401,404"
+    matcher             = "200"
   }
 }
 
@@ -36,7 +36,7 @@ resource "aws_lb_target_group" "target-group-slasher-cron" {
     timeout             = 10
     path                = "/health-check"
     unhealthy_threshold = 10
-    matcher             = "200,401,404"
+    matcher             = "200"
   }
 }
 

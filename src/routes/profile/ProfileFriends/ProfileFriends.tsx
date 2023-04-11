@@ -19,6 +19,7 @@ import { reportData } from '../../../api/report';
 import { createBlockUser } from '../../../api/blocks';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
+import { rejectFriendsRequest } from '../../../api/friends';
 
 interface FriendProps {
   _id?: string;
@@ -74,6 +75,13 @@ function ProfileFriends({ user }: Props) {
       setPopoverClick(popoverClickProps);
     } else if (value === 'View profile') {
       navigate(`/${popoverClickProps.userName}`);
+    } else if (value === 'Unfriend') {
+      if (popoverClickProps?.id) {
+        rejectFriendsRequest(popoverClickProps?.id!).then(() => {
+          // eslint-disable-next-line max-len
+          setFriendsList((prevFriendsList) => prevFriendsList.filter((friend) => friend._id !== popoverClickProps?.id));
+        });
+      }
     }
     setPopoverClick(popoverClickProps);
   };

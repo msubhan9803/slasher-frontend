@@ -74,11 +74,11 @@ function FriendActionButtons({
   }
   return (
     <>
-      {friendStatus === FriendRequestReaction.Accepted && <RoundButtonLink variant="black" to={`/app/messages/conversation/new?userId=${user?._id}`} className={`me-2 px-4 ${buttonType === 'send-message' ? '' : 'border-1 border-primary'}`}>Send message</RoundButtonLink>}
+      {friendStatus === FriendRequestReaction.Accepted && <RoundButtonLink variant="black" to={`/app/messages/conversation/new?userId=${user?._id}`} className={`me-2 text-nowrap ${buttonType === 'send-message' ? '' : 'border-1 border-primary'}`}>Send message</RoundButtonLink>}
       {
         show && ButtonLabel
         && (
-          <RoundButton className="px-4 me-2 fs-3" variant={`${friendStatus === FriendRequestReaction.Pending || friendStatus === FriendRequestReaction.Accepted ? 'black' : 'primary'}`} onClick={() => friendRequestApi(friendStatus)}>
+          <RoundButton className="me-2 text-nowrap" variant={`${friendStatus === FriendRequestReaction.Pending || friendStatus === FriendRequestReaction.Accepted ? 'black' : 'primary'}`} onClick={() => friendRequestApi(friendStatus)}>
             {ButtonLabel}
           </RoundButton>
         )

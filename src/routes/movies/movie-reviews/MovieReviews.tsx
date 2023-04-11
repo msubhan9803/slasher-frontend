@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  useCallback, useEffect, useLayoutEffect, useRef, useState,
+  useCallback, useEffect, useLayoutEffect, useState,
 } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -28,15 +28,18 @@ import { getMoviesById } from '../../../api/movies';
 type Props = {
   movieData: MovieData;
   setMovieData: React.Dispatch<React.SetStateAction<MovieData | undefined>>;
+  reviewForm: boolean;
+  setReviewForm: (value: boolean) => void;
 };
 
 const loginUserPopoverOptions = ['Edit Review', 'Delete Review'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
 
-function MovieReviews({ movieData, setMovieData }: Props) {
+function MovieReviews({
+  movieData, setMovieData, reviewForm, setReviewForm,
+}: Props) {
   const { id } = useParams();
   const location = useLocation();
-  const movieReviewRef = useRef<HTMLDivElement>(null);
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -67,21 +70,12 @@ function MovieReviews({ movieData, setMovieData }: Props) {
       setContainSpoiler(res.data.spoilers);
     });
   };
-
-  useEffect(() => {
-    setTimeout(() => {
-      if (location.state && location.state.movieId && location.state.movieId.length) {
-        movieReviewRef?.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    }, 500);
-  }, [location]);
-
   useLayoutEffect(() => {
-    if (location.state && location.state.movieId && location.state.movieId.length) {
+    if ((location.state && location.state.movieId && location.state.movieId.length) || reviewForm) {
       setShowReviewForm(true);
-      getUserMovieReviewData(location.state.movieId);
+      getUserMovieReviewData(id!);
     }
-  }, [location]);
+  }, [location, reviewForm, id]);
 
   const callLatestFeedPost = useCallback(() => {
     if (id) {
@@ -358,7 +352,7 @@ function MovieReviews({ movieData, setMovieData }: Props) {
     }
   };
   return (
-    <div ref={movieReviewRef}>
+    <div>
       {
         showReviewForm
           ? (
@@ -384,6 +378,8 @@ function MovieReviews({ movieData, setMovieData }: Props) {
               setDisLike={setDisLike}
               isWorthIt={isWorthIt}
               placeHolder="Write your review here"
+              reviewForm={reviewForm}
+              setReviewForm={setReviewForm}
             />
           ) : (
             <CustomCreatePost

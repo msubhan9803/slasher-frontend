@@ -160,7 +160,6 @@ function CommentInput({
   const onUpdatePost = (msg: string) => {
     const imageArr = isReply ? replyImageArray : imageArray;
     const descriptionArr = isReply ? replyDescriptionArray : descriptionArray;
-
     if (isReply) {
       addUpdateReply!({
         replyMessage: msg,
@@ -193,6 +192,7 @@ function CommentInput({
   };
   const handleMessage = () => {
     const postContentWithMentionReplacements = (editMessage!.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    // const files = imageArray.filter((images: any) => images instanceof File);
     onUpdatePost(postContentWithMentionReplacements);
   };
 
@@ -218,21 +218,6 @@ function CommentInput({
     return '';
   };
 
-  // useEffect(() => {
-  //   // debugger
-  //   const descriptionArrayList: string[] = []
-  //   if (imageArray) {
-  //     imageArray.map((postImage: any) => {
-  //       if (postImage.description) {
-  //         descriptionArrayList.push(postImage?.description)
-  //       } else {
-  //         descriptionArrayList.push("")
-  //       }
-  //     })
-  //   }
-  //   setDescriptionArray!(descriptionArrayList);
-  // }, [])
-
   const onChangeDescription = (newValue: string, index: number) => {
     const descriptionArrayList: string[] = isReply
       ? [...replyDescriptionArray!] : [...descriptionArray!];
@@ -244,10 +229,6 @@ function CommentInput({
       setDescriptionArray!([...descriptionArrayList]);
     }
   };
-
-  // console.log("descriptionaRRAY**", descriptionArray)
-  // console.log("replyDescriptionArray**", replyDescriptionArray)
-
   return (
     <Form>
       <Row className="pt-2 order-last order-sm-0">
@@ -320,6 +301,7 @@ function CommentInput({
         {imageArray.map((post: File, index: number) => (
           <Col xs="auto" key={post.name} className="px-3 mb-1">
             <ImagesContainer
+              mainContainerWidth="7.25"
               containerWidth="4.25rem"
               containerHeight="4.25rem"
               containerBorder="0.125rem solid #3A3B46"
@@ -329,7 +311,7 @@ function CommentInput({
               onAltTextChange={(newValue) => { onChangeDescription!(newValue, index); }}
               handleRemoveImage={handleRemoveFile}
               index={index}
-              containerClass="mt-2 mb-3 position-relative d-flex justify-content-center align-items-center rounded border-0"
+              containerClass="mt-2 mb-3 m-auto position-relative d-flex justify-content-center align-items-center rounded border-0"
               removeIconStyle={{
                 padding: '0.313rem 0.438rem',
                 top: '-0.5rem',

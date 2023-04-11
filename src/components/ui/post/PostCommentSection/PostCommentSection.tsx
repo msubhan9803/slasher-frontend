@@ -460,54 +460,41 @@ function PostCommentSection({
     }
   }, [queryCommentId, queryReplyId, commentData]);
 
-  const generateReplyInput = (dataId: any) => {
-    console.log('(generateReplyInput(data.id))');
-    return (
-      <div id={scrollId} ref={tabsRef}>
-        <CommentInput
-          userData={userData}
-          message={replyMessage}
-          inputFile={replyInputFile}
-          handleFileChange={handleFileChange}
-          sendComment={sendComment}
-          imageArray={replyImageArray}
-          handleRemoveFile={handleRemoveFile}
-          dataId={dataId}
-          handleSearch={handleSearch}
-          mentionList={mentionList}
-          isReply
-          replyImageArray={replyImageArray}
-          addUpdateReply={addUpdateReply}
-          commentID={selectedReplyCommentId}
-          commentReplyID={selectedReplyId!}
-          commentError={commentError}
-          commentReplyError={commentReplyError}
-          commentSent={commentSent}
-          setCommentReplyErrorMessage={setCommentReplyErrorMessage}
-          setReplyImageArray={setReplyImageArray}
-          isEdit={isEdit}
-          updateState={updateState}
-          replyDescriptionArray={replyDescriptionArray}
-          setReplyDescriptionArray={setReplyDescriptionArray}
-
-        />
-        {
+  const generateReplyInput = (dataId: any) => (
+    <div id={scrollId} ref={tabsRef}>
+      <CommentInput
+        userData={userData}
+        message={replyMessage}
+        inputFile={replyInputFile}
+        handleFileChange={handleFileChange}
+        sendComment={sendComment}
+        imageArray={replyImageArray}
+        handleRemoveFile={handleRemoveFile}
+        dataId={dataId}
+        handleSearch={handleSearch}
+        mentionList={mentionList}
+        isReply
+        replyImageArray={replyImageArray}
+        addUpdateReply={addUpdateReply}
+        commentID={selectedReplyCommentId}
+        commentReplyID={selectedReplyId!}
+        commentError={commentError}
+        commentReplyError={commentReplyError}
+        commentSent={commentSent}
+        setCommentReplyErrorMessage={setCommentReplyErrorMessage}
+        setReplyImageArray={setReplyImageArray}
+        isEdit={isEdit}
+        updateState={updateState}
+        replyDescriptionArray={replyDescriptionArray}
+        setReplyDescriptionArray={setReplyDescriptionArray}
+      />
+      {
           !isEdit && commentReplyError
           && <ErrorMessageList errorMessages={commentReplyError} divClass="mt-3 text-start" className="m-0 mb-4" />
         }
-      </div>
-    );
-  };
+    </div>
+  );
 
-  // const onChangeDescription = (newValue:string, index: number) => {
-  //   // debugger
-  //   const descriptionArrayList:string[] = [...descriptionArray]
-  //   descriptionArrayList![index] = newValue;
-  //   console.log("descriptionlist", descriptionArrayList)
-  //   setDescriptionArray([...descriptionArrayList])
-  // }
-
-  // console.log("descriptionArra=>POSTCOMMENTSECTION", descriptionArray)
   return (
     <>
       <CommentInput

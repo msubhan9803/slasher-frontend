@@ -14,6 +14,7 @@ interface ImageContainerProps {
   handleRemoveImage: (image: File, index?: number, id?: string) => void;
   containerClass: string;
   removeIconStyle: any;
+  mainContainerWidth?: string;
   containerWidth: string;
   containerHeight: string;
   containerBorder: string;
@@ -33,7 +34,7 @@ const StyledImageContainer = styled.div<StyledImageContainerProps>`
 `;
 
 function ImagesContainer({
-  image, alt, handleRemoveImage, containerClass, removeIconStyle,
+  image, alt, handleRemoveImage, containerClass, removeIconStyle, mainContainerWidth,
   containerWidth, containerHeight, containerBorder, dataId, onAltTextChange, index,
 }: ImageContainerProps) {
   const [altText, setAltText] = useState<string>();
@@ -55,7 +56,7 @@ function ImagesContainer({
     return null;
   };
   return (
-    <div style={{ width: containerWidth }}>
+    <div style={{ width: mainContainerWidth || containerWidth }}>
       <StyledImageContainer
         width={containerWidth}
         height={containerHeight}
@@ -120,6 +121,7 @@ ImagesContainer.defaultProps = {
   dataId: undefined,
   onAltTextChange: undefined,
   index: undefined,
+  mainContainerWidth: undefined,
 };
 
 export default ImagesContainer;

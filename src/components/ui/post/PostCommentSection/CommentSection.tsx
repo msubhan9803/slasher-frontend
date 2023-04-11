@@ -180,6 +180,7 @@ function CommentSection({
                   images.map((imageData: any) => ({
                     imageUrl: imageData.image_path,
                     imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
+                    imageDescription: imageData.description,
                   }))
                 }
               />

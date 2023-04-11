@@ -150,7 +150,7 @@ function CreatePostComponent({
 
   useEffect(() => {
     const descriptionArrayList: DescriptionArray[] = [];
-    if (imageArray) {
+    if (imageArray && imageArray.length !== descriptionArray?.length) {
       imageArray.map((postImage: any) => {
         if (postImage.description) {
           descriptionArrayList.push({ description: postImage?.description, id: postImage?._id });
@@ -161,7 +161,7 @@ function CreatePostComponent({
       });
       setDescriptionArray!([...descriptionArrayList]);
     }
-  }, [imageArray, setDescriptionArray]);
+  }, [imageArray, setDescriptionArray, descriptionArray]);
 
   return (
     <div className={postType === 'review' ? 'bg-dark mb-3 px-4 py-4 rounded-2' : ''}>

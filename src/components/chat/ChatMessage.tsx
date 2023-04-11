@@ -35,7 +35,6 @@ const ChatMessages = styled.div`
 function ChatMessage({ messages, messageLoading }: ChatProps) {
   const messageRef = useRef<HTMLDivElement>(null);
   let lastTimeStampMessage = '';
-
   useEffect(() => {
     if (messageRef.current) {
       messageRef.current.scrollIntoView(
@@ -72,7 +71,7 @@ function ChatMessage({ messages, messageLoading }: ChatProps) {
               ? (
                 <Image
                   src={message.image}
-                  alt="User upload"
+                  alt={`${message.imageDescription ? message.imageDescription : 'User upload'}`}
                   className="w-50 h-auto img-fluid rounded-3"
                   onLoad={() => onImageLoad()}
                 />
@@ -97,7 +96,7 @@ function ChatMessage({ messages, messageLoading }: ChatProps) {
               ? (
                 <Image
                   src={message.image}
-                  alt="User upload"
+                  alt={`${message.imageDescription ? message.imageDescription : 'User upload'}`}
                   className="w-50 h-auto img-fluid rounded-3"
                   onLoad={() => onImageLoad()}
                 />

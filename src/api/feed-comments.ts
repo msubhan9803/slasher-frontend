@@ -1,6 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
+import { DescriptionArray } from '../types';
 
 export async function getFeedComments(
   feedPostId: string,
@@ -24,12 +25,16 @@ export async function addFeedComments(
   feedPostId: string,
   message: string,
   file: any,
-  descriptionArray?: string[],
+  descriptionArray?: any,
 ) {
   const token = Cookies.get('sessionToken');
   const formData = new FormData();
-  for (let i = 0; i < file.length; i += 1) {
-    formData.append('images', file[i]);
+  for (let i = 0; i < descriptionArray.length; i += 1) {
+    if (file && file.length && file !== undefined) {
+      if (file[i] !== undefined) {
+        formData.append('images', file[i]);
+      }
+    }
     formData.append(`imageDescriptions[${[i]}][description]`, descriptionArray![i]);
   }
   formData.append('message', message);
@@ -86,13 +91,20 @@ export async function updateFeedComments(
   feedCommentId: string,
   file: string[],
   imagesToDelete: string[] | undefined,
-  descriptionArray?: string[],
+  descriptionArray?: DescriptionArray[] | any,
 ) {
   const token = Cookies.get('sessionToken');
   const formData = new FormData();
-  for (let i = 0; i < file.length; i += 1) {
-    formData.append('files', file[i]);
-    formData.append(`imageDescriptions[${[i]}][description]`, descriptionArray![i]);
+  for (let i = 0; i < descriptionArray.length; i += 1) {
+    if (file && file.length && file !== undefined) {
+      if (file[i] !== undefined) {
+        formData.append('files', file[i]);
+      }
+    }
+    if (descriptionArray![i].id) {
+      formData.append(`imageDescriptions[${[i]}][_id]`, descriptionArray![i].id);
+    }
+    formData.append(`imageDescriptions[${[i]}][description]`, descriptionArray![i].description);
   }
   formData.append('message', message);
   formData.append('feedPostId', feedPostId);
@@ -114,13 +126,20 @@ export async function updateFeedCommentReply(
   feedReplyId: string,
   file: string[],
   imagesToDelete: string[] | undefined,
-  descriptionArray?: string[],
+  descriptionArray?: DescriptionArray[] | any,
 ) {
   const token = Cookies.get('sessionToken');
   const formData = new FormData();
-  for (let i = 0; i < file.length; i += 1) {
-    formData.append('files', file[i]);
-    formData.append('imageDescriptions', descriptionArray![i]);
+  for (let i = 0; i < descriptionArray.length; i += 1) {
+    if (file && file.length && file !== undefined) {
+      if (file[i] !== undefined) {
+        formData.append('files', file[i]);
+      }
+    }
+    if (descriptionArray![i].id) {
+      formData.append(`imageDescriptions[${[i]}][_id]`, descriptionArray![i].id);
+    }
+    formData.append(`imageDescriptions[${[i]}][description]`, descriptionArray![i].description);
   }
   formData.append('message', message);
   formData.append('feedPostId', feedPostId);

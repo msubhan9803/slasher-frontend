@@ -66,20 +66,16 @@ export async function updateFeedPost(
 ) {
   const token = Cookies.get('sessionToken');
   const formData = new FormData();
-  if (file && file.length) {
-    for (let i = 0; i < file.length; i += 1) {
-      formData.append('files', file[i]);
-      if (descriptionArray) {
-        formData.append(`imageDescriptions[${[i]}][description]`, descriptionArray![i].description);
+  for (let i = 0; i < descriptionArray.length; i += 1) {
+    if (file && file.length && file !== undefined) {
+      if (file[i] !== undefined) {
+        formData.append('files', file[i]);
       }
     }
-  } else {
-    for (let i = 0; i < descriptionArray.length; i += 1) {
-      formData.append('files', descriptionArray[i]);
-      if (descriptionArray) {
-        formData.append(`imageDescriptions[${[i]}][description]`, descriptionArray![i].description);
-      }
+    if (descriptionArray![i].id) {
+      formData.append(`imageDescriptions[${[i]}][_id]`, descriptionArray![i].id);
     }
+    formData.append(`imageDescriptions[${[i]}][description]`, descriptionArray![i].description);
   }
   formData.append('message', message);
   if (imagesToDelete) {

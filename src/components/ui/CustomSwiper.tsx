@@ -18,6 +18,7 @@ interface SliderImage {
   imageUrl: string;
   linkUrl?: string;
   videoKey?: string;
+  imageDescription?: string;
 }
 
 type SwiperContext = 'post' | 'comment';
@@ -99,7 +100,7 @@ function CustomSwiper({
           <img
             src={`https://img.youtube.com/vi/${imageAndVideo.videoKey}/hqdefault.jpg`}
             className="w-100 h-100"
-            alt="user uploaded content"
+            alt={`${imageAndVideo.imageDescription ? imageAndVideo.imageDescription : 'user uploaded content'} `}
             onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
               if (images.length > 1) {
                 e.currentTarget.src = placeholderUrlNoImageAvailable;
@@ -131,7 +132,7 @@ function CustomSwiper({
             <img
               src={imageAndVideo.imageUrl}
               className="w-100 h-100"
-              alt="user uploaded content"
+              alt={`${imageAndVideo.imageDescription ? imageAndVideo.imageDescription : 'user uploaded content'} `}
               onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                 if (images.length > 1) {
                   e.currentTarget.src = placeholderUrlNoImageAvailable;
@@ -150,7 +151,7 @@ function CustomSwiper({
         <CustomSwiperZoomableImage
           className="h-100"
           src={imageAndVideo.imageUrl}
-          alt="user uploaded content"
+          alt={`${imageAndVideo.imageDescription ? imageAndVideo.imageDescription : 'user uploaded content'} `}
           onImgError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
             if (images.length > 1) {
               e.currentTarget.src = placeholderUrlNoImageAvailable;

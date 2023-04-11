@@ -64,7 +64,7 @@ function EditCommentModal({
         replyMessage: msg,
         replyId: commentReplyID,
         commentId: commentID,
-        images: imagesList,
+        images: imagesList.filter((images: any) => images instanceof File),
         deleteImage: deleteImages,
         descriptionArr: descriptionArray,
       });
@@ -75,7 +75,7 @@ function EditCommentModal({
       addUpdateComment({
         commentMessage: mentionReplyString,
         commentId: commentID,
-        images: postImages,
+        images: postImages.filter((images: any) => images instanceof File),
         deleteImage: deleteImages,
         descriptionArr: descriptionArray,
       });

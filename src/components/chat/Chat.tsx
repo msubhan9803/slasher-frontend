@@ -64,7 +64,6 @@ function Chat({
   imageArray, messageLoading, descriptionArray, setDescriptionArray,
 }: ChatProps) {
   const onChangeDescription = (newValue: string, index: number) => {
-    // debugger
     const descriptionArrayList = [...descriptionArray!];
     descriptionArrayList![index] = newValue;
     setDescriptionArray!([...descriptionArrayList!]);
@@ -119,7 +118,7 @@ function Chat({
           calculateRows={calculateRows}
           textareaRef={textareaRef}
         />
-        <div className="image-container overflow-auto d-flex mx-4 gap-3">
+        <div className="image-container overflow-auto d-flex mx-4 gap-3 mt-3">
           {imageArray!.map((post: File, index: number) => (
             <Col xs="auto" key={post.name} className="mb-2">
               <ImagesContainer

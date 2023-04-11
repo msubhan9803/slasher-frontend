@@ -21,7 +21,7 @@ import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import { MentionProps } from '../../../routes/posts/create-post/CreatePost';
 import {
-  CommentValue, FeedComments, Post, User,
+  CommentValue, DescriptionArray, FeedComments, Post, User,
 } from '../../../types';
 import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-utils';
 import { decryptMessage } from '../../../utils/text-utils';
@@ -56,6 +56,7 @@ function PostDetail({ user, postType }: Props) {
   const [commentErrorMessage, setCommentErrorMessage] = useState<string[]>([]);
   const [commentReplyErrorMessage, setCommentReplyErrorMessage] = useState<string[]>([]);
   const [postData, setPostData] = useState<Post[]>([]);
+  const [deleteImageIds, setDeleteImageIds] = useState<any>([]);
   const [show, setShow] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
@@ -80,7 +81,6 @@ function PostDetail({ user, postType }: Props) {
   const [checkPostUpdate, setCheckPostUpdate] = useState<boolean>(false);
   const [commentSent, setCommentSent] = useState<boolean>(false);
   const scrollPositionRef = useRef(scrollPosition);
-
   useEffect(() => {
     scrollPositionRef.current = scrollPosition;
   });
@@ -482,19 +482,23 @@ function PostDetail({ user, postType }: Props) {
     }
   }, [postId, getFeedPostDetail]);
 
-  const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
+  const onUpdatePost = (
+    message: string,
+    images: string[],
+    imageDelete: string[] | undefined,
+    descriptionArray?: DescriptionArray[],
+  ) => {
     if (postId) {
-      updateFeedPost(postId, message, images, imageDelete).then(() => {
+      updateFeedPost(postId, message, images, imageDelete, null, descriptionArray).then(() => {
         setShow(false);
         getFeedPostDetail(postId);
         setCheckPostUpdate(true);
-      })
-        .catch((error) => {
-          const msg = error.response.status === 0 && !error.response.data
-            ? 'Combined size of files is too large.'
-            : error.response.data.message;
-          setErrorMessage(msg);
-        });
+      }).catch((error) => {
+        const msg = error.response.status === 0 && !error.response.data
+          ? 'Combined size of files is too large.'
+          : error.response.data.message;
+        setErrorMessage(msg);
+      });
     } else {
       setShow(false);
     }
@@ -763,14 +767,14 @@ function PostDetail({ user, postType }: Props) {
               />
               {dropDownValue !== 'Edit'
                 && (
-                <ReportModal
-                  onConfirmClick={deletePostClick}
-                  show={show}
-                  setShow={setShow}
-                  slectedDropdownValue={dropDownValue}
-                  handleReport={reportPost}
-                  onBlockYesClick={onBlockYesClick}
-                />
+                  <ReportModal
+                    onConfirmClick={deletePostClick}
+                    show={show}
+                    setShow={setShow}
+                    slectedDropdownValue={dropDownValue}
+                    handleReport={reportPost}
+                    onBlockYesClick={onBlockYesClick}
+                  />
                 )}
               {postType !== 'news' && dropDownValue === 'Edit'
                 && (
@@ -790,7 +794,6 @@ function PostDetail({ user, postType }: Props) {
         )
         : (
           <div>
-            <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
             <PostFeed
               detailPage
               postFeedData={postData}
@@ -835,14 +838,14 @@ function PostDetail({ user, postType }: Props) {
             />
             {dropDownValue !== 'Edit'
               && (
-              <ReportModal
-                onConfirmClick={deletePostClick}
-                show={show}
-                setShow={setShow}
-                slectedDropdownValue={dropDownValue}
-                handleReport={reportPost}
-                onBlockYesClick={onBlockYesClick}
-              />
+                <ReportModal
+                  onConfirmClick={deletePostClick}
+                  show={show}
+                  setShow={setShow}
+                  slectedDropdownValue={dropDownValue}
+                  handleReport={reportPost}
+                  onBlockYesClick={onBlockYesClick}
+                />
               )}
             {postType !== 'news' && dropDownValue === 'Edit'
               && (
@@ -855,6 +858,8 @@ function PostDetail({ user, postType }: Props) {
                   onUpdatePost={onUpdatePost}
                   postImages={postImages}
                   setPostImages={setPostImages}
+                  deleteImageIds={deleteImageIds}
+                  setDeleteImageIds={setDeleteImageIds}
                 />
               )}
           </div>

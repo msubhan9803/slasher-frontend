@@ -380,7 +380,6 @@ function PostFeed({
       </h1>
     </>
   );
-
   return (
     <StyledPostFeed>
       {postData.map((post: any, i) => (
@@ -418,6 +417,7 @@ function PostFeed({
                         linkUrl: detailPage ? undefined : imageLinkUrl(post, imageData._id),
                         postId: post.id,
                         imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
+                        imageDescription: imageData.description,
                       }))
                     }
                     initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}

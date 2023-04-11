@@ -38,7 +38,6 @@ function Conversation() {
   const [uploadPost, setUploadPost] = useState<string[]>([]);
   const [messageLoading, setMessageLoading] = useState<boolean>(false);
   const [descriptionArray, setDescriptionArray] = useState<string[]>([]);
-
   useEffect(() => {
     if (location.pathname.includes('/new')) {
       const newConversationUserId = searchParams.get('userId');
@@ -125,6 +124,7 @@ function Conversation() {
                 time: sentMessage.createdAt,
                 participant: 'self',
                 image: sentMessage.image ?? null,
+                imageDescription: sentMessage.imageDescription,
               },
             ]);
             setMessageLoading(false);
@@ -227,7 +227,7 @@ function Conversation() {
     }
   };
 
-  const handleRemoveFile = (postImage: File, index:number) => {
+  const handleRemoveFile = (postImage: File, index: number) => {
     const removePostImage = imageArray.filter((image: File) => image !== postImage);
     setImageArray(removePostImage);
 

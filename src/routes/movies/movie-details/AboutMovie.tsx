@@ -185,9 +185,12 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
                   ))}
                 </div>
               </div>
-              <div className="p-3 d-none d-xl-block">
-                <RoundButton variant="black" className="w-100">Add to list</RoundButton>
-              </div>
+              {enableDevFeatures
+                && (
+                <div className="p-3 d-none d-xl-block">
+                  <RoundButton variant="black" className="w-100">Add to list</RoundButton>
+                </div>
+                )}
             </div>
           </Col>
           <Col xl={7}>
@@ -215,9 +218,12 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
                 />
               ))}
             </div>
-            <div className="p-3 d-xl-none justify-content-center mt-xl-2">
-              <RoundButton variant="black" className="w-100">Add to list</RoundButton>
-            </div>
+            {enableDevFeatures
+              && (
+              <div className="p-3 d-xl-none justify-content-center mt-xl-2">
+                <RoundButton variant="black" className="w-100">Add to list</RoundButton>
+              </div>
+              )}
           </Col>
         </Row>
 

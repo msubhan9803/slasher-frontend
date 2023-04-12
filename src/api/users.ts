@@ -287,3 +287,20 @@ export async function activateAccount(email: string, verificationToken: string) 
     },
   );
 }
+
+export async function resetPassword(
+  email: string,
+  resetPasswordToken: string,
+  newPassword: string,
+  newPasswordConfirmation: string,
+) {
+  return axios.post(
+    `${apiUrl}/api/v1/users/reset-password`,
+    {
+      email,
+      resetPasswordToken,
+      newPassword,
+      newPasswordConfirmation,
+    },
+  );
+}

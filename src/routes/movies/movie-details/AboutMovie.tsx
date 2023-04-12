@@ -250,7 +250,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
         {enableDevFeatures
           && (
           <Row className="align-items-center justify-content-center mt-4 d-lg-none">
-            <Col sm={5}>
+            <Col sm={6} md={5}>
               <div className="align-items-center d-flex justify-content-evenly">
                 <span className="mb-2">Push notifications</span>
                 <Switch id="pushNotificationsSwitch" className="ms-4" />

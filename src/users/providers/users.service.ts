@@ -165,4 +165,52 @@ export class UsersService {
   async getSocketUserCount(): Promise<number> {
     return this.socketUserModel.countDocuments();
   }
+
+  async updateNewNotificationCount(id: string): Promise<UserDocument> {
+    return this.userModel
+      .findOneAndUpdate({ _id: id }, { $inc: { newNotificationCount: 1 } }, { new: true })
+      .exec();
+  }
+
+  async updateNewFriendRequestCount(id: string): Promise<UserDocument> {
+    return this.userModel
+      .findOneAndUpdate({ _id: id }, { $inc: { newFriendRequestCount: 1 } }, { new: true })
+      .exec();
+  }
+
+  async addAndUpdateNewConversationId(id: string, matchId: string): Promise<UserDocument> {
+    const user = await this.userModel.findOne({ _id: id, newConversationIds: matchId });
+    if (!user) {
+      const updateUserData = await this.userModel
+        .findOneAndUpdate({ _id: id }, { $addToSet: { newConversationIds: matchId } }, { new: true })
+        .exec();
+      return updateUserData;
+    }
+    return user;
+  }
+
+  async clearNotificationCount(id: string): Promise<UserDocument> {
+    return this.userModel
+      .findOneAndUpdate({ _id: id }, { $set: { newNotificationCount: 0 } }, { new: true })
+      .exec();
+  }
+
+  async clearFriendRequestCount(id: string): Promise<UserDocument> {
+    return this.userModel
+      .findOneAndUpdate({ _id: id }, { $set: { newFriendRequestCount: 0 } }, { new: true })
+      .exec();
+  }
+
+  async removeAndUpdateNewConversationId(id: string, matchId: string): Promise<UserDocument> {
+    const updateUserData = await this.userModel
+      .findOneAndUpdate({ _id: id }, { $pull: { newConversationIds: matchId } }, { new: true })
+      .exec();
+    return updateUserData;
+  }
+
+  async clearConverstionIds(id: string): Promise<UserDocument> {
+    return this.userModel
+      .findOneAndUpdate({ _id: id }, { $set: { newConversationIds: [] } }, { new: true })
+      .exec();
+  }
 }

@@ -48,7 +48,7 @@ export class FriendsService {
     return friendship && friendship.reaction === FriendRequestReaction.Accepted;
   }
 
-  async createFriendRequest(fromUserId: string, toUserId: string): Promise<void> {
+  async createFriendRequest(fromUserId: string, toUserId: string): Promise<Friend> {
     let friend: any = await this.friendsModel
       .findOne({
         $or: [
@@ -79,6 +79,7 @@ export class FriendsService {
     if (friend?.reaction === FriendRequestReaction.Pending && friend?.to.toString() === fromUserId.toString()) {
       await this.acceptFriendRequest(friend.from, friend.to);
     }
+    return friend;
   }
 
   async getSentFriendRequests(userId: string, limit: number, offset?: number): Promise<Partial<UserDocument[]>> {

@@ -1,6 +1,7 @@
 import mongoose, { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { DateTime } from 'luxon';
 import { Event, EventDocument } from '../../schemas/event/event.schema';
 import { EventActiveStatus } from '../../schemas/event/event.enums';
 import { toUtcStartOfDay } from '../../utils/date-utils';
@@ -136,7 +137,13 @@ export class EventService {
     longitudeBottomLeft: number,
     activeOnly: boolean,
   ): Promise<Array<EventDocument>> {
+    // Fetch for events on today and in next 31 days
+    const startDate = `${DateTime.now().toFormat('yyyy-MM-dd')}T00:00:00Z`;
+    const endDate = `${DateTime.now().plus({ days: 31 }).toFormat('yyyy-MM-dd')}T23:59:59Z`;
+
     const query: any = {
+      startDate: { $lt: endDate },
+      endDate: { $gt: startDate },
       location: {
         $geoWithin: { $box: [[latitudeTopRight, longitudeTopRight], [latitudeBottomLeft, longitudeBottomLeft]] },
       },

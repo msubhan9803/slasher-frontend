@@ -253,6 +253,32 @@ describe('Create Feed Comment Like (e2e)', () => {
       });
     });
 
+    describe('notifications', () => {
+      it('when notification is create for createFeedCommentLike than check newNotificationCount is increment in user', async () => {
+        const user3 = await usersService.create(userFactory.build({ userName: 'Divine' }));
+        const commentCreatorUser = await usersService.create(userFactory.build({ userName: 'Divine' }));
+        const post = await feedPostsService.create(feedPostFactory.build({ userId: user3._id }));
+        const comment = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: commentCreatorUser.id,
+              feedPostId: post.id,
+              message: 'this is comment for the like',
+              images: [],
+            },
+          ),
+        );
+        await request(app.getHttpServer())
+        .post(`/api/v1/feed-likes/comment/${comment._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send()
+        .expect(HttpStatus.CREATED);
+
+        const commentCreatorUserNewNotificationCount = await usersService.findById(commentCreatorUser.id);
+        expect(commentCreatorUserNewNotificationCount.newNotificationCount).toBe(1);
+      });
+    });
+
     describe('Validation', () => {
       it('feedCommentId must be a mongodb id', async () => {
         const feedCommentId = '634912b2@2c2f4f5e0e6228#';

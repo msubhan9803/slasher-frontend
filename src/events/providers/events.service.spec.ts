@@ -309,6 +309,7 @@ describe('EventService', () => {
     beforeEach(async () => {
       await eventService.create(
         eventsFactory.build({
+          name: 'event1',
           userId: userData.id,
           event_type: eventCategoryData.id,
           status: EventActiveStatus.Active,
@@ -320,6 +321,7 @@ describe('EventService', () => {
       );
       await eventService.create(
         eventsFactory.build({
+          name: 'event2',
           userId: userData.id,
           event_type: eventCategoryData.id,
           status: EventActiveStatus.Active,
@@ -329,11 +331,15 @@ describe('EventService', () => {
           },
         }),
       );
+      // Note: We are creating a event after 31 days from today (notice the `startDate` and `endDate` fields )
       await eventService.create(
         eventsFactory.build({
+          name: 'event3',
           userId: userData.id,
           event_type: eventCategoryData.id,
           status: EventActiveStatus.Active,
+          startDate: DateTime.now().plus({ days: 32 }).toJSDate(),
+          endDate: DateTime.now().plus({ days: 33 }).toJSDate(),
           location: {
             type: 'Point',
             coordinates: [41.045877, -74.99479],
@@ -342,7 +348,7 @@ describe('EventService', () => {
       );
     });
 
-    it('find events in rectangluar region of given coordinates', async () => {
+    it('find events in rectangluar region of given coordinates on today and next 31 days', async () => {
       // coordinates of rectangle (top-right and bottom-left)
       const latitudeTopRight = 41.08840841260634;
       const longitudeTopRight = -74.89843368530275;
@@ -351,7 +357,12 @@ describe('EventService', () => {
 
       // eslint-disable-next-line max-len
       const eventList1 = await eventService.findAllInRectangle(latitudeTopRight, longitudeTopRight, latitudeBottomLeft, longitudeBottomLeft, false);
-      expect(eventList1).toHaveLength(3);
+      expect(eventList1).toHaveLength(2);
+      const eventNames = eventList1.map((event) => event.name);
+      expect(eventNames).toContain('event1');
+      expect(eventNames).toContain('event2');
+      // Should not contain `event3` as it doesn't happen today or next 31 days from today
+      expect(eventNames).not.toContain('event3');
     });
   });
 

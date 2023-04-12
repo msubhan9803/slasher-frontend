@@ -11,7 +11,6 @@ import { ConfigService } from '@nestjs/config';
 import { Server, Socket } from 'socket.io';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
-import { log } from 'console';
 import { SHARED_GATEWAY_OPTS, UNREAD_MESSAGE_NOTIFICATION_DELAY } from '../../constants';
 import { UsersService } from '../../users/providers/users.service';
 import { ChatService } from './chat.service';
@@ -94,7 +93,7 @@ export class ChatGateway {
     // since the user is requesting the LATEST messages in the chat and will then be caught up.
     if (!before) {
       await this.chatService.markAllReceivedMessagesReadForChat(user.id, matchList.id);
-      await this.emitMessageCountUpdateEvent(user.id);
+      await this.emitConversationCountUpdateEvent(user.id);
     }
 
     const messages = await this.chatService.getMessages(matchListId, userId, RECENT_MESSAGES_LIMIT, before);
@@ -126,13 +125,12 @@ export class ChatGateway {
     return { success: false, error: 'Unauthorized' };
   }
 
-  async emitMessageCountUpdateEvent(userId: string) {
+  async emitConversationCountUpdateEvent(userId: string) {
     const targetUserSocketIds = await this.usersService.findSocketIdsForUser(userId);
-
-    const unreadMessageCount = await this.chatService.getUnreadDirectPrivateMessageCount(userId);
-
+    const user = await this.usersService.findById(userId);
+    const unreadConversationCount = user.newConversationIds.length;
     targetUserSocketIds.forEach((socketId) => {
-      this.server.to(socketId).emit('unreadMessageCountUpdate', { unreadMessageCount });
+      this.server.to(socketId).emit('unreadConversationCountUpdate', { unreadConversationCount });
     });
   }
 
@@ -148,5 +146,19 @@ export class ChatGateway {
         });
       });
     });
+  }
+
+  @SubscribeMessage('clearNewConversationIds')
+  async clearConverstionIds(@ConnectedSocket() client: Socket): Promise<any> {
+    const user = await this.usersService.findBySocketId(client.id);
+    if (!user) {
+      // If the user severs the socket connection in the middle of message handling, then we will
+      // not find a user associated with the socket id, and that also means that there's no one to
+      // send a message back to.  So we can return an empty object.
+      return {};
+    }
+    const userId = user._id.toString();
+    const clearNewConversationIds = await this.usersService.clearConverstionIds(userId);
+    return { newConversationIds: clearNewConversationIds.newConversationIds };
   }
 }

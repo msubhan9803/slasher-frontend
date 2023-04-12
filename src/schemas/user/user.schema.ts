@@ -138,6 +138,18 @@ export class User extends UserUnusedFields {
   @Prop({ default: ProfileVisibility.Public })
   profile_status: ProfileVisibility;
 
+  // The number of new notifications that have been received since the user looked at their notifications page
+  @Prop({ default: 0 })
+  newNotificationCount: number;
+
+  // The unique list of conversation ids where the user has received new messages since looking at their messages page
+  @Prop({ default: [] })
+  newConversationIds: string[];
+
+  // The number of new notifications that have been received since the user looked at their friend requests page
+  @Prop({ default: 0 })
+  newFriendRequestCount: number;
+
   /***********
    * Methods *
    ***********/

@@ -124,6 +124,12 @@ FeedPostSchema.index(
     createdAt: 1, is_deleted: 1, status: 1, rssfeedProviderId: 1,
   },
 );
+// For movie reviews
+FeedPostSchema.index(
+  {
+    postType: 1, movieId: 1, is_deleted: 1, status: 1, createdAt: 1,
+  },
+);
 
 export type FeedPostDocument = HydratedDocument<FeedPost>;
 

@@ -319,7 +319,7 @@ export class UsersController {
       resetPasswordDto.resetPasswordToken,
     );
     if (isValid === false) {
-      throw new HttpException('User does not exists.', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Invalid password reset token.', HttpStatus.BAD_REQUEST);
     }
     const userDetails = await this.usersService.findByEmail(
       resetPasswordDto.email,

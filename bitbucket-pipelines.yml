@@ -11,6 +11,7 @@ definitions:
           - cat environment.txt
         artifacts:
           - environment.txt
+
     - step: &terraform-deploy
         caches:
           - docker
@@ -114,6 +115,7 @@ definitions:
 pipelines:
   branches:
     deploy/staging:
+    - step: *set-environment
     - step: *terraform-deploy
     - step: *build-and-push-web-new-docker-image-to-ecr
     - step: *build-and-push-server-cron-docker-image-to-ecr

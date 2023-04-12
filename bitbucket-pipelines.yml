@@ -3,6 +3,14 @@ definitions:
     docker:
       memory: 2048
   steps:
+
+    - step: &set-environment
+        name: 'Set Environment'
+        script:
+          - echo $BITBUCKET_BRANCH | tr -d "deploy/" > environment.txt
+          - cat environment.txt
+        artifacts:
+          - environment.txt
     - step: &terraform-deploy
         caches:
           - docker
@@ -12,12 +20,13 @@ definitions:
           - echo "Deploying infra"
           - cd terraform
           - export AWS_DEFAULT_REGION="us-east-1"
+          - export ENVIRONMENT=$(cat ./environment.txt)
           - terraform init
-          - terraform workspace select staging || terraform workspace new staging
+          - terraform workspace select "$ENVIRONMENT" || terraform workspace new "$ENVIRONMENT"
           - terraform version
           - terraform validate
-          - terraform plan --var-file=env.tfvars/staging.tfvars
-          - terraform apply --var-file=env.tfvars/staging.tfvars -auto-approve
+          - terraform plan --var-file=env.tfvars/"$ENVIRONMENT".tfvars
+          - terraform apply --var-file=env.tfvars/"$ENVIRONMENT".tfvars -auto-approve
         services:
           - docker
 
@@ -27,10 +36,11 @@ definitions:
         name: 'Build and push slasher-web new Docker image to ECR'
         image: atlassian/pipelines-awscli
         script:
-          - docker build --tag slasher-web-new-staging --file app.Dockerfile .
+          - export ENVIRONMENT=$(cat ./environment.txt)
+          - docker build --tag slasher-web-new-"$ENVIRONMENT" --file app.Dockerfile .
           - pipe: atlassian/aws-ecr-push-image:1.4.2
             variables:
-              IMAGE_NAME: "slasher-web-new-staging"
+              IMAGE_NAME: "slasher-web-new-$ENVIRONMENT"
               TAGS: "${BITBUCKET_BUILD_NUMBER}"
               DEBUG: "true"
         services:
@@ -42,10 +52,11 @@ definitions:
           - docker
         image: atlassian/pipelines-awscli
         script:
-          - docker build --tag slasher-cron-staging --file cron.Dockerfile .
+          - export ENVIRONMENT=$(cat ./environment.txt)
+          - docker build --tag slasher-cron-"$ENVIRONMENT" --file cron.Dockerfile .
           - pipe: atlassian/aws-ecr-push-image:1.4.2
             variables:
-              IMAGE_NAME: "slasher-cron-staging"
+              IMAGE_NAME: "slasher-cron-$ENVIRONMENT"
               TAGS: "${BITBUCKET_BUILD_NUMBER}"
               DEBUG: "true"
         services:
@@ -57,18 +68,19 @@ definitions:
           - docker
         image: atlassian/pipelines-awscli
         script:
+          - export ENVIRONMENT=$(cat ./environment.txt)
           - AWS_REGION="us-east-1"
           - ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" | tr -d '"')
-          - IMAGE_URL="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/slasher-web-new-staging:${BITBUCKET_BUILD_NUMBER}"
-          - aws ecs describe-task-definition --task-definition slasher-web-new-task-defination-staging --query taskDefinition --region us-east-1 | jq '.containerDefinitions[0].image = "'$IMAGE_URL'" | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities) | del(.registeredAt) | del(.registeredBy)' > task-definition.json
+          - IMAGE_URL="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/slasher-web-new-$ENVIRONMENT:${BITBUCKET_BUILD_NUMBER}"
+          - aws ecs describe-task-definition --task-definition slasher-web-new-task-defination-"$ENVIRONMENT" --query taskDefinition --region us-east-1 | jq '.containerDefinitions[0].image = "'$IMAGE_URL'" | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities) | del(.registeredAt) | del(.registeredBy)' > task-definition.json
           - cat task-definition.json
           - pipe: atlassian/aws-ecs-deploy:1.7.0
             variables:
               AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
               AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
               AWS_DEFAULT_REGION: 'us-east-1'
-              CLUSTER_NAME: 'ecs-fargate-cluster-staging'
-              SERVICE_NAME: 'slasher-web-new-service-staging'
+              CLUSTER_NAME: 'ecs-fargate-cluster-$ENVIRONMENT'
+              SERVICE_NAME: 'slasher-web-new-service-$ENVIRONMENT'
               TASK_DEFINITION: 'task-definition.json'
               FORCE_NEW_DEPLOYMENT: 'true'
               WAIT: 'true'
@@ -81,17 +93,18 @@ definitions:
           - docker
         image: atlassian/pipelines-awscli
         script:
+          - export ENVIRONMENT=$(cat ./environment.txt)
           - AWS_REGION="us-east-1"
           - ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" | tr -d '"')
-          - IMAGE_URL="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/slasher-cron-staging:${BITBUCKET_BUILD_NUMBER}"
-          - aws ecs describe-task-definition --task-definition slasher-cron-task-defination-staging --query taskDefinition --region us-east-1 | jq '.containerDefinitions[0].image = "'$IMAGE_URL'" | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities) | del(.registeredAt) | del(.registeredBy)' > task-definition.json
+          - IMAGE_URL="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/slasher-cron-$ENVIRONMENT:${BITBUCKET_BUILD_NUMBER}"
+          - aws ecs describe-task-definition --task-definition slasher-cron-task-defination-$ENVIRONMENT --query taskDefinition --region us-east-1 | jq '.containerDefinitions[0].image = "'$IMAGE_URL'" | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities) | del(.registeredAt) | del(.registeredBy)' > task-definition.json
           - pipe: atlassian/aws-ecs-deploy:1.7.0
             variables:
               AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
               AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
               AWS_DEFAULT_REGION: 'us-east-1'
-              CLUSTER_NAME: 'ecs-fargate-cluster-staging'
-              SERVICE_NAME: 'slasher-cron-service-staging'
+              CLUSTER_NAME: 'ecs-fargate-cluster-$ENVIRONMENT'
+              SERVICE_NAME: 'slasher-cron-service-$ENVIRONMENT'
               TASK_DEFINITION: 'task-definition.json'
               FORCE_NEW_DEPLOYMENT: 'true'
               WAIT: 'true'
@@ -100,7 +113,7 @@ definitions:
 
 pipelines:
   branches:
-    service-infra-setup:
+    deploy/staging:
     - step: *terraform-deploy
     - step: *build-and-push-web-new-docker-image-to-ecr
     - step: *build-and-push-server-cron-docker-image-to-ecr

@@ -59,7 +59,7 @@ interface Props {
   setDisLike?: (val: boolean) => void;
   isWorthIt?: number;
   placeHolder?: string;
-  isEditingCommentOrReply?: boolean;
+  showSaveButton?: boolean;
 }
 
 const AddPhotosButton = styled(RoundButton)`
@@ -79,7 +79,7 @@ function CreatePostComponent({
   deleteImageIds, setDeleteImageIds, postType, titleContent, setTitleContent,
   containSpoiler, setContainSpoiler, rating, setRating, goreFactor, setGoreFactor,
   selectedPostType, setSelectedPostType, setWorthIt, liked, setLike,
-  disLiked, setDisLike, isWorthIt, placeHolder, isEditingCommentOrReply,
+  disLiked, setDisLike, isWorthIt, placeHolder, showSaveButton,
 }: Props) {
   const inputFile = useRef<HTMLInputElement>(null);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
@@ -124,7 +124,7 @@ function CreatePostComponent({
   let actionText;
   if (postType === 'review') {
     actionText = 'Submit';
-  } else if (isEditingCommentOrReply) {
+  } else if (showSaveButton) {
     actionText = 'Save';
   } else {
     actionText = 'Post';
@@ -346,6 +346,6 @@ CreatePostComponent.defaultProps = {
   setDisLike: () => { },
   isWorthIt: 0,
   placeHolder: 'Write a something...',
-  isEditingCommentOrReply: false,
+  showSaveButton: false,
 };
 export default CreatePostComponent;

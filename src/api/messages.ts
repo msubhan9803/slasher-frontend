@@ -38,7 +38,7 @@ export async function markAllReadForSingleConversation(matchListId: string) {
     Authorization: `Bearer ${token}`,
   };
 
-  return axios.patch(`${apiUrl}/api/v1/chat/conversations/mark-all-received-messages-read-for-chat/${matchListId}`, { headers });
+  return axios.patch(`${apiUrl}/api/v1/chat/conversations/mark-all-received-messages-read-for-chat/${matchListId}`, {}, { headers });
 }
 
 export async function attachFile(message: string, file: any, conversationId: string) {

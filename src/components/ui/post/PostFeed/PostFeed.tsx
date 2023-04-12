@@ -523,6 +523,7 @@ function PostFeed({
             click={modalTabName} // "like"
             clickedPostId={modalResourceId}
             clickedPostLikeCount={modalLikeCount} // e.g., 23
+            onSelect={onSelect}
           />
         )
       }

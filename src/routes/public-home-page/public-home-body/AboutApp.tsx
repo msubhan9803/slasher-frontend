@@ -25,7 +25,7 @@ function AboutApp() {
       <div className="container-lg">
         <Row className="justify-content-center mb-5 pb-3 row text-center">
           <Col md={10}>
-            <h1 className="title mb-3">SLASHER IS THE ULTIMATE APP FOR HORROR FANS</h1>
+            <h1 className="title mb-3 fw-bold">SLASHER IS THE ULTIMATE APP FOR HORROR FANS</h1>
             <p className="text-light">
               For the first time, you can experience horror on a social platform the way it
               is meant to be enjoyed!
@@ -42,7 +42,7 @@ function AboutApp() {
           </Col>
           <Col md={6} className="pt-4 mb-md-5 text-center text-sm-start">
             <h2 className="text-primary text-uppercase h1 mb-3">Social Network</h2>
-            <p className="pe-lg-3 text-light fs-4 mb-3">
+            <p className="pe-lg-3 text-light fs-4 mb-5">
               Slasher is different from the mainstream social networks. It&#39;s a friendly,
               respectful community for all horror fans to enjoy. There&#39;s no censorship of
               bloody or gory special effects and makeup. You can also build your connections
@@ -61,7 +61,7 @@ function AboutApp() {
             <h3 className="text-primary text-uppercase h1 mb-3 me-lg-3">
               THE LARGEST HORROR MOVIE DATABASE
             </h3>
-            <p className="text-light fs-4 mb-3">
+            <p className="text-light fs-4 mb-5">
               Slasher has the largest horror movie database online! You can share, get info,
               watch trailers, check out ratings from other Slasher members, and talk about
               thousands of horror movies from all
@@ -77,7 +77,7 @@ function AboutApp() {
           </Col>
           <Col md={6} className="pt-5 mb-md-5 text-center text-sm-start">
             <h4 className="text-primary text-uppercase h1 mb-3">EVENTS CALENDAR</h4>
-            <p className="text-light fs-4 mb-3 me-lg-3">
+            <p className="text-light fs-4 mb-5 me-lg-3">
               Looking for a horror convention? Maybe a film festival?
               Check out Slasher&#39;s event calendar to see what kind of cool things are
               going on near you!
@@ -92,7 +92,7 @@ function AboutApp() {
           </Col>
           <Col md={6} className="pt-5 order-2 order-md-1 mb-md-5 text-center text-sm-start">
             <h5 className="text-primary text-uppercase h1 mb-3">DATING FOR HORROR FANS</h5>
-            <p className="text-light fs-4 mb-3">
+            <p className="text-light fs-4 mb-5">
               You love horror, so why not find someone to share that with? Check out the first ever
               dating feature made for horror fans!
             </p>

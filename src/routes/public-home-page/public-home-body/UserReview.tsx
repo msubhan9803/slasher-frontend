@@ -110,7 +110,7 @@ function UserReview() {
     return null;
   }
   return (
-    <StyledSlider className="mt-5 pt-5">
+    <StyledSlider className="mt-5 pt-4">
       <div className="px-3 px-lg-5">
 
         <div className="mb-4 text-center">

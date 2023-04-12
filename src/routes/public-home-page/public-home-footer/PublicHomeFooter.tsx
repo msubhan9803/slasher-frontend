@@ -71,7 +71,7 @@ function PublicHomeFooter() {
             </div>
           </Col>
           <Col xs={6} md={2} className="mb-md-3">
-            <Link to="/" className="text-decoration-none px-0 px-md-4 py-3 p-md-4 nav-link fs-3">Home</Link>
+            <Link to="/" className="text-decoration-none px-0 px-md-4 py-3 p-md-4 nav-link fs-3">HOME</Link>
             {footerNavList.slice(1, 3).map((navList) => (
               <a key={navList.value} href={`https://pages.slasher.tv/${navList.value}`} className="text-decoration-none px-0 px-md-4 py-3 p-md-4 nav-link fs-3">
                 {navList.label}

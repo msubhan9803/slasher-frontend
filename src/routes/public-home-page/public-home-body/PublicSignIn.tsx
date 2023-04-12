@@ -1,15 +1,30 @@
 import React, { useState, ChangeEvent } from 'react';
 import {
+  Button,
   Col, Container, Form, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import ReCAPTCHA from 'react-google-recaptcha';
-import RoundButton from '../../../components/ui/RoundButton';
 
 const StyledContainer = styled.div`
   background-color: #1B1B1B;
 `;
 
+const FormControl = styled(Form.Control)`
+::placeholder {
+  color: white;
+}
+input {
+  color: white;
+}
+`;
+const RoundButton = styled(Button)`
+  border-radius: 50rem;
+  :hover {
+    color: white;
+    background: var(--bs-primary);
+  }
+`;
 function PublicSignIn() {
   const [signUpData, setSignUpData] = useState({
     userName: '',
@@ -19,12 +34,12 @@ function PublicSignIn() {
     <StyledContainer>
       <Container>
         <Form className="text-center py-5 px-4 mt-4">
-          <Row>
+          <Row className="pt-3">
             <Col>
               <h1 className="fw-bolder">GET NOTIFIED OF ALL THE LATEST SLASHER NEWS &#8722; SIGN UP!</h1>
             </Col>
           </Row>
-          <Row className="text-light justify-content-center my-4">
+          <Row className="text-light justify-content-center mt-3 mb-5 pb-2">
             <Col>
               <p>
                 Slasher will be launching lots of new features WORLDWIDE!
@@ -38,12 +53,13 @@ function PublicSignIn() {
           <Row>
             <Col md={6} className="mb-4">
               <Form.Group className="">
-                <Form.Control
+                <FormControl
                   className="py-3"
-                  aria-label="Your Name"
+                  aria-label="Your name"
                   type="text"
-                  placeholder="Your Name"
+                  placeholder="Your name"
                   value={signUpData.userName}
+                  style={{ background: 'var(--bs-dark-rgb)' }}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setSignUpData(
                     { ...signUpData, userName: e.target.value },
                   )}
@@ -52,12 +68,13 @@ function PublicSignIn() {
             </Col>
             <Col md={6} className="mb-4">
               <Form.Group className="">
-                <Form.Control
+                <FormControl
                   className="py-3"
                   aria-label="Email address"
                   type="text"
                   placeholder="Email address"
                   value={signUpData.email}
+                  style={{ background: 'var(--bs-dark-rgb)' }}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setSignUpData(
                     { ...signUpData, email: e.target.value },
                   )}
@@ -73,7 +90,7 @@ function PublicSignIn() {
             </Col>
           </Row>
           <div className="mb-3">
-            <RoundButton className="px-5">Sign up</RoundButton>
+            <RoundButton style={{ padding: '15px 56px 15px 56px' }}>SIGN UP</RoundButton>
           </div>
         </Form>
       </Container>

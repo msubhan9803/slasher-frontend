@@ -1,6 +1,5 @@
 import React from 'react';
 import { Col, Modal, Row } from 'react-bootstrap';
-import styled from 'styled-components';
 import copy from 'copy-to-clipboard';
 import ModalContainer from './CustomModal';
 import ShareAsApostIcon from '../../images/share-links-modal-share-as-a-post.png';
@@ -9,14 +8,7 @@ import CopyLinkIcon from '../../images/share-links-modal-copy-links.png';
 import FacebookIcon from '../../images/share-links-modal-facebook.png';
 import InstagramIcon from '../../images/share-links-modal-instagram.png';
 import TwitterIcon from '../../images/share-links-modal-twitter.png';
-import { MD_MEDIA_BREAKPOINT } from '../../constants';
 import { FRONTEND_URL, enableDevFeatures } from '../../utils/configEnvironment';
-
-const StyledModalBody = styled(Modal.Body)`
-  @media (min-width: ${MD_MEDIA_BREAKPOINT}){
-    margin: 20px 0px 40px;
-  }
-`;
 
 export const copyUrlToClipboard = (copyLinkUrl: string) => {
   copy(`${FRONTEND_URL}${copyLinkUrl}`);
@@ -38,14 +30,15 @@ function ShareLinksModal({ copyLinkUrl, show, setShow }: any) {
 
   return (
     <ModalContainer
+      $widthMarginAuto
       show={show}
       centered
       onHide={handleCloseModal}
       size="lg"
     >
       <Modal.Header className="border-0 shadow-none justify-content-end" closeButton />
-      <StyledModalBody className="d-flex flex-column align-items-center text-center pt-0">
-        <h1 className="mb-0 text-primary text-center">Share</h1>
+      <Modal.Body className="d-flex flex-column align-items-center text-center mx-5 px-5 pt-0 pb-0 mb-5">
+        <h1 className="mb-0 text-primary text-center mx-4">Share</h1>
         <Row xs={3} lg="auto" className="mt-4">
           {
             enableDevFeatures && (
@@ -78,7 +71,7 @@ function ShareLinksModal({ copyLinkUrl, show, setShow }: any) {
             )
           }
         </Row>
-      </StyledModalBody>
+      </Modal.Body>
     </ModalContainer>
   );
 }

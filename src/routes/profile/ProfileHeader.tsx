@@ -88,6 +88,8 @@ function ProfileHeader({ tabKey, user, showTabs }: Props) {
     createBlockUser(clickedUserId)
       .then(() => {
         setShow(false);
+        // Navigate to home page after blocking the user
+        navigate('/');
       })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));

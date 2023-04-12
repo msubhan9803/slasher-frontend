@@ -66,13 +66,15 @@ function PostFooter({
               )}
             </Button>
             <StyleDot icon={solid('circle')} size="xs" className="py-1 me-2" />
-            <Button
-              disabled={Number(likeCount) === 0}
-              className="bg-transparent border-0 btn btn-primary p-0 text-white"
-              onClick={() => handleLikeModal?.('like', 'feedpost', postId, Number(likeCount))}
-            >
-              <span className="fs-3">{likeCount}</span>
-            </Button>
+            {Number(likeCount) === 0 ? <span className="fs-3">{likeCount}</span>
+              : (
+                <Button
+                  className="bg-transparent border-0 btn btn-primary p-0 text-white"
+                  onClick={() => handleLikeModal?.('like', 'feedpost', postId, Number(likeCount))}
+                >
+                  <span className="fs-3">{likeCount}</span>
+                </Button>
+              )}
           </div>
         </Col>
         <Col

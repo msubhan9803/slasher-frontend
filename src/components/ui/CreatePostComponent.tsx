@@ -90,6 +90,9 @@ function CreatePostComponent({
   const [uploadPost, setUploadPost] = useState<string[]>([]);
   const [searchParams] = useSearchParams();
   const paramsType = searchParams.get('type');
+  const imageArrayRef = useRef(imageArray);
+  const descriptionArrayRef = useRef(descriptionArray);
+  const setDescriptionArrayRef = useRef(setDescriptionArray);
 
   const handleRemoveFile = (postImage: any, index?: number) => {
     const removePostImage = imageArray.filter((image: File) => image !== postImage);
@@ -150,18 +153,22 @@ function CreatePostComponent({
 
   useEffect(() => {
     const descriptionArrayList: DescriptionArray[] = [];
-    if (imageArray && imageArray.length !== descriptionArray?.length) {
-      imageArray.map((postImage: any) => {
-        if (postImage.description) {
-          descriptionArrayList.push({ description: postImage?.description, id: postImage?._id });
-        } else {
-          descriptionArrayList.push({ description: '', id: postImage?._id });
-        }
-        return null;
-      });
-      setDescriptionArray!([...descriptionArrayList]);
-    }
-  }, [imageArray, setDescriptionArray, descriptionArray]);
+    imageArrayRef.current.map((postImage: any) => {
+      if (postImage.description) {
+        descriptionArrayList.push({ description: postImage?.description, id: postImage?._id });
+      } else {
+        descriptionArrayList.push({ description: '', id: postImage?._id });
+      }
+      return null;
+    });
+    setDescriptionArrayRef.current!([...descriptionArrayList]);
+  }, [imageArrayRef, descriptionArrayRef, setDescriptionArrayRef]);
+
+  useEffect(() => {
+    imageArrayRef.current = imageArray;
+    descriptionArrayRef.current = descriptionArray;
+    setDescriptionArrayRef.current = setDescriptionArray;
+  }, [imageArray, descriptionArray, setDescriptionArray]);
 
   return (
     <div className={postType === 'review' ? 'bg-dark mb-3 px-4 py-4 rounded-2' : ''}>

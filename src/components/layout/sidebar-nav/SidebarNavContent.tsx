@@ -97,8 +97,9 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
       ))}
       <ul className="list-inline mt-4 link-hover-underline fs-6">
         <li><Link className="text-light text-decoration-none" to="/">Download the app</Link></li>
-        <li><Link className="text-light text-decoration-none" to="/">Advertise on Slasher</Link></li>
-        <li><Link className="text-light text-decoration-none" to="/">Terms &amp; Policies</Link></li>
+        <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/advertise">Advertise on Slasher</a></li>
+        <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/terms">Terms &amp; Policies</a></li>
+        <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/about">About</a></li>
         <li className="text-light text-decoration-none">
           &copy;
           {' '}

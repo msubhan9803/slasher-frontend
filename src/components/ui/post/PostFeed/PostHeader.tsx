@@ -57,7 +57,7 @@ function PostHeader({
                 ? `/app/news/partner/${rssfeedProviderId}#`
                 : `/${userName}#`}
               scroll={scrollToTop}
-              className="text-decoration-none rounded-circle"
+              className="d-block text-decoration-none rounded-circle"
             >
               <div className="rounded-circle">
                 <UserCircleImage size="3.313rem" src={profileImage} alt={`${userName} profile picture`} className="bg-secondary d-flex" />
@@ -92,7 +92,7 @@ function PostHeader({
                   to={rssfeedProviderId
                     ? `/app/news/partner/${rssfeedProviderId}/posts/${id}#`
                     : `/${userName}/posts/${id}#`}
-                  className="text-decoration-none"
+                  className="text-decoration-none d-block"
                 >
                   <p className="mb-0 fs-6 text-light">
                     {DateTime.fromISO(postDate).toFormat('MM/dd/yyyy t')}

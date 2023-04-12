@@ -69,10 +69,10 @@ function AuthenticatedPageHeader(
       iconSize="lg"
       onClick={onToggleClick}
     />,
-    <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/" iconSize="lg" />,
-    <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/app/notifications" iconSize="lg" badge={userData.user.newNotificationCount} />,
-    <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/app/messages" iconSize="lg" badge={userData.newConversationIdsCount} />,
-    <IconWithTextNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/app/search" iconSize="lg" />,
+    <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/" iconSize="lg" className="d-block" />,
+    <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/app/notifications" iconSize="lg" badge={userData.user.newNotificationCount} className="d-block" />,
+    <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/app/messages" iconSize="lg" badge={userData.newConversationIdsCount} className="d-block" />,
+    <IconWithTextNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/app/search" iconSize="lg" className="d-block" />,
   ];
 
   const desktopNavLinkElements = [

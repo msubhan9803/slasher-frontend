@@ -93,19 +93,20 @@ describe('MailService', () => {
 
   describe('#sendForgotPasswordEmail', () => {
     it('sends the correct mail details to the sendEmail function', async () => {
+      const firstName = 'Laszlo';
       const to = 'example@example.com';
       const token = 'd4c70121-1f0b-4e6a-aac9-b8be3720f369';
       jest
         .spyOn(mailService, 'sendEmail')
         .mockReturnValue(Promise.resolve(null));
 
-      await mailService.sendForgotPasswordEmail(to, token);
+      await mailService.sendForgotPasswordEmail(firstName, to, token);
       expect(mailService.sendEmail).toHaveBeenCalledWith(
         to,
         mailService.getDefaultSender(),
-        'Forgot password',
-        `This is the forgot password email with token: ${token}`,
-        'plain',
+        'Slasher - Forgot password',
+        expect.stringContaining(token),
+        'html',
       );
     });
   });

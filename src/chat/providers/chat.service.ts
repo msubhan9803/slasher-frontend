@@ -218,7 +218,7 @@ export class ChatService {
           matchId: matchList._id,
         })
         .sort({ createdAt: -1 })
-        .limit(1)
+        // .limit(1)
         .exec();
       if (latestMessage) {
         conversations.push({

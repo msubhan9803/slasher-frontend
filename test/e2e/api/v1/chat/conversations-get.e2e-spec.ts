@@ -209,6 +209,27 @@ describe('Conversations all / (e2e)', () => {
       expect(m4.isRead).toBe(false);
     });
 
+    it('when matchListId is exist in newCoversationIds than expected response', async () => {
+      const user5 = await usersService.create(userFactory.build());
+      const user6 = await usersService.create(userFactory.build());
+      const matchList = await chatService.createPrivateDirectMessageConversation([user5.id, user6.id]);
+      user5.newConversationIds.push(matchList.id);
+      user5.save();
+      const user5AuthToken = user5.generateNewJwtToken(
+        configService.get<string>('JWT_SECRET_KEY'),
+      );
+
+      const response = await request(app.getHttpServer())
+        .patch(`/api/v1/chat/conversations/mark-all-received-messages-read-for-chat/${matchList.id}`)
+        .auth(user5AuthToken, { type: 'bearer' })
+        .send();
+      expect(response.status).toEqual(HttpStatus.OK);
+      expect(response.body.success).toBe(true);
+
+      const user = await usersService.findById(user5.id);
+      expect(user.newConversationIds).toEqual([]);
+    });
+
     describe('validation', () => {
       it('when param `matchListId` is not a valid mongo id', async () => {
         m1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Send 1');

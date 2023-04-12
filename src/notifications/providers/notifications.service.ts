@@ -5,6 +5,7 @@ import { DateTime } from 'luxon';
 import { Notification, NotificationDocument } from '../../schemas/notification/notification.schema';
 import { NotificationDeletionStatus, NotificationReadStatus } from '../../schemas/notification/notification.enums';
 import { NotificationsGateway } from './notifications.gateway';
+import { UsersService } from '../../users/providers/users.service';
 
 @Injectable()
 export class NotificationsService {
@@ -12,13 +13,16 @@ export class NotificationsService {
     @InjectModel(Notification.name)
     private notificationModel: Model<NotificationDocument>,
     private notificationsGateway: NotificationsGateway,
+    private readonly usersService: UsersService,
   ) { }
 
   async create(notification: Partial<Notification>) {
     const newNotification = await this.notificationModel.create(notification);
     // TODO: Eventually move this to a background job (probably using a NestJS Queue: https://docs.nestjs.com/techniques/queues)
     // This can be processed in the background instead of adding a small delay to each notification creation.
-    await this.processNotification(newNotification.id);
+
+    await Promise.all([this.processNotification(newNotification.id),
+      this.usersService.updateNewNotificationCount((notification.userId).toString())]);
     return newNotification;
   }
 

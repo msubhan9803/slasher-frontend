@@ -1,14 +1,12 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
-  MessageBody,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
   ConnectedSocket,
 } from '@nestjs/websockets';
+import { Socket } from 'socket.io-client';
 import { ConfigService } from '@nestjs/config';
 import { Server } from 'socket.io';
 import { RssFeedProvider } from 'src/schemas/rssFeedProvider/rssFeedProvider.schema';
@@ -55,5 +53,13 @@ export class NotificationsGateway {
         ]),
       });
     });
+  }
+
+  @SubscribeMessage('clearNewNotificationCount')
+  async clearNewNotificationCount(@ConnectedSocket() client: Socket): Promise<any> {
+    const user = await this.usersService.findBySocketId(client.id);
+    const userId = user._id.toString();
+    const clearNotificationCount = await this.usersService.clearNotificationCount(userId);
+    return { newNotificationCount: clearNotificationCount.newNotificationCount };
   }
 }

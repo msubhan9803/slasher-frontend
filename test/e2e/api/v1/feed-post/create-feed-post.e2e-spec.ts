@@ -504,6 +504,39 @@ describe('Feed-Post / Post File (e2e)', () => {
       expect(response.body.message).toContain('Only allow maximum of 10 description');
     });
 
+    describe('notifications', () => {
+      it('when notification is create for createFeedPost than check newNotificationCount is increment in user', async () => {
+        const otherUser1 = await usersService.create(userFactory.build({ userName: 'Denial' }));
+        const otherUser2 = await usersService.create(userFactory.build({ userName: 'Divine' }));
+
+        await createTempFiles(async (tempPaths) => {
+          await request(app.getHttpServer())
+            .post('/api/v1/feed-posts')
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field(
+              'message',
+              `##LINK_ID##${otherUser1._id.toString()}@Denial##LINK_END## other user 1`
+              + `##LINK_ID##${otherUser2._id.toString()}@Divine##LINK_END## other user 2`,
+            )
+            .field('postType', PostType.User)
+            .field('userId', activeUser._id.toString())
+            .attach('files', tempPaths[0])
+            .field('imageDescriptions[0][description]', 'this is create post description 0')
+          .expect(HttpStatus.CREATED);
+
+          const otherUser1NewNotificationCount = await usersService.findById(otherUser1.id);
+          const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id);
+
+          expect(otherUser1NewNotificationCount.newNotificationCount).toBe(1);
+          expect(otherUser2NewNotificationCount.newNotificationCount).toBe(1);
+        }, [{ extension: 'png' }]);
+        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+        expect(allFilesNames).toEqual(['.keep']);
+      });
+    });
+
     describe('Validation', () => {
       it('spoilers should not be empty', async () => {
         const response = await request(app.getHttpServer())

@@ -18,6 +18,7 @@ import { BlocksService } from '../blocks/providers/blocks.service';
 import { User } from '../schemas/user/user.schema';
 import { ProfileVisibility } from '../schemas/user/user.enums';
 import { FriendsService } from '../friends/providers/friends.service';
+import { UsersService } from '../users/providers/users.service';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { LikesLimitOffSetDto } from './dto/likes-limit-offset-query.dto';
 
@@ -30,6 +31,7 @@ export class FeedLikesController {
     private readonly notificationsService: NotificationsService,
     private readonly blocksService: BlocksService,
     private readonly friendsService: FriendsService,
+    private readonly usersService: UsersService,
 
   ) { }
 
@@ -74,11 +76,7 @@ export class FeedLikesController {
     );
     if (!skipPostCreatorNotification) {
       await this.notificationsService.create({
-        userId: ({
-          _id: postUserId,
-          profilePic: (post.userId as any).profilePic,
-          userName: (post.userId as any).userName,
-        } as any),
+        userId: postUserId as any,
         feedPostId: { _id: post._id.toString() } as unknown as FeedPost,
         senderId: user._id,
         notifyType: NotificationType.UserLikedYourPost,

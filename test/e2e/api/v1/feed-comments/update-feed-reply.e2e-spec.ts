@@ -82,8 +82,6 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
     let feedComments;
     let feedReply;
     beforeEach(async () => {
-      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
-
       activeUser = await usersService.create(userFactory.build());
       user0 = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(
@@ -122,50 +120,217 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
       const feedReplyId = new mongoose.Types.ObjectId();
       await request(app.getHttpServer()).patch(`/api/v1/feed-comments/replies/${feedReplyId}`).expect(HttpStatus.UNAUTHORIZED);
     });
-
-    it('successfully update feed reply messages', async () => {
-      const response = await request(app.getHttpServer())
-        .patch(`/api/v1/feed-comments/replies/${feedReply._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .field('message', sampleFeedCommentsObject.message);
-      expect(response.body).toEqual({
-        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-        feedPostId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-        message: 'hello all test user upload your feed reply',
-        images: [
-          {
-            image_path: 'https://picsum.photos/id/237/200/300',
-            description: 'this is update feed reply description 1',
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          },
-          {
-            image_path: 'https://picsum.photos/seed/picsum/200/300',
-            description: 'this is update feed reply description 2',
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          },
-        ],
-        feedCommentId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-        userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-      });
-    });
-
-    describe('notifications', () => {
-      let postCreatorUser;
-      let commentCreatorUser;
-      let commentCreatorUserAuthToken;
-      let otherUser1;
-      let otherUser2;
-      let otherUser3;
+    describe('with mocked notificationService.create', () => {
       beforeEach(async () => {
-        postCreatorUser = await usersService.create(userFactory.build());
-        commentCreatorUser = await usersService.create(userFactory.build());
-        commentCreatorUserAuthToken = commentCreatorUser.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
-        otherUser1 = await usersService.create(userFactory.build());
-        otherUser2 = await usersService.create(userFactory.build());
-        otherUser3 = await usersService.create(userFactory.build());
+        jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
+      });
+
+      it('successfully update feed reply messages', async () => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-comments/replies/${feedReply._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .field('message', sampleFeedCommentsObject.message);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          feedPostId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'hello all test user upload your feed reply',
+          images: [
+            {
+              image_path: 'https://picsum.photos/id/237/200/300',
+              description: 'this is update feed reply description 1',
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: 'https://picsum.photos/seed/picsum/200/300',
+              description: 'this is update feed reply description 2',
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+          feedCommentId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        });
+      });
+
+      it('only allows a maximum of 4 images', async () => {
+        await createTempFiles(async (tempPaths) => {
+          const response = await request(app.getHttpServer())
+            .patch(`/api/v1/feed-comments/replies/${feedReply._id}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('message', sampleFeedCommentsObject.message)
+            .attach('files', tempPaths[0])
+            .attach('files', tempPaths[1])
+            .attach('files', tempPaths[2])
+            .attach('files', tempPaths[3])
+            .attach('files', tempPaths[4]);
+          expect(response.body.message).toBe('Too many files uploaded. Maximum allowed: 4');
+        }, [
+          { extension: 'png' }, { extension: 'png' },
+          { extension: 'png' }, { extension: 'png' },
+          { extension: 'jpg' }, { extension: 'png' },
+        ]);
+
+        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+        expect(allFilesNames).toEqual(['.keep']);
+      });
+
+      it('responds expected response when neither message nor file are present in request'
+        + 'and db images length or body imagesToDelete length is same', async () => {
+          const feedReply0 = await feedCommentsService.createFeedReply(
+            feedRepliesFactory.build(
+              {
+                userId: activeUser._id,
+                feedCommentId: feedComments.id,
+                message: 'Hello Reply Test Message 1',
+                images: [{
+                  image_path: '/feed/feed_sample1.jpg',
+                  description: 'this is update feed reply description 1',
+                }],
+              },
+            ),
+          );
+          const response = await request(app.getHttpServer())
+            .patch(`/api/v1/feed-comments/replies/${feedReply0._id}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .field('message', '')
+            .field('imagesToDelete', (feedReply0.images[0] as any).id)
+            .expect(HttpStatus.BAD_REQUEST);
+          expect(response.body.message).toBe('Replies must have some text or at least one image.');
+        });
+
+      it('returns the expected response when the message only contains whitespace characters', async () => {
+        const feedReply3 = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: activeUser._id,
+              feedCommentId: feedComments.id,
+              message: 'Hello Reply Test Message 1',
+              images: [{
+                image_path: '/feed/feed_sample1.jpg',
+                description: 'this is update feed reply description 1',
+              }],
+            },
+          ),
+        );
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-comments/replies/${feedReply3._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', '          \n\n')
+          .field('imagesToDelete', (feedReply3.images[0] as any).id);
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'Replies must have some text or at least one image.',
+        });
+      });
+
+      it('when reply has a already 4 images and add more 2 images than expected response', async () => {
+        const feedReply1 = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: activeUser._id,
+              feedCommentId: feedComments.id,
+              message: 'Hello Reply Test Message 1',
+              images: [
+                {
+                  image_path: '/feed/feed_sample1.jpg',
+                  description: 'this is update feed reply description 1',
+                },
+                {
+                  image_path: '/feed/feed_sample2.jpg',
+                  description: 'this is update feed reply description 2',
+                },
+                {
+                  image_path: '/feed/feed_sample3.jpg',
+                  description: 'this is update feed reply description 3',
+                },
+                {
+                  image_path: '/feed/feed_sample4.jpg',
+                  description: 'this is update feed reply description 4',
+                },
+              ],
+            },
+          ),
+        );
+
+        await createTempFiles(async (tempPaths) => {
+          const response = await request(app.getHttpServer())
+            .patch(`/api/v1/feed-comments/replies/${feedReply1._id}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .attach('files', tempPaths[0])
+            .attach('files', tempPaths[1]);
+          expect(response.body).toEqual({
+            statusCode: 400,
+            message: 'Cannot include more than 4 images on a reply.',
+          });
+        }, [
+          { extension: 'png' }, { extension: 'png' },
+          { extension: 'png' }, { extension: 'png' },
+          { extension: 'png' }, { extension: 'png' },
+        ]);
+        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+        expect(allFilesNames).toEqual(['.keep']);
+      });
+
+      it('check message has a empty string or files or imagesToDelete is not exists', async () => {
+        const feedReply2 = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: activeUser._id,
+              feedCommentId: feedComments.id,
+              message: 'Hello Reply Test Message 1',
+              images: [],
+            },
+          ),
+        );
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-comments/replies/${feedReply2._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', '');
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'Replies must have some text or at least one image.',
+        });
+      });
+
+      it('check trim is working for message in update feed reply', async () => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-comments/replies/${feedReply._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', '        This is a test reply message      ');
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          feedCommentId: feedComments._id.toString(),
+          feedPostId: feedPost._id.toString(),
+          message: 'This is a test reply message',
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: 'https://picsum.photos/id/237/200/300',
+              description: 'this is update feed reply description 1',
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: 'https://picsum.photos/seed/picsum/200/300',
+              description: 'this is update feed reply description 2',
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
       });
 
       it('sends notifications to newly-added users in the message, but ignores the comment creator', async () => {
+        const postCreatorUser = await usersService.create(userFactory.build());
+        const commentCreatorUser = await usersService.create(userFactory.build());
+        const commentCreatorUserAuthToken = commentCreatorUser.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
+        const otherUser1 = await usersService.create(userFactory.build());
+        const otherUser2 = await usersService.create(userFactory.build());
+        const otherUser3 = await usersService.create(userFactory.build());
         const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
         const comment = await feedCommentsService.createFeedComment(
           feedCommentsFactory.build(
@@ -387,176 +552,59 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
       expect(feedReplyData.images).toHaveLength(1);
     });
 
-    it('only allows a maximum of 4 images', async () => {
-      await createTempFiles(async (tempPaths) => {
-        const response = await request(app.getHttpServer())
-          .patch(`/api/v1/feed-comments/replies/${feedReply._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .set('Content-Type', 'multipart/form-data')
-          .field('message', sampleFeedCommentsObject.message)
-          .attach('files', tempPaths[0])
-          .attach('files', tempPaths[1])
-          .attach('files', tempPaths[2])
-          .attach('files', tempPaths[3])
-          .attach('files', tempPaths[4]);
-        expect(response.body.message).toBe('Too many files uploaded. Maximum allowed: 4');
-      }, [
-        { extension: 'png' }, { extension: 'png' },
-        { extension: 'png' }, { extension: 'png' },
-        { extension: 'jpg' }, { extension: 'png' },
-      ]);
+    describe('notifications', () => {
+      let commentCreatorUser;
+      let commentCreatorUserAuthToken;
+      let otherUser1;
+      let otherUser2;
+      beforeEach(async () => {
+        commentCreatorUser = await usersService.create(userFactory.build());
+        commentCreatorUserAuthToken = commentCreatorUser.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
+        otherUser1 = await usersService.create(userFactory.build());
+        otherUser2 = await usersService.create(userFactory.build());
+      });
 
-      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
-      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-      expect(allFilesNames).toEqual(['.keep']);
-    });
-
-    it('responds expected response when neither message nor file are present in request'
-      + 'and db images length or body imagesToDelete length is same', async () => {
-        const feedReply0 = await feedCommentsService.createFeedReply(
-          feedRepliesFactory.build(
+      it('when notification is create for updateFeedReply than check newNotificationCount is increment in user', async () => {
+        const user3 = await usersService.create(userFactory.build({ userName: 'Divine' }));
+        const post = await feedPostsService.create(feedPostFactory.build({ userId: user0._id }));
+        const comment = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
             {
-              userId: activeUser._id,
-              feedCommentId: feedComments.id,
-              message: 'Hello Reply Test Message 1',
-              images: [{
-                image_path: '/feed/feed_sample1.jpg',
-                description: 'this update feed reply description 1',
-              }],
+              userId: otherUser1._id,
+              feedPostId: post.id,
+              message: 'This is a comment',
+              images: [],
             },
           ),
         );
-        const response = await request(app.getHttpServer())
-          .patch(`/api/v1/feed-comments/replies/${feedReply0._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .field('message', '')
-          .field('imagesToDelete', (feedReply0.images[0] as any).id)
-          .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toBe('Replies must have some text or at least one image.');
-      });
+        const reply = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: commentCreatorUser._id,
+              feedCommentId: comment.id,
+              message: `Hello ##LINK_ID##${otherUser1._id.toString()}@OtherUser2##LINK_END## other user 1`,
+              images: [],
+            },
+          ),
+        );
 
-    it('returns the expected response when the message only contains whitespace characters', async () => {
-      const feedReply3 = await feedCommentsService.createFeedReply(
-        feedRepliesFactory.build(
-          {
-            userId: activeUser._id,
-            feedCommentId: feedComments.id,
-            message: 'Hello Reply Test Message 1',
-            images: [{
-              image_path: '/feed/feed_sample1.jpg',
-              description: 'this update feed reply description 1',
-            }],
-          },
-        ),
-      );
-      const response = await request(app.getHttpServer())
-        .patch(`/api/v1/feed-comments/replies/${feedReply3._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .set('Content-Type', 'multipart/form-data')
-        .field('message', '          \n\n')
-        .field('imagesToDelete', (feedReply3.images[0] as any).id);
-      expect(response.body).toEqual({
-        statusCode: 400,
-        message: 'Replies must have some text or at least one image.',
-      });
-    });
-
-    it('when reply has a already 4 images and add more 2 images than expected response', async () => {
-      const feedReply1 = await feedCommentsService.createFeedReply(
-        feedRepliesFactory.build(
-          {
-            userId: activeUser._id,
-            feedCommentId: feedComments.id,
-            message: 'Hello Reply Test Message 1',
-            images: [
-              {
-                image_path: '/feed/feed_sample1.jpg',
-                description: 'this update feed reply description 1',
-              },
-              {
-                image_path: '/feed/feed_sample2.jpg',
-                description: 'this update feed reply description 2',
-              },
-              {
-                image_path: '/feed/feed_sample3.jpg',
-                description: 'this update feed reply description 3',
-              },
-              {
-                image_path: '/feed/feed_sample4.jpg',
-                description: 'this update feed reply description 4',
-              },
-            ],
-          },
-        ),
-      );
-
-      await createTempFiles(async (tempPaths) => {
-        const response = await request(app.getHttpServer())
-          .patch(`/api/v1/feed-comments/replies/${feedReply1._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
+        await request(app.getHttpServer())
+          .patch(`/api/v1/feed-comments/replies/${reply._id}`)
+          .auth(commentCreatorUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
-          .attach('files', tempPaths[0])
-          .attach('files', tempPaths[1]);
-        expect(response.body).toEqual({
-          statusCode: 400,
-          message: 'Cannot include more than 4 images on a reply.',
-        });
-      }, [
-        { extension: 'png' }, { extension: 'png' },
-        { extension: 'png' }, { extension: 'png' },
-        { extension: 'png' }, { extension: 'png' },
-      ]);
-      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
-      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-      expect(allFilesNames).toEqual(['.keep']);
-    });
+          .field('feedPostId', post._id.toString())
+          .field(
+            'message',
+            `##LINK_ID##${user3._id.toString()}@Divine##LINK_END## post creator user`
+            + `##LINK_ID##${otherUser2._id.toString()}@OtherUser2##LINK_END## other user 2`,
+          )
+          .expect(HttpStatus.OK);
 
-    it('check message has a empty string or files or imagesToDelete is not exists', async () => {
-      const feedReply2 = await feedCommentsService.createFeedReply(
-        feedRepliesFactory.build(
-          {
-            userId: activeUser._id,
-            feedCommentId: feedComments.id,
-            message: 'Hello Reply Test Message 1',
-            images: [],
-          },
-        ),
-      );
-      const response = await request(app.getHttpServer())
-        .patch(`/api/v1/feed-comments/replies/${feedReply2._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .set('Content-Type', 'multipart/form-data')
-        .field('message', '');
-      expect(response.body).toEqual({
-        statusCode: 400,
-        message: 'Replies must have some text or at least one image.',
-      });
-    });
+        const user3NewNotificationCount = await usersService.findById(user3.id);
+        const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id);
 
-    it('check trim is working for message in update feed reply', async () => {
-      const response = await request(app.getHttpServer())
-        .patch(`/api/v1/feed-comments/replies/${feedReply._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .set('Content-Type', 'multipart/form-data')
-        .field('message', '        This is a test reply message      ');
-      expect(response.body).toEqual({
-        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-        feedCommentId: feedComments._id.toString(),
-        feedPostId: feedPost._id.toString(),
-        message: 'This is a test reply message',
-        userId: activeUser._id.toString(),
-        images: [
-          {
-            image_path: 'https://picsum.photos/id/237/200/300',
-            description: 'this is update feed reply description 1',
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          },
-          {
-            image_path: 'https://picsum.photos/seed/picsum/200/300',
-            description: 'this is update feed reply description 2',
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          },
-        ],
+        expect(user3NewNotificationCount.newNotificationCount).toBe(1);
+        expect(otherUser2NewNotificationCount.newNotificationCount).toBe(1);
       });
     });
 

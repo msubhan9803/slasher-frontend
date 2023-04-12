@@ -93,6 +93,7 @@ function EditPostModal({
           deleteImageIds={deleteImageIds}
           setDeleteImageIds={setDeleteImageIds}
           placeHolder="Create a post"
+          showSaveButton
           descriptionArray={descriptionArray}
           setDescriptionArray={setDescriptionArray}
         />

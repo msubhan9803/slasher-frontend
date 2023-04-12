@@ -248,29 +248,31 @@ function PostCommentSection({
   }, [isReply, setCommentErrorMessage]);
 
   const sendComment = (commentId?: string, msg?: string) => {
-    if (!commentId) {
-      if (commentError && commentError.length) {
-        setMessage(msg!);
-      } else {
-        setMessage('');
-        setImageArray([]);
+    if (updateState) {
+      if (!commentId) {
+        if (commentError && commentError.length) {
+          setMessage(msg!);
+        } else {
+          setMessage('');
+          setImageArray([]);
+        }
       }
-    }
 
-    if (replyImageArray.length > 0 || msg) {
-      if ((commentReplyError && commentReplyError.length)) {
-        setIsReply(true);
-        setReplyMessage(msg!);
-        setReplyUserName(replyUserName);
-      } else {
-        setIsReply(false);
-        setReplyMessage('');
-        setReplyUserName('');
-        setReplyImageArray([]);
+      if (replyImageArray.length > 0 || msg) {
+        if ((commentReplyError && commentReplyError.length)) {
+          setIsReply(true);
+          setReplyMessage(msg!);
+          setReplyUserName(replyUserName);
+        } else {
+          setIsReply(false);
+          setReplyMessage('');
+          setReplyUserName('');
+          setReplyImageArray([]);
+        }
       }
-    }
 
-    setUploadPost([]);
+      setUploadPost([]);
+    }
   };
 
   const handlePopover = (value: string, popoverData: PopoverClickProps) => {
@@ -484,14 +486,11 @@ function PostCommentSection({
         setCommentReplyErrorMessage={setCommentReplyErrorMessage}
         setReplyImageArray={setReplyImageArray}
         isEdit={isEdit}
-        updateState={updateState}
-        replyDescriptionArray={replyDescriptionArray}
-        setReplyDescriptionArray={setReplyDescriptionArray}
       />
       {
-          !isEdit && commentReplyError
-          && <ErrorMessageList errorMessages={commentReplyError} divClass="mt-3 text-start" className="m-0 mb-4" />
-        }
+        !isEdit && commentReplyError
+        && <ErrorMessageList errorMessages={commentReplyError} divClass="mt-3 text-start" className="m-0 mb-4" />
+      }
     </div>
   );
 

@@ -63,7 +63,7 @@ interface Props {
   placeHolder?: string;
   descriptionArray?: DescriptionArray[];
   setDescriptionArray?: (value: DescriptionArray[]) => void;
-  isEditingCommentOrReply?: boolean;
+  showSaveButton?: boolean;
 }
 
 const AddPhotosButton = styled(RoundButton)`
@@ -82,8 +82,9 @@ function CreatePostComponent({
   imageArray, setImageArray, defaultValue, formatMention, setFormatMention,
   deleteImageIds, setDeleteImageIds, postType, titleContent, setTitleContent,
   containSpoiler, setContainSpoiler, rating, setRating, goreFactor, setGoreFactor,
-  selectedPostType, setSelectedPostType, setWorthIt, liked, setLike, isEditingCommentOrReply,
+  selectedPostType, setSelectedPostType, setWorthIt, liked, setLike,
   disLiked, setDisLike, isWorthIt, placeHolder, descriptionArray, setDescriptionArray,
+  showSaveButton,
 }: Props) {
   const inputFile = useRef<HTMLInputElement>(null);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
@@ -127,7 +128,7 @@ function CreatePostComponent({
   let actionText;
   if (postType === 'review') {
     actionText = 'Submit';
-  } else if (isEditingCommentOrReply) {
+  } else if (showSaveButton) {
     actionText = 'Save';
   } else {
     actionText = 'Post';
@@ -383,6 +384,6 @@ CreatePostComponent.defaultProps = {
   placeHolder: 'Write a something...',
   descriptionArray: [],
   setDescriptionArray: undefined,
-  isEditingCommentOrReply: false,
+  showSaveButton: false,
 };
 export default CreatePostComponent;

@@ -118,13 +118,13 @@ function MoviesModal({
       )}
       {show && (
         <ModalContainer
-          $modalContentWidth={348}
+          $widthMarginAuto
           show={show}
           centered
           onHide={closeModal}
         >
           <Modal.Header className="border-0 shadow-none justify-content-end" closeButton />
-          <div className="px-5">
+          <div className="px-3">
             {ButtonType === 'deactivate' && (
               <Modal.Body className="d-flex flex-column align-items-center text-center pb-5">
                 <div className="px-5">

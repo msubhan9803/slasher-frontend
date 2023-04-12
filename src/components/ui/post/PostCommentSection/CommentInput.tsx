@@ -41,7 +41,6 @@ interface CommentInputProps {
   setCommentReplyErrorMessage?: (value: string[]) => void;
   setReplyImageArray?: (value: any) => void;
   isEdit?: boolean;
-  updateState?: boolean;
   descriptionArray?: string[];
   setDescriptionArray?: (value: string[]) => void;
   replyDescriptionArray?: string[];
@@ -89,9 +88,8 @@ function CommentInput({
   handleFileChange, sendComment, imageArray, handleRemoveFile, dataId,
   handleSearch, mentionList, addUpdateComment, replyImageArray, isReply,
   addUpdateReply, commentID, commentReplyID, checkCommnt, commentError, commentReplyError,
-  commentSent, setCommentReplyErrorMessage, setReplyImageArray, isEdit,
-  updateState, descriptionArray, setDescriptionArray, replyDescriptionArray,
-  setReplyDescriptionArray,
+  commentSent, setCommentReplyErrorMessage, setReplyImageArray, isEdit, descriptionArray,
+  setDescriptionArray, replyDescriptionArray, setReplyDescriptionArray,
 }: CommentInputProps) {
   const [editMessage, setEditMessage] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
@@ -152,10 +150,10 @@ function CommentInput({
   }, [commentReplyError, message]);
 
   useEffect(() => {
-    if (!commentSent && updateState) {
+    if (!commentSent) {
       sendComment(dataId!, editMessage);
     }
-  }, [commentSent, updateState, dataId, editMessage, sendComment]);
+  }, [commentSent, dataId, editMessage, sendComment]);
 
   const onUpdatePost = (msg: string) => {
     const imageArr = isReply ? replyImageArray : imageArray;
@@ -348,7 +346,6 @@ CommentInput.defaultProps = {
   setCommentReplyErrorMessage: undefined,
   setReplyImageArray: undefined,
   isEdit: undefined,
-  updateState: false,
   descriptionArray: undefined,
   setDescriptionArray: undefined,
   replyDescriptionArray: undefined,

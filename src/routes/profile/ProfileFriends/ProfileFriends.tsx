@@ -41,7 +41,7 @@ function ProfileFriends({ user }: Props) {
   const [dropDownValue, setDropDownValue] = useState('');
   const [loadingFriends, setLoadingFriends] = useState<boolean>(false);
   const popoverOption = ['View profile', 'Message', 'Unfriend', 'Report', 'Block user'];
-  const friendsReqCount = useAppSelector((state) => state.user.friendRequestCount);
+  const friendsReqCount = useAppSelector((state) => state.user.user.newFriendRequestCount);
   const friendContainerElementRef = useRef<any>(null);
   const loginUserData = useAppSelector((state) => state.user.user);
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();

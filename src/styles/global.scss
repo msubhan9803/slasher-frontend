@@ -295,6 +295,9 @@ textarea {
 
 #skip-to-main-content-link {
   z-index: 9999;
+  position: absolute;
+  background-color: #000;
+  top: 0;
   text-align: center;
   border: 1px solid #aaa;
   padding: 1em;

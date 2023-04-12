@@ -243,29 +243,31 @@ function PostCommentSection({
   }, [isReply, setCommentErrorMessage]);
 
   const sendComment = (commentId?: string, msg?: string) => {
-    if (!commentId) {
-      if (commentError && commentError.length) {
-        setMessage(msg!);
-      } else {
-        setMessage('');
-        setImageArray([]);
+    if (updateState) {
+      if (!commentId) {
+        if (commentError && commentError.length) {
+          setMessage(msg!);
+        } else {
+          setMessage('');
+          setImageArray([]);
+        }
       }
-    }
 
-    if (replyImageArray.length > 0 || msg) {
-      if ((commentReplyError && commentReplyError.length)) {
-        setIsReply(true);
-        setReplyMessage(msg!);
-        setReplyUserName(replyUserName);
-      } else {
-        setIsReply(false);
-        setReplyMessage('');
-        setReplyUserName('');
-        setReplyImageArray([]);
+      if (replyImageArray.length > 0 || msg) {
+        if ((commentReplyError && commentReplyError.length)) {
+          setIsReply(true);
+          setReplyMessage(msg!);
+          setReplyUserName(replyUserName);
+        } else {
+          setIsReply(false);
+          setReplyMessage('');
+          setReplyUserName('');
+          setReplyImageArray([]);
+        }
       }
-    }
 
-    setUploadPost([]);
+      setUploadPost([]);
+    }
   };
 
   const handlePopover = (value: string, popoverData: PopoverClickProps) => {
@@ -442,41 +444,37 @@ function PostCommentSection({
     }
   }, [queryCommentId, queryReplyId, commentData]);
 
-  const generateReplyInput = (dataId: any) => {
-    console.log('(generateReplyInput(data.id))');
-    return (
-      <div id={scrollId} ref={tabsRef}>
-        <CommentInput
-          userData={userData}
-          message={replyMessage}
-          inputFile={replyInputFile}
-          handleFileChange={handleFileChange}
-          sendComment={sendComment}
-          imageArray={replyImageArray}
-          handleRemoveFile={handleRemoveFile}
-          dataId={dataId}
-          handleSearch={handleSearch}
-          mentionList={mentionList}
-          isReply
-          replyImageArray={replyImageArray}
-          addUpdateReply={addUpdateReply}
-          commentID={selectedReplyCommentId}
-          commentReplyID={selectedReplyId!}
-          commentError={commentError}
-          commentReplyError={commentReplyError}
-          commentSent={commentSent}
-          setCommentReplyErrorMessage={setCommentReplyErrorMessage}
-          setReplyImageArray={setReplyImageArray}
-          isEdit={isEdit}
-          updateState={updateState}
-        />
-        {
+  const generateReplyInput = (dataId: any) => (
+    <div id={scrollId} ref={tabsRef}>
+      <CommentInput
+        userData={userData}
+        message={replyMessage}
+        inputFile={replyInputFile}
+        handleFileChange={handleFileChange}
+        sendComment={sendComment}
+        imageArray={replyImageArray}
+        handleRemoveFile={handleRemoveFile}
+        dataId={dataId}
+        handleSearch={handleSearch}
+        mentionList={mentionList}
+        isReply
+        replyImageArray={replyImageArray}
+        addUpdateReply={addUpdateReply}
+        commentID={selectedReplyCommentId}
+        commentReplyID={selectedReplyId!}
+        commentError={commentError}
+        commentReplyError={commentReplyError}
+        commentSent={commentSent}
+        setCommentReplyErrorMessage={setCommentReplyErrorMessage}
+        setReplyImageArray={setReplyImageArray}
+        isEdit={isEdit}
+      />
+      {
           !isEdit && commentReplyError
           && <ErrorMessageList errorMessages={commentReplyError} divClass="mt-3 text-start" className="m-0 mb-4" />
         }
-      </div>
-    );
-  };
+    </div>
+  );
   return (
     <>
       <CommentInput

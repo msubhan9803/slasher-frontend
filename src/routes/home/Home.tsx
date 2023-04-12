@@ -302,10 +302,11 @@ function Home() {
     };
     reportData(reportPayload).then((res) => {
       if (res.status === 200) { callLatestFeedPost(); }
-      setShow(false);
     })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
+    // Ask to block user as well
+    setDropDownValue('PostReportSuccessDialog');
   };
 
   const persistScrollPosition = (id: string) => {
@@ -357,7 +358,7 @@ function Home() {
         {loadingPosts && <LoadingIndicator />}
         {noMoreData && renderNoMoreDataMessage()}
         {
-          (dropDownValue === 'Block user' || dropDownValue === 'Report' || dropDownValue === 'Delete')
+          (dropDownValue === 'Block user' || dropDownValue === 'Report' || dropDownValue === 'Delete' || dropDownValue === 'PostReportSuccessDialog')
           && (
             <ReportModal
               onConfirmClick={deletePostClick}

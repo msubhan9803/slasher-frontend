@@ -9,29 +9,9 @@ import SlasherAbout3 from '../../../images/slasher-about-3.png';
 import SlasherAbout4 from '../../../images/slasher-about-4.png';
 import AvailableSection from './AvailableSection';
 import DownloadStoreBadge from '../components/DownloadStoreBadge';
-import {
-  XXL_MEDIA_BREAKPOINT,
-  XL_MEDIA_BREAKPOINT,
-  LG_MEDIA_BREAKPOINT,
-  MD_MEDIA_BREAKPOINT,
-  SM_MEDIA_BREAKPOINT,
-} from '../../../constants';
+import { SM_MEDIA_BREAKPOINT } from '../../../constants';
 
 const StyledAbout = styled.div`
-  margin-top: -0.8rem;
-  
-  @media (min-width: ${XXL_MEDIA_BREAKPOINT}){
-    margin-top: 2.2rem;
-  }
-  @media (max-width: ${XL_MEDIA_BREAKPOINT}){
-    margin-top: -1rem;
-  }
-  @media (max-width: ${LG_MEDIA_BREAKPOINT}){
-    margin-top: 15rem;
-  }
-  @media (max-width: ${MD_MEDIA_BREAKPOINT}){
-    margin-top: -10.8rem;
-  }
   @media (max-width: ${SM_MEDIA_BREAKPOINT}){ 
     .title {
       font-size: 20px !important;

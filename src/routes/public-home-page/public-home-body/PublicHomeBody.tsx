@@ -7,7 +7,7 @@ import UserReview from './UserReview';
 
 function PublicHomeBody() {
   return (
-    <div style={{ backgroundColor: '#171718' }}>
+    <div className="bg-black">
       <HeroSection />
       <AboutApp />
       <DownloadAppSection />

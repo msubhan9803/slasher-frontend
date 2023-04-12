@@ -126,7 +126,6 @@ function EditCommentModal({
           placeHolder={`${commentID ? 'Write a comment' : 'Reply to comment'}`}
           descriptionArray={descriptionArray}
           setDescriptionArray={setDescriptionArray}
-          isEditingCommentOrReply
           showSaveButton
         />
       </Modal.Body>

@@ -153,109 +153,144 @@ describe('Create Feed Reply Like (e2e)', () => {
       expect(response.body.message).toBe('Reply not found');
     });
 
-    it('when a block exists between the post creator and the liker, it returns the expected response', async () => {
-      const user1 = await usersService.create(userFactory.build({}));
-      const user2 = await usersService.create(userFactory.build({}));
-      const feedPost1 = await feedPostsService.create(
-        feedPostFactory.build(
-          {
-            userId: user1._id,
-          },
-        ),
-      );
-      await blocksModel.create({
-        from: activeUser._id.toString(),
-        to: user1._id,
-        reaction: BlockAndUnblockReaction.Block,
+    describe('notifications', () => {
+      it('when notification is create for createFeedReplyLike than check newNotificationCount is increment in user', async () => {
+        const postCreatorUser = await usersService.create(userFactory.build({ userName: 'Divine' }));
+        const otherUser1 = await usersService.create(userFactory.build({ userName: 'Denial' }));
+        const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
+        const comment = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: activeUser._id,
+              feedPostId: post.id,
+              message: 'This is a comment',
+              images: [],
+            },
+          ),
+        );
+        const reply = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: otherUser1._id,
+              feedCommentId: comment.id,
+              message: 'This is reply lie ',
+              images: [],
+            },
+          ),
+        );
+        await request(app.getHttpServer())
+          .post(`/api/v1/feed-likes/reply/${reply._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send()
+          .expect(HttpStatus.CREATED);
+        const otherUser1NewNotificationCount = await usersService.findById(otherUser1.id);
+        expect(otherUser1NewNotificationCount.newNotificationCount).toBe(1);
       });
-      const feedComments1 = await feedCommentsService.createFeedComment(
-        feedCommentsFactory.build(
-          {
-            userId: user2._id,
-            feedPostId: feedPost1.id,
-            message: feedCommentsAndReplyObject.message,
-            images: feedCommentsAndReplyObject.images,
-          },
-        ),
-      );
-      const feedReply1 = await feedCommentsService.createFeedReply(
-        feedRepliesFactory.build(
-          {
-            userId: user0._id,
-            feedCommentId: feedComments1.id,
-            message: feedCommentsAndReplyObject.message,
-            images: feedCommentsAndReplyObject.images,
-          },
-        ),
-      );
-      const response = await request(app.getHttpServer())
-        .post(`/api/v1/feed-likes/reply/${feedReply1._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
-      expect(response.status).toEqual(HttpStatus.FORBIDDEN);
-      expect(response.body).toEqual({
-        message: 'Request failed due to user block (post owner).',
-        statusCode: HttpStatus.FORBIDDEN,
-      });
-    });
 
-    it('when a block exists between the reply creator and the liker, it returns the expected response', async () => {
-      const user3 = await usersService.create(userFactory.build({}));
-      await blocksModel.create({
-        from: activeUser._id.toString(),
-        to: user3._id,
-        reaction: BlockAndUnblockReaction.Block,
+      it('when a block exists between the post creator and the liker, it returns the expected response', async () => {
+        const user1 = await usersService.create(userFactory.build({}));
+        const user2 = await usersService.create(userFactory.build({}));
+        const feedPost1 = await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: user1._id,
+            },
+          ),
+        );
+        await blocksModel.create({
+          from: activeUser._id.toString(),
+          to: user1._id,
+          reaction: BlockAndUnblockReaction.Block,
+        });
+        const feedComments1 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: user2._id,
+              feedPostId: feedPost1.id,
+              message: feedCommentsAndReplyObject.message,
+              images: feedCommentsAndReplyObject.images,
+            },
+          ),
+        );
+        const feedReply1 = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: user0._id,
+              feedCommentId: feedComments1.id,
+              message: feedCommentsAndReplyObject.message,
+              images: feedCommentsAndReplyObject.images,
+            },
+          ),
+        );
+        const response = await request(app.getHttpServer())
+          .post(`/api/v1/feed-likes/reply/${feedReply1._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.FORBIDDEN);
+        expect(response.body).toEqual({
+          message: 'Request failed due to user block (post owner).',
+          statusCode: HttpStatus.FORBIDDEN,
+        });
       });
-      const feedReply2 = await feedCommentsService.createFeedReply(
-        feedRepliesFactory.build(
-          {
-            userId: user3._id,
-            feedCommentId: feedComments.id,
-            message: feedCommentsAndReplyObject.message,
-            images: feedCommentsAndReplyObject.images,
-          },
-        ),
-      );
-      const response = await request(app.getHttpServer())
-        .post(`/api/v1/feed-likes/reply/${feedReply2._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
-      expect(response.status).toEqual(HttpStatus.FORBIDDEN);
-      expect(response.body).toEqual({
-        message: 'Request failed due to user block (reply owner).',
-        statusCode: HttpStatus.FORBIDDEN,
-      });
-    });
 
-    it('when post not exists, it returns the expected response', async () => {
-      const feedComments3 = await feedCommentsService.createFeedComment(
-        feedCommentsFactory.build(
-          {
-            userId: activeUser._id,
-            feedPostId: user0._id,
-            message: feedCommentsAndReplyObject.message,
-            images: feedCommentsAndReplyObject.images,
-          },
-        ),
-      );
-      const feedReply3 = await feedCommentsService.createFeedReply(
-        feedRepliesFactory.build(
-          {
-            userId: activeUser._id,
-            feedCommentId: feedComments3.id,
-            message: feedCommentsAndReplyObject.message,
-            images: feedCommentsAndReplyObject.images,
-          },
-        ),
-      );
-      const response = await request(app.getHttpServer())
-        .post(`/api/v1/feed-likes/reply/${feedReply3._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
-      expect(response.status).toEqual(HttpStatus.NOT_FOUND);
-      expect(response.body).toEqual({
-        message: 'Post not found',
-        statusCode: HttpStatus.NOT_FOUND,
+      it('when a block exists between the reply creator and the liker, it returns the expected response', async () => {
+        const user3 = await usersService.create(userFactory.build({}));
+        await blocksModel.create({
+          from: activeUser._id.toString(),
+          to: user3._id,
+          reaction: BlockAndUnblockReaction.Block,
+        });
+        const feedReply2 = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: user3._id,
+              feedCommentId: feedComments.id,
+              message: feedCommentsAndReplyObject.message,
+              images: feedCommentsAndReplyObject.images,
+            },
+          ),
+        );
+        const response = await request(app.getHttpServer())
+          .post(`/api/v1/feed-likes/reply/${feedReply2._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.FORBIDDEN);
+        expect(response.body).toEqual({
+          message: 'Request failed due to user block (reply owner).',
+          statusCode: HttpStatus.FORBIDDEN,
+        });
+      });
+
+      it('when post not exists, it returns the expected response', async () => {
+        const feedComments3 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: activeUser._id,
+              feedPostId: user0._id,
+              message: feedCommentsAndReplyObject.message,
+              images: feedCommentsAndReplyObject.images,
+            },
+          ),
+        );
+        const feedReply3 = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: activeUser._id,
+              feedCommentId: feedComments3.id,
+              message: feedCommentsAndReplyObject.message,
+              images: feedCommentsAndReplyObject.images,
+            },
+          ),
+        );
+        const response = await request(app.getHttpServer())
+          .post(`/api/v1/feed-likes/reply/${feedReply3._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.NOT_FOUND);
+        expect(response.body).toEqual({
+          message: 'Post not found',
+          statusCode: HttpStatus.NOT_FOUND,
+        });
       });
     });
 

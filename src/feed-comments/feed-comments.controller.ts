@@ -36,6 +36,7 @@ import { User, UserDocument } from '../schemas/user/user.schema';
 import { FeedReply } from '../schemas/feedReply/feedReply.schema';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
+import { UsersService } from '../users/providers/users.service';
 
 @Controller({ path: 'feed-comments', version: ['1'] })
 export class FeedCommentsController {
@@ -49,6 +50,7 @@ export class FeedCommentsController {
     private readonly s3StorageService: S3StorageService,
     private readonly blocksService: BlocksService,
     private readonly friendsService: FriendsService,
+    private readonly usersService: UsersService,
   ) { }
 
   @TransformImageUrls('$.images[*].image_path')
@@ -542,7 +544,7 @@ export class FeedCommentsController {
     if (!skipPostCreatorNotification) {
       userIdsToSkip.push(postCreatorUserId);
       await this.notificationsService.create({
-        userId: post.userId as any,
+        userId: (post.userId as unknown as User)._id,
         feedPostId: comment.feedPostId as any,
         feedCommentId: comment._id as any,
         senderId: commentCreatorUser._id,
@@ -606,7 +608,7 @@ export class FeedCommentsController {
     if (!skipPostCreatorNotification) {
       userIdsToSkip.push(postCreatorUserId);
       await this.notificationsService.create({
-        userId: post.userId as any,
+        userId: (post.userId as unknown as User)._id,
         feedPostId: reply.feedPostId as any,
         feedCommentId: reply.feedCommentId as any,
         feedReplyId: reply._id,

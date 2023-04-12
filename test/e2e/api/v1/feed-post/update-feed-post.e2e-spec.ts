@@ -582,6 +582,32 @@ describe('Update Feed Post (e2e)', () => {
     });
   });
 
+  describe('notifications', () => {
+    it('when notification is create for updateFeedPost than check newNotificationCount is increment in user', async () => {
+      const otherUser1 = await usersService.create(userFactory.build({ userName: 'Denial' }));
+      const otherUser2 = await usersService.create(userFactory.build({ userName: 'Divine' }));
+      const otherUser3 = await usersService.create(userFactory.build({ userName: 'Demon' }));
+      const post = await feedPostsService.create(feedPostFactory.build(
+        {
+          userId: activeUser._id,
+          message: `##LINK_ID##${otherUser1._id.toString()}@Denial##LINK_END## other user 1`,
+        },
+      ));
+      const response = await request(app.getHttpServer())
+        .patch(`/api/v1/feed-posts/${post._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', `##LINK_ID##${otherUser2._id.toString()}@OtherUser2##LINK_END## other user 2`
+          + `##LINK_ID##${otherUser3._id.toString()}@OtherUser3##LINK_END## other user 3`);
+      expect(response.status).toEqual(HttpStatus.OK);
+
+      const otherUser3NewNotificationCount = await usersService.findById(otherUser3.id);
+      const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id);
+      expect(otherUser3NewNotificationCount.newNotificationCount).toBe(1);
+      expect(otherUser2NewNotificationCount.newNotificationCount).toBe(1);
+    });
+  });
+
   describe('Validation', () => {
     it('check message length validation', async () => {
       const message = new Array(20_002).join('z');

@@ -153,6 +153,24 @@ describe('Add Friends (e2e)', () => {
       });
     });
 
+    describe('notifications', () => {
+      it('when notification is create for addFriends than check newNotificationCount'
+        + 'and newFriendRequestCount is increment in user', async () => {
+          const otherUser1 = await usersService.create(
+            userFactory.build({ userName: 'Denial' }),
+          );
+          await request(app.getHttpServer())
+            .post('/api/v1/friends')
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .send({ userId: otherUser1._id })
+            .expect(HttpStatus.CREATED);
+
+          const otherUser1NewCount = await usersService.findById(otherUser1.id);
+          expect(otherUser1NewCount.newNotificationCount).toBe(1);
+          expect(otherUser1NewCount.newFriendRequestCount).toBe(1);
+        });
+    });
+
     describe('Validation', () => {
       it('userId should not be empty', async () => {
         const response = await request(app.getHttpServer())

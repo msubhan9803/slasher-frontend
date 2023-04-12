@@ -595,4 +595,21 @@ describe('Chat Gateway (e2e)', () => {
       });
     });
   });
+
+  describe('#clearNewConversationIds', () => {
+    it('when clear new conversation ids', async () => {
+      const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+      await waitForAuthSuccessMessage(client);
+
+      const response = await new Promise<any>((resolve) => {
+        client.emit('clearNewConversationIds', (data) => {
+          resolve(data);
+        });
+      });
+      client.close();
+      expect(response).toEqual({ newConversationIds: [] });
+      // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+      await waitForSocketUserCleanup(client, usersService);
+    });
+  });
 });

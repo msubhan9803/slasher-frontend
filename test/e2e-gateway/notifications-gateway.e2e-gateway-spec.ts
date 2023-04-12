@@ -149,4 +149,21 @@ describe('Notifications Gateway (e2e)', () => {
     // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
     await waitForSocketUserCleanup(client, usersService);
   });
+
+  describe('#clearNewNotificationCount', () => {
+    it('when clean new notification count', async () => {
+      const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+      await waitForAuthSuccessMessage(client);
+
+      const response = await new Promise<any>((resolve) => {
+        client.emit('clearNewNotificationCount', (data) => {
+          resolve(data);
+        });
+      });
+      client.close();
+      expect(response).toEqual({ newNotificationCount: 0 });
+      // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+      await waitForSocketUserCleanup(client, usersService);
+    });
+  });
 });

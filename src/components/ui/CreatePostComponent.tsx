@@ -169,6 +169,7 @@ function CreatePostComponent({
                   iconWidth="1.352rem"
                   iconHeight="1.352rem"
                   isWorthIt={isWorthIt}
+                  clickType="form"
                 />
                 {isWorthIt !== WorthWatchingStatus.NoRating
                   && (

@@ -400,17 +400,19 @@ function MovieReviews({ movieData, setMovieData }: Props) {
         loadMore={() => { setRequestAdditionalReviewPosts(true); }}
         hasMore={!noMoreData}
       >
-        <PostFeed
-          postFeedData={reviewPostData}
-          postType="review"
-          popoverOptions={loginUserPopoverOptions}
-          isCommentSection={false}
-          onPopoverClick={handlePopoverOption}
-          otherUserPopoverOptions={otherUserPopoverOptions}
-          onLikeClick={onLikeClick}
-          onSelect={persistScrollPosition}
-          onSpoilerClick={handleSpoiler}
-        />
+        <div className="mt-3">
+          <PostFeed
+            postFeedData={reviewPostData}
+            postType="review"
+            popoverOptions={loginUserPopoverOptions}
+            isCommentSection={false}
+            onPopoverClick={handlePopoverOption}
+            otherUserPopoverOptions={otherUserPopoverOptions}
+            onLikeClick={onLikeClick}
+            onSelect={persistScrollPosition}
+            onSpoilerClick={handleSpoiler}
+          />
+        </div>
       </InfiniteScroll>
       {loadingReviewPosts && <LoadingIndicator />}
       {noMoreData && renderNoMoreDataMessage()}

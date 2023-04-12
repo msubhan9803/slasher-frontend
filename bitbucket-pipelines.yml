@@ -7,7 +7,7 @@ definitions:
     - step: &set-environment
         name: 'Set Environment'
         script:
-          - echo $BITBUCKET_BRANCH | tr -d "deploy/" > environment.txt
+          - echo $BITBUCKET_BRANCH | cut -c 8- > environment.txt
           - cat environment.txt
         artifacts:
           - environment.txt

@@ -208,7 +208,7 @@ export class FeedCommentsController {
       });
     }
     if (oldImagesDescription && oldImagesDescription.length && !newImagesDescription.length) {
-      Object.assign(updateFeedCommentsDto, { images: comment.images })
+      Object.assign(updateFeedCommentsDto, { images: comment.images });
     }
     const images = [];
     for (const [index, file] of files.entries()) {
@@ -425,7 +425,7 @@ export class FeedCommentsController {
       });
     }
     if (oldImagesDescription && oldImagesDescription.length && !newImagesDescription.length) {
-      Object.assign(updateFeedReplyDto, { images: reply.images })
+      Object.assign(updateFeedReplyDto, { images: reply.images });
     }
     const images = [];
     for (const [index, file] of files.entries()) {

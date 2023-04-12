@@ -314,8 +314,8 @@ export class FeedPostsController {
       });
     }
 
-    if(oldImagesDescription && oldImagesDescription.length && !newImagesDescription.length){
-      Object.assign(updateFeedPostsDto, { images: feedPost.images})
+    if (oldImagesDescription && oldImagesDescription.length && !newImagesDescription.length) {
+      Object.assign(updateFeedPostsDto, { images: feedPost.images });
     }
 
     const images = [];

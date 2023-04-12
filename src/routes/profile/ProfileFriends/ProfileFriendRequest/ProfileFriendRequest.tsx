@@ -11,11 +11,12 @@ import ErrorMessageList from '../../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../../components/ui/LoadingIndicator';
 import TabLinks from '../../../../components/ui/Tabs/TabLinks';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
-import { setFriendListReload, setUserRecentFriendRequests } from '../../../../redux/slices/userSlice';
+import { resetNewFriendRequestCountCount, setFriendListReload, setUserRecentFriendRequests } from '../../../../redux/slices/userSlice';
 import { User } from '../../../../types';
 import ProfileHeader from '../../ProfileHeader';
 import FriendsProfileCard from '../FriendsProfileCard';
 import { forceReloadSuggestedFriends } from '../../../../redux/slices/suggestedFriendsSlice';
+import { socket } from '../../../../context/socket';
 
 interface FriendProps {
   _id?: string;
@@ -39,7 +40,7 @@ function ProfileFriendRequest({ user }: Props) {
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [friendsReqList, setFriendsReqList] = useState<FriendProps[]>([]);
   const loginUserName = Cookies.get('userName');
-  const friendsReqCount = useAppSelector((state) => state.user.friendRequestCount);
+  const friendsReqCount = useAppSelector((state) => state.user.user.newFriendRequestCount);
   const friendRequestContainerElementRef = useRef<any>(null);
   const [yPositionOfLastFriendElement, setYPositionOfLastFriendElement] = useState<number>(0);
   const [loadingFriendRequests, setLoadingFriendRequests] = useState<boolean>(false);
@@ -56,6 +57,11 @@ function ProfileFriendRequest({ user }: Props) {
         setFriendsReqList(res.data);
       });
   };
+
+  useEffect(() => {
+    socket?.emit('clearNewFriendRequestCount', {});
+    dispatch(resetNewFriendRequestCountCount());
+  }, [dispatch]);
 
   useEffect(() => {
     if (isFriendReLoad) {

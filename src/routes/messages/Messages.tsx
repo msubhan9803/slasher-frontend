@@ -13,6 +13,9 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layou
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
+import { useAppDispatch } from '../../redux/hooks';
+import { resetUnreadConversationCount } from '../../redux/slices/userSlice';
+import { socket } from '../../context/socket';
 
 export interface NewMessagesList {
   unreadCount: number;
@@ -36,6 +39,7 @@ function Messages() {
   const messageContainerElementRef = useRef<any>(null);
   const [yPositionOfLastMessageElement, setYPositionOfLastMessageElement] = useState<number>(0);
   const [selectedMatchListId, setSelectedMatchListId] = useState('');
+  const dispatch = useAppDispatch();
 
   const handleMessagesOption = (matchListId: string) => (messageOption: string) => {
     if (messageOption !== 'markAsRead') {
@@ -130,6 +134,11 @@ function Messages() {
       }
     }
   }, [yPositionOfLastMessageElement, fetchMoreMessages]);
+
+  useEffect(() => {
+    socket?.emit('clearNewConversationIds', {});
+    dispatch(resetUnreadConversationCount());
+  }, [dispatch]);
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>

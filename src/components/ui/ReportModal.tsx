@@ -20,6 +20,7 @@ function ReportModal({
   const blockOptions = ['It’s inappropriate for Slasher', 'It’s fake or spam', 'Other'];
   const [reports, setReports] = useState<string>('');
   const [otherReport, setOtherReport] = useState('');
+  const [checked, setChecked] = useState(false);
 
   const closeModal = () => {
     setShow(false);
@@ -37,6 +38,7 @@ function ReportModal({
 
   const handleBlockUser = () => {
     if (onBlockYesClick) { onBlockYesClick(); }
+    setChecked(false);
     closeModal();
   };
 
@@ -44,6 +46,13 @@ function ReportModal({
     const reason = reports === 'Other' ? otherReport : reports;
     if (reason) {
       if (handleReport) { handleReport(reason); }
+    }
+  };
+
+  const postReportCloseClick = () => {
+    if (checked) {
+      handleBlockUser();
+    } else {
       closeModal();
     }
   };
@@ -107,6 +116,27 @@ function ReportModal({
             </StyledTextarea>
             <RoundButton className="mb-3 w-100" onClick={handleReportData}>Send report</RoundButton>
             <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none text-white" onClick={closeModal}>Cancel report</RoundButton>
+          </Modal.Body>
+        )
+      }
+      {
+        slectedDropdownValue === 'PostReportSuccessDialog' && (
+          <Modal.Body className="d-flex flex-column align-items-center text-center pt-0">
+            <h1 className="h3 mb-0 text-primary pb-3">Block</h1>
+            <p className="px-3">Thank you for your report. We will review it as soon as possible</p>
+
+            <div className="d-flex pb-5">
+              <div className="pe-3">
+                Would you like to block this user?
+              </div>
+              <Form.Check
+                type="checkbox"
+                onChange={() => setChecked(!checked)}
+                checked={checked}
+              />
+
+            </div>
+            <RoundButton className="mb-3 w-100 fs-3" onClick={postReportCloseClick}>{checked ? 'Block and close' : 'Close'}</RoundButton>
           </Modal.Body>
         )
       }

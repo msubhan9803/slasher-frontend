@@ -12,20 +12,39 @@ interface Props {
   slectedDropdownValue: string
 }
 
+// TODO: Make the report modal to select only one option at a time like report modal used in
+// ReportModal.tsx and ChatOptionsDialog.tsx file.
 function DatingLikesDialog({ show, setShow, slectedDropdownValue }: Props) {
-  const closeModal = () => {
-    setShow(false);
-  };
   const blockOptions = ['It’s inappropriate for Slasher', 'It’s fake or spam', 'Other'];
   const [reports, setReports] = useState<Set<string>>(new Set<string>());
   const [otherReport, setOtherReport] = useState('');
+  const [buttonDisabled, setButtonDisabled] = useState(true);
+  const closeModal = () => {
+    setShow(false);
+    setButtonDisabled(true);
+    setReports(new Set());
+    setOtherReport('');
+  };
 
   const reportChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { checked, value } = e.target;
     const newSet = new Set<string>(reports);
     if (checked) { newSet.add(value); } else { newSet.delete(value); }
     setReports(newSet);
+    setButtonDisabled(false);
+
+    if (!checked && new Set().size === 0) { setButtonDisabled(true); }
+    if (checked && value === 'Other') { setButtonDisabled(true); }
   };
+  const handleOtherReport = (other: any) => {
+    setOtherReport(other.target.value);
+    if (other.target.value === '') {
+      setButtonDisabled(true);
+    } else {
+      setButtonDisabled(false);
+    }
+  };
+
   return (
     <CustomModal
       show={show}
@@ -80,13 +99,13 @@ function DatingLikesDialog({ show, setShow, slectedDropdownValue }: Props) {
                 rows={5}
                 as="textarea"
                 value={otherReport}
-                onChange={(other) => setOtherReport(other.target.value)}
+                onChange={handleOtherReport}
                 placeholder="Please describe the issue"
                 className="mt-3"
               />
             )}
           </Form>
-          <RoundButton className="mb-3 w-100">Send report</RoundButton>
+          <RoundButton disabled={buttonDisabled} className="mb-3 w-100">Send report</RoundButton>
           <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none text-white" onClick={closeModal}>Cancel report</RoundButton>
         </Modal.Body>
       )}

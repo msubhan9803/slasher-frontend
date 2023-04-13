@@ -17,17 +17,21 @@ function ChatOptionDialog({
   show, setShow, slectedDropdownValue, handleReport, onBlockYesClick,
 }: Props) {
   const { conversationId } = useParams();
-  const closeModal = () => {
-    setShow(false);
-  };
   const blockOptions = ['It’s inappropriate for Slasher', 'It’s fake or spam', 'Other'];
   const [reports, setReports] = useState<string>('');
   const [otherReport, setOtherReport] = useState('');
   const navigate = useNavigate();
+  const [buttonDisabled, setButtonDisabled] = useState(true);
+  const closeModal = () => {
+    setShow(false);
+    setReports('');
+    setButtonDisabled(true);
+  };
 
   const reportChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     setReports(value);
+    setButtonDisabled(false);
   };
   const handleReportData = () => {
     const reason = reports === 'Other' ? otherReport : reports;
@@ -99,7 +103,7 @@ function ChatOptionDialog({
                 />
               )}
             </StyledTextarea>
-            <RoundButton className="mb-3 w-100" onClick={handleReportData}>Send report</RoundButton>
+            <RoundButton disabled={buttonDisabled} className="mb-3 w-100" onClick={handleReportData}>Send report1</RoundButton>
             <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none text-white" onClick={closeModal}>Cancel report</RoundButton>
           </Modal.Body>
         )

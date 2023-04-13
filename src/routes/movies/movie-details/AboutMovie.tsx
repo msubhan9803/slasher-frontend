@@ -188,9 +188,9 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
               </div>
               {enableDevFeatures
                 && (
-                <div className="p-3 d-none d-xl-block">
-                  <RoundButton variant="black" className="w-100">Add to list</RoundButton>
-                </div>
+                  <div className="p-3 d-none d-xl-block">
+                    <RoundButton variant="black" className="w-100">Add to list</RoundButton>
+                  </div>
                 )}
             </div>
           </Col>
@@ -222,9 +222,9 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
             </div>
             {enableDevFeatures
               && (
-              <div className="p-3 d-xl-none justify-content-center mt-xl-2">
-                <RoundButton variant="black" className="w-100">Add to list</RoundButton>
-              </div>
+                <div className="p-3 d-xl-none justify-content-center mt-xl-2">
+                  <RoundButton variant="black" className="w-100">Add to list</RoundButton>
+                </div>
               )}
           </Col>
         </Row>
@@ -252,7 +252,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
         {enableDevFeatures
           && (
             <Row className="align-items-center justify-content-center mt-4 d-lg-none">
-              <Col sm={5}>
+              <Col sm={6} md={5}>
                 <div className="align-items-center d-flex justify-content-evenly">
                   <span className="mb-2">Push notifications</span>
                   <Switch id="pushNotificationsSwitch" className="ms-4" />

@@ -54,7 +54,7 @@ interface Props {
   setGoreFactor?: (value: number) => void;
   selectedPostType?: string;
   setSelectedPostType?: (value: string) => void;
-  setWorthIt?: (val: boolean) => void;
+  setWorthIt?: (val: number) => void;
   liked?: boolean;
   setLike?: (val: boolean) => void;
   disLiked?: boolean;
@@ -161,19 +161,19 @@ function CreatePostComponent({
                 rating={rating}
                 setRating={setRating}
                 label="Your rating"
-                size="1x"
+                size="lg"
               />
             </div>
-            <div className="mx-md-3 mx-lg-0 mx-xl-3 my-3 my-md-0 my-lg-3 my-xl-0">
+            <div className="mx-md-4 mx-lg-0 mx-xl-4 my-3 my-md-0 my-lg-3 my-xl-0">
               <RatingButtonGroups
                 rating={goreFactor}
                 setRating={setGoreFactor}
                 label="Your gore factor rating"
-                size="1x"
+                size="lg"
                 isGoreFator
               />
             </div>
-            <div>
+            <div className="">
               <Form.Label className="fw-bold h3">Worth watching?</Form.Label>
               <div className="d-flex align-items-center">
                 <WorthWatchIcon
@@ -184,11 +184,17 @@ function CreatePostComponent({
                   disLiked={disLiked!}
                   setDisLike={setDisLike!}
                   postType={postType}
+                  circleWidth="2.534rem"
+                  circleHeight="2.534rem"
+                  iconWidth="1.352rem"
+                  iconHeight="1.352rem"
+                  isWorthIt={isWorthIt}
+                  clickType="form"
                 />
                 {isWorthIt !== WorthWatchingStatus.NoRating
                   && (
                     <CustomWortItText
-                      divClass="align-items-center px-3 bg-black rounded-pill"
+                      divClass="mt-2 align-items-center px-3 bg-black rounded-pill py-2"
                       textClass="fs-4"
                       customCircleWidth="20px"
                       customCircleHeight="20px"

@@ -108,7 +108,7 @@ function MovieReviews({
     if (movieData) {
       setRating(movieData.userData.rating - 1);
       setGoreFactor(movieData.userData.goreFactorRating - 1);
-      setWorthIt(movieData.worthWatching);
+      setWorthIt(movieData.userData.worthWatching);
       if (movieData.userData?.reviewPostId) {
         getUserMovieReviewData(movieData.userData?.reviewPostId);
       }
@@ -396,17 +396,19 @@ function MovieReviews({
         loadMore={() => { setRequestAdditionalReviewPosts(true); }}
         hasMore={!noMoreData}
       >
-        <PostFeed
-          postFeedData={reviewPostData}
-          postType="review"
-          popoverOptions={loginUserPopoverOptions}
-          isCommentSection={false}
-          onPopoverClick={handlePopoverOption}
-          otherUserPopoverOptions={otherUserPopoverOptions}
-          onLikeClick={onLikeClick}
-          onSelect={persistScrollPosition}
-          onSpoilerClick={handleSpoiler}
-        />
+        <div className="mt-3">
+          <PostFeed
+            postFeedData={reviewPostData}
+            postType="review"
+            popoverOptions={loginUserPopoverOptions}
+            isCommentSection={false}
+            onPopoverClick={handlePopoverOption}
+            otherUserPopoverOptions={otherUserPopoverOptions}
+            onLikeClick={onLikeClick}
+            onSelect={persistScrollPosition}
+            onSpoilerClick={handleSpoiler}
+          />
+        </div>
       </InfiniteScroll>
       {loadingReviewPosts && <LoadingIndicator />}
       {noMoreData && renderNoMoreDataMessage()}

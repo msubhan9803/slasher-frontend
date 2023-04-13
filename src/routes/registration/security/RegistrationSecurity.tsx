@@ -135,7 +135,7 @@ function RegistrationSecurity({ activeStep }: Props) {
           <Col sm={12} md={9} className="mt-4">
             <SortData
               sortVal={selectedSecurityQuestion}
-              onSelectSort={(val) => setSelectedSecurityQuestion(val)}
+              onSelectSort={(val) => { handleChange(val, 'securityQuestion'); setSelectedSecurityQuestion(val); }}
               sortoptions={[{ value: 'disabled', label: 'Select a security question' }, ...RegistartionSecurityQuestions]}
               type="form"
             />
@@ -170,7 +170,7 @@ function RegistrationSecurity({ activeStep }: Props) {
               <Col sm={12} md={4}>
                 <SortData
                   sortVal={selectedMonth}
-                  onSelectSort={(val) => setSelectedMonth(val)}
+                  onSelectSort={(val) => { handleChange(val, 'month'); setSelectedMonth(val); }}
                   sortoptions={[{ value: 'disabled', label: 'Month' }, ...monthOptions]}
                   type="form"
                 />
@@ -178,7 +178,7 @@ function RegistrationSecurity({ activeStep }: Props) {
               <Col sm={12} md={4} className="my-2 my-md-0">
                 <SortData
                   sortVal={selectedDay}
-                  onSelectSort={(val) => setSelectedDay(val)}
+                  onSelectSort={(val) => { handleChange(val, 'day'); setSelectedDay(val); }}
                   sortoptions={[{ value: 'disabled', label: 'Day' }, ...convertedDayOptions]}
                   type="form"
                 />
@@ -186,7 +186,7 @@ function RegistrationSecurity({ activeStep }: Props) {
               <Col sm={12} md={4}>
                 <SortData
                   sortVal={selectedYear}
-                  onSelectSort={(val) => setSelectedYear(val)}
+                  onSelectSort={(val) => { handleChange(val, 'year'); setSelectedYear(val); }}
                   sortoptions={[{ value: 'disabled', label: 'Year' }, ...convertedYearOptions]}
                   type="form"
                 />

@@ -9,7 +9,7 @@ import { HashLink } from 'react-router-hash-link';
 import { scrollWithOffset } from '../../../../utils/scrollFunctions';
 import ShareLinkButton from '../../ShareLinkButton';
 import { LikeShareModalResourceName, LikeShareModalTabName } from '../../../../types';
-import { urlForUserPost } from '../../../../utils/url-utils';
+import { urlForNewsPost, urlForUserPost } from '../../../../utils/url-utils';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -100,7 +100,7 @@ function PostFooter({
           </HashLink>
         </Col>
         <Col xs={4} className={'text-end \'d-inline\'}'}>
-          <ShareLinkButton text textClass={postType === 'group-post' ? 'd-none d-md-inline d-lg-none d-xl-inline' : 'd-none d-md-inline d-lg-none d-xl-inline'} copyLinkUrl={urlForUserPost(userName!, postId!)} />
+          <ShareLinkButton text textClass={postType === 'group-post' ? 'd-none d-md-inline d-lg-none d-xl-inline' : 'd-none d-md-inline d-lg-none d-xl-inline'} copyLinkUrl={rssfeedProviderId ? urlForNewsPost(rssfeedProviderId!, postId!) : urlForUserPost(userName!, postId!)} />
         </Col>
         <svg width="0" height="0">
           <linearGradient id="like-button-footer" x1="100%" y1="0%" x2="0%" y2="100%">

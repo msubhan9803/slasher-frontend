@@ -52,7 +52,7 @@ function PublicHomeFooter() {
   return (
     <StyledFooter>
       <div className="w-100 bottom-0 p-2">
-        <Row className="m-0 align-items-center">
+        <Row className="m-0 align-items-center justify-content-center py-3">
           <Col md={3} className="me-md-5 p-2 text-center text-md-start">
             <Link to="/" className="mb-3">
               <HeaderLogo logo={slasherLogo} height="9rem" />

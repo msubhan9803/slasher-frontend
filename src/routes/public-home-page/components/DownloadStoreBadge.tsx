@@ -10,16 +10,17 @@ export const StyledBadge = styled.div`
   @media (min-width: ${MD_MEDIA_BREAKPOINT}) {
     .ios-badge{
       width: 204px;
-      height: 61px !important;
+      height: 55px !important;
     } 
   }
 `;
 
 const imageStyle = {
   border: '1px solid white',
-  borderRadius: 15,
+  borderRadius: 10,
+  width: 165,
+  height: 50,
 };
-
 function DownloadStoreBadge() {
   return (
     <StyledBadge className="d-flex flex-column flex-sm-row">

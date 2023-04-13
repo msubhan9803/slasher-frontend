@@ -11,8 +11,8 @@ function DownloadAppSection() {
     <div className="mx-3 mx-lg-4 px-2">
       <div className="bg-primary rounded-3 pt-5 px-4 text-black">
         <span className="text-center">
-          <h1 className="fw-bolder">SLASHER</h1>
-          <h2 className="fw-bolder h1">THE SOCIAL NETWORK FOR HORROR™</h2>
+          <h1 className="fw-bolder" style={{ fontSize: 28 }}>SLASHER</h1>
+          <h2 className="fw-bolder h1" style={{ fontSize: 28 }}>THE SOCIAL NETWORK FOR HORROR™</h2>
         </span>
         <Row className="mt-3 align-items-center">
           <Col xs={6} md={4} className="text-md-end">

@@ -1,12 +1,14 @@
 /* eslint-disable max-lines */
-import React, { ChangeEvent, useRef, useState } from 'react';
+import React, {
+  ChangeEvent, useEffect, useRef, useState,
+} from 'react';
 import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Row, Col, Button, Form,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { getSuggestUserName } from '../../api/users';
 import ErrorMessageList from './ErrorMessageList';
 import ImagesContainer from './ImagesContainer';
@@ -60,6 +62,8 @@ interface Props {
   isWorthIt?: number;
   placeHolder?: string;
   showSaveButton?: boolean;
+  reviewForm?: boolean;
+  setReviewForm?: (value: boolean) => void;
 }
 
 const AddPhotosButton = styled(RoundButton)`
@@ -80,12 +84,16 @@ function CreatePostComponent({
   containSpoiler, setContainSpoiler, rating, setRating, goreFactor, setGoreFactor,
   selectedPostType, setSelectedPostType, setWorthIt, liked, setLike,
   disLiked, setDisLike, isWorthIt, placeHolder, showSaveButton,
+  reviewForm, setReviewForm,
 }: Props) {
   const inputFile = useRef<HTMLInputElement>(null);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [uploadPost, setUploadPost] = useState<string[]>([]);
   const [searchParams] = useSearchParams();
   const paramsType = searchParams.get('type');
+  const params = useParams();
+  const location = useLocation();
+  const movieReviewRef = useRef<HTMLDivElement>(null);
 
   const handleRemoveFile = (postImage: any) => {
     const removePostImage = imageArray.filter((image: File) => image !== postImage);
@@ -130,12 +138,24 @@ function CreatePostComponent({
     actionText = 'Post';
   }
 
+  useEffect(() => {
+    setTimeout(() => {
+      if (reviewForm || params['*'] === 'reviews' || (location.state && location.state.movieId && location.state.movieId.length)) {
+        movieReviewRef?.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+        setReviewForm!(false);
+      }
+    }, 500);
+  }, [reviewForm, params, location, setReviewForm]);
+
   return (
     <div className={postType === 'review' ? 'bg-dark mb-3 px-4 py-4 rounded-2' : ''}>
 
       {postType === 'review' && (
         <>
-          <div className="d-block d-md-flex d-lg-block d-xl-flex align-items-center mb-4">
+          <div ref={movieReviewRef} className="d-block d-md-flex d-lg-block d-xl-flex align-items-center mb-4">
             <div>
               <RatingButtonGroups
                 rating={rating}
@@ -348,5 +368,7 @@ CreatePostComponent.defaultProps = {
   isWorthIt: 0,
   placeHolder: 'Write a something...',
   showSaveButton: false,
+  reviewForm: false,
+  setReviewForm: undefined,
 };
 export default CreatePostComponent;

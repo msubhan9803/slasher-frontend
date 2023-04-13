@@ -160,7 +160,7 @@ function SuggestedFriend() {
               {suggestedFriends.map((user: any) => (
                 <Card key={user._id}>
                   <div className="bg-dark rounded p-2">
-                    <Link className="text-decoration-none" to={`/${user.userName}/about`}>
+                    <Link className="d-block text-decoration-none" to={`/${user.userName}/about`}>
                       <div className=" d-flex justify-content-center position-relative">
                         <UserCircleImage size="6.25rem" src={user.profilePic} alt="suggested friend" />
                         <Button variant="link" className="position-absolute p-0 px-1" style={{ right: '0' }} onClick={(e: any) => onCloseClick(e, user._id)}>

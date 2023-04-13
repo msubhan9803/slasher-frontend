@@ -33,7 +33,7 @@ function PublicSignIn() {
   return (
     <StyledContainer>
       <Container>
-        <Form className="text-center py-5 px-4 mt-4">
+        <Form style={{ width: 900 }} className="text-center py-5 px-4 mt-4 mx-auto">
           <Row className="pt-3">
             <Col>
               <h1 className="fw-bolder">GET NOTIFIED OF ALL THE LATEST SLASHER NEWS &#8722; SIGN UP!</h1>

@@ -36,7 +36,7 @@ function AboutApp() {
             </p>
           </Col>
         </Row>
-        <Row className="content align-items-center mb-3">
+        <Row style={{ width: 1140 }} className="mx-auto content align-items-center mb-3">
           <Col md={6}>
             <Image fluid src={SlasherAbout1} className="" alt="about 1" />
           </Col>
@@ -53,7 +53,7 @@ function AboutApp() {
           </Col>
         </Row>
 
-        <Row className="content align-items-center mb-5 pb-4">
+        <Row style={{ width: 1140 }} className="mx-auto content align-items-center mb-5 pb-4">
           <Col md={6} className="order-1 order-md-2">
             <Image fluid src={SlasherAbout2} className="" alt="about 2" />
           </Col>
@@ -71,7 +71,7 @@ function AboutApp() {
           </Col>
         </Row>
 
-        <Row className="content align-items-center mb-5 pb-4">
+        <Row style={{ width: 1140 }} className="mx-auto content align-items-center mb-5 pb-4">
           <Col md={6} className="">
             <Image fluid src={SlasherAbout3} className="" alt="about 3" />
           </Col>
@@ -86,7 +86,7 @@ function AboutApp() {
           </Col>
         </Row>
 
-        <Row className="content align-items-center mb-5 pb-4">
+        <Row style={{ width: 1140 }} className="mx-auto content align-items-center mb-5 pb-4">
           <Col md={6} className="order-1 order-md-2">
             <Image fluid src={SlasherAbout4} className="" alt="about 4" />
           </Col>

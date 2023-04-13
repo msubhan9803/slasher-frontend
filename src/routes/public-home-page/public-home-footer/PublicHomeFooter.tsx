@@ -67,7 +67,7 @@ function PublicHomeFooter() {
               ))}
             </div>
             <div>
-              <p className="text-light m-0 fs-5">&copy; 2022 Slasher Corp</p>
+              <p className="text-light m-0 fs-5">&copy; 2023 Slasher Corp</p>
             </div>
           </Col>
           <Col xs={6} md={2} className="mb-md-3">

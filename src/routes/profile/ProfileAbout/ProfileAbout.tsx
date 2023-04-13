@@ -36,6 +36,10 @@ function ProfileAbout({ user }: Props) {
   }, []);
 
   useEffect(() => {
+    setAboutMeText(user.aboutMe);
+  }, [user]);
+
+  useEffect(() => {
     setUpdatedAboutMeText(aboutMeText);
     setAboutMeText(aboutMeText);
     setCharCount(aboutMeText.length);

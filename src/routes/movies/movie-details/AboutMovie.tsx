@@ -90,6 +90,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
   const navigate = useNavigate();
   const params = useParams();
   const location = useLocation();
+  const [reviewForm, setReviewForm] = useState(false);
 
   useEffect(() => {
     if (params['*'] === 'edit' && !selfView) { navigate(`/app/movies/${params.id}/details`); }
@@ -195,6 +196,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
           </Col>
           <Col xl={7}>
             <AboutDetails
+              setReviewForm={setReviewForm}
               movieData={movieData}
               setMovieData={setMovieData}
               aboutMovieDetail={aboutMovieData as AdditionalMovieData}
@@ -249,14 +251,14 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
 
         {enableDevFeatures
           && (
-          <Row className="align-items-center justify-content-center mt-4 d-lg-none">
-            <Col sm={5}>
-              <div className="align-items-center d-flex justify-content-evenly">
-                <span className="mb-2">Push notifications</span>
-                <Switch id="pushNotificationsSwitch" className="ms-4" />
-              </div>
-            </Col>
-          </Row>
+            <Row className="align-items-center justify-content-center mt-4 d-lg-none">
+              <Col sm={5}>
+                <div className="align-items-center d-flex justify-content-evenly">
+                  <span className="mb-2">Push notifications</span>
+                  <Switch id="pushNotificationsSwitch" className="ms-4" />
+                </div>
+              </Col>
+            </Row>
           )}
 
         <Row className="justify-content-center">
@@ -282,7 +284,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
             </>
           )}
         />
-        <Route path="reviews" element={<MovieReviews movieData={movieData} setMovieData={setMovieData} />} />
+        <Route path="reviews" element={<MovieReviews reviewForm={reviewForm} setReviewForm={setReviewForm} movieData={movieData} setMovieData={setMovieData} />} />
         <Route path="reviews/:postId" element={<MovieReviewDetails />} />
         <Route path="posts" element={<MoviePosts />} />
         <Route path="edit" element={<MovieEdit />} />

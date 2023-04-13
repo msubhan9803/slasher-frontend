@@ -5,7 +5,6 @@ import {
   Button, Col, Form, Row,
 } from 'react-bootstrap';
 import linkifyHtml from 'linkify-html';
-import { useParams } from 'react-router-dom';
 import ProfileHeader from '../ProfileHeader';
 import RoundButton from '../../../components/ui/RoundButton';
 import { User } from '../../../types';
@@ -23,22 +22,18 @@ interface Props {
 }
 function ProfileAbout({ user }: Props) {
   const [isEdit, setEdit] = useState<boolean>(false);
-  const [aboutMeText, setAboutMeText] = useState<string>('');
+  const [aboutMeText, setAboutMeText] = useState<string>(user?.aboutMe || '');
   const [updatedAboutMeText, setUpdatedAboutMeText] = useState('');
   const [charCount, setCharCount] = useState<number>(0);
   const loginUserId = useAppSelector((state) => state.user.user.id);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
-  const params = useParams();
 
   useEffect(() => {
-    if (user.userName === params.userName) {
-      setAboutMeText(user?.aboutMe);
-      window.scrollTo({
-        top: 0,
-        behavior: 'instant' as any,
-      });
-    }
-  }, [user, params]);
+    window.scrollTo({
+      top: 0,
+      behavior: 'instant' as any,
+    });
+  }, []);
 
   useEffect(() => {
     setUpdatedAboutMeText(aboutMeText);

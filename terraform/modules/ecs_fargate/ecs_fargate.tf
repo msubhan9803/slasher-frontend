@@ -119,11 +119,11 @@ resource "aws_ecs_task_definition" "slasher-web-task-new-defination" {
       },
       {
         "name" : "S3_USER_ACCESS_KEY_ID",
-        "valueFrom" : "/ECS-CLUSTER/slasher-${terraform.workspace}/S3_USER_ACCESS_KEY_ID_WEB_NEW"
+        "valueFrom" : "/ECS-CLUSTER/slasher-${terraform.workspace}/S3_USER_ACCESS_KEY_WEB_NEW"
       },
       {
         "name" : "S3_USER_SECRET_ACCESS_KEY",
-        "valueFrom" : "/ECS-CLUSTER/slasher-${terraform.workspace}/S3_USER_SECRET_ACCESS_KEY_ID_WEB_NEW"
+        "valueFrom" : "/ECS-CLUSTER/slasher-${terraform.workspace}/S3_USER_SECRET_ACCESS_KEY_WEB_NEW"
       },
       {
         "name" : "S3_BUCKET",

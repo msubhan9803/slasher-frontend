@@ -1,12 +1,12 @@
 AWSRegion = "us-east-1"
 
 #ecs-fargate
-web_new_desired_count       = 0
+web_new_desired_count       = 2
 web_new_cpu_unit            = 256
 web_new_memory_unit         = 512
-web_new_min_capacity        = 0
-web_new_max_capacity        = 0
-cron_desired_count          = 0
+web_new_min_capacity        = 1
+web_new_max_capacity        = 3
+cron_desired_count          = 1
 cron_cpu_unit               = 512
 cron_memory_unit            = 1024
 api_url                     = "https://api-prod.slasher.tv"
@@ -23,5 +23,5 @@ default_smtp_port                 = "465"
 default_smtp_host                 = "mail.slasher.tv"
 file_storage                      = "s3"
 cron_enabled_web                  = false # for web cron is disabled
-storage_location_generator_prefix = "/prod"
+storage_location_generator_prefix = "/"
 cron_enabled_cron                 = true # for cron service the cron is enabled

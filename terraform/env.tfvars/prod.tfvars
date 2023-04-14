@@ -9,11 +9,11 @@ web_new_max_capacity        = 3
 cron_desired_count          = 1
 cron_cpu_unit               = 512
 cron_memory_unit            = 1024
-api_url                     = "https://api-prod.slasher.tv"
+api_url                     = "https://api.slasher.tv"
 frontend_url                = "https://slasher.tv"
 log_group_retention_in_days = 60
-slasher_web_new_host_header = "api-prod.slasher.tv"
-slasher_cron_host_header    = "cron-prod.slasher.tv"
+slasher_web_new_host_header = "api.slasher.tv"
+slasher_cron_host_header    = "cron.slasher.tv"
 
 #ecs fargate env variables
 upload_dir                        = "/tmp"

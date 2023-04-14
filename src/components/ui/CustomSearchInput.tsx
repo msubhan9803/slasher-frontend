@@ -10,6 +10,7 @@ interface SearchProps {
   label: string;
 }
 const StyledSearchInput = styled(InputGroup)`
+  z-index:0;
   .input-group-text {
     background-color: var(--bs-dark);
     border-color: #3a3b46;

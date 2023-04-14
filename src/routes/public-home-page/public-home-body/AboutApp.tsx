@@ -29,7 +29,7 @@ function AboutApp() {
   return (
     <StyledAbout id="details" className="details mb-5 pb-1">
       <StyledContainer className="container-lg mt-5">
-        <Row className="justify-content-center mb-5 pb-3 row text-center">
+        <Row className="justify-content-center mb-5 pb-3 row text-center mx-auto">
           <Col md={10}>
             <h1 className="title mb-3 fw-bold">SLASHER IS THE ULTIMATE APP FOR HORROR FANS</h1>
             <p className="text-light">

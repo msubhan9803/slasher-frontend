@@ -1,7 +1,7 @@
 import React, { useState, ChangeEvent } from 'react';
 import {
   Button,
-  Col, Container, Form, Row,
+  Col, Form, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import ReCAPTCHA from 'react-google-recaptcha';

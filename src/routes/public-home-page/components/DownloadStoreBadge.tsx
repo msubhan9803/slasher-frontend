@@ -6,7 +6,6 @@ import AppStoreImage from '../../../images/app-store-badge.png';
 import PlayStoreImage from '../../../images/google-play-badge.png';
 
 export const StyledBadge = styled.div`
-/* TODO: Check if how this media breakpoint works - Sahil --- */
   @media (min-width: ${MD_MEDIA_BREAKPOINT}) {
     .ios-badge{
       width: 204px;

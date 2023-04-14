@@ -19,10 +19,16 @@ const StyledAbout = styled.div`
   }
 `;
 
+const StyledContainer = styled.div`
+  & > .row {
+    max-width: 1140px;
+  }
+`;
+
 function AboutApp() {
   return (
     <StyledAbout id="details" className="details mb-5 pb-1">
-      <div className="container-lg mt-5">
+      <StyledContainer className="container-lg mt-5">
         <Row className="justify-content-center mb-5 pb-3 row text-center">
           <Col md={10}>
             <h1 className="title mb-3 fw-bold">SLASHER IS THE ULTIMATE APP FOR HORROR FANS</h1>
@@ -36,7 +42,7 @@ function AboutApp() {
             </p>
           </Col>
         </Row>
-        <Row style={{ width: 1140 }} className="mx-auto content align-items-center mb-3">
+        <Row className="mx-auto content align-items-center mb-3">
           <Col md={6}>
             <Image fluid src={SlasherAbout1} className="" alt="about 1" />
           </Col>
@@ -53,7 +59,7 @@ function AboutApp() {
           </Col>
         </Row>
 
-        <Row style={{ width: 1140 }} className="mx-auto content align-items-center mb-5 pb-4">
+        <Row className="mx-auto content align-items-center mb-5 pb-4">
           <Col md={6} className="order-1 order-md-2">
             <Image fluid src={SlasherAbout2} className="" alt="about 2" />
           </Col>
@@ -71,7 +77,7 @@ function AboutApp() {
           </Col>
         </Row>
 
-        <Row style={{ width: 1140 }} className="mx-auto content align-items-center mb-5 pb-4">
+        <Row className="mx-auto content align-items-center mb-5 pb-4">
           <Col md={6} className="">
             <Image fluid src={SlasherAbout3} className="" alt="about 3" />
           </Col>
@@ -86,7 +92,7 @@ function AboutApp() {
           </Col>
         </Row>
 
-        <Row style={{ width: 1140 }} className="mx-auto content align-items-center mb-5 pb-4">
+        <Row className="mx-auto content align-items-center mb-5 pb-4">
           <Col md={6} className="order-1 order-md-2">
             <Image fluid src={SlasherAbout4} className="" alt="about 4" />
           </Col>
@@ -100,7 +106,7 @@ function AboutApp() {
           </Col>
         </Row>
         <AvailableSection />
-      </div>
+      </StyledContainer>
     </StyledAbout>
   );
 }

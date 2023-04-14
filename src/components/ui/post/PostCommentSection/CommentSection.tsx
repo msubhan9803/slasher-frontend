@@ -101,14 +101,15 @@ function CommentSection({
   }, [commentImg]);
 
   useEffect(() => {
-    const tabs = highlightRef.current;
-    if (tabs) {
-      tabs.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-        Inline: 'center',
-      });
-    }
+    setTimeout(() => {
+      if (highlightRef.current) {
+        highlightRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'center',
+        });
+      }
+    }, 500);
   }, []);
 
   const handleReply = () => {

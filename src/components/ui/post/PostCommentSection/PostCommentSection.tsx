@@ -81,6 +81,14 @@ function PostCommentSection({
   const [scrollId, setScrollId] = useState<string>('');
   const [selectedReplyId, setSelectedReplyId] = useState<string | null>('');
   const [updatedReply, setUpdatedReply] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (queryReplyId && queryCommentId) {
+      const showQueryIdReply = checkLoadMoreId.some((loadId) => loadId._id === queryCommentId);
+      if (!showQueryIdReply) { setCheckLoadMoreId([...checkLoadMoreId, queryCommentId]); }
+    }
+  }, [queryCommentId, queryReplyId, checkLoadMoreId]);
+
   const checkPopover = (id: string) => {
     if (id === loginUserId) {
       return popoverOption;
@@ -470,9 +478,9 @@ function PostCommentSection({
         isEdit={isEdit}
       />
       {
-          !isEdit && commentReplyError
-          && <ErrorMessageList errorMessages={commentReplyError} divClass="mt-3 text-start" className="m-0 mb-4" />
-        }
+        !isEdit && commentReplyError
+        && <ErrorMessageList errorMessages={commentReplyError} divClass="mt-3 text-start" className="m-0 mb-4" />
+      }
     </div>
   );
   return (

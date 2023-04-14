@@ -8,7 +8,7 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import {
   Navigate,
-  Route, Routes, useLocation, useNavigate, useParams, useSearchParams,
+  Route, Routes, useNavigate, useParams, useSearchParams,
 } from 'react-router-dom';
 import Switch from '../../../components/ui/Switch';
 import AboutDetails from './AboutDetails';
@@ -89,7 +89,6 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
   const tabs = (selfView ? tabsForSelf : tabsForViewer).filter(filterEnableDevFeatures);
   const navigate = useNavigate();
   const params = useParams();
-  const location = useLocation();
   const [reviewForm, setReviewForm] = useState(false);
 
   useEffect(() => {
@@ -98,12 +97,12 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
 
   // TODO: Can this be removed, now that the comment button no longer links to the comment input?
   useEffect(() => {
-    if (location.hash === '#comments') {
+    if (params && params['*']!.startsWith('reviews/')) {
       setReviewDetail(true);
     } else {
       setReviewDetail(false);
     }
-  }, [location]);
+  }, [params]);
 
   const [bgColor, setBgColor] = useState<boolean>(false);
   const [movieIconListData, setMovieIconListData] = useState(MovieIconList);

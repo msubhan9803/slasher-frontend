@@ -52,7 +52,7 @@ function PublicHomeFooter() {
   return (
     <StyledFooter>
       <div className="w-100 bottom-0 p-2">
-        <Row className="m-0 align-items-center">
+        <Row className="m-0 align-items-center justify-content-center py-3">
           <Col md={3} className="me-md-5 p-2 text-center text-md-start">
             <Link to="/" className="mb-3">
               <HeaderLogo logo={slasherLogo} height="9rem" />
@@ -67,11 +67,11 @@ function PublicHomeFooter() {
               ))}
             </div>
             <div>
-              <p className="text-light m-0 fs-5">&copy; 2022 Slasher Corp</p>
+              <p className="text-light m-0 fs-5">&copy; 2023 Slasher Corp</p>
             </div>
           </Col>
           <Col xs={6} md={2} className="mb-md-3">
-            <Link to="/" className="text-decoration-none px-0 px-md-4 py-3 p-md-4 nav-link fs-3">Home</Link>
+            <Link to="/" className="text-decoration-none px-0 px-md-4 py-3 p-md-4 nav-link fs-3">HOME</Link>
             {footerNavList.slice(1, 3).map((navList) => (
               <a key={navList.value} href={`https://pages.slasher.tv/${navList.value}`} className="text-decoration-none px-0 px-md-4 py-3 p-md-4 nav-link fs-3">
                 {navList.label}

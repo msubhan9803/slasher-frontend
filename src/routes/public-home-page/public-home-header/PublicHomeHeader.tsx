@@ -130,14 +130,16 @@ function PublicHomeHeader() {
         >
           <NavbarToggle onClick={() => setIsOpen(!isOpen)} aria-controls="responsive-navbar-nav" className="toggle border-0" />
           <Navbar.Brand as={Link} to="/" style={{ marginTop: isOpen ? '-10px' : '0' }} className={`mx-auto pe-4 ${!isOpen ? 'logo2' : ''} d-lg-none py-0`}>
+            {/* This header is only shown on mobile screens */}
             <HeaderLogo logo={slasherLogo} height="8rem" />
           </Navbar.Brand>
           <StyledNavbarCollapse id="responsive-navbar-nav" className="bg-black mt-2 mt-lg-0">
             <StyledNav className="justify-content-between px-3 small-screen w-100">
               <Row className="w-100 align-items-center">
-                <Col lg={3}>
-                  <Navbar.Brand as={Link} to="/" className="logo1 d-none d-lg-flex py-0">
-                    <HeaderLogo logo={slasherLogo} height="9rem" />
+                <Col lg={2}>
+                  <Navbar.Brand as={Link} to="/" className="logo1 d-none d-lg-flex py-0 justify-content-center">
+                    {/* This header is only shown on desktop screen (not on tablet and mobile)  */}
+                    <HeaderLogo logo={slasherLogo} height="6.25rem" />
                   </Navbar.Brand>
                 </Col>
                 <Col lg={8}>
@@ -159,8 +161,8 @@ function PublicHomeHeader() {
                     </StyledNavLink>
                   </div>
                 </Col>
-                <Col lg={1} className="d-none d-lg-block">
-                  <Link to="/app/home" className="btn btn-primary d-flex justify-content-center mx-auto px-5 rounded-pill">Login</Link>
+                <Col lg={2} className="d-none d-lg-block d-flex justify-content-between">
+                  <Link style={{ width: 100 }} to="/app/home" className="btn btn-primary d-flex justify-content-center mx-auto px-5 rounded-pill">Login</Link>
                 </Col>
               </Row>
             </StyledNav>

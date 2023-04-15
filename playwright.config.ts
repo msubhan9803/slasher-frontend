@@ -39,13 +39,10 @@ const config: PlaywrightTestConfig = {
     actionTimeout: 0,
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: `http://localhost:${port}`,
-    /* Storage state is used for storing things like initial login state,
-    so we don't need to log in for all tests */
-    storageState: './e2e/temp.browser-storage-state.json',
-
+    /* Run browser in headless mode so that we don't see a browser window pop up during each test */
     headless: true,
+    /* The browser window should be sized to the resolution below */
     viewport: { width: 1280, height: 720 },
-
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },

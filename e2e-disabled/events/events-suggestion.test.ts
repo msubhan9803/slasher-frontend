@@ -86,6 +86,8 @@ const eventCategoryResponse = [
   },
 ];
 
+test.use({ storageState: 'e2e/.storage-states/authenticatedUser.json' });
+
 test.describe(pagePath, () => {
   test.beforeEach(({ page }) => {
     page.route(`${apiUrl}/api/v1/event-categories`, (route) => {

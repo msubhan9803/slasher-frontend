@@ -2,6 +2,8 @@ import { test, expect } from '@playwright/test';
 
 const pagePath = '/app/account-activated';
 
+test.use({ storageState: 'e2e/.storage-states/authenticatedUser.json' });
+
 test.describe(pagePath, () => {
   test.beforeEach(async ({ page }) => {
     await page.goto(pagePath);

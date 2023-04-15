@@ -64,8 +64,8 @@ const StyledHeader = styled.header<HeaderStyleProps>`
       height: ${({ isOpen }) => (isOpen ? 'auto' : '70px')} !important;
     }
   }
-  @media (max-width: ${MD_MEDIA_BREAKPOINT}){  
-    background:  ${({ isOpen }) => (isOpen ? 'var(--bs-secondary)' : '')} !important;  
+  @media (max-width: ${MD_MEDIA_BREAKPOINT}){
+    background:  ${({ isOpen }) => (isOpen ? 'var(--bs-secondary)' : '')} !important;
     height: ${({ isOpen }) => (isOpen ? 'auto' : '100px')} !important;
     &.header-scrolled {
       background: var(--bs-secondary) !important;
@@ -162,7 +162,7 @@ function PublicHomeHeader() {
                   </div>
                 </Col>
                 <Col lg={2} className="d-none d-lg-block d-flex justify-content-between">
-                  <Link style={{ width: 100 }} to="/app/home" className="btn btn-primary d-flex justify-content-center mx-auto px-5 rounded-pill">Login</Link>
+                  <Link style={{ width: 100 }} to="/app/sign-in" className="btn btn-primary d-flex justify-content-center mx-auto px-5 rounded-pill">Login</Link>
                 </Col>
               </Row>
             </StyledNav>

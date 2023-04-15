@@ -24,3 +24,6 @@ export const signOut = () => {
   clearSignInCookies();
   window.location.replace('/app/sign-in'); // redirect clears redux data and js caches
 };
+
+export const getSessionToken = () => Cookies.get('sessionToken');
+export const userIsLoggedIn = () => !!(getSessionToken());

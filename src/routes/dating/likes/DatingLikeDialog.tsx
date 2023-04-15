@@ -106,7 +106,7 @@ function DatingLikesDialog({ show, setShow, slectedDropdownValue }: Props) {
             )}
           </Form>
           <RoundButton disabled={buttonDisabled} className="mb-3 w-100">Send report</RoundButton>
-          <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none text-white" onClick={closeModal}>Cancel report</RoundButton>
+          <RoundButton className="mb-3 w-100 bg-dark border-dark text-white" onClick={closeModal}>Cancel report</RoundButton>
         </Modal.Body>
       )}
     </CustomModal>

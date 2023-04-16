@@ -79,7 +79,7 @@ const navList = [
   { value: 'shop', label: 'Shop' },
   { value: 'advertise', label: 'Advertise' },
   { value: 'help', label: 'Help' },
-  { value: 'contact-us', label: 'Contact Us' },
+  { value: 'contact', label: 'Contact Us' },
 ];
 function PublicHomeHeader() {
   const [isOpen, setIsOpen] = useState(false);

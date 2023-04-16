@@ -12,7 +12,7 @@ export async function getMovies(
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  let queryParameter = `?limit=20&sortBy=${sortValue}`;
+  let queryParameter = `?limit=40&sortBy=${sortValue}`;
   if (lastRetrievedMovieId) {
     queryParameter += `&after=${lastRetrievedMovieId}`;
   }

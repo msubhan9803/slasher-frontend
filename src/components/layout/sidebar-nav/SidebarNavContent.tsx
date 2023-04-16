@@ -1,9 +1,9 @@
 import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Nav } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 import SidebarNavItem from './SidebarNavItem';
 import { enableDevFeatures } from '../../../utils/configEnvironment';
+import { GOOGLE_PLAY_DOWNLOAD_URL, APP_STORE_DOWNLOAD_URL } from '../../../constants';
 
 const MAX_ALLOWED_COMING_SOON_ITEMS_IN_MENU = 3;
 
@@ -96,10 +96,18 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
         />
       ))}
       <ul className="list-inline mt-4 link-hover-underline fs-6">
-        <li><Link className="text-light text-decoration-none" to="/">Download the app</Link></li>
-        <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/advertise">Advertise on Slasher</a></li>
-        <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/terms">Terms &amp; Policies</a></li>
-        <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/about">About</a></li>
+        {
+          enableDevFeatures
+          && (
+            <>
+              <li><a className="text-light text-decoration-none" href={GOOGLE_PLAY_DOWNLOAD_URL} target="_blank" rel="noreferrer">Download for Android</a></li>
+              <li><a className="text-light text-decoration-none" href={APP_STORE_DOWNLOAD_URL} target="_blank" rel="noreferrer">Download for iOS</a></li>
+            </>
+          )
+        }
+        <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/advertise" target="_blank" rel="noreferrer">Advertise on Slasher</a></li>
+        <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/terms" target="_blank" rel="noreferrer">Terms &amp; Policies</a></li>
+        <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/about" target="_blank" rel="noreferrer">About</a></li>
         <li className="text-light text-decoration-none">
           &copy;
           {' '}

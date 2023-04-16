@@ -12,6 +12,7 @@ import slasherLogo from '../../../images/slasher-logo-medium.png';
 import HeaderLogo from '../../../components/ui/HeaderLogo';
 import AppStoreImage from '../../../images/app-store-badge.png';
 import PlayStoreImage from '../../../images/google-play-badge.png';
+import { APP_STORE_DOWNLOAD_URL, GOOGLE_PLAY_DOWNLOAD_URL } from '../../../constants';
 
 const socialMediaSites = [
   { icon: faFacebookF, to: 'https://www.facebook.com/TheSlasherApp', bgColor: '#3b5998' },
@@ -67,7 +68,13 @@ function PublicHomeFooter() {
               ))}
             </div>
             <div>
-              <p className="text-light m-0 fs-5">&copy; 2023 Slasher Corp</p>
+              <p className="text-light m-0 fs-5">
+                &copy;
+                {' '}
+                {new Date().getFullYear()}
+                {' '}
+                Slasher Corp
+              </p>
             </div>
           </Col>
           <Col xs={6} md={2} className="mb-md-3">
@@ -88,12 +95,12 @@ function PublicHomeFooter() {
           <Col md={3} className="p-2 mt-md-5 pt-md-0">
             <Row>
               <Col>
-                <a href="https://apps.apple.com/app/id1458216326" target="_blank" className="p-0 h-100" rel="noreferrer">
+                <a href={APP_STORE_DOWNLOAD_URL} target="_blank" className="p-0 h-100" rel="noreferrer">
                   <Image fluid src={AppStoreImage} alt="app store" className="border rounded ios-badge" />
                 </a>
               </Col>
               <Col>
-                <a href="https://play.google.com/store/apps/details?id=com.sdei.slasher&hl=en&pli=1'" target="_blank" className="p-0 h-100" rel="noreferrer">
+                <a href={GOOGLE_PLAY_DOWNLOAD_URL} target="_blank" className="p-0 h-100" rel="noreferrer">
                   <Image fluid src={PlayStoreImage} alt="play store" className="border rounded h-100" />
                 </a>
               </Col>

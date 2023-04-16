@@ -162,7 +162,7 @@ function PublicHomeHeader() {
                   </div>
                 </Col>
                 <Col lg={2} className="d-none d-lg-block d-flex justify-content-between">
-                  <Link style={{ width: 100 }} to="/app/sign-in" className="btn btn-primary d-flex justify-content-center mx-auto rounded-pill">Sign In</Link>
+                  <Link style={{ width: 100 }} to="/app/sign-in" className="btn btn-primary d-flex justify-content-center mx-auto rounded-pill">SIGN IN</Link>
                 </Col>
               </Row>
             </StyledNav>

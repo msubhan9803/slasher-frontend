@@ -9,7 +9,7 @@ export class FindAllMoviesDto {
   @IsNotEmpty()
   @Type(() => Number)
   @IsNumber()
-  @Max(20)
+  @Max(40)
   limit: number;
 
   @IsNotEmpty()

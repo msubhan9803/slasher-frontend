@@ -148,4 +148,8 @@ Note: The Movie module must always be declared with `useFactory`, to add the pre
 
 Note: If we consider avoiding `forwardRef` because circular dependency is [common problem](https://en.wikipedia.org/wiki/Circular_dependency) in the way how modules behave in most of the popular programming languages, then a we have two options: export and import the modules, or make a module global.
 
-## Deployment (TODO)
+## Deployment
+
+Deploy to staging by pushing commits to the deploy/staging branch.
+
+Deploy to prod by pushing commits to the deploy/prod branch.

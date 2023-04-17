@@ -62,6 +62,7 @@ function ProfileFriends({ user }: Props) {
     scrollPosition.pathname === location.pathname
       ? scrollPosition?.searchValue : '',
   );
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
@@ -113,6 +114,9 @@ function ProfileFriends({ user }: Props) {
             ...prev,
             ...res.data.friends,
           ]));
+        if (page === 0) {
+          setDataLoaded(true);
+        }
         setPage(page + 1);
         if (res.data.friends.length === 0) {
           setNoMoreData(true);
@@ -215,7 +219,7 @@ function ProfileFriends({ user }: Props) {
   };
   return (
     <div>
-      <ProfileHeader tabKey="friends" user={user} />
+      <ProfileHeader tabKey="friends" user={user} dataLoaded={dataLoaded} setDataLoaded={setDataLoaded} />
       <div className="mt-3">
         <Row className="justify-content-between">
           <Col md={4}>

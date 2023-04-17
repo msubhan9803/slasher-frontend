@@ -119,7 +119,7 @@ function ReportModal({
               )}
             </StyledTextarea>
             <RoundButton disabled={buttonDisabled} className="mb-3 w-100" onClick={handleReportData}>Send report</RoundButton>
-            <RoundButton className="mb-3 w-100 bg-dark border-dark text-white" onClick={closeModal}>Cancel report</RoundButton>
+            <RoundButton variant="secondary" className="mb-3 w-100" onClick={closeModal}>Cancel report</RoundButton>
           </Modal.Body>
         )
       }

@@ -56,6 +56,7 @@ function PostDetail({ user, postType }: Props) {
   const [commentErrorMessage, setCommentErrorMessage] = useState<string[]>([]);
   const [commentReplyErrorMessage, setCommentReplyErrorMessage] = useState<string[]>([]);
   const [postData, setPostData] = useState<Post[]>([]);
+  const [deleteImageIds, setDeleteImageIds] = useState<any>([]);
   const [show, setShow] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
@@ -851,6 +852,8 @@ function PostDetail({ user, postType }: Props) {
                   onUpdatePost={onUpdatePost}
                   postImages={postImages}
                   setPostImages={setPostImages}
+                  deleteImageIds={deleteImageIds}
+                  setDeleteImageIds={setDeleteImageIds}
                 />
               )}
           </div>

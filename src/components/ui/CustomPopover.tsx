@@ -1,7 +1,9 @@
 import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Dropdown } from 'react-bootstrap';
+import {
+  Dropdown, DropdownButton,
+} from 'react-bootstrap';
 import styled from 'styled-components';
 
 interface Props {
@@ -23,66 +25,56 @@ export interface PopoverClickProps {
 }
 
 const StyledPopover = styled.div`
-  a{
-    &:hover {
-      color: var(--bs-primary);
-    }
-    &:focus-visible {
-      color: var(--bs-primary);
-    }
+  position: relative;
+  left: .755rem;
+  top: -.5rem;
+
+  .btn.show:focus-visible, .btn:first-child:active:focus-visible {
+    box-shadow: 0 0 0 2px var(--stroke-and-line-separator-color) !important;
   }
-  .btn {
-    background-color: transparent !important;
-    &:after {
-      display: none
-    }
-    &:focus-visible {
-      color: var(--bs-primary) !important;
-    }
-    svg {
-      &:hover {
-        color: var(--bs-primary) !important;
-      }
-      &:focus-visible {
-        color: var(--bs-primary) !important;
-      }
-      &:active {
-        color: var(--bs-primary) !important;
-      }
-    }
+
+  .dropstart .dropdown-toggle::before {
+    border: none; // remove default bootstrap caret
+    margin: 0; // remove default bootstrap caret spacing
   }
   .dropdown-menu {
-    inset: auto 13px auto auto !important;
     background-color: rgb(27,24,24) !important;
     border: 1px solid rgb(56,56,56) !important;
     min-width: 115px;
-    transform: none !important;
     z-index: 1;
-    .side-arrow{
+  }
+
+  .dropdown-menu[x-placement="left-start"] .side-arrow {
+    top: 10px;
+  }
+
+  .dropdown-menu[x-placement="left-end"] .side-arrow {
+    bottom: 10px;
+  }
+
+  .dropdown-menu .side-arrow {
+    position: absolute;
+    // transform: translateY(-25%);
+    right: -11px;
+    width: 0.5rem;
+    height: 1rem;
+    &:before {
+      content: "";
+      display: block;
+      border-style: solid;
+      border-width: calc(1rem * 0.5) 0 calc(1rem * 0.5) 0.5rem;
+      border-color: transparent;
       position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      right: -10px;
-      width: 0.5rem;
-      height: 1rem;
-      &:before {
-        content: "";
-        display: block;
-        border-style: solid;
-        border-width: calc(1rem * 0.5) 0 calc(1rem * 0.5) 0.5rem;
-        border-color: transparent;
-        position: absolute;
-        right: 0;
-      }
-      &:after {
-        content: "";
-        display: block;
-        border-style: solid;
-        border-width: calc(1rem * 0.5) 0 calc(1rem * 0.5) 0.5rem;
-        border-color: transparent transparent transparent rgb(56,56,56);
-        position: absolute;
-        right: 3px;
-      }
+      right: 0;
+    }
+    &:after {
+      content: "";
+      display: block;
+      border-style: solid;
+      border-width: calc(1rem * 0.5) 0 calc(1rem * 0.5) 0.5rem;
+      border-color: transparent transparent transparent rgb(56,56,56);
+      position: absolute;
+      right: 3px;
     }
   }
   .dropdown-item {
@@ -109,30 +101,25 @@ function CustomPopover({
     postImages,
   };
   return (
-    <div>
-      <StyledPopover>
-        <Dropdown className="d-flex align-items-center">
-          <Dropdown.Toggle id="dropdown-basic" className="shadow-none text-white border-0 p-0">
-            <FontAwesomeIcon icon={solid('ellipsis-vertical')} size="lg" />
-          </Dropdown.Toggle>
-
-          <Dropdown.Menu>
-            <div className="side-arrow" />
-            {popoverOptions.map((option) => (
-              <Dropdown.Item
-                key={option}
-                className="ps-4 shadow-none pb-2 pe-5 pt-2 mb-0 text-light"
-                role="button"
-                onClick={() => onPopoverClick(option, popoverClickProps as PopoverClickProps)}
-              >
-                {option}
-              </Dropdown.Item>
-            ))}
-          </Dropdown.Menu>
-        </Dropdown>
-
-      </StyledPopover>
-    </div>
+    <StyledPopover>
+      <DropdownButton
+        variant="link"
+        drop="start"
+        title={<FontAwesomeIcon icon={solid('ellipsis-vertical')} size="lg" />}
+      >
+        {popoverOptions.map((option, i) => (
+          <Dropdown.Item
+            key={option}
+            className="ps-4 shadow-none pb-2 pe-5 pt-2 mb-0 text-light"
+            role="button"
+            onClick={() => onPopoverClick(option, popoverClickProps as PopoverClickProps)}
+          >
+            {option}
+            {i === 0 && <div className="side-arrow" />}
+          </Dropdown.Item>
+        ))}
+      </DropdownButton>
+    </StyledPopover>
   );
 }
 

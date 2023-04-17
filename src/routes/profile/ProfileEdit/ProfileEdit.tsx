@@ -266,18 +266,14 @@ function ProfileEdit({ user }: Props) {
                   className="my-3"
                   aria-label="Email"
                 />
-                <Form.Text className="text-muted fs-4">
-                  In order to edit your email address, we will ask your
-                  security question.
-                </Form.Text>
                 <Form.Text className="text-muted d-flex my-3 fs-4">
                   When you change your email address, we will send an email to that
-                  address with an update button.
+                  address with a confirmation link.
                 </Form.Text>
                 <Form.Text className="text-muted fs-4">
-                  Be sure to click the button in the email to activate your new email address.
+                  Be sure to click the link in the email to activate your new email address.
                   If you do not, this can cause issues with your account, such as your ability
-                  to login.
+                  to sign in.
                 </Form.Text>
               </Form.Group>
             </Col>

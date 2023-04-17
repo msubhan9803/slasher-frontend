@@ -208,34 +208,35 @@ function CommentSection({
         </div>
         <div className="mt-2 mb-3 ms-md-4 ms-4">
           <div className="p-0 d-flex me-2" aria-hidden="true">
-            {
-              likeIcon
-                ? (
-                  <>
-                    <LinearIcon uniqueId="like-button-comment">
-                      <Button variant="link" className="me-2" onClick={() => onIconClick(id)}>
+            <Button variant="link" className="me-2" onClick={() => onIconClick(id)}>
+              {
+                likeIcon
+                  ? (
+                    <>
+                      <LinearIcon uniqueId="like-button-comment">
                         <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
                         <span className="fs-5">Like</span>
-                      </Button>
-                    </LinearIcon>
-                    <svg width="0" height="0">
-                      <linearGradient id="like-button-comment" x1="00%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
-                        <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
-                      </linearGradient>
-                    </svg>
-                  </>
-                )
-                : (
-                  <Button variant="link" className="me-2" onClick={() => onIconClick(id)}>
-                    <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
-                    <span className="fs-5">Like</span>
-                  </Button>
-                )
-            }
+                      </LinearIcon>
+                      <svg width="0" height="0" className="d-block">
+                        <linearGradient id="like-button-comment" x1="00%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
+                          <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
+                        </linearGradient>
+                      </svg>
+                    </>
+                  )
+                  : (
+                    <>
+                      <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
+                      <span className="fs-5">Like</span>
+                    </>
+                  )
+              }
+            </Button>
             <Button
               variant="link"
               onClick={handleReply}
+              className="d-flex"
             >
               <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
               <span className="fs-5">Reply</span>

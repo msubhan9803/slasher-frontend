@@ -3,7 +3,7 @@ import React, {
   useCallback, useEffect, useState, useRef,
 } from 'react';
 import {
-  useNavigate, useParams, useSearchParams,
+  useLocation, useNavigate, useParams, useSearchParams,
 } from 'react-router-dom';
 import { createBlockUser } from '../../../api/blocks';
 import {
@@ -48,10 +48,11 @@ interface Props {
 
 function PostDetail({ user, postType }: Props) {
   const {
-    userName, postId, id, partnerId,
+    postId, id, partnerId,
   } = useParams<string>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [errorMessage, setErrorMessage] = useState<string[]>([]);
   const [commentErrorMessage, setCommentErrorMessage] = useState<string[]>([]);
   const [commentReplyErrorMessage, setCommentReplyErrorMessage] = useState<string[]>([]);
@@ -103,6 +104,16 @@ function PostDetail({ user, postType }: Props) {
       setCheckPostUpdate(false);
     }
   }, [checkPostUpdate, postData, dispatch]);
+
+  const deletePost = () => {
+    // eslint-disable-next-line max-len
+    const updatedScrollData = scrollPositionRef.current?.data.filter((scrollData: any) => scrollData._id !== postData[0].id);
+    const positionData = {
+      ...scrollPositionRef.current,
+      data: updatedScrollData,
+    };
+    dispatch(setScrollPosition(positionData));
+  };
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (value === 'Edit Review') {
@@ -501,7 +512,8 @@ function PostDetail({ user, postType }: Props) {
       deleteFeedPost(postId)
         .then(() => {
           setShow(false);
-          navigate(`/${userName}/posts`);
+          navigate(location.state);
+          deletePost();
         })
         /* eslint-disable no-console */
         .catch((error) => console.error(error));

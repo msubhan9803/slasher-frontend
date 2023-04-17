@@ -62,6 +62,7 @@ function ProfileFriends({ user }: Props) {
     scrollPosition.pathname === location.pathname
       ? scrollPosition?.searchValue : '',
   );
+  const isLoadingRef = useRef(true);
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
@@ -132,7 +133,8 @@ function ProfileFriends({ user }: Props) {
       })
       .catch((error) => setErrorMessage(error.response.data.message))
       .finally(
-        () => { setAdditionalFriend(false); setLoadingFriends(false); },
+        // eslint-disable-next-line max-len
+        () => { setAdditionalFriend(false); setLoadingFriends(false); isLoadingRef.current = false; },
       );
   }, [search, userId, page, scrollPosition, dispatch, friendsList, location]);
 
@@ -158,7 +160,7 @@ function ProfileFriends({ user }: Props) {
       ? 'No results found'
       : 'No friends at the moment. Try sending or accepting some friend requests!';
     return (
-      <p className="text-center">
+      <p className="text-center m-0 py-3">
         {
           friendsList.length === 0
             ? message
@@ -235,7 +237,7 @@ function ProfileFriends({ user }: Props) {
       } */}
           {/* </div> */}
         </Row>
-        <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
+        <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 my-3 py-3">
           {loginUserData.userName === user.userName
             && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="" />}
           <InfiniteScroll
@@ -245,7 +247,7 @@ function ProfileFriends({ user }: Props) {
             loadMore={() => { setAdditionalFriend(true); }}
             hasMore={!noMoreData}
           >
-            <Row className="mt-4" ref={friendContainerElementRef}>
+            <Row ref={friendContainerElementRef}>
               {friendsList.map((friend: FriendProps) => (
                 <Col md={4} lg={6} xl={4} key={friend._id}>
                   <FriendsProfileCard
@@ -258,7 +260,7 @@ function ProfileFriends({ user }: Props) {
               ))}
             </Row>
           </InfiniteScroll>
-          {loadingFriends && <LoadingIndicator />}
+          {(isLoadingRef.current || loadingFriends) && <LoadingIndicator className="py-3" />}
           {noMoreData && renderNoMoreDataMessage()}
           <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
         </div>

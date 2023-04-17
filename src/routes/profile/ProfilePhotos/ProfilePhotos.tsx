@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Col, Image, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -32,6 +32,7 @@ function ProfilePhotos({ user }: Props) {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [loadingPhotos, setLoadingPhotos] = useState<boolean>(false);
+  const isLoadingRef = useRef(true);
 
   useEffect(() => {
     if (requestAdditionalPhotos && !loadingPhotos) {
@@ -59,13 +60,14 @@ function ProfilePhotos({ user }: Props) {
             setErrorMessage(error.response.data.message);
           },
         ).finally(
-          () => { setRequestAdditionalPhotos(false); setLoadingPhotos(false); },
+          // eslint-disable-next-line max-len
+          () => { setRequestAdditionalPhotos(false); setLoadingPhotos(false); isLoadingRef.current = false; },
         );
     }
   }, [requestAdditionalPhotos, loadingPhotos, user._id, userPhotosList]);
 
   const renderNoMoreDataMessage = () => (
-    <p className="text-center">
+    <p className="text-center m-0 py-3">
       {
         userPhotosList.length === 0
           ? 'No photos available'
@@ -76,7 +78,7 @@ function ProfilePhotos({ user }: Props) {
   return (
     <div>
       <ProfileHeader tabKey="photos" user={user} />
-      <div className="bg-dark rounded px-md-4 pb-md-4 bg-mobile-transparent mt-3">
+      <div className="bg-dark rounded px-md-4 py-3 bg-mobile-transparent mt-3">
         <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
         <InfiniteScroll
           pageStart={0}
@@ -98,7 +100,7 @@ function ProfilePhotos({ user }: Props) {
             ))}
           </Row>
         </InfiniteScroll>
-        {loadingPhotos && <LoadingIndicator />}
+        {(isLoadingRef.current || loadingPhotos) && <LoadingIndicator className="py-3" />}
         {noMoreData && renderNoMoreDataMessage()}
       </div>
     </div>

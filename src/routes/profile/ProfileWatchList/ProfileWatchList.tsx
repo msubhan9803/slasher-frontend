@@ -49,6 +49,7 @@ function ProfileWatchList({ user }: Props) {
   const prevSearchRef = useRef(search);
   const prevKeyRef = useRef(key);
   const prevSortValRef = useRef(sortVal);
+  const isLoadingRef = useRef(true);
 
   useEffect(() => {
     setSearch(searchParams.get('q') || '');
@@ -121,7 +122,8 @@ function ProfileWatchList({ user }: Props) {
               setErrorMessage(error.response.data.message);
             },
           ).finally(
-            () => { setRequestAdditionalMovies(false); setLoadingMovies(false); },
+            // eslint-disable-next-line max-len
+            () => { setRequestAdditionalMovies(false); setLoadingMovies(false); isLoadingRef.current = false; },
           );
       }
     }
@@ -135,7 +137,7 @@ function ProfileWatchList({ user }: Props) {
     if (sortValue) { setSortVal(sortValue); }
   };
   const renderNoMoreDataMessage = () => (
-    <p className="text-center">
+    <p className="text-center m-0 py-3">
       {
         filteredMovies.length === 0
           ? 'No Movies available'
@@ -202,7 +204,7 @@ function ProfileWatchList({ user }: Props) {
               </RoundButton>
             </div>
           )}
-        <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
+        <div className="bg-dark bg-mobile-transparent rounded-3 py-3">
           <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
           <div className="m-md-2">
             <InfiniteScroll
@@ -219,7 +221,7 @@ function ProfileWatchList({ user }: Props) {
               />
             </InfiniteScroll>
             {loadingMovies && <LoadingIndicator />}
-            {noMoreData && renderNoMoreDataMessage()}
+            {(isLoadingRef.current || noMoreData) && renderNoMoreDataMessage()}
           </div>
         </div>
       </div>

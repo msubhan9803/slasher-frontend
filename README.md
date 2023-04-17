@@ -147,3 +147,5 @@ The circular dependency problem can be fixed -
 Note: The Movie module must always be declared with `useFactory`, to add the pre and post hooks, then if anyone forgets to do the same thing when that module is re-declared elsewhere, it creates bugs because the pre and post hooks won't be running properly in some places think and this is why NestJS encourages developers to re-use modules by using @Global module directive to make them global, rather than re-declaring them in each module.
 
 Note: If we consider avoiding `forwardRef` because circular dependency is [common problem](https://en.wikipedia.org/wiki/Circular_dependency) in the way how modules behave in most of the popular programming languages, then a we have two options: export and import the modules, or make a module global.
+
+## Deployment (TODO)

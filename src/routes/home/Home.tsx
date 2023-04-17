@@ -45,11 +45,11 @@ function Home() {
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const location = useLocation();
+  const reloadData = useAppSelector((state) => state.user.homeDataReload);
   const [posts, setPosts] = useState<Post[]>(
-    scrollPosition.pathname === location.pathname
+    scrollPosition.pathname === location.pathname && !reloadData
       ? scrollPosition?.data : [],
   );
-  const reloadData = useAppSelector((state) => state.user.homeDataReload);
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (value === 'Hide') {
       const postIdToHide = popoverClickProps.id;

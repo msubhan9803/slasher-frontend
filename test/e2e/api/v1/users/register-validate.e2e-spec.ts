@@ -250,14 +250,14 @@ describe('Users / Register (e2e)', () => {
         ]);
       });
 
-      it('securityAnswer is at least 5 characters long', async () => {
-        postBody.securityAnswer = 'Nick';
+      it('securityAnswer is at least 2 characters long', async () => {
+        postBody.securityAnswer = 'N';
         const response = await request(app.getHttpServer())
           .get('/api/v1/users/validate-registration-fields')
           .query(postBody);
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual([
-          'securityAnswer must be longer than or equal to 5 characters',
+          'securityAnswer must be longer than or equal to 2 characters',
         ]);
       });
 

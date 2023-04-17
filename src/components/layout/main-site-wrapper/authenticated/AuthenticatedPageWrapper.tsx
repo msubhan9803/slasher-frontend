@@ -168,7 +168,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
         offcanvasSidebarExpandBreakPoint={desktopBreakPoint}
         ariaToggleTargetId={offcanvasId}
       />
-      <div className="w-100 px-lg-4 container-xxl">
+      <div className="w-100 px-lg-4 pt-2 pt-md-0 container-xxl">
         <div className="d-flex">
           {isDesktopResponsiveSize
             && (

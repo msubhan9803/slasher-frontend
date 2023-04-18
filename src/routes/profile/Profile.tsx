@@ -68,10 +68,12 @@ function Profile() {
           return;
         }
         setUser(res.data);
-        window.scrollTo({
-          top: 0,
-          behavior: 'instant' as any,
-        });
+        setTimeout(() => {
+          window.scrollTo({
+            top: 510,
+            behavior: 'instant' as any,
+          });
+        }, 500);
       }).catch(() => setUserNotFound(true));
   }, [user, userNameOrId, location.pathname, location.search, navigate]);
 

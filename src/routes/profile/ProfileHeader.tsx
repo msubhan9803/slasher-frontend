@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  useEffect, useState, useRef, useLayoutEffect,
+  useEffect, useState,
 } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -27,8 +27,6 @@ interface Props {
   tabKey?: string;
   user: User | undefined;
   showTabs?: boolean;
-  dataLoaded?: boolean;
-  setDataLoaded?: (value: boolean) => void;
 }
 const AboutProfileImage = styled(UserCircleImage)`
   border: 0.25rem solid #1B1B1B;
@@ -56,7 +54,7 @@ const StyledPopoverContainer = styled.div`
 type FriendType = { from: string, to: string, reaction: FriendRequestReaction } | null;
 
 function ProfileHeader({
-  tabKey, user, showTabs, dataLoaded, setDataLoaded,
+  tabKey, user, showTabs,
 }: Props) {
   const [show, setShow] = useState<boolean>(false);
   const [friendshipStatus, setFriendshipStatus] = useState<any>();
@@ -69,7 +67,6 @@ function ProfileHeader({
   const navigate = useNavigate();
   const [clickedUserId, setClickedUserId] = useState<string>('');
   const [friendData, setFriendData] = useState<FriendType>(null);
-  const tabRef = useRef<any>(null);
 
   const isSelfUserProfile = userName === loginUserName;
 
@@ -118,16 +115,6 @@ function ProfileHeader({
   if (!user || (!isSelfUserProfile && typeof friendStatus === null)) {
     return <LoadingIndicator />;
   }
-  console.log('tabRef', tabRef);
-  useEffect(() => {
-    if (tabRef && dataLoaded) {
-      tabRef.current?.scrollIntoView({
-        behavior: 'auto',
-        block: 'start',
-      });
-      setDataLoaded!(false);
-    }
-  }, [tabRef, dataLoaded, setDataLoaded]);
   return (
     <div className="bg-dark bg-mobile-transparent rounded mb-4">
       <Row className="p-md-4">
@@ -196,10 +183,8 @@ function ProfileHeader({
       {
         showTabs && (
           <>
-            <StyledBorder className="d-md-block d-none" ref={tabRef} />
-            <div>
-              <TabLinks tabLink={allTabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
-            </div>
+            <StyledBorder className="d-md-block d-none" />
+            <TabLinks tabLink={allTabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
           </>
         )
       }
@@ -217,8 +202,6 @@ function ProfileHeader({
 ProfileHeader.defaultProps = {
   showTabs: true,
   tabKey: tabs[0].value,
-  dataLoaded: false,
-  setDataLoaded: undefined,
 };
 
 export default ProfileHeader;

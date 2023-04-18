@@ -63,7 +63,6 @@ function ProfileFriends({ user }: Props) {
     scrollPosition.pathname === location.pathname
       ? scrollPosition?.searchValue : '',
   );
-  const [dataLoaded, setDataLoaded] = useState(false);
   const isLoadingRef = useRef(true);
 
   const friendsTabs = [
@@ -116,9 +115,6 @@ function ProfileFriends({ user }: Props) {
             ...prev,
             ...res.data.friends,
           ]));
-        if (page === 0) {
-          setDataLoaded(true);
-        }
         setPage(page + 1);
         if (res.data.friends.length === 0) {
           setNoMoreData(true);

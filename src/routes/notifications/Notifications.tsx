@@ -119,6 +119,13 @@ function Notifications() {
               setNotificationData([
                 ...notification,
               ]);
+              const positionData = {
+                pathname: '',
+                position: 0,
+                data: [],
+                positionElementId: '',
+              };
+              dispatch(setScrollPosition(positionData));
               dispatch(setUserInitialData(
                 { ...userData, unreadNotificationCount: 0 },
               ));

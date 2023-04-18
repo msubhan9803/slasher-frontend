@@ -33,9 +33,6 @@ interface Props {
 
 const StyledOffcanvas = styled(Offcanvas)`
   background-color: #171717;
-  .btn-close {
-    background-color: var(--bs-link-color);
-  }
 `;
 
 const LeftSidebarWrapper = styled.div`
@@ -171,7 +168,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
         offcanvasSidebarExpandBreakPoint={desktopBreakPoint}
         ariaToggleTargetId={offcanvasId}
       />
-      <div className="w-100 px-lg-4 container-xxl">
+      <div className="w-100 px-lg-4 pt-2 pt-md-0 container-xxl">
         <div className="d-flex">
           {isDesktopResponsiveSize
             && (

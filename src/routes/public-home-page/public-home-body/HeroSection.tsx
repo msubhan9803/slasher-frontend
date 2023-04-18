@@ -11,7 +11,7 @@ import {
 const StyleHeroSection = styled.div`
   padding: 130px 0 180px 0;
   background: url(${HeroImage}) top center;    
-  background-size: contain;
+  background-size: cover;
   background-repeat: no-repeat;
     left: 0;
     right: 0;
@@ -42,7 +42,7 @@ const StyleHeroSection = styled.div`
 function HeroSection() {
   return (
     <StyleHeroSection className="hero-container px-3 d-flex justify-content-center align-items-center text-center flex-column bottom-0">
-      <h1 className="m-0">THE SOCIAL NETWORK FOR</h1>
+      <h1 className="m-0 fw-bold">THE SOCIAL NETWORK FOR</h1>
       <h2 className="horror m-0">Horror</h2>
       <DownloadStoreBadge />
     </StyleHeroSection>

@@ -15,7 +15,6 @@ import {
 import {
   MovieData, Post, PostType,
 } from '../../../types';
-import FormatImageVideoList from '../../../utils/vido-utils';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
@@ -85,7 +84,7 @@ function MovieReviews({
           id: data._id,
           postDate: data.createdAt,
           content: data.message,
-          images: FormatImageVideoList(data.images, data.message),
+          images: data.images,
           userName: data.userId.userName,
           profileImage: data.userId.profilePic,
           userId: data.userId._id,
@@ -232,7 +231,7 @@ function MovieReviews({
           id: data._id,
           postDate: data.createdAt,
           content: data.message,
-          images: FormatImageVideoList(data.images, data.message),
+          images: data.images,
           userName: data.userId.userName,
           profileImage: data.userId.profilePic,
           userId: data.userId._id,

@@ -53,7 +53,7 @@ function MessagesOptionDialog({
             <h1 className="text-primary"> Block </h1>
             <p className="px-3">Are you sure you want to block this user?</p>
             <RoundButton className="mb-3 w-100">Yes</RoundButton>
-            <RoundButton className="mb-3 w-100 bg-dark border-dark" onClick={closeModal}>Cancel</RoundButton>
+            <RoundButton className="mb-3 w-100 bg-dark border-dark text-white" onClick={closeModal}>Cancel</RoundButton>
           </Modal.Body>
         </>
       )}

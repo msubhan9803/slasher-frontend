@@ -3,7 +3,7 @@ import React, {
   useCallback, useEffect, useState, useRef,
 } from 'react';
 import {
-  useNavigate, useParams, useSearchParams,
+  useLocation, useNavigate, useParams, useSearchParams,
 } from 'react-router-dom';
 import { createBlockUser } from '../../../api/blocks';
 import {
@@ -25,7 +25,6 @@ import {
 } from '../../../types';
 import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-utils';
 import { decryptMessage } from '../../../utils/text-utils';
-import FormatImageVideoList from '../../../utils/vido-utils';
 import { ContentPageWrapper } from '../../layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
@@ -48,14 +47,16 @@ interface Props {
 
 function PostDetail({ user, postType }: Props) {
   const {
-    userName, postId, id, partnerId,
+    postId, id, partnerId,
   } = useParams<string>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [errorMessage, setErrorMessage] = useState<string[]>([]);
   const [commentErrorMessage, setCommentErrorMessage] = useState<string[]>([]);
   const [commentReplyErrorMessage, setCommentReplyErrorMessage] = useState<string[]>([]);
   const [postData, setPostData] = useState<Post[]>([]);
+  const [deleteImageIds, setDeleteImageIds] = useState<any>([]);
   const [show, setShow] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
@@ -102,6 +103,16 @@ function PostDetail({ user, postType }: Props) {
       setCheckPostUpdate(false);
     }
   }, [checkPostUpdate, postData, dispatch]);
+
+  const deletePost = () => {
+    // eslint-disable-next-line max-len
+    const updatedScrollData = scrollPositionRef.current?.data.filter((scrollData: any) => scrollData._id !== postData[0].id);
+    const positionData = {
+      ...scrollPositionRef.current,
+      data: updatedScrollData,
+    };
+    dispatch(setScrollPosition(positionData));
+  };
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (value === 'Edit Review') {
@@ -431,7 +442,7 @@ function PostDetail({ user, postType }: Props) {
             id: res.data._id,
             postDate: res.data.createdAt,
             content: res.data.message,
-            images: FormatImageVideoList(res.data.images, res.data.message),
+            images: res.data.images,
             userName: res.data.userId.userName,
             profileImage: res.data.userId.profilePic,
             userId: res.data.userId._id,
@@ -454,7 +465,6 @@ function PostDetail({ user, postType }: Props) {
             id: res.data._id,
             postDate: res.data.createdAt,
             content: decryptMessage(res.data.message),
-            postUrl: FormatImageVideoList(res.data.images, res.data.message),
             userName: res.data.userId.userName,
             profileImage: res.data.userId.profilePic,
             userId: res.data.userId._id,
@@ -500,7 +510,8 @@ function PostDetail({ user, postType }: Props) {
       deleteFeedPost(postId)
         .then(() => {
           setShow(false);
-          navigate(`/${userName}/posts`);
+          navigate(location.state);
+          deletePost();
         })
         /* eslint-disable no-console */
         .catch((error) => console.error(error));
@@ -759,14 +770,14 @@ function PostDetail({ user, postType }: Props) {
               />
               {dropDownValue !== 'Edit'
                 && (
-                <ReportModal
-                  onConfirmClick={deletePostClick}
-                  show={show}
-                  setShow={setShow}
-                  slectedDropdownValue={dropDownValue}
-                  handleReport={reportPost}
-                  onBlockYesClick={onBlockYesClick}
-                />
+                  <ReportModal
+                    onConfirmClick={deletePostClick}
+                    show={show}
+                    setShow={setShow}
+                    slectedDropdownValue={dropDownValue}
+                    handleReport={reportPost}
+                    onBlockYesClick={onBlockYesClick}
+                  />
                 )}
               {postType !== 'news' && dropDownValue === 'Edit'
                 && (
@@ -831,14 +842,14 @@ function PostDetail({ user, postType }: Props) {
             />
             {dropDownValue !== 'Edit'
               && (
-              <ReportModal
-                onConfirmClick={deletePostClick}
-                show={show}
-                setShow={setShow}
-                slectedDropdownValue={dropDownValue}
-                handleReport={reportPost}
-                onBlockYesClick={onBlockYesClick}
-              />
+                <ReportModal
+                  onConfirmClick={deletePostClick}
+                  show={show}
+                  setShow={setShow}
+                  slectedDropdownValue={dropDownValue}
+                  handleReport={reportPost}
+                  onBlockYesClick={onBlockYesClick}
+                />
               )}
             {postType !== 'news' && dropDownValue === 'Edit'
               && (
@@ -851,6 +862,8 @@ function PostDetail({ user, postType }: Props) {
                   onUpdatePost={onUpdatePost}
                   postImages={postImages}
                   setPostImages={setPostImages}
+                  deleteImageIds={deleteImageIds}
+                  setDeleteImageIds={setDeleteImageIds}
                 />
               )}
           </div>

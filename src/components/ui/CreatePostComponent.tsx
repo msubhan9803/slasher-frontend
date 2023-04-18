@@ -168,7 +168,7 @@ function CreatePostComponent({
               <RatingButtonGroups
                 rating={goreFactor}
                 setRating={setGoreFactor}
-                label="Your gore factor rating"
+                label="Gore factor"
                 size="lg"
                 isGoreFator
               />

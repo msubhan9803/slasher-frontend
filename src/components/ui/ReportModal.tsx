@@ -74,7 +74,7 @@ function ReportModal({
           <h1 className="h3 mb-0 text-primary">Delete</h1>
           <p className="px-3">Are you sure you want to delete?</p>
           <RoundButton onClick={removeData} className="mb-3 w-100">Yes</RoundButton>
-          <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none text-white" onClick={closeModal}>Cancel</RoundButton>
+          <RoundButton className="mb-3 w-100 bg-dark border-dark text-white" onClick={closeModal}>Cancel</RoundButton>
         </Modal.Body>
       )}
       {
@@ -83,7 +83,7 @@ function ReportModal({
             <h1 className="h3 mb-0 text-primary">Block</h1>
             <p className="px-3">Are you sure you want to block this user?</p>
             <RoundButton className="mb-3 w-100 fs-3" onClick={handleBlockUser}>Yes</RoundButton>
-            <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none text-white fs-3" onClick={closeModal}>Cancel</RoundButton>
+            <RoundButton className="mb-3 w-100 bg-dark border-dark text-white fs-3" onClick={closeModal}>Cancel</RoundButton>
           </Modal.Body>
         )
       }
@@ -119,7 +119,7 @@ function ReportModal({
               )}
             </StyledTextarea>
             <RoundButton disabled={buttonDisabled} className="mb-3 w-100" onClick={handleReportData}>Send report</RoundButton>
-            <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none text-white" onClick={closeModal}>Cancel report</RoundButton>
+            <RoundButton variant="secondary" className="mb-3 w-100" onClick={closeModal}>Cancel report</RoundButton>
           </Modal.Body>
         )
       }

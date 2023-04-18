@@ -16,14 +16,14 @@ const config: PlaywrightTestConfig = {
   globalSetup: './e2e/global-setup.ts',
   testDir: './e2e',
   /* Maximum time one test can run for. */
-  timeout: process.env.CI ? 20_000 : 10_000,
+  timeout: process.env.CI ? 25_000 : 20_000,
   expect: {
     /**
      * Maximum time expect() should wait for the condition to be met.
      * For example in `await expect(locator).toHaveText();`
      */
     // Default is normally 5000, but we need a higher value in the CI environment
-    timeout: process.env.CI ? 20_000 : 10_000,
+    timeout: process.env.CI ? 25_000 : 20_000,
   },
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
@@ -39,13 +39,10 @@ const config: PlaywrightTestConfig = {
     actionTimeout: 0,
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: `http://localhost:${port}`,
-    /* Storage state is used for storing things like initial login state,
-    so we don't need to log in for all tests */
-    storageState: './e2e/temp.browser-storage-state.json',
-
+    /* Run browser in headless mode so that we don't see a browser window pop up during each test */
     headless: true,
+    /* The browser window should be sized to the resolution below */
     viewport: { width: 1280, height: 720 },
-
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },

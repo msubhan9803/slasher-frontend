@@ -7,6 +7,13 @@
   }
   --slasher-comments-bg-color: #{$slasher-comments-bg-color};
   --stroke-and-line-separator-color: #{$stroke-and-line-separator-color};
+
+  --fs-1: #{$h1-font-size};
+  --fs-2: #{$h2-font-size};
+  --fs-3: #{$h3-font-size};
+  --fs-4: #{$h4-font-size};
+  --fs-5: #{$h5-font-size};
+  --fs-6: #{$h6-font-size};
 }
 
 * {

@@ -25,7 +25,6 @@ import {
 } from '../../../types';
 import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-utils';
 import { decryptMessage } from '../../../utils/text-utils';
-import FormatImageVideoList from '../../../utils/vido-utils';
 import { ContentPageWrapper } from '../../layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
@@ -431,7 +430,7 @@ function PostDetail({ user, postType }: Props) {
             id: res.data._id,
             postDate: res.data.createdAt,
             content: res.data.message,
-            images: FormatImageVideoList(res.data.images, res.data.message),
+            images: res.data.images,
             userName: res.data.userId.userName,
             profileImage: res.data.userId.profilePic,
             userId: res.data.userId._id,
@@ -454,7 +453,6 @@ function PostDetail({ user, postType }: Props) {
             id: res.data._id,
             postDate: res.data.createdAt,
             content: decryptMessage(res.data.message),
-            postUrl: FormatImageVideoList(res.data.images, res.data.message),
             userName: res.data.userId.userName,
             profileImage: res.data.userId.profilePic,
             userId: res.data.userId._id,

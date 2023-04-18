@@ -18,7 +18,7 @@ export interface Post {
   id: string;
   postDate: string;
   content: string;
-  postUrl: PostImage[];
+  images: PostImage[];
   userName: string;
   firstName: string;
   profileImage: string;

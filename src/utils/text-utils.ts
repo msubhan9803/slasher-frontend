@@ -2,7 +2,7 @@
 const YOUTUBE_LINK_REGEX = /((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\\-]+\?v=|embed\/|v\/)?)([\w\\-]+)(\S+)?/;
 
 export function findFirstYouTubeLinkVideoId(content: string) {
-  return content.match(YOUTUBE_LINK_REGEX)?.[6];
+  return content?.match(YOUTUBE_LINK_REGEX)?.[6];
 }
 
 export function escapeHtmlSpecialCharacters(content: string) {

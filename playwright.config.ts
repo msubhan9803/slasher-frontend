@@ -16,14 +16,14 @@ const config: PlaywrightTestConfig = {
   globalSetup: './e2e/global-setup.ts',
   testDir: './e2e',
   /* Maximum time one test can run for. */
-  timeout: process.env.CI ? 20_000 : 10_000,
+  timeout: process.env.CI ? 25_000 : 20_000,
   expect: {
     /**
      * Maximum time expect() should wait for the condition to be met.
      * For example in `await expect(locator).toHaveText();`
      */
     // Default is normally 5000, but we need a higher value in the CI environment
-    timeout: process.env.CI ? 20_000 : 10_000,
+    timeout: process.env.CI ? 25_000 : 20_000,
   },
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,

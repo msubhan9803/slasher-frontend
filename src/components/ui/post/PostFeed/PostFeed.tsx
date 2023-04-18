@@ -147,7 +147,7 @@ function PostFeed({
   const [modalTabName, setModalTabName] = useState<LikeShareModalTabName>('');
   const [modalResourceId, setModalResourceId] = useState('');
   const [modalLikeCount, setModalLikeCount] = useState(0);
-
+  const { pathname } = useLocation();
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
       return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
@@ -181,12 +181,13 @@ function PostFeed({
   };
 
   const onPostContentClick = (post: any) => {
+    const state = { pathname };
     if (post.rssfeedProviderId) {
-      navigate(`/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`);
+      navigate(`/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`, { state });
     } else if (postType === 'review') {
-      navigate(`/app/movies/${post.movieId}/reviews/${post.id}#comments`);
+      navigate(`/app/movies/${post.movieId}/reviews/${post.id}#comments`, { state });
     } else {
-      navigate(`/${post.userName}/posts/${post.id}`);
+      navigate(`/${post.userName}/posts/${post.id}`, { state });
     }
     onSelect!(post.id);
   };

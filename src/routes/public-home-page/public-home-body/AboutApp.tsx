@@ -12,9 +12,9 @@ import DownloadStoreBadge from '../components/DownloadStoreBadge';
 import { SM_MEDIA_BREAKPOINT } from '../../../constants';
 
 const StyledAbout = styled.div`
-  @media (max-width: ${SM_MEDIA_BREAKPOINT}){ 
+  @media (max-width: ${SM_MEDIA_BREAKPOINT}){
     .title {
-      font-size: 20px !important;
+      font-size: var(--fs-2) !important;
     }
   }
 `;

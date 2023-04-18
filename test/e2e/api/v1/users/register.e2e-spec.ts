@@ -30,8 +30,8 @@ describe('Users / Register (e2e)', () => {
     email: 'testuser@gmail.com',
     password: 'TestUser@123',
     passwordConfirmation: 'TestUser@123',
-    securityQuestion: 'What is favourite food?',
-    securityAnswer: 'Pizza',
+    securityQuestion: 'Name of your first pet?',
+    securityAnswer: 'tom',
     dob: DateTime.now().minus({ years: 18 }).toISODate(),
   };
 
@@ -276,14 +276,14 @@ describe('Users / Register (e2e)', () => {
         );
       });
 
-      it('securityAnswer is at least 5 characters long', async () => {
-        postBody.securityAnswer = 'Nick';
+      it('securityAnswer is at least 2 characters long', async () => {
+        postBody.securityAnswer = 'k';
         const response = await request(app.getHttpServer())
           .post('/api/v1/users/register')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
-          'securityAnswer must be longer than or equal to 5 characters',
+          'securityAnswer must be longer than or equal to 2 characters',
         );
       });
 

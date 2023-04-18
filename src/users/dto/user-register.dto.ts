@@ -36,7 +36,7 @@ export class UserRegisterDto {
   securityQuestion: string;
 
   @IsNotEmpty()
-  @MinLength(5)
+  @MinLength(2)
   securityAnswer: string;
 
   @IsNotEmpty()

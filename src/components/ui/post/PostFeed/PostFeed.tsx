@@ -29,6 +29,7 @@ import {
   cleanExternalHtmlContent,
   decryptMessage,
   escapeHtmlSpecialCharacters,
+  findFirstYouTubeLinkVideoId,
   newLineToBr,
 } from '../../../../utils/text-utils';
 import { MentionListProps } from '../../MessageTextarea';
@@ -41,6 +42,7 @@ import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pu
 import LoadingIndicator from '../../LoadingIndicator';
 import { customlinkifyOpts } from '../../../../utils/linkify-utils';
 import { getLocalStorage } from '../../../../utils/localstorage-utils';
+import FormatImageVideoList from '../../../../utils/video-utils';
 
 const READ_MORE_TEXT_LIMIT = 300;
 
@@ -145,7 +147,7 @@ function PostFeed({
   const [modalTabName, setModalTabName] = useState<LikeShareModalTabName>('');
   const [modalResourceId, setModalResourceId] = useState('');
   const [modalLikeCount, setModalLikeCount] = useState(0);
-
+  const { pathname } = useLocation();
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
       return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
@@ -179,12 +181,13 @@ function PostFeed({
   };
 
   const onPostContentClick = (post: any) => {
+    const state = { pathname };
     if (post.rssfeedProviderId) {
-      navigate(`/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`);
+      navigate(`/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`, { state });
     } else if (postType === 'review') {
-      navigate(`/app/movies/${post.movieId}/reviews/${post.id}#comments`);
+      navigate(`/app/movies/${post.movieId}/reviews/${post.id}#comments`, { state });
     } else {
-      navigate(`/${post.userName}/posts/${post.id}`);
+      navigate(`/${post.userName}/posts/${post.id}`, { state });
     }
     onSelect!(post.id);
   };
@@ -380,7 +383,16 @@ function PostFeed({
       </h1>
     </>
   );
-
+  const swiperDataForPost = (post:any) => {
+    const imageVideoList = FormatImageVideoList(post.images, post.content);
+    return imageVideoList.map((imageData: any) => ({
+      videoKey: imageData.videoKey,
+      imageUrl: imageData.image_path,
+      linkUrl: detailPage ? undefined : imageLinkUrl(post, imageData._id),
+      postId: post.id,
+      imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
+    }));
+  };
   return (
     <StyledPostFeed>
       {postData.map((post: any, i) => (
@@ -408,17 +420,11 @@ function PostFeed({
                 {postType === 'group-post' && renderGroupPostContent(post)}
                 {post?.rssFeedTitle && <h1 className="h2">{post.rssFeedTitle}</h1>}
                 {renderPostContent(post)}
-                {post?.images?.length > 0 && (
+                {(post?.images?.length > 0 || findFirstYouTubeLinkVideoId(post?.content)) && (
                   <CustomSwiper
                     context="post"
                     images={
-                      post.images.map((imageData: any) => ({
-                        videoKey: imageData.videoKey,
-                        imageUrl: imageData.image_path,
-                        linkUrl: detailPage ? undefined : imageLinkUrl(post, imageData._id),
-                        postId: post.id,
-                        imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
-                      }))
+                      swiperDataForPost(post)
                     }
                     initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
                     onSelect={onSelect}

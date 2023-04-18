@@ -3,7 +3,8 @@ import { IconDefinition, SizeProp } from '@fortawesome/fontawesome-svg-core';
 import { Link, useLocation } from 'react-router-dom';
 import IconWithTextNavItemInnerElement from './IconWithTextNavItemInnerElement';
 import { useAppDispatch } from '../../../../redux/hooks';
-import { setHomeDataReload } from '../../../../redux/slices/userSlice';
+import { setScreenReload } from '../../../../redux/slices/userSlice';
+import { setScrollPosition } from '../../../../redux/slices/scrollPositionSlice';
 
 interface Props {
   label: string;
@@ -40,9 +41,14 @@ function IconWithTextNavLink({
   }, []);
   const dispatch = useAppDispatch();
   const handleRefresh = () => {
-    if (label === 'Home') {
-      dispatch(setHomeDataReload(true));
-    }
+    dispatch(setScreenReload(true));
+    const positionData = {
+      pathname: '',
+      position: 0,
+      data: [],
+      positionElementId: '',
+    };
+    dispatch(setScrollPosition(positionData));
   };
   return (
     <Link to={to} onClick={handleRefresh} ref={linkRef} className={`text-decoration-none pb-1 mb-1 ${className}`}>

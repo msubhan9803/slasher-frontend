@@ -16,7 +16,7 @@ export const copyUrlToClipboard = (copyLinkUrl: string) => {
 
 function ShareIconButton({ label, onClick, imgSrc }: any) {
   return (
-    <button style={{ width: 80 }} className="border-0 p-0 bg-black text-white" type="button" onClick={onClick}>
+    <button style={{ width: 80 }} className="border-0 p-0 bg-black text-white rounded" type="button" onClick={onClick}>
       <img className="d-block mx-auto" width={60} alt="copy link icon" src={imgSrc} />
       <div className="mt-2">{label}</div>
     </button>

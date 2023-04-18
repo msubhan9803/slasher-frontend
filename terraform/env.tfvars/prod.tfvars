@@ -18,7 +18,7 @@ slasher_cron_host_header    = "cron.slasher.tv"
 #ecs fargate env variables
 upload_dir                        = "/tmp"
 help_email                        = "help@slasher.tv"
-report_email_recipient            = "test@slasher.tv"
+report_email_recipient            = "help@slasher.tv"
 default_smtp_port                 = "465"
 default_smtp_host                 = "mail.slasher.tv"
 file_storage                      = "s3"

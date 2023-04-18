@@ -1,6 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { DateTime } from 'luxon';
 import styled from 'styled-components';
 import { Image } from 'react-bootstrap';

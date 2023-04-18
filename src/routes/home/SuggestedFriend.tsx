@@ -175,12 +175,12 @@ function SuggestedFriend() {
                     </Link>
                     {user.addFriend
                       ? (
-                        <RoundButton variant="black" size="sm" className="w-100" onClick={() => cancelFriendClick(user._id)}>
-                          Cancel Request
+                        <RoundButton variant="black" className="w-100" onClick={() => cancelFriendClick(user._id)}>
+                          Cancel
                         </RoundButton>
                       )
                       : (
-                        <RoundButton className="w-100" size="sm" onClick={() => addFriendClick(user._id)}>
+                        <RoundButton className="w-100" onClick={() => addFriendClick(user._id)}>
                           Add friend
                         </RoundButton>
                       )}

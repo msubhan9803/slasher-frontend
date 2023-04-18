@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Navigate, Route, Routes, useLocation, useNavigate, useParams,
 } from 'react-router-dom';
@@ -25,19 +25,20 @@ import ContentNotAvailable from '../../components/ContentNotAvailable';
 
 interface SharedHeaderProfilePagesProps {
   user: User;
+  loadUser: Function
 }
 
-function SharedHeaderProfilePages({ user }: SharedHeaderProfilePagesProps) {
+function SharedHeaderProfilePages({ user, loadUser }: SharedHeaderProfilePagesProps) {
   return (
     <Routes>
       <Route path="/" element={(<Navigate to="about" replace />)} />
-      <Route path="/about" element={<ProfileAbout user={user} />} />
-      <Route path="/posts" element={<ProfilePosts user={user} />} />
+      <Route path="/about" element={<ProfileAbout user={user} loadUser={loadUser} />} />
+      <Route path="/posts" element={<ProfilePosts user={user} loadUser={loadUser} />} />
       <Route path="/posts/:postId" element={<PostDetail user={user} />} />
-      <Route path="/friends" element={<ProfileFriends user={user} />} />
-      <Route path="/friends/request" element={<ProfileFriendRequest user={user} />} />
-      <Route path="/photos" element={<ProfilePhotos user={user} />} />
-      <Route path="/watched-list" element={<ProfileWatchList user={user} />} />
+      <Route path="/friends" element={<ProfileFriends user={user} loadUser={loadUser} />} />
+      <Route path="/friends/request" element={<ProfileFriendRequest user={user} loadUser={loadUser} />} />
+      <Route path="/photos" element={<ProfilePhotos user={user} loadUser={loadUser} />} />
+      <Route path="/watched-list" element={<ProfileWatchList user={user} loadUser={loadUser} />} />
       <Route path="/edit" element={<ProfileEdit user={user} />} />
     </Routes>
   );
@@ -55,16 +56,19 @@ function Profile() {
   const loginUserData = useAppSelector((state) => state.user.user);
   const isSelfProfile = loginUserData.id === user?._id;
 
-  useEffect(() => {
-    if (!userNameOrId || user) { return; }
-
-    getUser(userNameOrId)
+  /**
+   * 1. This function fetch userInfo from api and set in component state.
+   * 2. This function can be used when a loggedin user blocks another user
+   * to refresh the profile page.
+  */
+  const loadUser = useCallback(() => {
+    getUser(userNameOrId!)
       .then((res) => {
         const userNameFromData: string = res.data.userName;
         if (userNameOrId !== userNameFromData) {
           // Translate this userId-based url to a userName-based URL
           navigate(
-            location.pathname.replace(userNameOrId, userNameFromData) + location.search,
+            location.pathname.replace(userNameOrId!, userNameFromData) + location.search,
             { replace: true },
           );
           return;
@@ -80,7 +84,13 @@ function Profile() {
         // else a general user not found page is shown.
         if (e.response.status === 403) { setUserIsBlocked(true); } else { setUserNotFound(true); }
       });
-  }, [user, userNameOrId, location.pathname, location.search, navigate]);
+  }, [location.pathname, location.search, navigate, userNameOrId]);
+
+  useEffect(() => {
+    if (!userNameOrId || user) { return; }
+
+    loadUser();
+  }, [loadUser, user, userNameOrId]);
 
   if (userNotFound) { return <NotFound />; }
 
@@ -113,7 +123,7 @@ function Profile() {
       <ContentPageWrapper>
         <Routes>
           <Route path="/edit" element={<ProfileEdit user={user} />} />
-          <Route path="*" element={<SharedHeaderProfilePages user={user} />} />
+          <Route path="*" element={<SharedHeaderProfilePages user={user} loadUser={loadUser} />} />
         </Routes>
       </ContentPageWrapper>
 

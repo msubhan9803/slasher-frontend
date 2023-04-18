@@ -20,8 +20,9 @@ import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent'
 
 interface Props {
   user: User
+  loadUser: Function
 }
-function ProfileAbout({ user }: Props) {
+function ProfileAbout({ user, loadUser }: Props) {
   const [isEdit, setEdit] = useState<boolean>(false);
   const [aboutMeText, setAboutMeText] = useState<string>(user?.aboutMe || '');
   const [updatedAboutMeText, setUpdatedAboutMeText] = useState('');
@@ -87,7 +88,7 @@ function ProfileAbout({ user }: Props) {
 
   return (
     <div>
-      <ProfileHeader tabKey="about" user={user} />
+      <ProfileHeader tabKey="about" user={user} loadUser={loadUser} />
       <ProfileTabContent>
         <div className="bg-dark rounded p-4 my-3">
           <div className="d-flex justify-content-between">

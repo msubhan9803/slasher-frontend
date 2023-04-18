@@ -29,8 +29,9 @@ interface FriendProps {
 
 interface Props {
   user: User
+  loadUser: Function
 }
-function ProfileFriendRequest({ user }: Props) {
+function ProfileFriendRequest({ user, loadUser }: Props) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const params = useParams();
@@ -153,7 +154,7 @@ function ProfileFriendRequest({ user }: Props) {
   }, [yPositionOfLastFriendElement, fetchMoreFriendReqList, friendRequestPage, noMoreData]);
   return (
     <div>
-      <ProfileHeader tabKey="friends" user={user} />
+      <ProfileHeader tabKey="friends" user={user} loadUser={loadUser} />
       <ProfileTabContent>
         <div className="mt-3">
           <Row className="justify-content-between">

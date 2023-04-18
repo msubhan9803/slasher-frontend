@@ -25,6 +25,7 @@ interface Props {
   tabKey?: string;
   user: User | undefined;
   showTabs?: boolean;
+  loadUser?: Function;
 }
 const AboutProfileImage = styled(UserCircleImage)`
   border: 0.25rem solid #1B1B1B;
@@ -51,7 +52,9 @@ const StyledPopoverContainer = styled.div`
 `;
 type FriendType = { from: string, to: string, reaction: FriendRequestReaction } | null;
 
-function ProfileHeader({ tabKey, user, showTabs }: Props) {
+function ProfileHeader({
+  tabKey, user, showTabs, loadUser,
+}: Props) {
   const [show, setShow] = useState<boolean>(false);
   const [friendshipStatus, setFriendshipStatus] = useState<any>();
   const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
@@ -88,8 +91,8 @@ function ProfileHeader({ tabKey, user, showTabs }: Props) {
     createBlockUser(clickedUserId)
       .then(() => {
         setShow(false);
-        // Refresh page with react-router-dom after blocking the user
-        navigate(0);
+        // Refetch user from the api into application state
+        loadUser?.();
       })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
@@ -199,6 +202,7 @@ function ProfileHeader({ tabKey, user, showTabs }: Props) {
 ProfileHeader.defaultProps = {
   showTabs: true,
   tabKey: tabs[0].value,
+  loadUser: () => { },
 };
 
 export default ProfileHeader;

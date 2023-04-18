@@ -26,9 +26,10 @@ const otherUserPopoverOptions = ['Report', 'Block user'];
 
 interface Props {
   user: User
+  loadUser: Function
 }
 
-function ProfilePosts({ user }: Props) {
+function ProfilePosts({ user, loadUser }: Props) {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -265,7 +266,7 @@ function ProfilePosts({ user }: Props) {
 
   return (
     <div>
-      <ProfileHeader tabKey="posts" user={user} />
+      <ProfileHeader tabKey="posts" user={user} loadUser={loadUser} />
       <ProfileTabContent>
         {loginUserData.userName === user.userName
           && (

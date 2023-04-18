@@ -16,7 +16,6 @@ import { createBlockUser } from '../../../api/blocks';
 import { reportData } from '../../../api/report';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import FormatImageVideoList from '../../../utils/vido-utils';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import EditPostModal from '../../../components/ui/post/EditPostModal';
@@ -88,7 +87,7 @@ function ProfilePosts({ user }: Props) {
               id: data._id,
               postDate: data.createdAt,
               content: data.message,
-              images: FormatImageVideoList(data.images, data.message),
+              images: data.images,
               userName: data.userId.userName,
               profileImage: data.userId.profilePic,
               userId: data.userId._id,
@@ -144,7 +143,7 @@ function ProfilePosts({ user }: Props) {
           id: data._id,
           postDate: data.createdAt,
           content: data.message,
-          images: FormatImageVideoList(data.images, data.message),
+          images: data.images,
           userName: data.userId.userName,
           profileImage: data.userId.profilePic,
           userId: data.userId._id,

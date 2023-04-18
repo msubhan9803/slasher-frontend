@@ -77,7 +77,7 @@ function PostHeader({
               scroll={() => scrollToTop('smooth')}
               className="text-decoration-none d-block"
             >
-              <h1 className="mb-0 h3 text-capitalize">{userName}</h1>
+              <h2 className="mb-0 h3 text-capitalize">{userName}</h2>
             </HashLink>
             {
               // Do *not* remove the trailing # in below `to` path

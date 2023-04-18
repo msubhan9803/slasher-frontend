@@ -112,6 +112,7 @@ function NewsPartnerDetail() {
           rssFeedProviderDetail
             ? (
               <div>
+                <h1 className="sr-only">{rssFeedProviderDetail?.title}</h1>
                 <div className="bg-dark rounded-3 p-4 mb-3">
                   <Row>
                     <Col md="auto">

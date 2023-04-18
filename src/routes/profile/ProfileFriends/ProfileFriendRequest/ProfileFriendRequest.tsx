@@ -59,7 +59,6 @@ function ProfileFriendRequest({ user }: Props) {
     { value: '', label: 'All friends' },
     { value: 'request', label: 'Friend requests', badge: friendsReqCount },
   ];
-
   const initalFriendRequest = () => {
     userProfileFriendsRequest(0)
       .then((res) => {
@@ -184,6 +183,7 @@ function ProfileFriendRequest({ user }: Props) {
             {loginUserName === user.userName
               && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="request" />}
             <InfiniteScroll
+              threshold={3000}
               pageStart={0}
               initialLoad
               loadMore={() => setAdditionalFriendRequest(true)}
@@ -198,7 +198,7 @@ function ProfileFriendRequest({ user }: Props) {
                       onAcceptClick={handleAcceptRequest}
                       onRejectClick={handleRejectRequest}
                       onSelect={persistScrollPosition}
-                  />
+                    />
                   </Col>
                 ))}
               </Row>

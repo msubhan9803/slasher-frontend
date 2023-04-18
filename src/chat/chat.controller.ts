@@ -93,7 +93,7 @@ export class ChatController {
       throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
     }
     const chat = await this.chatService.createOrFindPrivateDirectMessageConversationByParticipants([
-      user.id,
+      new mongoose.Types.ObjectId(user.id),
       new mongoose.Types.ObjectId(createOrFindConversationQueryDto.userId),
     ]);
     const pickConversationFields = ['_id', 'participants'];

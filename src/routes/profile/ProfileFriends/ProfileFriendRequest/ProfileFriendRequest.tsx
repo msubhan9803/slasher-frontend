@@ -17,6 +17,7 @@ import ProfileHeader from '../../ProfileHeader';
 import FriendsProfileCard from '../FriendsProfileCard';
 import { forceReloadSuggestedFriends } from '../../../../redux/slices/suggestedFriendsSlice';
 import { socket } from '../../../../context/socket';
+import ProfileTabContent from '../../../../components/ui/profile/ProfileTabContent';
 
 interface FriendProps {
   _id?: string;
@@ -153,39 +154,41 @@ function ProfileFriendRequest({ user }: Props) {
   return (
     <div>
       <ProfileHeader tabKey="friends" user={user} />
-      <div className="mt-3">
-        <Row className="justify-content-between">
-          <Col md={4}>
-            <CustomSearchInput label="Search friends..." setSearch={setSearch} search={search} />
-          </Col>
-        </Row>
-        <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
-          {loginUserName === user.userName
-            && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="request" />}
-          <InfiniteScroll
-            pageStart={0}
-            initialLoad
-            loadMore={() => setAdditionalFriendRequest(true)}
-            hasMore={!noMoreData}
-          >
-            <Row className="mt-4" ref={friendRequestContainerElementRef}>
-              {friendsReqList.map((friend: FriendProps) => (
-                <Col md={4} lg={6} xl={4} key={friend._id}>
-                  <FriendsProfileCard
-                    friend={friend}
-                    friendsType="requested"
-                    onAcceptClick={handleAcceptRequest}
-                    onRejectClick={handleRejectRequest}
-                  />
-                </Col>
-              ))}
-            </Row>
-          </InfiniteScroll>
-          {loadingFriendRequests && <LoadingIndicator />}
-          {noMoreData && renderNoMoreDataMessage()}
-          <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+      <ProfileTabContent>
+        <div className="mt-3">
+          <Row className="justify-content-between">
+            <Col md={4}>
+              <CustomSearchInput label="Search friends..." setSearch={setSearch} search={search} />
+            </Col>
+          </Row>
+          <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
+            {loginUserName === user.userName
+              && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="request" />}
+            <InfiniteScroll
+              pageStart={0}
+              initialLoad
+              loadMore={() => setAdditionalFriendRequest(true)}
+              hasMore={!noMoreData}
+            >
+              <Row className="mt-4" ref={friendRequestContainerElementRef}>
+                {friendsReqList.map((friend: FriendProps) => (
+                  <Col md={4} lg={6} xl={4} key={friend._id}>
+                    <FriendsProfileCard
+                      friend={friend}
+                      friendsType="requested"
+                      onAcceptClick={handleAcceptRequest}
+                      onRejectClick={handleRejectRequest}
+                    />
+                  </Col>
+                ))}
+              </Row>
+            </InfiniteScroll>
+            {loadingFriendRequests && <LoadingIndicator />}
+            {noMoreData && renderNoMoreDataMessage()}
+            <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+          </div>
         </div>
-      </div>
+      </ProfileTabContent>
     </div>
   );
 }

@@ -43,7 +43,7 @@ function Home() {
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const location = useLocation();
-  const reloadData = useAppSelector((state) => state.user.homeDataReload);
+  const reloadData = useAppSelector((state) => state.user.screenReload);
   const [posts, setPosts] = useState<Post[]>(
     scrollPosition.pathname === location.pathname && !reloadData
       ? scrollPosition?.data : [],

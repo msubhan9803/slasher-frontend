@@ -17,6 +17,7 @@ import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import { MoviesProps } from '../../movies/components/MovieProps';
 import { UIRouteURL } from '../../movies/RouteURL';
+import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
 
 interface Props {
   user: User
@@ -174,7 +175,7 @@ function ProfileWatchList({ user }: Props) {
   return (
     <div>
       <ProfileHeader tabKey="watched-list" user={user} />
-      <div>
+      <ProfileTabContent>
         <MoviesHeader
           tabKey="watched-list"
           showKeys={showKeys}
@@ -222,7 +223,7 @@ function ProfileWatchList({ user }: Props) {
             {noMoreData && renderNoMoreDataMessage()}
           </div>
         </div>
-      </div>
+      </ProfileTabContent>
     </div>
   );
 }

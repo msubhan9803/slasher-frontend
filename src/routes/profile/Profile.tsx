@@ -21,12 +21,14 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layou
 import PostDetail from '../../components/ui/post/PostDetail';
 import ProfileLimitedView from './ProfileLimitedView/ProfileLimitedView';
 import RightSidebarAdOnly from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarAdOnly';
+import ContentNotAvailable from '../../components/ContentNotAvailable';
 
 function Profile() {
   const loginUserData = useAppSelector((state) => state.user.user);
   const { userName: userNameOrId } = useParams<string>();
   const [user, setUser] = useState<User>();
   const [userNotFound, setUserNotFound] = useState<boolean>(false);
+  const [userIsBlocked, setUserIsBlocked] = useState<boolean>(false);
   const navigate = useNavigate();
   const location = useLocation();
   const isSelfProfile = loginUserData.id === user?._id;
@@ -44,12 +46,21 @@ function Profile() {
             return;
           }
           setUser(res.data);
-        }).catch(() => setUserNotFound(true));
+        }).catch((e) => {
+          // If requested user is blocked then show "This content is no longer available" page
+          // else a general user not found page is shown.
+          if (e.response.status === 403) { setUserIsBlocked(true); } else { setUserNotFound(true); }
+        });
     }
   }, [userNameOrId, location.pathname, location.search, navigate]);
   if (userNotFound) {
     return (
       <NotFound />
+    );
+  }
+  if (userIsBlocked) {
+    return (
+      <ContentNotAvailable />
     );
   }
 

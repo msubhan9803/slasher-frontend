@@ -23,53 +23,78 @@ import ProfileLimitedView from './ProfileLimitedView/ProfileLimitedView';
 import RightSidebarAdOnly from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarAdOnly';
 import ContentNotAvailable from '../../components/ContentNotAvailable';
 
+interface SharedHeaderProfilePagesProps {
+  user: User;
+}
+
+function SharedHeaderProfilePages({ user }: SharedHeaderProfilePagesProps) {
+  return (
+    <Routes>
+      <Route path="/" element={(<Navigate to="about" replace />)} />
+      <Route path="/about" element={<ProfileAbout user={user} />} />
+      <Route path="/posts" element={<ProfilePosts user={user} />} />
+      <Route path="/posts/:postId" element={<PostDetail user={user} />} />
+      <Route path="/friends" element={<ProfileFriends user={user} />} />
+      <Route path="/friends/request" element={<ProfileFriendRequest user={user} />} />
+      <Route path="/photos" element={<ProfilePhotos user={user} />} />
+      <Route path="/watched-list" element={<ProfileWatchList user={user} />} />
+      <Route path="/edit" element={<ProfileEdit user={user} />} />
+    </Routes>
+  );
+}
+
 function Profile() {
-  const loginUserData = useAppSelector((state) => state.user.user);
   const { userName: userNameOrId } = useParams<string>();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [user, setUser] = useState<User>();
   const [userNotFound, setUserNotFound] = useState<boolean>(false);
   const [userIsBlocked, setUserIsBlocked] = useState<boolean>(false);
-  const navigate = useNavigate();
-  const location = useLocation();
+
+  const loginUserData = useAppSelector((state) => state.user.user);
   const isSelfProfile = loginUserData.id === user?._id;
+
   useEffect(() => {
-    if (userNameOrId) {
-      getUser(userNameOrId)
-        .then((res) => {
-          const userNameFromData: string = res.data.userName;
-          if (userNameOrId !== userNameFromData) {
-            // Translate this userId-based url to a userName-based URL
-            navigate(
-              location.pathname.replace(userNameOrId, userNameFromData) + location.search,
-              { replace: true },
-            );
-            return;
-          }
-          setUser(res.data);
-        }).catch((e) => {
-          // If requested user is blocked then show "This content is no longer available" page
-          // else a general user not found page is shown.
-          if (e.response.status === 403) { setUserIsBlocked(true); } else { setUserNotFound(true); }
+    if (!userNameOrId || user) { return; }
+
+    getUser(userNameOrId)
+      .then((res) => {
+        const userNameFromData: string = res.data.userName;
+        if (userNameOrId !== userNameFromData) {
+          // Translate this userId-based url to a userName-based URL
+          navigate(
+            location.pathname.replace(userNameOrId, userNameFromData) + location.search,
+            { replace: true },
+          );
+          return;
+        }
+        setUser(res.data);
+        window.scrollTo({
+          top: 0,
+          behavior: 'instant' as any,
         });
-    }
-  }, [userNameOrId, location.pathname, location.search, navigate]);
-  if (userNotFound) {
-    return (
-      <NotFound />
-    );
-  }
-  if (userIsBlocked) {
-    return (
-      <ContentNotAvailable />
-    );
+      })
+      .catch((e) => {
+        // If requested user is blocked then show "This content is no longer available" page
+        // else a general user not found page is shown.
+        if (e.response.status === 403) { setUserIsBlocked(true); } else { setUserNotFound(true); }
+      });
+  }, [user, userNameOrId, location.pathname, location.search, navigate]);
+
+  if (userNotFound) { return <NotFound />; }
+
+  if (userIsBlocked) { return (<ContentNotAvailable />); }
+
+  if (!user) { return <LoadingIndicator />; }
+
+  if (userNameOrId !== user.userName) {
+    setUser(undefined);
   }
 
-  if (!user) {
-    return <LoadingIndicator />;
-  }
   if (!isSelfProfile
-     && user.profile_status !== ProfileVisibility.Public
-     && user.friendshipStatus.reaction !== FriendRequestReaction.Accepted) {
+    && user.profile_status !== ProfileVisibility.Public
+    && user.friendshipStatus.reaction !== FriendRequestReaction.Accepted) {
     return (
       <ContentSidbarWrapper>
         <ContentPageWrapper>
@@ -87,15 +112,8 @@ function Profile() {
     <ContentSidbarWrapper>
       <ContentPageWrapper>
         <Routes>
-          <Route path="/" element={<Navigate to="about" replace />} />
-          <Route path="/posts" element={<ProfilePosts user={user} />} />
-          <Route path="/posts/:postId" element={<PostDetail user={user} />} />
-          <Route path="/friends" element={<ProfileFriends user={user} />} />
-          <Route path="/friends/request" element={<ProfileFriendRequest user={user} />} />
-          <Route path="/about" element={<ProfileAbout user={user} />} />
-          <Route path="/photos" element={<ProfilePhotos user={user} />} />
-          <Route path="/watched-list" element={<ProfileWatchList user={user} />} />
           <Route path="/edit" element={<ProfileEdit user={user} />} />
+          <Route path="*" element={<SharedHeaderProfilePages user={user} />} />
         </Routes>
       </ContentPageWrapper>
 

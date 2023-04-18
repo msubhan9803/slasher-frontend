@@ -5,7 +5,7 @@ import SidebarNavItem from './SidebarNavItem';
 import { enableDevFeatures } from '../../../utils/configEnvironment';
 import { GOOGLE_PLAY_DOWNLOAD_URL, APP_STORE_DOWNLOAD_URL } from '../../../constants';
 
-const MAX_ALLOWED_COMING_SOON_ITEMS_IN_MENU = 3;
+const MAX_ALLOWED_COMING_SOON_ITEMS_IN_MENU = 1;
 
 interface Props {
   onToggleCanvas?: () => void;
@@ -44,12 +44,6 @@ const sidebarMenuList: MenuType[] = [
     label: 'Art', icon: solid('palette'), iconColor: '#799F0C', to: '/app/art', id: 7,
   },
   {
-    label: 'Settings', icon: solid('gear'), iconColor: '#888888', to: '/app/account', id: 8, desktopOnly: true,
-  },
-  {
-    label: 'Help', icon: solid('circle-question'), iconColor: '#9E9E9E', to: '/app/help', id: 9, desktopOnly: true,
-  },
-  {
     label: 'Groups', icon: solid('user-group'), iconColor: '#E1B065', to: '/app/groups', id: 10, comingSoon: true,
   },
   {
@@ -66,7 +60,16 @@ const sidebarMenuList: MenuType[] = [
   },
 ];
 
-const customSidebarMenuList = sidebarMenuList.filter(
+const additionalMenuListItemsAfterComingSoon: MenuType[] = [
+  {
+    label: 'Settings', icon: solid('gear'), iconColor: '#888888', to: '/app/account', id: 8, desktopOnly: true,
+  },
+  {
+    label: 'Help', icon: solid('circle-question'), iconColor: '#9E9E9E', to: '/app/help', id: 9, desktopOnly: true,
+  },
+];
+
+let customSidebarMenuList = sidebarMenuList.filter(
   (item) => enableDevFeatures || !item.comingSoon,
 );
 const numberOfComingSoonItemsToShow = Math.min(
@@ -79,6 +82,8 @@ for (let i = 0; i < numberOfComingSoonItemsToShow; i += 1) {
     label: 'Coming Soon', icon: solid('question'), iconColor: '#FF1700', to: '#', id: `comingSoon-${i}`,
   });
 }
+
+customSidebarMenuList = customSidebarMenuList.concat(additionalMenuListItemsAfterComingSoon);
 
 function SidebarNavContent({ onToggleCanvas }: Props) {
   return (

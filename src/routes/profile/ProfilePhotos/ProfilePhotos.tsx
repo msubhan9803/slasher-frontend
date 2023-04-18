@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Col, Image, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -8,6 +8,7 @@ import { User } from '../../../types';
 import { userPhotos } from '../../../api/users';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
 
 const ProfilePhoto = styled.div`
   aspect-ratio:1;
@@ -32,6 +33,7 @@ function ProfilePhotos({ user }: Props) {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [loadingPhotos, setLoadingPhotos] = useState<boolean>(false);
+  const isLoadingRef = useRef(true);
 
   useEffect(() => {
     if (requestAdditionalPhotos && !loadingPhotos) {
@@ -59,13 +61,14 @@ function ProfilePhotos({ user }: Props) {
             setErrorMessage(error.response.data.message);
           },
         ).finally(
-          () => { setRequestAdditionalPhotos(false); setLoadingPhotos(false); },
+          // eslint-disable-next-line max-len
+          () => { setRequestAdditionalPhotos(false); setLoadingPhotos(false); isLoadingRef.current = false; },
         );
     }
   }, [requestAdditionalPhotos, loadingPhotos, user._id, userPhotosList]);
 
   const renderNoMoreDataMessage = () => (
-    <p className="text-center">
+    <p className="text-center m-0 py-3">
       {
         userPhotosList.length === 0
           ? 'No photos available'
@@ -76,31 +79,33 @@ function ProfilePhotos({ user }: Props) {
   return (
     <div>
       <ProfileHeader tabKey="photos" user={user} />
-      <div className="bg-dark rounded px-md-4 pb-md-4 bg-mobile-transparent mt-3">
-        <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
-        <InfiniteScroll
-          pageStart={0}
-          initialLoad
-          loadMore={() => { setRequestAdditionalPhotos(true); }}
-          hasMore={!noMoreData}
-        >
-          <Row>
-            {userPhotosList.map((data: UserPhotos) => (
-              data.imagesList && data.imagesList.map((images: ImageList) => (
-                <Col xs={4} md={3} key={images._id}>
-                  <ProfilePhoto className="position-relative">
-                    <Link to={`/${user.userName}/posts/${data.id}?imageId=${images._id}`}>
-                      <Image src={images.image_path} alt={`view photo: id ${images._id}`} className="rounded mt-4 w-100 h-100" key={images._id} />
-                    </Link>
-                  </ProfilePhoto>
-                </Col>
-              ))
-            ))}
-          </Row>
-        </InfiniteScroll>
-        {loadingPhotos && <LoadingIndicator />}
-        {noMoreData && renderNoMoreDataMessage()}
-      </div>
+      <ProfileTabContent>
+        <div className="bg-dark rounded px-md-4 py-3 bg-mobile-transparent mt-3">
+          <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+          <InfiniteScroll
+            pageStart={0}
+            initialLoad
+            loadMore={() => { setRequestAdditionalPhotos(true); }}
+            hasMore={!noMoreData}
+          >
+            <Row>
+              {userPhotosList.map((data: UserPhotos) => (
+                data.imagesList && data.imagesList.map((images: ImageList) => (
+                  <Col xs={4} md={3} key={images._id}>
+                    <ProfilePhoto className="position-relative">
+                      <Link to={`/${user.userName}/posts/${data.id}?imageId=${images._id}`}>
+                        <Image src={images.image_path} alt={`view photo: id ${images._id}`} className="rounded mt-4 w-100 h-100" key={images._id} />
+                      </Link>
+                    </ProfilePhoto>
+                  </Col>
+                ))
+              ))}
+            </Row>
+          </InfiniteScroll>
+          {(isLoadingRef.current || loadingPhotos) && <LoadingIndicator className="py-3" />}
+          {noMoreData && renderNoMoreDataMessage()}
+        </div>
+      </ProfileTabContent>
     </div>
   );
 }

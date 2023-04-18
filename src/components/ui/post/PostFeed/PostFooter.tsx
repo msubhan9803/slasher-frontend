@@ -6,6 +6,7 @@ import {
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { HashLink } from 'react-router-hash-link';
+import { useLocation } from 'react-router-dom';
 import { scrollWithOffset } from '../../../../utils/scrollFunctions';
 import ShareLinkButton from '../../ShareLinkButton';
 import { LikeShareModalResourceName, LikeShareModalTabName } from '../../../../types';
@@ -45,6 +46,7 @@ function PostFooter({
   likeIcon, postId, userName, rssfeedProviderId, onLikeClick, onSelect,
   likeCount, commentCount, handleLikeModal, postType, movieId,
 }: PostFooterProps) {
+  const { pathname } = useLocation();
   return (
     <Card.Footer className="p-0">
       <Row className="justify-content-start py-3">
@@ -90,6 +92,7 @@ function PostFooter({
                 ? `/app/news/partner/${rssfeedProviderId}/posts/${postId}`
                 : `/${userName}/posts/${postId}`)
             }
+            state={pathname}
             className="d-inline-block text-decoration-none"
             scroll={scrollWithOffset}
           >

@@ -22,8 +22,8 @@ function UnauthenticatedPageFooter() {
           <a className="px-2" href="https://pages.slasher.tv/about">About</a>
           <a className="px-2" href="https://pages.slasher.tv/help">Help</a>
           <a className="px-2" href="https://pages.slasher.tv/terms">Terms of Service</a>
-          <a className="px-2" href="https://pages.slasher.tv/privacy-policy">Privacy Policy</a>
-          <a className="px-2" href="https://pages.slasher.tv/cookie-policy">Cookie Policy</a>
+          <a className="px-2" href="https://pages.slasher.tv/privacy">Privacy Policy</a>
+          <a className="px-2" href="https://pages.slasher.tv/cookies">Cookie Policy</a>
           <a className="px-2" href="https://pages.slasher.tv/rules">Site Rules</a>
           <a className="px-2" href={GOOGLE_PLAY_DOWNLOAD_URL}>Android App</a>
           <a className="px-2" href={APP_STORE_DOWNLOAD_URL}>iOS App</a>

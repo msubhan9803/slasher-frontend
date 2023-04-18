@@ -79,7 +79,7 @@ const navList = [
   { value: 'shop', label: 'Shop' },
   { value: 'advertise', label: 'Advertise' },
   { value: 'help', label: 'Help' },
-  { value: 'contact-us', label: 'Contact Us' },
+  { value: 'contact', label: 'Contact Us' },
 ];
 function PublicHomeHeader() {
   const [isOpen, setIsOpen] = useState(false);
@@ -157,12 +157,12 @@ function PublicHomeHeader() {
                       href="/app/home"
                       className="text-start w-100 rounded-0 nav-link d-lg-none py-3 py-lg-0 px-5 px-lg-2 mx-xl-2 text-lg-center fs-3 text-decoration-none text-white"
                     >
-                      Login In
+                      Sign In
                     </StyledNavLink>
                   </div>
                 </Col>
                 <Col lg={2} className="d-none d-lg-block d-flex justify-content-between">
-                  <Link style={{ width: 100 }} to="/app/sign-in" className="btn btn-primary d-flex justify-content-center mx-auto px-5 rounded-pill">Login</Link>
+                  <Link style={{ width: 100 }} to="/app/sign-in" className="btn btn-primary d-flex justify-content-center mx-auto rounded-pill">SIGN IN</Link>
                 </Col>
               </Row>
             </StyledNav>

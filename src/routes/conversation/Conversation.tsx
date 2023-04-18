@@ -81,6 +81,7 @@ function Conversation() {
   }, [onChatMessageReceivedHandler, socket]);
 
   useEffect(() => {
+    if (conversationId === 'new') { return; }
     markAllReadForSingleConversation(conversationId!);
   }, [conversationId]);
 

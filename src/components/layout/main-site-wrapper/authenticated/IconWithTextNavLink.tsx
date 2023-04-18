@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import IconWithTextNavItemInnerElement from './IconWithTextNavItemInnerElement';
 import { useAppDispatch } from '../../../../redux/hooks';
 import { setHomeDataReload } from '../../../../redux/slices/userSlice';
+import { scrollToTop } from '../../../../utils/scrollFunctions';
 
 interface Props {
   label: string;
@@ -42,6 +43,8 @@ function IconWithTextNavLink({
   const handleRefresh = () => {
     if (label === 'Home') {
       dispatch(setHomeDataReload(true));
+    } else if (label === 'Me') {
+      scrollToTop('instant');
     }
   };
   return (

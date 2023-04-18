@@ -14,7 +14,7 @@ import HeaderLogo from '../../../ui/HeaderLogo';
 const SOLID_BLACK_IMAGE_BASE64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
 
 const StyledNavbar = styled(Navbar)`
-  z-index:1;
+  z-index: 2;
   // background-color: #101010 !important;
   .nav-link {
     min-width: 5rem;

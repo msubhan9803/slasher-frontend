@@ -20,6 +20,7 @@ import { createBlockUser } from '../../../api/blocks';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import { rejectFriendsRequest } from '../../../api/friends';
+import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
 
 interface FriendProps {
   _id?: string;
@@ -62,6 +63,7 @@ function ProfileFriends({ user }: Props) {
     scrollPosition.pathname === location.pathname
       ? scrollPosition?.searchValue : '',
   );
+  const isLoadingRef = useRef(true);
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
@@ -132,7 +134,8 @@ function ProfileFriends({ user }: Props) {
       })
       .catch((error) => setErrorMessage(error.response.data.message))
       .finally(
-        () => { setAdditionalFriend(false); setLoadingFriends(false); },
+        // eslint-disable-next-line max-len
+        () => { setAdditionalFriend(false); setLoadingFriends(false); isLoadingRef.current = false; },
       );
   }, [search, userId, page, scrollPosition, dispatch, friendsList, location]);
 
@@ -158,7 +161,7 @@ function ProfileFriends({ user }: Props) {
       ? 'No results found'
       : 'No friends at the moment. Try sending or accepting some friend requests!';
     return (
-      <p className="text-center">
+      <p className="text-center m-0 py-3">
         {
           friendsList.length === 0
             ? message
@@ -216,60 +219,49 @@ function ProfileFriends({ user }: Props) {
   return (
     <div>
       <ProfileHeader tabKey="friends" user={user} />
-      <div className="mt-3">
-        <Row className="justify-content-between">
-          <Col md={4}>
-            <CustomSearchInput label="Search friends..." setSearch={handleSearch} search={search} />
-          </Col>
-          {/* <div className="d-flex align-self-center mt-3 mt-md-0">
-      {
-        friendCount
-          ? (
-            <p className="fs-3 text-primary me-3 my-auto">
-              {friendCount}
-              {' '}
-              friends
-            </p>
-          )
-          : ''
-      } */}
-          {/* </div> */}
-        </Row>
-        <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
-          {loginUserData.userName === user.userName
-            && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="" />}
-          <InfiniteScroll
-            threshold={3000}
-            pageStart={0}
-            initialLoad
-            loadMore={() => { setAdditionalFriend(true); }}
-            hasMore={!noMoreData}
-          >
-            <Row className="mt-4" ref={friendContainerElementRef}>
-              {friendsList.map((friend: FriendProps) => (
-                <Col md={4} lg={6} xl={4} key={friend._id}>
-                  <FriendsProfileCard
-                    friend={friend}
-                    popoverOption={popoverOption}
-                    handlePopoverOption={handlePopoverOption}
-                    onSelect={persistScrollPosition}
-                  />
-                </Col>
-              ))}
-            </Row>
-          </InfiniteScroll>
-          {loadingFriends && <LoadingIndicator />}
-          {noMoreData && renderNoMoreDataMessage()}
-          <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+      <ProfileTabContent>
+        <div className="mt-3">
+          <Row className="justify-content-between">
+            <Col md={4}>
+              <CustomSearchInput label="Search friends..." setSearch={handleSearch} search={search} />
+            </Col>
+          </Row>
+          <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 my-3 py-3">
+            {loginUserData.userName === user.userName
+              && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="" />}
+            <InfiniteScroll
+              threshold={3000}
+              pageStart={0}
+              initialLoad
+              loadMore={() => { setAdditionalFriend(true); }}
+              hasMore={!noMoreData}
+            >
+              <Row ref={friendContainerElementRef}>
+                {friendsList.map((friend: FriendProps) => (
+                  <Col md={4} lg={6} xl={4} key={friend._id}>
+                    <FriendsProfileCard
+                      friend={friend}
+                      popoverOption={popoverOption}
+                      handlePopoverOption={handlePopoverOption}
+                      onSelect={persistScrollPosition}
+                    />
+                  </Col>
+                ))}
+              </Row>
+            </InfiniteScroll>
+            {(isLoadingRef.current || loadingFriends) && <LoadingIndicator className="py-3" />}
+            {noMoreData && renderNoMoreDataMessage()}
+            <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+          </div>
         </div>
-      </div>
-      <ReportModal
-        show={show}
-        setShow={setShow}
-        slectedDropdownValue={dropDownValue}
-        handleReport={reportProfileFriend}
-        onBlockYesClick={onBlockYesClick}
-      />
+        <ReportModal
+          show={show}
+          setShow={setShow}
+          slectedDropdownValue={dropDownValue}
+          handleReport={reportProfileFriend}
+          onBlockYesClick={onBlockYesClick}
+        />
+      </ProfileTabContent>
     </div>
   );
 }

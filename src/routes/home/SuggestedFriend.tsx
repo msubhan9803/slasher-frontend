@@ -171,7 +171,7 @@ function SuggestedFriend() {
                           <FontAwesomeIcon icon={solid('xmark')} size="lg" />
                         </Button>
                       </div>
-                      <p className="text-center my-2">{user.userName}</p>
+                      <p className="text-center my-2 text-truncate">{user.userName}</p>
                     </Link>
                     {user.addFriend
                       ? (

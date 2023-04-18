@@ -9,9 +9,8 @@ import ChatTimestamp from './ChatTimestamp';
 import LoadingIndicator from '../ui/LoadingIndicator';
 
 const ChatMessages = styled.div`
-.time-stamp{
+.time-stamp {
   color: #797979;
-  font-size: 0.75rem;
   .fa-circle {
     width: 0.188rem;
   }

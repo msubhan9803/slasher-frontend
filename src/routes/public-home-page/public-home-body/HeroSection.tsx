@@ -10,7 +10,7 @@ import {
 
 const StyleHeroSection = styled.div`
   padding: 130px 0 180px 0;
-  background: url(${HeroImage}) top center;    
+  background: url(${HeroImage}) top center;
   background-size: cover;
   background-repeat: no-repeat;
     left: 0;
@@ -35,7 +35,7 @@ const StyleHeroSection = styled.div`
   @media (max-width: ${SM_MEDIA_BREAKPOINT}){
 
     h1 {
-      font-size: 20px !important;
+      font-size: var(--fs-2) !important;
     }
   }
 `;

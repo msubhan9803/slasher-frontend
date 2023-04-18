@@ -21,7 +21,7 @@ const StyleFriend = styled(Row)`
 `;
 const Card = styled.div`
   height:12.857rem;
-  width:11.71rem;
+  width:10.33rem;
   padding-right: 1rem;
 `;
 

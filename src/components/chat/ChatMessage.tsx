@@ -7,6 +7,7 @@ import { Image } from 'react-bootstrap';
 import { ChatProps } from './ChatProps';
 import ChatTimestamp from './ChatTimestamp';
 import LoadingIndicator from '../ui/LoadingIndicator';
+import { enableDevFeatures } from '../../utils/configEnvironment';
 
 const ChatMessages = styled.div`
 .time-stamp {
@@ -66,7 +67,7 @@ function ChatMessage({ messages, messageLoading }: ChatProps) {
         && <ChatTimestamp messageTime={message.time} />}
       {message.participant === 'other' ? (
         <div className="other-message mb-3">
-          <div className="mb-2 d-flex  ">
+          <div className="mb-2">
             {message.image
               ? (
                 <Image
@@ -85,8 +86,16 @@ function ChatMessage({ messages, messageLoading }: ChatProps) {
           </div>
           <span className="fs-6 time-stamp align-items-center d-flex">
             {DateTime.fromISO(message.time).toFormat('h:mm a')}
-            <FontAwesomeIcon icon={solid('circle')} size="sm" className="mx-2" />
-            Report message
+            {
+              enableDevFeatures && (
+                <>
+                  {' '}
+                  &bull;
+                  {' '}
+                  Report message
+                </>
+              )
+            }
           </span>
         </div>
       ) : (

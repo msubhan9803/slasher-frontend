@@ -37,6 +37,10 @@ export class ChatService {
       throw new Error('A conversation must have at least two participants.');
     }
 
+    if (participants.find((participantId) => typeof (participantId) === 'string')) {
+      throw new Error('Participant ids must be ObjectIds');
+    }
+
     if (!this.usersService.usersExistAndAreActive(participants)) {
       throw new Error('One or more conversation participants could not be found');
     }
@@ -57,6 +61,10 @@ export class ChatService {
   }
 
   async createOrFindPrivateDirectMessageConversationByParticipants(participants: mongoose.Types.ObjectId[]) {
+    if (participants.find((participantId) => typeof (participantId) === 'string')) {
+      throw new Error('Participant ids must be ObjectIds');
+    }
+
     const matchList = await this.matchListModel.findOne({
       participants: { $all: participants },
       relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),

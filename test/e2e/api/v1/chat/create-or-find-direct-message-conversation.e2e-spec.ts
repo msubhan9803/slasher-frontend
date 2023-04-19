@@ -67,7 +67,7 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
   describe('POST /api/v1/chat/conversations/create-or-find-direct-message-conversation', () => {
     it('requires authentication', async () => {
       await request(app.getHttpServer()).post('/api/v1/chat/conversations/create-or-find-direct-message-conversation')
-      .expect(HttpStatus.UNAUTHORIZED);
+        .expect(HttpStatus.UNAUTHORIZED);
     });
 
     describe('create or find direct message conversation', () => {
@@ -81,7 +81,7 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
           userFactory.build(),
         ].map((userData) => usersService.create(userData)));
 
-        matchList = await chatService.createPrivateDirectMessageConversation([users[0]._id, activeUser._id.toString()]);
+        matchList = await chatService.createPrivateDirectMessageConversation([users[0]._id, activeUser._id]);
       });
       it('finds an existing conversation by searching for the participants of that conversation', async () => {
         await friendsService.createFriendRequest(activeUser._id.toString(), users[0]._id.toString());

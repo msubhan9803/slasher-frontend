@@ -2,7 +2,7 @@
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { AppModule } from '../../app.module';
 import { UsersService } from './users.service';
@@ -475,7 +475,9 @@ describe('UsersService', () => {
     it('finds the expected user and update newConversationIds', async () => {
       const user1 = await usersService.create(userFactory.build());
       const user2 = await usersService.create(userFactory.build());
-      const matchList = await chatService.createPrivateDirectMessageConversation([user1.id, user2.id]);
+      const matchList = await chatService.createPrivateDirectMessageConversation(
+        [new mongoose.Types.ObjectId(user1.id), new mongoose.Types.ObjectId(user2.id)],
+      );
 
       const userData = await usersService.addAndUpdateNewConversationId(user1.id, matchList.id);
       expect(userData.newConversationIds).toEqual([matchList.id]);
@@ -510,7 +512,9 @@ describe('UsersService', () => {
     it('finds the expected user and addAndUpdateNewConversationIdByMatchId', async () => {
       const user1 = await usersService.create(userFactory.build());
       const user2 = await usersService.create(userFactory.build());
-      const matchList = await chatService.createPrivateDirectMessageConversation([user1.id, user2.id]);
+      const matchList = await chatService.createPrivateDirectMessageConversation(
+        [new mongoose.Types.ObjectId(user1.id), new mongoose.Types.ObjectId(user2.id)],
+      );
       const user3 = await usersService.create(userFactory.build({
         newConversationIds: [matchList.id],
       }));

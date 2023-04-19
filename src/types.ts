@@ -3,6 +3,9 @@
 // that are shared across multiple places in the app.
 
 import { LatLngLiteral } from 'leaflet';
+import { BREAK_POINTS } from './constants';
+
+export type BreakPointName = keyof typeof BREAK_POINTS;
 
 export interface ValueLabelPair {
   value: string;

@@ -34,7 +34,8 @@ const StyledStepper = styled(Stepper)`
   }
   .MuiStepLabel-root {
     .MuiStepLabel-label {
-      color: var(--bs-body-color);
+      /* color: var(--bs-body-color); */
+      color: black;
     }
     svg {
       width: 1.75em;
@@ -48,6 +49,15 @@ const StyledStepper = styled(Stepper)`
       color: var(--bs-gray-dark);
     }
   }
+  /* This is text color of the numbers in the stepper circles */
+  .MuiStepIcon-text{
+    fill: black;
+    font-weight: bold;
+  }
+  /* This is text color of the numbers in the stepper circles (inactive steps) */
+ .Mui-disabled .MuiStepIcon-text {
+    fill: white;
+  }  
 `;
 
 function CustomStepper({ activeStep, children }: Props) {

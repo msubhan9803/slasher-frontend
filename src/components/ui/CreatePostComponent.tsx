@@ -142,7 +142,7 @@ function CreatePostComponent({
     setTimeout(() => {
       if (reviewForm || params['*'] === 'reviews' || (location.state && location.state.movieId && location.state.movieId.length)) {
         movieReviewRef?.current?.scrollIntoView({
-          behavior: 'smooth',
+          behavior: 'instant' as any,
           block: 'center',
         });
         setReviewForm!(false);

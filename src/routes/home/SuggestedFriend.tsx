@@ -149,17 +149,13 @@ function SuggestedFriend() {
     <div>
       {!suggestedFriends || suggestedFriends.length === 0 ? renderNoSuggestionsAvailable() : (
         <div className="p-md-3 pt-md-1 rounded-2">
-          <div className="d-flex align-items-center position-relative">
-            <Button tabIndex={0} aria-label="chevron left icon" className="position-absolute d-block p-0 prev bg-transparent border-0" onClick={slideFriendLeft}>
+          <div className="d-flex align-items-center">
+            <Button aria-label="chevron left icon" className="d-block p-0 prev bg-transparent border-0" onClick={slideFriendLeft}>
               <FontAwesomeIcon icon={solid('chevron-left')} size="lg" className="text-white" />
-            </Button>
-            <Button tabIndex={0} aria-label="chevron right icon" style={{ right: 0 }} className="position-absolute d-block p-0 next bg-transparent border-0" onClick={slideFriendRight}>
-              <FontAwesomeIcon icon={solid('chevron-right')} size="lg" className="text-white" />
             </Button>
             <StyleFriend
               id="slideFriend"
               className="d-flex flex-nowrap w-100 mx-3 g-0"
-              tabIndex={-1}
             >
               {suggestedFriends.map((user: any) => (
                 <Card key={user._id}>
@@ -188,6 +184,9 @@ function SuggestedFriend() {
                 </Card>
               ))}
             </StyleFriend>
+            <Button aria-label="chevron right icon" className="d-block p-0 next bg-transparent border-0" onClick={slideFriendRight}>
+              <FontAwesomeIcon icon={solid('chevron-right')} size="lg" className="text-white" />
+            </Button>
           </div>
         </div>
       )}

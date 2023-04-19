@@ -134,7 +134,7 @@ describe('GET /users/:id (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);
         expect(response.body).toEqual({
           message: 'User not found',
-          statusCode: HttpStatus.NOT_FOUND,
+          statusCode: 404,
         });
       });
 
@@ -258,7 +258,7 @@ describe('GET /users/:id (e2e)', () => {
       expect(response.status).toEqual(HttpStatus.FORBIDDEN);
       expect(response.body).toEqual({
         message: 'User not found',
-        statusCode: HttpStatus.FORBIDDEN,
+        statusCode: 403,
       });
     });
 

@@ -5,9 +5,7 @@ import {
   Button, Card, Col, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import { HashLink } from 'react-router-hash-link';
-import { useLocation } from 'react-router-dom';
-import { scrollWithOffset } from '../../../../utils/scrollFunctions';
+import { useLocation, Link } from 'react-router-dom';
 import ShareLinkButton from '../../ShareLinkButton';
 import { LikeShareModalResourceName, LikeShareModalTabName } from '../../../../types';
 import { urlForNewsPost, urlForUserPost } from '../../../../utils/url-utils';
@@ -84,7 +82,7 @@ function PostFooter({
           /* eslint-disable no-nested-ternary */
           className="text-center"
         >
-          <HashLink
+          <Link
             onClick={() => (postType !== 'review' && onSelect!(rssfeedProviderId || postId))}
             to={
               (postType === 'review' && movieId && `/app/movies/${movieId}/reviews/${postId}`)
@@ -93,14 +91,13 @@ function PostFooter({
                 : `/${userName}/posts/${postId}`)
             }
             state={pathname}
-            className="d-inline-block text-decoration-none"
-            scroll={scrollWithOffset}
+            className="d-inline-block text-decoration-none rounded"
           >
             <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
             <span className="fs-3 d-none d-md-inline d-lg-none d-xl-inline me-2">Comment</span>
             <StyleDot icon={solid('circle')} size="xs" className="py-1 me-2" />
             <span className="fs-3">{commentCount}</span>
-          </HashLink>
+          </Link>
         </Col>
         <Col xs={4} className={'text-end \'d-inline\'}'}>
           <ShareLinkButton text textClass={postType === 'group-post' ? 'd-none d-md-inline d-lg-none d-xl-inline' : 'd-none d-md-inline d-lg-none d-xl-inline'} copyLinkUrl={rssfeedProviderId ? urlForNewsPost(rssfeedProviderId!, postId!) : urlForUserPost(userName!, postId!)} />

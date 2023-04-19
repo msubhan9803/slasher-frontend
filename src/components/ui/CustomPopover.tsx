@@ -37,6 +37,7 @@ const StyledPopover = styled.div`
     border: none; // remove default bootstrap caret
     margin: 0; // remove default bootstrap caret spacing
   }
+
   .dropdown-menu {
     background-color: rgb(27,24,24) !important;
     border: 1px solid rgb(56,56,56) !important;
@@ -44,18 +45,10 @@ const StyledPopover = styled.div`
     z-index: 1;
   }
 
-  .dropdown-menu[x-placement="left-start"] .side-arrow {
-    top: 10px;
-  }
-
-  .dropdown-menu[x-placement="left-end"] .side-arrow {
-    bottom: 10px;
-  }
-
   .dropdown-menu .side-arrow {
     position: absolute;
-    // transform: translateY(-25%);
     right: -11px;
+    top: 10px;
     width: 0.5rem;
     height: 1rem;
     &:before {
@@ -105,7 +98,16 @@ function CustomPopover({
       <DropdownButton
         variant="link"
         drop="start"
-        title={<FontAwesomeIcon icon={solid('ellipsis-vertical')} size="lg" />}
+        // The align prop is just here to disable dynamic positioning (which can make the dropdown
+        // content move based on screen position). This should match the `drop` prop value.
+        align={{ xs: 'start' }}
+        flip={false}
+        title={(
+          <>
+            <FontAwesomeIcon icon={solid('ellipsis-vertical')} size="lg" />
+            <span className="visually-hidden">Options</span>
+          </>
+        )}
       >
         {popoverOptions.map((option, i) => (
           <Dropdown.Item

@@ -56,7 +56,7 @@ function PostHeader({
               to={rssfeedProviderId
                 ? `/app/news/partner/${rssfeedProviderId}#`
                 : `/${userName}#`}
-              scroll={scrollToTop}
+              scroll={() => scrollToTop('smooth')}
               className="d-block text-decoration-none rounded-circle"
             >
               <div className="rounded-circle">
@@ -74,10 +74,10 @@ function PostHeader({
               to={rssfeedProviderId
                 ? `/app/news/partner/${rssfeedProviderId}#`
                 : `/${userName}#`}
-              scroll={scrollToTop}
+              scroll={() => scrollToTop('smooth')}
               className="text-decoration-none d-block"
             >
-              <h1 className="mb-0 h3 text-capitalize">{userName}</h1>
+              <h2 className="mb-0 h3 text-capitalize">{userName}</h2>
             </HashLink>
             {
               // Do *not* remove the trailing # in below `to` path

@@ -8,6 +8,7 @@ import { StyledNav } from '../../../components/layout/main-site-wrapper/authenti
 import HeaderLogo from '../../../components/ui/HeaderLogo';
 import { LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT, XL_MEDIA_BREAKPOINT } from '../../../constants';
 import slasherLogo from '../../../images/slasher-logo-medium.png';
+import { enableDevFeatures } from '../../../utils/configEnvironment';
 
 interface HeaderStyleProps {
   isOpen: boolean;
@@ -155,14 +156,23 @@ function PublicHomeHeader() {
                     ))}
                     <StyledNavLink
                       href="/app/home"
-                      className="text-start w-100 rounded-0 nav-link d-lg-none py-3 py-lg-0 px-5 px-lg-2 mx-xl-2 text-lg-center fs-3 text-decoration-none text-white"
+                      className={
+                        `${enableDevFeatures ? '' : 'd-none'} text-start w-100 rounded-0 nav-link d-lg-none py-3 py-lg-0 px-5 px-lg-2 mx-xl-2 text-lg-center fs-3 text-decoration-none text-white`
+                      }
                     >
                       Sign In
                     </StyledNavLink>
                   </div>
                 </Col>
                 <Col lg={2} className="d-none d-lg-block d-flex justify-content-between">
-                  <Link style={{ width: 100 }} to="/app/sign-in" className="btn btn-primary d-flex justify-content-center mx-auto rounded-pill">SIGN IN</Link>
+                  <Link
+                    style={{ width: 100 }}
+                    to="/app/sign-in"
+                    className={`${enableDevFeatures ? '' : 'd-none'} btn btn-primary d-flex justify-content-center mx-auto rounded-pill`}
+                  >
+                    SIGN IN
+
+                  </Link>
                 </Col>
               </Row>
             </StyledNav>

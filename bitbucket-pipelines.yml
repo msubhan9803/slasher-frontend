@@ -102,64 +102,15 @@ pipelines:
       - step: *deploy-cloudflare
     deploy/staging-skiptests:
       - step: *deploy-cloudflare
+    deploy/staging2:
+      - step: *lint-build-test
+      - step: *deploy-siteground
+    deploy/staging2-skiptests:
+      - step: *deploy-siteground
     deploy/dev:
       - step: *lint-build-test
       - step: *deploy-siteground
     deploy/dev-skiptests:
-      - step: *deploy-siteground
-    deploy/dev-avadh1:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-avadh2:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-avadh3:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-avadh4:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-avadh5:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-avadh6:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-avadh7:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-avadh8:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-avadh9:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-ronak1:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-ronak2:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-ronak3:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-ronak4:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-ronak5:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-ronak6:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-ronak7:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-ronak8:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-ronak9:
-      - step: *lint-build-test
       - step: *deploy-siteground
   pull-requests:
     # Run for any branch that has an open pull request

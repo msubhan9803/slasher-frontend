@@ -134,7 +134,7 @@ describe('GET /users/:id (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);
         expect(response.body).toEqual({
           message: 'User not found',
-          statusCode: 404,
+          statusCode: HttpStatus.NOT_FOUND,
         });
       });
 
@@ -255,10 +255,10 @@ describe('GET /users/:id (e2e)', () => {
         .get(`/api/v1/users/${otherUser._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      expect(response.status).toEqual(HttpStatus.NOT_FOUND);
+      expect(response.status).toEqual(HttpStatus.FORBIDDEN);
       expect(response.body).toEqual({
         message: 'User not found',
-        statusCode: 404,
+        statusCode: HttpStatus.FORBIDDEN,
       });
     });
 

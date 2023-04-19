@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  useEffect, useState,
+  useEffect, useState, useRef, useLayoutEffect,
 } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -67,6 +67,7 @@ function ProfileHeader({
   const navigate = useNavigate();
   const [clickedUserId, setClickedUserId] = useState<string>('');
   const [friendData, setFriendData] = useState<FriendType>(null);
+  const positionRef = useRef<HTMLDivElement>(null);
 
   const isSelfUserProfile = userName === loginUserName;
 
@@ -87,6 +88,17 @@ function ProfileHeader({
       });
     }
   }, [user, friendshipStatus, isSelfUserProfile, loginUserId]);
+
+  useLayoutEffect(() => {
+    const element = positionRef.current;
+    if (!element) { return; }
+
+    const topOffset = element.offsetTop;
+    window.scrollTo({
+      top: topOffset,
+      behavior: 'instant' as any,
+    });
+  }, [positionRef]);
 
   const onBlockYesClick = () => {
     createBlockUser(clickedUserId)
@@ -184,7 +196,9 @@ function ProfileHeader({
         showTabs && (
           <>
             <StyledBorder className="d-md-block d-none" />
-            <TabLinks tabLink={allTabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
+            <div ref={positionRef}>
+              <TabLinks tabLink={allTabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
+            </div>
           </>
         )
       }

@@ -21,7 +21,7 @@ const StyleFriend = styled(Row)`
 `;
 const Card = styled.div`
   height:12.857rem;
-  width:11.71rem;
+  width:10.33rem;
   padding-right: 1rem;
 `;
 
@@ -176,7 +176,7 @@ function SuggestedFriend() {
                     {user.addFriend
                       ? (
                         <RoundButton variant="black" className="w-100" onClick={() => cancelFriendClick(user._id)}>
-                          Cancel Request
+                          Cancel
                         </RoundButton>
                       )
                       : (

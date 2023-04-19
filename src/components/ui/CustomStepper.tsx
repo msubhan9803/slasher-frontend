@@ -34,8 +34,7 @@ const StyledStepper = styled(Stepper)`
   }
   .MuiStepLabel-root {
     .MuiStepLabel-label {
-      /* color: var(--bs-body-color); */
-      color: black;
+      color: var(--bs-body-color);
     }
     svg {
       width: 1.75em;

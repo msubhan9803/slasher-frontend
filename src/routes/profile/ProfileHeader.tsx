@@ -92,11 +92,9 @@ function ProfileHeader({
   useLayoutEffect(() => {
     const element = positionRef.current;
     if (!element) { return; }
-
-    const topOffset = element.offsetTop;
-    window.scrollTo({
-      top: topOffset,
+    element?.scrollIntoView({
       behavior: 'instant' as any,
+      block: 'start',
     });
   }, [positionRef]);
 
@@ -153,7 +151,7 @@ function ProfileHeader({
                 <h1 className="mb-md-0">
                   {user?.firstName}
                 </h1>
-                <p className="fs-5  text-light">
+                <p className="fs-5 text-light">
                   @
                   {user?.userName}
                 </p>

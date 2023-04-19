@@ -102,7 +102,12 @@ function CustomPopover({
         // content move based on screen position). This should match the `drop` prop value.
         align={{ xs: 'start' }}
         flip={false}
-        title={<FontAwesomeIcon icon={solid('ellipsis-vertical')} size="lg" />}
+        title={(
+          <>
+            <FontAwesomeIcon icon={solid('ellipsis-vertical')} size="lg" />
+            <span className="visually-hidden">Options</span>
+          </>
+        )}
       >
         {popoverOptions.map((option, i) => (
           <Dropdown.Item

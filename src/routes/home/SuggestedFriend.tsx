@@ -169,6 +169,7 @@ function SuggestedFriend() {
                         <UserCircleImage size="6.25rem" src={user.profilePic} alt="suggested friend" />
                         <Button variant="link" className="position-absolute p-0 px-1" style={{ right: '0' }} onClick={(e: any) => onCloseClick(e, user._id)}>
                           <FontAwesomeIcon icon={solid('xmark')} size="lg" />
+                          <span className="visually-hidden">Dismiss suggestion</span>
                         </Button>
                       </div>
                       <p className="text-center my-2 text-truncate">{user.userName}</p>

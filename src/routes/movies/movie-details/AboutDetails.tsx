@@ -62,7 +62,7 @@ const AboutMovieDetails = styled.div`
       height: 1.125rem;
     }
     p {
-      font-size: 1rem;
+      font-size: var(--fs-4);
     }
   }
   .share-btn {
@@ -73,7 +73,7 @@ const AboutMovieDetails = styled.div`
       height: 1.125rem;
     }
     p {
-      font-size: 1rem;
+      font-size: var(--fs-4);
     }
   }
 

@@ -97,6 +97,7 @@ function Profile() {
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
+        <h1 className="sr-only">{user.userName}</h1>
         <Routes>
           <Route path="/edit" element={<ProfileEdit user={user} />} />
           <Route path="*" element={<SharedHeaderProfilePages user={user} />} />

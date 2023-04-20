@@ -22,7 +22,7 @@ export enum NotificationType {
   Type102 = 102,
   Type103 = 103,
   Type121 = 121,
-  Type122 = 122,
+  UserLikedYourCommentOnANewsPost = 122,
   NewPostFromFollowedRssFeedProvider = 125,
 }
 

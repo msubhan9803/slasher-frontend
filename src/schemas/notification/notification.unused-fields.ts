@@ -33,7 +33,7 @@ export class NotificationUnusedFields {
       NotificationType.Type102,
       NotificationType.Type103,
       NotificationType.Type121,
-      NotificationType.Type122,
+      NotificationType.UserLikedYourCommentOnANewsPost,
       NotificationType.NewPostFromFollowedRssFeedProvider,
     ],
   })

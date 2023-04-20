@@ -92,10 +92,14 @@ function ProfileHeader({
   useLayoutEffect(() => {
     const element = positionRef.current;
     if (!element) { return; }
+    document.documentElement.style.scrollBehavior = 'auto';
     element?.scrollIntoView({
       behavior: 'instant' as any,
       block: 'start',
     });
+    setTimeout(() => {
+      document.documentElement.style.scrollBehavior = 'smooth';
+    }, 500);
   }, [positionRef]);
 
   const onBlockYesClick = () => {

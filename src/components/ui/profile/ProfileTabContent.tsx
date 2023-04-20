@@ -10,7 +10,9 @@ const ViewportMinHeightContainer = styled.div`
 `;
 
 function ProfileTabContent({ children }: Props) {
-  return <ViewportMinHeightContainer>{children}</ViewportMinHeightContainer>;
+  return (
+    <ViewportMinHeightContainer>{children}</ViewportMinHeightContainer>
+  );
 }
 
 export default ProfileTabContent;

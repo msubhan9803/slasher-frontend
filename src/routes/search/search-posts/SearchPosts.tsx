@@ -10,7 +10,7 @@ interface SearchPostsProps {
   userName: string;
   postUrl: string;
   postDate: string;
-  content: string;
+  message: string;
   hashTag: string[];
   likeIcon: boolean;
 }

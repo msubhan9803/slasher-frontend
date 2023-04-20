@@ -17,7 +17,7 @@ export interface Post {
   _id: string;
   id: string;
   postDate: string;
-  content: string;
+  message: string;
   images: PostImage[];
   userName: string;
   firstName: string;
@@ -48,7 +48,7 @@ export interface NewsPartnerPostProps {
   _id: string;
   id: string;
   postDate: string;
-  content: string;
+  message: string;
   images: PostImage[];
   title: string;
   rssFeedProviderLogo: string;

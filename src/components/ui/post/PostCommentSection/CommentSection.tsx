@@ -30,7 +30,7 @@ interface Props {
   popoverOptions: string[];
   onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void,
   feedCommentId?: string;
-  content?: string;
+  message?: string;
   userId?: string;
   userName?: string;
   handleSeeCompleteList?: (
@@ -90,7 +90,7 @@ const userCircleImageSizeInRems = 2.5;
 function CommentSection({
   id, image, name, time, commentMention, commentMsg, commentImg,
   onIconClick, likeIcon, popoverOptions, onPopoverClick,
-  feedCommentId, content, userId, userName, handleSeeCompleteList,
+  feedCommentId, message, userId, userName, handleSeeCompleteList,
   likeCount, active, isReply, setIsReply, replyCommentIndex, handleLikeModal,
 }: Props) {
   const [images, setImages] = useState<ImageList[]>([]);
@@ -150,7 +150,7 @@ function CommentSection({
               <CustomPopover
                 popoverOptions={popoverOptions}
                 onPopoverClick={onPopoverClick}
-                content={content}
+                message={message}
                 id={id}
                 userId={userId}
                 userName={userName}
@@ -251,7 +251,7 @@ CommentSection.defaultProps = {
   commentMention: '',
   commentImg: [],
   feedCommentId: '',
-  content: null,
+  message: null,
   userId: null,
   userName: null,
   handleSeeCompleteList: undefined,

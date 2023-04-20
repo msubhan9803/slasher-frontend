@@ -459,7 +459,7 @@ export class UsersController {
 
     const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
     if (block) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new HttpException('User not found', HttpStatus.FORBIDDEN);
     }
 
     let friend;

@@ -20,7 +20,7 @@ export class NotificationUnusedFields {
       NotificationType.Type1,
       NotificationType.Type2,
       NotificationType.UserSentYouAFriendRequest,
-      NotificationType.Type12,
+      NotificationType.UserAcceptedYourFriendRequest,
       NotificationType.UserLikedYourPost,
       NotificationType.UserLikedYourComment,
       NotificationType.UserCommentedOnYourPost,

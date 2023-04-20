@@ -141,21 +141,26 @@ function CreatePostComponent({
   useEffect(() => {
     setTimeout(() => {
       if (reviewForm || params['*'] === 'reviews' || (location.state && location.state.movieId && location.state.movieId.length)) {
+        document.documentElement.style.scrollBehavior = 'auto';
         movieReviewRef?.current?.scrollIntoView({
           behavior: 'instant' as any,
-          block: 'center',
+          block: 'start',
         });
         setReviewForm!(false);
       }
     }, 500);
+    setTimeout(() => {
+      document.documentElement.style.scrollBehavior = 'smooth';
+    }, 600);
   }, [reviewForm, params, location, setReviewForm]);
 
   return (
-    <div className={postType === 'review' ? 'bg-dark mb-3 px-4 py-4 rounded-2' : ''}>
+
+    <div ref={movieReviewRef} className={postType === 'review' ? 'bg-dark mb-3 px-4 py-4 rounded-2' : ''}>
 
       {postType === 'review' && (
         <>
-          <div ref={movieReviewRef} className="d-block d-md-flex d-lg-block d-xl-flex align-items-center mb-4">
+          <div className="d-block d-md-flex d-lg-block d-xl-flex align-items-center mb-4">
             <div>
               <RatingButtonGroups
                 rating={rating}

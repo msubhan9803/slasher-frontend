@@ -383,7 +383,7 @@ function PostFeed({
       </h1>
     </>
   );
-  const swiperDataForPost = (post:any) => {
+  const swiperDataForPost = (post: any) => {
     const imageVideoList = FormatImageVideoList(post.images, post.content);
     return imageVideoList.map((imageData: any) => ({
       videoKey: imageData.videoKey,
@@ -455,6 +455,7 @@ function PostFeed({
                 <>
                   {/* <StyledBorder className="d-md-block d-none mb-4" /> */}
                   <InfiniteScroll
+                    threshold={1000}
                     pageStart={0}
                     initialLoad
                     loadMore={() => {

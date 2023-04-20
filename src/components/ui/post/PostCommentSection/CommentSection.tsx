@@ -1,5 +1,7 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useEffect, useRef, useState, useLayoutEffect,
+} from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Button } from 'react-bootstrap';
@@ -100,16 +102,21 @@ function CommentSection({
     setImages(commentImg);
   }, [commentImg]);
 
-  useEffect(() => {
-    setTimeout(() => {
-      if (highlightRef.current) {
+  useLayoutEffect(() => {
+    if (highlightRef.current) {
+      document.documentElement.style.scrollBehavior = 'auto';
+      setTimeout(() => {
         highlightRef.current.scrollIntoView({
-          behavior: 'smooth',
+          behavior: 'instant' as any,
           block: 'center',
           inline: 'center',
         });
-      }
-    }, 500);
+      }, 500);
+
+      setTimeout(() => {
+        document.documentElement.style.scrollBehavior = 'smooth';
+      }, 600);
+    }
   }, []);
 
   const handleReply = () => {

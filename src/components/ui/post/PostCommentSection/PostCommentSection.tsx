@@ -85,7 +85,9 @@ function PostCommentSection({
   useEffect(() => {
     if (queryReplyId && queryCommentId) {
       const showQueryIdReply = checkLoadMoreId.some((loadId) => loadId._id === queryCommentId);
-      if (!showQueryIdReply) { setCheckLoadMoreId([...checkLoadMoreId, queryCommentId]); }
+      if (!showQueryIdReply && !checkLoadMoreId.includes(queryCommentId)) {
+        setCheckLoadMoreId([...checkLoadMoreId, queryCommentId]);
+      }
     }
   }, [queryCommentId, queryReplyId, checkLoadMoreId]);
 

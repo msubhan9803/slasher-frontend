@@ -5,27 +5,32 @@ export function findFirstYouTubeLinkVideoId(message: string) {
   return message?.match(YOUTUBE_LINK_REGEX)?.[6];
 }
 
-export function escapeHtmlSpecialCharacters(message: string) {
-  return message.replaceAll('&', '&amp;')
+export function escapeHtmlSpecialCharacters(str: string) {
+  return str.replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
 }
 
-export function newLineToBr(message: string) {
-  return message.replaceAll('\n', '<br />');
+/**
+ * For the given string, replaces all new line characters with '<br />'.
+ * @param htmlString
+ * @returns
+ */
+export function newLineToBr(str: string) {
+  return str.replaceAll('\n', '<br />');
 }
 
 /**
  * For the given html, removes all script tags and also removes all
  * html attribures other than <img> "src" and <a> "href".
- * @param message
+ * @param htmlString
  * @returns
  */
-export function cleanExternalHtmlContent(message: string) {
+export function cleanExternalHtmlContent(htmlString: string) {
   const containerElement = document.createElement('div');
-  containerElement.innerHTML = message;
+  containerElement.innerHTML = htmlString;
 
   // Remove all script tags
   // eslint-disable-next-line no-restricted-syntax

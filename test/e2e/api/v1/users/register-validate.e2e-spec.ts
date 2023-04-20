@@ -82,7 +82,7 @@ describe('Users / Register (e2e)', () => {
           .get('/api/v1/users/validate-registration-fields')
           .query(postBody);
         expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body).toEqual(['firstName should not be empty']);
+        expect(response.body).toContain('firstName should not be empty');
       });
 
       it('firstName should not be longer than 30 characters', async () => {
@@ -91,7 +91,34 @@ describe('Users / Register (e2e)', () => {
           .get('/api/v1/users/validate-registration-fields')
           .query(postBody);
         expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body).toEqual(['firstName must be shorter than or equal to 30 characters']);
+        expect(response.body).toContain((
+          'Firstname must be between 3 and 30 characters, can only include letters/numbers/special characters, '
+          + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and space ( )'
+        ));
+      });
+
+      it('firstName is minimum 3 characters long', async () => {
+        postBody.firstName = 'Te';
+        const response = await request(app.getHttpServer())
+        .get('/api/v1/users/validate-registration-fields')
+        .query(postBody);
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toContain(
+          'Firstname must be between 3 and 30 characters, can only include letters/numbers/special characters, '
+          + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and space ( )',
+        );
+      });
+
+      it('firstName should match pattern', async () => {
+        postBody.firstName = '_testuser';
+        const response = await request(app.getHttpServer())
+        .get('/api/v1/users/validate-registration-fields')
+        .query(postBody);
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toContain(
+          'Firstname must be between 3 and 30 characters, can only include letters/numbers/special characters, '
+          + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and space ( )',
+        );
       });
 
       it('userName should not be empty', async () => {

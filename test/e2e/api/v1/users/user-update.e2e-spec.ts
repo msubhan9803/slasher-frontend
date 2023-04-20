@@ -175,7 +175,33 @@ describe('Users / :id (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
         expect(response.body.message).toContain(
-          'firstName must be shorter than or equal to 30 characters',
+          'Firstname must be between 3 and 30 characters, can only include letters/numbers/special characters, '
+          + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and space ( )',
+        );
+      });
+
+      it('firstName is minimum 3 characters long', async () => {
+        postBody.firstName = 'Te';
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/users/${activeUser.id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send(postBody);
+        expect(response.body.message).toContain(
+          'Firstname must be between 3 and 30 characters, can only include letters/numbers/special characters, '
+          + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and space ( )',
+        );
+      });
+
+      it('firstName should match pattern', async () => {
+        postBody.firstName = '_testuser';
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/users/${activeUser.id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'Firstname must be between 3 and 30 characters, can only include letters/numbers/special characters, '
+          + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and space ( )',
         );
       });
 

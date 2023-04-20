@@ -2,7 +2,6 @@ import {
   IsNotEmpty,
   IsEmail,
   MinLength,
-  MaxLength,
   Matches,
 } from 'class-validator';
 import { IsValidUsername } from '../../app/decorators/class-validator/user-name.decorator';

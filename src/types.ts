@@ -178,11 +178,13 @@ export enum NotificationReadStatus {
 
 export enum NotificationType {
   UserSentYouAFriendRequest = 11,
+  UserAcceptedYourFriendRequest = 12,
   UserLikedYourPost = 13,
   UserLikedYourComment = 14,
   UserCommentedOnYourPost = 15,
   UserMentionedYouInPost = 99,
   UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost = 101,
+  UserLikedYourCommentOnANewsPost = 122,
   NewPostFromFollowedRssFeedProvider = 125,
 }
 
@@ -193,11 +195,12 @@ export interface Notification {
   notificationMsg: string,
   senderId: Sender,
   feedPostId: NotificationFeedPostId,
-  feedCommentId: String,
-  feedReplyId: String,
-  userId: String,
+  feedCommentId: string,
+  rssFeedCommentId?: string,
+  feedReplyId: string,
+  userId: string,
   rssFeedProviderId: NotificationRssFeedProviderId,
-  rssFeedId: String,
+  rssFeedId: string,
   notifyType: NotificationType,
 }
 
@@ -236,8 +239,7 @@ export enum ProfileVisibility {
   Private = 1,
 }
 
-export type RegisterUser = Partial<
-{
+export type RegisterUser = Partial<{
   firstName: string,
   userName: string,
   email: string,
@@ -247,6 +249,7 @@ export type RegisterUser = Partial<
   securityAnswer: string,
   dob: string,
 }>;
+
 export interface CommentValue {
   commentMessage: string,
   imageArr?: string[],

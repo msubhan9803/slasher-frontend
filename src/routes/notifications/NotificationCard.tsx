@@ -36,6 +36,8 @@ const UserCircleImageContainer = styled.div`
 
 function urlForNotification(notification: Notification) {
   switch (notification.notifyType) {
+    case NotificationType.UserAcceptedYourFriendRequest:
+      return `/${notification.userId}/friends`;
     case NotificationType.UserSentYouAFriendRequest:
       return `/${notification.userId}/friends/request`;
     case NotificationType.UserLikedYourPost:
@@ -48,6 +50,13 @@ function urlForNotification(notification: Notification) {
         return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
       }
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
+    // NOTE: Not handling the case below right now because RSS Feed Post comments are handled
+    // in a non-standard way by the old app. So we're temporary omitting them on the server side.
+    // case NotificationType.UserLikedYourCommentOnANewsPost:
+    //   if (notification.rssFeedProviderId) {
+    //     return `/app/news/partner/${notification.rssFeedProviderId._id}/posts/` +
+    //      `${notification.feedPostId._id}?commentId=${notification.rssFeedCommentId}`;
+    //   }
     case NotificationType.UserCommentedOnYourPost:
       if (notification.feedPostId.postType === PostType.MovieReview) {
         return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
@@ -93,13 +102,25 @@ function NotificationCard({ notification, lastCard, onSelect }: Props) {
       >
         {notification.senderId && (
           <UserCircleImageContainer className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
-            <Image src={notification.rssFeedProviderId?.logo || notification.senderId?.profilePic} alt="" className="rounded-circle" />
+            <Image
+              src={
+                notification.notifyType === NotificationType.NewPostFromFollowedRssFeedProvider
+                  ? notification.rssFeedProviderId?.logo
+                  : notification.senderId?.profilePic
+              }
+              alt=""
+              className="rounded-circle"
+            />
           </UserCircleImageContainer>
         )}
         <div>
           <div className="d-flex align-items-center">
             <h2 className="h4 mb-0 fw-bold me-1">
-              {notification.rssFeedProviderId ? '' : notification.senderId?.userName}
+              {
+                notification.notifyType === NotificationType.NewPostFromFollowedRssFeedProvider
+                  ? ''
+                  : notification.senderId?.userName
+              }
               <span className="fs-4 mb-0 fw-normal">
                 &nbsp;
                 {notification.notificationMsg}

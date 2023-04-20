@@ -31,7 +31,7 @@ const episodeData = [
     postDate: '06/18/2022 11:10 PM',
     podcast: 'NoSleep Podcast S6E25 - Season Finale',
     episodeTimeWise: '22 min',
-    content: 'It’s episode 25 – the Season Finale of Season 6. We conclude our season with four tales about otherworldly visions surrounding our reality.',
+    message: 'It’s episode 25 – the Season Finale of Season 6. We conclude our season with four tales about otherworldly visions surrounding our reality.',
     likeIcon: false,
   },
   {
@@ -41,7 +41,7 @@ const episodeData = [
     postDate: '06/18/2022 11:10 PM',
     podcast: 'NoSleep Podcast S6E25 - Season Finale',
     episodeTimeWise: '22 min',
-    content: 'It’s episode 25 – the Season Finale of Season 6. We conclude our season with four tales about otherworldly visions surrounding our reality.',
+    message: 'It’s episode 25 – the Season Finale of Season 6. We conclude our season with four tales about otherworldly visions surrounding our reality.',
     likeIcon: false,
   },
 ];

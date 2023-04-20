@@ -18,7 +18,7 @@ interface PostHeaderProps {
   popoverOptions?: string[];
   onPopoverClick?: (value: string, popoverClickProps: PopoverClickProps) => void,
   detailPage: boolean | undefined;
-  content?: string;
+  message?: string;
   userId?: string;
   rssfeedProviderId?: string;
   onSelect?: (value: string) => void;
@@ -37,7 +37,7 @@ const StyledSaveButton = styled(Button) <StyledSavedProps>`
 `;
 function PostHeader({
   id, userName, postDate, profileImage, popoverOptions, onPopoverClick, detailPage,
-  content, userId, rssfeedProviderId, onSelect, postImages, postType,
+  message, userId, rssfeedProviderId, onSelect, postImages, postType,
 }: PostHeaderProps) {
   const [notificationOn, setNotificationOn] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -129,7 +129,7 @@ function PostHeader({
           <CustomPopover
             popoverOptions={popoverOptions!}
             onPopoverClick={onPopoverClick!}
-            content={content}
+            message={message}
             id={id}
             userId={userId}
             postImages={postImages}
@@ -141,7 +141,7 @@ function PostHeader({
 }
 
 PostHeader.defaultProps = {
-  content: null,
+  message: null,
   userId: null,
   rssfeedProviderId: null,
   // Remove after Podcast popover implementation

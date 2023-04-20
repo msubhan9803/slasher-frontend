@@ -31,7 +31,7 @@ const StyledPostImage = styled(Row)`
 `;
 
 function NewsList({
-  id, name, image, date, content, hashTag,
+  id, name, image, date, message, hashTag,
 }: SearchProps) {
   const [like, setLike] = useState(false);
   const [iD, setID] = useState<number>();
@@ -68,7 +68,7 @@ function NewsList({
               <Row>
                 <Col>
                   <span className="fs-4">
-                    {content}
+                    {message}
                   </span>
                   <br />
                   {hashTag?.map((hashtag: string) => (

@@ -9,10 +9,11 @@ import { IsValidUsername } from '../../app/decorators/class-validator/user-name.
 import { IsValidPassword } from '../../app/decorators/class-validator/valid-password.decorator';
 import { Match } from '../../app/decorators/class-validator/match.decorator';
 import { MinYearsBeforeToday } from '../../app/decorators/class-validator/min-years-before-today.decorator';
+import { IsValidFirstname } from '../../app/decorators/class-validator/first-name.decorator';
 
 export class UserRegisterDto {
   @IsNotEmpty()
-  @MaxLength(30)
+  @IsValidFirstname()
   firstName: string;
 
   @IsNotEmpty()

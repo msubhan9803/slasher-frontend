@@ -109,27 +109,29 @@ export class FeedPostsController {
       feedPost.spoilers = createFeedPostsDto.moviePostFields.spoilers;
       const ratingPromises = [];
       if (createFeedPostsDto.moviePostFields.rating) {
-        ratingPromises.push(this.moviesService.createOrUpdateRating(
+        ratingPromises.push(() => this.moviesService.createOrUpdateRating(
           feedPost.movieId.toString(),
           createFeedPostsDto.moviePostFields.rating,
           user.id,
         ));
       }
       if (createFeedPostsDto.moviePostFields.goreFactorRating) {
-        ratingPromises.push(this.moviesService.createOrUpdateGoreFactorRating(
+        ratingPromises.push(() => this.moviesService.createOrUpdateGoreFactorRating(
           feedPost.movieId.toString(),
           createFeedPostsDto.moviePostFields.goreFactorRating,
           user.id,
         ));
       }
       if (createFeedPostsDto.moviePostFields.worthWatching) {
-        ratingPromises.push(this.moviesService.createOrUpdateWorthWatching(
+        ratingPromises.push(() => this.moviesService.createOrUpdateWorthWatching(
           feedPost.movieId.toString(),
           createFeedPostsDto.moviePostFields.worthWatching,
           user.id,
         ));
       }
-      await Promise.all(ratingPromises);
+      for (const ratingFunc of ratingPromises) {
+        await ratingFunc();
+      }
     }
 
     const createFeedPost = await this.feedPostsService.create(feedPost);
@@ -308,27 +310,29 @@ export class FeedPostsController {
       (updateFeedPostsDto as unknown as FeedPost).spoilers = updateFeedPostsDto.moviePostFields.spoilers;
       const ratingPromises = [];
       if (updateFeedPostsDto.moviePostFields.rating) {
-        ratingPromises.push(this.moviesService.createOrUpdateRating(
+        ratingPromises.push(() => this.moviesService.createOrUpdateRating(
           feedPost.movieId.toString(),
           updateFeedPostsDto.moviePostFields.rating,
           user.id,
         ));
       }
       if (updateFeedPostsDto.moviePostFields.goreFactorRating) {
-        ratingPromises.push(this.moviesService.createOrUpdateGoreFactorRating(
+        ratingPromises.push(() => this.moviesService.createOrUpdateGoreFactorRating(
           feedPost.movieId.toString(),
           updateFeedPostsDto.moviePostFields.goreFactorRating,
           user.id,
         ));
       }
       if (updateFeedPostsDto.moviePostFields.worthWatching) {
-        ratingPromises.push(this.moviesService.createOrUpdateWorthWatching(
+        ratingPromises.push(() => this.moviesService.createOrUpdateWorthWatching(
           feedPost.movieId.toString(),
           updateFeedPostsDto.moviePostFields.worthWatching,
           user.id,
         ));
       }
-      await Promise.all(ratingPromises);
+      for (const ratingFunc of ratingPromises) {
+        await ratingFunc();
+      }
     }
 
     const updatedFeedPost = await this.feedPostsService.update(param.id, updateFeedPostsDto);

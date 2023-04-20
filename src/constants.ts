@@ -4,12 +4,16 @@ export const analyticsId = process.env.REACT_APP_GOOGLE_ANALYTICS_PROPERTY_ID;
 
 export const MAIN_CONTENT_ID = 'main-content';
 
-export const XS_MEDIA_BREAKPOINT = '0px';
-export const SM_MEDIA_BREAKPOINT = '576px';
-export const MD_MEDIA_BREAKPOINT = '768px';
-export const LG_MEDIA_BREAKPOINT = '980px';
-export const XL_MEDIA_BREAKPOINT = '1200px';
-export const XXL_MEDIA_BREAKPOINT = '1440px';
+export const BREAK_POINTS = {
+  xs: 0, sm: 576, md: 768, lg: 980, xl: 1200, xxl: 1440,
+};
+
+export const XS_MEDIA_BREAKPOINT = `${BREAK_POINTS.xs}px`;
+export const SM_MEDIA_BREAKPOINT = `${BREAK_POINTS.sm}px`;
+export const MD_MEDIA_BREAKPOINT = `${BREAK_POINTS.md}px`;
+export const LG_MEDIA_BREAKPOINT = `${BREAK_POINTS.lg}px`;
+export const XL_MEDIA_BREAKPOINT = `${BREAK_POINTS.xl}px`;
+export const XXL_MEDIA_BREAKPOINT = `${BREAK_POINTS.xxl}px`;
 
 export const enableADs = process.env.REACT_APP_ENABLE_ADS === 'true';
 

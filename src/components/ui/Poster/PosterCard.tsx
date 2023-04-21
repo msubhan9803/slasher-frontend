@@ -18,6 +18,7 @@ const PosterCardStyle = styled(Card)`
     aspect-ratio: 0.67;
     img {
       object-fit: cover;
+      box-shadow: 0 0 0 1px var(--poster-border-color);
     }
   }
   .fa-star {
@@ -54,24 +55,24 @@ function PosterCard({
         <Card.Img variant="top" src={poster} alt={`${name} poster`} className="w-100 h-100 rounded-4" />
       </div>
       {rating !== 0 && (
-      <RatingDiv className="d-flex justify-content-end me-2">
-        <Card.Text className="rating bg-white mb-0 px-2 rounded-5 fs-5 text-black">
-          <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" />
-          <span className="h5">{rating}</span>
-        </Card.Text>
-      </RatingDiv>
+        <RatingDiv className="d-flex justify-content-end me-2">
+          <Card.Text className="rating bg-white mb-0 px-2 rounded-5 fs-5 text-black">
+            <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" />
+            <span className="h5">{rating}</span>
+          </Card.Text>
+        </RatingDiv>
       )}
       <Card.Body className="px-0 pb-4">
         <div className="fs-5 d-flex justify-content-between align-items-center m-0 text-light">
           {year}
           {worthWatching !== WorthWatchingStatus.NoRating && (
-          <LikeIconButton
-            worthWatching={worthWatching}
-            thumbsUpWidth="0.804rem"
-            thumbsUpHeight="0.805rem"
-            thumbsDownWidth="0.804rem"
-            thumbsDownHeight="0.805rem"
-          />
+            <LikeIconButton
+              worthWatching={worthWatching}
+              thumbsUpWidth="0.804rem"
+              thumbsUpHeight="0.805rem"
+              thumbsDownWidth="0.804rem"
+              thumbsDownHeight="0.805rem"
+            />
           )}
         </div>
         <Card.Text className="h3 fw-bold mt-1">

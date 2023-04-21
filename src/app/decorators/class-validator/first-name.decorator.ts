@@ -8,14 +8,14 @@ export function IsValidFirstname(validationOptions?: ValidationOptions) {
       propertyName,
       constraints: [],
       options: {
-        message: 'Firstname must be between 3 and 30 characters, can only include letters/numbers/special characters, '
+        message: 'Firstname must be between 1 and 30 characters, can only include letters/numbers/special characters, '
           + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and space ( )',
         ...validationOptions,
       },
       validator: {
         validate(value: any): any {
           const nameLength = value.length;
-          if (nameLength < 3 || nameLength > 30) {
+          if (nameLength < 1 || nameLength > 30) {
             return false;
           }
 

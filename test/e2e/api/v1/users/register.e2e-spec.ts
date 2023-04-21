@@ -135,18 +135,18 @@ describe('Users / Register (e2e)', () => {
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
-          'Firstname must be between 3 and 30 characters, can only include letters/numbers/special characters, '
+          'Firstname must be between 1 and 30 characters, can only include letters/numbers/special characters, '
           + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and space ( )',
         );
       });
 
       it('firstName is minimum 3 characters long', async () => {
-        postBody.firstName = 'Te';
+        postBody.firstName = '-';
         const response = await request(app.getHttpServer())
           .post('/api/v1/users/register')
           .send(postBody);
         expect(response.body.message).toContain(
-          'Firstname must be between 3 and 30 characters, can only include letters/numbers/special characters, '
+          'Firstname must be between 1 and 30 characters, can only include letters/numbers/special characters, '
           + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and space ( )',
         );
       });
@@ -158,7 +158,7 @@ describe('Users / Register (e2e)', () => {
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
-          'Firstname must be between 3 and 30 characters, can only include letters/numbers/special characters, '
+          'Firstname must be between 1 and 30 characters, can only include letters/numbers/special characters, '
           + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and space ( )',
         );
       });

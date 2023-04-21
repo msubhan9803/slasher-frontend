@@ -21,6 +21,7 @@ import { MoviesService } from '../../../../../src/movies/providers/movies.servic
 import { moviesFactory } from '../../../../factories/movies.factory';
 import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
 import { FeedPostsService } from '../../../../../src/feed-posts/providers/feed-posts.service';
+import { MovieUserStatusService } from '../../../../../src/movie-user-status/providers/movie-user-status.service';
 
 describe('Feed-Post / Post File (e2e)', () => {
   let app: INestApplication;
@@ -31,6 +32,7 @@ describe('Feed-Post / Post File (e2e)', () => {
   let activeUser: User;
   let configService: ConfigService;
   let feedPostsService: FeedPostsService;
+  let movieUserStatusService: MovieUserStatusService;
 
   beforeAll(async () => {
     //set max listeners value 12 because it required 12 images in 'only allows a maximum of 10 images'
@@ -44,6 +46,7 @@ describe('Feed-Post / Post File (e2e)', () => {
     moviesService = moduleRef.get<MoviesService>(MoviesService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
+    movieUserStatusService = moduleRef.get<MovieUserStatusService>(MovieUserStatusService);
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -357,10 +360,17 @@ describe('Feed-Post / Post File (e2e)', () => {
           .field('userId', activeUser._id.toString())
           .field('movieId', movie._id.toString())
           .field('moviePostFields[spoilers]', true)
+          .field('moviePostFields[rating]', 3)
+          .field('moviePostFields[goreFactorRating]', 4)
+          .field('moviePostFields[worthWatching]', 1)
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1]);
         const post = await feedPostsService.findById(response.body._id, true);
+        const movieUserStatus = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString());
         expect(post.spoilers).toBe(true);
+        expect(movieUserStatus.rating).toBe(3);
+        expect(movieUserStatus.goreFactorRating).toBe(4);
+        expect(movieUserStatus.worthWatching).toBe(1);
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)

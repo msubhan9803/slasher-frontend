@@ -68,10 +68,6 @@ function Profile() {
           return;
         }
         setUser(res.data);
-        window.scrollTo({
-          top: 0,
-          behavior: 'instant' as any,
-        });
       }).catch(() => setUserNotFound(true));
   }, [user, userNameOrId, location.pathname, location.search, navigate]);
 

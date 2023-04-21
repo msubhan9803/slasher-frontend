@@ -285,7 +285,7 @@ function PostCommentSection({
     setDeleteImageIds([]);
     setCommentID(popoverData.id);
     setCommentReplyID('');
-    setEditContent(popoverData.content);
+    setEditContent(popoverData.message);
 
     if (popoverData.userId) {
       setCommentReplyUserId(popoverData.userId);
@@ -305,7 +305,7 @@ function PostCommentSection({
     setDeleteImageIds([]);
     setCommentReplyID(popoverData.id);
     setCommentID('');
-    setEditContent(popoverData.content);
+    setEditContent(popoverData.message);
 
     if (popoverData.userId) {
       setCommentReplyUserId(popoverData.userId);
@@ -428,7 +428,7 @@ function PostCommentSection({
         }
         onPopoverClick={handleReplyPopover}
         feedCommentId={comment.feedCommentId}
-        content={comment.commentMsg}
+        message={comment.commentMsg}
         userName={comment.name}
         handleSeeCompleteList={handleSeeCompleteList}
         likeCount={comment.likeCount}
@@ -537,7 +537,7 @@ function PostCommentSection({
                   checkPopover(data.userId?._id || data.userId?.id)
                 }
                 onPopoverClick={handlePopover}
-                content={data.commentMsg}
+                message={data.commentMsg}
                 handleSeeCompleteList={handleSeeCompleteList}
                 likeCount={data.likeCount}
                 userId={data.userId?._id}

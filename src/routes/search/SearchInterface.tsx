@@ -4,7 +4,7 @@ export interface SearchProps {
   image?: string;
   email?: string;
   date?: string;
-  content?: string;
+  message?: string;
   hashTag?: string[];
   address?: string;
   year?: string;

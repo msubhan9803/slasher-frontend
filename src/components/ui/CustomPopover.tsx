@@ -10,14 +10,14 @@ interface Props {
   popoverOptions: string[];
   onPopoverClick: (val: string, popoverClickProps: PopoverClickProps) => void,
   userName?: string;
-  content?: string;
+  message?: string;
   id?: string;
   userId?: string;
   postImages?: string[] | undefined;
 }
 
 export interface PopoverClickProps {
-  content?: string,
+  message?: string,
   id?: string,
   userId?: string,
   userName?: string,
@@ -84,10 +84,10 @@ const StyledPopover = styled.div`
 
 function CustomPopover({
   popoverOptions, onPopoverClick,
-  content, id, userId, userName, postImages,
+  message, id, userId, userName, postImages,
 }: Props) {
   const popoverClickProps = {
-    content,
+    message,
     id,
     userId,
     userName,
@@ -126,7 +126,7 @@ function CustomPopover({
 }
 
 CustomPopover.defaultProps = {
-  content: null,
+  message: null,
   id: null,
   userId: null,
   userName: null,

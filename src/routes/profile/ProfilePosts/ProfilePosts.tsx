@@ -52,8 +52,8 @@ function ProfilePosts({ user }: Props) {
   );
   const { userName: userNameOrId } = useParams<string>();
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
-    if (popoverClickProps.content) {
-      setPostContent(popoverClickProps.content);
+    if (popoverClickProps.message) {
+      setPostContent(popoverClickProps.message);
     }
     if (popoverClickProps.postImages) {
       setDeleteImageIds([]);
@@ -86,7 +86,7 @@ function ProfilePosts({ user }: Props) {
               _id: data._id,
               id: data._id,
               postDate: data.createdAt,
-              content: data.message,
+              message: data.message,
               images: data.images,
               userName: data.userId.userName,
               profileImage: data.userId.profilePic,
@@ -142,7 +142,7 @@ function ProfilePosts({ user }: Props) {
           _id: data._id,
           id: data._id,
           postDate: data.createdAt,
-          content: data.message,
+          message: data.message,
           images: data.images,
           userName: data.userId.userName,
           profileImage: data.userId.profilePic,
@@ -161,7 +161,7 @@ function ProfilePosts({ user }: Props) {
       const updatePost = posts.map((post: any) => {
         if (post._id === postId) {
           return {
-            ...post, content: message,
+            ...post, message,
           };
         }
         return post;

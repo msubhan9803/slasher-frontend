@@ -104,18 +104,12 @@ function CommentSection({
 
   useLayoutEffect(() => {
     if (highlightRef.current) {
-      document.documentElement.style.scrollBehavior = 'auto';
       setTimeout(() => {
-        highlightRef.current.scrollIntoView({
+        window.scrollTo({
+          top: highlightRef.current.offsetTop,
           behavior: 'instant' as any,
-          block: 'center',
-          inline: 'center',
         });
-      }, 500);
-
-      setTimeout(() => {
-        document.documentElement.style.scrollBehavior = 'smooth';
-      }, 600);
+      }, 0);
     }
   }, []);
 

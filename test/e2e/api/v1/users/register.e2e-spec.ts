@@ -140,18 +140,19 @@ describe('Users / Register (e2e)', () => {
         );
       });
 
-      it('firstName is minimum 3 characters long', async () => {
-        postBody.firstName = '-';
+      it('firstName should not end with special character', async () => {
+        postBody.firstName = 'testUser-';
         const response = await request(app.getHttpServer())
-          .post('/api/v1/users/register')
-          .send(postBody);
-        expect(response.body.message).toContain(
+        .get('/api/v1/users/validate-registration-fields')
+        .query(postBody);
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toContain(
           'Firstname must be between 1 and 30 characters, can only include letters/numbers/special characters, '
           + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and space ( )',
         );
       });
 
-      it('firstName should match pattern', async () => {
+      it('firstName should not starts with special character', async () => {
         postBody.firstName = '_testuser';
         const response = await request(app.getHttpServer())
           .post('/api/v1/users/register')

@@ -21,7 +21,7 @@ const StyleFriend = styled(Row)`
 `;
 const Card = styled.div`
   height:12.857rem;
-  width:11.71rem;
+  width:10.33rem;
   padding-right: 1rem;
 `;
 
@@ -149,17 +149,13 @@ function SuggestedFriend() {
     <div>
       {!suggestedFriends || suggestedFriends.length === 0 ? renderNoSuggestionsAvailable() : (
         <div className="p-md-3 pt-md-1 rounded-2">
-          <div className="d-flex align-items-center position-relative">
-            <Button tabIndex={0} aria-label="chevron left icon" className="position-absolute d-block p-0 prev bg-transparent border-0" onClick={slideFriendLeft}>
+          <div className="d-flex align-items-center">
+            <Button aria-label="chevron left icon" className="d-block p-0 prev bg-transparent border-0" onClick={slideFriendLeft}>
               <FontAwesomeIcon icon={solid('chevron-left')} size="lg" className="text-white" />
-            </Button>
-            <Button tabIndex={0} aria-label="chevron right icon" style={{ right: 0 }} className="position-absolute d-block p-0 next bg-transparent border-0" onClick={slideFriendRight}>
-              <FontAwesomeIcon icon={solid('chevron-right')} size="lg" className="text-white" />
             </Button>
             <StyleFriend
               id="slideFriend"
               className="d-flex flex-nowrap w-100 mx-3 g-0"
-              tabIndex={-1}
             >
               {suggestedFriends.map((user: any) => (
                 <Card key={user._id}>
@@ -169,14 +165,15 @@ function SuggestedFriend() {
                         <UserCircleImage size="6.25rem" src={user.profilePic} alt="suggested friend" />
                         <Button variant="link" className="position-absolute p-0 px-1" style={{ right: '0' }} onClick={(e: any) => onCloseClick(e, user._id)}>
                           <FontAwesomeIcon icon={solid('xmark')} size="lg" />
+                          <span className="visually-hidden">Dismiss suggestion</span>
                         </Button>
                       </div>
-                      <p className="text-center my-2">{user.userName}</p>
+                      <p className="text-center my-2 text-truncate">{user.userName}</p>
                     </Link>
                     {user.addFriend
                       ? (
                         <RoundButton variant="black" className="w-100" onClick={() => cancelFriendClick(user._id)}>
-                          Cancel Request
+                          Cancel
                         </RoundButton>
                       )
                       : (
@@ -188,6 +185,9 @@ function SuggestedFriend() {
                 </Card>
               ))}
             </StyleFriend>
+            <Button aria-label="chevron right icon" className="d-block p-0 next bg-transparent border-0" onClick={slideFriendRight}>
+              <FontAwesomeIcon icon={solid('chevron-right')} size="lg" className="text-white" />
+            </Button>
           </div>
         </div>
       )}

@@ -74,10 +74,6 @@ function Profile() {
           return;
         }
         setUser(res.data);
-        window.scrollTo({
-          top: 0,
-          behavior: 'instant' as any,
-        });
       })
       .catch((e) => {
         // If requested user is blocked then show "This content is no longer available" page
@@ -121,6 +117,7 @@ function Profile() {
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
+        <h1 className="sr-only">{user.userName}</h1>
         <Routes>
           <Route path="/edit" element={<ProfileEdit user={user} />} />
           <Route path="*" element={<SharedHeaderProfilePages user={user} loadUser={loadUser} />} />

@@ -1,5 +1,7 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect, useState, useRef, useLayoutEffect,
+} from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Col, Row } from 'react-bootstrap';
@@ -66,6 +68,7 @@ function ProfileHeader({
   const navigate = useNavigate();
   const [clickedUserId, setClickedUserId] = useState<string>('');
   const [friendData, setFriendData] = useState<FriendType>(null);
+  const positionRef = useRef<HTMLDivElement>(null);
 
   const isSelfUserProfile = userName === loginUserName;
 
@@ -86,6 +89,19 @@ function ProfileHeader({
       });
     }
   }, [user, friendshipStatus, isSelfUserProfile, loginUserId]);
+
+  useLayoutEffect(() => {
+    const element = positionRef.current;
+    if (!element) { return; }
+    document.documentElement.style.scrollBehavior = 'auto';
+    element?.scrollIntoView({
+      behavior: 'instant' as any,
+      block: 'start',
+    });
+    setTimeout(() => {
+      document.documentElement.style.scrollBehavior = 'smooth';
+    }, 500);
+  }, [positionRef]);
 
   const onBlockYesClick = () => {
     createBlockUser(clickedUserId)
@@ -114,7 +130,6 @@ function ProfileHeader({
   if (!user || (!isSelfUserProfile && typeof friendStatus === null)) {
     return <LoadingIndicator />;
   }
-
   return (
     <div className="bg-dark bg-mobile-transparent rounded mb-4">
       <Row className="p-md-4">
@@ -141,7 +156,7 @@ function ProfileHeader({
                 <h1 className="mb-md-0">
                   {user?.firstName}
                 </h1>
-                <p className="fs-5  text-light">
+                <p className="fs-5 text-light">
                   @
                   {user?.userName}
                 </p>
@@ -184,7 +199,9 @@ function ProfileHeader({
         showTabs && (
           <>
             <StyledBorder className="d-md-block d-none" />
-            <TabLinks tabLink={allTabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
+            <div ref={positionRef}>
+              <TabLinks tabLink={allTabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
+            </div>
           </>
         )
       }

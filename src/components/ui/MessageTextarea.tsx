@@ -46,6 +46,7 @@ export interface FormatMentionListProps {
 interface MentionProps {
   rows: number;
   placeholder?: string;
+  isReply?: boolean;
   mentionLists: MentionListProps[];
   setMessageContent: (val: string) => void;
   formatMentionList: FormatMentionListProps[];
@@ -62,6 +63,7 @@ interface MentionProps {
 function MessageTextarea({
   rows,
   placeholder,
+  isReply,
   mentionLists,
   handleSearch,
   setMessageContent,
@@ -106,14 +108,12 @@ function MessageTextarea({
   };
 
   useEffect(() => {
-    if (textareaRef.current) {
+    if (textareaRef.current && isReply) {
       textareaRef.current.focus();
     }
-  }, []);
-
+  }, [isReply]);
   return (
     <StyledMention
-      autoFocus
       ref={textareaRef}
       iscommentinput={isCommentInput!}
       id={id}
@@ -148,6 +148,7 @@ function MessageTextarea({
 }
 MessageTextarea.defaultProps = {
   placeholder: 'Type something...',
+  isReply: false,
   defaultValue: '',
   id: '',
   className: '',

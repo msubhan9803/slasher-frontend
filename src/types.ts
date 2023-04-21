@@ -3,6 +3,9 @@
 // that are shared across multiple places in the app.
 
 import { LatLngLiteral } from 'leaflet';
+import { BREAK_POINTS } from './constants';
+
+export type BreakPointName = keyof typeof BREAK_POINTS;
 
 export interface ValueLabelPair {
   value: string;
@@ -17,7 +20,7 @@ export interface Post {
   _id: string;
   id: string;
   postDate: string;
-  content: string;
+  message: string;
   images: PostImage[];
   userName: string;
   firstName: string;
@@ -48,7 +51,7 @@ export interface NewsPartnerPostProps {
   _id: string;
   id: string;
   postDate: string;
-  content: string;
+  message: string;
   images: PostImage[];
   title: string;
   rssFeedProviderLogo: string;
@@ -178,11 +181,13 @@ export enum NotificationReadStatus {
 
 export enum NotificationType {
   UserSentYouAFriendRequest = 11,
+  UserAcceptedYourFriendRequest = 12,
   UserLikedYourPost = 13,
   UserLikedYourComment = 14,
   UserCommentedOnYourPost = 15,
   UserMentionedYouInPost = 99,
   UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost = 101,
+  UserLikedYourCommentOnANewsPost = 122,
   NewPostFromFollowedRssFeedProvider = 125,
 }
 
@@ -193,11 +198,12 @@ export interface Notification {
   notificationMsg: string,
   senderId: Sender,
   feedPostId: NotificationFeedPostId,
-  feedCommentId: String,
-  feedReplyId: String,
-  userId: String,
+  feedCommentId: string,
+  rssFeedCommentId?: string,
+  feedReplyId: string,
+  userId: string,
   rssFeedProviderId: NotificationRssFeedProviderId,
-  rssFeedId: String,
+  rssFeedId: string,
   notifyType: NotificationType,
 }
 
@@ -236,8 +242,7 @@ export enum ProfileVisibility {
   Private = 1,
 }
 
-export type RegisterUser = Partial<
-{
+export type RegisterUser = Partial<{
   firstName: string,
   userName: string,
   email: string,
@@ -247,6 +252,7 @@ export type RegisterUser = Partial<
   securityAnswer: string,
   dob: string,
 }>;
+
 export interface CommentValue {
   commentMessage: string,
   imageArr?: string[],

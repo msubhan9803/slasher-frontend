@@ -28,6 +28,7 @@ function ReportModal({
     setShow(false);
     setReports('');
     setButtonDisabled(true);
+    setOtherReport('');
   };
   const removeData = () => {
     if (removeComment) { removeComment(); }
@@ -50,7 +51,7 @@ function ReportModal({
   const handleReportData = () => {
     const reason = reports === 'Other' ? otherReport : reports;
     if (reason) {
-      if (handleReport) { handleReport(reason); }
+      if (handleReport) { handleReport(reason); setOtherReport(''); }
     }
   };
 

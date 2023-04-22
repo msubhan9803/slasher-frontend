@@ -2,6 +2,10 @@ export enum FeedPostType {
   Text = 1,
   Images = 2,
   TextAndImages = 3,
+  // Some feedPosts like rssFeedPosts have weird values too like 5 and 6. Note: Adding below values here
+  // is necessary otherwise `create-report` api fails due to schema validation of enum type for `feedPost.type` field
+  Others1 = 5,
+  Others2 = 6,
 }
 
 export enum FeedPostStatus {

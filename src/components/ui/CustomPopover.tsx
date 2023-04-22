@@ -14,6 +14,7 @@ interface Props {
   id?: string;
   userId?: string;
   postImages?: string[] | undefined;
+  rssfeedProviderId?: string;
 }
 
 export interface PopoverClickProps {
@@ -22,6 +23,7 @@ export interface PopoverClickProps {
   userId?: string,
   userName?: string,
   postImages?: string[] | undefined,
+  rssfeedProviderId?: string,
 }
 
 const StyledPopover = styled.div`
@@ -84,7 +86,7 @@ const StyledPopover = styled.div`
 
 function CustomPopover({
   popoverOptions, onPopoverClick,
-  message, id, userId, userName, postImages,
+  message, id, userId, userName, postImages, rssfeedProviderId,
 }: Props) {
   const popoverClickProps = {
     message,
@@ -92,6 +94,7 @@ function CustomPopover({
     userId,
     userName,
     postImages,
+    rssfeedProviderId,
   };
   return (
     <StyledPopover>
@@ -131,6 +134,7 @@ CustomPopover.defaultProps = {
   userId: null,
   userName: null,
   postImages: [],
+  rssfeedProviderId: '',
 };
 
 export default CustomPopover;

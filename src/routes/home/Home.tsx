@@ -40,6 +40,7 @@ function Home() {
   const [postContent, setPostContent] = useState<string>('');
   const [postId, setPostId] = useState<string>('');
   const [postUserId, setPostUserId] = useState<string>('');
+  const [rssfeedProviderId, setRssfeedProviderId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
@@ -73,6 +74,7 @@ function Home() {
     if (popoverClickProps.userId) {
       setPostUserId(popoverClickProps.userId);
     }
+    setRssfeedProviderId(popoverClickProps.rssfeedProviderId ?? '');
     setShow(true);
     setDropDownValue(value);
   };
@@ -366,6 +368,7 @@ function Home() {
               slectedDropdownValue={dropDownValue}
               onBlockYesClick={onBlockYesClick}
               handleReport={reportHomePost}
+              rssfeedProviderId={rssfeedProviderId}
             />
           )
         }

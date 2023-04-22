@@ -12,12 +12,13 @@ interface Props {
   slectedDropdownValue: string;
   onConfirmClick?: () => void | undefined;
   onBlockYesClick?: () => void | undefined;
-  handleReport?: (value: string) => void;
+  handleReport?: (value: string,) => void;
   removeComment?: () => void;
+  rssfeedProviderId?: string;
 }
 function ReportModal({
   show, setShow, slectedDropdownValue, onConfirmClick, onBlockYesClick,
-  handleReport, removeComment,
+  handleReport, removeComment, rssfeedProviderId,
 }: Props) {
   const [reports, setReports] = useState<string>('');
   const [otherReport, setOtherReport] = useState('');
@@ -104,17 +105,21 @@ function ReportModal({
             <h1 className="h3 mb-0 text-primary pb-3">Block</h1>
             <p className="px-3">Thank you for your report. We will review it as soon as possible</p>
 
-            <div className="d-flex pb-5">
-              <div className="pe-3">
-                Would you like to block this user?
-              </div>
-              <Form.Check
-                type="checkbox"
-                onChange={() => setChecked(!checked)}
-                checked={checked}
-              />
+            {/* Ask to block user as well (when post is not a rssFeedPost) */}
+            {!rssfeedProviderId
+              && (
+              <div className="d-flex pb-5">
+                <div className="pe-3">
+                  Would you like to block this user?
+                </div>
+                <Form.Check
+                  type="checkbox"
+                  onChange={() => setChecked(!checked)}
+                  checked={checked}
+                />
 
-            </div>
+              </div>
+              )}
             <RoundButton className="mb-3 w-100 fs-3" onClick={postReportCloseClick}>{checked ? 'Block and close' : 'Close'}</RoundButton>
           </Modal.Body>
         )
@@ -127,6 +132,7 @@ ReportModal.defaultProps = {
   onBlockYesClick: undefined,
   handleReport: undefined,
   removeComment: undefined,
+  rssfeedProviderId: undefined,
 };
 
 export default ReportModal;

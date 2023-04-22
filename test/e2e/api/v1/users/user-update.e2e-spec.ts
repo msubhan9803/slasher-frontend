@@ -292,7 +292,7 @@ describe('Users / :id (e2e)', () => {
       });
 
       it('profile_status must be one of the allowed values', async () => {
-        postBody.profile_status = 2;
+        postBody.profile_status = 2 as any;
         const response = await request(app.getHttpServer())
           .patch(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })

@@ -4,7 +4,7 @@ import {
 import { Request } from 'express';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
-import { NotificationDeletionStatus, NotificationReadStatus, NotificationType } from '../schemas/notification/notification.enums';
+import { NotificationDeletionStatus, NotificationReadStatus } from '../schemas/notification/notification.enums';
 import { NotificationDocument } from '../schemas/notification/notification.schema';
 import { getUserFromRequest } from '../utils/request-utils';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
@@ -47,7 +47,9 @@ export class NotificationsController {
     // Assign the post id values to the notfications, when needed
     return notifications.map((notification) => {
       const notificationAsObject = notification.toObject();
-      if (notificationAsObject.rssFeedId && !notificationAsObject.feedPostId) {
+      if (
+        notificationAsObject.rssFeedId && !notificationAsObject.feedPostId
+      ) {
         notificationAsObject.feedPostId = {
           _id: rssFeedIdsToFeedPostIds[notificationAsObject.rssFeedId.toString()]._id,
         } as unknown as FeedPost;
@@ -56,6 +58,9 @@ export class NotificationsController {
     }).map((notification) => pick(notification, [
       '_id', 'createdAt', 'feedCommentId', 'feedPostId', 'feedReplyId', 'isRead',
       'notificationMsg', 'notifyType', 'rssFeedProviderId', 'senderId', 'userId',
+      // 'rssFeedCommentId', // Keeping this commented out before because we are temporarily
+      // ignoring RSS feed "comment like" notifications, due to incompatibility with regular post
+      // comments.
     ]));
   }
 
@@ -114,10 +119,7 @@ export class NotificationsController {
   // TODO: Add test for this
   async rssFeedIdsToFeedPostIdsForNotifications(notifications: NotificationDocument[]) {
     const rssFeedNotifications = notifications.filter(
-      (notification) => (
-        notification.notifyType === NotificationType.NewPostFromFollowedRssFeedProvider
-        && notification.rssFeedId
-      ),
+      (notification) => (notification.rssFeedId),
     );
     if (rssFeedNotifications.length === 0) { return {}; }
 

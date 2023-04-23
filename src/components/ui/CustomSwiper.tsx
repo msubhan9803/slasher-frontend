@@ -4,20 +4,32 @@ import styled from 'styled-components';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Navigation } from 'swiper';
 import 'swiper/swiper-bundle.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { brands } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Button } from 'react-bootstrap';
+import {
+  Button, Col, Image, Row,
+} from 'react-bootstrap';
+import { DateTime } from 'luxon';
 import CustomYoutubeModal from './CustomYoutubeModal';
 import { useAppSelector } from '../../redux/hooks';
 import CustomSwiperZoomableImage from './CustomSwiperZoomableImage';
+import { StyledMoviePoster } from '../../routes/movies/movie-details/StyledUtils';
+import RoundButton from './RoundButton';
 
 interface SliderImage {
   postId?: string;
   imageId: string;
+  // `displayVideoAndImage()` make use one of below keys to render resource
   imageUrl: string;
   linkUrl?: string;
   videoKey?: string;
+  posterTitleAndReleaseDateOfMovie?: {
+    poster_path: string,
+    title: string,
+    release_date: string,
+    movieId: string,
+  }
 }
 
 type SwiperContext = 'post' | 'comment';
@@ -91,6 +103,7 @@ function CustomSwiper({
   const [showVideoPlayerModal, setShowYouTubeModal] = useState(false);
   const { placeholderUrlNoImageAvailable } = useAppSelector((state) => state.remoteConstants);
   const [hideSwiper, setHideSwiper] = useState(false);
+  const navigate = useNavigate();
 
   const displayVideoAndImage = (imageAndVideo: SliderImage) => {
     if (imageAndVideo.videoKey) {
@@ -143,6 +156,36 @@ function CustomSwiper({
             />
           </SwiperContentContainer>
         </Link>
+      );
+    }
+    if (imageAndVideo.posterTitleAndReleaseDateOfMovie) {
+      return (
+        <SwiperContentContainer>
+          <Row className="m-0 h-100">
+            <Col className="p-0 h-100 py-3">
+              <StyledMoviePoster className="h-100">
+                <Image
+                  src={imageAndVideo?.posterTitleAndReleaseDateOfMovie?.poster_path}
+                  alt="movie poster"
+                  className="rounded-3 w-100 h-100"
+                />
+              </StyledMoviePoster>
+            </Col>
+            <Col className="m-auto ps-4 text-start">
+              <div className="fw-bold mb-1">
+                {imageAndVideo?.posterTitleAndReleaseDateOfMovie?.title}
+              </div>
+              <div className="text-light mb-2">
+                {imageAndVideo?.posterTitleAndReleaseDateOfMovie?.release_date
+                  && DateTime.fromJSDate(new Date(imageAndVideo?.posterTitleAndReleaseDateOfMovie?.release_date)).toFormat('yyyy')}
+              </div>
+              <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4" onClick={() => navigate(`/app/movies/${imageAndVideo?.posterTitleAndReleaseDateOfMovie?.movieId}/details`)}>
+                View details
+              </RoundButton>
+
+            </Col>
+          </Row>
+        </SwiperContentContainer>
       );
     }
     return (

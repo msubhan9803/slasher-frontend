@@ -13,10 +13,11 @@ import Cookies from 'js-cookie';
 import InfiniteScroll from 'react-infinite-scroller';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import * as stringSimilarity from 'string-similarity';
+import { DateTime } from 'luxon';
 import PostFooter from './PostFooter';
 import {
   CommentValue, LikeShareModalResourceName, Post, LikeShareModalTabName,
-  ReplyValue, WorthWatchingStatus,
+  ReplyValue, WorthWatchingStatus, AdditionalMovieData,
 } from '../../../../types';
 import LikeShareModal from '../../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
@@ -49,6 +50,7 @@ const READ_MORE_TEXT_LIMIT = 300;
 interface Props {
   popoverOptions: string[];
   postFeedData: any[];
+  aboutMovieDetail?: AdditionalMovieData;
   commentsData?: any[];
   isCommentSection?: boolean;
   onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void;
@@ -130,7 +132,7 @@ function PostFeed({
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
   addUpdateComment, updateState, setUpdateState, isSinglePagePost, onSelect,
   handleSearch, mentionList, commentImages, setCommentImages, commentError,
-  commentReplyError, postType, onSpoilerClick,
+  commentReplyError, postType, onSpoilerClick, aboutMovieDetail,
   commentSent, setCommentReplyErrorMessage, setCommentErrorMessage,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
@@ -385,12 +387,26 @@ function PostFeed({
   );
   const swiperDataForPost = (post: any) => {
     const imageVideoList = FormatImageVideoList(post.images, post.message);
+    if (aboutMovieDetail) {
+      imageVideoList.splice(0, 0, {
+        poster_path: aboutMovieDetail?.mainData?.poster_path,
+        title: aboutMovieDetail?.mainData.title,
+        release_date: DateTime.fromJSDate(new Date(aboutMovieDetail?.mainData?.release_date)).toFormat('yyyy'),
+        movieId: post?.movieId,
+      });
+    }
     return imageVideoList.map((imageData: any) => ({
       videoKey: imageData.videoKey,
       imageUrl: imageData.image_path,
       linkUrl: detailPage ? undefined : imageLinkUrl(post, imageData._id),
       postId: post.id,
       imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
+      posterTitleAndReleaseDateOfMovie: imageData?.poster_path && {
+        poster_path: imageData?.poster_path,
+        title: imageData?.title,
+        release_date: imageData?.release_date,
+        movieId: imageData?.movieId,
+      },
     }));
   };
   return (
@@ -537,6 +553,7 @@ function PostFeed({
   );
 }
 PostFeed.defaultProps = {
+  aboutMovieDetail: undefined,
   isCommentSection: false,
   detailPage: false,
   commentsData: [],

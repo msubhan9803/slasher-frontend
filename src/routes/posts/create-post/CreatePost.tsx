@@ -39,6 +39,8 @@ function CreatePost() {
   const [titleContent, setTitleContent] = useState<string>('');
   const [containSpoiler, setContainSpoiler] = useState<boolean>(false);
   const [selectedPostType, setSelectedPostType] = useState<string>('');
+  const paramsMovieId = searchParams.get('movieId');
+
   const mentionReplacementMatchFunc = (match: string) => {
     if (match) {
       const finalString: any = formatMention.find(
@@ -66,13 +68,19 @@ function CreatePost() {
       };
       return groupPostData;
     }
-    const createPostData = {
+    const createPostData: any = {
       message: postContentWithMentionReplacements,
       postType: PostType.User,
+      movieId: paramsMovieId,
     };
     return createPost(createPostData, imageArray)
       .then(() => {
         setErrorMessage([]);
+        // TODO: Need Opinion
+        // TODO SAHIL NOW: I need to navigate to postDetails page instead?
+        // shoud we? (as its not the case with general post creation)
+        // FYI: SAHIL: Currently I am passing `state` from the ShareLinksModal.tsx
+        // so that after post-creation we redirect to back to movieDetails page again.
         navigate(location.state);
       })
       .catch((error) => {

@@ -21,6 +21,7 @@ import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import { MentionProps } from '../../../routes/posts/create-post/CreatePost';
 import {
+  AdditionalMovieData,
   CommentValue, FeedComments, Post, User,
 } from '../../../types';
 import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-utils';
@@ -33,6 +34,7 @@ import ErrorMessageList from '../ErrorMessageList';
 import ReportModal from '../ReportModal';
 import EditPostModal from './EditPostModal';
 import PostFeed from './PostFeed/PostFeed';
+import { getMoviesById, getMoviesDataById } from '../../../api/movies';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -81,6 +83,7 @@ function PostDetail({ user, postType }: Props) {
   const [checkPostUpdate, setCheckPostUpdate] = useState<boolean>(false);
   const [commentSent, setCommentSent] = useState<boolean>(false);
   const scrollPositionRef = useRef(scrollPosition);
+  const [aboutMovieDetail, setAboutMovieDetail] = useState<AdditionalMovieData>();
 
   useEffect(() => {
     scrollPositionRef.current = scrollPosition;
@@ -476,6 +479,11 @@ function PostDetail({ user, postType }: Props) {
         }
         setPostData([post]);
         setPostContent(res.data.message);
+        if (post.movieId) {
+          getMoviesById(post.movieId)
+            .then((res1) => getMoviesDataById(res1.data.movieDBId)
+              .then((res2) => setAboutMovieDetail(res2.data)));
+        }
       })
       .catch((error) => {
         setErrorMessage(error.response.data.message);
@@ -801,6 +809,7 @@ function PostDetail({ user, postType }: Props) {
             <PostFeed
               detailPage
               postFeedData={postData}
+              aboutMovieDetail={aboutMovieDetail}
               popoverOptions={loginUserPopoverOptions}
               onPopoverClick={handlePopoverOption}
               otherUserPopoverOptions={otherUserPopoverOptions}

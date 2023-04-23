@@ -107,7 +107,7 @@ function CreatePostComponent({
     getMoviesById(movieId)
       .then((res1) => getMoviesDataById(res1.data.movieDBId)
         .then((res2) => setAboutMovieDetail(res2.data)));
-  }, [movieData, movieId]);
+  }, [movieId]);
 
   const handleRemoveFile = (postImage: any) => {
     const removePostImage = imageArray.filter((image: File) => image !== postImage);
@@ -326,7 +326,8 @@ function CreatePostComponent({
         type="file"
         name="post"
         className="d-none"
-        accept="image/*"
+        // eslint-disable-next-line no-useless-concat
+        accept={'image/' + '*'}
         onChange={(post) => {
           handleFileChange(post);
         }}

@@ -43,6 +43,12 @@ function ImagesContainer({
     setShowAltTextEditModal(false);
   };
 
+  const handleKeydown = (e: any) => {
+    if (e.key === 'Enter') {
+      return dataId ? handleRemoveImage(image, dataId) : handleRemoveImage(image);
+    }
+    return null;
+  };
   return (
     <div style={{ width: containerWidth }}>
       <StyledImageContainer
@@ -59,17 +65,23 @@ function ImagesContainer({
           className="w-100 h-100 img-fluid rounded"
         />
         <FontAwesomeIcon
+          tabIndex={0}
           icon={solid('times')}
           size="xs"
           role="button"
           className="position-absolute bg-primary text-black rounded-circle"
           style={removeIconStyle}
           onClick={() => (dataId ? handleRemoveImage(image, dataId) : handleRemoveImage(image))}
+          onKeyDown={handleKeydown}
         />
       </StyledImageContainer>
-      <div className="text-center mt-2">
-        <RoundButton variant="black" onClick={() => { setShowAltTextEditModal(true); }}>Edit alt text</RoundButton>
-      </div>
+      {
+        onAltTextChange && (
+          <div className="text-center mt-2">
+            <RoundButton variant="black" onClick={() => { setShowAltTextEditModal(true); }}>Edit alt text</RoundButton>
+          </div>
+        )
+      }
       <CustomModal
         show={showAltTextEditModal}
         onHide={() => { setShowAltTextEditModal(false); }}

@@ -1,7 +1,6 @@
 /* eslint-disable max-len */
 import React from 'react';
 import { Col, Modal, Row } from 'react-bootstrap';
-import styled from 'styled-components';
 import copy from 'copy-to-clipboard';
 import { useNavigate, useParams } from 'react-router-dom';
 import ModalContainer from './CustomModal';
@@ -11,30 +10,22 @@ import CopyLinkIcon from '../../images/share-links-modal-copy-links.png';
 import FacebookIcon from '../../images/share-links-modal-facebook.png';
 import InstagramIcon from '../../images/share-links-modal-instagram.png';
 import TwitterIcon from '../../images/share-links-modal-twitter.png';
-import { MD_MEDIA_BREAKPOINT } from '../../constants';
-import { enableDevFeatures } from '../../utils/configEnvironment';
+import { FRONTEND_URL, enableDevFeatures } from '../../utils/configEnvironment';
 
-const StyledModalBody = styled(Modal.Body)`
-  @media (min-width: ${MD_MEDIA_BREAKPOINT}){
-    margin: 20px 0px 40px;
-  }
-`;
-
-export const copyUrlToClipboard = () => {
-  const { protocol, host, pathname } = window.location;
-  copy(`${protocol}/${host}${pathname}`);
+export const copyUrlToClipboard = (copyLinkUrl: string) => {
+  copy(`${FRONTEND_URL}${copyLinkUrl}`);
 };
 
 function ShareIconButton({ label, onClick, imgSrc }: any) {
   return (
-    <button style={{ all: 'unset', cursor: 'pointer', width: 80 }} type="button" onClick={onClick}>
-      <img className="d-block mx-auto" width={60} alt="copy link icon" src={imgSrc} />
+    <button style={{ width: 80 }} className="border-0 p-0 pb-1 pt-2 bg-black text-white rounded" type="button" onClick={onClick}>
+      <img className="d-block mx-auto pt-1" width={60} alt="copy link icon" src={imgSrc} />
       <div className="mt-2">{label}</div>
     </button>
   );
 }
 
-function ShareLinksModal({ show, setShow }: any) {
+function ShareLinksModal({ copyLinkUrl, show, setShow }: any) {
   const params = useParams();
   const navigate = useNavigate();
 
@@ -44,14 +35,15 @@ function ShareLinksModal({ show, setShow }: any) {
 
   return (
     <ModalContainer
+      $widthMarginAuto
       show={show}
       centered
       onHide={handleCloseModal}
       size="lg"
     >
       <Modal.Header className="border-0 shadow-none justify-content-end" closeButton />
-      <StyledModalBody className="d-flex flex-column align-items-center text-center pt-0">
-        <h1 className="mb-0 text-primary text-center">Share</h1>
+      <Modal.Body className="d-flex flex-column align-items-center text-center mx-5 px-5 pt-0 pb-0 mb-5">
+        <h1 className="mb-0 text-primary text-center mx-4">Share</h1>
         <Row xs={3} lg="auto" className="mt-4">
           {
             enableDevFeatures && (
@@ -66,7 +58,7 @@ function ShareLinksModal({ show, setShow }: any) {
             )
           }
           <Col className="pb-5">
-            <ShareIconButton label="Copy link" onClick={() => { handleCloseModal(); copyUrlToClipboard(); }} imgSrc={CopyLinkIcon} />
+            <ShareIconButton label="Copy link" onClick={() => { handleCloseModal(); copyUrlToClipboard(copyLinkUrl); }} imgSrc={CopyLinkIcon} />
           </Col>
           {
             enableDevFeatures && (
@@ -84,7 +76,7 @@ function ShareLinksModal({ show, setShow }: any) {
             )
           }
         </Row>
-      </StyledModalBody>
+      </Modal.Body>
     </ModalContainer>
   );
 }

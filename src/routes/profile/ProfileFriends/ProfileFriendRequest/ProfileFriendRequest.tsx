@@ -1,21 +1,25 @@
+/* eslint-disable max-lines */
 import Cookies from 'js-cookie';
 import React, {
   useCallback, useEffect, useRef, useState,
 } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { acceptFriendsRequest, rejectFriendsRequest, userProfileFriendsRequest } from '../../../../api/friends';
 import CustomSearchInput from '../../../../components/ui/CustomSearchInput';
 import ErrorMessageList from '../../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../../components/ui/LoadingIndicator';
 import TabLinks from '../../../../components/ui/Tabs/TabLinks';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
-import { setFriendListReload, setUserRecentFriendRequests } from '../../../../redux/slices/userSlice';
+import { resetNewFriendRequestCountCount, setFriendListReload, setUserRecentFriendRequests } from '../../../../redux/slices/userSlice';
 import { User } from '../../../../types';
 import ProfileHeader from '../../ProfileHeader';
 import FriendsProfileCard from '../FriendsProfileCard';
 import { forceReloadSuggestedFriends } from '../../../../redux/slices/suggestedFriendsSlice';
+import { socket } from '../../../../context/socket';
+import { setScrollPosition } from '../../../../redux/slices/scrollPositionSlice';
+import ProfileTabContent from '../../../../components/ui/profile/ProfileTabContent';
 
 interface FriendProps {
   _id?: string;
@@ -29,33 +33,43 @@ interface Props {
   user: User
 }
 function ProfileFriendRequest({ user }: Props) {
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const params = useParams();
   const isFriendReLoad = useAppSelector((state) => state.user.forceFriendListReload);
   const [search, setSearch] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string[]>();
-  const [friendRequestPage, setFriendRequestPage] = useState<number>(0);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
-  const [friendsReqList, setFriendsReqList] = useState<FriendProps[]>([]);
   const loginUserName = Cookies.get('userName');
-  const friendsReqCount = useAppSelector((state) => state.user.friendRequestCount);
+  const friendsReqCount = useAppSelector((state) => state.user.user.newFriendRequestCount);
   const friendRequestContainerElementRef = useRef<any>(null);
-  const [yPositionOfLastFriendElement, setYPositionOfLastFriendElement] = useState<number>(0);
   const [loadingFriendRequests, setLoadingFriendRequests] = useState<boolean>(false);
   const [additionalFriendRequest, setAdditionalFriendRequest] = useState<boolean>(false);
+  const location = useLocation();
+  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  const [friendsReqList, setFriendsReqList] = useState<FriendProps[]>(
+    scrollPosition.pathname === location.pathname
+      ? scrollPosition?.data : [],
+  );
+  const [friendRequestPage, setFriendRequestPage] = useState<number>(
+    scrollPosition.pathname === location.pathname
+      ? scrollPosition?.page : 0,
+  );
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
     { value: 'request', label: 'Friend requests', badge: friendsReqCount },
   ];
-
   const initalFriendRequest = () => {
     userProfileFriendsRequest(0)
       .then((res) => {
         setFriendsReqList(res.data);
       });
   };
+
+  useEffect(() => {
+    socket?.emit('clearNewFriendRequestCount', {});
+    dispatch(resetNewFriendRequestCountCount());
+  }, [dispatch]);
 
   useEffect(() => {
     if (isFriendReLoad) {
@@ -82,18 +96,43 @@ function ProfileFriendRequest({ user }: Props) {
           setNoMoreData(true);
         }
         setLoadingFriendRequests(false);
+        if (scrollPosition.pathname === location.pathname
+          && friendsReqList.length >= scrollPosition.data.length + 10) {
+          const positionData = {
+            pathname: '',
+            position: 0,
+            data: [],
+            positionElementId: '',
+            page: 0,
+            searchValue: '',
+          };
+          dispatch(setScrollPosition(positionData));
+        }
       })
       .catch((error) => setErrorMessage(error.response.data.message))
       .finally(
         () => { setAdditionalFriendRequest(false); setLoadingFriendRequests(false); },
       );
-  }, [friendRequestPage]);
+  }, [friendRequestPage, dispatch, friendsReqList.length,
+    location.pathname, scrollPosition,
+  ]);
   useEffect(() => {
     if (additionalFriendRequest && !loadingFriendRequests) {
-      setLoadingFriendRequests(true);
-      fetchMoreFriendReqList();
+      if (scrollPosition === null
+        || scrollPosition?.position === 0
+        || friendsReqList.length >= scrollPosition?.data?.length
+        || friendsReqList.length === 0
+        || scrollPosition.pathname !== location.pathname
+      ) {
+        setTimeout(() => {
+          setLoadingFriendRequests(true);
+          fetchMoreFriendReqList();
+        }, 0);
+      }
     }
-  }, [additionalFriendRequest, loadingFriendRequests, fetchMoreFriendReqList]);
+  }, [additionalFriendRequest, loadingFriendRequests, fetchMoreFriendReqList,
+    friendsReqList.length, location.pathname, scrollPosition,
+  ]);
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -106,80 +145,70 @@ function ProfileFriendRequest({ user }: Props) {
   const handleAcceptRequest = (userId: string) => {
     acceptFriendsRequest(userId)
       .then(() => {
-        userProfileFriendsRequest(0)
-          .then((res) => {
-            setFriendsReqList(res.data);
-            dispatch(forceReloadSuggestedFriends());
-          });
+        const acceptRequest = friendsReqList.filter((req: any) => req._id !== userId);
+        setFriendsReqList(acceptRequest);
+        dispatch(forceReloadSuggestedFriends());
       });
   };
   const handleRejectRequest = (userId: string) => {
     rejectFriendsRequest(userId)
       .then(() => {
-        userProfileFriendsRequest(0)
-          .then((res) => {
-            setFriendsReqList(res.data);
-            dispatch(forceReloadSuggestedFriends());
-          });
+        const removeRequest = friendsReqList.filter((req: any) => req._id !== userId);
+        setFriendsReqList(removeRequest);
+        dispatch(forceReloadSuggestedFriends());
       });
   };
-  const getYPosition = () => {
-    const yPosition = friendRequestContainerElementRef.current?.lastElementChild?.offsetTop;
-    setYPositionOfLastFriendElement(yPosition);
+  const persistScrollPosition = (id: string) => {
+    const positionData = {
+      pathname: location.pathname,
+      position: window.pageYOffset === 0 ? 1 : window.pageYOffset,
+      data: friendsReqList,
+      positionElementId: id,
+      page: friendRequestPage,
+      searchValue: search,
+    };
+    dispatch(setScrollPosition(positionData));
   };
-  useEffect(() => {
-    if (loginUserName === user.userName) {
-      navigate(`/${params.userName}/friends/request`);
-    } else {
-      navigate(`/${params.userName}/friends`);
-    }
-    getYPosition();
-  }, [loginUserName, navigate, params.userName, user.userName]);
-
-  useEffect(() => {
-    if (yPositionOfLastFriendElement) {
-      const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastFriendElement;
-      if (bottomLine && noMoreData && friendRequestPage > 0) {
-        fetchMoreFriendReqList();
-      }
-    }
-  }, [yPositionOfLastFriendElement, fetchMoreFriendReqList, friendRequestPage, noMoreData]);
   return (
     <div>
       <ProfileHeader tabKey="friends" user={user} />
-      <div className="mt-3">
-        <Row className="justify-content-between">
-          <Col md={4}>
-            <CustomSearchInput label="Search friends..." setSearch={setSearch} search={search} />
-          </Col>
-        </Row>
-        <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
-          {loginUserName === user.userName
-            && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="request" />}
-          <InfiniteScroll
-            pageStart={0}
-            initialLoad
-            loadMore={() => setAdditionalFriendRequest(true)}
-            hasMore={!noMoreData}
-          >
-            <Row className="mt-4" ref={friendRequestContainerElementRef}>
-              {friendsReqList.map((friend: FriendProps) => (
-                <Col md={4} lg={6} xl={4} key={friend._id}>
-                  <FriendsProfileCard
-                    friend={friend}
-                    friendsType="requested"
-                    onAcceptClick={handleAcceptRequest}
-                    onRejectClick={handleRejectRequest}
-                  />
-                </Col>
-              ))}
-            </Row>
-          </InfiniteScroll>
-          {loadingFriendRequests && <LoadingIndicator />}
-          {noMoreData && renderNoMoreDataMessage()}
-          <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+      <ProfileTabContent>
+        <div className="mt-3">
+          <Row className="justify-content-between">
+            <Col md={4}>
+              <CustomSearchInput label="Search friends..." setSearch={setSearch} search={search} />
+            </Col>
+          </Row>
+          <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
+            {loginUserName === user.userName
+              && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="request" />}
+            <InfiniteScroll
+              threshold={3000}
+              pageStart={0}
+              initialLoad
+              loadMore={() => setAdditionalFriendRequest(true)}
+              hasMore={!noMoreData}
+            >
+              <Row className="mt-4" ref={friendRequestContainerElementRef}>
+                {friendsReqList.map((friend: FriendProps) => (
+                  <Col md={4} lg={6} xl={4} key={friend._id}>
+                    <FriendsProfileCard
+                      friend={friend}
+                      friendsType="requested"
+                      onAcceptClick={handleAcceptRequest}
+                      onRejectClick={handleRejectRequest}
+                      onSelect={persistScrollPosition}
+                    />
+                  </Col>
+                ))}
+              </Row>
+            </InfiniteScroll>
+            {loadingFriendRequests && <LoadingIndicator />}
+            {noMoreData && renderNoMoreDataMessage()}
+            <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+          </div>
         </div>
-      </div>
+      </ProfileTabContent>
     </div>
   );
 }

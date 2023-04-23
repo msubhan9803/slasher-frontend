@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   Button,
   Col,
-  Form,
   InputGroup,
   Row,
 } from 'react-bootstrap';
@@ -11,6 +10,7 @@ import CustomSlider from '../../../components/ui/CustomSlider';
 import SliderThumbComponent from '../../../components/ui/SliderThumbComponent';
 import RangeSliderThumbComponent from '../../../components/ui/RangeSliderThumbComponent';
 import Switch from '../../../components/ui/Switch';
+import SortData from '../../../components/filter-sort/SortData';
 
 const CustomButton = styled(Button)`
   &.active{
@@ -19,12 +19,15 @@ const CustomButton = styled(Button)`
   }
 `;
 const genderList = ['Men', 'Women', 'Both'];
-
 function DatingAdditionalPreferences() {
   const [selectedGender, setSelectedGender] = useState('Women');
   const [distType, setDistType] = useState('mi');
   const [distance, setDistance] = useState(50);
   const [age, setAge] = useState([20, 26]);
+  const distanceOptions = [
+    { value: 'ml', label: distance === 1 ? 'Mile' : 'Miles' },
+    { value: 'km', label: distance === 1 ? 'kilometer' : 'Kilometers' },
+  ];
   return (
     <>
       <h1 className="h2 mb-5 d-none d-md-block">Dating Preferences</h1>
@@ -56,15 +59,12 @@ function DatingAdditionalPreferences() {
               <InputGroup.Text className="bg-transparent fw-bold border-0 pe-3 text-primary">
                 {distance}
               </InputGroup.Text>
-              <Form.Select
-                aria-label="Distance unit"
-                className="no-shadow rounded-3"
-                value={distType}
-                onChange={(e) => setDistType((e.target as HTMLSelectElement).value)}
-              >
-                <option value="mi">{distance === 1 ? 'Mile' : 'Miles'}</option>
-                <option value="km">{distance === 1 ? 'Kilometer' : 'Kilometers'}</option>
-              </Form.Select>
+              <SortData
+                sortVal={distType}
+                onSelectSort={setDistType}
+                sortoptions={distanceOptions}
+                type="form"
+              />
             </InputGroup>
           </Col>
         </Row>

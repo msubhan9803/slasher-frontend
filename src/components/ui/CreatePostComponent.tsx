@@ -9,7 +9,7 @@ import {
   Row, Col, Button, Form, Image,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { DateTime } from 'luxon';
 import { getSuggestUserName } from '../../api/users';
 import ErrorMessageList from './ErrorMessageList';
@@ -58,13 +58,16 @@ interface Props {
   setGoreFactor?: (value: number) => void;
   selectedPostType?: string;
   setSelectedPostType?: (value: string) => void;
-  setWorthIt?: (val: boolean) => void;
+  setWorthIt?: (val: number) => void;
   liked?: boolean;
   setLike?: (val: boolean) => void;
   disLiked?: boolean;
   setDisLike?: (val: boolean) => void;
   isWorthIt?: number;
   placeHolder?: string;
+  showSaveButton?: boolean;
+  reviewForm?: boolean;
+  setReviewForm?: (value: boolean) => void;
 }
 
 const AddPhotosButton = styled(RoundButton)`
@@ -84,13 +87,17 @@ function CreatePostComponent({
   deleteImageIds, setDeleteImageIds, postType, titleContent, setTitleContent,
   containSpoiler, setContainSpoiler, rating, setRating, goreFactor, setGoreFactor,
   selectedPostType, setSelectedPostType, setWorthIt, liked, setLike,
-  disLiked, setDisLike, isWorthIt, placeHolder,
+  disLiked, setDisLike, isWorthIt, placeHolder, showSaveButton,
+  reviewForm, setReviewForm,
 }: Props) {
   const inputFile = useRef<HTMLInputElement>(null);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [uploadPost, setUploadPost] = useState<string[]>([]);
   const [searchParams] = useSearchParams();
   const paramsType = searchParams.get('type');
+  const params = useParams();
+  const location = useLocation();
+  const movieReviewRef = useRef<HTMLDivElement>(null);
   const movieId = searchParams.get('movieId');
   const [aboutMovieDetail, setAboutMovieDetail] = useState<AdditionalMovieData>();
 
@@ -136,8 +143,34 @@ function CreatePostComponent({
     }
   };
 
+  let actionText;
+  if (postType === 'review') {
+    actionText = 'Submit';
+  } else if (showSaveButton) {
+    actionText = 'Save';
+  } else {
+    actionText = 'Post';
+  }
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (reviewForm || params['*'] === 'reviews' || (location.state && location.state.movieId && location.state.movieId.length)) {
+        document.documentElement.style.scrollBehavior = 'auto';
+        movieReviewRef?.current?.scrollIntoView({
+          behavior: 'instant' as any,
+          block: 'start',
+        });
+        setReviewForm!(false);
+      }
+    }, 500);
+    setTimeout(() => {
+      document.documentElement.style.scrollBehavior = 'smooth';
+    }, 600);
+  }, [reviewForm, params, location, setReviewForm]);
+
   return (
-    <div className={postType === 'review' ? 'bg-dark mb-3 px-4 py-4 rounded-2' : ''}>
+
+    <div ref={movieReviewRef} className={postType === 'review' ? 'bg-dark mb-3 px-4 py-4 rounded-2' : ''}>
       {aboutMovieDetail
         && (
           <Row className="m-0">
@@ -166,19 +199,19 @@ function CreatePostComponent({
                 rating={rating}
                 setRating={setRating}
                 label="Your rating"
-                size="1x"
+                size="lg"
               />
             </div>
-            <div className="mx-md-3 mx-lg-0 mx-xl-3 my-3 my-md-0 my-lg-3 my-xl-0">
+            <div className="mx-md-4 mx-lg-0 mx-xl-4 my-3 my-md-0 my-lg-3 my-xl-0">
               <RatingButtonGroups
                 rating={goreFactor}
                 setRating={setGoreFactor}
-                label="Your gore factor rating"
-                size="1x"
+                label="Gore factor"
+                size="lg"
                 isGoreFator
               />
             </div>
-            <div>
+            <div className="">
               <Form.Label className="fw-bold h3">Worth watching?</Form.Label>
               <div className="d-flex align-items-center">
                 <WorthWatchIcon
@@ -189,11 +222,17 @@ function CreatePostComponent({
                   disLiked={disLiked!}
                   setDisLike={setDisLike!}
                   postType={postType}
+                  circleWidth="2.534rem"
+                  circleHeight="2.534rem"
+                  iconWidth="1.352rem"
+                  iconHeight="1.352rem"
+                  isWorthIt={isWorthIt}
+                  clickType="form"
                 />
                 {isWorthIt !== WorthWatchingStatus.NoRating
                   && (
                     <CustomWortItText
-                      divClass="align-items-center px-3 bg-black rounded-pill"
+                      divClass="mt-2 align-items-center px-3 bg-black rounded-pill py-2"
                       textClass="fs-4"
                       customCircleWidth="20px"
                       customCircleHeight="20px"
@@ -307,7 +346,7 @@ function CreatePostComponent({
                   image={post}
                   alt="" // TODO: set any existing alt text here (when editing existing image)
                   // eslint-disable-next-line no-console
-                  onAltTextChange={(newValue) => { console.log(`TODO: Use this to set alt text.  New value is: ${newValue}`); }}
+                  // onAltTextChange={(newValue) => { console.log(`New value is: ${newValue}`); }}
                   handleRemoveImage={handleRemoveFile}
                   containerClass="mt-4 position-relative d-flex justify-content-center align-items-center rounded border-0"
                   removeIconStyle={{
@@ -332,7 +371,7 @@ function CreatePostComponent({
           )}
         <Col md="auto" className={postType === 'review' ? '' : 'order-2 ms-auto'}>
           <RoundButton className="px-4 mt-4 w-100" size="md" onClick={createUpdatePost}>
-            <span className="h3">{postType === 'review' ? 'Submit' : 'Post'}</span>
+            <span className="h3">{actionText}</span>
           </RoundButton>
         </Col>
       </Row>
@@ -366,5 +405,8 @@ CreatePostComponent.defaultProps = {
   setDisLike: () => { },
   isWorthIt: 0,
   placeHolder: 'Write a something...',
+  showSaveButton: false,
+  reviewForm: false,
+  setReviewForm: undefined,
 };
 export default CreatePostComponent;

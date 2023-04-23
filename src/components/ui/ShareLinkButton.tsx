@@ -8,9 +8,10 @@ import { CustomDropDown } from './UserMessageList/UserMessageListItem';
 interface Props {
   text?: boolean;
   textClass?: string;
+  copyLinkUrl?: string;
 }
 
-function ShareLinkButton({ text, textClass }: Props) {
+function ShareLinkButton({ text, textClass, copyLinkUrl }: Props) {
   const [showShareLinks, setShowShareLinks] = useState(false);
   const handleShowShareLinks = () => setShowShareLinks(true);
   return (
@@ -24,7 +25,14 @@ function ShareLinkButton({ text, textClass }: Props) {
           <Dropdown.Item eventKey="Share as a post" className="text-light">Unavailable in Beta.</Dropdown.Item>
         </Dropdown.Menu>
       </CustomDropDown>
-      {showShareLinks && <ShareLinksModal show={showShareLinks} setShow={setShowShareLinks} />}
+      {showShareLinks
+        && (
+        <ShareLinksModal
+          copyLinkUrl={copyLinkUrl}
+          show={showShareLinks}
+          setShow={setShowShareLinks}
+        />
+        )}
     </>
   );
 }
@@ -32,6 +40,7 @@ function ShareLinkButton({ text, textClass }: Props) {
 ShareLinkButton.defaultProps = {
   text: false,
   textClass: '',
+  copyLinkUrl: '',
 };
 
 export default ShareLinkButton;

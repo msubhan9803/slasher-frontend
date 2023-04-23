@@ -91,6 +91,7 @@ function RegistrationTerms({ activeStep }: Props) {
             type="checkbox"
             checked={isAgreedToTerms}
             onChange={handleCheckbox}
+            onKeyDown={(e) => { if (e.key === 'Enter') { handleCheckbox(); } }}
             className="me-2"
           />
           I agree to these terms

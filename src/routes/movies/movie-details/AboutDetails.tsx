@@ -18,6 +18,7 @@ import ShareLinksModal from '../../../components/ui/ShareLinksModal';
 import CustomRatingText from '../../../components/ui/CustomRatingText';
 import { createOrUpdateWorthWatching, deleteWorthWatching } from '../../../api/movies';
 import { updateMovieUserData } from '../components/updateMovieDataUtils';
+import { urlForMovie } from '../../../utils/url-utils';
 
 const StyleWatchWorthIcon = styled(FontAwesomeIcon)`
   width: 0.995rem;
@@ -27,6 +28,7 @@ interface AboutMovieData {
   aboutMovieDetail: AdditionalMovieData
   movieData: MovieData;
   setMovieData: React.Dispatch<React.SetStateAction<MovieData | undefined>>
+  setReviewForm?: (value: boolean) => void;
 }
 const StyledVerticalBorder = styled.div`
   border-right: 1px solid #3A3B46;
@@ -60,7 +62,7 @@ const AboutMovieDetails = styled.div`
       height: 1.125rem;
     }
     p {
-      font-size: 1rem;
+      font-size: var(--fs-4);
     }
   }
   .share-btn {
@@ -71,7 +73,7 @@ const AboutMovieDetails = styled.div`
       height: 1.125rem;
     }
     p {
-      font-size: 1rem;
+      font-size: var(--fs-4);
     }
   }
 
@@ -80,7 +82,9 @@ const StyledInitial = styled.p`
   padding: 0.34rem 0.68rem;
 `;
 
-function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieData) {
+function AboutDetails({
+  aboutMovieDetail, movieData, setMovieData, setReviewForm,
+}: AboutMovieData) {
   const [showRating, setShowRating] = useState(false);
   const [showGoreRating, setShowGoreRating] = useState(false);
   const [showShareLinks, setShowShareLinks] = useState(false);
@@ -112,7 +116,10 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
   }, [worthIt, params, setMovieData]);
 
   const handleReviwRedirect = () => {
-    navigate(`/app/movies/${params.id}/reviews`, { state: { movieId: params.id } });
+    setReviewForm!(true);
+    if (params['*'] !== 'reviews') {
+      navigate(`/app/movies/${params.id}/reviews`, { state: { movieId: params.id } });
+    }
   };
   const toHoursAndMinutes = (totalMinutes: number) => {
     const hours = Math.floor(totalMinutes / 60);
@@ -226,26 +233,26 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
               <p className="fw-bold text-center">Worth watching?</p>
               <div className="d-flex justify-content-center" style={{ height: 30 }}>
                 {movieData.worthWatching === WorthWatchingStatus.Up
-                && (
-                  <>
-                    <StyledLikeIcon className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
-                      <StyleWatchWorthIcon icon={regular('thumbs-up')} />
-                    </StyledLikeIcon>
-                    <p className="fw-bold m-0 align-self-center" style={{ color: 'var(--bs-success)' }}>Worth it!</p>
-                  </>
-                )}
+                  && (
+                    <>
+                      <StyledLikeIcon className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
+                        <StyleWatchWorthIcon icon={regular('thumbs-up')} />
+                      </StyledLikeIcon>
+                      <p className="fw-bold m-0 align-self-center" style={{ color: 'var(--bs-success)' }}>Worth it!</p>
+                    </>
+                  )}
                 {movieData.worthWatching === WorthWatchingStatus.Down
-                && (
-                  <>
-                    <StyledDislikeIcon role="button" className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
-                      <StyleWatchWorthIcon icon={regular('thumbs-down')} />
-                    </StyledDislikeIcon>
-                    <p className="fs-3 fw-bold m-0 align-self-center" style={{ color: '#FF1800' }}>Not worth it!</p>
-                  </>
-                )}
+                  && (
+                    <>
+                      <StyledDislikeIcon role="button" className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
+                        <StyleWatchWorthIcon icon={regular('thumbs-down')} />
+                      </StyledDislikeIcon>
+                      <p className="fs-3 fw-bold m-0 align-self-center" style={{ color: '#FF1800' }}>Not worth it!</p>
+                    </>
+                  )}
 
                 {movieData.worthWatching === WorthWatchingStatus.NoRating
-                && <div className="fw-bold m-0 align-self-center text-light text-center">Not yet rated</div>}
+                  && <div className="fw-bold m-0 align-self-center text-light text-center">Not yet rated</div>}
               </div>
 
               {/* Worth Watch Icons */}
@@ -297,9 +304,20 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
       </div>
       {showRating && <MoviesModal rateType="rating" show={showRating} setShow={setShowRating} movieData={movieData} setMovieData={setMovieData} ButtonType="rating" hasRating={hasRating} />}
       {showGoreRating && <MoviesModal rateType="goreFactorRating" show={showGoreRating} setShow={setShowGoreRating} movieData={movieData} setMovieData={setMovieData} ButtonType="goreFactorRating" hasGoreFactor={hasGoreFactor} />}
-      {showShareLinks && <ShareLinksModal show={showShareLinks} setShow={setShowShareLinks} />}
+      {showShareLinks
+        && (
+          <ShareLinksModal
+            copyLinkUrl={urlForMovie(params?.id!)}
+            show={showShareLinks}
+            setShow={setShowShareLinks}
+          />
+        )}
     </AboutMovieDetails>
   );
 }
+
+AboutDetails.defaultProps = {
+  setReviewForm: false,
+};
 
 export default AboutDetails;

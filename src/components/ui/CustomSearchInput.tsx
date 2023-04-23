@@ -10,6 +10,7 @@ interface SearchProps {
   label: string;
 }
 const StyledSearchInput = styled(InputGroup)`
+  z-index:0;
   .input-group-text {
     background-color: var(--bs-dark);
     border-color: #3a3b46;
@@ -19,7 +20,7 @@ const StyledSearchInput = styled(InputGroup)`
     color: var(--bs-primary);
     min-width: 1.875rem;
     right: 12px;
-    z-index: 999;
+    z-index: 9;
   }
 `;
 

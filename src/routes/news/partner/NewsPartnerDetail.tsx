@@ -17,6 +17,7 @@ import { useAppSelector } from '../../../redux/hooks';
 import { RssFeedProviderFollowNotificationsEnabled } from '../../../types';
 import NewsPostData from '../components/NewsPostData';
 import NewsRightSideNav from '../components/NewsRightSideNav';
+import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 
 const helmetData = new HelmetData({});
 const CustomButton = styled(RoundButton)`
@@ -107,42 +108,49 @@ function NewsPartnerDetail() {
         <link rel="canonical" href={rssFeedProviderDetail?.feed_url} />
       </Helmet>
       <ContentPageWrapper>
-        <div>
-          <div className="bg-dark rounded-3 p-4 mb-3">
-            <Row>
-              <Col md="auto">
-                <div className="d-flex justify-content-center">
-                  <UserCircleImage size="11.25rem" src={rssFeedProviderDetail?.logo} alt="news partner logo" className="rounded-4" />
+        {
+          rssFeedProviderDetail
+            ? (
+              <div>
+                <h1 className="sr-only">{rssFeedProviderDetail?.title}</h1>
+                <div className="bg-dark rounded-3 p-4 mb-3">
+                  <Row>
+                    <Col md="auto">
+                      <div className="d-flex justify-content-center">
+                        <UserCircleImage size="11.25rem" src={rssFeedProviderDetail?.logo} alt="news partner logo" className="rounded-4" />
+                      </div>
+                    </Col>
+                    <Col md={7} lg={6} xl={7} className="pt-md-4 pt-md-2 pt-0 pb-lg-4">
+                      <h2 className="text-center text-md-start mt-3 mt-lg-0 mt-xl-3">{rssFeedProviderDetail?.title}</h2>
+                      <p className="text-center text-md-start m-2 m-md-0 fs-4 text-light">
+                        {rssFeedProviderDetail?.description}
+                      </p>
+                    </Col>
+                    <Col className="d-md-none">
+                      <div className="mt-3 mb-4">
+                        <CustomButton
+                          variant={following ? 'black' : 'primary'}
+                          onClick={followUnfollowClick}
+                          className="w-100 rounded-pill shadow-none"
+                        >
+                          {following ? 'Unfollow' : 'Follow'}
+                        </CustomButton>
+                      </div>
+                      {following
+                        && (
+                          <div className="my-4 lh-lg d-flex justify-content-center">
+                            <span>Push notifications</span>
+                            <Switch id="pushNotificationSwitches" className="ms-3" onSwitchToggle={onOffNotificationClick} isChecked={notificationToggle} />
+                          </div>
+                        )}
+                    </Col>
+                  </Row>
                 </div>
-              </Col>
-              <Col md={7} lg={6} xl={7} className="pt-md-4 pt-md-2 pt-0 pb-lg-4">
-                <h2 className="text-center text-md-start mt-3 mt-lg-0 mt-xl-3">{rssFeedProviderDetail?.title}</h2>
-                <p className="text-center text-md-start m-2 m-md-0 fs-4 text-light">
-                  {rssFeedProviderDetail?.description}
-                </p>
-              </Col>
-              <Col className="d-md-none">
-                <div className="mt-3 mb-4">
-                  <CustomButton
-                    variant={following ? 'black' : 'primary'}
-                    onClick={followUnfollowClick}
-                    className="w-100 rounded-pill shadow-none"
-                  >
-                    {following ? 'Unfollow' : 'Follow'}
-                  </CustomButton>
-                </div>
-                {following
-                  && (
-                    <div className="my-4 lh-lg d-flex justify-content-center">
-                      <span>Push notifications</span>
-                      <Switch id="pushNotificationSwitches" className="ms-3" onSwitchToggle={onOffNotificationClick} isChecked={notificationToggle} />
-                    </div>
-                  )}
-              </Col>
-            </Row>
-          </div>
-          <NewsPostData partnerId={partnerId!} />
-        </div>
+                <NewsPostData partnerId={partnerId!} />
+              </div>
+            )
+            : <LoadingIndicator />
+        }
       </ContentPageWrapper>
       <RightSidebarWrapper>
         <NewsRightSideNav

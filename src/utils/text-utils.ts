@@ -1,31 +1,36 @@
 // Finds the first YouTube link in a post and returns the YouTube ID in the 6-index capture group
 const YOUTUBE_LINK_REGEX = /((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\\-]+\?v=|embed\/|v\/)?)([\w\\-]+)(\S+)?/;
 
-export function findFirstYouTubeLinkVideoId(content: string) {
-  return content.match(YOUTUBE_LINK_REGEX)?.[6];
+export function findFirstYouTubeLinkVideoId(message: string) {
+  return message?.match(YOUTUBE_LINK_REGEX)?.[6];
 }
 
-export function escapeHtmlSpecialCharacters(content: string) {
-  return content.replaceAll('&', '&amp;')
+export function escapeHtmlSpecialCharacters(str: string) {
+  return str.replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
 }
 
-export function newLineToBr(content: string) {
-  return content.replaceAll('\n', '<br />');
+/**
+ * For the given string, replaces all new line characters with '<br />'.
+ * @param htmlString
+ * @returns
+ */
+export function newLineToBr(str: string) {
+  return str.replaceAll('\n', '<br />');
 }
 
 /**
  * For the given html, removes all script tags and also removes all
  * html attribures other than <img> "src" and <a> "href".
- * @param content
+ * @param htmlString
  * @returns
  */
-export function cleanExternalHtmlContent(content: string) {
+export function cleanExternalHtmlContent(htmlString: string) {
   const containerElement = document.createElement('div');
-  containerElement.innerHTML = content;
+  containerElement.innerHTML = htmlString;
 
   // Remove all script tags
   // eslint-disable-next-line no-restricted-syntax
@@ -67,8 +72,8 @@ export function cleanExternalHtmlContent(content: string) {
   return containerElement.innerHTML;
 }
 
-export function decryptMessage(content: any) {
-  const found = content ? content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '') : '';
+export function decryptMessage(message: any) {
+  const found = message ? message.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '') : '';
   return found;
 }
 

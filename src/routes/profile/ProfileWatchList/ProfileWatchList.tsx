@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -16,7 +16,8 @@ import RoundButton from '../../../components/ui/RoundButton';
 import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import { MoviesProps } from '../../movies/components/MovieProps';
-import { RouteURL, UIRouteURL } from '../../movies/RouteURL';
+import { UIRouteURL } from '../../movies/RouteURL';
+import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
 
 interface Props {
   user: User
@@ -46,24 +47,35 @@ function ProfileWatchList({ user }: Props) {
       ? (scrollPosition?.data[scrollPosition?.data.length - 1]?._id)
       : '',
   );
+  const prevSearchRef = useRef(search);
+  const prevKeyRef = useRef(key);
+  const prevSortValRef = useRef(sortVal);
+  const isLoadingRef = useRef(true);
+
   useEffect(() => {
     setSearch(searchParams.get('q') || '');
     setKey(searchParams.get('startsWith')?.toLowerCase() || '');
     setSortVal(searchParams.get('sort') || 'name');
   }, [searchParams]);
   useEffect(() => {
-    RouteURL(search, key, sortVal, navigate, searchParams);
-  }, [search, key, sortVal, navigate, searchParams]);
-  useEffect(() => {
     UIRouteURL(search, key, sortVal, navigate, callNavigate);
     setCallNavigate(false);
   }, [search, key, sortVal, navigate, callNavigate]);
   useEffect(() => {
-    if (search || key || sortVal) {
+    if (
+      callNavigate
+      || search !== prevSearchRef.current
+      || key !== prevKeyRef.current
+      || sortVal !== prevSortValRef.current
+    ) {
+      setFilteredMovies([]);
       setLastMovieId('');
       setRequestAdditionalMovies(true);
     }
-  }, [search, sortVal, key]);
+    prevSearchRef.current = search;
+    prevKeyRef.current = key;
+    prevSortValRef.current = sortVal;
+  }, [callNavigate, search, key, sortVal]);
 
   useEffect(() => {
     if (requestAdditionalMovies && !loadingMovies && user._id) {
@@ -111,7 +123,8 @@ function ProfileWatchList({ user }: Props) {
               setErrorMessage(error.response.data.message);
             },
           ).finally(
-            () => { setRequestAdditionalMovies(false); setLoadingMovies(false); },
+            // eslint-disable-next-line max-len
+            () => { setRequestAdditionalMovies(false); setLoadingMovies(false); isLoadingRef.current = false; },
           );
       }
     }
@@ -125,7 +138,7 @@ function ProfileWatchList({ user }: Props) {
     if (sortValue) { setSortVal(sortValue); }
   };
   const renderNoMoreDataMessage = () => (
-    <p className="text-center">
+    <p className="text-center m-0 py-3">
       {
         filteredMovies.length === 0
           ? 'No Movies available'
@@ -164,7 +177,7 @@ function ProfileWatchList({ user }: Props) {
   return (
     <div>
       <ProfileHeader tabKey="watched-list" user={user} />
-      <div>
+      <ProfileTabContent>
         <MoviesHeader
           tabKey="watched-list"
           showKeys={showKeys}
@@ -192,7 +205,7 @@ function ProfileWatchList({ user }: Props) {
               </RoundButton>
             </div>
           )}
-        <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
+        <div className="bg-dark bg-mobile-transparent rounded-3 py-3">
           <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
           <div className="m-md-2">
             <InfiniteScroll
@@ -209,10 +222,10 @@ function ProfileWatchList({ user }: Props) {
               />
             </InfiniteScroll>
             {loadingMovies && <LoadingIndicator />}
-            {noMoreData && renderNoMoreDataMessage()}
+            {(isLoadingRef.current || noMoreData) && renderNoMoreDataMessage()}
           </div>
         </div>
-      </div>
+      </ProfileTabContent>
     </div>
   );
 }

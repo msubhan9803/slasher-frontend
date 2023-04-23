@@ -41,7 +41,6 @@ interface CommentInputProps {
   setCommentReplyErrorMessage?: (value: string[]) => void;
   setReplyImageArray?: (value: any) => void;
   isEdit?: boolean;
-  updateState?: boolean;
 }
 
 interface InputProps {
@@ -67,6 +66,9 @@ const StyledCommentInputGroup = styled(InputGroup) <InputProps>`
   }
   svg {
     min-width: 1.875rem;
+    &:focus {
+      outline: none;
+    }
   }
   .camera-btn {
     right: 0 !important;
@@ -83,7 +85,6 @@ function CommentInput({
   handleSearch, mentionList, addUpdateComment, replyImageArray, isReply,
   addUpdateReply, commentID, commentReplyID, checkCommnt, commentError, commentReplyError,
   commentSent, setCommentReplyErrorMessage, setReplyImageArray, isEdit,
-  updateState,
 }: CommentInputProps) {
   const [editMessage, setEditMessage] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
@@ -144,10 +145,10 @@ function CommentInput({
   }, [commentReplyError, message]);
 
   useEffect(() => {
-    if (!commentSent && updateState) {
+    if (!commentSent) {
       sendComment(dataId!, editMessage);
     }
-  }, [commentSent, updateState, dataId, editMessage, sendComment]);
+  }, [commentSent, dataId, editMessage, sendComment]);
 
   const onUpdatePost = (msg: string) => {
     const imageArr = isReply ? replyImageArray : imageArray;
@@ -199,7 +200,7 @@ function CommentInput({
     <Form>
       <Row className="pt-2 order-last order-sm-0">
         <Col xs="auto">
-          <UserCircleImage src={userData.user.profilePic} alt="user picture" className="bg-secondary" />
+          <UserCircleImage src={userData.user.profilePic} tabIndex={0} alt="user picture" className="bg-secondary d-flex" />
         </Col>
         <Col className="ps-0">
           <div className="d-flex align-items-end mb-4">
@@ -209,6 +210,7 @@ function CommentInput({
                 id={checkCommnt}
                 className="fs-5 form-control p-0 pe-4"
                 placeholder={isReply ? 'Reply to comment' : 'Write a comment'}
+                isReply={isReply}
                 handleSearch={handleSearch}
                 mentionLists={mentionList}
                 setMessageContent={setEditMessage}
@@ -231,6 +233,14 @@ function CommentInput({
                   size="lg"
                   className="camera-btn position-absolute align-self-end me-3 mb-1"
                   style={{ right: 0 }}
+                  tabIndex={0}
+                  onKeyDown={(e: any) => {
+                    if (e.key === 'Enter') {
+                      inputFile.current?.click();
+                      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+                      setIsReply!(false);
+                    }
+                  }}
                 />
                 <input
                   type="file"
@@ -266,7 +276,7 @@ function CommentInput({
               dataId={dataId}
               alt="" // TODO: set any existing alt text here (when editing existing image)
               // eslint-disable-next-line no-console
-              onAltTextChange={(newValue) => { console.log(`TODO: Use this to set alt text.  New value is: ${newValue}`); }}
+              // onAltTextChange={(newValue) => { console.log(`New value is: ${newValue}`); }}
               handleRemoveImage={handleRemoveFile}
               containerClass="mt-2 mb-3 position-relative d-flex justify-content-center align-items-center rounded border-0"
               removeIconStyle={{
@@ -305,7 +315,6 @@ CommentInput.defaultProps = {
   setCommentReplyErrorMessage: undefined,
   setReplyImageArray: undefined,
   isEdit: undefined,
-  updateState: false,
 };
 
 export default CommentInput;

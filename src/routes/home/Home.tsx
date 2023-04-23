@@ -19,7 +19,6 @@ import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import FormatImageVideoList from '../../utils/vido-utils';
 import { useAppSelector, useAppDispatch } from '../../redux/hooks';
 import { setScrollPosition } from '../../redux/slices/scrollPositionSlice';
 import EditPostModal from '../../components/ui/post/EditPostModal';
@@ -45,11 +44,11 @@ function Home() {
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const location = useLocation();
+  const reloadData = useAppSelector((state) => state.user.homeDataReload);
   const [posts, setPosts] = useState<Post[]>(
-    scrollPosition.pathname === location.pathname
+    scrollPosition.pathname === location.pathname && !reloadData
       ? scrollPosition?.data : [],
   );
-  const reloadData = useAppSelector((state) => state.user.homeDataReload);
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (value === 'Hide') {
       const postIdToHide = popoverClickProps.id;
@@ -61,8 +60,8 @@ function Home() {
       return;
     }
 
-    if (popoverClickProps.content) {
-      setPostContent(popoverClickProps.content);
+    if (popoverClickProps.message) {
+      setPostContent(popoverClickProps.message);
     }
     if (popoverClickProps.postImages) {
       setDeleteImageIds([]);
@@ -98,8 +97,8 @@ function Home() {
                 _id: data._id,
                 id: data._id,
                 postDate: data.createdAt,
-                content: data.message,
-                images: FormatImageVideoList(data.images, data.message),
+                message: data.message,
+                images: data.images,
                 userName: data.userId.userName,
                 profileImage: data.userId.profilePic,
                 userId: data.userId._id,
@@ -113,8 +112,8 @@ function Home() {
               _id: data._id,
               id: data._id,
               postDate: data.createdAt,
-              content: data.message,
-              images: FormatImageVideoList(data.images, data.message),
+              message: data.message,
+              images: data.images,
               userName: data.rssfeedProviderId?.title,
               profileImage: data.rssfeedProviderId?.logo,
               likeIcon: data.likedByUser,
@@ -183,8 +182,8 @@ function Home() {
             _id: data._id,
             id: data._id,
             postDate: data.createdAt,
-            content: data.message,
-            images: FormatImageVideoList(data.images, data.message),
+            message: data.message,
+            images: data.images,
             userName: data.userId.userName,
             profileImage: data.userId.profilePic,
             userId: data.userId._id,
@@ -198,8 +197,8 @@ function Home() {
           _id: data._id,
           id: data._id,
           postDate: data.createdAt,
-          content: data.message,
-          images: FormatImageVideoList(data.images, data.message),
+          message: data.message,
+          images: data.images,
           userName: data.rssfeedProviderId?.title,
           profileImage: data.rssfeedProviderId?.logo,
           likeIcon: data.likedByUser,
@@ -218,7 +217,7 @@ function Home() {
       const updatePost = posts.map((post: any) => {
         if (post._id === postId) {
           return {
-            ...post, content: res.data.message, images: res.data.images,
+            ...post, message: res.data.message, images: res.data.images,
           };
         }
         return post;
@@ -302,10 +301,11 @@ function Home() {
     };
     reportData(reportPayload).then((res) => {
       if (res.status === 200) { callLatestFeedPost(); }
-      setShow(false);
     })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
+    // Ask to block user as well
+    setDropDownValue('PostReportSuccessDialog');
   };
 
   const persistScrollPosition = (id: string) => {
@@ -357,10 +357,9 @@ function Home() {
         {loadingPosts && <LoadingIndicator />}
         {noMoreData && renderNoMoreDataMessage()}
         {
-          dropDownValue === 'Delete'
+          (dropDownValue === 'Block user' || dropDownValue === 'Report' || dropDownValue === 'Delete' || dropDownValue === 'PostReportSuccessDialog')
           && (
             <ReportModal
-              deleteText="Are you sure you want to delete this post?"
               onConfirmClick={deletePostClick}
               show={show}
               setShow={setShow}

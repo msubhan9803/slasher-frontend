@@ -54,35 +54,23 @@ interface ChatInputProps {
   setMessage?: (value: string) => void;
   message?: string;
   handleFileChange?: (value: ChangeEvent<HTMLInputElement>) => void;
+  rows: number;
+  setRows: (value: number) => void;
+  calculateRows: () => void;
+  textareaRef: any;
 }
 
 function ChatInput({
-  sendMessageClick, setMessage, message, handleFileChange,
+  sendMessageClick, setMessage, message, handleFileChange, rows,
+  setRows, calculateRows, textareaRef,
 }: ChatInputProps) {
   const [isFocusInput, setIsFocusInput] = useState<boolean>(false);
   const inputFile = useRef<HTMLInputElement>(null);
-  const textareaRef = useRef<any>(null);
-  const [rows, setRows] = useState(1);
 
   const handleSubmit = (event: any) => {
     event.preventDefault();
     sendMessageClick!();
     setRows(1);
-  };
-  const calculateRows = () => {
-    const textareaLineHeight = 24;
-    const previousRows = rows;
-    textareaRef.current.rows = 1;
-    const currentRows = Math.floor(textareaRef.current.scrollHeight / textareaLineHeight);
-    if (currentRows === previousRows) {
-      textareaRef.current.rows = currentRows;
-    } else if (currentRows > 3) {
-      textareaRef.current.rows = 3;
-      setRows(3);
-    } else {
-      textareaRef.current.rows = currentRows;
-      setRows(currentRows);
-    }
   };
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -92,8 +80,8 @@ function ChatInput({
   };
   return (
     <Form onSubmit={handleSubmit}>
-      <div className="d-flex align-items-end mb-4 px-3 mt-3">
-        <StyledChatInputGroup focus={isFocusInput} className="me-2">
+      <div className="d-flex align-items-end">
+        <StyledChatInputGroup focus={isFocusInput} className="me-2 position-absolute">
           <InputGroup.Text className="camera-btn position-relative border-end-0">
             <div className="position-absolute align-self-end d-flex p-0">
               <FontAwesomeIcon
@@ -103,6 +91,12 @@ function ChatInput({
                 icon={solid('camera')}
                 size="lg"
                 className=""
+                tabIndex={0}
+                onKeyDown={(e: any) => {
+                  if (e.key === 'Enter') {
+                    inputFile.current?.click();
+                  }
+                }}
               />
               <input
                 type="file"

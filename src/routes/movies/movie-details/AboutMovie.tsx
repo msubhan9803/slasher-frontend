@@ -7,7 +7,7 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import {
   Navigate,
-  Route, Routes, useLocation, useNavigate, useParams, useSearchParams,
+  Route, Routes, useNavigate, useParams, useSearchParams,
 } from 'react-router-dom';
 import Switch from '../../../components/ui/Switch';
 import AboutDetails from './AboutDetails';
@@ -83,7 +83,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
   const tabs = (selfView ? tabsForSelf : tabsForViewer).filter(filterEnableDevFeatures);
   const navigate = useNavigate();
   const params = useParams();
-  const location = useLocation();
+  const [reviewForm, setReviewForm] = useState(false);
 
   useEffect(() => {
     if (params['*'] === 'edit' && !selfView) { navigate(`/app/movies/${params.id}/details`); }
@@ -91,12 +91,12 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
 
   // TODO: Can this be removed, now that the comment button no longer links to the comment input?
   useEffect(() => {
-    if (location.hash === '#comments') {
+    if (params && params['*']!.startsWith('reviews/')) {
       setReviewDetail(true);
     } else {
       setReviewDetail(false);
     }
-  }, [location]);
+  }, [params]);
 
   const [bgColor, setBgColor] = useState<boolean>(false);
   const [movieIconListData, setMovieIconListData] = useState(MovieIconList);
@@ -179,68 +179,81 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
                   ))}
                 </div>
               </div>
-              <div className="p-3 d-none d-xl-block">
-                <RoundButton variant="black" className="w-100">Add to list</RoundButton>
-              </div>
+              {enableDevFeatures
+                && (
+                  <div className="p-3 d-none d-xl-block">
+                    <RoundButton variant="black" className="w-100">Add to list</RoundButton>
+                  </div>
+                )}
             </div>
           </Col>
           <Col xl={7}>
             <AboutDetails
+              setReviewForm={setReviewForm}
               movieData={movieData}
               setMovieData={setMovieData}
               aboutMovieDetail={aboutMovieData as AdditionalMovieData}
             />
           </Col>
         </Row>
-        {enableDevFeatures
-          && (
-            <Row className="d-xl-none justify-content-center mt-3">
-              <Col xs={12} sm={7} md={5} lg={9} className="text-center">
-                <span className="fs-5">Your lists</span>
-                <div className="mt-2 d-flex justify-content-around">
-                  {movieIconListData.map((iconList: MovieIconProps) => (
-                    <CustomGroupIcons
-                      key={iconList.key}
-                      label={iconList.label}
-                      icon={iconList.icon}
-                      iconColor={iconList.iconColor}
-                      width={iconList.width}
-                      height={iconList.height}
-                      addData={iconList.addMovie}
-                      onClickIcon={() => handleMovieAddRemove(iconList.key, iconList.addMovie)}
-                    />
-                  ))}
-                </div>
+        <Row className="d-xl-none justify-content-center mt-3">
+          <Col xs={12} sm={7} md={5} lg={9} className="text-center">
+            <span className="fs-5">Your lists</span>
+            <div className="mt-2 d-flex justify-content-around">
+              {movieIconListData.map((iconList: MovieIconProps) => (
+                <CustomGroupIcons
+                  key={iconList.key}
+                  label={iconList.label}
+                  icon={iconList.icon}
+                  iconColor={iconList.iconColor}
+                  width={iconList.width}
+                  height={iconList.height}
+                  addData={iconList.addMovie}
+                  onClickIcon={() => handleMovieAddRemove(iconList.key, iconList.addMovie)}
+                />
+              ))}
+            </div>
+            {enableDevFeatures
+              && (
                 <div className="p-3 d-xl-none justify-content-center mt-xl-2">
                   <RoundButton variant="black" className="w-100">Add to list</RoundButton>
+                </div>
+              )}
+          </Col>
+        </Row>
+
+        {enableDevFeatures
+          && (
+            <Row className="d-lg-none text-center">
+              <StyledBorder />
+              <Col xs={12}>
+                <p className="text-center fw-bold  mt-3">Get updates for this movie</p>
+              </Col>
+              <Col xs={12} sm={7} md={5} className="m-auto">
+                <BorderButton
+                  customButtonCss="width: 100% !important;"
+                  buttonClass=""
+                  variant="lg"
+                  toggleBgColor={bgColor}
+                  handleClick={setBgColor}
+                  toggleButton
+                />
+              </Col>
+            </Row>
+          )}
+
+        {enableDevFeatures
+          && (
+            <Row className="align-items-center justify-content-center mt-4 d-lg-none">
+              <Col sm={6} md={5}>
+                <div className="align-items-center d-flex justify-content-evenly">
+                  <span className="mb-2">Push notifications</span>
+                  <Switch id="pushNotificationsSwitch" className="ms-4" />
                 </div>
               </Col>
             </Row>
           )}
-        <Row className="d-lg-none text-center">
-          <StyledBorder />
-          <Col xs={12}>
-            <p className="text-center fw-bold  mt-3">Get updates for this movie</p>
-          </Col>
-          <Col xs={12} sm={7} md={5} className="m-auto">
-            <BorderButton
-              customButtonCss="width: 100% !important;"
-              buttonClass=""
-              variant="lg"
-              toggleBgColor={bgColor}
-              handleClick={setBgColor}
-              toggleButton
-            />
-          </Col>
-        </Row>
-        <Row className="align-items-center justify-content-center mt-4 d-lg-none">
-          <Col sm={5}>
-            <div className="align-items-center d-flex justify-content-evenly">
-              <span className="mb-2">Push notifications</span>
-              <Switch id="pushNotificationsSwitch" className="ms-4" />
-            </div>
-          </Col>
-        </Row>
+
         <Row className="justify-content-center">
           <Col xs={12}>
             <TabLinks tabsClass="start" tabsClassSmall="start" tabLink={tabs} toLink={`/app/movies/${params.id}`} selectedTab={isReviewDetail ? 'reviews' : params['*']} params={selfView ? '?view=self' : ''} />
@@ -264,7 +277,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
             </>
           )}
         />
-        <Route path="reviews" element={<MovieReviews movieData={movieData} setMovieData={setMovieData} />} />
+        <Route path="reviews" element={<MovieReviews reviewForm={reviewForm} setReviewForm={setReviewForm} movieData={movieData} setMovieData={setMovieData} />} />
         <Route path="reviews/:postId" element={<MovieReviewDetails />} />
         <Route path="posts" element={<MoviePosts />} />
         <Route path="edit" element={<MovieEdit />} />

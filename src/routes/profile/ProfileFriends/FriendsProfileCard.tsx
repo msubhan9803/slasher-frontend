@@ -29,9 +29,9 @@ function FriendsProfileCard({
     <Container className="d-flex p-2 justify-content-between pe-2 w-100 rounded mb-3">
       <div>
         <div className="d-flex align-items-center">
-          <Link to={`/${friend.userName}`} onClick={() => onSelect(friend.id)} className="text-decoration-none">
+          <Link to={`/${friend.userName}`} onClick={() => onSelect(friend.id)} className="rounded-circle me-2 text-decoration-none">
             <div>
-              <UserCircleImage src={friend.profilePic} alt="user picture" className="me-2" />
+              <UserCircleImage src={friend.profilePic} alt="user picture" className="d-flex" />
             </div>
           </Link>
 

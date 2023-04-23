@@ -78,7 +78,7 @@ function DatingSubscription() {
 
         <Row xs={1} md={2} className="mt-5 mb-4 align-items-start gx-2 gy-3">
           <Col>
-            <CustomSelect name="height" options={FormOptions.countryOptions} label="Select Country" />
+            <CustomSelect options={FormOptions.countryOptions} label="Select Country" />
           </Col>
           <Col>
             <Form.Group className="mb-3" controlId="formBasicName">

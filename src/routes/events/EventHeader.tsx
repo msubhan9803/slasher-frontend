@@ -9,7 +9,7 @@ interface EventHeaderProps {
   tabKey: string;
 }
 const tabs = [
-  { value: 'by-location', label: 'By location' },
+  { value: 'by-location', label: 'By location', devOnly: true },
   { value: 'by-date', label: 'By date' },
   { value: 'favorites', label: 'Favorites', devOnly: true },
 ];

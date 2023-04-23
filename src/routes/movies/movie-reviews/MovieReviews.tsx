@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  useCallback, useEffect, useRef, useState,
+  useCallback, useEffect, useLayoutEffect, useState,
 } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -15,7 +15,6 @@ import {
 import {
   MovieData, Post, PostType,
 } from '../../../types';
-import FormatImageVideoList from '../../../utils/vido-utils';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
@@ -28,15 +27,18 @@ import { getMoviesById } from '../../../api/movies';
 type Props = {
   movieData: MovieData;
   setMovieData: React.Dispatch<React.SetStateAction<MovieData | undefined>>;
+  reviewForm: boolean;
+  setReviewForm: (value: boolean) => void;
 };
 
 const loginUserPopoverOptions = ['Edit Review', 'Delete Review'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
 
-function MovieReviews({ movieData, setMovieData }: Props) {
+function MovieReviews({
+  movieData, setMovieData, reviewForm, setReviewForm,
+}: Props) {
   const { id } = useParams();
   const location = useLocation();
-  const movieReviewRef = useRef<HTMLDivElement>(null);
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -67,13 +69,12 @@ function MovieReviews({ movieData, setMovieData }: Props) {
       setContainSpoiler(res.data.spoilers);
     });
   };
-  useEffect(() => {
-    if (location.state && location.state.movieId && location.state.movieId.length) {
-      movieReviewRef?.current?.scrollIntoView({ behavior: 'smooth' });
+  useLayoutEffect(() => {
+    if ((location.state && location.state.movieId && location.state.movieId.length) || reviewForm) {
       setShowReviewForm(true);
-      getUserMovieReviewData(location.state.movieId);
+      getUserMovieReviewData(id!);
     }
-  }, [location]);
+  }, [location, reviewForm, id]);
 
   const callLatestFeedPost = useCallback(() => {
     if (id) {
@@ -82,8 +83,8 @@ function MovieReviews({ movieData, setMovieData }: Props) {
           _id: data._id,
           id: data._id,
           postDate: data.createdAt,
-          content: data.message,
-          images: FormatImageVideoList(data.images, data.message),
+          message: data.message,
+          images: data.images,
           userName: data.userId.userName,
           profileImage: data.userId.profilePic,
           userId: data.userId._id,
@@ -106,7 +107,7 @@ function MovieReviews({ movieData, setMovieData }: Props) {
     if (movieData) {
       setRating(movieData.userData.rating - 1);
       setGoreFactor(movieData.userData.goreFactorRating - 1);
-      setWorthIt(movieData.worthWatching);
+      setWorthIt(movieData.userData.worthWatching);
       if (movieData.userData?.reviewPostId) {
         getUserMovieReviewData(movieData.userData?.reviewPostId);
       }
@@ -229,8 +230,8 @@ function MovieReviews({ movieData, setMovieData }: Props) {
           _id: data._id,
           id: data._id,
           postDate: data.createdAt,
-          content: data.message,
-          images: FormatImageVideoList(data.images, data.message),
+          message: data.message,
+          images: data.images,
           userName: data.userId.userName,
           profileImage: data.userId.profilePic,
           userId: data.userId._id,
@@ -350,7 +351,7 @@ function MovieReviews({ movieData, setMovieData }: Props) {
     }
   };
   return (
-    <div ref={movieReviewRef}>
+    <div>
       {
         showReviewForm
           ? (
@@ -376,6 +377,8 @@ function MovieReviews({ movieData, setMovieData }: Props) {
               setDisLike={setDisLike}
               isWorthIt={isWorthIt}
               placeHolder="Write your review here"
+              reviewForm={reviewForm}
+              setReviewForm={setReviewForm}
             />
           ) : (
             <CustomCreatePost
@@ -392,17 +395,19 @@ function MovieReviews({ movieData, setMovieData }: Props) {
         loadMore={() => { setRequestAdditionalReviewPosts(true); }}
         hasMore={!noMoreData}
       >
-        <PostFeed
-          postFeedData={reviewPostData}
-          postType="review"
-          popoverOptions={loginUserPopoverOptions}
-          isCommentSection={false}
-          onPopoverClick={handlePopoverOption}
-          otherUserPopoverOptions={otherUserPopoverOptions}
-          onLikeClick={onLikeClick}
-          onSelect={persistScrollPosition}
-          onSpoilerClick={handleSpoiler}
-        />
+        <div className="mt-3">
+          <PostFeed
+            postFeedData={reviewPostData}
+            postType="review"
+            popoverOptions={loginUserPopoverOptions}
+            isCommentSection={false}
+            onPopoverClick={handlePopoverOption}
+            otherUserPopoverOptions={otherUserPopoverOptions}
+            onLikeClick={onLikeClick}
+            onSelect={persistScrollPosition}
+            onSpoilerClick={handleSpoiler}
+          />
+        </div>
       </InfiniteScroll>
       {loadingReviewPosts && <LoadingIndicator />}
       {noMoreData && renderNoMoreDataMessage()}
@@ -410,7 +415,6 @@ function MovieReviews({ movieData, setMovieData }: Props) {
         dropDownValue === 'Delete'
         && (
           <ReportModal
-            deleteText="Are you sure you want to delete this post?"
             onConfirmClick={deletePostClick}
             show={show}
             setShow={setShow}

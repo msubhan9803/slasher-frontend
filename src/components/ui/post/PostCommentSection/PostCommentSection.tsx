@@ -81,6 +81,14 @@ function PostCommentSection({
   const [scrollId, setScrollId] = useState<string>('');
   const [selectedReplyId, setSelectedReplyId] = useState<string | null>('');
   const [updatedReply, setUpdatedReply] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (queryReplyId && queryCommentId) {
+      const showQueryIdReply = checkLoadMoreId.some((loadId) => loadId._id === queryCommentId);
+      if (!showQueryIdReply) { setCheckLoadMoreId([...checkLoadMoreId, queryCommentId]); }
+    }
+  }, [queryCommentId, queryReplyId, checkLoadMoreId]);
+
   const checkPopover = (id: string) => {
     if (id === loginUserId) {
       return popoverOption;
@@ -243,29 +251,31 @@ function PostCommentSection({
   }, [isReply, setCommentErrorMessage]);
 
   const sendComment = (commentId?: string, msg?: string) => {
-    if (!commentId) {
-      if (commentError && commentError.length) {
-        setMessage(msg!);
-      } else {
-        setMessage('');
-        setImageArray([]);
+    if (updateState) {
+      if (!commentId) {
+        if (commentError && commentError.length) {
+          setMessage(msg!);
+        } else {
+          setMessage('');
+          setImageArray([]);
+        }
       }
-    }
 
-    if (replyImageArray.length > 0 || msg) {
-      if ((commentReplyError && commentReplyError.length)) {
-        setIsReply(true);
-        setReplyMessage(msg!);
-        setReplyUserName(replyUserName);
-      } else {
-        setIsReply(false);
-        setReplyMessage('');
-        setReplyUserName('');
-        setReplyImageArray([]);
+      if (replyImageArray.length > 0 || msg) {
+        if ((commentReplyError && commentReplyError.length)) {
+          setIsReply(true);
+          setReplyMessage(msg!);
+          setReplyUserName(replyUserName);
+        } else {
+          setIsReply(false);
+          setReplyMessage('');
+          setReplyUserName('');
+          setReplyImageArray([]);
+        }
       }
-    }
 
-    setUploadPost([]);
+      setUploadPost([]);
+    }
   };
 
   const handlePopover = (value: string, popoverData: PopoverClickProps) => {
@@ -273,7 +283,7 @@ function PostCommentSection({
     setDeleteImageIds([]);
     setCommentID(popoverData.id);
     setCommentReplyID('');
-    setEditContent(popoverData.content);
+    setEditContent(popoverData.message);
 
     if (popoverData.userId) {
       setCommentReplyUserId(popoverData.userId);
@@ -293,7 +303,7 @@ function PostCommentSection({
     setDeleteImageIds([]);
     setCommentReplyID(popoverData.id);
     setCommentID('');
-    setEditContent(popoverData.content);
+    setEditContent(popoverData.message);
 
     if (popoverData.userId) {
       setCommentReplyUserId(popoverData.userId);
@@ -416,7 +426,7 @@ function PostCommentSection({
         }
         onPopoverClick={handleReplyPopover}
         feedCommentId={comment.feedCommentId}
-        content={comment.commentMsg}
+        message={comment.commentMsg}
         userName={comment.name}
         handleSeeCompleteList={handleSeeCompleteList}
         likeCount={comment.likeCount}
@@ -442,41 +452,37 @@ function PostCommentSection({
     }
   }, [queryCommentId, queryReplyId, commentData]);
 
-  const generateReplyInput = (dataId: any) => {
-    console.log('(generateReplyInput(data.id))');
-    return (
-      <div id={scrollId} ref={tabsRef}>
-        <CommentInput
-          userData={userData}
-          message={replyMessage}
-          inputFile={replyInputFile}
-          handleFileChange={handleFileChange}
-          sendComment={sendComment}
-          imageArray={replyImageArray}
-          handleRemoveFile={handleRemoveFile}
-          dataId={dataId}
-          handleSearch={handleSearch}
-          mentionList={mentionList}
-          isReply
-          replyImageArray={replyImageArray}
-          addUpdateReply={addUpdateReply}
-          commentID={selectedReplyCommentId}
-          commentReplyID={selectedReplyId!}
-          commentError={commentError}
-          commentReplyError={commentReplyError}
-          commentSent={commentSent}
-          setCommentReplyErrorMessage={setCommentReplyErrorMessage}
-          setReplyImageArray={setReplyImageArray}
-          isEdit={isEdit}
-          updateState={updateState}
-        />
-        {
-          !isEdit && commentReplyError
-          && <ErrorMessageList errorMessages={commentReplyError} divClass="mt-3 text-start" className="m-0 mb-4" />
-        }
-      </div>
-    );
-  };
+  const generateReplyInput = (dataId: any) => (
+    <div id={scrollId} ref={tabsRef}>
+      <CommentInput
+        userData={userData}
+        message={replyMessage}
+        inputFile={replyInputFile}
+        handleFileChange={handleFileChange}
+        sendComment={sendComment}
+        imageArray={replyImageArray}
+        handleRemoveFile={handleRemoveFile}
+        dataId={dataId}
+        handleSearch={handleSearch}
+        mentionList={mentionList}
+        isReply
+        replyImageArray={replyImageArray}
+        addUpdateReply={addUpdateReply}
+        commentID={selectedReplyCommentId}
+        commentReplyID={selectedReplyId!}
+        commentError={commentError}
+        commentReplyError={commentReplyError}
+        commentSent={commentSent}
+        setCommentReplyErrorMessage={setCommentReplyErrorMessage}
+        setReplyImageArray={setReplyImageArray}
+        isEdit={isEdit}
+      />
+      {
+        !isEdit && commentReplyError
+        && <ErrorMessageList errorMessages={commentReplyError} divClass="mt-3 text-start" className="m-0 mb-4" />
+      }
+    </div>
+  );
   return (
     <>
       <CommentInput
@@ -529,7 +535,7 @@ function PostCommentSection({
                   checkPopover(data.userId?._id || data.userId?.id)
                 }
                 onPopoverClick={handlePopover}
-                content={data.commentMsg}
+                message={data.commentMsg}
                 handleSeeCompleteList={handleSeeCompleteList}
                 likeCount={data.likeCount}
                 userId={data.userId?._id}
@@ -594,7 +600,7 @@ function PostCommentSection({
                       <LoadMoreCommentsWrapper>
                         <Button
                           variant="link"
-                          className="text-primary shadow-none"
+                          className="text-primary"
                           onClick={() => {
                             handleShowMoreComments(data.commentReplySection[0]?.feedCommentId);
                             setIsReply(false);

@@ -29,7 +29,7 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
       <Container fluid className="px-0">
         <Row>
           <Col xs={3}>
-            <SpecificHeightLink to="/" className="btn btn-dark btn-sidebar w-100 pt-2" onClick={onToggleCanvas}>
+            <SpecificHeightLink to={`/${loggedinUserName}`} className="btn btn-dark btn-sidebar w-100 pt-2" onClick={onToggleCanvas}>
               <UserCircleImage size="1.25em" className="mb-1" src={userProfilePic} alt="User icon" />
               Me
             </SpecificHeightLink>

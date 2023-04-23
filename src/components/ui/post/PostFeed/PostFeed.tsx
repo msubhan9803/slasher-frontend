@@ -29,6 +29,7 @@ import {
   cleanExternalHtmlContent,
   decryptMessage,
   escapeHtmlSpecialCharacters,
+  findFirstYouTubeLinkVideoId,
   newLineToBr,
 } from '../../../../utils/text-utils';
 import { MentionListProps } from '../../MessageTextarea';
@@ -41,6 +42,7 @@ import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pu
 import LoadingIndicator from '../../LoadingIndicator';
 import { customlinkifyOpts } from '../../../../utils/linkify-utils';
 import { getLocalStorage } from '../../../../utils/localstorage-utils';
+import FormatImageVideoList from '../../../../utils/video-utils';
 
 const READ_MORE_TEXT_LIMIT = 300;
 
@@ -115,6 +117,9 @@ const StyleSpoilerButton = styled(RoundButton)`
 const StyledContentContainer = styled.div<StyledProps>`
   max-width: max-content;
   cursor: ${(props) => (!props?.detailsPage ? 'pointer' : 'auto')};
+  a {
+    display: inline-block;
+  }
 `;
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
@@ -142,7 +147,7 @@ function PostFeed({
   const [modalTabName, setModalTabName] = useState<LikeShareModalTabName>('');
   const [modalResourceId, setModalResourceId] = useState('');
   const [modalLikeCount, setModalLikeCount] = useState(0);
-
+  const { pathname } = useLocation();
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
       return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
@@ -176,12 +181,13 @@ function PostFeed({
   };
 
   const onPostContentClick = (post: any) => {
+    const state = { pathname };
     if (post.rssfeedProviderId) {
-      navigate(`/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`);
+      navigate(`/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`, { state });
     } else if (postType === 'review') {
-      navigate(`/app/movies/${post.movieId}/reviews/${post.id}#comments`);
+      navigate(`/app/movies/${post.movieId}/reviews/${post.id}#comments`, { state });
     } else {
-      navigate(`/${post.userName}/posts/${post.id}`);
+      navigate(`/${post.userName}/posts/${post.id}`, { state });
     }
     onSelect!(post.id);
   };
@@ -201,9 +207,17 @@ function PostFeed({
     }
     return popoverOptions;
   };
+  const handlePostContentKeyDown = (event: React.KeyboardEvent, post: any) => {
+    if (event.key === 'Enter') {
+      const shouldCallPostContentClick = !detailPage;
+      if (shouldCallPostContentClick) {
+        onPostContentClick(post);
+      }
+    }
+  };
 
   const renderPostContent = (post: any) => {
-    let { content } = post;
+    let { message } = post;
 
     if (post.rssFeedTitle) {
       // Posts almost always have a title, but sometimes the post title also appears redundantly in
@@ -211,8 +225,8 @@ function PostFeed({
       // Having a double title display doesn't look good, so we'll remove the second title if we
       // find it.
       const firstH1TagRegex = /<h1[^>]*>(.+)<\/h1>/i;
-      const firstH1Tag = content.match(firstH1TagRegex)?.[0];
-      const firstH1TagContent = content.match(firstH1TagRegex)?.[1];
+      const firstH1Tag = message.match(firstH1TagRegex)?.[0];
+      const firstH1TagContent = message.match(firstH1TagRegex)?.[1];
 
       if (firstH1Tag && firstH1TagContent) {
         // If the normalized title is very similar to the content from the first h1 tag, then we'll
@@ -223,14 +237,14 @@ function PostFeed({
         // We may want to move this logic to the server side feed sync code later on.
         if (similarity > 0.75) {
           // Remove first h1 tag because a likely duplicate title was found.
-          content = content.replace(firstH1Tag, '');
+          message = message.replace(firstH1Tag, '');
         }
       }
     }
 
     let showReadMoreLink = false;
-    if (!detailPage && content?.length >= READ_MORE_TEXT_LIMIT) {
-      let reducedContentLength = post.content.substring(0, READ_MORE_TEXT_LIMIT).lastIndexOf(' ');
+    if (!detailPage && message?.length >= READ_MORE_TEXT_LIMIT) {
+      let reducedContentLength = post.message.substring(0, READ_MORE_TEXT_LIMIT).lastIndexOf(' ');
       if (reducedContentLength === -1) {
         // This means that no spaces were found anywhere in the post content.  Since posts can't be
         // empty, that means that someone either put in a really long link or a lot of text with
@@ -238,7 +252,7 @@ function PostFeed({
         // READ_MORE_TEXT_LIMIT.
         reducedContentLength = READ_MORE_TEXT_LIMIT;
       }
-      content = post.content.substring(0, reducedContentLength);
+      message = post.message.substring(0, reducedContentLength);
       showReadMoreLink = true;
     }
     return (
@@ -257,7 +271,7 @@ function PostFeed({
               </div>
             )}
             {post?.goreFactor !== 0 && (
-              <div className={`align-items-center bg-dark d-flex px-3 rounded-pill ${post.rating && 'ms-3'} ${post.worthWatching && 'me-3'}`}>
+              <div className={`align-items-center bg-dark d-flex py-2 px-3 rounded-pill ${post.rating && 'ms-3'} ${post.worthWatching && 'me-3'}`}>
                 <CustomRatingText
                   rating={post.goreFactor}
                   icon={solid('burst')}
@@ -300,11 +314,14 @@ function PostFeed({
                   {
                     __html: escapeHtml && !post?.spoiler
                       // eslint-disable-next-line max-len
-                      ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content)), customlinkifyOpts))
-                      : cleanExternalHtmlContent(content),
+                      ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(message)), customlinkifyOpts))
+                      : cleanExternalHtmlContent(message),
                   }
                 }
                 onClick={() => !detailPage && onPostContentClick(post)}
+                aria-label="post-content"
+                tabIndex={0}
+                onKeyDown={(e) => handlePostContentKeyDown(e, post)}
               />
               {
                 post.hashTag?.map((hashtag: string) => (
@@ -366,7 +383,16 @@ function PostFeed({
       </h1>
     </>
   );
-
+  const swiperDataForPost = (post: any) => {
+    const imageVideoList = FormatImageVideoList(post.images, post.message);
+    return imageVideoList.map((imageData: any) => ({
+      videoKey: imageData.videoKey,
+      imageUrl: imageData.image_path,
+      linkUrl: detailPage ? undefined : imageLinkUrl(post, imageData._id),
+      postId: post.id,
+      imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
+    }));
+  };
   return (
     <StyledPostFeed>
       {postData.map((post: any, i) => (
@@ -382,7 +408,7 @@ function PostFeed({
                   profileImage={post.profileImage || post.rssFeedProviderLogo}
                   popoverOptions={showPopoverOption(post)}
                   onPopoverClick={onPopoverClick}
-                  content={post.content}
+                  message={post.message}
                   userId={post.userId}
                   rssfeedProviderId={post.rssfeedProviderId}
                   onSelect={onSelect}
@@ -394,17 +420,11 @@ function PostFeed({
                 {postType === 'group-post' && renderGroupPostContent(post)}
                 {post?.rssFeedTitle && <h1 className="h2">{post.rssFeedTitle}</h1>}
                 {renderPostContent(post)}
-                {post?.images?.length > 0 && (
+                {(post?.images?.length > 0 || findFirstYouTubeLinkVideoId(post?.message)) && (
                   <CustomSwiper
                     context="post"
                     images={
-                      post.images.map((imageData: any) => ({
-                        videoKey: imageData.videoKey,
-                        imageUrl: imageData.image_path,
-                        linkUrl: detailPage ? undefined : imageLinkUrl(post, imageData._id),
-                        postId: post.id,
-                        imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
-                      }))
+                      swiperDataForPost(post)
                     }
                     initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
                     onSelect={onSelect}
@@ -509,6 +529,7 @@ function PostFeed({
             click={modalTabName} // "like"
             clickedPostId={modalResourceId}
             clickedPostLikeCount={modalLikeCount} // e.g., 23
+            onSelect={onSelect}
           />
         )
       }

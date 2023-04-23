@@ -31,7 +31,7 @@ function RatingButtonGroups({
   return (
     <Form.Group className="my-3">
       {label && <Form.Label className="fw-bold h3">{label}</Form.Label>}
-      <RatingStar className="align-items-center bg-black d-flex px-2 rounded-pill star-rating">
+      <RatingStar className="mt-2 align-items-center bg-black d-flex px-2 rounded-pill star-rating">
         {[...Array(5)].map((star, index) => (
           <Button
             variant="link"

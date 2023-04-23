@@ -22,43 +22,65 @@ import PostDetail from '../../components/ui/post/PostDetail';
 import ProfileLimitedView from './ProfileLimitedView/ProfileLimitedView';
 import RightSidebarAdOnly from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarAdOnly';
 
+interface SharedHeaderProfilePagesProps {
+  user: User;
+}
+
+function SharedHeaderProfilePages({ user }: SharedHeaderProfilePagesProps) {
+  return (
+    <Routes>
+      <Route path="/" element={(<Navigate to="about" replace />)} />
+      <Route path="/about" element={<ProfileAbout user={user} />} />
+      <Route path="/posts" element={<ProfilePosts user={user} />} />
+      <Route path="/posts/:postId" element={<PostDetail user={user} />} />
+      <Route path="/friends" element={<ProfileFriends user={user} />} />
+      <Route path="/friends/request" element={<ProfileFriendRequest user={user} />} />
+      <Route path="/photos" element={<ProfilePhotos user={user} />} />
+      <Route path="/watched-list" element={<ProfileWatchList user={user} />} />
+      <Route path="/edit" element={<ProfileEdit user={user} />} />
+    </Routes>
+  );
+}
+
 function Profile() {
-  const loginUserData = useAppSelector((state) => state.user.user);
   const { userName: userNameOrId } = useParams<string>();
-  const [user, setUser] = useState<User>();
-  const [userNotFound, setUserNotFound] = useState<boolean>(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [user, setUser] = useState<User>();
+  const [userNotFound, setUserNotFound] = useState<boolean>(false);
+
+  const loginUserData = useAppSelector((state) => state.user.user);
   const isSelfProfile = loginUserData.id === user?._id;
+
   useEffect(() => {
-    if (userNameOrId) {
-      getUser(userNameOrId)
-        .then((res) => {
-          const userNameFromData: string = res.data.userName;
-          if (userNameOrId !== userNameFromData) {
-            // Translate this userId-based url to a userName-based URL
-            navigate(
-              location.pathname.replace(userNameOrId, userNameFromData) + location.search,
-              { replace: true },
-            );
-            return;
-          }
-          setUser(res.data);
-        }).catch(() => setUserNotFound(true));
-    }
-  }, [userNameOrId, location.pathname, location.search, navigate]);
-  if (userNotFound) {
-    return (
-      <NotFound />
-    );
+    if (!userNameOrId || user) { return; }
+
+    getUser(userNameOrId)
+      .then((res) => {
+        const userNameFromData: string = res.data.userName;
+        if (userNameOrId !== userNameFromData) {
+          // Translate this userId-based url to a userName-based URL
+          navigate(
+            location.pathname.replace(userNameOrId, userNameFromData) + location.search,
+            { replace: true },
+          );
+          return;
+        }
+        setUser(res.data);
+      }).catch(() => setUserNotFound(true));
+  }, [user, userNameOrId, location.pathname, location.search, navigate]);
+
+  if (userNotFound) { return <NotFound />; }
+  if (!user) { return <LoadingIndicator />; }
+
+  if (userNameOrId !== user.userName) {
+    setUser(undefined);
   }
 
-  if (!user) {
-    return <LoadingIndicator />;
-  }
   if (!isSelfProfile
-     && user.profile_status !== ProfileVisibility.Public
-     && user.friendshipStatus.reaction !== FriendRequestReaction.Accepted) {
+    && user.profile_status !== ProfileVisibility.Public
+    && user.friendshipStatus.reaction !== FriendRequestReaction.Accepted) {
     return (
       <ContentSidbarWrapper>
         <ContentPageWrapper>
@@ -75,16 +97,10 @@ function Profile() {
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
+        <h1 className="sr-only">{user.userName}</h1>
         <Routes>
-          <Route path="/" element={<Navigate to="about" replace />} />
-          <Route path="/posts" element={<ProfilePosts user={user} />} />
-          <Route path="/posts/:postId" element={<PostDetail user={user} />} />
-          <Route path="/friends" element={<ProfileFriends user={user} />} />
-          <Route path="/friends/request" element={<ProfileFriendRequest user={user} />} />
-          <Route path="/about" element={<ProfileAbout user={user} />} />
-          <Route path="/photos" element={<ProfilePhotos user={user} />} />
-          <Route path="/watched-list" element={<ProfileWatchList user={user} />} />
           <Route path="/edit" element={<ProfileEdit user={user} />} />
+          <Route path="*" element={<SharedHeaderProfilePages user={user} />} />
         </Routes>
       </ContentPageWrapper>
 

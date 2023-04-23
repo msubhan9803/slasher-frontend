@@ -16,7 +16,7 @@ import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authe
 import { useAppSelector, useAppDispatch } from '../../redux/hooks';
 import { setScrollPosition } from '../../redux/slices/scrollPositionSlice';
 import { SocketContext } from '../../context/socket';
-import { setUserInitialData } from '../../redux/slices/userSlice';
+import { resetUnreadNotificationCount, setUserInitialData } from '../../redux/slices/userSlice';
 import NotificationsRightSideNav from './NotificationsRightSideNav';
 
 function Notifications() {
@@ -119,6 +119,13 @@ function Notifications() {
               setNotificationData([
                 ...notification,
               ]);
+              const positionData = {
+                pathname: '',
+                position: 0,
+                data: [],
+                positionElementId: '',
+              };
+              dispatch(setScrollPosition(positionData));
               dispatch(setUserInitialData(
                 { ...userData, unreadNotificationCount: 0 },
               ));
@@ -227,13 +234,15 @@ function Notifications() {
 
   useEffect(() => {
     if (socket) {
+      socket?.emit('clearNewNotificationCount', {});
+      dispatch(resetUnreadNotificationCount());
       socket.on('notificationReceived', onNotificationReceivedHandler);
       return () => {
         socket.off('notificationReceived', onNotificationReceivedHandler);
       };
     }
     return () => { };
-  }, [onNotificationReceivedHandler, socket]);
+  }, [onNotificationReceivedHandler, socket, dispatch]);
 
   return (
     <ContentSidbarWrapper>

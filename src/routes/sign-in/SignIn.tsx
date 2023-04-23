@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   Col, Form, Image, Row,
 } from 'react-bootstrap';
-import Cookies from 'js-cookie';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import styled from 'styled-components';
@@ -11,7 +10,7 @@ import RoundButton from '../../components/ui/RoundButton';
 import CustomInputGroup from '../../components/ui/CustomInputGroup';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import { signIn } from '../../api/users';
-import { setSignInCookies } from '../../utils/session-utils';
+import { setSignInCookies, userIsLoggedIn } from '../../utils/session-utils';
 import slasherLogo from '../../images/slasher-beta-logo-medium.png';
 import signInImageMobile from '../../images/sign-in-background-beta-mobile.jpg';
 import { LG_MEDIA_BREAKPOINT } from '../../constants';
@@ -55,7 +54,7 @@ function SignIn() {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    if (Cookies.get('sessionToken')) {
+    if (userIsLoggedIn()) {
       navigate('/app/home');
     }
   }, [navigate]);

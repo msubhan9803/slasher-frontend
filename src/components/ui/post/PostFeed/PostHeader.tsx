@@ -18,7 +18,7 @@ interface PostHeaderProps {
   popoverOptions?: string[];
   onPopoverClick?: (value: string, popoverClickProps: PopoverClickProps) => void,
   detailPage: boolean | undefined;
-  content?: string;
+  message?: string;
   userId?: string;
   rssfeedProviderId?: string;
   onSelect?: (value: string) => void;
@@ -37,7 +37,7 @@ const StyledSaveButton = styled(Button) <StyledSavedProps>`
 `;
 function PostHeader({
   id, userName, postDate, profileImage, popoverOptions, onPopoverClick, detailPage,
-  content, userId, rssfeedProviderId, onSelect, postImages, postType,
+  message, userId, rssfeedProviderId, onSelect, postImages, postType,
 }: PostHeaderProps) {
   const [notificationOn, setNotificationOn] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -56,11 +56,11 @@ function PostHeader({
               to={rssfeedProviderId
                 ? `/app/news/partner/${rssfeedProviderId}#`
                 : `/${userName}#`}
-              scroll={scrollToTop}
-              className="text-decoration-none"
+              scroll={() => scrollToTop('smooth')}
+              className="d-block text-decoration-none rounded-circle"
             >
               <div className="rounded-circle">
-                <UserCircleImage size="3.313rem" src={profileImage} alt={`${userName} profile picture`} className="bg-secondary" />
+                <UserCircleImage size="3.313rem" src={profileImage} alt={`${userName} profile picture`} className="bg-secondary d-flex" />
               </div>
             </HashLink>
           </Col>
@@ -74,10 +74,10 @@ function PostHeader({
               to={rssfeedProviderId
                 ? `/app/news/partner/${rssfeedProviderId}#`
                 : `/${userName}#`}
-              scroll={scrollToTop}
-              className="text-decoration-none"
+              scroll={() => scrollToTop('smooth')}
+              className="text-decoration-none d-block"
             >
-              <h1 className="mb-0 h3 text-capitalize">{userName}</h1>
+              <h2 className="mb-0 h3 text-capitalize">{userName}</h2>
             </HashLink>
             {
               // Do *not* remove the trailing # in below `to` path
@@ -92,7 +92,7 @@ function PostHeader({
                   to={rssfeedProviderId
                     ? `/app/news/partner/${rssfeedProviderId}/posts/${id}#`
                     : `/${userName}/posts/${id}#`}
-                  className="text-decoration-none"
+                  className="text-decoration-none d-block"
                 >
                   <p className="mb-0 fs-6 text-light">
                     {DateTime.fromISO(postDate).toFormat('MM/dd/yyyy t')}
@@ -129,7 +129,7 @@ function PostHeader({
           <CustomPopover
             popoverOptions={popoverOptions!}
             onPopoverClick={onPopoverClick!}
-            content={content}
+            message={message}
             id={id}
             userId={userId}
             postImages={postImages}
@@ -141,7 +141,7 @@ function PostHeader({
 }
 
 PostHeader.defaultProps = {
-  content: null,
+  message: null,
   userId: null,
   rssfeedProviderId: null,
   // Remove after Podcast popover implementation

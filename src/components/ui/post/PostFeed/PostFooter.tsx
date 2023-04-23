@@ -5,10 +5,10 @@ import {
   Button, Card, Col, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import { HashLink } from 'react-router-hash-link';
-import { scrollWithOffset } from '../../../../utils/scrollFunctions';
+import { useLocation, Link } from 'react-router-dom';
 import ShareLinkButton from '../../ShareLinkButton';
 import { LikeShareModalResourceName, LikeShareModalTabName } from '../../../../types';
+import { urlForNewsPost, urlForUserPost } from '../../../../utils/url-utils';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -44,6 +44,7 @@ function PostFooter({
   likeIcon, postId, userName, rssfeedProviderId, onLikeClick, onSelect,
   likeCount, commentCount, handleLikeModal, postType, movieId,
 }: PostFooterProps) {
+  const { pathname } = useLocation();
   return (
     <Card.Footer className="p-0">
       <Row className="justify-content-start py-3">
@@ -60,17 +61,20 @@ function PostFooter({
               ) : (
                 <>
                   <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
-                  <span className="fs-3 d-none d-md-inline me-2">Like</span>
+                  <span className="fs-3 d-none d-md-inline d-lg-none d-xl-inline me-2">Like</span>
                 </>
               )}
             </Button>
             <StyleDot icon={solid('circle')} size="xs" className="py-1 me-2" />
-            <Button
-              className="bg-transparent border-0 btn btn-primary p-0 text-white"
-              onClick={() => handleLikeModal?.('like', 'feedpost', postId, Number(likeCount))}
-            >
-              <span className="fs-3">{likeCount}</span>
-            </Button>
+            {Number(likeCount) === 0 ? <span className="fs-3">{likeCount}</span>
+              : (
+                <Button
+                  className="bg-transparent border-0 btn btn-primary p-0 text-white"
+                  onClick={() => handleLikeModal?.('like', 'feedpost', postId, Number(likeCount))}
+                >
+                  <span className="fs-3">{likeCount}</span>
+                </Button>
+              )}
           </div>
         </Col>
         <Col
@@ -78,7 +82,7 @@ function PostFooter({
           /* eslint-disable no-nested-ternary */
           className="text-center"
         >
-          <HashLink
+          <Link
             onClick={() => (postType !== 'review' && onSelect!(rssfeedProviderId || postId))}
             to={
               (postType === 'review' && movieId && `/app/movies/${movieId}/reviews/${postId}`)
@@ -86,17 +90,17 @@ function PostFooter({
                 ? `/app/news/partner/${rssfeedProviderId}/posts/${postId}`
                 : `/${userName}/posts/${postId}`)
             }
-            className="text-decoration-none"
-            scroll={scrollWithOffset}
+            state={pathname}
+            className="d-inline-block text-decoration-none rounded"
           >
             <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-            <span className="fs-3 d-none d-md-inline me-2">Comment</span>
+            <span className="fs-3 d-none d-md-inline d-lg-none d-xl-inline me-2">Comment</span>
             <StyleDot icon={solid('circle')} size="xs" className="py-1 me-2" />
             <span className="fs-3">{commentCount}</span>
-          </HashLink>
+          </Link>
         </Col>
         <Col xs={4} className={'text-end \'d-inline\'}'}>
-          <ShareLinkButton text textClass={postType === 'group-post' ? 'd-none d-md-inline d-lg-none d-xl-inline' : 'd-none d-md-inline'} />
+          <ShareLinkButton text textClass={postType === 'group-post' ? 'd-none d-md-inline d-lg-none d-xl-inline' : 'd-none d-md-inline d-lg-none d-xl-inline'} copyLinkUrl={rssfeedProviderId ? urlForNewsPost(rssfeedProviderId!, postId!) : urlForUserPost(userName!, postId!)} />
         </Col>
         <svg width="0" height="0">
           <linearGradient id="like-button-footer" x1="100%" y1="0%" x2="0%" y2="100%">

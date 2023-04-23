@@ -30,6 +30,7 @@ function ReportModal({
     setReports('');
     setButtonDisabled(true);
     setOtherReport('');
+    setChecked(false);
   };
   const removeData = () => {
     if (removeComment) { removeComment(); }
@@ -72,12 +73,15 @@ function ReportModal({
       size="sm"
     >
       <Modal.Header className="border-0 shadow-none justify-content-end" closeButton />
-      {slectedDropdownValue === 'Delete' && (
+      {(
+        slectedDropdownValue === 'Delete' || slectedDropdownValue === 'Delete Review')
+        && (
         <ModalBodyForDeleteConversation
+          slectedDropdownValue={slectedDropdownValue}
           onConfirm={removeData}
           onCancel={closeModal}
         />
-      )}
+        )}
       {
         slectedDropdownValue === 'Block user' && (
           <ModalBodyForBlockUser

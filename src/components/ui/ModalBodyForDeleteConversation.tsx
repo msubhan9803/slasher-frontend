@@ -3,19 +3,33 @@ import { Modal } from 'react-bootstrap';
 import RoundButton from './RoundButton';
 
 interface DeleteUserModal {
+  slectedDropdownValue?: string;
   onConfirm: () => void;
   onCancel: () => void;
 }
 
-function ModalBodyForDeleteConversation({ onConfirm, onCancel }: DeleteUserModal) {
+function ModalBodyForDeleteConversation({
+  onConfirm, onCancel, slectedDropdownValue,
+}: DeleteUserModal) {
+  let label = 'conversation';
+  if (slectedDropdownValue?.toLowerCase().includes('review')) {
+    label = 'review';
+  }
   return (
     <Modal.Body className="d-flex flex-column align-items-center text-center pt-0">
       <h1 className="h3 mb-0 text-primary">Delete</h1>
-      <p className="px-3">Are you sure you want to delete this conversation?</p>
+      <p className="px-3">
+        Are you sure you want to delete this
+        {label}
+        ?
+      </p>
       <RoundButton className="mb-3 w-100" onClick={onConfirm}>Yes</RoundButton>
       <RoundButton className="mb-3 w-100 bg-dark border-dark text-white" onClick={onCancel}>Cancel</RoundButton>
     </Modal.Body>
   );
 }
 
+ModalBodyForDeleteConversation.defaultProps = {
+  slectedDropdownValue: '',
+};
 export default ModalBodyForDeleteConversation;

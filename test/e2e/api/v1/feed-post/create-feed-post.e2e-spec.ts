@@ -22,6 +22,7 @@ import { moviesFactory } from '../../../../factories/movies.factory';
 import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
 import { FeedPostsService } from '../../../../../src/feed-posts/providers/feed-posts.service';
 import { MovieUserStatusService } from '../../../../../src/movie-user-status/providers/movie-user-status.service';
+import { WorthWatchingStatus } from '../../../../../src/types';
 
 describe('Feed-Post / Post File (e2e)', () => {
   let app: INestApplication;
@@ -362,7 +363,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           .field('moviePostFields[spoilers]', true)
           .field('moviePostFields[rating]', 3)
           .field('moviePostFields[goreFactorRating]', 4)
-          .field('moviePostFields[worthWatching]', 1)
+          .field('moviePostFields[worthWatching]', WorthWatchingStatus.Down)
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1]);
         const post = await feedPostsService.findById(response.body._id, true);
@@ -370,7 +371,7 @@ describe('Feed-Post / Post File (e2e)', () => {
         expect(post.spoilers).toBe(true);
         expect(movieUserStatus.rating).toBe(3);
         expect(movieUserStatus.goreFactorRating).toBe(4);
-        expect(movieUserStatus.worthWatching).toBe(1);
+        expect(movieUserStatus.worthWatching).toBe(WorthWatchingStatus.Down);
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)

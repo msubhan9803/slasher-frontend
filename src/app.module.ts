@@ -1,4 +1,6 @@
-import { MiddlewareConsumer, Module, ValidationPipe } from '@nestjs/common';
+import {
+  BadRequestException, MiddlewareConsumer, Module, ValidationError, ValidationPipe,
+} from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
@@ -52,11 +54,22 @@ import { HashtagFollowsModule } from './hashtag-follows/hashtag-follows.module';
     }),
     MongooseModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: async (config: ConfigService) => ({
-        uri: config.get<string>('DB_CONNECTION_URL'),
-        useNewUrlParser: true, // for MongoDB >= 3.1.0
-        useUnifiedTopology: true, // for MongoDB >= 3.1.0
-      }),
+      useFactory: async (config: ConfigService) => {
+        if (
+          config.get<string>('DB_CONNECTION_URL').startsWith('"')
+          || config.get<string>('DB_CONNECTION_URL').startsWith("'")) {
+          throw new Error(
+            "Hey! Your DB connection URL starts with a quote character! If you're using docker "
+            + 'and reading in a .env file while running the container, docker will treat the '
+            + 'quote character as a literal quote and the connection to the DB will fail!',
+          );
+        }
+        return {
+          uri: config.get<string>('DB_CONNECTION_URL'),
+          useNewUrlParser: true, // for MongoDB >= 3.1.0
+          useUnifiedTopology: true, // for MongoDB >= 3.1.0
+        };
+      },
     }),
     UploadsModule,
     NotificationsModule,
@@ -92,7 +105,24 @@ import { HashtagFollowsModule } from './hashtag-follows/hashtag-follows.module';
   providers: [
     {
       provide: APP_PIPE,
-      useValue: new ValidationPipe({ whitelist: true, transform: true }),
+      useValue: new ValidationPipe({
+        whitelist: true,
+        transform: true,
+        exceptionFactory: (validationErrors: ValidationError[] = []) => {
+          // Convert all nested DTO error messages into top level error messages that are not
+          // prefixed by the name of their nested DTO.
+          // Note: This only works for 2-level-deep nesting, so if we ever do 3-level-deep nested
+          // DTO validation then we will need to update this method.
+          const flattenedConstraints = validationErrors.map((error) => {
+            let constraints = Object.values(error.constraints || {});
+            constraints = constraints.concat(
+              ((error.children || []).map((child) => Object.values(child.constraints || {}))).flat(1),
+            );
+            return constraints;
+          }).flat(1);
+          return new BadRequestException(flattenedConstraints);
+        },
+      }),
     },
     // Interceptor to delete temp files created by mutler. It delete files in `request.filesToBeRemoved` after the request is settled.
     {
@@ -114,6 +144,7 @@ export class AppModule {
         '/api',
         '/api/v1',
         '/api/v1/remote-constants',
+        '/api/v1/ip-check',
         '/health-check',
         '/placeholders/(.*)', // the placeholders endpoint is only used in development and test environments
         '/api/v1/local-storage/(.*)', // the local-storage endpoint is only used in development and test environments

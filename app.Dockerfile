@@ -1,5 +1,5 @@
 # Step 1: Build the app in a container
-FROM node:16 as builder
+FROM node:16.13.1-alpine3.15 as builder
 
 WORKDIR /source
 
@@ -17,7 +17,7 @@ RUN npm prune --omit=dev
 
 # Step 2: Produce a different container to run this app. THIS is the container
 # that will be output in the end because it is the LAST one in this file.
-FROM node:16
+FROM node:16.13.1-alpine3.15
 WORKDIR /app
 
 # Copy required files for running the production build

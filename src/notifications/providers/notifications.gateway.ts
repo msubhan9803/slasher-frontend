@@ -1,14 +1,12 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
-  MessageBody,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
   ConnectedSocket,
 } from '@nestjs/websockets';
+import { Socket } from 'socket.io-client';
 import { ConfigService } from '@nestjs/config';
 import { Server } from 'socket.io';
 import { RssFeedProvider } from 'src/schemas/rssFeedProvider/rssFeedProvider.schema';
@@ -17,6 +15,7 @@ import { SHARED_GATEWAY_OPTS } from '../../constants';
 import { Notification } from '../../schemas/notification/notification.schema';
 import { relativeToFullImagePath } from '../../utils/image-utils';
 import { User } from '../../schemas/user/user.schema';
+import { pick } from '../../utils/object-utils';
 
 @WebSocketGateway(SHARED_GATEWAY_OPTS)
 export class NotificationsGateway {
@@ -40,14 +39,27 @@ export class NotificationsGateway {
     }
     // eslint-disable-next-line no-param-reassign
     if (notification.rssFeedProviderId) {
-    // eslint-disable-next-line no-param-reassign
+      // eslint-disable-next-line no-param-reassign
       (notification.rssFeedProviderId as unknown as RssFeedProvider).logo = relativeToFullImagePath(
         this.config,
         (notification.rssFeedProviderId as unknown as RssFeedProvider).logo,
       );
     }
     targetUserSocketIds.forEach((socketId) => {
-      this.server.to(socketId).emit('notificationReceived', { notification });
+      this.server.to(socketId).emit('notificationReceived', {
+        notification: pick(notification, [
+          '_id', 'createdAt', 'feedCommentId', 'feedPostId', 'feedReplyId', 'isRead',
+          'notificationMsg', 'notifyType', 'rssFeedProviderId', 'senderId', 'userId',
+        ]),
+      });
     });
+  }
+
+  @SubscribeMessage('clearNewNotificationCount')
+  async clearNewNotificationCount(@ConnectedSocket() client: Socket): Promise<any> {
+    const user = await this.usersService.findBySocketId(client.id);
+    const userId = user._id.toString();
+    const clearNotificationCount = await this.usersService.clearNotificationCount(userId);
+    return { newNotificationCount: clearNotificationCount.newNotificationCount };
   }
 }

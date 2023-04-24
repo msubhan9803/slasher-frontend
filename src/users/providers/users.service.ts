@@ -49,15 +49,13 @@ export class UsersService {
 
   async findByEmail(email: string): Promise<UserDocument> {
     return this.userModel
-      .findOne({ email })
-      .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
+      .findOne({ email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') })
       .exec();
   }
 
   async findByUsername(userName: string): Promise<UserDocument> {
     return this.userModel
-      .findOne({ userName })
-      .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
+      .findOne({ userName: new RegExp(`^${escapeStringForRegex(userName)}$`, 'i') })
       .exec();
   }
 
@@ -71,8 +69,7 @@ export class UsersService {
   async userNameExists(userName: string): Promise<boolean> {
     return (
       (await this.userModel
-        .findOne({ userName })
-        .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
+        .findOne({ userName: new RegExp(`^${escapeStringForRegex(userName)}$`, 'i') })
         .count()
         .exec()) > 0
     );
@@ -81,8 +78,7 @@ export class UsersService {
   async emailExists(email: string): Promise<boolean> {
     return (
       (await this.userModel
-        .findOne({ email })
-        .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
+        .findOne({ email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') })
         .count()
         .exec()) > 0
     );
@@ -91,9 +87,11 @@ export class UsersService {
   async resetPasswordTokenIsValid(email: string, resetPasswordToken: string) {
     const isValid = await this.userModel
       .findOne({
-        $and: [{ email }, { resetPasswordToken }],
+        $and: [
+          { email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') },
+          { resetPasswordToken },
+        ],
       })
-      .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
       .exec();
     return !!isValid;
   }
@@ -101,9 +99,11 @@ export class UsersService {
   async verificationTokenIsValid(email: string, verification_token: string) {
     const isValid = await this.userModel
       .findOne({
-        $and: [{ email }, { verification_token }],
+        $and: [
+          { email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') },
+          { verification_token },
+        ],
       })
-      .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
       .exec();
     return !!isValid;
   }
@@ -127,7 +127,6 @@ export class UsersService {
       .find(nameFindQuery)
       .sort({ userName: 1 })
       .limit(limit)
-      .collation({ locale: 'en', strength: 2 })
       .exec();
 
     const userNameSuggestions: UserNameSuggestion[] = users.map(
@@ -164,5 +163,53 @@ export class UsersService {
 
   async getSocketUserCount(): Promise<number> {
     return this.socketUserModel.countDocuments();
+  }
+
+  async updateNewNotificationCount(id: string): Promise<UserDocument> {
+    return this.userModel
+      .findOneAndUpdate({ _id: id }, { $inc: { newNotificationCount: 1 } }, { new: true })
+      .exec();
+  }
+
+  async updateNewFriendRequestCount(id: string): Promise<UserDocument> {
+    return this.userModel
+      .findOneAndUpdate({ _id: id }, { $inc: { newFriendRequestCount: 1 } }, { new: true })
+      .exec();
+  }
+
+  async addAndUpdateNewConversationId(id: string, matchId: string): Promise<UserDocument> {
+    const user = await this.userModel.findOne({ _id: id, newConversationIds: matchId });
+    if (!user) {
+      const updateUserData = await this.userModel
+        .findOneAndUpdate({ _id: id }, { $addToSet: { newConversationIds: matchId } }, { new: true })
+        .exec();
+      return updateUserData;
+    }
+    return user;
+  }
+
+  async clearNotificationCount(id: string): Promise<UserDocument> {
+    return this.userModel
+      .findOneAndUpdate({ _id: id }, { $set: { newNotificationCount: 0 } }, { new: true })
+      .exec();
+  }
+
+  async clearFriendRequestCount(id: string): Promise<UserDocument> {
+    return this.userModel
+      .findOneAndUpdate({ _id: id }, { $set: { newFriendRequestCount: 0 } }, { new: true })
+      .exec();
+  }
+
+  async removeAndUpdateNewConversationId(id: string, matchId: string): Promise<UserDocument> {
+    const updateUserData = await this.userModel
+      .findOneAndUpdate({ _id: id }, { $pull: { newConversationIds: matchId } }, { new: true })
+      .exec();
+    return updateUserData;
+  }
+
+  async clearConverstionIds(id: string): Promise<UserDocument> {
+    return this.userModel
+      .findOneAndUpdate({ _id: id }, { $set: { newConversationIds: [] } }, { new: true })
+      .exec();
   }
 }

@@ -1,5 +1,6 @@
+/* eslint-disable max-lines */
 import {
-  Controller, Delete, HttpException, HttpStatus, Param, Post, Req,
+  Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Query, Req, ValidationPipe,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { getUserFromRequest } from '../utils/request-utils';
@@ -17,6 +18,9 @@ import { BlocksService } from '../blocks/providers/blocks.service';
 import { User } from '../schemas/user/user.schema';
 import { ProfileVisibility } from '../schemas/user/user.enums';
 import { FriendsService } from '../friends/providers/friends.service';
+import { UsersService } from '../users/providers/users.service';
+import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
+import { LikesLimitOffSetDto } from './dto/likes-limit-offset-query.dto';
 
 @Controller({ path: 'feed-likes', version: ['1'] })
 export class FeedLikesController {
@@ -27,6 +31,7 @@ export class FeedLikesController {
     private readonly notificationsService: NotificationsService,
     private readonly blocksService: BlocksService,
     private readonly friendsService: FriendsService,
+    private readonly usersService: UsersService,
 
   ) { }
 
@@ -71,11 +76,7 @@ export class FeedLikesController {
     );
     if (!skipPostCreatorNotification) {
       await this.notificationsService.create({
-        userId: ({
-          _id: postUserId,
-          profilePic: (post.userId as any).profilePic,
-          userName: (post.userId as any).userName,
-        } as any),
+        userId: postUserId as any,
         feedPostId: { _id: post._id.toString() } as unknown as FeedPost,
         senderId: user._id,
         notifyType: NotificationType.UserLikedYourPost,
@@ -170,6 +171,24 @@ export class FeedLikesController {
     if (!reply) {
       throw new HttpException('Reply not found', HttpStatus.NOT_FOUND);
     }
+
+    const feedPost = await this.feedPostsService.findById(reply.feedPostId.toString(), true);
+    if (!feedPost) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+
+    const blockData = await this.blocksService.blockExistsBetweenUsers(user.id, reply.userId.toString());
+    if (blockData) {
+      throw new HttpException('Request failed due to user block (reply owner).', HttpStatus.FORBIDDEN);
+    }
+
+    if (!feedPost.rssfeedProviderId) {
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
+      if (block) {
+        throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
+      }
+    }
+
     await this.feedLikesService.createFeedReplyLike(params.feedReplyId, user.id);
 
     // Create notification for comment creator, informing them that a like was added to their comment.
@@ -202,5 +221,101 @@ export class FeedLikesController {
     }
     await this.feedLikesService.deleteFeedReplyLike(params.feedReplyId, user.id);
     return { success: true };
+  }
+
+  @Get('comment/:feedCommentId/users')
+  async getLikeUsersForFeedComment(
+    @Req() request: Request,
+    @Param() params: FeedCommentsIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: LikesLimitOffSetDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const comment = await this.feedCommentsService.findFeedComment(params.feedCommentId.toString());
+    if (!comment) {
+      throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
+    }
+    const feedPost = await this.feedPostsService.findById(comment.feedPostId.toString(), true);
+    if (!feedPost) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+
+    const blockData = await this.blocksService.blockExistsBetweenUsers(user.id, comment.userId.toString());
+    if (blockData) {
+      throw new HttpException('Request failed due to user block (comment owner).', HttpStatus.FORBIDDEN);
+    }
+
+    if (!feedPost.rssfeedProviderId) {
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
+      if (block) {
+        throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
+      }
+    }
+
+    if (
+      !feedPost.rssfeedProviderId
+      && user.id !== (feedPost.userId as unknown as User)._id.toString()
+      && (feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public
+    ) {
+      const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString());
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+
+    const data = await this.feedLikesService.getLikeUsersForFeedComment(
+      params.feedCommentId,
+      query.limit,
+      query.offset,
+      user._id.toString(),
+    );
+    return data;
+  }
+
+  @Get('reply/:feedReplyId/users')
+  async getLikeUsersForFeedReply(
+    @Req() request: Request,
+    @Param() params: FeedReplyIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: LikesLimitOffSetDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const reply = await this.feedCommentsService.findFeedReply(params.feedReplyId.toString());
+    if (!reply) {
+      throw new HttpException('Reply not found', HttpStatus.NOT_FOUND);
+    }
+    const feedPost = await this.feedPostsService.findById(reply.feedPostId.toString(), true);
+    if (!feedPost) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+
+    const blockData = await this.blocksService.blockExistsBetweenUsers(user.id, reply.userId.toString());
+    if (blockData) {
+      throw new HttpException('Request failed due to user block (reply owner).', HttpStatus.FORBIDDEN);
+    }
+
+    if (!feedPost.rssfeedProviderId) {
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
+      if (block) {
+        throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
+      }
+    }
+
+    if (
+      !feedPost.rssfeedProviderId
+      && user.id !== (feedPost.userId as unknown as User)._id.toString()
+      && (feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public
+    ) {
+      const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString());
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+
+    const data = await this.feedLikesService.getLikeUsersForFeedReply(
+      params.feedReplyId,
+      query.limit,
+      query.offset,
+      user._id.toString(),
+    );
+    return data;
   }
 }

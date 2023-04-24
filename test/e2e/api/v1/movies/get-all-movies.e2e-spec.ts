@@ -578,6 +578,206 @@ describe('All Movies (e2e)', () => {
       });
     });
 
+    it('when sort_name startsWith with # than expected all movies response', async () => {
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: '#1915House',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: '!Alive',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'Blue$Whale',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: '(Captured)',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: '.Chadgetstheaxe',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: '>EATPRETTY',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: '???Float',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: '@FollowMe',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: '[funnyFACE',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: '`Horror',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: '~iKllr',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'MurderSelfie',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          },
+        ),
+      );
+      const sortNameStartsWith = '%23';
+      const limit = 20;
+      const response = await request(app.getHttpServer())
+        .get(`/api/v1/movies?limit=${limit}&sortBy=${'name'}&startsWith=${sortNameStartsWith}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body).toHaveLength(10);
+      expect(response.body).toEqual([
+        {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          name: '!Alive',
+          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          releaseDate: '2022-10-17T00:00:00.000Z',
+          rating: 0,
+          worthWatching: 0,
+        },
+        {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          name: '#1915House',
+          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          releaseDate: '2022-10-17T00:00:00.000Z',
+          rating: 0,
+          worthWatching: 0,
+        },
+        {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          name: '(Captured)',
+          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          releaseDate: '2022-10-17T00:00:00.000Z',
+          rating: 0,
+          worthWatching: 0,
+        },
+        {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          name: '.Chadgetstheaxe',
+          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          releaseDate: '2022-10-17T00:00:00.000Z',
+          rating: 0,
+          worthWatching: 0,
+        },
+        {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          name: '>EATPRETTY',
+          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          releaseDate: '2022-10-17T00:00:00.000Z',
+          rating: 0,
+          worthWatching: 0,
+        },
+        {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          name: '???Float',
+          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          releaseDate: '2022-10-17T00:00:00.000Z',
+          rating: 0,
+          worthWatching: 0,
+        },
+        {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          name: '@FollowMe',
+          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          releaseDate: '2022-10-17T00:00:00.000Z',
+          rating: 0,
+          worthWatching: 0,
+        },
+        {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          name: '[funnyFACE',
+          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          releaseDate: '2022-10-17T00:00:00.000Z',
+          rating: 0,
+          worthWatching: 0,
+        },
+        {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          name: '`Horror',
+          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          releaseDate: '2022-10-17T00:00:00.000Z',
+          rating: 0,
+          worthWatching: 0,
+        },
+        {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          name: '~iKllr',
+          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          releaseDate: '2022-10-17T00:00:00.000Z',
+          rating: 0,
+          worthWatching: 0,
+        },
+      ]);
+    });
+
     describe('Validation', () => {
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
@@ -596,13 +796,13 @@ describe('All Movies (e2e)', () => {
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
       });
 
-      it('limit should not be grater than 20', async () => {
-        const limit = 21;
+      it('returns an error if the limit is higher than allowed', async () => {
+        const limit = 41;
         const response = await request(app.getHttpServer())
           .get(`/api/v1/movies?limit=${limit}&sortBy=${'releasedate'}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain('limit must not be greater than 20');
+        expect(response.body.message).toContain('limit must not be greater than 40');
       });
 
       it('sortBy should not be empty', async () => {

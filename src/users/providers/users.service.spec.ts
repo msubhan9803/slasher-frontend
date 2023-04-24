@@ -2,7 +2,7 @@
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { AppModule } from '../../app.module';
 import { UsersService } from './users.service';
@@ -17,6 +17,7 @@ import { BlocksService } from '../../blocks/providers/blocks.service';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
+import { ChatService } from '../../chat/providers/chat.service';
 
 describe('UsersService', () => {
   let app: INestApplication;
@@ -25,6 +26,7 @@ describe('UsersService', () => {
   let socketUsersModel: Model<SocketUserDocument>;
   let blocksModel: Model<BlockAndUnblockDocument>;
   let blocksService: BlocksService;
+  let chatService: ChatService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -32,6 +34,7 @@ describe('UsersService', () => {
     }).compile();
     connection = moduleRef.get<Connection>(getConnectionToken());
     usersService = moduleRef.get<UsersService>(UsersService);
+    chatService = moduleRef.get<ChatService>(ChatService);
     socketUsersModel = moduleRef.get<Model<SocketUserDocument>>(getModelToken(SocketUser.name));
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     blocksService = moduleRef.get<BlocksService>(BlocksService);
@@ -457,6 +460,75 @@ describe('UsersService', () => {
       expect(await usersService.getSocketUserCount()).toBe(1);
       await usersService.createSocketUserEntry('456', (await usersService.create(userFactory.build())).id);
       expect(await usersService.getSocketUserCount()).toBe(2);
+    });
+  });
+
+  describe('#updateNewNotificationCount', () => {
+    it('finds the expected user and update newNotificationCount', async () => {
+      const user = await usersService.create(userFactory.build());
+      const userData = await usersService.updateNewNotificationCount(user.id);
+      expect(userData.newNotificationCount).toBe(1);
+    });
+  });
+
+  describe('#addAndUpdateNewConversationId', () => {
+    it('finds the expected user and update newConversationIds', async () => {
+      const user1 = await usersService.create(userFactory.build());
+      const user2 = await usersService.create(userFactory.build());
+      const matchList = await chatService.createPrivateDirectMessageConversation(
+        [new mongoose.Types.ObjectId(user1.id), new mongoose.Types.ObjectId(user2.id)],
+      );
+
+      const userData = await usersService.addAndUpdateNewConversationId(user1.id, matchList.id);
+      expect(userData.newConversationIds).toEqual([matchList.id]);
+    });
+  });
+
+  describe('#updateNewFriendRequestCount', () => {
+    it('finds the expected user and update newFriendRequestCount', async () => {
+      const user = await usersService.create(userFactory.build());
+      const userData = await usersService.updateNewFriendRequestCount(user.id);
+      expect(userData.newFriendRequestCount).toBe(1);
+    });
+  });
+
+  describe('#clearNotificationCount', () => {
+    it('finds the expected user and update newNotificationCount', async () => {
+      const user = await usersService.create(userFactory.build());
+      const userData = await usersService.clearNotificationCount(user.id);
+      expect(userData.newNotificationCount).toBe(0);
+    });
+  });
+
+  describe('#clearFriendRequestCount', () => {
+    it('finds the expected user and update newFriendRequestCount', async () => {
+      const user = await usersService.create(userFactory.build());
+      const userData = await usersService.clearFriendRequestCount(user.id);
+      expect(userData.newFriendRequestCount).toBe(0);
+    });
+  });
+
+  describe('#addAndUpdateNewConversationIdByMatchId', () => {
+    it('finds the expected user and addAndUpdateNewConversationIdByMatchId', async () => {
+      const user1 = await usersService.create(userFactory.build());
+      const user2 = await usersService.create(userFactory.build());
+      const matchList = await chatService.createPrivateDirectMessageConversation(
+        [new mongoose.Types.ObjectId(user1.id), new mongoose.Types.ObjectId(user2.id)],
+      );
+      const user3 = await usersService.create(userFactory.build({
+        newConversationIds: [matchList.id],
+      }));
+
+      const userData = await usersService.removeAndUpdateNewConversationId(user3.id, matchList.id);
+      expect(userData.newConversationIds).toEqual([]);
+    });
+  });
+
+  describe('#clearConverstionIdsCount', () => {
+    it('finds the expected user and update converstionIdsCount', async () => {
+      const user = await usersService.create(userFactory.build());
+      const userData = await usersService.clearConverstionIds(user.id);
+      expect(userData.newConversationIds).toEqual([]);
     });
   });
 });

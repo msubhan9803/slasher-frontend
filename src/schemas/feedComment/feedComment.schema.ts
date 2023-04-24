@@ -42,7 +42,7 @@ export class FeedComment extends FeedCommentUnusedFields {
   @Prop()
   updatedAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration
 
-  @Prop({ default: [] })
+  @Prop({ default: [], ref: User.name })
   likes: mongoose.Schema.Types.ObjectId[];
 
   /***********

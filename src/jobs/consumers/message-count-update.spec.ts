@@ -29,14 +29,14 @@ describe('#message-count-update', () => {
     })
       .compile();
 
-      connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = await moduleRef.get<Connection>(getConnectionToken());
 
-      usersService = moduleRef.get<UsersService>(UsersService);
-      chatService = moduleRef.get<ChatService>(ChatService);
-      chatGateway = moduleRef.get<ChatGateway>(ChatGateway);
-      messageCountUpdateConsumer = moduleRef.get(MessageCountUpdateConsumer);
+    usersService = moduleRef.get<UsersService>(UsersService);
+    chatService = moduleRef.get<ChatService>(ChatService);
+    chatGateway = moduleRef.get<ChatGateway>(ChatGateway);
+    messageCountUpdateConsumer = moduleRef.get(MessageCountUpdateConsumer);
 
-      app = moduleRef.createNestApplication();
+    app = moduleRef.createNestApplication();
   });
 
   afterAll(async () => app.close());
@@ -52,13 +52,20 @@ describe('#message-count-update', () => {
     user1 = await usersService.create(userFactory.build({ userName: 'Hannibal' }));
   });
 
-  describe('should call `#chatGateway.emitMessageCountUpdateEvent` with appropriate userId', () => {
+  describe('should call `#chatGateway.emitConversationCountUpdateEvent` with appropriate userId', () => {
     it('adds a job', async () => {
       const message = await chatService.sendPrivateDirectMessage(activeUser.id, user1.id, 'Hi, test message 1.');
-      jest.spyOn(chatGateway, 'emitMessageCountUpdateEvent').mockImplementation(() => Promise.resolve(undefined));
+      jest.spyOn(chatGateway, 'emitConversationCountUpdateEvent').mockImplementation(() => Promise.resolve(undefined));
       await messageCountUpdateConsumer.sendUpdateIfMessageUnread({ data: { messageId: message._id.toString() } } as Job);
 
-      expect(chatGateway.emitMessageCountUpdateEvent).toHaveBeenCalledWith(message.senderId.toString());
+      expect(chatGateway.emitConversationCountUpdateEvent).toHaveBeenCalledWith(message.senderId.toString());
+    });
+
+    it('when add matchId in newConversationIds', async () => {
+      const message = await chatService.sendPrivateDirectMessage(activeUser.id, user1.id, 'Hi, test message 1.');
+      await messageCountUpdateConsumer.sendUpdateIfMessageUnread({ data: { messageId: message._id.toString() } } as Job);
+      const user = await usersService.findById(user1.id);
+      expect(user.newConversationIds).toEqual([message.matchId.toString()]);
     });
   });
 });

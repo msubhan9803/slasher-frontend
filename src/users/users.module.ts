@@ -5,7 +5,6 @@ import { UsersService } from './providers/users.service';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { User, UserSchema } from '../schemas/user/user.schema';
-import { FeedPostsModule } from '../feed-posts/feed-posts.module';
 import { UserSettingModule } from '../settings/user-settings.module';
 import { SocketUser, SocketUserSchema } from '../schemas/socketUser/socketUser.schema';
 import { ChatModule } from '../chat/chat.module';
@@ -22,7 +21,6 @@ import { HashtagFollowsModule } from '../hashtag-follows/hashtag-follows.module'
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: SocketUser.name, schema: SocketUserSchema }]),
-    FeedPostsModule,
     UserSettingModule,
     ChatModule,
     RssFeedProviderFollowsModule,

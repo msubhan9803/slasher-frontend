@@ -30,6 +30,7 @@ import { SendMessageInConversationDto } from './dto/send-message-in-conversation
 import { ChatGateway } from './providers/chat.gateway';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
+import { UsersService } from '../users/providers/users.service';
 
 @Controller({ path: 'chat', version: ['1'] })
 export class ChatController {
@@ -43,6 +44,7 @@ export class ChatController {
     private readonly storageLocationService: StorageLocationService,
     private readonly config: ConfigService,
     private readonly chatGateway: ChatGateway,
+    private readonly usersService: UsersService,
   ) { }
 
   @TransformImageUrls('$[*].participants[*].profilePic')
@@ -91,7 +93,7 @@ export class ChatController {
       throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
     }
     const chat = await this.chatService.createOrFindPrivateDirectMessageConversationByParticipants([
-      user.id,
+      new mongoose.Types.ObjectId(user.id),
       new mongoose.Types.ObjectId(createOrFindConversationQueryDto.userId),
     ]);
     const pickConversationFields = ['_id', 'participants'];
@@ -115,8 +117,12 @@ export class ChatController {
     if (!matchUserIds.length) {
       throw new HttpException('You are not a member of this conversation', HttpStatus.UNAUTHORIZED);
     }
+    const userData = await this.usersService.removeAndUpdateNewConversationId(user.id, param.matchListId);
 
-    await this.chatService.markAllReceivedMessagesReadForChat(user.id, param.matchListId);
+    await Promise.all([
+      this.chatGateway.emitConversationCountUpdateEvent(userData.id),
+      this.chatService.markAllReceivedMessagesReadForChat(user.id, param.matchListId),
+    ]);
     return { success: true };
   }
 

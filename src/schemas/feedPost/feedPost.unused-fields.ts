@@ -7,10 +7,6 @@ import {
 
 export class FeedPostUnusedFields {
   // NOT USED
-  @Prop({ default: null, ref: 'movies' })
-  movieId: mongoose.Schema.Types.ObjectId;
-
-  // NOT USED
   @Prop({ type: [ReportUserSchema] })
   reportUsers: ReportUser[];
 

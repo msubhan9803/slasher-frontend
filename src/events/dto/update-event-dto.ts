@@ -4,6 +4,8 @@ import {
   IsOptional, MaxLength,
 } from 'class-validator';
 import { EventCategory } from '../../schemas/eventCategory/eventCategory.schema';
+import { IsValidMongoDbLocation } from '../../app/decorators/class-validator/valid-location.decorator';
+import { LocationType } from '../../types';
 
 export class UpdateEventDto {
   @IsOptional()
@@ -49,4 +51,8 @@ export class UpdateEventDto {
   @IsOptional()
   @MaxLength(150)
   address: string;
+
+  @IsOptional()
+  @IsValidMongoDbLocation()
+  location: LocationType;
 }

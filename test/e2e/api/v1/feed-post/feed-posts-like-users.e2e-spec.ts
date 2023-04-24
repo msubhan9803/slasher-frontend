@@ -13,8 +13,6 @@ import { RssFeedProvidersService } from '../../../../../src/rss-feed-providers/p
 import { BlockAndUnblockReaction } from '../../../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { BlockAndUnblockDocument, BlockAndUnblock } from '../../../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 import { FeedPostDocument } from '../../../../../src/schemas/feedPost/feedPost.schema';
-import { FriendRequestReaction } from '../../../../../src/schemas/friend/friend.enums';
-import { FriendDocument, Friend } from '../../../../../src/schemas/friend/friend.schema';
 import { RssFeedProvider } from '../../../../../src/schemas/rssFeedProvider/rssFeedProvider.schema';
 import { UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { UsersService } from '../../../../../src/users/providers/users.service';
@@ -24,6 +22,8 @@ import { userFactory } from '../../../../factories/user.factory';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
+import { FriendsService } from '../../../../../src/friends/providers/friends.service';
 
 describe('Feed-Post / Feed Post Like Users (e2e)', () => {
   let app: INestApplication;
@@ -37,12 +37,12 @@ describe('Feed-Post / Feed Post Like Users (e2e)', () => {
   let user2: UserDocument;
   let user3: UserDocument;
   let rssFeedProviderData: RssFeedProvider;
-  let friendsModel: Model<FriendDocument>;
   let blocksModel: Model<BlockAndUnblockDocument>;
   let rssFeedProviderFollowsService: RssFeedProviderFollowsService;
   let rssFeedProvidersService: RssFeedProvidersService;
   let feedPost: FeedPostDocument;
   let feedLikesService: FeedLikesService;
+  let friendsService: FriendsService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -55,9 +55,9 @@ describe('Feed-Post / Feed Post Like Users (e2e)', () => {
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
     rssFeedProviderFollowsService = moduleRef.get<RssFeedProviderFollowsService>(RssFeedProviderFollowsService);
-    friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     feedLikesService = moduleRef.get<FeedLikesService>(FeedLikesService);
+    friendsService = moduleRef.get<FriendsService>(FriendsService);
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -84,19 +84,13 @@ describe('Feed-Post / Feed Post Like Users (e2e)', () => {
     user3 = await usersService.create(userFactory.build());
     rssFeedProviderData = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
 
-    // Friend Document for `activeUser` and `user1`
-    await friendsModel.create({
-      from: activeUser._id.toString(),
-      to: user1._id.toString(),
-      reaction: FriendRequestReaction.Accepted,
-    });
+    // make user1 friend
+    await friendsService.createFriendRequest(activeUser._id.toString(), user1._id.toString());
+    await friendsService.acceptFriendRequest(activeUser._id.toString(), user1._id.toString());
+    // make user2 friend
+    await friendsService.createFriendRequest(user2._id.toString(), activeUser._id.toString());
+    await friendsService.acceptFriendRequest(user2._id.toString(), activeUser._id.toString());
 
-    // Friend Document for `activeUser` and `user2`
-    await friendsModel.create({
-      from: user2._id.toString(),
-      to: activeUser._id.toString(),
-      reaction: FriendRequestReaction.Accepted,
-    });
     await rssFeedProviderFollowsService.create(
       {
         userId: activeUser._id,
@@ -269,7 +263,7 @@ describe('Feed-Post / Feed Post Like Users (e2e)', () => {
 
     it('returns the expected response when profile status is not public and requesting user is not a friend of post creator', async () => {
       const user = await usersService.create(userFactory.build({
-        profile_status: 1,
+        profile_status: ProfileVisibility.Private,
       }));
       const post = await feedPostsService.create(
         feedPostFactory.build({
@@ -373,7 +367,7 @@ describe('Feed-Post / Feed Post Like Users (e2e)', () => {
         ]);
       });
 
-      it('limit should not be grater than 30', async () => {
+      it('limit should not be greater than 30', async () => {
         const limit = 31;
         const response = await request(app.getHttpServer())
           .get(`/api/v1/feed-posts/${feedPost.id}/likes?limit=${limit}`)

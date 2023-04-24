@@ -15,7 +15,6 @@ import {
   UploadedFile,
   UseInterceptors,
   Delete,
-  Ip,
   Put,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
@@ -72,6 +71,7 @@ import { FollowHashtagDto } from './dto/follow-hashtag.dto';
 import { HashtagFollowsService } from '../hashtag-follows/providers/hashtag-follows.service';
 import { HashtagService } from '../hashtag/providers/hashtag.service';
 import { NotificationDto } from './dto/notification.dto';
+import { IpOrForwardedIp } from '../app/decorators/ip-or-forwarded-ip.decorator';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -98,7 +98,7 @@ export class UsersController {
   ) { }
 
   @Post('sign-in')
-  async signIn(@Body() userSignInDto: UserSignInDto, @Ip() ip) {
+  async signIn(@Body() userSignInDto: UserSignInDto, @IpOrForwardedIp() ip) {
     const user = await this.usersService.findByEmailOrUsername(
       userSignInDto.emailOrUsername,
     );
@@ -254,7 +254,7 @@ export class UsersController {
   }
 
   @Post('register')
-  async register(@Body() userRegisterDto: UserRegisterDto, @Ip() ip) {
+  async register(@Body() userRegisterDto: UserRegisterDto, @IpOrForwardedIp() ip) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
 
     // TODO: Move values below into the database instead of hard-coding here
@@ -326,7 +326,7 @@ export class UsersController {
       resetPasswordDto.resetPasswordToken,
     );
     if (isValid === false) {
-      throw new HttpException('User does not exists.', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Invalid password reset token.', HttpStatus.BAD_REQUEST);
     }
     const userDetails = await this.usersService.findByEmail(
       resetPasswordDto.email,
@@ -378,6 +378,7 @@ export class UsersController {
       userData.resetPasswordToken = uuidv4();
       await userData.save();
       await this.mailService.sendForgotPasswordEmail(
+        userData.firstName,
         userData.email,
         userData.resetPasswordToken,
       );
@@ -426,16 +427,13 @@ export class UsersController {
     const user: UserDocument = getUserFromRequest(request);
     const recentMessages: any = await this.chatService.getConversations(user.id, 3);
     const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user.id, 3);
-    const friendRequestCount = await this.friendsService.getReceivedFriendRequestCount(user.id);
     const unreadNotificationCount = await this.notificationsService.getUnreadNotificationCount(user.id);
-    const unreadMessageCount = await this.chatService.getUnreadDirectPrivateMessageCount(user.id);
     return {
-      user: pick(user, ['id', 'userName', 'profilePic']),
+      user: pick(user, ['id', 'userName', 'profilePic', 'newNotificationCount', 'newFriendRequestCount']),
       recentMessages,
       recentFriendRequests: receivedFriendRequestsData,
-      friendRequestCount,
       unreadNotificationCount,
-      unreadMessageCount,
+      newConversationIdsCount: user.newConversationIds.length,
     };
   }
 
@@ -468,15 +466,25 @@ export class UsersController {
 
     const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
     if (block) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new HttpException('User not found', HttpStatus.FORBIDDEN);
     }
+
+    let friend;
+    if (loggedInUser.id !== user.id) {
+      friend = await this.friendsService.findFriendship(user.id, loggedInUser.id);
+    }
+    const friendshipStatus = friend ? pick(friend, ['reaction', 'from', 'to']) : {
+      reaction: null,
+      from: null,
+      to: null,
+    };
 
     const pickFields = ['_id', 'firstName', 'userName', 'profilePic', 'coverPhoto', 'aboutMe', 'profile_status'];
 
     // expose email to loggged in user only, when logged in user requests own user record
     if (loggedInUser.id === user.id) { pickFields.push('email'); }
 
-    return pick(user, pickFields);
+    return { ...pick(user, pickFields), friendshipStatus };
   }
 
   // eslint-disable-next-line class-methods-use-this

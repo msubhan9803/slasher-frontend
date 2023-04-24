@@ -17,6 +17,8 @@ import { FriendsService } from './providers/friends.service';
 import { BlocksService } from '../blocks/providers/blocks.service';
 import { NotificationType } from '../schemas/notification/notification.enums';
 import { NotificationsService } from '../notifications/providers/notifications.service';
+import { UsersService } from '../users/providers/users.service';
+import { FriendsGateway } from './providers/friends.gateway';
 
 @Controller({ path: 'friends', version: ['1'] })
 export class FriendsController {
@@ -24,6 +26,8 @@ export class FriendsController {
     private readonly friendsService: FriendsService,
     private readonly blocksService: BlocksService,
     private readonly notificationsService: NotificationsService,
+    private readonly usersService: UsersService,
+    private readonly friendsGateway: FriendsGateway,
   ) { }
 
   @Post()
@@ -36,7 +40,7 @@ export class FriendsController {
     if (block) {
       throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
     }
-    await this.friendsService.createFriendRequest(user.id, createFriendRequestDto.userId);
+    const friend = await this.friendsService.createFriendRequest(user.id, createFriendRequestDto.userId);
 
     const recentNotificationExists = await this.notificationsService.similarRecentNotificationExists(
       createFriendRequestDto.userId,
@@ -48,13 +52,16 @@ export class FriendsController {
     // rapid friend-unfriend-friend-unfriend actions.
     if (!recentNotificationExists) {
       // Create notification for post creator, informing them that a comment was added to their post
-      await this.notificationsService.create({
+      await Promise.all([this.notificationsService.create({
         userId: createFriendRequestDto.userId as any,
         senderId: user._id,
         notifyType: NotificationType.UserSentYouAFriendRequest,
         notificationMsg: 'sent you a friend request',
-      });
+      }),
+      ]);
     }
+    await Promise.all([this.usersService.updateNewFriendRequestCount(createFriendRequestDto.userId),
+      this.friendsGateway.emitFriendRequestReceivedEvent(friend)]);
     return { success: true };
   }
 

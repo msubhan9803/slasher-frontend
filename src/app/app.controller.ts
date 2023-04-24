@@ -2,6 +2,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { relativeToFullImagePath } from '../utils/image-utils';
+import { IpOrForwardedIp } from './decorators/ip-or-forwarded-ip.decorator';
 
 @Controller()
 export class AppController {
@@ -30,6 +31,14 @@ export class AppController {
   remoteConstants() {
     return {
       placeholderUrlNoImageAvailable: relativeToFullImagePath(this.configService, '/placeholders/no_image_available.png'),
+    };
+  }
+
+  // Returns the detected IP address
+  @Get('api/v1/ip-check')
+  ipCheck(@IpOrForwardedIp() ip: string) {
+    return {
+      ip,
     };
   }
 

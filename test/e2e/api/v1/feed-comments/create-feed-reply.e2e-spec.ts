@@ -92,8 +92,6 @@ describe('Feed-Comments/Replies File (e2e)', () => {
     });
 
     beforeEach(async () => {
-      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
-
       activeUser = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
@@ -110,6 +108,11 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         ),
       );
     });
+
+    describe('with mocked notificationService.create', () => {
+      beforeEach(async () => {
+        jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
+      });
 
     it('returns the expected response upon successful request', async () => {
       await createTempFiles(async (tempPaths) => {
@@ -388,6 +391,46 @@ describe('Feed-Comments/Replies File (e2e)', () => {
       expect(response.body.message).toContain('Comment not found');
     });
 
+    it('check trim is working for message in create feed reply', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/feed-comments/replies')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', '        This is a test reply message      ')
+        .field('feedCommentId', feedComment._id.toString());
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        feedCommentId: feedComment._id.toString(),
+        feedPostId: feedPost._id.toString(),
+        message: 'This is a test reply message',
+        userId: activeUser._id.toString(),
+        images: [],
+      });
+    });
+
+    it('returns the expected response when the message only contains whitespace characters', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/feed-comments/replies')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('message', '     \n\n')
+        .field('feedCommentId', feedComment._id.toString());
+      expect(response.body).toEqual({
+        statusCode: 400,
+        message: 'Replies must have some text or at least one image.',
+      });
+    });
+
+    it('when add a reply to a post than check update post lastUpdateAt value', async () => {
+      const postBeforeUpdate = await feedPostsService.findById(feedPost._id.toString(), false);
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/feed-comments/replies')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('message', 'hello test user')
+        .field('feedCommentId', feedComment._id.toString());
+      const postAfterUpdate = await feedPostsService.findById(response.body.feedPostId, false);
+      expect(postAfterUpdate.lastUpdateAt > postBeforeUpdate.lastUpdateAt).toBeTruthy();
+    });
+
     describe('when the feed post was created by a user with a non-public profile', () => {
       let user1;
       let feedPost1;
@@ -639,6 +682,53 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           //   notificationMsg: 'mentioned you in a comment reply',
           // });
         });
+    });
+    });
+
+    describe('notifications', () => {
+      let commentCreatorUser;
+      let otherUser1;
+      let otherUser1AuthToken;
+      let otherUser2;
+      beforeEach(async () => {
+        commentCreatorUser = await usersService.create(userFactory.build());
+        otherUser1 = await usersService.create(userFactory.build());
+        otherUser1AuthToken = otherUser1.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
+        otherUser2 = await usersService.create(userFactory.build());
+      });
+
+      it('when notification is create for createFeedReply than check newNotificationCount is increment in user', async () => {
+        const user0 = await usersService.create(userFactory.build({ userName: 'Divine' }));
+        const post = await feedPostsService.create(feedPostFactory.build({ userId: user0._id }));
+        const comment = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: commentCreatorUser.id,
+              feedPostId: post.id,
+              message: 'This is a comment',
+              images: [],
+            },
+          ),
+        );
+        await request(app.getHttpServer())
+          .post('/api/v1/feed-comments/replies').auth(otherUser1AuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('feedCommentId', comment._id.toString())
+          .field(
+            'message',
+            `##LINK_ID##${user0._id.toString()}@Divine##LINK_END## post creator user`
+            + `##LINK_ID##${otherUser2._id.toString()}@OtherUser2##LINK_END## other user 2`,
+          )
+          .expect(HttpStatus.CREATED);
+
+        const user0NewNotificationCount = await usersService.findById(user0.id);
+        const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id);
+        const commentCreatorUser2NewNotificationCount = await usersService.findById(commentCreatorUser.id);
+
+        expect(user0NewNotificationCount.newNotificationCount).toBe(1);
+        expect(otherUser2NewNotificationCount.newNotificationCount).toBe(1);
+        expect(commentCreatorUser2NewNotificationCount.newNotificationCount).toBe(1);
+      });
     });
   });
 });

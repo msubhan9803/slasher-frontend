@@ -13,6 +13,7 @@ import { BlockAndUnblock, BlockAndUnblockSchema } from '../schemas/blockAndUnblo
 import { FriendsModule } from '../friends/friends.module';
 import { BlocksModule } from '../blocks/blocks.module';
 import { HashtagModule } from '../hashtag/hashtag.module';
+import { MovieUserStatusModule } from '../movie-user-status/movie.user.status.module';
 
 @Global()
 @Module({
@@ -25,6 +26,7 @@ import { HashtagModule } from '../hashtag/hashtag.module';
     FriendsModule,
     BlocksModule,
     HashtagModule,
+    MovieUserStatusModule,
   ],
   providers: [FeedPostsService, BlocksService, LocalStorageService, S3StorageService],
   exports: [FeedPostsService],

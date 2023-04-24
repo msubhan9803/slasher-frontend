@@ -36,6 +36,7 @@ import { User, UserDocument } from '../schemas/user/user.schema';
 import { FeedReply } from '../schemas/feedReply/feedReply.schema';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
+import { UsersService } from '../users/providers/users.service';
 
 @Controller({ path: 'feed-comments', version: ['1'] })
 export class FeedCommentsController {
@@ -49,6 +50,7 @@ export class FeedCommentsController {
     private readonly s3StorageService: S3StorageService,
     private readonly blocksService: BlocksService,
     private readonly friendsService: FriendsService,
+    private readonly usersService: UsersService,
   ) { }
 
   @TransformImageUrls('$.images[*].image_path')
@@ -66,7 +68,7 @@ export class FeedCommentsController {
   ) {
     if (!files.length && createFeedCommentsDto.message === '') {
       throw new HttpException(
-        'Posts must have a message or at least one image. No message or image received.',
+        'Comments must have some text or at least one image.',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -110,6 +112,7 @@ export class FeedCommentsController {
     feedComment.images = images;
     feedComment.userId = user._id;
     const comment = await this.feedCommentsService.createFeedComment(feedComment);
+    await this.feedPostsService.updateLastUpdateAt(comment.feedPostId.toString());
 
     if (!post.rssfeedProviderId) {
       await this.sendFeedCommentCreationNotifications(user, comment, post);
@@ -156,7 +159,7 @@ export class FeedCommentsController {
     const isCommentWithoutImgAndMsg = (imagesToDelete && !newCommentImages && message === '' && currentCommentImages === imagesToDelete) || (!currentCommentImages && !newCommentImages && message === '');
     if (isCommentWithoutImgAndMsg) {
       throw new HttpException(
-        'Comment must have a message or at least one image. No message or image received.',
+        'Comments must have some text or at least one image.',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -193,13 +196,12 @@ export class FeedCommentsController {
         },
       );
     }
-
     const updatedComment = await this.feedCommentsService.updateFeedComment(params.feedCommentId, updateFeedCommentsDto);
+
     const mentionedUserIdsBeforeUpdate = extractUserMentionIdsFromMessage(comment.message);
     const mentionedUserIdsAfterUpdate = extractUserMentionIdsFromMessage(updatedComment?.message);
 
     await this.sendFeedCommentUpdateNotifications(user, updatedComment, mentionedUserIdsBeforeUpdate, mentionedUserIdsAfterUpdate);
-
     return pick(updatedComment, ['_id', 'feedPostId', 'message', 'userId', 'images']);
   }
 
@@ -237,7 +239,7 @@ export class FeedCommentsController {
   ) {
     if (!files.length && createFeedReplyDto.message === '') {
       throw new HttpException(
-        'Posts must have a message or at least one image. No message or image received.',
+        'Replies must have some text or at least one image.',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -290,6 +292,8 @@ export class FeedCommentsController {
     feedReply.userId = user._id;
     feedReply.feedPostId = comment.feedPostId;
     const reply = await this.feedCommentsService.createFeedReply(feedReply);
+    await this.feedPostsService.updateLastUpdateAt(reply.feedPostId.toString());
+
     if (!feedPost.rssfeedProviderId) {
       await this.sendFeedReplyCreationNotifications(user, reply);
     }
@@ -336,7 +340,7 @@ export class FeedCommentsController {
     const isReplyWithoutImgAndMsg = (imagesToDelete && !newReplyImages && message === '' && currentReplyImages === imagesToDelete) || (!currentReplyImages && !newReplyImages && message === '');
     if (isReplyWithoutImgAndMsg) {
       throw new HttpException(
-        'Reply must have a message or at least one image. No message or image received.',
+        'Replies must have some text or at least one image.',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -371,11 +375,11 @@ export class FeedCommentsController {
     }
 
     const updatedReply = await this.feedCommentsService.updateFeedReply(params.feedReplyId, updateFeedReplyDto);
+
     const mentionedUserIdsBeforeUpdate = extractUserMentionIdsFromMessage(reply.message);
     const mentionedUserIdsAfterUpdate = extractUserMentionIdsFromMessage(updatedReply?.message);
 
     await this.sendFeedReplyUpdateNotifications(user, updatedReply, mentionedUserIdsBeforeUpdate, mentionedUserIdsAfterUpdate);
-
     return pick(updatedReply, ['_id', 'feedPostId', 'message', 'images', 'feedCommentId', 'userId']);
   }
 
@@ -541,7 +545,7 @@ export class FeedCommentsController {
     if (!skipPostCreatorNotification) {
       userIdsToSkip.push(postCreatorUserId);
       await this.notificationsService.create({
-        userId: post.userId as any,
+        userId: (post.userId as unknown as User)._id,
         feedPostId: comment.feedPostId as any,
         feedCommentId: comment._id as any,
         senderId: commentCreatorUser._id,
@@ -605,7 +609,7 @@ export class FeedCommentsController {
     if (!skipPostCreatorNotification) {
       userIdsToSkip.push(postCreatorUserId);
       await this.notificationsService.create({
-        userId: post.userId as any,
+        userId: (post.userId as unknown as User)._id,
         feedPostId: reply.feedPostId as any,
         feedCommentId: reply.feedCommentId as any,
         feedReplyId: reply._id,

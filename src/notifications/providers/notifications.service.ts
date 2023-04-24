@@ -3,8 +3,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DateTime } from 'luxon';
 import { Notification, NotificationDocument } from '../../schemas/notification/notification.schema';
-import { NotificationDeletionStatus, NotificationReadStatus } from '../../schemas/notification/notification.enums';
+import { NotificationDeletionStatus, NotificationReadStatus, NotificationType } from '../../schemas/notification/notification.enums';
 import { NotificationsGateway } from './notifications.gateway';
+import { UsersService } from '../../users/providers/users.service';
 
 @Injectable()
 export class NotificationsService {
@@ -12,13 +13,16 @@ export class NotificationsService {
     @InjectModel(Notification.name)
     private notificationModel: Model<NotificationDocument>,
     private notificationsGateway: NotificationsGateway,
+    private readonly usersService: UsersService,
   ) { }
 
   async create(notification: Partial<Notification>) {
     const newNotification = await this.notificationModel.create(notification);
     // TODO: Eventually move this to a background job (probably using a NestJS Queue: https://docs.nestjs.com/techniques/queues)
     // This can be processed in the background instead of adding a small delay to each notification creation.
-    await this.processNotification(newNotification.id);
+
+    await Promise.all([this.processNotification(newNotification.id),
+    this.usersService.updateNewNotificationCount((notification.userId).toString())]);
     return newNotification;
   }
 
@@ -57,12 +61,13 @@ export class NotificationsService {
           {
             userId,
             is_deleted: NotificationDeletionStatus.NotDeleted,
+            notifyType: { $ne: NotificationType.UserLikedYourCommentOnANewsPost },
           },
           before ? { createdAt: beforeCreatedAt } : {},
         ],
       })
       .populate('senderId', 'userName _id profilePic')
-      .populate('feedPostId', '_id userId')
+      .populate('feedPostId', '_id userId postType movieId')
       .populate('rssFeedProviderId', '_id logo title')
       .sort({ createdAt: -1 })
       .limit(limit)
@@ -72,11 +77,11 @@ export class NotificationsService {
 
   async findById(id: string): Promise<NotificationDocument> {
     return this.notificationModel
-    .findById(id)
-    .populate('senderId', 'userName _id profilePic')
-    .populate('feedPostId', '_id userId')
-    .populate('rssFeedProviderId', '_id logo title')
-    .exec();
+      .findById(id)
+      .populate('senderId', 'userName _id profilePic')
+      .populate('feedPostId', '_id userId postType movieId')
+      .populate('rssFeedProviderId', '_id logo title')
+      .exec();
   }
 
   async update(id: string, notificationData: Partial<NotificationDocument>): Promise<NotificationDocument> {

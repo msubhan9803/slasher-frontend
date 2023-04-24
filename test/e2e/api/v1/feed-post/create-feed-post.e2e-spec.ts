@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
@@ -16,12 +17,17 @@ import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 import { Hashtag, HashtagDocument } from '../../../../../src/schemas/hastag/hashtag.schema';
+import { PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
+import { MoviesService } from '../../../../../src/movies/providers/movies.service';
+import { moviesFactory } from '../../../../factories/movies.factory';
+import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
 import { FeedPostsService } from '../../../../../src/feed-posts/providers/feed-posts.service';
 
 describe('Feed-Post / Post File (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
+  let moviesService: MoviesService;
   let activeUserAuthToken: string;
   let activeUser: User;
   let configService: ConfigService;
@@ -37,9 +43,11 @@ describe('Feed-Post / Post File (e2e)', () => {
     connection = moduleRef.get<Connection>(getConnectionToken());
 
     usersService = moduleRef.get<UsersService>(UsersService);
+    moviesService = moduleRef.get<MoviesService>(MoviesService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     hashtagModel = moduleRef.get<Model<HashtagDocument>>(getModelToken(Hashtag.name));
+
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
     await app.init();
@@ -58,10 +66,18 @@ describe('Feed-Post / Post File (e2e)', () => {
   });
 
   describe('POST /api/v1/feed-posts', () => {
+    let movie;
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
+      );
+      movie = await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+          },
+        ),
       );
     });
 
@@ -76,6 +92,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
+          .field('postType', PostType.User)
           .field('userId', activeUser._id.toString())
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1])
@@ -85,6 +102,8 @@ describe('Feed-Post / Post File (e2e)', () => {
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           message: 'hello test user',
+          postType: PostType.User,
+          spoilers: false,
           userId: activeUser._id.toString(),
           images: [
             {
@@ -140,13 +159,16 @@ describe('Feed-Post / Post File (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .set('Content-Type', 'multipart/form-data')
         .field('message', message)
+        .field('postType', PostType.User)
         .field('userId', activeUser._id.toString())
         .expect(HttpStatus.CREATED);
       expect(response.body).toEqual({
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
         message: 'This is a test message',
+        postType: PostType.User,
         userId: activeUser._id.toString(),
         images: [],
+        spoilers: false,
       });
     });
 
@@ -157,6 +179,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('userId', activeUser._id.toString())
+          .field('postType', PostType.User)
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1])
           .expect(HttpStatus.CREATED);
@@ -173,8 +196,9 @@ describe('Feed-Post / Post File (e2e)', () => {
         .post('/api/v1/feed-posts')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .field('message', '')
+        .field('postType', PostType.User)
         .expect(HttpStatus.BAD_REQUEST);
-      expect(response.body.message).toBe('Posts must have a message or at least one image. No message or image received.');
+      expect(response.body.message).toBe('Posts must have some text or at least one image.');
     });
 
     it('only allows a maximum of 10 images', async () => {
@@ -264,12 +288,15 @@ describe('Feed-Post / Post File (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'test user#ok #slasher #nothing #ok')
+          .field('postType', PostType.User)
           .field('userId', activeUser._id.toString())
           .attach('files', tempPaths[0]);
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           message: 'test user#ok #slasher #nothing #ok',
           userId: activeUser._id.toString(),
+          postType: PostType.User,
+          spoilers: false,
           images: [
             {
               image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
@@ -300,6 +327,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'test user#ok #slasher #nothing #okay #best #not #go #run #fast #good #buy')
           .field('userId', activeUser._id.toString())
+          .field('postType', PostType.User)
           .attach('files', tempPaths[0]);
         expect(response.body).toEqual({
           statusCode: 400,
@@ -310,6 +338,250 @@ describe('Feed-Post / Post File (e2e)', () => {
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
       const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
       expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when movieId is exits than expected response', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'this new post')
+          .field('postType', PostType.User)
+          .field('userId', activeUser._id.toString())
+          .field('movieId', movie._id.toString())
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1]);
+        const post = await feedPostsService.findById(response.body._id, true);
+        expect(post.movieId).toEqual(movie._id);
+      }, [{ extension: 'png' }, { extension: 'jpg' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when moviePostFields is exits but postType is User than expected response', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'this new post')
+          .field('postType', PostType.User)
+          .field('userId', activeUser._id.toString())
+          .field('movieId', movie._id.toString())
+          .field('moviePostFields[spoilers]', true)
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1]);
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'When submitting moviePostFields, post type must be MovieReview.',
+        });
+      }, [{ extension: 'png' }, { extension: 'jpg' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when moviePostFields is exits but movieId is not exist in post than expected response', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'this new post')
+          .field('postType', PostType.MovieReview)
+          .field('userId', activeUser._id.toString())
+          .field('moviePostFields[spoilers]', true)
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1]);
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'When submitting moviePostFields, movieId is required.',
+        });
+      }, [{ extension: 'png' }, { extension: 'jpg' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when moviePostFields is exits than expected response', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'this new post')
+          .field('postType', PostType.MovieReview)
+          .field('userId', activeUser._id.toString())
+          .field('movieId', movie._id.toString())
+          .field('moviePostFields[spoilers]', true)
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1]);
+        const post = await feedPostsService.findById(response.body._id, true);
+        expect(post.spoilers).toBe(true);
+      }, [{ extension: 'png' }, { extension: 'jpg' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('check trim is working for message in create feed posts', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/feed-posts')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('message', '     this new post   ')
+        .field('userId', activeUser._id.toString())
+        .field('postType', PostType.MovieReview);
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        message: 'this new post',
+        spoilers: false,
+        userId: activeUser._id.toString(),
+        images: [],
+        postType: PostType.MovieReview,
+      });
+    });
+
+    it('returns the expected response when the message only contains whitespace characters', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/feed-posts')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('message', '     \n\n')
+        .field('userId', activeUser._id.toString())
+        .field('postType', PostType.User);
+      expect(response.body).toEqual({
+        statusCode: 400,
+        message: 'Posts must have some text or at least one image.',
+      });
+    });
+
+    it('when postType is movieReview and message is empty string than expected response', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/feed-posts')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', '')
+        .field('postType', PostType.MovieReview)
+        .field('userId', activeUser._id.toString());
+      expect(response.body).toEqual(
+        { statusCode: 400, message: 'Review must have a some text' },
+      );
+    });
+
+    describe('notifications', () => {
+      it('when notification is create for createFeedPost than check newNotificationCount is increment in user', async () => {
+        const otherUser1 = await usersService.create(userFactory.build({ userName: 'Denial' }));
+
+        await createTempFiles(async (tempPaths) => {
+          await request(app.getHttpServer())
+            .post('/api/v1/feed-posts')
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field(
+              'message',
+              `##LINK_ID##${otherUser1._id.toString()}@Denial##LINK_END## other user 1`,
+            )
+            .field('postType', PostType.User)
+            .field('userId', activeUser._id.toString())
+            .attach('files', tempPaths[0])
+            .expect(HttpStatus.CREATED);
+
+          const otherUser1NewNotificationCount = await usersService.findById(otherUser1.id);
+          expect(otherUser1NewNotificationCount.newNotificationCount).toBe(1);
+        }, [{ extension: 'png' }]);
+        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+        expect(allFilesNames).toEqual(['.keep']);
+      });
+    });
+
+    describe('Validation', () => {
+      it('spoilers should not be empty', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .field('userId', activeUser._id.toString())
+          .field('postType', 3)
+          .field('moviePostFields[rating]', 1);
+        expect(response.body.message).toContain('spoilers should not be empty');
+      });
+
+      it('rating must not be greater than 5', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .field('userId', activeUser._id.toString())
+          .field('postType', 3)
+          .field('moviePostFields[spoilers]', true)
+          .field('moviePostFields[rating]', 6);
+        expect(response.body.message).toContain('rating must be less than 5');
+      });
+
+      it('rating must not be less than 1', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .field('userId', activeUser._id.toString())
+          .field('postType', 3)
+          .field('moviePostFields[spoilers]', true)
+          .field('moviePostFields[rating]', 0);
+        expect(response.body.message).toContain('rating must be greater than 1');
+      });
+
+      it('goreFactorRating must not be greater than 5', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .field('userId', activeUser._id.toString())
+          .field('postType', 3)
+          .field('moviePostFields[spoilers]', true)
+          .field('moviePostFields[goreFactorRating]', 6);
+        expect(response.body.message).toContain('goreFactorRating must be less than 5');
+      });
+
+      it('goreFactorRating must not be less than 1', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .field('userId', activeUser._id.toString())
+          .field('postType', 3)
+          .field('moviePostFields[spoilers]', true)
+          .field('moviePostFields[goreFactorRating]', 0);
+        expect(response.body.message).toContain('goreFactorRating must be greater than 1');
+      });
+
+      it('worthWatching must be one of the following values: 1, 2', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .field('userId', activeUser._id.toString())
+          .field('postType', 3)
+          .field('moviePostFields[spoilers]', true)
+          .field('moviePostFields[worthWatching]', 6);
+        expect(response.body.message).toContain('worthWatching must be one of the following values: 1, 2');
+      });
+
+      it('postType should not be empty', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .field('userId', activeUser._id.toString());
+        expect(response.body.message).toContain('postType should not be empty');
+      });
+
+      it('postType must be one of the following values: 3, 2, 1', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .field('userId', activeUser._id.toString())
+          .field('postType', 4);
+        expect(response.body.message).toContain('postType must be one of the following values: 3, 2, 1');
+      });
     });
   });
 });

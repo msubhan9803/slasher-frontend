@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useAppSelector } from '../../redux/hooks';
 import { enableADs } from '../../constants';
-import SlasherDisableAdblocker from '../../images/slasher-disable-adblocker.png';
+import SlasherDisableAdblocker from '../../images/slasher-disable-adblocker.jpg';
 
 declare global {
   interface Window {

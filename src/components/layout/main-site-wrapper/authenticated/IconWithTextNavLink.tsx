@@ -43,7 +43,7 @@ function IconWithTextNavLink({
   const handleRefresh = () => {
     if (label === 'Home') {
       dispatch(setHomeDataReload(true));
-    } else if (label === 'Me') {
+    } else {
       scrollToTop('instant');
     }
   };

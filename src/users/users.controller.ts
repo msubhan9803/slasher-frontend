@@ -425,7 +425,9 @@ export class UsersController {
     // look into caching some initial-data items later on (and then building appropriate
     // cache invalidation mechanisms).
     const user: UserDocument = getUserFromRequest(request);
-    const recentMessages: any = await this.chatService.getConversations(user.id, 3);
+    // Note: Below, we retrieve more conversations than we need because deleted conversations are
+    // currently retrieved by this method, so we
+    const recentMessages: any = (await this.chatService.getConversations(user.id, 10)).slice(0, 3);
     const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user.id, 3);
     const unreadNotificationCount = await this.notificationsService.getUnreadNotificationCount(user.id);
     return {

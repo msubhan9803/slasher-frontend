@@ -4,11 +4,12 @@ import {
 } from 'class-validator';
 import { ProfileVisibility } from '../../schemas/user/user.enums';
 import { IsValidUsername } from '../../app/decorators/class-validator/user-name.decorator';
+import { IsValidFirstname } from '../../app/decorators/class-validator/first-name.decorator';
 
 export class UpdateUserDto {
   @IsOptional()
   @IsNotEmpty()
-  @MaxLength(30)
+  @IsValidFirstname()
   firstName?: string;
 
   @IsOptional()

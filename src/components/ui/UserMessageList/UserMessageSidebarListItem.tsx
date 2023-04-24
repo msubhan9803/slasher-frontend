@@ -45,7 +45,7 @@ function UserMessageSidebarListItem({
             {userName}
           </p>
           <MessageSnippet className="mb-0 small text-light">
-            <ChatMessageText message={message} />
+            <ChatMessageText message={message} firstLineOnly />
           </MessageSnippet>
         </Link>
       </div>

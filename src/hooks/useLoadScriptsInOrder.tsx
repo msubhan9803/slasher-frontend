@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 */
 const useLoadScriptsInOrder = (URLs: string[], disableHook?: boolean) => {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [error, setError] = useState<any>(null);
 
   useEffect(() => {
     if (disableHook) { return; }
@@ -22,14 +23,15 @@ const useLoadScriptsInOrder = (URLs: string[], disableHook?: boolean) => {
             body.appendChild(tag);
 
             tag.addEventListener('load', resolve);
+            tag.addEventListener('error', () => { setError(true); });
           });
         }
         setIsLoaded(true);
-      } catch (error: any) {
+      } catch (err: any) {
         console.error('Slasher LOG: (failed to load PubWise scipts):', {
-          name: error.name,
-          message: error.message,
-          stack: error.stack,
+          name: err.name,
+          message: err.message,
+          stack: err.stack,
         });
       }
     }
@@ -37,7 +39,7 @@ const useLoadScriptsInOrder = (URLs: string[], disableHook?: boolean) => {
     main();
   }, [URLs, disableHook]);
 
-  return isLoaded;
+  return { isScriptsLoaded: isLoaded, error };
 };
 
 export default useLoadScriptsInOrder;

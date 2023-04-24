@@ -6,6 +6,7 @@ import { ChatProps } from './ChatProps';
 import ChatTimestamp from './ChatTimestamp';
 import LoadingIndicator from '../ui/LoadingIndicator';
 import { enableDevFeatures } from '../../utils/configEnvironment';
+import ChatMessageText from './ChatMessageText';
 
 const ChatMessages = styled.div`
 .time-stamp {
@@ -57,7 +58,6 @@ function ChatMessage({ messages, messageLoading }: ChatProps) {
       );
     }
   };
-  const addLineBreaks = (text: string) => text?.replace(/\n/g, '<br>');
   const renderMessage = (message: any) => (
     <React.Fragment key={message.id}>
       {(!lastTimeStampMessage || DateTime.fromISO(lastTimeStampMessage).toISODate()
@@ -76,9 +76,8 @@ function ChatMessage({ messages, messageLoading }: ChatProps) {
                 />
               )
               : (
-                <p className="fs-4 mb-0 p-3 text-small text-white">
-                  {/* eslint-disable-next-line react/no-danger */}
-                  <div dangerouslySetInnerHTML={{ __html: addLineBreaks(message.message) }} />
+                <p className="fs-4 mb-0 p-3 text-white">
+                  <ChatMessageText message={message.message} />
                 </p>
               )}
           </div>
@@ -109,9 +108,8 @@ function ChatMessage({ messages, messageLoading }: ChatProps) {
                 />
               )
               : (
-                <p className="fs-4 mb-0 p-3 text-small text-white" style={{ maxWidth: '100%' }}>
-                  {/* eslint-disable-next-line react/no-danger */}
-                  <div dangerouslySetInnerHTML={{ __html: addLineBreaks(message.message) }} />
+                <p className="fs-4 mb-0 p-3 text-white" style={{ maxWidth: '100%' }}>
+                  <ChatMessageText message={message.message} />
                 </p>
               )}
           </div>

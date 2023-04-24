@@ -27,6 +27,7 @@ interface Props {
   tabKey?: string;
   user: User | undefined;
   showTabs?: boolean;
+  loadUser?: Function;
 }
 const AboutProfileImage = styled(UserCircleImage)`
   border: 0.25rem solid #1B1B1B;
@@ -54,7 +55,7 @@ const StyledPopoverContainer = styled.div`
 type FriendType = { from: string, to: string, reaction: FriendRequestReaction } | null;
 
 function ProfileHeader({
-  tabKey, user, showTabs,
+  tabKey, user, showTabs, loadUser,
 }: Props) {
   const [show, setShow] = useState<boolean>(false);
   const [friendshipStatus, setFriendshipStatus] = useState<any>();
@@ -106,8 +107,8 @@ function ProfileHeader({
     createBlockUser(clickedUserId)
       .then(() => {
         setShow(false);
-        // Navigate to home page after blocking the user
-        navigate('/');
+        // Refetch user from the api into application state
+        loadUser?.();
       })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
@@ -218,6 +219,7 @@ function ProfileHeader({
 ProfileHeader.defaultProps = {
   showTabs: true,
   tabKey: tabs[0].value,
+  loadUser: () => { },
 };
 
 export default ProfileHeader;

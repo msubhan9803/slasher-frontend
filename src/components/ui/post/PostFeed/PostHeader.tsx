@@ -133,6 +133,7 @@ function PostHeader({
             id={id}
             userId={userId}
             postImages={postImages}
+            rssfeedProviderId={rssfeedProviderId}
           />
         </div>
       </Col>

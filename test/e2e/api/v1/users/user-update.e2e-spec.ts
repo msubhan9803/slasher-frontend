@@ -183,8 +183,8 @@ describe('Users / :id (e2e)', () => {
       it('firstName is should not end with special character', async () => {
         postBody.firstName = 'testUser-';
         const response = await request(app.getHttpServer())
-        .get('/api/v1/users/validate-registration-fields')
-        .query(postBody);
+          .get('/api/v1/users/validate-registration-fields')
+          .query(postBody);
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toContain(
           'Firstname must be between 1 and 30 characters, can only include letters/numbers/special characters, '
@@ -193,7 +193,7 @@ describe('Users / :id (e2e)', () => {
       });
 
       it('firstName should not starts with special character', async () => {
-        postBody.firstName = '_testuser';
+        postBody.firstName = '-testuser';
         const response = await request(app.getHttpServer())
           .patch(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })

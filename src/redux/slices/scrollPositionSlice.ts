@@ -11,6 +11,7 @@ export const scrollPositionSlice = createSlice({
     searchValue: '',
     keyValue: '',
     page: 0,
+    scrollToTab: false,
   },
   reducers: {
     setScrollPosition: (state, action) => ({
@@ -24,9 +25,13 @@ export const scrollPositionSlice = createSlice({
       keyValue: action.payload.keyValue ? action.payload.keyValue : '',
       page: action.payload.page ? action.payload.page : '',
     }),
+    /* eslint-disable no-param-reassign */
+    setScrollToTabsPosition: (state, payload) => {
+      state.scrollToTab = payload.payload;
+    },
   },
 });
 
-export const { setScrollPosition } = scrollPositionSlice.actions;
+export const { setScrollPosition, setScrollToTabsPosition } = scrollPositionSlice.actions;
 
 export default scrollPositionSlice.reducer;

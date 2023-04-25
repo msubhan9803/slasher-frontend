@@ -23,6 +23,8 @@ import { StyledBorder } from '../../components/ui/StyledBorder';
 import { enableDevFeatures } from '../../utils/configEnvironment';
 import FriendActionButtons from '../../components/ui/Friend/FriendActionButtons';
 import { LG_MEDIA_BREAKPOINT, topToDivHeight } from '../../constants';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { setScrollToTabsPosition } from '../../redux/slices/scrollPositionSlice';
 
 interface Props {
   tabKey?: string;
@@ -70,6 +72,8 @@ function ProfileHeader({
   const [clickedUserId, setClickedUserId] = useState<string>('');
   const [friendData, setFriendData] = useState<FriendType>(null);
   const positionRef = useRef<HTMLDivElement>(null);
+  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  const dispatch = useAppDispatch();
 
   const isSelfUserProfile = userName === loginUserName;
 
@@ -94,7 +98,7 @@ function ProfileHeader({
   useLayoutEffect(() => {
     const element = positionRef.current;
     if (!element) { return; }
-    if (friendStatus || element) {
+    if (scrollPosition.scrollToTab && (friendStatus || element)) {
       window.scrollTo({
         top: element.offsetTop - (
           window.innerWidth >= parseInt(LG_MEDIA_BREAKPOINT.replace('px', ''), 10)
@@ -103,8 +107,9 @@ function ProfileHeader({
         ),
         behavior: 'instant' as any,
       });
+      dispatch(setScrollToTabsPosition(false));
     }
-  }, [positionRef, friendStatus]);
+  }, [positionRef, friendStatus, dispatch, scrollPosition.scrollToTab]);
 
   const onBlockYesClick = () => {
     createBlockUser(clickedUserId)

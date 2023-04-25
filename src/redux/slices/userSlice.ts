@@ -16,7 +16,7 @@ export const userSlice = createSlice({
       newNotificationCount: 0,
     },
     forceFriendListReload: false,
-    homeDataReload: false,
+    screenReload: false,
   },
   reducers: {
     setUserInitialData: (state, action) => ({
@@ -57,8 +57,8 @@ export const userSlice = createSlice({
     setFriendListReload: (state, payload) => {
       state.forceFriendListReload = payload.payload;
     },
-    setHomeDataReload: (state, payload) => {
-      state.homeDataReload = payload.payload;
+    setScreenReload: (state, payload) => {
+      state.screenReload = payload.payload;
     },
   },
 });
@@ -74,7 +74,7 @@ export const {
   updateUserProfilePic,
   setUserRecentFriendRequests,
   setFriendListReload,
-  setHomeDataReload,
+  setScreenReload,
 } = userSlice.actions;
 
 export default userSlice.reducer;

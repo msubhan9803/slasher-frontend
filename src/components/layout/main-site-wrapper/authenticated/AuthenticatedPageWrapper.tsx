@@ -69,7 +69,6 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const remoteConstantsData = useAppSelector((state) => state.remoteConstants);
   const { pathname } = useLocation();
   const token = Cookies.get('sessionToken');
-  const isSocketConnected = useAppSelector((state) => state.socket.isConnected);
   useGoogleAnalytics(analyticsId);
 
   const [show, setShow] = useState(false);
@@ -167,7 +166,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
     onUnreadConversationCountUpdate, token,
   ]);
 
-  if (!token || !userData.user?.id || !isSocketConnected) {
+  if (!token || !userData.user?.id) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
         <HeaderLogo

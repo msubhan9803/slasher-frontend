@@ -39,6 +39,7 @@ function Conversation() {
   const [imageArray, setImageArray] = useState<any>([]);
   const [uploadPost, setUploadPost] = useState<string[]>([]);
   const [messageLoading, setMessageLoading] = useState<boolean>(false);
+  const isSocketConnected = useAppSelector((state) => state.socket.isConnected);
 
   useEffect(() => {
     if (location.pathname.includes('/new')) {
@@ -202,7 +203,7 @@ function Conversation() {
     }
   }, [conversationId, requestAdditionalPosts, messageList, loadingMessages, socket, userId]);
 
-  if (isLoading) { return null; }
+  if (isLoading || !isSocketConnected) { return null; }
 
   if (showPageDoesNotExist) {
     return (

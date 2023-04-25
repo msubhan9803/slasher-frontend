@@ -1,12 +1,13 @@
 /* eslint-disable max-lines */
 import React, {
-  useCallback, useContext, useEffect, useState,
+  useCallback, useEffect, useState,
 } from 'react';
 import { Offcanvas } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import styled from 'styled-components';
 import { useMediaQuery } from 'react-responsive';
+import { io } from 'socket.io-client';
 import SidebarNavContent from '../../sidebar-nav/SidebarNavContent';
 import AuthenticatedPageHeader from './AuthenticatedPageHeader';
 import MobileOnlySidebarContent from '../../sidebar-nav/MobileOnlySidebarContent';
@@ -18,14 +19,16 @@ import {
 } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { signOut } from '../../../../utils/session-utils';
-import { SocketContext } from '../../../../context/socket';
-import { LG_MEDIA_BREAKPOINT, analyticsId, MAIN_CONTENT_ID } from '../../../../constants';
+import {
+  LG_MEDIA_BREAKPOINT, analyticsId, MAIN_CONTENT_ID, apiUrl,
+} from '../../../../constants';
 import useGoogleAnalytics from '../../../../hooks/useGoogleAnalytics';
 import SkipToMainContent from '../../sidebar-nav/SkipToMainContent';
 import { setRemoteConstantsData } from '../../../../redux/slices/remoteConstantsSlice';
 import { fetchRemoteConstants } from '../../../../api/remote-constants';
 import slasherLogo from '../../../../images/slasher-logo-medium.png';
 import HeaderLogo from '../../../ui/HeaderLogo';
+import { setSocketInstance } from '../../../../redux/slices/socketSlice';
 
 interface Props {
   children: React.ReactNode;
@@ -65,8 +68,8 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const userData = useAppSelector((state) => state.user);
   const remoteConstantsData = useAppSelector((state) => state.remoteConstants);
   const { pathname } = useLocation();
-  const socket = useContext(SocketContext);
   const token = Cookies.get('sessionToken');
+  const isSocketConnected = useAppSelector((state) => state.socket.isConnected);
   useGoogleAnalytics(analyticsId);
 
   const [show, setShow] = useState(false);
@@ -103,10 +106,6 @@ function AuthenticatedPageWrapper({ children }: Props) {
     }
   }, [dispatch, navigate, pathname, userData.user?.userName, remoteConstantsData.loaded, token]);
 
-  useCallback(() => {
-    dispatch(setUserInitialData(userData));
-  }, [dispatch, userData]);
-
   const onNotificationReceivedHandler = useCallback(() => {
     dispatch(incrementUnreadNotificationCount());
   }, [dispatch]);
@@ -127,28 +126,48 @@ function AuthenticatedPageWrapper({ children }: Props) {
   }, [dispatch]);
 
   useEffect(() => {
-    if (socket) {
-      socket.on('notificationReceived', onNotificationReceivedHandler);
-      socket.on('friendRequestReceived', onFriendRequestReceivedHandler);
-      socket.on('unreadConversationCountUpdate', onUnreadConversationCountUpdate);
-      socket.on('clearNewNotificationCount', onClearNewNotificationCount);
-      socket.on('clearNewFriendRequestCount', onClearNewFriendRequestCount);
-      return () => {
-        socket.off('notificationReceived', onNotificationReceivedHandler);
-        socket.off('friendRequestReceived', onFriendRequestReceivedHandler);
-        socket.off('unreadMessageCountUpdate', onUnreadConversationCountUpdate);
-        socket.off('clearNewNotificationCount', onClearNewNotificationCount);
-        socket.off('clearNewFriendRequestCount', onClearNewFriendRequestCount);
-      };
-    }
-    return () => { };
-  }, [
-    onNotificationReceivedHandler, onFriendRequestReceivedHandler,
-    onUnreadConversationCountUpdate, onClearNewFriendRequestCount,
-    onClearNewNotificationCount,
-    socket]);
+    let ignore = false;
+    const socketInstance = io(apiUrl!, {
+      transports: ['websocket'],
+      auth: { token },
+    });
+    socketInstance.on('connect', () => {
+      // This `ignore` helps to avoid setting state twice as with useEffect can
+      // run multiple times leading to race conditions.
+      if (!ignore) {
+        dispatch(setSocketInstance(socketInstance));
+      }
+    });
 
-  if (!token || !userData.user?.id) {
+    // This is here to help with troubleshooting if there are ever any connection issues.
+    // This will just prove whether or not authentication worked. If authentication fails,
+    // the client is automatically disconnected.
+    socketInstance.once('authSuccess', (payload) => {
+      if (payload.success) {
+        (socketInstance as any).slasherAuthSuccess = true;
+      }
+    });
+    socketInstance.on('notificationReceived', onNotificationReceivedHandler);
+    socketInstance.on('friendRequestReceived', onFriendRequestReceivedHandler);
+    socketInstance.on('unreadConversationCountUpdate', onUnreadConversationCountUpdate);
+    socketInstance.on('clearNewNotificationCount', onClearNewNotificationCount);
+    socketInstance.on('clearNewFriendRequestCount', onClearNewFriendRequestCount);
+    return () => {
+      socketInstance.off('notificationReceived', onNotificationReceivedHandler);
+      socketInstance.off('friendRequestReceived', onFriendRequestReceivedHandler);
+      socketInstance.off('unreadMessageCountUpdate', onUnreadConversationCountUpdate);
+      socketInstance.off('clearNewNotificationCount', onClearNewNotificationCount);
+      socketInstance.off('clearNewFriendRequestCount', onClearNewFriendRequestCount);
+      // This `ignore` helps to avoid setting state twice as with useEffect can
+      // run multiple times leading to race conditions.
+      ignore = true;
+    };
+  }, [dispatch, onClearNewFriendRequestCount, onClearNewNotificationCount,
+    onFriendRequestReceivedHandler, onNotificationReceivedHandler,
+    onUnreadConversationCountUpdate, token,
+  ]);
+
+  if (!token || !userData.user?.id || !isSocketConnected) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
         <HeaderLogo

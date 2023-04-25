@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 /* eslint-disable max-len */
 import React, {
-  useEffect, useState, useContext, useCallback,
+  useEffect, useState, useCallback,
 } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Link, useLocation } from 'react-router-dom';
@@ -15,7 +15,6 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layou
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import { useAppSelector, useAppDispatch } from '../../redux/hooks';
 import { setScrollPosition } from '../../redux/slices/scrollPositionSlice';
-import { SocketContext } from '../../context/socket';
 import { resetUnreadNotificationCount, setUserInitialData } from '../../redux/slices/userSlice';
 import NotificationsRightSideNav from './NotificationsRightSideNav';
 
@@ -27,7 +26,8 @@ function Notifications() {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
-  const socket = useContext(SocketContext);
+  const socket = useAppSelector((state) => state.socket.instance);
+
   const location = useLocation();
   const [notificationData, setNotificationData] = useState<Notification[]>(
     scrollPosition.pathname === location.pathname

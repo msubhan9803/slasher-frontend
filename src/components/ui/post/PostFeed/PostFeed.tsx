@@ -320,7 +320,6 @@ function PostFeed({
                 }
                 onClick={() => !detailPage && onPostContentClick(post)}
                 aria-label="post-content"
-                tabIndex={0}
                 onKeyDown={(e) => handlePostContentKeyDown(e, post)}
               />
               {

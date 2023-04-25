@@ -25,6 +25,7 @@ import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-ut
 import { getMoviesById } from '../../../api/movies';
 import { createBlockUser } from '../../../api/blocks';
 import { reportData } from '../../../api/report';
+import styled from 'styled-components';
 
 type Props = {
   movieData: MovieData;
@@ -32,6 +33,10 @@ type Props = {
   reviewForm: boolean;
   setReviewForm: (value: boolean) => void;
 };
+
+const StyledReviewContainer = styled.div`
+  min-height: 100vh;
+`;
 
 const loginUserPopoverOptions = ['Edit Review', 'Delete Review'] as const;
 const otherUserPopoverOptions = ['Report', 'Block user'] as const;
@@ -391,7 +396,7 @@ function MovieReviews({
     }
   };
   return (
-    <div>
+    <StyledReviewContainer>
       {
         showReviewForm
           ? (
@@ -464,7 +469,7 @@ function MovieReviews({
           />
         )
       }
-    </div>
+    </StyledReviewContainer>
   );
 }
 

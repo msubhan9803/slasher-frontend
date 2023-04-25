@@ -22,6 +22,7 @@ import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { StyledBorder } from '../../components/ui/StyledBorder';
 import { enableDevFeatures } from '../../utils/configEnvironment';
 import FriendActionButtons from '../../components/ui/Friend/FriendActionButtons';
+import { LG_MEDIA_BREAKPOINT, topToDivHeight } from '../../constants';
 
 interface Props {
   tabKey?: string;
@@ -93,15 +94,17 @@ function ProfileHeader({
   useLayoutEffect(() => {
     const element = positionRef.current;
     if (!element) { return; }
-    document.documentElement.style.scrollBehavior = 'auto';
-    element?.scrollIntoView({
-      behavior: 'instant' as any,
-      block: 'start',
-    });
-    setTimeout(() => {
-      document.documentElement.style.scrollBehavior = 'smooth';
-    }, 500);
-  }, [positionRef]);
+    if (friendStatus || element) {
+      window.scrollTo({
+        top: element.offsetTop - (
+          window.innerWidth >= parseInt(LG_MEDIA_BREAKPOINT.replace('px', ''), 10)
+            ? (topToDivHeight - 18)
+            : 0
+        ),
+        behavior: 'instant' as any,
+      });
+    }
+  }, [positionRef, friendStatus]);
 
   const onBlockYesClick = () => {
     createBlockUser(clickedUserId)

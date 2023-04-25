@@ -22,6 +22,8 @@ import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { StyledBorder } from '../../components/ui/StyledBorder';
 import { enableDevFeatures } from '../../utils/configEnvironment';
 import FriendActionButtons from '../../components/ui/Friend/FriendActionButtons';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { setScrollToTabsPosition } from '../../redux/slices/scrollPositionSlice';
 
 interface Props {
   tabKey?: string;
@@ -69,6 +71,8 @@ function ProfileHeader({
   const [clickedUserId, setClickedUserId] = useState<string>('');
   const [friendData, setFriendData] = useState<FriendType>(null);
   const positionRef = useRef<HTMLDivElement>(null);
+  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  const dispatch = useAppDispatch();
 
   const isSelfUserProfile = userName === loginUserName;
 
@@ -93,15 +97,18 @@ function ProfileHeader({
   useLayoutEffect(() => {
     const element = positionRef.current;
     if (!element) { return; }
-    document.documentElement.style.scrollBehavior = 'auto';
-    element?.scrollIntoView({
-      behavior: 'instant' as any,
-      block: 'start',
-    });
-    setTimeout(() => {
-      document.documentElement.style.scrollBehavior = 'smooth';
-    }, 500);
-  }, [positionRef]);
+    if (scrollPosition.scrollToTab) {
+      document.documentElement.style.scrollBehavior = 'auto';
+      element?.scrollIntoView({
+        behavior: 'instant' as any,
+        block: 'start',
+      });
+      dispatch(setScrollToTabsPosition(false));
+      setTimeout(() => {
+        document.documentElement.style.scrollBehavior = 'smooth';
+      }, 500);
+    }
+  }, [positionRef, dispatch, scrollPosition.scrollToTab]);
 
   const onBlockYesClick = () => {
     createBlockUser(clickedUserId)

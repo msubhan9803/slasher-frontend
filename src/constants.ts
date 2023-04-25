@@ -24,3 +24,5 @@ export const DEFAULT_EVENTS_USER_LOCATION = { lat: 41.055877, lng: -74.95479 };
 
 export const GOOGLE_PLAY_DOWNLOAD_URL = 'https://play.google.com/store/apps/details?id=com.sdei.slasher';
 export const APP_STORE_DOWNLOAD_URL = 'https://apps.apple.com/app/id1458216326';
+
+export const topToDivHeight = 100;

@@ -3,6 +3,9 @@ import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
 import { Link, matchPath, useLocation } from 'react-router-dom';
+import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
+import { setScreenReload } from '../../../redux/slices/userSlice';
+import { useAppDispatch } from '../../../redux/hooks';
 
 interface Props {
   label: string;
@@ -45,12 +48,23 @@ function SidebarNavItem({
   label, icon, iconColor: color, to, className, id, onToggleCanvas,
 }: Props) {
   const { pathname } = useLocation();
+  const dispatch = useAppDispatch();
+  const handleRefresh = () => {
+    dispatch(setScreenReload(true));
+    const positionData = {
+      pathname: '',
+      position: 0,
+      data: [],
+      positionElementId: '',
+    };
+    dispatch(setScrollPosition(positionData));
+  };
   return (
     <StyledLink
       className={`w-100 btn rounded-3 btn-dark d-flex align-items-center ${className}
       ${matchPath({ path: to, end: false }, pathname) ? 'btn-filter' : ''}`}
       to={to}
-      onClick={onToggleCanvas}
+      onClick={() => { onToggleCanvas!(); handleRefresh(); }}
     >
       <LinkContentWrapper className="d-flex align-items-center justify-content-between">
         <LinearIcon uniqueId={`icon-${id}`}>

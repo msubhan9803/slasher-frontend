@@ -455,6 +455,7 @@ function PostFeed({
                 <>
                   {/* <StyledBorder className="d-md-block d-none mb-4" /> */}
                   <InfiniteScroll
+                    threshold={1000}
                     pageStart={0}
                     initialLoad
                     loadMore={() => {

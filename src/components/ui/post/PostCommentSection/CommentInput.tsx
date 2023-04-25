@@ -41,6 +41,7 @@ interface CommentInputProps {
   setCommentReplyErrorMessage?: (value: string[]) => void;
   setReplyImageArray?: (value: any) => void;
   isEdit?: boolean;
+  isMainPostCommentClick?: boolean;
 }
 
 interface InputProps {
@@ -84,7 +85,7 @@ function CommentInput({
   handleFileChange, sendComment, imageArray, handleRemoveFile, dataId,
   handleSearch, mentionList, addUpdateComment, replyImageArray, isReply,
   addUpdateReply, commentID, commentReplyID, checkCommnt, commentError, commentReplyError,
-  commentSent, setCommentReplyErrorMessage, setReplyImageArray, isEdit,
+  commentSent, setCommentReplyErrorMessage, setReplyImageArray, isEdit, isMainPostCommentClick,
 }: CommentInputProps) {
   const [editMessage, setEditMessage] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
@@ -220,6 +221,7 @@ function CommentInput({
                 isCommentInput="true"
                 onFocusHandler={onFocusHandler}
                 onBlurHandler={onBlurHandler}
+                isMainPostCommentClick={isMainPostCommentClick}
               />
               <InputGroup.Text className="position-relative px-3 border-start-0">
                 <FontAwesomeIcon
@@ -315,6 +317,7 @@ CommentInput.defaultProps = {
   setCommentReplyErrorMessage: undefined,
   setReplyImageArray: undefined,
   isEdit: undefined,
+  isMainPostCommentClick: undefined,
 };
 
 export default CommentInput;

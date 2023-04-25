@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Row, Image, Col,
 } from 'react-bootstrap';
@@ -91,10 +91,26 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
   const navigate = useNavigate();
   const params = useParams();
   const [reviewForm, setReviewForm] = useState(false);
-
+  const movieReviewRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (params['*'] === 'edit' && !selfView) { navigate(`/app/movies/${params.id}/details`); }
   });
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (params && params['*']!.startsWith('reviews/') && isReviewDetail && movieReviewRef?.current) {
+        document.documentElement.style.scrollBehavior = 'auto';
+        movieReviewRef?.current?.scrollIntoView({
+          behavior: 'instant' as any,
+          block: 'nearest',
+          inline: 'nearest',
+        });
+      }
+    }, 10);
+    setTimeout(() => {
+      document.documentElement.style.scrollBehavior = 'smooth';
+    }, 20);
+  }, [isReviewDetail, params]);
 
   // TODO: Can this be removed, now that the comment button no longer links to the comment input?
   useEffect(() => {
@@ -260,12 +276,13 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
               </Col>
             </Row>
           )}
-
-        <Row className="justify-content-center">
-          <Col xs={12}>
-            <TabLinks tabsClass="start" tabsClassSmall="start" tabLink={tabs} toLink={`/app/movies/${params.id}`} selectedTab={isReviewDetail ? 'reviews' : params['*']} params={selfView ? '?view=self' : ''} />
-          </Col>
-        </Row>
+        <div ref={movieReviewRef}>
+          <Row className="justify-content-center">
+            <Col xs={12}>
+              <TabLinks tabsClass="start" tabsClassSmall="start" tabLink={tabs} toLink={`/app/movies/${params.id}`} selectedTab={isReviewDetail ? 'reviews' : params['*']} params={selfView ? '?view=self' : ''} />
+            </Col>
+          </Row>
+        </div>
       </div>
 
       <Routes>

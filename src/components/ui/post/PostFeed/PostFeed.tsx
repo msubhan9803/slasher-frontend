@@ -134,6 +134,7 @@ function PostFeed({
   commentSent, setCommentReplyErrorMessage, setCommentErrorMessage,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
+  const [isCommentClick, setCommentClick] = useState<boolean>(false);
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
@@ -393,6 +394,11 @@ function PostFeed({
       imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
     }));
   };
+
+  const handleComment = () => {
+    setCommentClick(!isCommentClick);
+  };
+
   return (
     <StyledPostFeed>
       {postData.map((post: any, i) => (
@@ -444,6 +450,8 @@ function PostFeed({
                       handleLikeModal={handleLikeModal}
                       postType={postType}
                       movieId={post.movieId}
+                      detailsPage={detailPage}
+                      onCommentClick={handleComment}
                     />
                   </Col>
                 </Row>
@@ -452,7 +460,7 @@ function PostFeed({
             {
               isCommentSection
               && (
-                <>
+                <div>
                   {/* <StyledBorder className="d-md-block d-none mb-4" /> */}
                   <InfiniteScroll
                     threshold={1000}
@@ -495,10 +503,11 @@ function PostFeed({
                       setCommentReplyErrorMessage={setCommentReplyErrorMessage}
                       setCommentErrorMessage={setCommentErrorMessage}
                       handleLikeModal={handleLikeModal}
+                      isMainPostCommentClick={isCommentClick}
                     />
                   </InfiniteScroll>
                   {loadingPosts && <LoadingIndicator />}
-                </>
+                </div>
               )
             }
           </div>

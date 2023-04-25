@@ -15,7 +15,7 @@ import socketReducer from './slices/socketSlice';
 // redux-toolkit (immerjs) throws error because checking for mutations on a
 // object like `socketInstance` with circular dependencies is generally not intentional.
 const immutableInvariantMiddleware = createImmutableStateInvariantMiddleware({
-  ignoredPaths: ['socket'],
+  ignoredPaths: ['socket.instance'],
 });
 
 export const store = configureStore({

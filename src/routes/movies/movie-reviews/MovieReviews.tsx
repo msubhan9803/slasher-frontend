@@ -5,6 +5,7 @@ import React, {
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
+import styled from 'styled-components';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import CreatePostComponent from '../../../components/ui/CreatePostComponent';
@@ -25,7 +26,6 @@ import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-ut
 import { getMoviesById } from '../../../api/movies';
 import { createBlockUser } from '../../../api/blocks';
 import { reportData } from '../../../api/report';
-import styled from 'styled-components';
 
 type Props = {
   movieData: MovieData;

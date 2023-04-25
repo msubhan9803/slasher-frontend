@@ -92,14 +92,8 @@ function ProfileFriends({ user, loadUser }: Props) {
   useEffect(() => {
     if (user.userName === params.userName) {
       setUserId(user._id);
-      setFriendsList(scrollPosition.pathname === location.pathname
-        ? scrollPosition?.data : []);
       setNoMoreData(false);
-      setSearch(scrollPosition.pathname === location.pathname
-        ? scrollPosition?.searchValue : '');
       setAdditionalFriend(true);
-      setPage(scrollPosition.pathname === location.pathname
-        ? scrollPosition?.page : 0);
     }
   }, [params.userName, user.userName, user._id, scrollPosition, location.pathname]);
 
@@ -121,14 +115,12 @@ function ProfileFriends({ user, loadUser }: Props) {
           setNoMoreData(true);
         }
         if (scrollPosition.pathname === location.pathname
-          && friendsList.length >= scrollPosition.data.length + 10) {
+        ) {
           const positionData = {
             pathname: '',
             position: 0,
             data: [],
             positionElementId: '',
-            page: 0,
-            searchValue: '',
           };
           dispatch(setScrollPosition(positionData));
         }
@@ -138,7 +130,7 @@ function ProfileFriends({ user, loadUser }: Props) {
         // eslint-disable-next-line max-len
         () => { setAdditionalFriend(false); setLoadingFriends(false); isLoadingRef.current = false; },
       );
-  }, [search, userId, page, scrollPosition, dispatch, friendsList, location]);
+  }, [search, userId, page, scrollPosition, dispatch, location]);
 
   useEffect(() => {
     if (additionalFriend && !loadingFriends && userId && user.userName === params.userName) {
@@ -147,6 +139,7 @@ function ProfileFriends({ user, loadUser }: Props) {
         || friendsList.length >= scrollPosition?.data?.length
         || friendsList.length === 0
         || scrollPosition.pathname !== location.pathname
+        || page > 0
       ) {
         setTimeout(() => {
           setLoadingFriends(true);
@@ -237,7 +230,7 @@ function ProfileFriends({ user, loadUser }: Props) {
               loadMore={() => { setAdditionalFriend(true); }}
               hasMore={!noMoreData}
             >
-              <Row ref={friendContainerElementRef}>
+              <Row ref={friendContainerElementRef} className="mt-4">
                 {friendsList.map((friend: FriendProps) => (
                   <Col md={4} lg={6} xl={4} key={friend._id}>
                     <FriendsProfileCard

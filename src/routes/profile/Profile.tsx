@@ -68,10 +68,6 @@ function Profile() {
           return;
         }
         setUser(res.data);
-        window.scrollTo({
-          top: 0,
-          behavior: 'instant' as any,
-        });
       }).catch(() => setUserNotFound(true));
   }, [user, userNameOrId, location.pathname, location.search, navigate]);
 
@@ -101,6 +97,7 @@ function Profile() {
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
+        <h1 className="sr-only">{user.userName}</h1>
         <Routes>
           <Route path="/edit" element={<ProfileEdit user={user} />} />
           <Route path="*" element={<SharedHeaderProfilePages user={user} />} />

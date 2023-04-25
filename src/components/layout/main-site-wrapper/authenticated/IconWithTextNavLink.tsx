@@ -51,7 +51,7 @@ function IconWithTextNavLink({
     dispatch(setScrollPosition(positionData));
     if (label === 'Home') {
       dispatch(setScreenReload(true));
-    } else if (label === 'Me') {
+    } else {
       scrollToTop('instant');
     }
   };

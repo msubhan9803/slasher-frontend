@@ -1,5 +1,7 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect, useState, useRef, useLayoutEffect,
+} from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Col, Row } from 'react-bootstrap';
@@ -51,7 +53,9 @@ const StyledPopoverContainer = styled.div`
 `;
 type FriendType = { from: string, to: string, reaction: FriendRequestReaction } | null;
 
-function ProfileHeader({ tabKey, user, showTabs }: Props) {
+function ProfileHeader({
+  tabKey, user, showTabs,
+}: Props) {
   const [show, setShow] = useState<boolean>(false);
   const [friendshipStatus, setFriendshipStatus] = useState<any>();
   const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
@@ -63,6 +67,7 @@ function ProfileHeader({ tabKey, user, showTabs }: Props) {
   const navigate = useNavigate();
   const [clickedUserId, setClickedUserId] = useState<string>('');
   const [friendData, setFriendData] = useState<FriendType>(null);
+  const positionRef = useRef<HTMLDivElement>(null);
 
   const isSelfUserProfile = userName === loginUserName;
 
@@ -83,6 +88,19 @@ function ProfileHeader({ tabKey, user, showTabs }: Props) {
       });
     }
   }, [user, friendshipStatus, isSelfUserProfile, loginUserId]);
+
+  useLayoutEffect(() => {
+    const element = positionRef.current;
+    if (!element) { return; }
+    document.documentElement.style.scrollBehavior = 'auto';
+    element?.scrollIntoView({
+      behavior: 'instant' as any,
+      block: 'start',
+    });
+    setTimeout(() => {
+      document.documentElement.style.scrollBehavior = 'smooth';
+    }, 500);
+  }, [positionRef]);
 
   const onBlockYesClick = () => {
     createBlockUser(clickedUserId)
@@ -111,7 +129,6 @@ function ProfileHeader({ tabKey, user, showTabs }: Props) {
   if (!user || (!isSelfUserProfile && typeof friendStatus === null)) {
     return <LoadingIndicator />;
   }
-
   return (
     <div className="bg-dark bg-mobile-transparent rounded mb-4">
       <Row className="p-md-4">
@@ -138,7 +155,7 @@ function ProfileHeader({ tabKey, user, showTabs }: Props) {
                 <h1 className="mb-md-0">
                   {user?.firstName}
                 </h1>
-                <p className="fs-5  text-light">
+                <p className="fs-5 text-light">
                   @
                   {user?.userName}
                 </p>
@@ -181,7 +198,9 @@ function ProfileHeader({ tabKey, user, showTabs }: Props) {
         showTabs && (
           <>
             <StyledBorder className="d-md-block d-none" />
-            <TabLinks tabLink={allTabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
+            <div ref={positionRef}>
+              <TabLinks tabLink={allTabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
+            </div>
           </>
         )
       }

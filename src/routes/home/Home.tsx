@@ -59,8 +59,8 @@ function Home() {
       return;
     }
 
-    if (popoverClickProps.content) {
-      setPostContent(popoverClickProps.content);
+    if (popoverClickProps.message) {
+      setPostContent(popoverClickProps.message);
     }
     if (popoverClickProps.postImages) {
       setDeleteImageIds([]);
@@ -95,7 +95,7 @@ function Home() {
                 _id: data._id,
                 id: data._id,
                 postDate: data.createdAt,
-                content: data.message,
+                message: data.message,
                 images: data.images,
                 userName: data.userId.userName,
                 profileImage: data.userId.profilePic,
@@ -110,7 +110,7 @@ function Home() {
               _id: data._id,
               id: data._id,
               postDate: data.createdAt,
-              content: data.message,
+              message: data.message,
               images: data.images,
               userName: data.rssfeedProviderId?.title,
               profileImage: data.rssfeedProviderId?.logo,
@@ -168,7 +168,7 @@ function Home() {
             _id: data._id,
             id: data._id,
             postDate: data.createdAt,
-            content: data.message,
+            message: data.message,
             images: data.images,
             userName: data.userId.userName,
             profileImage: data.userId.profilePic,
@@ -183,7 +183,7 @@ function Home() {
           _id: data._id,
           id: data._id,
           postDate: data.createdAt,
-          content: data.message,
+          message: data.message,
           images: data.images,
           userName: data.rssfeedProviderId?.title,
           profileImage: data.rssfeedProviderId?.logo,
@@ -203,7 +203,7 @@ function Home() {
       const updatePost = posts.map((post: any) => {
         if (post._id === postId) {
           return {
-            ...post, content: res.data.message, images: res.data.images,
+            ...post, message: res.data.message, images: res.data.images,
           };
         }
         return post;

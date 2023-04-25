@@ -39,7 +39,7 @@ const EventCalender = styled(Calendar)`
     }
   }
 
-  .react-calendar__tile:enabled:hover{
+  .react-calendar__tile:enabled:hover, .react-calendar__tile:enabled:focus {
     background-color: transparent  !important;
   }
 
@@ -285,19 +285,19 @@ function EventsByDate() {
       >
         <Row ref={eventContainerElementRef}>
           {eventsList && eventsList.length > 0
-              && (eventsList.map((eventDetail, i, arr) => {
-                // (*temporary*) DEBUGGING TIP: Use `Array(15).fill(eventsList[0]).map(..)`
-                // inplace of `eventsList.map(..)`  to mimic sample data from a single data item.
-                const show = checkAdsEventByDate(bp, i, arr);
-                return (
-                  <React.Fragment key={eventDetail.id}>
-                    <Col md={6}>
-                      <EventsPosterCard listDetail={eventDetail} />
-                    </Col>
-                    {show && <PubWiseAd className="my-3" id={EVENTS_BY_DATE_DIV_ID} autoSequencer />}
-                  </React.Fragment>
-                );
-              }))}
+            && (eventsList.map((eventDetail, i, arr) => {
+              // (*temporary*) DEBUGGING TIP: Use `Array(15).fill(eventsList[0]).map(..)`
+              // inplace of `eventsList.map(..)`  to mimic sample data from a single data item.
+              const show = checkAdsEventByDate(bp, i, arr);
+              return (
+                <React.Fragment key={eventDetail.id}>
+                  <Col md={6}>
+                    <EventsPosterCard listDetail={eventDetail} />
+                  </Col>
+                  {show && <PubWiseAd className="my-3" id={EVENTS_BY_DATE_DIV_ID} autoSequencer />}
+                </React.Fragment>
+              );
+            }))}
         </Row>
       </InfiniteScroll>
       {noMoreData && renderNoMoreDataMessage()}

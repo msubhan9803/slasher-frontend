@@ -20,7 +20,7 @@ interface EpisodeProps {
   postDate: string,
   podcast: string,
   episodeTimeWise: string,
-  content: string,
+  message: string,
   likeIcon: boolean,
 }
 const LinearIcon = styled.div<LinearIconProps>`
@@ -60,7 +60,7 @@ function PostcastPostFeed({ episode }: Props) {
           profileImage={postData.podcastImage}
           // popoverOptions={[]}
           // onPopoverClick={undefined}
-          content={postData.content}
+          message={postData.message}
         />
       </Card.Header>
       <Card.Body className="px-0 mt-2">
@@ -73,7 +73,7 @@ function PostcastPostFeed({ episode }: Props) {
             <p className="m-0 fs-3 text-light">{postData.episodeTimeWise}</p>
           </div>
         </StyledPodcastPlay>
-        {postData.content}
+        {postData.message}
         <Row className="pt-3 px-md-3">
           <Col>
             <LinearIcon uniqueId="like-button" role="button">

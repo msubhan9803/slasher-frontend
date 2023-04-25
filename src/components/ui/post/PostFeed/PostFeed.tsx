@@ -217,7 +217,7 @@ function PostFeed({
   };
 
   const renderPostContent = (post: any) => {
-    let { content } = post;
+    let { message } = post;
 
     if (post.rssFeedTitle) {
       // Posts almost always have a title, but sometimes the post title also appears redundantly in
@@ -225,8 +225,8 @@ function PostFeed({
       // Having a double title display doesn't look good, so we'll remove the second title if we
       // find it.
       const firstH1TagRegex = /<h1[^>]*>(.+)<\/h1>/i;
-      const firstH1Tag = content.match(firstH1TagRegex)?.[0];
-      const firstH1TagContent = content.match(firstH1TagRegex)?.[1];
+      const firstH1Tag = message.match(firstH1TagRegex)?.[0];
+      const firstH1TagContent = message.match(firstH1TagRegex)?.[1];
 
       if (firstH1Tag && firstH1TagContent) {
         // If the normalized title is very similar to the content from the first h1 tag, then we'll
@@ -237,14 +237,14 @@ function PostFeed({
         // We may want to move this logic to the server side feed sync code later on.
         if (similarity > 0.75) {
           // Remove first h1 tag because a likely duplicate title was found.
-          content = content.replace(firstH1Tag, '');
+          message = message.replace(firstH1Tag, '');
         }
       }
     }
 
     let showReadMoreLink = false;
-    if (!detailPage && content?.length >= READ_MORE_TEXT_LIMIT) {
-      let reducedContentLength = post.content.substring(0, READ_MORE_TEXT_LIMIT).lastIndexOf(' ');
+    if (!detailPage && message?.length >= READ_MORE_TEXT_LIMIT) {
+      let reducedContentLength = post.message.substring(0, READ_MORE_TEXT_LIMIT).lastIndexOf(' ');
       if (reducedContentLength === -1) {
         // This means that no spaces were found anywhere in the post content.  Since posts can't be
         // empty, that means that someone either put in a really long link or a lot of text with
@@ -252,7 +252,7 @@ function PostFeed({
         // READ_MORE_TEXT_LIMIT.
         reducedContentLength = READ_MORE_TEXT_LIMIT;
       }
-      content = post.content.substring(0, reducedContentLength);
+      message = post.message.substring(0, reducedContentLength);
       showReadMoreLink = true;
     }
     return (
@@ -314,8 +314,8 @@ function PostFeed({
                   {
                     __html: escapeHtml && !post?.spoiler
                       // eslint-disable-next-line max-len
-                      ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content)), customlinkifyOpts))
-                      : cleanExternalHtmlContent(content),
+                      ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(message)), customlinkifyOpts))
+                      : cleanExternalHtmlContent(message),
                   }
                 }
                 onClick={() => !detailPage && onPostContentClick(post)}
@@ -383,8 +383,8 @@ function PostFeed({
       </h1>
     </>
   );
-  const swiperDataForPost = (post:any) => {
-    const imageVideoList = FormatImageVideoList(post.images, post.content);
+  const swiperDataForPost = (post: any) => {
+    const imageVideoList = FormatImageVideoList(post.images, post.message);
     return imageVideoList.map((imageData: any) => ({
       videoKey: imageData.videoKey,
       imageUrl: imageData.image_path,
@@ -408,7 +408,7 @@ function PostFeed({
                   profileImage={post.profileImage || post.rssFeedProviderLogo}
                   popoverOptions={showPopoverOption(post)}
                   onPopoverClick={onPopoverClick}
-                  content={post.content}
+                  message={post.message}
                   userId={post.userId}
                   rssfeedProviderId={post.rssfeedProviderId}
                   onSelect={onSelect}
@@ -420,7 +420,7 @@ function PostFeed({
                 {postType === 'group-post' && renderGroupPostContent(post)}
                 {post?.rssFeedTitle && <h1 className="h2">{post.rssFeedTitle}</h1>}
                 {renderPostContent(post)}
-                {(post?.images?.length > 0 || findFirstYouTubeLinkVideoId(post?.content)) && (
+                {(post?.images?.length > 0 || findFirstYouTubeLinkVideoId(post?.message)) && (
                   <CustomSwiper
                     context="post"
                     images={

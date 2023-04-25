@@ -10,14 +10,14 @@ interface Props {
   popoverOptions: string[];
   onPopoverClick: (val: string, popoverClickProps: PopoverClickProps) => void,
   userName?: string;
-  content?: string;
+  message?: string;
   id?: string;
   userId?: string;
   postImages?: string[] | undefined;
 }
 
 export interface PopoverClickProps {
-  content?: string,
+  message?: string,
   id?: string,
   userId?: string,
   userName?: string,
@@ -84,10 +84,10 @@ const StyledPopover = styled.div`
 
 function CustomPopover({
   popoverOptions, onPopoverClick,
-  content, id, userId, userName, postImages,
+  message, id, userId, userName, postImages,
 }: Props) {
   const popoverClickProps = {
-    content,
+    message,
     id,
     userId,
     userName,
@@ -102,7 +102,12 @@ function CustomPopover({
         // content move based on screen position). This should match the `drop` prop value.
         align={{ xs: 'start' }}
         flip={false}
-        title={<FontAwesomeIcon icon={solid('ellipsis-vertical')} size="lg" />}
+        title={(
+          <>
+            <FontAwesomeIcon icon={solid('ellipsis-vertical')} size="lg" />
+            <span className="visually-hidden">Options</span>
+          </>
+        )}
       >
         {popoverOptions.map((option, i) => (
           <Dropdown.Item
@@ -121,7 +126,7 @@ function CustomPopover({
 }
 
 CustomPopover.defaultProps = {
-  content: null,
+  message: null,
   id: null,
   userId: null,
   userName: null,

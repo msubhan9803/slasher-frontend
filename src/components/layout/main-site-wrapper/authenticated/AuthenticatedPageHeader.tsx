@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Navbar, Container, Nav, Col, Row,
+  Navbar, Nav, Col,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
@@ -26,7 +26,7 @@ const StyledNavbar = styled(Navbar)`
 const MobileNavbar = styled(Navbar)`
   border-top: 5px solid #1F1F1F;
   p {
-    font-size: .8rem;
+    font-size: var(--fs-6);
   }
 `;
 export const StyledNav = styled(Nav)`
@@ -113,16 +113,14 @@ function AuthenticatedPageHeader(
 
         {/* nav-bar for small screen */}
         <MobileNavbar bg="dark" variant="dark" className={`d-${offcanvasSidebarExpandBreakPoint}-none fixed-bottom pt-3`}>
-          <Container fluid className="px-0">
-            <Row className="w-100">
-              {
-                mobileNavLinkElements.map((el, index) => {
-                  const uniqueId = `nav-link-${index}`;
-                  return <Col key={uniqueId} style={{ maxWidth: `${100 / mobileNavLinkElements.length}%` }}>{el}</Col>;
-                })
-              }
-            </Row>
-          </Container>
+          <div className="w-100 d-flex">
+            {
+              mobileNavLinkElements.map((el, index) => {
+                const uniqueId = `nav-link-${index}`;
+                return <Col key={uniqueId} style={{ maxWidth: `${100 / mobileNavLinkElements.length}%` }}>{el}</Col>;
+              })
+            }
+          </div>
         </MobileNavbar>
       </header>
     </>

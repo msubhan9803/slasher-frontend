@@ -85,6 +85,8 @@ function ProfileFriends({ user, loadUser }: Props) {
           setFriendsList((prevFriendsList) => prevFriendsList.filter((friend) => friend._id !== popoverClickProps?.id));
         });
       }
+    } else if (value === 'Message') {
+      navigate(`/app/messages/conversation/new?userId=${popoverClickProps?.userId}`);
     }
     setPopoverClick(popoverClickProps);
   };

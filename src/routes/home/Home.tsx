@@ -22,7 +22,6 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layou
 import { useAppSelector, useAppDispatch } from '../../redux/hooks';
 import { setScrollPosition } from '../../redux/slices/scrollPositionSlice';
 import EditPostModal from '../../components/ui/post/EditPostModal';
-import { setHomeDataReload } from '../../redux/slices/userSlice';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
@@ -40,11 +39,12 @@ function Home() {
   const [postContent, setPostContent] = useState<string>('');
   const [postId, setPostId] = useState<string>('');
   const [postUserId, setPostUserId] = useState<string>('');
+  const [rssfeedProviderId, setRssfeedProviderId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const location = useLocation();
-  const reloadData = useAppSelector((state) => state.user.homeDataReload);
+  const reloadData = useAppSelector((state) => state.user.screenReload);
   const [posts, setPosts] = useState<Post[]>(
     scrollPosition.pathname === location.pathname && !reloadData
       ? scrollPosition?.data : [],
@@ -73,6 +73,7 @@ function Home() {
     if (popoverClickProps.userId) {
       setPostUserId(popoverClickProps.userId);
     }
+    setRssfeedProviderId(popoverClickProps.rssfeedProviderId ?? '');
     setShow(true);
     setDropDownValue(value);
   };
@@ -84,7 +85,6 @@ function Home() {
         || posts.length >= scrollPosition?.data?.length
         || posts.length === 0
         || scrollPosition.pathname !== location.pathname
-        || reloadData
       ) {
         setLoadingPosts(true);
         getHomeFeedPosts(
@@ -149,21 +149,9 @@ function Home() {
     }
   }, [
     requestAdditionalPosts, loadingPosts, loginUserId, posts, scrollPosition,
-    dispatch, location.pathname, reloadData,
+    dispatch, location.pathname,
   ]);
 
-  useEffect(() => {
-    if (reloadData) {
-      dispatch(setHomeDataReload(false));
-      const positionData = {
-        pathname: '',
-        position: 0,
-        data: [],
-        positionElementId: '',
-      };
-      dispatch(setScrollPosition(positionData));
-    }
-  }, [reloadData, dispatch]);
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -366,6 +354,7 @@ function Home() {
               slectedDropdownValue={dropDownValue}
               onBlockYesClick={onBlockYesClick}
               handleReport={reportHomePost}
+              rssfeedProviderId={rssfeedProviderId}
             />
           )
         }

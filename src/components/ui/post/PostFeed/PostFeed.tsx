@@ -154,6 +154,9 @@ function PostFeed({
     if (post.rssfeedProviderId) {
       return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
     }
+    if (post.movieId) {
+      return `/app/movies/${post.movieId}/reviews/${post.id}`;
+    }
     return `/${post.userName}/posts/${post.id}`;
   };
 
@@ -322,7 +325,6 @@ function PostFeed({
                 }
                 onClick={() => !detailPage && onPostContentClick(post)}
                 aria-label="post-content"
-                tabIndex={0}
                 onKeyDown={(e) => handlePostContentKeyDown(e, post)}
               />
               {
@@ -471,6 +473,7 @@ function PostFeed({
                 <>
                   {/* <StyledBorder className="d-md-block d-none mb-4" /> */}
                   <InfiniteScroll
+                    threshold={1000}
                     pageStart={0}
                     initialLoad
                     loadMore={() => {

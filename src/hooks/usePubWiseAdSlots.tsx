@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import useLoadScriptsInOrder from './useLoadScriptsInOrder';
-import { setPubWiseSlots } from '../redux/slices/pubWiseSlice';
+import { setIsAdBlockerDetected, setPubWiseSlots } from '../redux/slices/pubWiseSlice';
 import { useAppDispatch } from '../redux/hooks';
 import {
   ALL_MOVIES,
@@ -55,11 +55,17 @@ const usePubWiseAdSlots = (enableADs: boolean) => {
   const dispatch = useAppDispatch();
 
   // Load scripts required for required for PubWise Adslots
-  const isScriptsLoaded = useLoadScriptsInOrder([
+  const { isScriptsLoaded, error } = useLoadScriptsInOrder([
     'https://securepubads.g.doubleclick.net/tag/js/gpt.js',
     '//fdyn.pubwise.io/script/786ead05-a265-491d-aeb6-cdbb8ad4cac7/v3/dyn/pre_pws.js?type=web',
     '//fdyn.pubwise.io/script/786ead05-a265-491d-aeb6-cdbb8ad4cac7/v3/dyn/pws.js?type=web',
   ], !enableADs);
+
+  useEffect(() => {
+    if (error) {
+      dispatch(setIsAdBlockerDetected());
+    }
+  }, [dispatch, error]);
 
   useEffect(() => {
     if (!enableADs) { return; }

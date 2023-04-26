@@ -5,6 +5,7 @@ import React, {
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
+import styled from 'styled-components';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import CreatePostComponent from '../../../components/ui/CreatePostComponent';
@@ -23,6 +24,8 @@ import ReportModal from '../../../components/ui/ReportModal';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-utils';
 import { getMoviesById } from '../../../api/movies';
+import { createBlockUser } from '../../../api/blocks';
+import { reportData } from '../../../api/report';
 
 type Props = {
   movieData: MovieData;
@@ -31,8 +34,17 @@ type Props = {
   setReviewForm: (value: boolean) => void;
 };
 
-const loginUserPopoverOptions = ['Edit Review', 'Delete Review'];
-const otherUserPopoverOptions = ['Report', 'Block user'];
+const StyledReviewContainer = styled.div`
+  min-height: 100vh;
+`;
+
+const loginUserPopoverOptions = ['Edit Review', 'Delete Review'] as const;
+const otherUserPopoverOptions = ['Report', 'Block user'] as const;
+const validPopOverOptions = [...loginUserPopoverOptions, ...otherUserPopoverOptions] as const;
+type PopOverValueType = typeof validPopOverOptions[number];
+// Using typeguard to get typesafe value
+// eslint-disable-next-line max-len
+const isValidPopOverValue = (v: string): v is PopOverValueType => validPopOverOptions.includes(v as any);
 
 function MovieReviews({
   movieData, setMovieData, reviewForm, setReviewForm,
@@ -43,6 +55,8 @@ function MovieReviews({
   const [dropDownValue, setDropDownValue] = useState<string>('');
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [errorMessage, setErrorMessage] = useState([]);
+  const [postUserId, setPostUserId] = useState<string>('');
+  const [postId, setPostId] = useState<string>('');
   const [postContent, setPostContent] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const [containSpoiler, setContainSpoiler] = useState<boolean>(false);
@@ -91,9 +105,9 @@ function MovieReviews({
           likeIcon: data.likedByUser,
           likeCount: data.likeCount,
           commentCount: data.commentCount,
-          rating: data?.reviewData.rating || 0,
-          goreFactor: data?.reviewData.goreFactorRating || 0,
-          worthWatching: data?.reviewData.worthWatching || 0,
+          rating: data?.reviewData?.rating || 0,
+          goreFactor: data?.reviewData?.goreFactorRating || 0,
+          worthWatching: data?.reviewData?.worthWatching || 0,
           contentHeading: data.title,
           movieId: id,
           spoilers: data.spoilers,
@@ -116,19 +130,26 @@ function MovieReviews({
   }, [movieData, callLatestFeedPost]);
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
-    setShow(true);
-    if (value === 'Delete Review') {
-      setDropDownValue('Delete');
-    } else {
-      setDropDownValue('Edit');
+    if (!isValidPopOverValue(value)) {
+      throw new Error(`Please call 'onPopoverClick()' with correct value! Called value: ${value}, Expected value is one of:`, validPopOverOptions as any);
     }
-    setDeletePostId(popoverClickProps.id);
+    // Tip: `value` has type of `PopOverValueType` here onwards because of typeguard.
     if (value === 'Edit Review') {
       setShowReviewForm(true);
       getUserMovieReviewData(popoverClickProps.id!);
       getMoviesById(id!)
         .then((res) => setMovieData(res.data));
+      return;
     }
+    if (popoverClickProps.id) {
+      setPostId(popoverClickProps.id);
+    }
+    if (popoverClickProps.userId) {
+      setPostUserId(popoverClickProps.userId);
+    }
+    setShow(true);
+    setDropDownValue(value);
+    setDeletePostId(popoverClickProps.id);
   };
   const mentionReplacementMatchFunc = (match: string) => {
     if (match) {
@@ -276,6 +297,30 @@ function MovieReviews({
       }
     </p>
   );
+  const onBlockYesClick = () => {
+    createBlockUser(postUserId)
+      .then(() => {
+        setShow(false);
+        callLatestFeedPost();
+      })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+  const reportReview = (reason: string) => {
+    const reportPayload = {
+      targetId: postId,
+      reason,
+      reportType: 'post',
+    };
+    reportData(reportPayload).then((res) => {
+      if (res.status === 200) { callLatestFeedPost(); }
+    })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+    // Ask to block user as well
+    setDropDownValue('PostReportSuccessDialog');
+  };
+
   const persistScrollPosition = (movieId: string) => {
     const positionData = {
       pathname: location.pathname,
@@ -300,13 +345,13 @@ function MovieReviews({
         .catch((error) => console.error(error));
     }
   };
-  const handleSpoiler = (postId: string) => {
+  const handleSpoiler = (currentPostId: string) => {
     const spoilerIdList = getLocalStorage('spoilersIds');
-    if (!spoilerIdList.includes(postId)) {
-      spoilerIdList.push(postId);
+    if (!spoilerIdList.includes(currentPostId)) {
+      spoilerIdList.push(currentPostId);
       setLocalStorage('spoilersIds', JSON.stringify(spoilerIdList));
     }
-    navigate(`/app/movies/${id}/reviews/${postId}`);
+    navigate(`/app/movies/${id}/reviews/${currentPostId}`);
   };
 
   const onLikeClick = (feedPostId: string) => {
@@ -351,7 +396,7 @@ function MovieReviews({
     }
   };
   return (
-    <div>
+    <StyledReviewContainer>
       {
         showReviewForm
           ? (
@@ -399,10 +444,10 @@ function MovieReviews({
           <PostFeed
             postFeedData={reviewPostData}
             postType="review"
-            popoverOptions={loginUserPopoverOptions}
+            popoverOptions={loginUserPopoverOptions as unknown as string[]}
             isCommentSection={false}
-            onPopoverClick={handlePopoverOption}
-            otherUserPopoverOptions={otherUserPopoverOptions}
+            onPopoverClick={handlePopoverOption as any}
+            otherUserPopoverOptions={otherUserPopoverOptions as unknown as string[]}
             onLikeClick={onLikeClick}
             onSelect={persistScrollPosition}
             onSpoilerClick={handleSpoiler}
@@ -412,17 +457,19 @@ function MovieReviews({
       {loadingReviewPosts && <LoadingIndicator />}
       {noMoreData && renderNoMoreDataMessage()}
       {
-        dropDownValue === 'Delete'
+        (['Delete Review', 'Block user', 'Report', 'PostReportSuccessDialog'].includes(dropDownValue))
         && (
           <ReportModal
             onConfirmClick={deletePostClick}
             show={show}
             setShow={setShow}
             slectedDropdownValue={dropDownValue}
+            onBlockYesClick={onBlockYesClick}
+            handleReport={reportReview}
           />
         )
       }
-    </div>
+    </StyledReviewContainer>
   );
 }
 

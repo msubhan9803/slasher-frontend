@@ -429,7 +429,7 @@ function PostDetail({ user, postType }: Props) {
             postDate: res.data.createdAt,
             rssFeedTitle: res.data.rssFeedId.title,
             title: res.data.rssfeedProviderId?.title,
-            message: res.data.rssFeedId ? res.data.rssFeedId.message : res.data.message,
+            message: res.data.rssFeedId.content,
             images: res.data.images,
             rssFeedProviderLogo: res.data.rssfeedProviderId?.logo,
             commentCount: res.data.commentCount,

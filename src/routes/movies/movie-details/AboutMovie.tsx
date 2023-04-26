@@ -85,7 +85,7 @@ const filterEnableDevFeatures = (t: OptionType) => (enableDevFeatures ? true : (
 function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData) {
   const [searchParams] = useSearchParams();
   const [movieIdList, setMovieIdList] = useState();
-  const [isReviewDetail, setReviewDetail] = useState(false);
+  const [isReviewDetail, setReviewDetail] = useState<boolean>(false);
   const selfView = searchParams.get('view') === 'self';
   const tabs = (selfView ? tabsForSelf : tabsForViewer).filter(filterEnableDevFeatures);
   const navigate = useNavigate();
@@ -279,7 +279,14 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
         <div ref={movieReviewRef}>
           <Row className="justify-content-center">
             <Col xs={12}>
-              <TabLinks tabsClass="start" tabsClassSmall="start" tabLink={tabs} toLink={`/app/movies/${params.id}`} selectedTab={isReviewDetail ? 'reviews' : params['*']} params={selfView ? '?view=self' : ''} />
+              <TabLinks
+                tabsClass="start"
+                tabsClassSmall="start"
+                tabLink={tabs}
+                toLink={`/app/movies/${params.id}`}
+                selectedTab={params && params['*']!.startsWith('reviews/') ? 'reviews' : params['*']}
+                params={selfView ? '?view=self' : ''}
+              />
             </Col>
           </Row>
         </div>

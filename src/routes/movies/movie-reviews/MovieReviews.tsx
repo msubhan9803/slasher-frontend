@@ -5,6 +5,7 @@ import React, {
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
+import styled from 'styled-components';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import CreatePostComponent from '../../../components/ui/CreatePostComponent';
@@ -32,6 +33,10 @@ type Props = {
   reviewForm: boolean;
   setReviewForm: (value: boolean) => void;
 };
+
+const StyledReviewContainer = styled.div`
+  min-height: 100vh;
+`;
 
 const loginUserPopoverOptions = ['Edit Review', 'Delete Review'] as const;
 const otherUserPopoverOptions = ['Report', 'Block user'] as const;
@@ -100,9 +105,9 @@ function MovieReviews({
           likeIcon: data.likedByUser,
           likeCount: data.likeCount,
           commentCount: data.commentCount,
-          rating: data?.reviewData.rating || 0,
-          goreFactor: data?.reviewData.goreFactorRating || 0,
-          worthWatching: data?.reviewData.worthWatching || 0,
+          rating: data?.reviewData?.rating || 0,
+          goreFactor: data?.reviewData?.goreFactorRating || 0,
+          worthWatching: data?.reviewData?.worthWatching || 0,
           contentHeading: data.title,
           movieId: id,
           spoilers: data.spoilers,
@@ -391,7 +396,7 @@ function MovieReviews({
     }
   };
   return (
-    <div>
+    <StyledReviewContainer>
       {
         showReviewForm
           ? (
@@ -465,7 +470,7 @@ function MovieReviews({
           />
         )
       }
-    </div>
+    </StyledReviewContainer>
   );
 }
 

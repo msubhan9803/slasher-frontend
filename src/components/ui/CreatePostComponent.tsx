@@ -20,6 +20,7 @@ import CustomWortItText from './CustomWortItText';
 import { StyledBorder } from './StyledBorder';
 import WorthWatchIcon from '../../routes/movies/components/WorthWatchIcon';
 import { MovieData, WorthWatchingStatus } from '../../types';
+import { LG_MEDIA_BREAKPOINT, topToDivHeight } from '../../constants';
 
 interface MentionProps {
   id: string;
@@ -141,17 +142,19 @@ function CreatePostComponent({
   useEffect(() => {
     setTimeout(() => {
       if (reviewForm || params['*'] === 'reviews' || (location.state && location.state.movieId && location.state.movieId.length)) {
-        document.documentElement.style.scrollBehavior = 'auto';
-        movieReviewRef?.current?.scrollIntoView({
-          behavior: 'instant' as any,
-          block: 'start',
-        });
+        if (movieReviewRef.current) {
+          window.scrollTo({
+            top: movieReviewRef.current.offsetTop - (
+              window.innerWidth >= parseInt(LG_MEDIA_BREAKPOINT.replace('px', ''), 10)
+                ? topToDivHeight
+                : 10
+            ),
+            behavior: 'instant' as any,
+          });
+        }
         setReviewForm!(false);
       }
     }, 500);
-    setTimeout(() => {
-      document.documentElement.style.scrollBehavior = 'smooth';
-    }, 600);
   }, [reviewForm, params, location, setReviewForm]);
 
   return (

@@ -7,7 +7,6 @@ import { Col, Row } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
 import { useLocation, useParams } from 'react-router-dom';
 import { acceptFriendsRequest, rejectFriendsRequest, userProfileFriendsRequest } from '../../../../api/friends';
-import CustomSearchInput from '../../../../components/ui/CustomSearchInput';
 import ErrorMessageList from '../../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../../components/ui/LoadingIndicator';
 import TabLinks from '../../../../components/ui/Tabs/TabLinks';
@@ -37,7 +36,6 @@ function ProfileFriendRequest({ user, loadUser }: Props) {
   const dispatch = useAppDispatch();
   const params = useParams();
   const isFriendReLoad = useAppSelector((state) => state.user.forceFriendListReload);
-  const [search, setSearch] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const loginUserName = Cookies.get('userName');
@@ -104,8 +102,6 @@ function ProfileFriendRequest({ user, loadUser }: Props) {
             position: 0,
             data: [],
             positionElementId: '',
-            page: 0,
-            searchValue: '',
           };
           dispatch(setScrollPosition(positionData));
         }
@@ -166,7 +162,6 @@ function ProfileFriendRequest({ user, loadUser }: Props) {
       data: friendsReqList,
       positionElementId: id,
       page: friendRequestPage,
-      searchValue: search,
     };
     dispatch(setScrollPosition(positionData));
   };
@@ -175,11 +170,6 @@ function ProfileFriendRequest({ user, loadUser }: Props) {
       <ProfileHeader tabKey="friends" user={user} loadUser={loadUser} />
       <ProfileTabContent>
         <div className="mt-3">
-          <Row className="justify-content-between">
-            <Col md={4}>
-              <CustomSearchInput label="Search friends..." setSearch={setSearch} search={search} />
-            </Col>
-          </Row>
           <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
             {loginUserName === user.userName
               && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="request" />}

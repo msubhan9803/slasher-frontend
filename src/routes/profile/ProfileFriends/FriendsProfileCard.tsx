@@ -72,6 +72,7 @@ function FriendsProfileCard({
             popoverOptions={popoverOption}
             onPopoverClick={handlePopoverOption}
             id={friend._id}
+            userId={friend._id}
           />
         )}
       </div>

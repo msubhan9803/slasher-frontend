@@ -15,6 +15,7 @@ import { MovieData } from '../../../types';
 import { updateMovieUserData } from './updateMovieDataUtils';
 import BorderButton from '../../../components/ui/BorderButton';
 import ModalBodyForDeactivateListing from '../../../components/ui/ModalBodyForDeactivateListing';
+import { ratingIcons } from '../../public-home-page/public-home-body/UserReview';
 
 interface MovieDetaisProps {
   show: boolean;
@@ -166,7 +167,7 @@ function MoviesModal({
                   <h1 className="text-primary h2">How gory is this?</h1>
                 </div>
                 <RatingGore className="star-rating my-3">
-                  {[...Array(5)].map((star, index) => (
+                  {ratingIcons.map((star, index) => (
                     <Button
                       variant="link"
                       type="button"

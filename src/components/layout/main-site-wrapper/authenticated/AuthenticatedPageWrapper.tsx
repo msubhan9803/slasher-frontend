@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  useCallback, useEffect, useState,
+  useCallback, useEffect, useRef, useState,
 } from 'react';
 import { Offcanvas } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -74,6 +74,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
 
   const [show, setShow] = useState(false);
   const isDesktopResponsiveSize = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` });
+  const isSocketConnectingRef = useRef(false);
   const isSocketConnected = useAppSelector((state) => state.socket.isConnected);
   const { socket } = socketStore;
 
@@ -128,32 +129,24 @@ function AuthenticatedPageWrapper({ children }: Props) {
   }, [dispatch]);
 
   useEffect(() => {
-    if (isSocketConnected) { return () => { }; }
+    if (isSocketConnected || isSocketConnectingRef.current) { return; }
+    isSocketConnectingRef.current = true;
 
-    let ignore = false;
-    const socketInstance = io(apiUrl!, {
+    socketStore.socket = io(apiUrl!, {
       transports: ['websocket'],
       auth: { token },
     });
-    socketInstance.on('connect', () => {
-      // This `ignore` helps to avoid setting state twice as with useEffect can
-      // run multiple times leading to race conditions.
-      if (!ignore) {
-        socketStore.socket = socketInstance;
-        dispatch(setSocketConnected());
-      }
+    socketStore.socket.on('connect', () => {
+      dispatch(setSocketConnected());
     });
     // This is here to help with troubleshooting if there are ever any connection issues.
     // This will just prove whether or not authentication worked. If authentication fails,
     // the client is automatically disconnected.
-    socketInstance.once('authSuccess', (payload) => {
+    socketStore.socket.once('authSuccess', (payload) => {
       if (payload.success) {
-        (socketInstance as any).slasherAuthSuccess = true;
+        (socketStore.socket as any).slasherAuthSuccess = true;
       }
     });
-    return () => {
-      ignore = true;
-    };
   }, [dispatch, isSocketConnected, token]);
 
   useEffect(() => {

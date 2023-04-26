@@ -239,7 +239,6 @@ function PostContent({
               }
               onClick={() => !detailPage && onPostContentClick(post)}
               aria-label="post-content"
-              tabIndex={0}
               onKeyDown={(e) => handlePostContentKeyDown(e, post)}
             />
             {
@@ -299,6 +298,9 @@ function PostFeed({
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
       return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
+    }
+    if (post.movieId) {
+      return `/app/movies/${post.movieId}/reviews/${post.id}`;
     }
     return `/${post.userName}/posts/${post.id}`;
   };

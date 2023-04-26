@@ -31,6 +31,8 @@ const cardData = [
 
 const getElementWidth = () => (document as any)?.querySelector('#slideCasts').childNodes[0].offsetWidth;
 
+export const ratingIcons: string[] = Array.from({ length: 5 }, (_, i) => `star-${i}`);
+
 function UserReview() {
   const sliderRef = useRef<HTMLDivElement>(null);
   const scrollValue = useRef<number | null>(null);
@@ -143,7 +145,7 @@ function UserReview() {
                 <Card className="bg-black border-0 rounded-3 p-4">
                   <Card.Body className="px-0 pb-0">
                     <div className="d-flex mb-3 testimonial-item position-relative">
-                      {[...Array(5)].map((star) => (
+                      {ratingIcons.map((star) => (
                         <div key={star}>
                           <FontAwesomeIcon icon={solid('star')} className="rate" />
                         </div>

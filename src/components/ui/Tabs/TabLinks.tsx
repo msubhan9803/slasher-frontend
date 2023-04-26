@@ -102,7 +102,7 @@ function TabLinks({
                 : label}
               component={Link}
               to={params ? `${toLink}/${value}${params}` : `${toLink}/${value}`}
-              className="text-decoration-none"
+              className="text-decoration-none shadow-none"
               onClick={handleTabsScroll}
             />
           ))}

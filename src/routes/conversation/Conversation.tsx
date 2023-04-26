@@ -19,6 +19,7 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layou
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import { useAppSelector } from '../../redux/hooks';
+import socketStore from '../../socketStore';
 
 function Conversation() {
   const userId = Cookies.get('userId');
@@ -26,7 +27,7 @@ function Conversation() {
   const lastConversationIdRef = useRef('');
   const [chatUser, setChatUser] = useState<any>();
   const [messageList, setMessageList] = useState<any>([]);
-  const socket = useAppSelector((state) => state.socket.instance);
+  const { socket } = socketStore;
   const [message, setMessage] = useState('');
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [noMoreData, setNoMoreData] = useState<boolean>(false);

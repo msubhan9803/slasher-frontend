@@ -17,6 +17,7 @@ import { useAppSelector, useAppDispatch } from '../../redux/hooks';
 import { setScrollPosition } from '../../redux/slices/scrollPositionSlice';
 import { resetUnreadNotificationCount, setUserInitialData } from '../../redux/slices/userSlice';
 import NotificationsRightSideNav from './NotificationsRightSideNav';
+import socketStore from '../../socketStore';
 
 function Notifications() {
   const popoverOption = ['Settings'];
@@ -26,7 +27,7 @@ function Notifications() {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
-  const socket = useAppSelector((state) => state.socket.instance);
+  const { socket } = socketStore;
 
   const location = useLocation();
   const [notificationData, setNotificationData] = useState<Notification[]>(

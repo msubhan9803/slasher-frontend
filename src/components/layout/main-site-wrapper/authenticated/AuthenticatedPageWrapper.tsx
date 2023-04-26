@@ -28,7 +28,8 @@ import { setRemoteConstantsData } from '../../../../redux/slices/remoteConstants
 import { fetchRemoteConstants } from '../../../../api/remote-constants';
 import slasherLogo from '../../../../images/slasher-logo-medium.png';
 import HeaderLogo from '../../../ui/HeaderLogo';
-import { setSocketInstance } from '../../../../redux/slices/socketSlice';
+import { setSocketConnected } from '../../../../redux/slices/socketSlice';
+import socketStore from '../../../../socketStore';
 
 interface Props {
   children: React.ReactNode;
@@ -73,6 +74,8 @@ function AuthenticatedPageWrapper({ children }: Props) {
 
   const [show, setShow] = useState(false);
   const isDesktopResponsiveSize = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` });
+  const isSocketConnected = useAppSelector((state) => state.socket.isConnected);
+  const { socket } = socketStore;
 
   const showOffcanvasSidebar = () => setShow(true);
   const toggleOffCanvas = () => {
@@ -125,6 +128,8 @@ function AuthenticatedPageWrapper({ children }: Props) {
   }, [dispatch]);
 
   useEffect(() => {
+    if (isSocketConnected) { return () => { }; }
+
     let ignore = false;
     const socketInstance = io(apiUrl!, {
       transports: ['websocket'],
@@ -134,10 +139,10 @@ function AuthenticatedPageWrapper({ children }: Props) {
       // This `ignore` helps to avoid setting state twice as with useEffect can
       // run multiple times leading to race conditions.
       if (!ignore) {
-        dispatch(setSocketInstance(socketInstance));
+        socketStore.socket = socketInstance;
+        dispatch(setSocketConnected());
       }
     });
-
     // This is here to help with troubleshooting if there are ever any connection issues.
     // This will just prove whether or not authentication worked. If authentication fails,
     // the client is automatically disconnected.
@@ -146,25 +151,28 @@ function AuthenticatedPageWrapper({ children }: Props) {
         (socketInstance as any).slasherAuthSuccess = true;
       }
     });
-    socketInstance.on('notificationReceived', onNotificationReceivedHandler);
-    socketInstance.on('friendRequestReceived', onFriendRequestReceivedHandler);
-    socketInstance.on('unreadConversationCountUpdate', onUnreadConversationCountUpdate);
-    socketInstance.on('clearNewNotificationCount', onClearNewNotificationCount);
-    socketInstance.on('clearNewFriendRequestCount', onClearNewFriendRequestCount);
     return () => {
-      socketInstance.off('notificationReceived', onNotificationReceivedHandler);
-      socketInstance.off('friendRequestReceived', onFriendRequestReceivedHandler);
-      socketInstance.off('unreadMessageCountUpdate', onUnreadConversationCountUpdate);
-      socketInstance.off('clearNewNotificationCount', onClearNewNotificationCount);
-      socketInstance.off('clearNewFriendRequestCount', onClearNewFriendRequestCount);
-      // This `ignore` helps to avoid setting state twice as with useEffect can
-      // run multiple times leading to race conditions.
       ignore = true;
     };
-  }, [dispatch, onClearNewFriendRequestCount, onClearNewNotificationCount,
-    onFriendRequestReceivedHandler, onNotificationReceivedHandler,
-    onUnreadConversationCountUpdate, token,
-  ]);
+  }, [dispatch, isSocketConnected, token]);
+
+  useEffect(() => {
+    if (!socket) { return () => { }; }
+
+    socket.on('notificationReceived', onNotificationReceivedHandler);
+    socket.on('friendRequestReceived', onFriendRequestReceivedHandler);
+    socket.on('unreadConversationCountUpdate', onUnreadConversationCountUpdate);
+    socket.on('clearNewNotificationCount', onClearNewNotificationCount);
+    socket.on('clearNewFriendRequestCount', onClearNewFriendRequestCount);
+    return () => {
+      socket.off('notificationReceived', onNotificationReceivedHandler);
+      socket.off('friendRequestReceived', onFriendRequestReceivedHandler);
+      socket.off('unreadMessageCountUpdate', onUnreadConversationCountUpdate);
+      socket.off('clearNewNotificationCount', onClearNewNotificationCount);
+      socket.off('clearNewFriendRequestCount', onClearNewFriendRequestCount);
+    };
+  }, [onClearNewFriendRequestCount, onClearNewNotificationCount, onFriendRequestReceivedHandler,
+    onNotificationReceivedHandler, onUnreadConversationCountUpdate, socket]);
 
   if (!token || !userData.user?.id) {
     return (

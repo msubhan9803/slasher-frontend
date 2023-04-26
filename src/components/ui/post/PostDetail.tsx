@@ -755,7 +755,6 @@ function PostDetail({ user, postType }: Props) {
                 addUpdateComment={addUpdateComment}
                 updateState={updateState}
                 setUpdateState={setUpdateState}
-                isSinglePagePost
                 newsPostPopoverOptions={postType === 'news' ? newsPostPopoverOptions : undefined}
                 escapeHtml={postType === 'news' ? false : undefined}
                 handleSearch={handleSearch}
@@ -825,7 +824,6 @@ function PostDetail({ user, postType }: Props) {
               addUpdateComment={addUpdateComment}
               updateState={updateState}
               setUpdateState={setUpdateState}
-              isSinglePagePost
               newsPostPopoverOptions={postType === 'news' ? newsPostPopoverOptions : undefined}
               escapeHtml={postType === 'news' ? false : undefined}
               handleSearch={handleSearch}

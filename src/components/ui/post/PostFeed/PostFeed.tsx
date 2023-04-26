@@ -71,7 +71,6 @@ interface Props {
   escapeHtml?: boolean;
   loadNewerComment?: () => void;
   previousCommentsAvailable?: boolean;
-  isSinglePagePost?: boolean;
   addUpdateReply?: (value: ReplyValue) => void;
   addUpdateComment?: (addUpdateComment: CommentValue) => void;
   updateState?: boolean;
@@ -128,7 +127,7 @@ function PostFeed({
   loginUserMoviePopoverOptions, setIsEdit, setRequestAdditionalPosts,
   noMoreData, isEdit, loadingPosts, onLikeClick, newsPostPopoverOptions,
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
-  addUpdateComment, updateState, setUpdateState, isSinglePagePost, onSelect,
+  addUpdateComment, updateState, setUpdateState, onSelect,
   handleSearch, mentionList, commentImages, setCommentImages, commentError,
   commentReplyError, postType, onSpoilerClick,
   commentSent, setCommentReplyErrorMessage, setCommentErrorMessage,
@@ -513,7 +512,7 @@ function PostFeed({
           </div>
           {/* NOTE: Below ad is temporarily removed as per request on SD-1019 */}
           {/* Below ad is to be shown in the end of a single page post */}
-          {/* {isSinglePagePost && <PubWiseAd className="text-center mt-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />} */}
+          {/* {detailPage && <PubWiseAd className="text-center mt-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />} */}
 
           {!detailPage && <hr className="post-separator" />}
 
@@ -528,7 +527,7 @@ function PostFeed({
       ))}
 
       {/* Show an ad if posts are less than 3 */}
-      {!isSinglePagePost && pubWiseAdDivId && postData.length < 3 && postData.length !== 0 && <PubWiseAd className="my-3" id={pubWiseAdDivId} autoSequencer />}
+      {!detailPage && pubWiseAdDivId && postData.length < 3 && postData.length !== 0 && <PubWiseAd className="my-3" id={pubWiseAdDivId} autoSequencer />}
       {
         showLikeShareModal
         && (
@@ -568,7 +567,6 @@ PostFeed.defaultProps = {
   escapeHtml: true,
   loadNewerComment: undefined,
   previousCommentsAvailable: false,
-  isSinglePagePost: false,
   addUpdateReply: undefined,
   addUpdateComment: undefined,
   updateState: false,

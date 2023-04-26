@@ -338,7 +338,7 @@ function Home() {
                 newsPostPopoverOptions={newsPostPopoverOptions}
                 onLikeClick={onLikeClick}
                 onSelect={persistScrollPosition}
-                detailPage={false}
+                isSinglePost={false}
               />
             )
           }

@@ -72,6 +72,7 @@ import { HashtagFollowsService } from '../hashtag-follows/providers/hashtag-foll
 import { HashtagService } from '../hashtag/providers/hashtag.service';
 import { NotificationDto } from './dto/notification.dto';
 import { IpOrForwardedIp } from '../app/decorators/ip-or-forwarded-ip.decorator';
+import { HashtagsDto } from './dto/hashtags.dto';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -988,5 +989,26 @@ export class UsersController {
       await this.hashtagFollowsService.deleteById(hashtagFollows._id.toString());
     }
     return { success: true };
+  }
+
+  @Post(':userId/followed-hashtags')
+  async insertManyHashtagFollow(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ParamUserIdDto,
+    @Body() hashtagsDto: HashtagsDto,
+  ) {
+    const user = getUserFromRequest(request);
+    if (user.id !== params.userId) { throw new HttpException('Not authorized', HttpStatus.UNAUTHORIZED); }
+
+    const hashtagData = await this.hashtagService.findAllHashTagName(hashtagsDto.hashtags);
+    const hashtags = hashtagsDto.hashtags.filter((hashtag) => !hashtagData.map((hashtagName) => hashtagName.name).includes(hashtag));
+    if (hashtags.length) {
+      throw new HttpException(`${hashtags} hashtag not found`, HttpStatus.NOT_FOUND);
+    }
+    const hashtagIds = hashtagData.map((hashtag) => hashtag._id.toString());
+    const hashtagFollows = await this.hashtagFollowsService.insertManyHashtagFollow(user.id, hashtagIds);
+    return hashtagFollows.map(
+      (follow) => pick(follow, ['notification', 'userId', 'hashTagId']),
+    );
   }
 }

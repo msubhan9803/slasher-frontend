@@ -160,4 +160,19 @@ describe('HashtagFollowsService', () => {
       expect(hashtagFollowDetails.map((hashtagFollow) => hashtagFollow.userId)).toEqual([user0._id, user0._id]);
     });
   });
+
+  describe('#insertManyHashtagFollow', () => {
+    it('insert many hashtags', async () => {
+      const hashtag0 = await hashtagService.createOrUpdateHashtags(['horror']);
+      const hashtag1 = await hashtagService.createOrUpdateHashtags(['scary']);
+      const hashtag2 = await hashtagService.createOrUpdateHashtags(['slasher']);
+      const hashtags = await hashtagFollowsService.insertManyHashtagFollow(
+        activeUser._id.toString(),
+        [hashtag0[0].id, hashtag1[0].id, hashtag2[0].id],
+      );
+      expect(hashtags[0].hashTagId).toEqual(hashtag0[0]._id);
+      expect(hashtags[1].hashTagId).toEqual(hashtag1[0]._id);
+      expect(hashtags[2].hashTagId).toEqual(hashtag2[0]._id);
+    });
+  });
 });

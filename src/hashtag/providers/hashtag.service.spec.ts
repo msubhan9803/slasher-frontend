@@ -173,6 +173,31 @@ describe('HashtagService', () => {
     });
   });
 
+  describe('#findAllHashTagName', () => {
+    beforeEach(async () => {
+      await hashtagModel.create({
+        name: 'depravity',
+      });
+      await hashtagModel.create({
+        name: 'scariness',
+      });
+      await hashtagModel.create({
+        name: 'scary',
+        status: HashtagActiveStatus.Deactivated,
+        deleted: true,
+      });
+    });
+
+    it('find all expected hashtag names', async () => {
+      const query = ['depravity', 'scariness'];
+      const hashtags = await hashtagService.findAllHashTagName(query);
+      expect(hashtags).toHaveLength(2);
+      expect(hashtags.map((suggestHashtagName) => suggestHashtagName.name)).toEqual(
+        ['depravity', 'scariness'],
+      );
+    });
+  });
+
   describe('#hashtagOnboardingSuggestions', () => {
     beforeEach(async () => {
       const names = [

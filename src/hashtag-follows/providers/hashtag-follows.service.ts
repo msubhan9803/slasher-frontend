@@ -41,4 +41,13 @@ export class HashtagFollowsService {
       .populate('hashTagId', 'name totalPost')
       .exec();
   }
+
+  async insertManyHashtagFollow(userId: string, hashTagId: string[]) {
+    const hastags = [];
+    for (let i = 0; i < hashTagId.length; i += 1) {
+      hastags.push(await this.hashtagFollowModel
+        .create({ userId, hashTagId: hashTagId[i] }));
+    }
+    return hastags;
+  }
 }

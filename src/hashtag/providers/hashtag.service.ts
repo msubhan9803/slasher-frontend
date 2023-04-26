@@ -69,6 +69,17 @@ export class HashtagService {
     return this.HashtagModel.findOne(hashtagFindQuery).exec();
   }
 
+  async findAllHashTagName(name: string[]): Promise<Hashtag[]> {
+    return this.HashtagModel
+      .find({
+        $and: [
+          { name: { $in: name } },
+          { is_deleted: 0, status: 1 },
+        ],
+      }, { name: 1 })
+      .exec();
+  }
+
   async findAllHashtags(name: string[], limit: number): Promise<Hashtag[]> {
     return this.HashtagModel
       .find({

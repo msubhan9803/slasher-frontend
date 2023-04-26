@@ -150,6 +150,9 @@ export class User extends UserUnusedFields {
   @Prop({ default: 0 })
   newFriendRequestCount: number;
 
+  @Prop({ default: [] })
+  hashtags: string[];
+
   /***********
    * Methods *
    ***********/

@@ -152,6 +152,9 @@ function PostFeed({
     if (post.rssfeedProviderId) {
       return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
     }
+    if (post.movieId) {
+      return `/app/movies/${post.movieId}/reviews/${post.id}`;
+    }
     return `/${post.userName}/posts/${post.id}`;
   };
 

@@ -58,6 +58,7 @@ interface MentionProps {
   isCommentInput?: string;
   onFocusHandler?: () => void;
   onBlurHandler?: () => void;
+  isMainPostCommentClick?: boolean;
 }
 
 function MessageTextarea({
@@ -75,6 +76,7 @@ function MessageTextarea({
   isCommentInput,
   onFocusHandler,
   onBlurHandler,
+  isMainPostCommentClick,
 }: MentionProps) {
   const { Option } = Mentions;
   const textareaRef = useRef<MentionsRef>(null);
@@ -108,10 +110,10 @@ function MessageTextarea({
   };
 
   useEffect(() => {
-    if (textareaRef.current && isReply) {
+    if (textareaRef.current && (isReply || isMainPostCommentClick)) {
       textareaRef.current.focus();
     }
-  }, [isReply]);
+  }, [isReply, isMainPostCommentClick]);
   return (
     <StyledMention
       ref={textareaRef}
@@ -155,5 +157,6 @@ MessageTextarea.defaultProps = {
   isCommentInput: undefined,
   onFocusHandler: undefined,
   onBlurHandler: undefined,
+  isMainPostCommentClick: undefined,
 };
 export default MessageTextarea;

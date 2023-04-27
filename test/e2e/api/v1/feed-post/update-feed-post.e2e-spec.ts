@@ -762,12 +762,124 @@ describe('Update Feed Post (e2e)', () => {
         { statusCode: 400, message: 'Review must have a some text' },
       );
     });
+
+    it('when we add single 5(hashtags) and double 5(hashtags)', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-posts/${feedPost._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'test user#ok #slasher #nothing #okay #best ##not ##go ##run ##fast ##good')
+          .field('userId', activeUser._id.toString())
+          .field('postType', PostType.User)
+          .attach('files', tempPaths[0]);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'test user#ok #slasher #nothing #okay #best ##not ##go ##run ##fast ##good',
+          spoilers: false,
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
+      }, [{ extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when we add double(##) 11 hashtags', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-posts/${feedPost._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'test user##ok ##slasher ##nothing ##okay ##best ##not ##go ##run ##fast ##good ##far')
+          .field('userId', activeUser._id.toString())
+          .field('postType', PostType.User)
+          .attach('files', tempPaths[0]);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'test user##ok ##slasher ##nothing ##okay ##best ##not ##go ##run ##fast ##good ##far',
+          spoilers: false,
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
+      }, [{ extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when message start with hashtag than expected response', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-posts/${feedPost._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', '#test user#ok #slasher #nothing #okay')
+          .field('userId', activeUser._id.toString())
+          .field('postType', PostType.User)
+          .attach('files', tempPaths[0]);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: '#test user#ok #slasher #nothing #okay',
+          spoilers: false,
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
+      }, [{ extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
   });
 
   describe('notifications', () => {
     it('when notification is create for updateFeedPost than check newNotificationCount is increment in user', async () => {
       const otherUser1 = await usersService.create(userFactory.build({ userName: 'Denial' }));
       const otherUser2 = await usersService.create(userFactory.build({ userName: 'Divine' }));
+      const otherUser3 = await usersService.create(userFactory.build({ userName: 'Den' }));
       const post = await feedPostsService.create(feedPostFactory.build(
         {
           userId: activeUser._id,
@@ -778,11 +890,17 @@ describe('Update Feed Post (e2e)', () => {
         .patch(`/api/v1/feed-posts/${post._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .set('Content-Type', 'multipart/form-data')
-        .field('message', `##LINK_ID##${otherUser2._id.toString()}@OtherUser2##LINK_END## other user 2`);
+        .field(
+          'message',
+          `##LINK_ID##${otherUser2._id.toString()}@Denial##LINK_END## other user 2`
+          + `##LINK_ID##${otherUser3._id.toString()}@Den##LINK_END## other user 3`,
+        );
       expect(response.status).toEqual(HttpStatus.OK);
 
       const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id);
+      const otherUser3NewNotificationCount = await usersService.findById(otherUser2.id);
       expect(otherUser2NewNotificationCount.newNotificationCount).toBe(1);
+      expect(otherUser3NewNotificationCount.newNotificationCount).toBe(1);
     });
   });
 

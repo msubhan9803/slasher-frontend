@@ -98,9 +98,9 @@ export class FeedPostsController {
 
     let hashtags;
     if (createFeedPostsDto.message && createFeedPostsDto.message.includes('#')) {
-      const hashtagRegex = /^([^#]*#){1,10}[^#]*$/;
-      const hashtag = hashtagRegex.test(createFeedPostsDto.message);
-      if (!hashtag) {
+      const hashtagRegex = /(?<=[a-zA-Z\d]|\s)(#[^\s#]+)/g;
+      const hashtag = createFeedPostsDto.message.match(hashtagRegex);
+      if (hashtag && hashtag.length > 10) {
         throw new HttpException(
           'you can not add more than 10 hashtags on a post',
           HttpStatus.BAD_REQUEST,
@@ -317,9 +317,9 @@ export class FeedPostsController {
 
     let newHashtagNames;
     if (updateFeedPostsDto.message && updateFeedPostsDto.message.includes('#')) {
-      const hashtagRegex = /^([^#]*#){1,10}[^#]*$/;
-      const hashtag = hashtagRegex.test(updateFeedPostsDto.message);
-      if (!hashtag) {
+      const hashtagRegex = /(?<!#)#[^\s#]+/g;
+      const hashtag = updateFeedPostsDto.message.match(hashtagRegex);
+      if (hashtag && hashtag.length > 10) {
         throw new HttpException(
           'you can not add more than 10 hashtags on a post',
           HttpStatus.BAD_REQUEST,

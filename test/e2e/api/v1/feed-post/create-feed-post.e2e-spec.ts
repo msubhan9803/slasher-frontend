@@ -484,9 +484,100 @@ describe('Feed-Post / Post File (e2e)', () => {
       );
     });
 
+    it('when we add single 5(hashtags) and double 5(hashtags)', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'test user#ok #slasher #nothing #okay #best ##not ##go ##run ##fast ##good')
+          .field('userId', activeUser._id.toString())
+          .field('postType', PostType.User)
+          .attach('files', tempPaths[0]);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'test user#ok #slasher #nothing #okay #best ##not ##go ##run ##fast ##good',
+          spoilers: false,
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+          postType: PostType.User,
+        });
+      }, [{ extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when we add double(##) 11 hashtags', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'test user##ok ##slasher ##nothing ##okay ##best ##not ##go ##run ##fast ##good ##far')
+          .field('userId', activeUser._id.toString())
+          .field('postType', PostType.User)
+          .attach('files', tempPaths[0]);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'test user##ok ##slasher ##nothing ##okay ##best ##not ##go ##run ##fast ##good ##far',
+          spoilers: false,
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+          postType: PostType.User,
+        });
+      }, [{ extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when message start with hashtag than expected response', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', '#test user#ok #slasher #nothing #okay')
+          .field('userId', activeUser._id.toString())
+          .field('postType', PostType.User)
+          .attach('files', tempPaths[0]);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: '#test user#ok #slasher #nothing #okay',
+          spoilers: false,
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+          postType: PostType.User,
+        });
+      }, [{ extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
     describe('notifications', () => {
       it('when notification is create for createFeedPost than check newNotificationCount is increment in user', async () => {
         const otherUser1 = await usersService.create(userFactory.build({ userName: 'Denial' }));
+        const otherUser2 = await usersService.create(userFactory.build({ userName: 'Devine' }));
 
         await createTempFiles(async (tempPaths) => {
           await request(app.getHttpServer())
@@ -495,7 +586,8 @@ describe('Feed-Post / Post File (e2e)', () => {
             .set('Content-Type', 'multipart/form-data')
             .field(
               'message',
-              `##LINK_ID##${otherUser1._id.toString()}@Denial##LINK_END## other user 1`,
+              `##LINK_ID##${otherUser1._id.toString()}@Denial##LINK_END## other user 1 `
+              + `##LINK_ID##${otherUser2._id.toString()}@Denial##LINK_END## other user 2`,
             )
             .field('postType', PostType.User)
             .field('userId', activeUser._id.toString())
@@ -503,7 +595,9 @@ describe('Feed-Post / Post File (e2e)', () => {
             .expect(HttpStatus.CREATED);
 
           const otherUser1NewNotificationCount = await usersService.findById(otherUser1.id);
+          const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id);
           expect(otherUser1NewNotificationCount.newNotificationCount).toBe(1);
+          expect(otherUser2NewNotificationCount.newNotificationCount).toBe(1);
         }, [{ extension: 'png' }]);
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));

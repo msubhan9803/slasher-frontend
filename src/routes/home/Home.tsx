@@ -105,6 +105,7 @@ function Home() {
                 likeIcon: data.likedByUser,
                 likeCount: data.likeCount,
                 commentCount: data.commentCount,
+                movieId: data?.movieId,
               };
             }
             // RSS feed post
@@ -178,6 +179,7 @@ function Home() {
             likeIcon: data.likedByUser,
             likeCount: data.likeCount,
             commentCount: data.commentCount,
+            movieId: data.movieId,
           };
         }
         // RSS feed post

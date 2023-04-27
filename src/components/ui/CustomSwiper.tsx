@@ -24,11 +24,11 @@ interface SliderImage {
   imageUrl: string;
   linkUrl?: string;
   videoKey?: string;
-  posterTitleAndReleaseDateOfMovie?: {
+  movieData?: {
     poster_path: string,
     title: string,
     release_date: string,
-    movieId: string,
+    _id: string, // `movieId`
   }
 }
 
@@ -158,14 +158,14 @@ function CustomSwiper({
         </Link>
       );
     }
-    if (imageAndVideo.posterTitleAndReleaseDateOfMovie) {
+    if (imageAndVideo.movieData) {
       return (
         <SwiperContentContainer>
           <Row className="m-0 h-100">
             <Col className="p-0 h-100 py-3">
               <StyledMoviePoster className="h-100">
                 <Image
-                  src={imageAndVideo?.posterTitleAndReleaseDateOfMovie?.poster_path}
+                  src={imageAndVideo?.movieData?.poster_path}
                   alt="movie poster"
                   className="rounded-3 w-100 h-100"
                 />
@@ -173,13 +173,13 @@ function CustomSwiper({
             </Col>
             <Col className="m-auto ps-4 text-start">
               <div className="fw-bold mb-1">
-                {imageAndVideo?.posterTitleAndReleaseDateOfMovie?.title}
+                {imageAndVideo?.movieData?.title}
               </div>
               <div className="text-light mb-2">
-                {imageAndVideo?.posterTitleAndReleaseDateOfMovie?.release_date
-                  && DateTime.fromJSDate(new Date(imageAndVideo?.posterTitleAndReleaseDateOfMovie?.release_date)).toFormat('yyyy')}
+                {imageAndVideo?.movieData?.release_date
+                  && DateTime.fromJSDate(new Date(imageAndVideo?.movieData?.release_date)).toFormat('yyyy')}
               </div>
-              <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4" onClick={() => navigate(`/app/movies/${imageAndVideo?.posterTitleAndReleaseDateOfMovie?.movieId}/details`)}>
+              <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4" onClick={() => navigate(`/app/movies/${imageAndVideo?.movieData?._id}/details`)}>
                 View details
               </RoundButton>
 

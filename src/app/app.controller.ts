@@ -23,7 +23,14 @@ export class AppController {
   // This route handler only exists to provide a nice-looking response at the /api/v1 url
   @Get('api/v1')
   apiV1() {
+    // Temporarily do an expensive computation (for testing)
+    this.fibonacci(41);
     return this.getVersionResponse();
+  }
+
+  fibonacci(num) {
+    if (num <= 1) { return num; }
+    return this.fibonacci(num - 1) + this.fibonacci(num - 2);
   }
 
   // Returns various server-side values that should be treated as constants on the client side

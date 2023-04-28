@@ -1,8 +1,9 @@
+/* eslint-disable max-lines */
 import React, {
   useCallback, useContext, useEffect, useState,
 } from 'react';
 import { Offcanvas } from 'react-bootstrap';
-import { ScrollRestoration, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import styled from 'styled-components';
 import { useMediaQuery } from 'react-responsive';
@@ -10,16 +11,21 @@ import SidebarNavContent from '../../sidebar-nav/SidebarNavContent';
 import AuthenticatedPageHeader from './AuthenticatedPageHeader';
 import MobileOnlySidebarContent from '../../sidebar-nav/MobileOnlySidebarContent';
 import { userInitialData } from '../../../../api/users';
-import { incrementUnreadNotificationCount, setUserInitialData, handleUpdatedUnreadMessageCount } from '../../../../redux/slices/userSlice';
+import {
+  setUserInitialData, handleUpdatedUnreadConversationCount, resetUnreadNotificationCount,
+  resetNewFriendRequestCountCount, incrementUnreadNotificationCount,
+  incrementFriendRequestCount,
+} from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { signOut } from '../../../../utils/session-utils';
 import { SocketContext } from '../../../../context/socket';
 import { LG_MEDIA_BREAKPOINT, analyticsId, MAIN_CONTENT_ID } from '../../../../constants';
-import LoadingIndicator from '../../../ui/LoadingIndicator';
 import useGoogleAnalytics from '../../../../hooks/useGoogleAnalytics';
 import SkipToMainContent from '../../sidebar-nav/SkipToMainContent';
 import { setRemoteConstantsData } from '../../../../redux/slices/remoteConstantsSlice';
 import { fetchRemoteConstants } from '../../../../api/remote-constants';
+import slasherLogo from '../../../../images/slasher-logo-medium.png';
+import HeaderLogo from '../../../ui/HeaderLogo';
 
 interface Props {
   children: React.ReactNode;
@@ -27,9 +33,6 @@ interface Props {
 
 const StyledOffcanvas = styled(Offcanvas)`
   background-color: #171717;
-  .btn-close {
-    background-color: var(--bs-link-color);
-  }
 `;
 
 const LeftSidebarWrapper = styled.div`
@@ -39,7 +42,7 @@ const LeftSidebarWrapper = styled.div`
   position: sticky;
   top: 93.75px;
   overflow-y: overlay;
-  padding-right: 1rem;
+  padding: 2px 1rem 0 2px;
   overscroll-behavior: contain;
 
   &::-webkit-scrollbar { display: none; }
@@ -89,7 +92,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
       });
     }
 
-    if (userData.user.userName === '') {
+    if (userData.user?.userName === '') {
       userInitialData().then((res) => {
         dispatch(setUserInitialData(res.data));
       }).catch((err) => {
@@ -98,7 +101,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
         }
       });
     }
-  }, [dispatch, navigate, pathname, userData.user.userName, remoteConstantsData.loaded, token]);
+  }, [dispatch, navigate, pathname, userData.user?.userName, remoteConstantsData.loaded, token]);
 
   useCallback(() => {
     dispatch(setUserInitialData(userData));
@@ -107,36 +110,65 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const onNotificationReceivedHandler = useCallback(() => {
     dispatch(incrementUnreadNotificationCount());
   }, [dispatch]);
+  const onFriendRequestReceivedHandler = useCallback(() => {
+    dispatch(incrementFriendRequestCount());
+  }, [dispatch]);
 
-  const onUnreadMessageCountUpdate = useCallback((count: any) => {
-    dispatch(handleUpdatedUnreadMessageCount(count.unreadMessageCount));
+  const onClearNewNotificationCount = useCallback(() => {
+    dispatch(resetUnreadNotificationCount());
+  }, [dispatch]);
+
+  const onClearNewFriendRequestCount = useCallback(() => {
+    dispatch(resetNewFriendRequestCountCount());
+  }, [dispatch]);
+
+  const onUnreadConversationCountUpdate = useCallback((count: any) => {
+    dispatch(handleUpdatedUnreadConversationCount(count.unreadConversationCount));
   }, [dispatch]);
 
   useEffect(() => {
     if (socket) {
       socket.on('notificationReceived', onNotificationReceivedHandler);
-      socket.on('unreadMessageCountUpdate', onUnreadMessageCountUpdate);
+      socket.on('friendRequestReceived', onFriendRequestReceivedHandler);
+      socket.on('unreadConversationCountUpdate', onUnreadConversationCountUpdate);
+      socket.on('clearNewNotificationCount', onClearNewNotificationCount);
+      socket.on('clearNewFriendRequestCount', onClearNewFriendRequestCount);
       return () => {
         socket.off('notificationReceived', onNotificationReceivedHandler);
-        socket.off('unreadMessageCountUpdate', onUnreadMessageCountUpdate);
+        socket.off('friendRequestReceived', onFriendRequestReceivedHandler);
+        socket.off('unreadMessageCountUpdate', onUnreadConversationCountUpdate);
+        socket.off('clearNewNotificationCount', onClearNewNotificationCount);
+        socket.off('clearNewFriendRequestCount', onClearNewFriendRequestCount);
       };
     }
     return () => { };
-  }, [onNotificationReceivedHandler, onUnreadMessageCountUpdate, socket]);
+  }, [
+    onNotificationReceivedHandler, onFriendRequestReceivedHandler,
+    onUnreadConversationCountUpdate, onClearNewFriendRequestCount,
+    onClearNewNotificationCount,
+    socket]);
 
-  if (!token || !userData.user) {
-    return <LoadingIndicator />;
+  if (!token || !userData.user?.id) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+        <HeaderLogo
+          logo={slasherLogo}
+          height="6.5rem"
+        />
+      </div>
+
+    );
   }
   return (
     <div className="page-wrapper full">
       <SkipToMainContent />
       <AuthenticatedPageHeader
-        userName={userData.user.userName}
+        userName={userData.user?.userName}
         onToggleClick={showOffcanvasSidebar}
         offcanvasSidebarExpandBreakPoint={desktopBreakPoint}
         ariaToggleTargetId={offcanvasId}
       />
-      <div className="w-100 px-lg-4 container-xxl">
+      <div className="w-100 px-lg-4 pt-2 pt-md-0 container-xxl">
         <div className="d-flex">
           {isDesktopResponsiveSize
             && (
@@ -148,9 +180,6 @@ function AuthenticatedPageWrapper({ children }: Props) {
             )}
           <main id={MAIN_CONTENT_ID} className="px-lg-2 flex-grow-1 min-width-0">
             {children}
-            <ScrollRestoration
-              getKey={(location: any) => location.pathname}
-            />
           </main>
         </div>
       </div>

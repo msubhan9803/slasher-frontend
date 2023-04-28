@@ -1,12 +1,14 @@
 /* eslint-disable max-lines */
-import React, { ChangeEvent, useRef, useState } from 'react';
+import React, {
+  ChangeEvent, useEffect, useRef, useState,
+} from 'react';
 import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Row, Col, Button, Form,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { getSuggestUserName } from '../../api/users';
 import ErrorMessageList from './ErrorMessageList';
 import ImagesContainer from './ImagesContainer';
@@ -16,6 +18,9 @@ import CharactersCounter from './CharactersCounter';
 import RatingButtonGroups from './RatingButtonGroups';
 import CustomWortItText from './CustomWortItText';
 import { StyledBorder } from './StyledBorder';
+import WorthWatchIcon from '../../routes/movies/components/WorthWatchIcon';
+import { MovieData, WorthWatchingStatus } from '../../types';
+import { LG_MEDIA_BREAKPOINT, topToDivHeight } from '../../constants';
 
 interface MentionProps {
   id: string;
@@ -28,6 +33,7 @@ interface FormatMentionProps {
   format: string;
 }
 interface Props {
+  movieData?: MovieData;
   errorMessage?: string[] | undefined;
   createUpdatePost?: () => void;
   setPostMessageContent: (val: string) => void;
@@ -47,9 +53,18 @@ interface Props {
   setRating?: (value: number) => void;
   goreFactor?: number;
   setGoreFactor?: (value: number) => void;
-  liked?: boolean;
   selectedPostType?: string;
   setSelectedPostType?: (value: string) => void;
+  setWorthIt?: (val: number) => void;
+  liked?: boolean;
+  setLike?: (val: boolean) => void;
+  disLiked?: boolean;
+  setDisLike?: (val: boolean) => void;
+  isWorthIt?: number;
+  placeHolder?: string;
+  showSaveButton?: boolean;
+  reviewForm?: boolean;
+  setReviewForm?: (value: boolean) => void;
 }
 
 const AddPhotosButton = styled(RoundButton)`
@@ -64,17 +79,22 @@ const PostTypeButton = styled(Button)`
 `;
 
 function CreatePostComponent({
-  errorMessage, createUpdatePost, setPostMessageContent, imageArray, setImageArray,
-  defaultValue, formatMention, setFormatMention, deleteImageIds, setDeleteImageIds,
-  postType, titleContent, setTitleContent, containSpoiler, setContainSpoiler,
-  rating, setRating, goreFactor, setGoreFactor, liked, selectedPostType,
-  setSelectedPostType,
+  movieData, errorMessage, createUpdatePost, setPostMessageContent,
+  imageArray, setImageArray, defaultValue, formatMention, setFormatMention,
+  deleteImageIds, setDeleteImageIds, postType, titleContent, setTitleContent,
+  containSpoiler, setContainSpoiler, rating, setRating, goreFactor, setGoreFactor,
+  selectedPostType, setSelectedPostType, setWorthIt, liked, setLike,
+  disLiked, setDisLike, isWorthIt, placeHolder, showSaveButton,
+  reviewForm, setReviewForm,
 }: Props) {
   const inputFile = useRef<HTMLInputElement>(null);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [uploadPost, setUploadPost] = useState<string[]>([]);
   const [searchParams] = useSearchParams();
   const paramsType = searchParams.get('type');
+  const params = useParams();
+  const location = useLocation();
+  const movieReviewRef = useRef<HTMLDivElement>(null);
 
   const handleRemoveFile = (postImage: any) => {
     const removePostImage = imageArray.filter((image: File) => image !== postImage);
@@ -83,22 +103,20 @@ function CreatePostComponent({
   };
 
   const handleFileChange = (postImage: ChangeEvent<HTMLInputElement>) => {
-    const postImageEvent = postImage;
-    if (!postImageEvent.target) {
+    if (!postImage.target) {
       return;
     }
-    if (postImageEvent.target.name === 'post' && postImageEvent.target && postImageEvent.target.files) {
+    if (postImage.target.name === 'post' && postImage.target && postImage.target.files) {
       const uploadedPostList = [...uploadPost] as any;
       const imageArrayList = [...imageArray];
-      const fileList = postImageEvent.target.files;
+      const fileList = postImage.target.files;
       for (let list = 0; list < fileList.length; list += 1) {
         if (uploadedPostList.length < 10) {
-          const image = postImageEvent.target.files[list];
+          const image = postImage.target.files[list];
           uploadedPostList.push(image);
-          imageArrayList.push(postImageEvent.target.files[list]);
+          imageArrayList.push(postImage.target.files[list]);
         }
       }
-      postImageEvent.target.value = '';
       setUploadPost(uploadedPostList);
       setImageArray(imageArrayList);
     }
@@ -112,8 +130,36 @@ function CreatePostComponent({
     }
   };
 
+  let actionText;
+  if (postType === 'review') {
+    actionText = 'Submit';
+  } else if (showSaveButton) {
+    actionText = 'Save';
+  } else {
+    actionText = 'Post';
+  }
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (reviewForm || params['*'] === 'reviews' || (location.state && location.state.movieId && location.state.movieId.length)) {
+        if (movieReviewRef.current) {
+          window.scrollTo({
+            top: movieReviewRef.current.offsetTop - (
+              window.innerWidth >= parseInt(LG_MEDIA_BREAKPOINT.replace('px', ''), 10)
+                ? topToDivHeight
+                : 10
+            ),
+            behavior: 'instant' as any,
+          });
+        }
+        setReviewForm!(false);
+      }
+    }, 500);
+  }, [reviewForm, params, location, setReviewForm]);
+
   return (
-    <div className={postType === 'review' ? 'bg-dark mb-3 px-4 py-4 rounded-2' : ''}>
+
+    <div ref={movieReviewRef} className={postType === 'review' ? 'bg-dark mb-3 px-4 py-4 rounded-2' : ''}>
 
       {postType === 'review' && (
         <>
@@ -123,39 +169,55 @@ function CreatePostComponent({
                 rating={rating}
                 setRating={setRating}
                 label="Your rating"
-                size="1x"
+                size="lg"
               />
             </div>
-            <div className="mx-md-3 mx-lg-0 mx-xl-3 my-3 my-md-0 my-lg-3 my-xl-0">
+            <div className="mx-md-4 mx-lg-0 mx-xl-4 my-3 my-md-0 my-lg-3 my-xl-0">
               <RatingButtonGroups
                 rating={goreFactor}
                 setRating={setGoreFactor}
-                label="Your gore factor rating"
-                size="1x"
+                label="Gore factor"
+                size="lg"
                 isGoreFator
               />
             </div>
-            <div>
+            <div className="">
               <Form.Label className="fw-bold h3">Worth watching?</Form.Label>
               <div className="d-flex align-items-center">
-                {/* // un-comment below codewhen api integrated */}
-                {/* <WorthWatchIcon /> */}
-                <CustomWortItText
-                  divClass="align-items-center py-2 px-3 bg-black rounded-pill"
-                  textClass="fs-4"
-                  customCircleWidth="20px"
-                  customCircleHeight="20px"
-                  customIconWidth="10.67px"
-                  customIconHeight="10.67px"
-                  worthIt={liked || false}
+                <WorthWatchIcon
+                  movieData={movieData}
+                  setWorthIt={setWorthIt}
+                  liked={liked!}
+                  setLike={setLike!}
+                  disLiked={disLiked!}
+                  setDisLike={setDisLike!}
+                  postType={postType}
+                  circleWidth="2.534rem"
+                  circleHeight="2.534rem"
+                  iconWidth="1.352rem"
+                  iconHeight="1.352rem"
+                  isWorthIt={isWorthIt}
+                  clickType="form"
                 />
+                {isWorthIt !== WorthWatchingStatus.NoRating
+                  && (
+                    <CustomWortItText
+                      divClass="mt-2 align-items-center px-3 bg-black rounded-pill py-2"
+                      textClass="fs-4"
+                      customCircleWidth="20px"
+                      customCircleHeight="20px"
+                      customIconWidth="10.67px"
+                      customIconHeight="10.67px"
+                      worthIt={isWorthIt}
+                    />
+                  )}
               </div>
             </div>
           </div>
           <h1 className="h3 mb-3">Write your review</h1>
         </>
       )}
-      {(postType === 'review' || paramsType === 'group-post') && (
+      {(paramsType === 'group-post') && (
         <div className="position-relative">
           <Form.Control
             maxLength={150}
@@ -164,7 +226,7 @@ function CreatePostComponent({
             onChange={(e) => {
               setTitleContent!(e.target.value);
             }}
-            placeholder={postType === 'review' ? 'Write a headline' : 'Title'}
+            placeholder="Title"
             className="bg-black"
             aria-label="Title"
             style={{ paddingRight: '150px' }}
@@ -177,10 +239,10 @@ function CreatePostComponent({
           />
         </div>
       )}
-      <div className={`mt-3 ${(postType === 'review' || paramsType === 'group-post') ? 'form-control p-0 bg-black' : ''}`}>
+      <div className="mt-3">
         <MessageTextarea
           rows={10}
-          placeholder={postType === 'review' ? 'Write your review here' : 'Create a post'}
+          placeholder={placeHolder}
           handleSearch={handleSearch}
           mentionLists={mentionList}
           setMessageContent={setPostMessageContent}
@@ -204,7 +266,7 @@ function CreatePostComponent({
                 as="input"
                 type="button"
                 value={type}
-                className={`${type === selectedPostType ? 'bg-primary text-black' : 'bg-secondary text-white'} rounded-pill py-2 px-3 m-1`}
+                className={`${type === selectedPostType ? 'bg-primary text-black' : 'bg-secondary text-white'} rounded-pill px-3 m-1`}
                 onClick={() => setSelectedPostType!(type)}
               />
             ))}
@@ -252,7 +314,9 @@ function CreatePostComponent({
                   containerHeight="7.25rem"
                   containerBorder="0.125rem solid #3A3B46"
                   image={post}
-                  alt="post image"
+                  alt="" // TODO: set any existing alt text here (when editing existing image)
+                  // eslint-disable-next-line no-console
+                  // onAltTextChange={(newValue) => { console.log(`New value is: ${newValue}`); }}
                   handleRemoveImage={handleRemoveFile}
                   containerClass="mt-4 position-relative d-flex justify-content-center align-items-center rounded border-0"
                   removeIconStyle={{
@@ -265,21 +329,19 @@ function CreatePostComponent({
             ))}
           </Row>
         </Col>
+        <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
         {postType !== 'review'
           && (
-            <>
-              <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
-              <Col md="auto" className="mb-3 mb-md-0 order-0 order-md-1 me-auto">
-                <AddPhotosButton size="md" disabled={uploadPost && uploadPost.length >= 10} className="mt-4 border-0 btn btn-form w-100 rounded-5" onClick={() => inputFile.current?.click()}>
-                  <FontAwesomeIcon icon={regular('image')} className="me-2" />
-                  <span className="h3">Add photos</span>
-                </AddPhotosButton>
-              </Col>
-            </>
+            <Col md="auto" className="mb-3 mb-md-0 order-0 order-md-1 me-auto">
+              <AddPhotosButton size="md" disabled={uploadPost && uploadPost.length >= 10} className="mt-4 border-0 btn btn-form w-100 rounded-5" onClick={() => inputFile.current?.click()}>
+                <FontAwesomeIcon icon={regular('image')} className="me-2" />
+                <span className="h3">Add photos</span>
+              </AddPhotosButton>
+            </Col>
           )}
         <Col md="auto" className={postType === 'review' ? '' : 'order-2 ms-auto'}>
           <RoundButton className="px-4 mt-4 w-100" size="md" onClick={createUpdatePost}>
-            <span className="h3">{postType === 'review' ? 'Submit' : 'Post'}</span>
+            <span className="h3">{actionText}</span>
           </RoundButton>
         </Col>
       </Row>
@@ -287,6 +349,7 @@ function CreatePostComponent({
   );
 }
 CreatePostComponent.defaultProps = {
+  movieData: undefined,
   defaultValue: '',
   deleteImageIds: [],
   setDeleteImageIds: () => { },
@@ -303,8 +366,17 @@ CreatePostComponent.defaultProps = {
   setRating: undefined,
   goreFactor: 0,
   setGoreFactor: undefined,
-  liked: false,
   selectedPostType: '',
   setSelectedPostType: undefined,
+  setWorthIt: () => { },
+  liked: false,
+  setLike: () => { },
+  disLiked: false,
+  setDisLike: () => { },
+  isWorthIt: 0,
+  placeHolder: 'Write a something...',
+  showSaveButton: false,
+  reviewForm: false,
+  setReviewForm: undefined,
 };
 export default CreatePostComponent;

@@ -5,6 +5,7 @@ import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import RoundButton from '../../../components/ui/RoundButton';
 import { StyleButton } from '../../../components/ui/StyleButton';
 import MoviesModal from '../components/MoviesModal';
+import SortData from '../../../components/filter-sort/SortData';
 
 function MovieEdit() {
   // TODO: If user does not own this movie listing, redirect to details view instead of edit view
@@ -72,9 +73,12 @@ function MovieEdit() {
             <Form.Control type="text" placeholder="Movie duration" className="fs-5 mb-4" />
           </Col>
           <Col lg={6}>
-            <Form.Select className="fs-5 text-light" defaultValue="Movie rating">
-              <option value="movie-rating"> Movie rating </option>
-            </Form.Select>
+            <SortData
+              sortVal="Movie rating"
+              onSelectSort={() => { }}
+              sortoptions={[{ value: 'disabled', label: 'Movie rating' }]}
+              type="form"
+            />
           </Col>
         </Row>
         <h2 className="h2 fw-bold mb-3 mt-2">Trailers</h2>

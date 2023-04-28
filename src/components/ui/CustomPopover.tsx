@@ -2,113 +2,139 @@ import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  OverlayTrigger, Popover,
+  Dropdown, DropdownButton,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import UserCircleImage from './UserCircleImage';
 
 interface Props {
   popoverOptions: string[];
   onPopoverClick: (val: string, popoverClickProps: PopoverClickProps) => void,
-  userProfileIcon?: string;
   userName?: string;
-  content?: string;
+  message?: string;
   id?: string;
   userId?: string;
   postImages?: string[] | undefined;
+  rssfeedProviderId?: string;
 }
 
 export interface PopoverClickProps {
-  content?: string,
+  message?: string,
   id?: string,
   userId?: string,
   userName?: string,
   postImages?: string[] | undefined,
+  rssfeedProviderId?: string,
 }
 
 const StyledPopover = styled.div`
-.btn[aria-describedby="popover-basic"]{
-  svg{
-    color: var(--bs-primary);
+  position: relative;
+  left: .755rem;
+  top: -.5rem;
+
+  .btn.show:focus-visible, .btn:first-child:active:focus-visible {
+    box-shadow: 0 0 0 2px var(--stroke-and-line-separator-color) !important;
   }
-}
-`;
-interface CustomPopoverProps {
-  arrowplacement: string;
-}
-const Custompopover = styled(Popover) <CustomPopoverProps>`
-  z-index :1;
-  background:rgb(27,24,24);
-  border: 1px solid rgb(56,56,56);
-  position:absolute;
-  top: 0px !important;
-  .popover-arrow{
-    &:after{
-      border-${((props) => props.arrowplacement)}-color:rgb(56,56,56);
+
+  .dropstart .dropdown-toggle::before {
+    border: none; // remove default bootstrap caret
+    margin: 0; // remove default bootstrap caret spacing
+  }
+
+  .dropdown-menu {
+    background-color: rgb(27,24,24) !important;
+    border: 1px solid rgb(56,56,56) !important;
+    min-width: 115px;
+    z-index: 1;
+  }
+
+  .dropdown-menu .side-arrow {
+    position: absolute;
+    right: -11px;
+    top: 10px;
+    width: 0.5rem;
+    height: 1rem;
+    &:before {
+      content: "";
+      display: block;
+      border-style: solid;
+      border-width: calc(1rem * 0.5) 0 calc(1rem * 0.5) 0.5rem;
+      border-color: transparent;
+      position: absolute;
+      right: 0;
+    }
+    &:after {
+      content: "";
+      display: block;
+      border-style: solid;
+      border-width: calc(1rem * 0.5) 0 calc(1rem * 0.5) 0.5rem;
+      border-color: transparent transparent transparent rgb(56,56,56);
+      position: absolute;
+      right: 3px;
     }
   }
-`;
-const PopoverText = styled.p`
-  &:hover {
-    background: red;
+  .dropdown-item {
+    text-decoration: none !important;
+    color: white !important;
+    &:hover {
+      background-color: var(--bs-primary) !important;
+    }
+    &:focus-visible {
+      background-color: var(--bs-primary) !important;
+    }
   }
 `;
 
 function CustomPopover({
-  popoverOptions, onPopoverClick, userProfileIcon,
-  content, id, userId, userName, postImages,
+  popoverOptions, onPopoverClick,
+  message, id, userId, userName, postImages, rssfeedProviderId,
 }: Props) {
-  const popover = (
-    <Custompopover arrowplacement={userProfileIcon ? 'bottom' : 'left'} id="popover-basic" className="fs-3 py-2 rounded-2">
-      {popoverOptions && popoverOptions.length > 0 && popoverOptions.map((option: string) => {
-        const popoverClickProps = {
-          content,
-          id,
-          userId,
-          userName,
-          postImages,
-        };
-        return (
-          <PopoverText
+  const popoverClickProps = {
+    message,
+    id,
+    userId,
+    userName,
+    postImages,
+    rssfeedProviderId,
+  };
+  return (
+    <StyledPopover>
+      <DropdownButton
+        variant="link"
+        drop="start"
+        // The align prop is just here to disable dynamic positioning (which can make the dropdown
+        // content move based on screen position). This should match the `drop` prop value.
+        align={{ xs: 'start' }}
+        flip={false}
+        title={(
+          <>
+            <FontAwesomeIcon icon={solid('ellipsis-vertical')} size="lg" />
+            <span className="visually-hidden">Options</span>
+          </>
+        )}
+      >
+        {popoverOptions.map((option, i) => (
+          <Dropdown.Item
             key={option}
-            className="ps-4 pb-2 pe-5 pt-2 mb-0 text-light"
+            className="ps-4 shadow-none pb-2 pe-5 pt-2 mb-0 text-light"
             role="button"
             onClick={() => onPopoverClick(option, popoverClickProps as PopoverClickProps)}
           >
             {option}
-          </PopoverText>
-        );
-      })}
-    </Custompopover>
-  );
-
-  return (
-    <StyledPopover>
-      <OverlayTrigger trigger="focus" placement={userProfileIcon ? 'bottom' : 'left'} overlay={popover}>
-        {userProfileIcon ? (
-          /* eslint-disable-next-line jsx-a11y/anchor-is-valid */
-          <a href={undefined} tabIndex={0} role="button" className="btn bg-transparent text-decoration-none shadow-none border-0 pe-1">
-            <UserCircleImage size="2rem" src={userProfileIcon} alt="user picture" />
-            <p className="mb-0 mt-2 fs-6">Me</p>
-          </a>
-        ) : (
-          /* eslint-disable-next-line jsx-a11y/anchor-is-valid */
-          <a href={undefined} tabIndex={0} role="button" className="bg-transparent shadow-none border-0 pe-1">
-            <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-          </a>
-        )}
-      </OverlayTrigger>
+            {i === 0 && <div className="side-arrow" />}
+          </Dropdown.Item>
+        ))}
+      </DropdownButton>
     </StyledPopover>
   );
 }
 
 CustomPopover.defaultProps = {
-  userProfileIcon: '',
-  content: null,
+  message: null,
   id: null,
   userId: null,
   userName: null,
   postImages: [],
+  rssfeedProviderId: '',
 };
 
 export default CustomPopover;

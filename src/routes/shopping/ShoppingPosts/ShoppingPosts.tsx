@@ -12,7 +12,7 @@ const postData = [
     userName: 'Cavity Colors',
     profileImage,
     postDate: '06/18/2022 11:10 PM',
-    content: '🔪 Sorry Jack. Chucky’s back! 🩸 We’re so incredibly excited to announce part 1 of our officially licensed CHUCKY Franchise Series kicks off next Tuesday, June 28th at 5 PM EST! Hold on tight, this one’s gonna be KILLER!',
+    message: '🔪 Sorry Jack. Chucky’s back! 🩸 We’re so incredibly excited to announce part 1 of our officially licensed CHUCKY Franchise Series kicks off next Tuesday, June 28th at 5 PM EST! Hold on tight, this one’s gonna be KILLER!',
     postUrl: postImage,
     likeIcon: false,
     hashTag: ['chucky'],

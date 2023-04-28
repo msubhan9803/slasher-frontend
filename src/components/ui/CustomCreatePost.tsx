@@ -37,7 +37,7 @@ function CustomCreatePost({
       className={`w-100 d-flex justify-content-between ${className}`}
     >
       <div>
-        <UserCircleImage size="1.5rem" src={userProfilePic} alt="user picture" />
+        <UserCircleImage size="1.4rem" src={userProfilePic} alt="user picture" />
         <span className="ms-2 text-light">{label}</span>
       </div>
       <div className="align-self-center me-2">

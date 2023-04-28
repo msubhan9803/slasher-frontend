@@ -11,7 +11,7 @@ const postData = [
     userName: 'Aly khan',
     profileImage: 'https://i.pravatar.cc/300?img=12',
     postDate: '06/18/2022 11:10 PM',
-    content: 'A retired cop battles a murderer who never gets his hands dirty when he kills. And a man stumbles into a league of immortal assassins, who kill to protect their.',
+    message: 'A retired cop battles a murderer who never gets his hands dirty when he kills. And a man stumbles into a league of immortal assassins, who kill to protect their.',
     postUrl: postImage,
     likeIcon: false,
   },

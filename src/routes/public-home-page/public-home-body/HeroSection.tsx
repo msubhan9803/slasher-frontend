@@ -1,27 +1,50 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Image } from 'react-bootstrap';
 import HeroImage from '../../../images/public-home-hero-header.png';
-import HorrorText from '../../../images/horror-text.png';
 import DownloadStoreBadge from '../components/DownloadStoreBadge';
+import {
+  LG_MEDIA_BREAKPOINT,
+  MD_MEDIA_BREAKPOINT,
+  SM_MEDIA_BREAKPOINT,
+} from '../../../constants';
 
 const StyleHeroSection = styled.div`
-  height: 100vh;
-  background: url(${HeroImage}) top center;    
+  padding: 130px 0 180px 0;
+  background: url(${HeroImage}) top center;
   background-size: cover;
-  .hero-container {
+  background-repeat: no-repeat;
     left: 0;
     right: 0;
+  .horror {
+    color: #FF1800;
+    font-family: SearsTower;
+    font-size: 150px;
+    font-weight: 400;
+    text-transform: uppercase;
+  }
+  @media (max-width: ${LG_MEDIA_BREAKPOINT}){
+    padding: 130px 0 125px 0;
+  }
+  @media (max-width: ${MD_MEDIA_BREAKPOINT}){
+    padding: 130px 0 60px 0;
+
+    .horror {
+      font-size: 84px;
+    }
+  }
+  @media (max-width: ${SM_MEDIA_BREAKPOINT}){
+
+    h1 {
+      font-size: var(--fs-2) !important;
+    }
   }
 `;
 function HeroSection() {
   return (
-    <StyleHeroSection className="w-100 position-relative">
-      <div className="hero-container px-3 d-flex justify-content-center align-items-center text-center flex-column position-absolute bottom-0 top-0">
-        <h1 className="mt-5 pt-5">THE SOCIAL NETWORK FOR</h1>
-        <Image fluid src={HorrorText} alt="horror" className="my-5" />
-        <DownloadStoreBadge />
-      </div>
+    <StyleHeroSection className="hero-container px-3 d-flex justify-content-center align-items-center text-center flex-column bottom-0">
+      <h1 className="m-0 fw-bold">THE SOCIAL NETWORK FOR</h1>
+      <h2 className="horror m-0">Horror</h2>
+      <DownloadStoreBadge />
     </StyleHeroSection>
   );
 }

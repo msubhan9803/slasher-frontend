@@ -1,8 +1,10 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect, useState, useRef, useLayoutEffect,
+} from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Col, Image, Row } from 'react-bootstrap';
+import { Col, Row } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import styled from 'styled-components';
@@ -20,11 +22,15 @@ import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { StyledBorder } from '../../components/ui/StyledBorder';
 import { enableDevFeatures } from '../../utils/configEnvironment';
 import FriendActionButtons from '../../components/ui/Friend/FriendActionButtons';
+import { LG_MEDIA_BREAKPOINT, topToDivHeight } from '../../constants';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { setScrollToTabsPosition } from '../../redux/slices/scrollPositionSlice';
 
 interface Props {
   tabKey?: string;
   user: User | undefined;
   showTabs?: boolean;
+  loadUser?: Function;
 }
 const AboutProfileImage = styled(UserCircleImage)`
   border: 0.25rem solid #1B1B1B;
@@ -41,11 +47,10 @@ const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => t.label !== 'Watch
 const CustomCol = styled(Col)`
   margin-top: -3.938rem;
 `;
-const ImageContainer = styled.div`
-  img {
-    height: 320px;
-    object-fit: cover;
-  }
+const ProfileCoverImage = styled.img`
+  width: 100%;
+  object-fit: cover;
+  aspect-ratio: 2.59375;
 `;
 const StyledPopoverContainer = styled.div`
   top: 70px;
@@ -53,7 +58,9 @@ const StyledPopoverContainer = styled.div`
 `;
 type FriendType = { from: string, to: string, reaction: FriendRequestReaction } | null;
 
-function ProfileHeader({ tabKey, user, showTabs }: Props) {
+function ProfileHeader({
+  tabKey, user, showTabs, loadUser,
+}: Props) {
   const [show, setShow] = useState<boolean>(false);
   const [friendshipStatus, setFriendshipStatus] = useState<any>();
   const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
@@ -65,6 +72,9 @@ function ProfileHeader({ tabKey, user, showTabs }: Props) {
   const navigate = useNavigate();
   const [clickedUserId, setClickedUserId] = useState<string>('');
   const [friendData, setFriendData] = useState<FriendType>(null);
+  const positionRef = useRef<HTMLDivElement>(null);
+  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  const dispatch = useAppDispatch();
 
   const isSelfUserProfile = userName === loginUserName;
   const customTabs = isSelfUserProfile ? allTabs : allTabs.filter((t) => t.user !== 'self');
@@ -87,10 +97,28 @@ function ProfileHeader({ tabKey, user, showTabs }: Props) {
     }
   }, [user, friendshipStatus, isSelfUserProfile, loginUserId]);
 
+  useLayoutEffect(() => {
+    const element = positionRef.current;
+    if (!element) { return; }
+    if (scrollPosition.scrollToTab && (friendStatus || element)) {
+      window.scrollTo({
+        top: element.offsetTop - (
+          window.innerWidth >= parseInt(LG_MEDIA_BREAKPOINT.replace('px', ''), 10)
+            ? (topToDivHeight - 18)
+            : 0
+        ),
+        behavior: 'instant' as any,
+      });
+      dispatch(setScrollToTabsPosition(false));
+    }
+  }, [positionRef, friendStatus, dispatch, scrollPosition.scrollToTab]);
+
   const onBlockYesClick = () => {
     createBlockUser(clickedUserId)
       .then(() => {
         setShow(false);
+        // Refetch user from the api into application state
+        loadUser?.();
       })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
@@ -112,14 +140,11 @@ function ProfileHeader({ tabKey, user, showTabs }: Props) {
   if (!user || (!isSelfUserProfile && typeof friendStatus === null)) {
     return <LoadingIndicator />;
   }
-
   return (
     <div className="bg-dark bg-mobile-transparent rounded mb-4">
       <Row className="p-md-4">
         <Col>
-          <ImageContainer>
-            <Image src={user.coverPhoto || defaultCoverImage} alt="Cover picture" className="w-100 rounded" />
-          </ImageContainer>
+          <ProfileCoverImage src={user.coverPhoto || defaultCoverImage} alt="Cover picture" className="mt-3 mt-md-0 w-100 rounded" />
         </Col>
         <Row className="d-flex ms-3">
           <CustomCol md={3} lg={12} xl="auto" className="text-center text-lg-center text-xl-start  position-relative">
@@ -141,7 +166,7 @@ function ProfileHeader({ tabKey, user, showTabs }: Props) {
                 <h1 className="mb-md-0">
                   {user?.firstName}
                 </h1>
-                <p className="fs-5  text-light">
+                <p className="fs-5 text-light">
                   @
                   {user?.userName}
                 </p>
@@ -152,7 +177,7 @@ function ProfileHeader({ tabKey, user, showTabs }: Props) {
                     <div className="d-flex justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
                       <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4" onClick={() => navigate(`/${userName}/edit`)}>
                         <FontAwesomeIcon icon={solid('pen')} className="me-2 align-self-center" />
-                        <h2 className="h3 mb-0"> Edit profile</h2>
+                        Edit profile
                       </RoundButton>
                     </div>
                   )}
@@ -164,6 +189,7 @@ function ProfileHeader({ tabKey, user, showTabs }: Props) {
                         friendData={friendData}
                         friendStatus={friendStatus}
                         setFriendshipStatus={setFriendshipStatus}
+                        buttonType="send-message"
                       />
                       <StyledPopoverContainer className="d-none d-md-block d-lg-none d-xl-block">
                         <CustomPopover
@@ -183,7 +209,9 @@ function ProfileHeader({ tabKey, user, showTabs }: Props) {
         showTabs && (
           <>
             <StyledBorder className="d-md-block d-none" />
-            <TabLinks tabLink={customTabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
+            <div ref={positionRef}>
+              <TabLinks tabLink={customTabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
+            </div>
           </>
         )
       }
@@ -201,6 +229,7 @@ function ProfileHeader({ tabKey, user, showTabs }: Props) {
 ProfileHeader.defaultProps = {
   showTabs: true,
   tabKey: tabs[0].value,
+  loadUser: () => { },
 };
 
 export default ProfileHeader;

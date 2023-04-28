@@ -1,4 +1,5 @@
 import Cookies from 'js-cookie';
+import { clearLocalStorage } from './localstorage-utils';
 
 export const setSignInCookies = (sessionToken: string, userId: string, userName: string) => {
   const onlySendCookieOverHttps = !['development', 'test'].includes(process.env.NODE_ENV);
@@ -16,9 +17,13 @@ const clearSignInCookies = () => {
   Cookies.remove('sessionToken');
   Cookies.remove('userId');
   Cookies.remove('userName');
+  clearLocalStorage('spoilersIds');
 };
 
 export const signOut = () => {
   clearSignInCookies();
   window.location.replace('/app/sign-in'); // redirect clears redux data and js caches
 };
+
+export const getSessionToken = () => Cookies.get('sessionToken');
+export const userIsLoggedIn = () => !!(getSessionToken());

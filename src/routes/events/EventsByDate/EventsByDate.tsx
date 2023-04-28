@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  useCallback, useEffect, useRef, useState,
+  useEffect, useRef, useState,
 } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
@@ -14,7 +14,7 @@ import { getEvents, getEventsDateCount } from '../../../api/eventByDate';
 import checkAdsEventByDate from './checkAdsEventByDate';
 import useBootstrapBreakpointName from '../../../hooks/useBootstrapBreakpoint';
 import PubWiseAd from '../../../components/ui/PubWiseAd';
-import { EVENTS_BY_DATE_DIV_ID } from '../../../utils/pubwise-ad-units';
+import { ALL_MOVIES_DIV_ID, EVENTS_BY_DATE_DIV_ID } from '../../../utils/pubwise-ad-units';
 
 const EventCalender = styled(Calendar)`
   .react-calendar__tile--now {
@@ -39,7 +39,7 @@ const EventCalender = styled(Calendar)`
     }
   }
 
-  .react-calendar__tile:enabled:hover{
+  .react-calendar__tile:enabled:hover, .react-calendar__tile:enabled:focus {
     background-color: transparent  !important;
   }
 
@@ -126,6 +126,7 @@ const EventCalender = styled(Calendar)`
 `;
 
 function EventsByDate() {
+  // Tip: For static testing use a static date as "2023, 3, 2"
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewChange, onViewChange] = useState<Date | null>(null);
   const [eventsList, setEventList] = useState<any[]>([]);
@@ -135,8 +136,10 @@ function EventsByDate() {
   const startDate = `${selectedDateString}T00:00:00Z`;
   const endDate = `${selectedDateString}T23:59:59Z`;
   const eventContainerElementRef = useRef<any>(null);
-  const [yPositionOfLastEventElement, setYPositionOfLastEventElement] = useState<number>(0);
   const bp = useBootstrapBreakpointName();
+  const [requestAdditionalEvents, setRequestAdditionalEvents] = useState(false);
+  const [loadingEvents, setLoadingEvents] = useState(false);
+  const previousSelectedDate = useRef(selectedDateString);
 
   const getDateRange = (dateValue: Date) => {
     const startDateRange = DateTime.fromJSDate(dateValue).startOf('month').minus({ days: 7 }).toFormat('yyyy-MM-dd');
@@ -159,6 +162,15 @@ function EventsByDate() {
   });
 
   useEffect(() => {
+    // Make sure that page is at top when this component is mounted (Issue discussed in SD-961).
+    window.scrollTo({
+      top: 0,
+      behavior: 'instant' as any,
+    });
+    setRequestAdditionalEvents(true);
+  }, [endDate, startDate]);
+
+  useEffect(() => {
     let monthRange = [];
     if (!viewChange) {
       monthRange = getDateRange(selectedDate);
@@ -171,32 +183,6 @@ function EventsByDate() {
       setMarkDateList(formatDateList);
     });
   }, [viewChange, selectedDate]);
-
-  useEffect(() => {
-    setNoMoreData(false); // reset when day changes
-    getEvents(startDate, endDate).then((res) => {
-      setEventList(eventsFromResponse(res));
-      if (res.data.length === 0) {
-        setNoMoreData(true);
-      }
-    }).catch(() => { });
-  }, [startDate, endDate]);
-
-  const fetchMoreEvent = useCallback(() => {
-    if (eventsList && eventsList.length > 0) {
-      getEvents(startDate, endDate, eventsList[eventsList.length - 1]._id)
-        .then((res) => {
-          setEventList((prev: any) => [
-            ...prev,
-            ...eventsFromResponse(res),
-          ]);
-          if (res.data.length === 0) {
-            setNoMoreData(true);
-          }
-        })
-        .catch(() => { });
-    }
-  }, [endDate, eventsList, startDate]);
 
   const onActiveStartDateChange = (data: ViewCallbackProperties) => {
     if (data.view === 'month') {
@@ -211,7 +197,7 @@ function EventsByDate() {
   };
 
   const renderNoMoreDataMessage = () => (
-    <p className="text-center">
+    <p className="text-center mt-3">
       {
         eventsList.length === 0
           ? 'No events on the selected date.'
@@ -219,22 +205,51 @@ function EventsByDate() {
       }
     </p>
   );
-  const getYPosition = () => {
-    const yPosition = eventContainerElementRef.current?.lastElementChild?.offsetTop;
-    setYPositionOfLastEventElement(yPosition);
-  };
-  useEffect(() => {
-    getYPosition();
-  }, [eventsList]);
 
   useEffect(() => {
-    if (yPositionOfLastEventElement) {
-      const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastEventElement;
-      if (bottomLine) {
-        fetchMoreEvent();
-      }
+    const isSameDate = previousSelectedDate.current === selectedDateString;
+
+    if (noMoreData && !isSameDate) {
+      setNoMoreData(false);
     }
-  }, [yPositionOfLastEventElement, fetchMoreEvent]);
+  }, [noMoreData, selectedDateString]);
+
+  useEffect(() => {
+    let ignore = false;
+
+    if (requestAdditionalEvents && !loadingEvents) {
+      let lastEventId = null;
+      const isSameDate = previousSelectedDate.current === selectedDateString;
+      if (!isSameDate) {
+        previousSelectedDate.current = selectedDateString;
+      }
+      if (isSameDate) {
+        lastEventId = eventsList[eventsList.length - 1]?._id ?? null;
+      }
+
+      getEvents(startDate, endDate, lastEventId ?? null)
+        .then((res) => {
+          if (!ignore) {
+            setEventList((prev: any) => [
+              ...(isSameDate ? prev : []),
+              ...eventsFromResponse(res),
+            ]);
+            if (res.data.length === 0) { setNoMoreData(true); }
+          }
+        })
+        .catch(() => { })
+        .finally(() => {
+          if (!ignore) {
+            setRequestAdditionalEvents(false);
+            setLoadingEvents(false);
+          }
+        });
+    }
+    return () => {
+      ignore = true;
+    };
+  }, [startDate, endDate, eventsList, loadingEvents, requestAdditionalEvents, selectedDateString]);
+
   return (
     <div>
       <EventHeader tabKey="by-date" />
@@ -246,6 +261,7 @@ function EventsByDate() {
           onActiveStartDateChange={onActiveStartDateChange}
           onDrillDown={onDrillDownChange}
           value={selectedDate}
+          showNeighboringMonth={false}
           minDetail="year"
           prev2Label={null}
           next2Label={null}
@@ -256,32 +272,37 @@ function EventsByDate() {
             return null;
           }}
         />
-        <InfiniteScroll
-          pageStart={0}
-          initialLoad={false}
-          loadMore={fetchMoreEvent}
-          hasMore={!noMoreData}
-          element="span"
-        >
-          <Row ref={eventContainerElementRef}>
-            {eventsList && eventsList.length > 0
-              && (eventsList.map((eventDetail, i, arr) => {
-                // (*temporary*) DEBUGGING TIP: Use `Array(15).fill(eventsList[0]).map(..)`
-                // inplace of `eventsList.map(..)`  to mimic sample data from a single data item.
-                const show = checkAdsEventByDate(bp, i, arr);
-                return (
-                  <React.Fragment key={eventDetail.id}>
-                    <Col md={6}>
-                      <EventsPosterCard listDetail={eventDetail} />
-                    </Col>
-                    {show && <PubWiseAd className="text-center my-3" id={EVENTS_BY_DATE_DIV_ID} autoSequencer />}
-                  </React.Fragment>
-                );
-              }))}
-          </Row>
-        </InfiniteScroll>
-        {noMoreData && renderNoMoreDataMessage()}
       </div>
+      <InfiniteScroll
+        initialLoad
+        pageStart={0}
+        hasMore={!noMoreData}
+        loadMore={() => {
+          setRequestAdditionalEvents(true);
+        }}
+        element="span"
+        threshold={100} // TODO: Use higher values for production
+      >
+        <Row ref={eventContainerElementRef}>
+          {eventsList && eventsList.length > 0
+            && (eventsList.map((eventDetail, i, arr) => {
+              // (*temporary*) DEBUGGING TIP: Use `Array(15).fill(eventsList[0]).map(..)`
+              // inplace of `eventsList.map(..)`  to mimic sample data from a single data item.
+              const show = checkAdsEventByDate(bp, i, arr);
+              return (
+                <React.Fragment key={eventDetail.id}>
+                  <Col md={6}>
+                    <EventsPosterCard listDetail={eventDetail} />
+                  </Col>
+                  {show && <PubWiseAd className="my-3" id={EVENTS_BY_DATE_DIV_ID} autoSequencer />}
+                </React.Fragment>
+              );
+            }))}
+        </Row>
+      </InfiniteScroll>
+      {noMoreData && renderNoMoreDataMessage()}
+      {/* Show an end in the end of page at all times */}
+      <PubWiseAd className="my-3" id={ALL_MOVIES_DIV_ID} autoSequencer />
     </div>
   );
 }

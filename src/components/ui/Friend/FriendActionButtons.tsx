@@ -40,9 +40,11 @@ type Props = {
   friendData: FriendType,
   setFriendshipStatus: Function,
   showOnlyAddAndSend?: boolean,
+  buttonType?: string,
 };
 function FriendActionButtons({
   friendStatus, user, friendData, setFriendshipStatus, showOnlyAddAndSend = false,
+  buttonType,
 }: Props) {
   const loginUserId = Cookies.get('userId');
   const friendRequestApi = (status: number | null) => {
@@ -72,19 +74,22 @@ function FriendActionButtons({
   }
   return (
     <>
-      {friendStatus === FriendRequestReaction.Accepted && <RoundButtonLink variant="black" to={`/app/messages/conversation/new?userId=${user?._id}`} className="me-2 px-4 border-1 border-primary">Send message</RoundButtonLink>}
-      {show && ButtonLabel
+      {friendStatus === FriendRequestReaction.Accepted && <RoundButtonLink variant="black" to={`/app/messages/conversation/new?userId=${user?._id}`} className={`me-2 text-nowrap ${buttonType === 'send-message' ? '' : 'border-1 border-primary'}`}>Send message</RoundButtonLink>}
+      {
+        show && ButtonLabel
         && (
-          <RoundButton className="px-4 me-2 fs-3" variant={`${friendStatus === FriendRequestReaction.Pending || friendStatus === FriendRequestReaction.Accepted ? 'black' : 'primary'}`} onClick={() => friendRequestApi(friendStatus)}>
+          <RoundButton className="me-2 text-nowrap" variant={`${friendStatus === FriendRequestReaction.Pending || friendStatus === FriendRequestReaction.Accepted ? 'black' : 'primary'}`} onClick={() => friendRequestApi(friendStatus)}>
             {ButtonLabel}
           </RoundButton>
-        )}
+        )
+      }
     </>
   );
 }
 
 FriendActionButtons.defaultProps = {
   showOnlyAddAndSend: false,
+  buttonType: '',
 };
 
 export default FriendActionButtons;

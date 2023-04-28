@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 /* eslint-disable max-len */
 import React, {
-  useEffect, useState, useContext, useCallback,
+  useEffect, useState, useContext, useCallback, useRef,
 } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Link, useLocation } from 'react-router-dom';
@@ -16,7 +16,7 @@ import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authe
 import { useAppSelector, useAppDispatch } from '../../redux/hooks';
 import { setScrollPosition } from '../../redux/slices/scrollPositionSlice';
 import { SocketContext } from '../../context/socket';
-import { setUserInitialData } from '../../redux/slices/userSlice';
+import { resetUnreadNotificationCount, setUserInitialData } from '../../redux/slices/userSlice';
 import NotificationsRightSideNav from './NotificationsRightSideNav';
 
 function Notifications() {
@@ -34,6 +34,44 @@ function Notifications() {
       ? scrollPosition?.data : [],
   );
   const userData = useAppSelector((state) => state.user);
+  const lastLocationKeyRef = useRef(location.key);
+  const fetchNotifcations = useCallback((forceReload = false) => {
+    setLoadingPosts(true);
+    const lastNotificationId = (notificationData.length > 1) ? notificationData[notificationData.length - 1]._id : undefined;
+    getNotifications(forceReload ? undefined : lastNotificationId).then((res) => {
+      const notification = res.data;
+      setNotificationData((prev: any) => [
+        ...(forceReload ? [] : prev),
+        ...notification,
+      ]);
+      if (res.data.length === 0) { setNoMoreData(true); }
+      if (scrollPosition.pathname === location.pathname
+        && notificationData.length >= scrollPosition.data.length + 10) {
+        const positionData = {
+          pathname: '',
+          position: 0,
+          data: [],
+          positionElementId: '',
+        };
+        dispatch(setScrollPosition(positionData));
+      }
+    }).catch(
+      (error) => {
+        setNoMoreData(true);
+        setErrorMessage(error.response?.data.message);
+      },
+    ).finally(
+      () => {
+        setRequestAdditionalPosts(false);
+        setLoadingPosts(false);
+        // Fixed edge case bug when `noMoreData` is already set to `true` when user has reached the end of the page and
+        // and clicks on the `notification-icon` in top navbar to reload the page otherwise pagination doesn't work.
+        if (forceReload && (noMoreData === true)) {
+          setNoMoreData(false);
+        }
+      },
+    );
+  }, [dispatch, location.pathname, noMoreData, notificationData, scrollPosition.data.length, scrollPosition.pathname]);
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
@@ -41,35 +79,21 @@ function Notifications() {
         || scrollPosition?.position === 0
         || notificationData.length >= scrollPosition?.data?.length
         || notificationData.length === 0
+        || scrollPosition.pathname !== location.pathname
       ) {
-        setLoadingPosts(true);
-        getNotifications(
-          notificationData.length > 1 ? notificationData[notificationData.length - 1]._id : undefined,
-        ).then((res) => {
-          const notification = res.data;
-          setNotificationData((prev: any) => [
-            ...prev,
-            ...notification,
-          ]);
-          if (res.data.length === 0) { setNoMoreData(true); }
-          const positionData = {
-            pathname: '',
-            position: 0,
-            data: [],
-            positionElementId: '',
-          };
-          dispatch(setScrollPosition(positionData));
-        }).catch(
-          (error) => {
-            setNoMoreData(true);
-            setErrorMessage(error.response?.data.message);
-          },
-        ).finally(
-          () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
-        );
+        fetchNotifcations();
       }
     }
-  }, [requestAdditionalPosts, loadingPosts, scrollPosition, notificationData, dispatch]);
+  }, [fetchNotifcations, loadingPosts, location.pathname, notificationData.length, requestAdditionalPosts, scrollPosition]);
+
+  useEffect(() => {
+    const isSameKey = lastLocationKeyRef.current === location.key;
+    if (isSameKey) { return; }
+    // Fetch notification when we click the `notfication-icon` in the top navbar
+    fetchNotifcations(true);
+    // Update lastLocation
+    lastLocationKeyRef.current = location.key;
+  }, [fetchNotifcations, location.key]);
 
   const persistScrollPosition = (id: string) => {
     const updateNotification = notificationData.map((notify: any) => {
@@ -84,7 +108,7 @@ function Notifications() {
     ));
     const positionData = {
       pathname: location.pathname,
-      position: window.pageYOffset,
+      position: window.pageYOffset === 0 ? 1 : window.pageYOffset,
       data: updateNotification,
       positionElementId: id,
     };
@@ -115,6 +139,13 @@ function Notifications() {
               setNotificationData([
                 ...notification,
               ]);
+              const positionData = {
+                pathname: '',
+                position: 0,
+                data: [],
+                positionElementId: '',
+              };
+              dispatch(setScrollPosition(positionData));
               dispatch(setUserInitialData(
                 { ...userData, unreadNotificationCount: 0 },
               ));
@@ -127,7 +158,16 @@ function Notifications() {
         }
       });
   };
-
+  useEffect(() => {
+    if (notificationData.length > 0
+      && scrollPosition.position > 0
+      && scrollPosition?.pathname === location.pathname) {
+      window.scrollTo({
+        top: scrollPosition?.position,
+        behavior: 'instant' as any,
+      });
+    }
+  }, [notificationData, scrollPosition, location.pathname]);
   const groupNotificationsByDateRange = (notifications: Notification[]) => {
     const groupedNotifications: {
       today: Notification[],
@@ -214,13 +254,15 @@ function Notifications() {
 
   useEffect(() => {
     if (socket) {
+      socket?.emit('clearNewNotificationCount', {});
+      dispatch(resetUnreadNotificationCount());
       socket.on('notificationReceived', onNotificationReceivedHandler);
       return () => {
         socket.off('notificationReceived', onNotificationReceivedHandler);
       };
     }
     return () => { };
-  }, [onNotificationReceivedHandler, socket]);
+  }, [onNotificationReceivedHandler, socket, dispatch]);
 
   return (
     <ContentSidbarWrapper>

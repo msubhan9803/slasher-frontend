@@ -15,7 +15,7 @@ interface CastLists {
   name: string;
   character: string,
 }
-const StyledCast = styled(Row)`
+export const StyledCast = styled(Row)`
   overflow-x: auto;
   overflow-y: hidden;
 
@@ -51,7 +51,7 @@ function MovieCasts({ castList }: CastListProps) {
     <div className="bg-dark p-3 rounded-2 mt-3">
       <h1 className="h2 fw-bold">Top billed cast</h1>
       <div className="d-flex align-items-center mt-3">
-        <StyledSlideButton aria-label="chevron left icon" className="prev bg-transparent border-0 shadow-none text-white" onClick={slideCastsLeft}>
+        <StyledSlideButton aria-label="chevron left icon" className="prev p-1 me-3 bg-transparent border-0 text-white" onClick={slideCastsLeft}>
           <FontAwesomeIcon icon={solid('chevron-left')} size="lg" />
         </StyledSlideButton>
         <StyledCast id="slideCasts" className="flex-nowrap w-100">
@@ -73,7 +73,7 @@ function MovieCasts({ castList }: CastListProps) {
             </Col>
           ))}
         </StyledCast>
-        <StyledSlideButton aria-label="chevron right icon" className="next bg-transparent border-0 shadow-none text-white" onClick={slideCastsRight}>
+        <StyledSlideButton aria-label="chevron right icon" className="next bg-transparent border-0 p-1 ms-3 text-white" onClick={slideCastsRight}>
           <FontAwesomeIcon icon={solid('chevron-right')} size="lg" />
         </StyledSlideButton>
       </div>

@@ -61,7 +61,7 @@ function GroupsDetail() {
         setShowKeys={setShowKeys}
         setSearch={setSearch}
         search={search}
-        sort={(e: React.ChangeEvent<HTMLSelectElement>) => setSortVal(e.target.value)}
+        sort={(value: string) => setSortVal(value)}
         selectedKey={key}
         applyFilter={applyFilter}
         postType="group-post"

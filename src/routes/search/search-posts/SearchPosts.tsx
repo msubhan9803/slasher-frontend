@@ -3,10 +3,20 @@ import { useLocation } from 'react-router-dom';
 import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import ReportModal from '../../../components/ui/ReportModal';
 import { Post } from '../../../types';
-import FormatImageVideoList from '../../../utils/vido-utils';
 import SearchHeader from '../SearchHeader';
 import { hashTagPosts, posts } from '../SearchResult';
+import FormatImageVideoList from '../../../utils/video-utils';
 
+interface SearchPostsProps {
+  id: number;
+  profileImage: string;
+  userName: string;
+  postUrl: string;
+  postDate: string;
+  message: string;
+  hashTag: string[];
+  likeIcon: boolean;
+}
 const popoverOptions = ['Report'];
 
 function SearchPosts() {

@@ -78,6 +78,9 @@ definitions:
           # If ADD_NOINDEX_ROBOTS_TXT is true, add a no-index robots.txt file to the build
           - |
             [ "$ADD_NOINDEX_ROBOTS_TXT" = true ] && echo 'Adding no-index robots.txt file to build' && echo -e "User-agent: *\nDisallow: /" > ./build/robots.txt
+          # Add Cloudflare _redirects file to the build, if file exists present
+          - |
+            [ -f "./deploy-cloudflare/_redirects.${BITBUCKET_BRANCH}" ] && echo 'Adding Cloudflare _redirects file to build' && cp ./deploy-cloudflare/_redirects.${BITBUCKET_BRANCH} ./build/_redirects
           # Deploy build to Cloudflare Pages
           # See: https://developers.cloudflare.com/pages/how-to/use-direct-upload-with-continuous-integration/
           # Note: Need to specify "--branch main" below to get Cloudflare to treat this as a
@@ -99,64 +102,15 @@ pipelines:
       - step: *deploy-cloudflare
     deploy/staging-skiptests:
       - step: *deploy-cloudflare
+    deploy/staging2:
+      - step: *lint-build-test
+      - step: *deploy-siteground
+    deploy/staging2-skiptests:
+      - step: *deploy-siteground
     deploy/dev:
       - step: *lint-build-test
       - step: *deploy-siteground
     deploy/dev-skiptests:
-      - step: *deploy-siteground
-    deploy/dev-avadh1:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-avadh2:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-avadh3:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-avadh4:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-avadh5:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-avadh6:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-avadh7:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-avadh8:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-avadh9:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-ronak1:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-ronak2:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-ronak3:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-ronak4:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-ronak5:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-ronak6:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-ronak7:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-ronak8:
-      - step: *lint-build-test
-      - step: *deploy-siteground
-    deploy/dev-ronak9:
-      - step: *lint-build-test
       - step: *deploy-siteground
   pull-requests:
     # Run for any branch that has an open pull request

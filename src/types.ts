@@ -2,6 +2,11 @@
 // This file can be used for declaring TypeScript types/interfaces
 // that are shared across multiple places in the app.
 
+import { LatLngLiteral } from 'leaflet';
+import { BREAK_POINTS } from './constants';
+
+export type BreakPointName = keyof typeof BREAK_POINTS;
+
 export interface ValueLabelPair {
   value: string;
   label: string;
@@ -15,8 +20,8 @@ export interface Post {
   _id: string;
   id: string;
   postDate: string;
-  content: string;
-  postUrl: PostImage[];
+  message: string;
+  images: PostImage[];
   userName: string;
   firstName: string;
   profileImage: string;
@@ -39,13 +44,14 @@ export interface User {
   coverPhoto: string;
   aboutMe: string;
   profile_status: number;
+  friendshipStatus: FriendshipStatus;
 }
 
 export interface NewsPartnerPostProps {
   _id: string;
   id: string;
   postDate: string;
-  content: string;
+  message: string;
   images: PostImage[];
   title: string;
   rssFeedProviderLogo: string;
@@ -158,6 +164,8 @@ interface FeedCommentUserId {
 interface NotificationFeedPostId {
   _id: string;
   userId: string;
+  postType?: number;
+  movieId?: string;
 }
 
 interface NotificationRssFeedProviderId {
@@ -173,11 +181,13 @@ export enum NotificationReadStatus {
 
 export enum NotificationType {
   UserSentYouAFriendRequest = 11,
+  UserAcceptedYourFriendRequest = 12,
   UserLikedYourPost = 13,
   UserLikedYourComment = 14,
   UserCommentedOnYourPost = 15,
   UserMentionedYouInPost = 99,
   UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost = 101,
+  UserLikedYourCommentOnANewsPost = 122,
   NewPostFromFollowedRssFeedProvider = 125,
 }
 
@@ -188,11 +198,12 @@ export interface Notification {
   notificationMsg: string,
   senderId: Sender,
   feedPostId: NotificationFeedPostId,
-  feedCommentId: String,
-  feedReplyId: String,
-  userId: String,
+  feedCommentId: string,
+  rssFeedCommentId?: string,
+  feedReplyId: string,
+  userId: string,
   rssFeedProviderId: NotificationRssFeedProviderId,
-  rssFeedId: String,
+  rssFeedId: string,
   notifyType: NotificationType,
 }
 
@@ -231,8 +242,7 @@ export enum ProfileVisibility {
   Private = 1,
 }
 
-export type RegisterUser = Partial<
-{
+export type RegisterUser = Partial<{
   firstName: string,
   userName: string,
   email: string,
@@ -242,6 +252,7 @@ export type RegisterUser = Partial<
   securityAnswer: string,
   dob: string,
 }>;
+
 export interface CommentValue {
   commentMessage: string,
   imageArr?: string[],
@@ -262,11 +273,16 @@ export enum WorthWatchingStatus {
   Down = 1,
   Up = 2,
 }
+export enum PostType {
+  User = 1,
+  News = 2,
+  MovieReview = 3,
+}
 export interface MovieData {
-  movieDBId : number;
+  movieDBId: number;
   // ratings
   rating: number;
-  goreFactorRating : number;
+  goreFactorRating: number;
   worthWatching: number;
   // number of users who rated for `rating`, `goreFactorRating` and `worthWatching`
   ratingUsersCount: number;
@@ -275,10 +291,31 @@ export interface MovieData {
   worthWatchingDownUsersCount: number;
   // ratings by logged-in user
   userData: {
-    rating:number;
+    rating: number;
     goreFactorRating: number;
     worthWatching: number;
+    reviewPostId: string;
   }
 }
+export type LocationPointType = {
+  type: 'Point',
+  coordinates: [number, number]
+};
+export type MarkerLocationType = {
+  id: string,
+  latLng: LatLngLiteral, // { lat: number; lng: number; }
+  dateRange: string,
+  address: string,
+  name: string,
+  linkText: string,
+  linkAddress: string,
+};
 
-export type PostButtonClickType = 'like' | 'share' | '';
+export type LikeShareModalTabName = 'like' | 'share' | '';
+
+export type LikeShareModalResourceName = 'feedpost' | 'comment' | 'reply';
+export interface FriendshipStatus {
+  reaction: number;
+  from: string;
+  to: string;
+}

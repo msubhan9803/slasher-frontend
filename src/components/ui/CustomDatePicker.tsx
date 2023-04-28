@@ -45,13 +45,16 @@ function CustomDatePicker({ date, setDate, label }: Props) {
             },
             '&:hover fieldset': {
               borderColor: '#3A3B46 !important',
-
             },
             '&.Mui-focused fieldset': {
               borderColor: '#3A3B46 !important',
-
             },
-
+            input: {
+              '&:focus-visible': {
+                border: 'none',
+                boxShadow: 'none',
+              },
+            },
           },
         },
       },
@@ -81,7 +84,7 @@ function CustomDatePicker({ date, setDate, label }: Props) {
           onChange={(newValue) => {
             setDate(newValue);
           }}
-          renderInput={(params: any) => <TextField {...params} sx={{ width: '100%' }} />}
+          renderInput={(params: any) => <TextField {...params} size="small" sx={{ width: '100%' }} />}
         />
       </LocalizationProvider>
     </ThemeProvider>

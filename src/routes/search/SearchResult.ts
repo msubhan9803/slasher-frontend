@@ -171,16 +171,16 @@ export const posts = [
 
 export const news = [
   {
-    id: 1, profileImage: 'https://i.pravatar.cc/300?img=14', userName: 'Horror Oasis', postUrl: `${postImage}`, postDate: '06/11/2022 11:10 PM', content: 'Hell is empty and all the devils are here.', hashTag: ['horrorday', 'horrorcommunity', 'slasher', 'horroroasis'], likeIcon: false,
+    id: 1, profileImage: 'https://i.pravatar.cc/300?img=14', userName: 'Horror Oasis', postUrl: `${postImage}`, postDate: '06/11/2022 11:10 PM', message: 'Hell is empty and all the devils are here.', hashTag: ['horrorday', 'horrorcommunity', 'slasher', 'horroroasis'], likeIcon: false,
   },
   {
-    id: 2, profileImage: 'https://i.pravatar.cc/300?img=15', userName: 'Oasis1', postUrl: `${postImage}`, postDate: '07/10/2022 11:10 PM', content: 'Hell is empty and all the devils are here.', hashTag: ['horrorday', 'horrorcommunity', 'slasher', 'horroroasis'], likeIcon: true,
+    id: 2, profileImage: 'https://i.pravatar.cc/300?img=15', userName: 'Oasis1', postUrl: `${postImage}`, postDate: '07/10/2022 11:10 PM', message: 'Hell is empty and all the devils are here.', hashTag: ['horrorday', 'horrorcommunity', 'slasher', 'horroroasis'], likeIcon: true,
   },
   {
-    id: 3, profileImage: 'https://i.pravatar.cc/300?img=19', userName: 'Horror Oasis2', postUrl: `${postImage}`, postDate: '08/09/2022 11:10 PM', content: 'Hell is empty and all the devils are here.', hashTag: ['horrorday', 'horrorcommunity', 'slasher', 'horroroasis'], likeIcon: false,
+    id: 3, profileImage: 'https://i.pravatar.cc/300?img=19', userName: 'Horror Oasis2', postUrl: `${postImage}`, postDate: '08/09/2022 11:10 PM', message: 'Hell is empty and all the devils are here.', hashTag: ['horrorday', 'horrorcommunity', 'slasher', 'horroroasis'], likeIcon: false,
   },
   {
-    id: 4, profileImage: 'https://i.pravatar.cc/300?img=21', userName: 'Horror Oasis3', postUrl: `${postImage}`, postDate: '09/12/2022 11:10 PM', content: 'Hell is empty and all the devils are here.', hashTag: ['horrorday', 'horrorcommunity', 'slasher', 'horroroasis'], likeIcon: false,
+    id: 4, profileImage: 'https://i.pravatar.cc/300?img=21', userName: 'Horror Oasis3', postUrl: `${postImage}`, postDate: '09/12/2022 11:10 PM', message: 'Hell is empty and all the devils are here.', hashTag: ['horrorday', 'horrorcommunity', 'slasher', 'horroroasis'], likeIcon: false,
   },
 ];
 

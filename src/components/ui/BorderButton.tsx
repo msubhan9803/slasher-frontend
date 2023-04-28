@@ -9,6 +9,7 @@ interface BorderButtonProps {
   variant?: string;
   icon?: IconDefinition;
   iconClass?: string;
+  iconStyle?: React.CSSProperties | undefined;
   iconSize?: SizeProp;
   lable?: string;
   handleClick?: (value: boolean) => void;
@@ -28,7 +29,8 @@ const StyleBorderButton = styled(RoundButton) <StylButtonProps>`
     border: 1px solid #3A3B46;
   }
   .share-btn {
-    padding: 0 1.25rem;
+    padding-right: 0 1.25rem;
+    padding-left: 0 1.25rem;
       svg {
         width: 1.055rem;
         height: 1.125rem;
@@ -38,7 +40,8 @@ const StyleBorderButton = styled(RoundButton) <StylButtonProps>`
     }
   }
   .rate-btn {
-    padding: 0 1.438rem;
+    padding-right: 1.438rem;
+    padding-left: 1.438rem;
       svg {
         width: 1.179rem;
         height: 1.125rem;
@@ -50,7 +53,7 @@ const StyleBorderButton = styled(RoundButton) <StylButtonProps>`
 `;
 
 function BorderButton({
-  buttonClass, variant, icon, iconClass, iconSize, lable,
+  buttonClass, variant, icon, iconClass, iconSize, iconStyle, lable,
   handleClick, toggleBgColor, toggleButton, customButtonCss,
 }: BorderButtonProps) {
   return (
@@ -66,12 +69,12 @@ function BorderButton({
     ) : (
       <StyleBorderButton
         onClick={handleClick}
-        className={`align-items-center bg-black py-2 ${buttonClass}`}
+        className={`align-items-center bg-black ${buttonClass}`}
         variant={variant}
       >
         {icon ? (
           <>
-            <FontAwesomeIcon icon={icon} size={iconSize} className={iconClass} />
+            <FontAwesomeIcon icon={icon} size={iconSize} className={iconClass} style={iconStyle} />
             <p className="m-0">{lable}</p>
           </>
         ) : (
@@ -87,6 +90,7 @@ BorderButton.defaultProps = {
   variant: '',
   icon: null,
   iconClass: '',
+  iconStyle: {},
   lable: '',
   iconSize: null,
   toggleBgColor: false,

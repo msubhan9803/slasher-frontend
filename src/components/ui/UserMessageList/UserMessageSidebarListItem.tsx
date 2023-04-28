@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import UserCircleImage from '../UserCircleImage';
+import ChatMessageText from '../../chat/ChatMessageText';
 
 interface Props {
   userName: string;
@@ -43,7 +44,9 @@ function UserMessageSidebarListItem({
           <p className="mb-0 text-capitalize">
             {userName}
           </p>
-          <MessageSnippet className="mb-0 small text-light">{decodeURIComponent(message)}</MessageSnippet>
+          <MessageSnippet className="mb-0 small text-light">
+            <ChatMessageText message={message} firstLineOnly />
+          </MessageSnippet>
         </Link>
       </div>
       {count !== 0 && <span className="text-black badge rounded-pill bg-primary me-3">{count}</span>}

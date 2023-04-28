@@ -1,13 +1,13 @@
 const RegistartionSecurityList = [
-  'The number of the first house you lived in',
-  'Your favorite color',
-  'The brand of the first car you owned',
-  'Your favorite movie',
-  'The name of the first street you lived on',
-  'The first name of your best friend in high school',
-  'The first name of the person you went on your first date with',
-  'Your favorite band',
-  'Your favorite book',
+  'What is the first movie you saw in a theater?',
+  'What is your biggest fear?',
+  'Who is the first band you saw in concert?',
+  'City/town where your parents met?',
+  'Name of your favorite teacher?',
+  'Name of your first pet?',
+  'What is your favorite restaurant?',
+  'Name of your favorite relative?',
+  'Name of your best friend?',
 ];
 
 export default RegistartionSecurityList;

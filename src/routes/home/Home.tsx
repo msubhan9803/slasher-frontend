@@ -19,7 +19,6 @@ import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import FormatImageVideoList from '../../utils/vido-utils';
 import { useAppSelector, useAppDispatch } from '../../redux/hooks';
 import { setScrollPosition } from '../../redux/slices/scrollPositionSlice';
 import EditPostModal from '../../components/ui/post/EditPostModal';
@@ -40,12 +39,14 @@ function Home() {
   const [postContent, setPostContent] = useState<string>('');
   const [postId, setPostId] = useState<string>('');
   const [postUserId, setPostUserId] = useState<string>('');
+  const [rssfeedProviderId, setRssfeedProviderId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const location = useLocation();
+  const reloadData = useAppSelector((state) => state.user.screenReload);
   const [posts, setPosts] = useState<Post[]>(
-    scrollPosition.pathname === location.pathname
+    scrollPosition.pathname === location.pathname && !reloadData
       ? scrollPosition?.data : [],
   );
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
@@ -59,8 +60,8 @@ function Home() {
       return;
     }
 
-    if (popoverClickProps.content) {
-      setPostContent(popoverClickProps.content);
+    if (popoverClickProps.message) {
+      setPostContent(popoverClickProps.message);
     }
     if (popoverClickProps.postImages) {
       setDeleteImageIds([]);
@@ -72,6 +73,7 @@ function Home() {
     if (popoverClickProps.userId) {
       setPostUserId(popoverClickProps.userId);
     }
+    setRssfeedProviderId(popoverClickProps.rssfeedProviderId ?? '');
     setShow(true);
     setDropDownValue(value);
   };
@@ -82,6 +84,7 @@ function Home() {
         || scrollPosition?.position === 0
         || posts.length >= scrollPosition?.data?.length
         || posts.length === 0
+        || scrollPosition.pathname !== location.pathname
       ) {
         setLoadingPosts(true);
         getHomeFeedPosts(
@@ -94,8 +97,8 @@ function Home() {
                 _id: data._id,
                 id: data._id,
                 postDate: data.createdAt,
-                content: data.message,
-                images: FormatImageVideoList(data.images, data.message),
+                message: data.message,
+                images: data.images,
                 userName: data.userId.userName,
                 profileImage: data.userId.profilePic,
                 userId: data.userId._id,
@@ -109,8 +112,8 @@ function Home() {
               _id: data._id,
               id: data._id,
               postDate: data.createdAt,
-              content: data.message,
-              images: FormatImageVideoList(data.images, data.message),
+              message: data.message,
+              images: data.images,
               userName: data.rssfeedProviderId?.title,
               profileImage: data.rssfeedProviderId?.logo,
               likeIcon: data.likedByUser,
@@ -124,13 +127,16 @@ function Home() {
             ...newPosts,
           ]);
           if (res.data.length === 0) { setNoMoreData(true); }
-          const positionData = {
-            pathname: '',
-            position: 0,
-            data: [],
-            positionElementId: '',
-          };
-          dispatch(setScrollPosition(positionData));
+          if (scrollPosition.pathname === location.pathname
+            && posts.length >= scrollPosition.data.length + 10) {
+            const positionData = {
+              pathname: '',
+              position: 0,
+              data: [],
+              positionElementId: '',
+            };
+            dispatch(setScrollPosition(positionData));
+          }
         }).catch(
           (error) => {
             setNoMoreData(true);
@@ -141,7 +147,10 @@ function Home() {
         );
       }
     }
-  }, [requestAdditionalPosts, loadingPosts, loginUserId, posts, scrollPosition, dispatch]);
+  }, [
+    requestAdditionalPosts, loadingPosts, loginUserId, posts, scrollPosition,
+    dispatch, location.pathname,
+  ]);
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
@@ -161,8 +170,8 @@ function Home() {
             _id: data._id,
             id: data._id,
             postDate: data.createdAt,
-            content: data.message,
-            images: FormatImageVideoList(data.images, data.message),
+            message: data.message,
+            images: data.images,
             userName: data.userId.userName,
             profileImage: data.userId.profilePic,
             userId: data.userId._id,
@@ -176,8 +185,8 @@ function Home() {
           _id: data._id,
           id: data._id,
           postDate: data.createdAt,
-          content: data.message,
-          images: FormatImageVideoList(data.images, data.message),
+          message: data.message,
+          images: data.images,
           userName: data.rssfeedProviderId?.title,
           profileImage: data.rssfeedProviderId?.logo,
           likeIcon: data.likedByUser,
@@ -191,12 +200,12 @@ function Home() {
   };
 
   const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
-    updateFeedPost(postId, message, images, imageDelete).then(() => {
+    updateFeedPost(postId, message, images, imageDelete).then((res) => {
       setShow(false);
       const updatePost = posts.map((post: any) => {
         if (post._id === postId) {
           return {
-            ...post, content: message,
+            ...post, message: res.data.message, images: res.data.images,
           };
         }
         return post;
@@ -204,7 +213,10 @@ function Home() {
       setPosts(updatePost);
     })
       .catch((error) => {
-        setErrorMessage(error.response.data.message);
+        const msg = error.response.status === 0 && !error.response.data
+          ? 'Combined size of files is too large.'
+          : error.response.data.message;
+        setErrorMessage(msg);
       });
   };
   const deletePostClick = () => {
@@ -277,10 +289,11 @@ function Home() {
     };
     reportData(reportPayload).then((res) => {
       if (res.status === 200) { callLatestFeedPost(); }
-      setShow(false);
     })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
+    // Ask to block user as well
+    setDropDownValue('PostReportSuccessDialog');
   };
 
   const persistScrollPosition = (id: string) => {
@@ -307,7 +320,7 @@ function Home() {
           )
         }
         <InfiniteScroll
-          threshold={2000}
+          threshold={3000}
           pageStart={0}
           initialLoad
           loadMore={() => { setRequestAdditionalPosts(true); }}
@@ -325,6 +338,7 @@ function Home() {
                 newsPostPopoverOptions={newsPostPopoverOptions}
                 onLikeClick={onLikeClick}
                 onSelect={persistScrollPosition}
+                isSinglePost={false}
               />
             )
           }
@@ -332,16 +346,16 @@ function Home() {
         {loadingPosts && <LoadingIndicator />}
         {noMoreData && renderNoMoreDataMessage()}
         {
-          dropDownValue === 'Delete'
+          (dropDownValue === 'Block user' || dropDownValue === 'Report' || dropDownValue === 'Delete' || dropDownValue === 'PostReportSuccessDialog')
           && (
             <ReportModal
-              deleteText="Are you sure you want to delete this post?"
               onConfirmClick={deletePostClick}
               show={show}
               setShow={setShow}
               slectedDropdownValue={dropDownValue}
               onBlockYesClick={onBlockYesClick}
               handleReport={reportHomePost}
+              rssfeedProviderId={rssfeedProviderId}
             />
           )
         }

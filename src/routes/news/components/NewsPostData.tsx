@@ -41,6 +41,7 @@ function NewsPostData({ partnerId }: Props) {
         || scrollPosition?.position === 0
         || postData.length >= scrollPosition?.data?.length
         || postData.length === 0
+        || scrollPosition.pathname !== location.pathname
       ) {
         setLoadingPosts(true);
         getRssFeedProviderPosts(
@@ -51,7 +52,7 @@ function NewsPostData({ partnerId }: Props) {
             _id: data._id,
             id: data._id,
             postDate: data.createdAt,
-            content: data.message,
+            message: data.message,
             images: data.images,
             userName: data.rssfeedProviderId?.title,
             rssFeedProviderLogo: data.rssfeedProviderId?.logo,
@@ -65,13 +66,16 @@ function NewsPostData({ partnerId }: Props) {
             ...newPosts,
           ]);
           if (res.data.length === 0) { setNoMoreData(true); }
-          const positionData = {
-            pathname: '',
-            position: 0,
-            data: [],
-            positionElementId: '',
-          };
-          dispatch(setScrollPosition(positionData));
+          if (scrollPosition.pathname === location.pathname
+            && postData.length >= scrollPosition.data.length + 10) {
+            const positionData = {
+              pathname: '',
+              position: 0,
+              data: [],
+              positionElementId: '',
+            };
+            dispatch(setScrollPosition(positionData));
+          }
         }).catch(
           () => {
             setNoMoreData(true);
@@ -83,7 +87,7 @@ function NewsPostData({ partnerId }: Props) {
     }
   }, [
     partnerId, requestAdditionalPosts, loadingPosts, loginUserId,
-    scrollPosition, postData, dispatch,
+    scrollPosition, postData, dispatch, location.pathname,
   ]);
 
   const renderNoMoreDataMessage = () => (
@@ -102,7 +106,7 @@ function NewsPostData({ partnerId }: Props) {
         _id: data._id,
         id: data._id,
         postDate: data.createdAt,
-        content: data.message,
+        message: data.message,
         images: data.images,
         userName: data.rssfeedProviderId?.title,
         rssFeedProviderLogo: data.rssfeedProviderId?.logo,
@@ -194,6 +198,7 @@ function NewsPostData({ partnerId }: Props) {
         initialLoad
         loadMore={() => { setRequestAdditionalPosts(true); }}
         hasMore={!noMoreData}
+        threshold={3000}
       >
         {
           postData.length > 0

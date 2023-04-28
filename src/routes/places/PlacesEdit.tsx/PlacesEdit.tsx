@@ -11,6 +11,7 @@ import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import CharactersCounter from '../../../components/ui/CharactersCounter';
 import { StyleButton } from '../../../components/ui/StyleButton';
 import CustomText from '../../../components/ui/CustomText';
+import SortData from '../../../components/filter-sort/SortData';
 
 const CustomCol = styled(Col)`
   width: 13.125rem !important;
@@ -51,9 +52,12 @@ function PlacesEdit() {
       <h2 className="d-md-block mt-4">Place information</h2>
       <Row>
         <Col md={6} className="mt-3">
-          <Form.Select aria-label="Category" defaultValue="" className="fs-4">
-            <option value="" disabled>Category</option>
-          </Form.Select>
+          <SortData
+            sortVal="Category"
+            onSelectSort={() => { }}
+            sortoptions={[{ value: 'disabled', label: 'Category' }]}
+            type="form"
+          />
         </Col>
         <Col md={6} className="mt-3">
           <Form.Control type="text" placeholder="Business name" className="fs-4" />
@@ -99,14 +103,20 @@ function PlacesEdit() {
       </Row>
       <Row>
         <Col md={6} className="mt-3">
-          <Form.Select aria-label="State/Province" defaultValue="" className="fs-4">
-            <option value="" disabled>State/Province</option>
-          </Form.Select>
+          <SortData
+            sortVal="State/Province"
+            onSelectSort={() => { }}
+            sortoptions={[{ value: 'disabled', label: 'State/Province' }]}
+            type="form"
+          />
         </Col>
         <Col md={6} className="mt-3">
-          <Form.Select aria-label="Country" defaultValue="" className="fs-4">
-            <option value="" disabled>Country</option>
-          </Form.Select>
+          <SortData
+            sortVal="Country"
+            onSelectSort={() => { }}
+            sortoptions={[{ value: 'disabled', label: 'Country' }]}
+            type="form"
+          />
         </Col>
       </Row>
       <StyleButton className="mt-4 mb-1 d-block d-md-flex justify-content-between align-items-center">

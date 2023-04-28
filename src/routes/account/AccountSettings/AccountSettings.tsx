@@ -17,7 +17,7 @@ function AccountSettings() {
     <div>
       <AccountHeader tabKey="sign-out" />
       <div className="mt-4">
-        <SignOutButton onClick={signOut} className="bg-black fs-3 mt-3 px-5 text-center shadow-none text-white px-2">
+        <SignOutButton onClick={signOut} className="bg-black mt-3 px-5 text-center shadow-none text-white">
           Sign Out
         </SignOutButton>
       </div>

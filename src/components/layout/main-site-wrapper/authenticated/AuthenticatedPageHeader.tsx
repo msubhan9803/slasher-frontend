@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Navbar, Container, Nav, Col, Row,
+  Navbar, Nav, Col,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
@@ -14,7 +14,7 @@ import HeaderLogo from '../../../ui/HeaderLogo';
 const SOLID_BLACK_IMAGE_BASE64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
 
 const StyledNavbar = styled(Navbar)`
-  z-index:1;
+  z-index: 2;
   // background-color: #101010 !important;
   .nav-link {
     min-width: 5rem;
@@ -26,7 +26,7 @@ const StyledNavbar = styled(Navbar)`
 const MobileNavbar = styled(Navbar)`
   border-top: 5px solid #1F1F1F;
   p {
-    font-size: .8rem;
+    font-size: var(--fs-6);
   }
 `;
 export const StyledNav = styled(Nav)`
@@ -69,17 +69,17 @@ function AuthenticatedPageHeader(
       iconSize="lg"
       onClick={onToggleClick}
     />,
-    <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/app/home" iconSize="lg" />,
-    <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/app/notifications" iconSize="lg" badge={userData.unreadNotificationCount} />,
-    <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/app/messages" iconSize="lg" badge={userData.unreadMessageCount} />,
-    <IconWithTextNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/app/search" iconSize="lg" />,
+    <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/" iconSize="lg" className="d-block" />,
+    <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/app/notifications" iconSize="lg" badge={userData.user.newNotificationCount} className="d-block" />,
+    <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/app/messages" iconSize="lg" badge={userData.newConversationIdsCount} className="d-block" />,
+    <IconWithTextNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/app/search" iconSize="lg" className="d-block" />,
   ];
 
   const desktopNavLinkElements = [
-    <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/app/home" className="nav-link" iconSize="2x" />,
-    <IconWithTextNavLink key="Friends" label="Friends" icon={solid('user-group')} to={`/${userName}/friends`} badge={userData.friendRequestCount} className="nav-link" iconSize="2x" />,
-    <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/app/notifications" badge={userData.unreadNotificationCount} className="nav-link" iconSize="2x" />,
-    <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/app/messages" badge={userData.unreadMessageCount} className="nav-link" iconSize="2x" />,
+    <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/" className="nav-link" iconSize="2x" />,
+    <IconWithTextNavLink key="Friends" label="Friends" icon={solid('user-group')} to={`/${userName}/friends`} badge={userData.user.newFriendRequestCount} className="nav-link" iconSize="2x" />,
+    <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/app/notifications" badge={userData.user.newNotificationCount} className="nav-link" iconSize="2x" />,
+    <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/app/messages" badge={userData.newConversationIdsCount} className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/app/search" className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Me" label="Me" userProfileIcon={userData.user.profilePic || SOLID_BLACK_IMAGE_BASE64} to={`/${userName}`} className="nav-link" userProfileIconSize="1.5rem" />,
   ];
@@ -93,7 +93,7 @@ function AuthenticatedPageHeader(
             <Navbar.Brand as={Link} to="/" className="py-0">
               <HeaderLogo />
             </Navbar.Brand>
-            <StyledNav className="ms-auto">
+            <StyledNav className="ms-auto px-1">
               {
                 desktopNavLinkElements.map((el, index) => {
                   const uniqueId = `nav-link-${index}`;
@@ -113,16 +113,14 @@ function AuthenticatedPageHeader(
 
         {/* nav-bar for small screen */}
         <MobileNavbar bg="dark" variant="dark" className={`d-${offcanvasSidebarExpandBreakPoint}-none fixed-bottom pt-3`}>
-          <Container fluid className="px-0">
-            <Row className="w-100">
-              {
-                mobileNavLinkElements.map((el, index) => {
-                  const uniqueId = `nav-link-${index}`;
-                  return <Col key={uniqueId} style={{ maxWidth: `${100 / mobileNavLinkElements.length}%` }}>{el}</Col>;
-                })
-              }
-            </Row>
-          </Container>
+          <div className="w-100 d-flex">
+            {
+              mobileNavLinkElements.map((el, index) => {
+                const uniqueId = `nav-link-${index}`;
+                return <Col key={uniqueId} style={{ maxWidth: `${100 / mobileNavLinkElements.length}%` }}>{el}</Col>;
+              })
+            }
+          </div>
         </MobileNavbar>
       </header>
     </>

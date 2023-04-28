@@ -5,7 +5,9 @@ import { Link } from 'react-router-dom';
 import { Image } from 'react-bootstrap';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Notification, NotificationReadStatus, NotificationType } from '../../types';
+import {
+  Notification, NotificationReadStatus, NotificationType, PostType,
+} from '../../types';
 import { markRead } from '../../api/notification';
 
 interface Props {
@@ -34,28 +36,57 @@ const UserCircleImageContainer = styled.div`
 
 function urlForNotification(notification: Notification) {
   switch (notification.notifyType) {
+    case NotificationType.UserAcceptedYourFriendRequest:
+      return `/${notification.userId}/friends`;
     case NotificationType.UserSentYouAFriendRequest:
       return `/${notification.userId}/friends/request`;
     case NotificationType.UserLikedYourPost:
+      if (notification.feedPostId.postType === PostType.MovieReview) {
+        return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}`;
+      }
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}`;
     case NotificationType.UserLikedYourComment:
+      if (notification.feedPostId.postType === PostType.MovieReview) {
+        return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
+      }
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
+    // NOTE: Not handling the case below right now because RSS Feed Post comments are handled
+    // in a non-standard way by the old app. So we're temporary omitting them on the server side.
+    // case NotificationType.UserLikedYourCommentOnANewsPost:
+    //   if (notification.rssFeedProviderId) {
+    //     return `/app/news/partner/${notification.rssFeedProviderId._id}/posts/` +
+    //      `${notification.feedPostId._id}?commentId=${notification.rssFeedCommentId}`;
+    //   }
     case NotificationType.UserCommentedOnYourPost:
+      if (notification.feedPostId.postType === PostType.MovieReview) {
+        return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
+      }
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
     case NotificationType.UserMentionedYouInPost:
+      if (notification.feedPostId.postType === PostType.MovieReview) {
+        return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}`;
+      }
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}`;
     // eslint-disable-next-line max-len
     case NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost:
       // This enum is very long because the old API has too many things associated with the same
       // notification type id on the backend. We will change this after retiring the old API.
-      if (notification.feedReplyId) {
-        return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}&replyId=${notification.feedReplyId}`;
-      } if (notification.feedCommentId) {
-        return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
+      if (notification.feedPostId.postType === PostType.MovieReview) {
+        if (notification.feedReplyId) {
+          return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}?commentId=${notification.feedCommentId}&replyId=${notification.feedReplyId}`;
+        } if (notification.feedCommentId) {
+          return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
+        }
+      } else {
+        if (notification.feedReplyId) {
+          return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}&replyId=${notification.feedReplyId}`;
+        } if (notification.feedCommentId) {
+          return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
+        }
       }
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}`;
     case NotificationType.NewPostFromFollowedRssFeedProvider:
-      return `/app/news/partner/${notification.rssFeedProviderId}/posts/${notification.feedPostId._id}`;
+      return `/app/news/partner/${notification.rssFeedProviderId?._id}/posts/${notification.feedPostId._id}`;
     default:
       return '/app/notifications';
   }
@@ -67,17 +98,29 @@ function NotificationCard({ notification, lastCard, onSelect }: Props) {
       <Link
         onClick={() => { markRead(notification._id); onSelect!(notification._id); }}
         to={urlForNotification(notification)}
-        className="text-decoration-none px-0 shadow-none text-white text-start d-flex align-items-center bg-transparent border-0"
+        className="text-decoration-none px-0 text-white text-start d-flex align-items-center bg-transparent border-0"
       >
         {notification.senderId && (
           <UserCircleImageContainer className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
-            <Image src={notification.rssFeedProviderId?.logo || notification.senderId?.profilePic} alt="" className="rounded-circle" />
+            <Image
+              src={
+                notification.notifyType === NotificationType.NewPostFromFollowedRssFeedProvider
+                  ? notification.rssFeedProviderId?.logo
+                  : notification.senderId?.profilePic
+              }
+              alt=""
+              className="rounded-circle"
+            />
           </UserCircleImageContainer>
         )}
         <div>
           <div className="d-flex align-items-center">
             <h2 className="h4 mb-0 fw-bold me-1">
-              {notification.rssFeedProviderId ? '' : notification.senderId?.userName}
+              {
+                notification.notifyType === NotificationType.NewPostFromFollowedRssFeedProvider
+                  ? ''
+                  : notification.senderId?.userName
+              }
               <span className="fs-4 mb-0 fw-normal">
                 &nbsp;
                 {notification.notificationMsg}

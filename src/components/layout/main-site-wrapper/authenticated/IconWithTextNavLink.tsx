@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { IconDefinition, SizeProp } from '@fortawesome/fontawesome-svg-core';
 import { Link, useLocation } from 'react-router-dom';
 import IconWithTextNavItemInnerElement from './IconWithTextNavItemInnerElement';
+import { useAppDispatch } from '../../../../redux/hooks';
+import { setScreenReload } from '../../../../redux/slices/userSlice';
+import { setScrollPosition } from '../../../../redux/slices/scrollPositionSlice';
+import { scrollToTop } from '../../../../utils/scrollFunctions';
 
 interface Props {
   label: string;
@@ -21,8 +25,38 @@ function IconWithTextNavLink({
   to, badge, badgeIconClassName, className, children,
 }: Props) {
   const { pathname } = useLocation();
+  const linkRef = useRef<any>(null);
+
+  useEffect(() => {
+    const handlePopstate = () => {
+      if (linkRef.current === document.activeElement) {
+        linkRef.current.blur();
+      }
+    };
+
+    window.addEventListener('popstate', handlePopstate);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopstate);
+    };
+  }, []);
+  const dispatch = useAppDispatch();
+  const handleRefresh = () => {
+    const positionData = {
+      pathname: '',
+      position: 0,
+      data: [],
+      positionElementId: '',
+    };
+    dispatch(setScrollPosition(positionData));
+    if (label === 'Home') {
+      dispatch(setScreenReload(true));
+    } else {
+      scrollToTop('instant');
+    }
+  };
   return (
-    <Link to={to} className={`shadow-none text-decoration-none ${className}`}>
+    <Link to={to} onClick={handleRefresh} ref={linkRef} className={`text-decoration-none pb-1 mb-1 ${className}`}>
       <IconWithTextNavItemInnerElement
         label={label}
         userProfileIcon={userProfileIcon}
@@ -31,7 +65,7 @@ function IconWithTextNavLink({
         iconSize={iconSize}
         badge={badge}
         badgeIconClassName={badgeIconClassName}
-        active={pathname.startsWith(to)}
+        active={pathname.startsWith(label === 'Home' ? '/app/home' : to)}
       />
       {children}
     </Link>

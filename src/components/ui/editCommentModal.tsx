@@ -116,6 +116,8 @@ function EditCommentModal({
           setFormatMention={setFormatMention}
           deleteImageIds={deleteImageIds}
           setDeleteImageIds={setDeleteImageIds}
+          placeHolder={`${commentID ? 'Write a comment' : 'Reply to comment'}`}
+          showSaveButton
         />
       </Modal.Body>
     </ModalContainer>

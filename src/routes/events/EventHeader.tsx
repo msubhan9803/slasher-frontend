@@ -9,11 +9,11 @@ interface EventHeaderProps {
   tabKey: string;
 }
 const tabs = [
-  { value: 'by-location', label: 'By location' },
+  { value: 'by-location', label: 'By location', devOnly: true },
   { value: 'by-date', label: 'By date' },
-  { value: 'favorites', label: 'Favorites' },
+  { value: 'favorites', label: 'Favorites', devOnly: true },
 ];
-const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => t.label === 'By date');
+const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => !t.devOnly);
 function EventHeader({ tabKey }: EventHeaderProps) {
   return (
     <>

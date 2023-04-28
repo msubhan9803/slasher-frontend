@@ -3,7 +3,7 @@ import React, {
   useEffect, useRef, useState, ChangeEvent, useCallback,
 } from 'react';
 import {
-  Button, Col, Row,
+  Button,
 } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
@@ -16,6 +16,7 @@ import { createBlockUser } from '../../../../api/blocks';
 import { reportData } from '../../../../api/report';
 import ReportModal from '../../ReportModal';
 import EditCommentModal from '../../editCommentModal';
+import ErrorMessageList from '../../ErrorMessageList';
 
 const LoadMoreCommentsWrapper = styled.div.attrs({ className: 'text-center' })`
   margin: -1rem 0 1rem;
@@ -47,6 +48,12 @@ function PostCommentSection({
   commentImages,
   setCommentImages,
   commentError,
+  commentReplyError,
+  commentSent,
+  setCommentReplyErrorMessage,
+  setCommentErrorMessage,
+  handleLikeModal,
+  isMainPostCommentClick,
 }: any) {
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [show, setShow] = useState<boolean>(false);
@@ -75,6 +82,15 @@ function PostCommentSection({
   const [scrollId, setScrollId] = useState<string>('');
   const [selectedReplyId, setSelectedReplyId] = useState<string | null>('');
   const [updatedReply, setUpdatedReply] = useState<boolean>(false);
+  const commentSectionRef = useRef<any>(null);
+  useEffect(() => {
+    if (queryReplyId && queryCommentId) {
+      const showQueryIdReply = checkLoadMoreId.some((loadId) => loadId._id === queryCommentId);
+      if (!showQueryIdReply && !checkLoadMoreId.includes(queryCommentId)) {
+        setCheckLoadMoreId([...checkLoadMoreId, queryCommentId]);
+      }
+    }
+  }, [queryCommentId, queryReplyId, checkLoadMoreId]);
 
   const checkPopover = (id: string) => {
     if (id === loginUserId) {
@@ -99,20 +115,13 @@ function PostCommentSection({
       setSelectedReplyCommentId(commentReplyId);
       setReplyUserName(replyName);
       setSelectedReplyUserID(userId!);
-      setCheckLoadMoreId([]);
-      const updatedCommentData: FeedComments[] = [];
       commentData.map((comment: any) => {
         /* eslint-disable no-param-reassign */
         if (comment.id === commentReplyId) {
           setReplyIndex(replyCommentIndex!);
-          comment.isReplyIndex = scrollReplyId?.includes('comment') ? 0 : replyCommentIndex! + 1;
-          updatedCommentData.push(comment);
-        } else {
-          updatedCommentData.push(comment);
         }
         return null;
       });
-      setCommentData(updatedCommentData);
     }
   }, [commentData]);
 
@@ -145,7 +154,23 @@ function PostCommentSection({
         return null;
       });
     }
-  }, [isReply, commentData, tabsRef, replyIndex, selectedReplyCommentId, scrollId]);
+  }, [isReply, commentData, tabsRef, replyIndex,
+    selectedReplyCommentId, scrollId]);
+
+  const generateReplyIndex = useCallback((comment: any) => {
+    const updateComment = comment;
+    let updateReplyIndex = 2;
+    const newReplyData = updateComment.replies.filter((reply: any) => reply?.new === true);
+    const loadedComment = checkLoadMoreId.includes(updateComment._id);
+
+    if (loadedComment) {
+      updateReplyIndex = updateComment.replies.length;
+    } else if (newReplyData.length > 0 && !loadedComment) {
+      updateReplyIndex = newReplyData.length + updateReplyIndex;
+    }
+
+    return updateReplyIndex;
+  }, [checkLoadMoreId]);
 
   useEffect(() => {
     if (commentSectionData || updateState) {
@@ -181,16 +206,8 @@ function PostCommentSection({
             likeIcon: comment.likedByUser,
             likeCount: comment.likeCount,
             commentCount: comment.commentCount,
-            isReplyIndex: checkLoadMoreId.find(
-              (loadedComment: any) => loadedComment.id === comment._id,
-            )?.isReplyIndex
-              ?? commentData.find(
-                (replyComment: any) => replyComment.id === comment._id,
-              )?.isReplyIndex! >= 0
-              ? commentData.find(
-                (replyComment: any) => replyComment.id === comment._id,
-              )?.isReplyIndex
-              : 2,
+            isReplyIndex:
+              generateReplyIndex(comment),
           };
           return feedComment;
         });
@@ -200,42 +217,68 @@ function PostCommentSection({
       };
       feedCommentData();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     commentSectionData, updateState, checkLoadMoreId, commentReplyID,
-    setUpdateState, updatedReply,
+    setUpdateState, updatedReply, generateReplyIndex,
   ]);
 
   useEffect(() => {
     setReplyMessage('');
+    setCommentReplyErrorMessage([]);
+    setReplyImageArray([]);
+
     if (isReply && selectedReplyUserID !== loginUserId) {
       const mentionString = `@${replyUserName}`;
       setReplyMessage(mentionString);
     }
-  }, [replyUserName, isReply, selectedReplyCommentId, loginUserId, selectedReplyUserID]);
+  }, [replyUserName, isReply, selectedReplyCommentId,
+    loginUserId, selectedReplyUserID, setCommentReplyErrorMessage]);
+
+  useEffect(() => {
+    setCommentReplyErrorMessage([]);
+    setCommentErrorMessage([]);
+  }, [isEdit, setCommentReplyErrorMessage, setCommentErrorMessage]);
 
   useEffect(() => {
     if (!isReply) {
       setReplyImageArray([]);
       setSelectedReplyId('');
     }
-    setUploadPost([]);
-    setImageArray([]);
-  }, [isReply]);
 
-  const sendComment = (commentId?: string) => {
-    if (!commentId) {
+    if (isReply) {
+      setCommentErrorMessage([]);
       setMessage('');
-      setImageArray([]);
-    } else {
-      setIsReply(false);
-      setReplyMessage('');
-      setReplyImageArray([]);
-      setUpdatedReply(true);
     }
     setUploadPost([]);
-    setSelectedReplyId('');
-    setReplyUserName('');
+    setImageArray([]);
+  }, [isReply, setCommentErrorMessage]);
+
+  const sendComment = (commentId?: string, msg?: string) => {
+    if (updateState) {
+      if (!commentId) {
+        if (commentError && commentError.length) {
+          setMessage(msg!);
+        } else {
+          setMessage('');
+          setImageArray([]);
+        }
+      }
+
+      if (replyImageArray.length > 0 || msg) {
+        if ((commentReplyError && commentReplyError.length)) {
+          setIsReply(true);
+          setReplyMessage(msg!);
+          setReplyUserName(replyUserName);
+        } else {
+          setIsReply(false);
+          setReplyMessage('');
+          setReplyUserName('');
+          setReplyImageArray([]);
+        }
+      }
+
+      setUploadPost([]);
+    }
   };
 
   const handlePopover = (value: string, popoverData: PopoverClickProps) => {
@@ -243,7 +286,7 @@ function PostCommentSection({
     setDeleteImageIds([]);
     setCommentID(popoverData.id);
     setCommentReplyID('');
-    setEditContent(popoverData.content);
+    setEditContent(popoverData.message);
 
     if (popoverData.userId) {
       setCommentReplyUserId(popoverData.userId);
@@ -263,7 +306,7 @@ function PostCommentSection({
     setDeleteImageIds([]);
     setCommentReplyID(popoverData.id);
     setCommentID('');
-    setEditContent(popoverData.content);
+    setEditContent(popoverData.message);
 
     if (popoverData.userId) {
       setCommentReplyUserId(popoverData.userId);
@@ -329,19 +372,13 @@ function PostCommentSection({
           checkLoadMoreId.find(
             (id: any) => {
               if (id !== loadId) {
-                const loadMoreData = checkLoadMoreId.push(
-                  {
-                    id: loadId,
-                    isReplyIndex: comment.isReplyIndex,
-                  },
-                );
-                return loadMoreData;
+                setCheckLoadMoreId([...checkLoadMoreId, loadId]);
               }
               return id;
             },
           );
         } else {
-          checkLoadMoreId.push({ id: loadId, isReplyIndex: comment.isReplyIndex });
+          setCheckLoadMoreId([...checkLoadMoreId, loadId]);
         }
       } else {
         updatedCommentData.push(comment);
@@ -392,7 +429,7 @@ function PostCommentSection({
         }
         onPopoverClick={handleReplyPopover}
         feedCommentId={comment.feedCommentId}
-        content={comment.commentMsg}
+        message={comment.commentMsg}
         userName={comment.name}
         handleSeeCompleteList={handleSeeCompleteList}
         likeCount={comment.likeCount}
@@ -401,6 +438,7 @@ function PostCommentSection({
         isReply
         setIsReply={setIsReply}
         replyCommentIndex={replyCommentIndex}
+        handleLikeModal={handleLikeModal}
       />
     </div>
   );
@@ -416,8 +454,58 @@ function PostCommentSection({
       });
     }
   }, [queryCommentId, queryReplyId, commentData]);
+
+  const generateReplyInput = (dataId: any) => (
+    <div id={scrollId} ref={tabsRef}>
+      <CommentInput
+        userData={userData}
+        message={replyMessage}
+        inputFile={replyInputFile}
+        handleFileChange={handleFileChange}
+        sendComment={sendComment}
+        imageArray={replyImageArray}
+        handleRemoveFile={handleRemoveFile}
+        dataId={dataId}
+        handleSearch={handleSearch}
+        mentionList={mentionList}
+        isReply
+        replyImageArray={replyImageArray}
+        addUpdateReply={addUpdateReply}
+        commentID={selectedReplyCommentId}
+        commentReplyID={selectedReplyId!}
+        commentError={commentError}
+        commentReplyError={commentReplyError}
+        commentSent={commentSent}
+        setCommentReplyErrorMessage={setCommentReplyErrorMessage}
+        setReplyImageArray={setReplyImageArray}
+        isEdit={isEdit}
+        isMainPostCommentClick={isMainPostCommentClick}
+      />
+      {
+        !isEdit && commentReplyError
+        && <ErrorMessageList errorMessages={commentReplyError} divClass="mt-3 text-start" className="m-0 mb-4" />
+      }
+    </div>
+  );
+  useEffect(() => {
+    setTimeout(() => {
+      if (isMainPostCommentClick
+        && commentSectionData
+        && commentSectionData.length > 0
+        && commentSectionRef.current) {
+        document.documentElement.style.scrollBehavior = 'auto';
+        commentSectionRef?.current?.scrollIntoView({
+          behavior: 'instant' as any,
+          block: 'start',
+        });
+      }
+    }, 500);
+    setTimeout(() => {
+      document.documentElement.style.scrollBehavior = 'smooth';
+    }, 600);
+  }, [isMainPostCommentClick, commentSectionData]);
   return (
-    <>
+    <div ref={commentSectionRef}>
       <CommentInput
         userData={userData}
         message={message}
@@ -432,6 +520,13 @@ function PostCommentSection({
         addUpdateComment={addUpdateComment}
         commentID={selectedReplyCommentId}
         checkCommnt="comments"
+        commentError={commentError}
+        commentReplyError={commentReplyError}
+        commentSent={commentSent}
+        setCommentReplyErrorMessage={setCommentReplyErrorMessage}
+        setReplyImageArray={setReplyImageArray}
+        isEdit={isEdit}
+        isMainPostCommentClick={isMainPostCommentClick}
       />
       {commentData && commentData.length > 0 && queryCommentId && previousCommentsAvailable
         && (
@@ -447,146 +542,126 @@ function PostCommentSection({
         )}
       {commentData && commentData.length > 0
         && commentData.map((data: any) => (
-          <Row className="ps-md-4 pt-md-1" key={data.id}>
-            <Col>
-              <Row className="mx-auto">
-                <Col className="ps-md-0">
-                  <CommentSection
-                    id={data.id}
-                    image={data.profilePic}
-                    name={data.name}
-                    time={data.time}
-                    likeIcon={data.likeIcon}
-                    commentMsg={data.commentMsg}
-                    commentImg={data.commentImg}
-                    onIconClick={() => onLikeClick(data.id)}
-                    popoverOptions={
-                      checkPopover(data.userId?._id || data.userId?.id)
-                    }
-                    onPopoverClick={handlePopover}
-                    content={data.commentMsg}
-                    handleSeeCompleteList={handleSeeCompleteList}
-                    likeCount={data.likeCount}
-                    userId={data.userId?._id}
-                    active={!queryReplyId ? data.id === queryCommentId : false}
-                    setIsReply={setIsReply}
-                  />
-                  <div className="ms-5 ps-2">
-                    <div className="ms-md-4">
-                      {data.commentReplySection && data.commentReplySection.length > 0
-                        && data.commentReplySection
-                          .slice(0, data.isReplyIndex)
-                          .map((comment: any, replyCommentIndex: number) => (
-                            <div key={comment.id}>
-                              {(replyCommentIndex !== (data.commentReplySection.length - 1))
-                                || ((replyCommentIndex === (data.commentReplySection.length - 1))
-                                  && !comment.newComment)
-                                || ((replyCommentIndex === (data.commentReplySection.length - 1))
-                                  && (comment.newComment)
-                                  && (isReply || selectedReplyCommentId !== data.id))
-                                ? oldReply(comment, replyCommentIndex)
-                                : null}
-                            </div>
-                          ))}
-
-                      {data.commentReplySection
-                        && data.commentReplySection.length >= 1
-                        && data.commentReplySection.length - data.isReplyIndex > 0
-                        && data.commentReplySection.length - data.isReplyIndex - (
-                          data.commentReplySection.filter(
-                            (reply: any, index: any) => (
-                              index === data.commentReplySection.length - 1
-                              && reply.newComment
-                              && !isReply
-                              && data.id === selectedReplyCommentId
-                            ),
-                          )).length > 0
-                        && (
-                          <LoadMoreCommentsWrapper>
-                            <Button
-                              variant="link"
-                              className="text-primary shadow-none"
-                              onClick={() => {
-                                handleShowMoreComments(data.commentReplySection[0]?.feedCommentId);
-                              }}
-                            >
-                              {`Load
-                                    ${(data.commentReplySection.length - data.isReplyIndex
-                                  - (!updatedReply
-                                    && data.id === selectedReplyCommentId
-                                    ? data.commentReplySection.filter(
-                                      (reply: any, index: any) => (
-                                        index === data.commentReplySection.length - 1
-                                        && reply.newComment
-                                        && !isReply
-                                      ),
-                                    ).length : 0
-                                  ))
-                                }
-                                more
-                              ${(data.commentReplySection.length - data.isReplyIndex
-                                  - (!updatedReply
-                                    && data.id === selectedReplyCommentId
-                                    ? data.commentReplySection.filter(
-                                      (reply: any, index: number) => (
-                                        index === data.commentReplySection.length - 1
-                                        && reply.newComment
-                                        && !isReply
-                                      ),
-                                    ).length : 0
-                                  )
-                                ) === 1 ? 'comment' : 'comments'}`}
-                            </Button>
-                          </LoadMoreCommentsWrapper>
-                        )}
-
-                      {data.commentReplySection.map(
-                        (comment: any, replyCommentIndex: number) => (
-                          <div key={comment.id}>
-                            {(replyCommentIndex === (data.commentReplySection.length - 1))
+          <div className="pt-md-1" key={data.id}>
+            <div className="ps-md-0">
+              <CommentSection
+                id={data.id}
+                image={data.profilePic}
+                name={data.name}
+                time={data.time}
+                likeIcon={data.likeIcon}
+                commentMsg={data.commentMsg}
+                commentImg={data.commentImg}
+                onIconClick={() => onLikeClick(data.id)}
+                popoverOptions={
+                  checkPopover(data.userId?._id || data.userId?.id)
+                }
+                onPopoverClick={handlePopover}
+                message={data.commentMsg}
+                handleSeeCompleteList={handleSeeCompleteList}
+                likeCount={data.likeCount}
+                userId={data.userId?._id}
+                active={!queryReplyId ? data.id === queryCommentId : false}
+                setIsReply={setIsReply}
+                handleLikeModal={handleLikeModal}
+              />
+              <div className="ms-5 ps-2">
+                <div className="ms-md-4">
+                  {
+                    isReply
+                    && selectedReplyCommentId === data.id
+                    && !selectedReplyId
+                    && (generateReplyInput(data.id))
+                  }
+                  {data.commentReplySection && data.commentReplySection.length > 0
+                    && data.commentReplySection
+                      .slice(0, data.isReplyIndex)
+                      .map((comment: any, replyCommentIndex: number) => (
+                        <div key={comment.id}>
+                          {(replyCommentIndex !== (data.commentReplySection.length - 1))
+                            || ((replyCommentIndex === (data.commentReplySection.length - 1))
+                              && !comment.newComment)
+                            || ((replyCommentIndex === (data.commentReplySection.length - 1))
                               && (comment.newComment)
-                              && !isReply
-                              && data.id === selectedReplyCommentId
-                              ? oldReply(comment, replyCommentIndex)
-                              : null}
-                          </div>
-                        ),
-                      )}
-                      {
-                        isReply
-                        && (selectedReplyCommentId === data.id
-                          || selectedReplyCommentId === data.commentReplySection[0]?.feedCommentId
-                          || data.commentReplySection.some(
-                            (item: any) => item.newComment === true && item.id === selectedReplyId,
-                          )
-                        ) && (
-                          <div id={scrollId} ref={tabsRef}>
-                            <CommentInput
-                              userData={userData}
-                              message={replyMessage}
-                              inputFile={replyInputFile}
-                              handleFileChange={handleFileChange}
-                              sendComment={sendComment}
-                              imageArray={replyImageArray}
-                              handleRemoveFile={handleRemoveFile}
-                              dataId={data.id}
-                              handleSearch={handleSearch}
-                              mentionList={mentionList}
-                              isReply
-                              replyImageArray={replyImageArray}
-                              addUpdateReply={addUpdateReply}
-                              commentID={selectedReplyCommentId}
-                              commentReplyID={selectedReplyId!}
-                            />
-                          </div>
-                        )
-                      }
-                    </div>
-                  </div>
-                </Col>
-              </Row>
-            </Col>
-          </Row>
+                              && (isReply || selectedReplyCommentId !== data.id))
+                            ? oldReply(comment, replyCommentIndex)
+                            : null}
+                          {
+                            isReply
+                            && selectedReplyCommentId === data.commentReplySection[0]?.feedCommentId
+                            && selectedReplyId === comment.id
+                            && replyCommentIndex === replyIndex
+                            && (generateReplyInput(data.id))
+                          }
+                        </div>
+                      ))}
+
+                  {data.commentReplySection.map(
+                    (comment: any, replyCommentIndex: number) => (
+                      <div key={comment.id}>
+                        {(replyCommentIndex === (data.commentReplySection.length - 1))
+                          && (comment.newComment)
+                          && !isReply
+                          && data.id === selectedReplyCommentId
+                          ? oldReply(comment, replyCommentIndex)
+                          : null}
+                      </div>
+                    ),
+                  )}
+
+                  {data.commentReplySection
+                    && data.commentReplySection.length >= 1
+                    && !checkLoadMoreId.includes(data.id)
+                    && data.commentReplySection.length - data.isReplyIndex > 0
+                    && !(
+                      data.commentReplySection.findLastIndex(
+                        (item: any) => item.newComment,
+                      ) === data.commentReplySection.length - 1
+                    )
+                    && (
+                      <LoadMoreCommentsWrapper>
+                        <Button
+                          variant="link"
+                          className="text-primary"
+                          onClick={() => {
+                            handleShowMoreComments(data.commentReplySection[0]?.feedCommentId);
+                            setIsReply(false);
+                          }}
+                        >
+                          {`Load
+                                ${(data.commentReplySection.length - data.isReplyIndex
+                              - (!updatedReply
+                                && data.id === selectedReplyCommentId
+                                ? data.commentReplySection.filter(
+                                  (reply: any, index: any) => (
+                                    index === data.commentReplySection.length - 1
+                                    && reply.newComment
+                                    && !isReply
+                                  ),
+                                ).length : 0
+                              ))
+                            }
+                            more
+                          ${(data.commentReplySection.length - data.isReplyIndex
+                              - (!updatedReply
+                                && data.id === selectedReplyCommentId
+                                ? data.commentReplySection.filter(
+                                  (reply: any, index: number) => (
+                                    index === data.commentReplySection.length - 1
+                                    && reply.newComment
+                                    && !isReply
+                                  ),
+                                ).length : 0
+                              )
+                            ) === 1 ? 'reply' : 'replies'}`}
+                        </Button>
+                      </LoadMoreCommentsWrapper>
+                    )}
+
+                </div>
+              </div>
+            </div>
+          </div>
         ))}
       <ReportModal
         show={show}
@@ -614,11 +689,11 @@ function PostCommentSection({
             setDeleteImageIds={setDeleteImageIds}
             postImages={commentImages}
             setPostImages={setCommentImages}
-            commentError={commentError}
+            commentError={commentError.length > 0 ? commentError : commentReplyError}
           />
         )
       }
-    </>
+    </div>
   );
 }
 PostCommentSection.defaultProps = {

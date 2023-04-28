@@ -1,10 +1,10 @@
 /* eslint-disable max-lines */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import { DateTime } from 'luxon';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import RoundButton from '../../../components/ui/RoundButton';
 import WorthWatchIcon, { StyledDislikeIcon, StyledLikeIcon } from '../components/WorthWatchIcon';
@@ -16,8 +16,9 @@ import BorderButton from '../../../components/ui/BorderButton';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
 import ShareLinksModal from '../../../components/ui/ShareLinksModal';
 import CustomRatingText from '../../../components/ui/CustomRatingText';
-import { deleteGoreFactor, deleteRating, deleteWorthWatching } from '../../../api/movies';
+import { createOrUpdateWorthWatching, deleteWorthWatching } from '../../../api/movies';
 import { updateMovieUserData } from '../components/updateMovieDataUtils';
+import { urlForMovie } from '../../../utils/url-utils';
 
 const StyleWatchWorthIcon = styled(FontAwesomeIcon)`
   width: 0.995rem;
@@ -27,6 +28,7 @@ interface AboutMovieData {
   aboutMovieDetail: AdditionalMovieData
   movieData: MovieData;
   setMovieData: React.Dispatch<React.SetStateAction<MovieData | undefined>>
+  setReviewForm?: (value: boolean) => void;
 }
 const StyledVerticalBorder = styled.div`
   border-right: 1px solid #3A3B46;
@@ -53,23 +55,25 @@ const AboutMovieDetails = styled.div`
     height: 1.563rem;
   }
   .rate-btn {
-    padding: 0 1.438rem;
+    padding-right: 1.438rem;
+    padding-left: 1.438rem;
     svg {
       width: 1.179rem;
       height: 1.125rem;
     }
     p {
-      font-size: 1rem;
+      font-size: var(--fs-4);
     }
   }
   .share-btn {
-    padding: 0 1.25rem;
+    padding-right: 0 1.25rem;
+    padding-left: 0 1.25rem;
     svg {
       width: 1.055rem;
       height: 1.125rem;
     }
     p {
-      font-size: 1rem;
+      font-size: var(--fs-4);
     }
   }
 
@@ -78,11 +82,45 @@ const StyledInitial = styled.p`
   padding: 0.34rem 0.68rem;
 `;
 
-function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieData) {
+function AboutDetails({
+  aboutMovieDetail, movieData, setMovieData, setReviewForm,
+}: AboutMovieData) {
   const [showRating, setShowRating] = useState(false);
   const [showGoreRating, setShowGoreRating] = useState(false);
   const [showShareLinks, setShowShareLinks] = useState(false);
+  /** NOTE: `worthIt` is used as a effect-trigger to call api so
+   * do *not* use `movieData.worthWatching` as iniial value of `worthIt` state. */
+  const [worthIt, setWorthIt] = useState<WorthWatchingStatus | null>(null);
+  const [liked, setLike] = useState<boolean>(
+    movieData.userData.worthWatching === WorthWatchingStatus.Up,
+  );
+  const [disLiked, setDisLike] = useState<boolean>(
+    movieData.userData.worthWatching === WorthWatchingStatus.Down,
+  );
   const params = useParams();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (params.id && worthIt !== null) {
+      if (worthIt === WorthWatchingStatus.NoRating) {
+        deleteWorthWatching(params.id)
+          .then((res) => {
+            updateMovieUserData(res.data, 'worthWatching', setMovieData!);
+          });
+      } else {
+        createOrUpdateWorthWatching(params.id, worthIt).then((res) => {
+          updateMovieUserData(res.data, 'worthWatching', setMovieData!);
+        });
+      }
+    }
+  }, [worthIt, params, setMovieData]);
+
+  const handleReviwRedirect = () => {
+    setReviewForm!(true);
+    if (params['*'] !== 'reviews') {
+      navigate(`/app/movies/${params.id}/reviews`, { state: { movieId: params.id } });
+    }
+  };
   const toHoursAndMinutes = (totalMinutes: number) => {
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
@@ -106,8 +144,6 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
   const handleShowShareLinks = () => setShowShareLinks(true);
   const hasRating = movieData.userData !== null && movieData.userData?.rating !== 0;
   const hasGoreFactor = movieData.userData !== null && movieData.userData?.goreFactorRating !== 0;
-  const hasWorthWatching = movieData.userData !== null
-    && movieData.userData?.worthWatching !== WorthWatchingStatus.NoRating;
   return (
     <AboutMovieDetails className="text-xl-start pt-4">
       <Row className="justify-content-center mt-2 mt-xl-0">
@@ -118,8 +154,8 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
         </Col>
       </Row>
       <div className="d-block align-items-center justify-content-center justify-content-xl-between">
-        <Row>
-          <div className="d-flex justify-content-between my-3 text-light px-0">
+        <Row className="align-items-center">
+          <Col className="d-flex justify-content-between my-3 text-light px-0">
             <div className="d-flex">
               <p className="m-0 fs-3 align-self-center">{DateTime.fromJSDate(new Date(aboutMovieDetail?.mainData?.release_date)).toFormat('yyyy')}</p>
               {getCertification() && (
@@ -133,7 +169,9 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                 {toHoursAndMinutes(aboutMovieDetail && aboutMovieDetail?.mainData?.runtime)}
               </p>
             </div>
-            <div>
+          </Col>
+          <Col xs={6} md={3} className="p-0">
+            <div className="d-flex justify-content-end justify-content-md-center me-md-3">
               <BorderButton
                 buttonClass="d-flex share-btn bg-black"
                 variant="black"
@@ -144,7 +182,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                 handleClick={handleShowShareLinks}
               />
             </div>
-          </div>
+          </Col>
           {aboutMovieDetail?.mainData?.production_countries.length > 0
             && (
               <p className="mb-3 text-light p-0">
@@ -164,7 +202,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                 : (
                   <div className="d-flex mt-md-3 justify-content-md-center">
                     <CustomRatingText
-                      rating={movieData.rating ? movieData.rating : 0}
+                      rating={movieData.rating}
                       icon={solid('star')}
                       ratingType="star"
                       customWidth="1.638rem"
@@ -177,96 +215,67 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
               <BorderButton
                 buttonClass="mx-md-auto rate-btn bg-black mt-md-4 justify-content-md-center d-flex"
                 variant="black"
-                icon={regular('star')}
+                icon={hasRating ? solid('star') : regular('star')}
                 iconClass="me-2"
+                iconStyle={{ color: hasRating ? 'var(--bs-orange)' : 'white' }}
                 iconSize="sm"
                 lable={hasRating ? String(movieData.userData ? movieData.userData?.rating : 'Rate') : 'Rate'}
                 handleClick={() => setShowRating(true)}
               />
             </div>
-            {/* Remove Button - rating */}
-            {hasRating
-              && (
-                <div className="mt-2 mt-md-4 d-flex justify-content-center">
-                  <BorderButton
-                    buttonClass="d-flex rate-btn bg-black d-flex"
-                    variant="black"
-                    iconClass="me-2"
-                    iconSize="sm"
-                    lable="Remove"
-                    handleClick={() => {
-                      if (!params.id) { return; }
-                      deleteRating(params.id)
-                        .then((res) => updateMovieUserData(res.data, 'rating', setMovieData));
-                    }}
-                  />
-                </div>
-              )}
             <div className="d-flex justify-content-center my-3 d-md-none ">
-              <RoundButton className="w-100 fw-bold">Write a review</RoundButton>
+              <RoundButton className="w-100 fw-bold" onClick={() => handleReviwRedirect()}> Write a review</RoundButton>
             </div>
             <StyledBorder className="d-md-none" />
           </Col>
           <Col xs={6} md={5} className="p-0">
             <StyledVerticalBorder className="mt-4 mt-md-0">
               <p className="fw-bold text-center">Worth watching?</p>
-              {movieData.worthWatching === WorthWatchingStatus.Up
-                && (
-                  <div className="mt-2 d-flex justify-content-center">
-                    <StyledLikeIcon className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
-                      <StyleWatchWorthIcon icon={regular('thumbs-up')} />
-                    </StyledLikeIcon>
-                    <p className="fw-bold m-0 align-self-center" style={{ color: 'var(--bs-success)' }}>Worth it!</p>
-                  </div>
-                )}
+              <div className="d-flex justify-content-center" style={{ height: 30 }}>
+                {movieData.worthWatching === WorthWatchingStatus.Up
+                  && (
+                    <>
+                      <StyledLikeIcon className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
+                        <StyleWatchWorthIcon icon={regular('thumbs-up')} />
+                      </StyledLikeIcon>
+                      <p className="fw-bold m-0 align-self-center" style={{ color: 'var(--bs-success)' }}>Worth it!</p>
+                    </>
+                  )}
+                {movieData.worthWatching === WorthWatchingStatus.Down
+                  && (
+                    <>
+                      <StyledDislikeIcon role="button" className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
+                        <StyleWatchWorthIcon icon={regular('thumbs-down')} />
+                      </StyledDislikeIcon>
+                      <p className="fs-3 fw-bold m-0 align-self-center" style={{ color: '#FF1800' }}>Not worth it!</p>
+                    </>
+                  )}
 
-              {movieData.worthWatching === WorthWatchingStatus.Down
-                && (
-                  <div className="mt-2 d-flex justify-content-center">
-                    <StyledDislikeIcon role="button" className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
-                      <StyleWatchWorthIcon icon={regular('thumbs-down')} />
-                    </StyledDislikeIcon>
-                    <p className="fw-bold m-0 align-self-center" style={{ color: '#FF1800' }}>Not worth it!</p>
-                  </div>
-                )}
-
-              {movieData.worthWatching === WorthWatchingStatus.NoRating
-                && <p className="fw-bold m-0 align-self-center text-light text-center">Not yet rated</p>}
+                {movieData.worthWatching === WorthWatchingStatus.NoRating
+                  && <div className="fw-bold m-0 align-self-center text-light text-center">Not yet rated</div>}
+              </div>
 
               {/* Worth Watch Icons */}
               <div className="mt-3">
-                <WorthWatchIcon movieData={movieData} setMovieData={setMovieData} />
+                <WorthWatchIcon
+                  movieData={movieData}
+                  setWorthIt={setWorthIt}
+                  liked={liked}
+                  setLike={setLike}
+                  disLiked={disLiked}
+                  setDisLike={setDisLike}
+                />
               </div>
-              {/* Remove Button - Worth Watch */}
-              {
-                hasWorthWatching
-                && (
-                  <div className="mt-4 d-flex justify-content-center">
-                    <BorderButton
-                      buttonClass="d-flex rate-btn bg-black d-flex"
-                      variant="black"
-                      iconClass="me-2"
-                      iconSize="sm"
-                      lable="Remove"
-                      handleClick={() => {
-                        if (!params.id) { return; }
-                        deleteWorthWatching(params.id)
-                          .then((res) => updateMovieUserData(res.data, 'worthWatching', setMovieData));
-                      }}
-                    />
-                  </div>
-                )
-              }
             </StyledVerticalBorder>
           </Col>
           <Col xs={6} md={3} className="p-0 mt-4 mt-md-0">
-            <p className="fw-bold text-center">Gore factor</p>
+            <p className="fs-3 fw-bold text-center">Gore factor</p>
             {movieData.goreFactorRatingUsersCount === 0
-              ? <p className="fw-bold m-0 align-self-center text-light text-center">Not yet rated</p>
+              ? <p className="fs-3 fw-bold m-0 align-self-center text-light text-center">Not yet rated</p>
               : (
                 <div className="mt-2 d-flex justify-content-center">
                   <CustomRatingText
-                    rating={movieData.goreFactorRating ? movieData.goreFactorRating : 0}
+                    rating={movieData.userData ? movieData.userData?.goreFactorRating : 0}
                     icon={solid('burst')}
                     ratingType="burst"
                     customWidth="1.638rem"
@@ -280,44 +289,35 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                 buttonClass="d-flex rate-btn bg-black d-flex"
                 variant="black"
                 icon={solid('burst')}
-                iconClass="me-2"
+                iconClass={`me-2 ${hasGoreFactor ? 'text-primary' : ''}`}
                 iconSize="sm"
                 lable={hasGoreFactor ? String(movieData.userData ? movieData.userData?.goreFactorRating : 'Rate') : 'Rate'}
                 handleClick={() => setShowGoreRating(true)}
               />
             </div>
-            {/* Remove Button - Gore Factor */}
-            {
-              hasGoreFactor
-              && (
-                <div className="mt-4 d-flex justify-content-center">
-                  <BorderButton
-                    buttonClass="d-flex rate-btn bg-black d-flex"
-                    variant="black"
-                    iconClass="me-2"
-                    iconSize="sm"
-                    lable="Remove"
-                    handleClick={() => {
-                      if (!params.id) { return; }
-                      deleteGoreFactor(params.id)
-                        .then((res) => updateMovieUserData(res.data, 'goreFactorRating', setMovieData));
-                    }}
-                  />
-                </div>
-              )
-            }
           </Col>
           <div className="d-none d-md-flex justify-content-center mt-3">
-            <RoundButton className="w-50 fw-bold">Write a review</RoundButton>
+            <RoundButton className="w-50 fw-bold" onClick={() => handleReviwRedirect()}>Write a review</RoundButton>
           </div>
           <StyledBorder className="d-md-none my-3" />
         </Row>
       </div>
-      {showRating && <MoviesModal rateType="rating" show={showRating} setShow={setShowRating} movieData={movieData} setMovieData={setMovieData} ButtonType="rating" />}
-      {showGoreRating && <MoviesModal rateType="goreFactorRating" show={showGoreRating} setShow={setShowGoreRating} movieData={movieData} setMovieData={setMovieData} ButtonType="goreFactorRating" />}
-      {showShareLinks && <ShareLinksModal show={showShareLinks} setShow={setShowShareLinks} />}
+      {showRating && <MoviesModal rateType="rating" show={showRating} setShow={setShowRating} movieData={movieData} setMovieData={setMovieData} ButtonType="rating" hasRating={hasRating} />}
+      {showGoreRating && <MoviesModal rateType="goreFactorRating" show={showGoreRating} setShow={setShowGoreRating} movieData={movieData} setMovieData={setMovieData} ButtonType="goreFactorRating" hasGoreFactor={hasGoreFactor} />}
+      {showShareLinks
+        && (
+          <ShareLinksModal
+            copyLinkUrl={urlForMovie(params?.id!)}
+            show={showShareLinks}
+            setShow={setShowShareLinks}
+          />
+        )}
     </AboutMovieDetails>
   );
 }
+
+AboutDetails.defaultProps = {
+  setReviewForm: false,
+};
 
 export default AboutDetails;

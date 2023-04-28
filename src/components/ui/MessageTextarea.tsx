@@ -1,6 +1,7 @@
-import React, { createRef, useEffect } from 'react';
+import React, { createRef, useEffect, useRef } from 'react';
 import Mentions from 'rc-mentions';
 import { OptionProps } from 'rc-mentions/lib/Option';
+import { MentionsRef } from 'rc-mentions/lib/Mentions';
 import styled from 'styled-components';
 import UserCircleImage from './UserCircleImage';
 
@@ -9,6 +10,10 @@ interface SytledMentionProps {
 }
 
 const StyledMention = styled(Mentions) <SytledMentionProps>`
+  padding: 0.063rem;
+  textarea {
+    border-radius: 0.875rem !important;
+  }
   ${(props) => (props.iscommentinput
     ? `&.form-control{
         overflow: unset !important;
@@ -41,6 +46,7 @@ export interface FormatMentionListProps {
 interface MentionProps {
   rows: number;
   placeholder?: string;
+  isReply?: boolean;
   mentionLists: MentionListProps[];
   setMessageContent: (val: string) => void;
   formatMentionList: FormatMentionListProps[];
@@ -52,11 +58,13 @@ interface MentionProps {
   isCommentInput?: string;
   onFocusHandler?: () => void;
   onBlurHandler?: () => void;
+  isMainPostCommentClick?: boolean;
 }
 
 function MessageTextarea({
   rows,
   placeholder,
+  isReply,
   mentionLists,
   handleSearch,
   setMessageContent,
@@ -68,8 +76,10 @@ function MessageTextarea({
   isCommentInput,
   onFocusHandler,
   onBlurHandler,
+  isMainPostCommentClick,
 }: MentionProps) {
   const { Option } = Mentions;
+  const textareaRef = useRef<MentionsRef>(null);
   const optionRef = createRef<HTMLInputElement>();
   const handleMessage = (e: string) => {
     setMessageContent(e);
@@ -99,8 +109,14 @@ function MessageTextarea({
     }
   };
 
+  useEffect(() => {
+    if (textareaRef.current && (isReply || isMainPostCommentClick)) {
+      textareaRef.current.focus();
+    }
+  }, [isReply, isMainPostCommentClick]);
   return (
     <StyledMention
+      ref={textareaRef}
       iscommentinput={isCommentInput!}
       id={id}
       className={isCommentInput ? className : ''}
@@ -110,8 +126,8 @@ function MessageTextarea({
       placeholder={placeholder}
       onSearch={handleSearch}
       onSelect={handleSelect}
-      onFocus={() => { onFocusHandler!(); }}
-      onBlur={() => onBlurHandler!()}
+      onFocus={() => (onFocusHandler ? onFocusHandler() : {})}
+      onBlur={() => (onBlurHandler ? onBlurHandler() : {})}
       value={defaultValue || ''}
       notFoundContent="Type to search for a username"
       aria-label="message"
@@ -134,11 +150,13 @@ function MessageTextarea({
 }
 MessageTextarea.defaultProps = {
   placeholder: 'Type something...',
+  isReply: false,
   defaultValue: '',
   id: '',
   className: '',
   isCommentInput: undefined,
   onFocusHandler: undefined,
   onBlurHandler: undefined,
+  isMainPostCommentClick: undefined,
 };
 export default MessageTextarea;

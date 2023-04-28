@@ -10,4 +10,9 @@ export const CustomVisibilityButton = styled(Button)`
   &:focus {
     background-color: rgb(31, 31, 31);
   }
+  margin-top: 0.7px;
+  right: 0;
+  z-index: 9 !important;
+  margin-right: 0.7px;
+  width: 4rem;
 `;

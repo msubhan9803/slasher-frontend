@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Cookies from 'js-cookie';
 import InfiniteScroll from 'react-infinite-scroller';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
@@ -15,7 +15,7 @@ import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
-import { RouteURL, UIRouteURL } from '../RouteURL';
+import { UIRouteURL } from '../RouteURL';
 
 function WatchedListMovies() {
   const [searchParams] = useSearchParams();
@@ -43,6 +43,9 @@ function WatchedListMovies() {
   );
   const [callNavigate, setCallNavigate] = useState<boolean>(false);
   const userId = Cookies.get('userId');
+  const prevSearchRef = useRef(search);
+  const prevKeyRef = useRef(key);
+  const prevSortValRef = useRef(sortVal);
 
   useEffect(() => {
     setSearch(searchParams.get('q') || '');
@@ -50,31 +53,24 @@ function WatchedListMovies() {
     setSortVal(searchParams.get('sort') || 'name');
   }, [searchParams]);
   useEffect(() => {
-    RouteURL(search, key, sortVal, navigate, searchParams);
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [search, key, sortVal]);
-  useEffect(() => {
     UIRouteURL(search, key, sortVal, navigate, callNavigate);
     setCallNavigate(false);
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [callNavigate]);
+  }, [search, key, sortVal, navigate, callNavigate]);
   useEffect(() => {
-    if (callNavigate
-      || (scrollPosition?.position === 0 && (search.length === 0 || key.length === 0))
-      || ((scrollPosition?.sortValue !== sortVal)
-        && ((scrollPosition?.searchValue === '' && scrollPosition?.keyValue === '')
-          || (scrollPosition?.searchValue !== search && scrollPosition?.keyValue !== key)
-          || (search.length === 0 || key.length === 0) || (search.length > 0 || key.length > 0))
-        && sortVal)
-      || (search === '' && key === '' && sortVal === 'name' && scrollPosition.position === 0)
-      || ((scrollPosition?.searchValue !== search || scrollPosition?.keyValue !== key) && sortVal === 'name')
+    if (
+      callNavigate
+      || search !== prevSearchRef.current
+      || key !== prevKeyRef.current
+      || sortVal !== prevSortValRef.current
     ) {
       setFilteredMovies([]);
       setLastMovieId('');
       setRequestAdditionalMovies(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, sortVal, key, callNavigate]);
+    prevSearchRef.current = search;
+    prevKeyRef.current = key;
+    prevSortValRef.current = sortVal;
+  }, [callNavigate, search, key, sortVal]);
 
   useEffect(() => {
     if (requestAdditionalMovies && !loadingMovies && userId) {
@@ -129,10 +125,9 @@ function WatchedListMovies() {
           );
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     requestAdditionalMovies, loadingMovies, search, sortVal, lastMovieId,
-    filteredMovies, scrollPosition, dispatch, userId, isKeyMoviesReady,
+    filteredMovies, scrollPosition, dispatch, userId, isKeyMoviesReady, key,
   ]);
 
   const applyFilter = (keyValue: string, sortValue?: string) => {
@@ -184,8 +179,8 @@ function WatchedListMovies() {
         setShowKeys={setShowKeys}
         setSearch={(query: string) => { setSearch(query); setCallNavigate(true); }}
         search={search}
-        sort={(e: React.ChangeEvent<HTMLSelectElement>) => {
-          setSortVal(e.target.value);
+        sort={(value: string) => {
+          setSortVal(value);
           setCallNavigate(true);
         }}
         selectedKey={key}
@@ -208,7 +203,7 @@ function WatchedListMovies() {
         <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
         <div className="m-md-2">
           <InfiniteScroll
-            threshold={2000}
+            threshold={3000}
             pageStart={0}
             initialLoad
             loadMore={() => { setRequestAdditionalMovies(true); }}

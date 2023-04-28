@@ -11,7 +11,9 @@ import {
 import InfiniteScroll from 'react-infinite-scroller';
 import { DateTime } from 'luxon';
 import Chat from '../../components/chat/Chat';
-import { getConversation, createOrFindConversation, attachFile } from '../../api/messages';
+import {
+  getConversation, createOrFindConversation, attachFile, markAllReadForSingleConversation,
+} from '../../api/messages';
 import NotFound from '../../components/NotFound';
 import useGlobalSocket from '../../hooks/useGlobalSocket';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
@@ -79,6 +81,11 @@ function Conversation() {
   }, [onChatMessageReceivedHandler, socket]);
 
   useEffect(() => {
+    if (conversationId === 'new') { return; }
+    markAllReadForSingleConversation(conversationId!);
+  }, [conversationId]);
+
+  useEffect(() => {
     if (conversationId && !location.pathname.includes('new')) {
       const isSameConversation = lastConversationIdRef.current === conversationId;
       if (isSameConversation) { return; }
@@ -136,7 +143,7 @@ function Conversation() {
             setMessageLoading(false);
           },
         );
-    } else {
+    } else if (message.length > 0) {
       socket?.emit('chatMessage', { message, toUserId: chatUser?._id }, (chatMessageResponse: any) => {
         if (chatMessageResponse.success) {
           setMessageList((prev: any) => [

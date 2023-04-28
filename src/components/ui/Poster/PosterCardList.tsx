@@ -30,16 +30,14 @@ function PosterCardList({ dataList, pubWiseAdUnitDivId, onSelect }: PosterCardPr
   const scrollPosition: any = useAppSelector((state) => state.scrollPosition);
   const location = useLocation();
   useEffect(() => {
-    setTimeout(() => {
-      if (dataList.length > 0
-        && scrollPosition.position > 0
-        && scrollPosition?.pathname === location.pathname) {
-        window.scrollTo({
-          top: scrollPosition?.position,
-          behavior: 'instant' as any,
-        });
-      }
-    }, 0);
+    if (dataList.length > 0
+      && scrollPosition.position > 0
+      && scrollPosition?.pathname === location.pathname) {
+      window.scrollTo({
+        top: scrollPosition?.position,
+        behavior: 'instant' as any,
+      });
+    }
   }, [dataList, scrollPosition, location.pathname]);
   return (
     <Row className="mt-0">
@@ -49,6 +47,7 @@ function PosterCardList({ dataList, pubWiseAdUnitDivId, onSelect }: PosterCardPr
           <React.Fragment key={listDetail._id}>
             <Col xs={4} md={3} lg={4} xl={3} key={listDetail._id}>
               <Link
+                className="m-1"
                 onClick={() => onSelect!(listDetail._id!)}
                 to={`/app/movies/${listDetail._id}`}
               >
@@ -61,7 +60,7 @@ function PosterCardList({ dataList, pubWiseAdUnitDivId, onSelect }: PosterCardPr
                 />
               </Link>
             </Col>
-            {pubWiseAdUnitDivId && show && <PubWiseAd className="text-center mb-3" id={pubWiseAdUnitDivId} autoSequencer />}
+            {pubWiseAdUnitDivId && show && <PubWiseAd className="mb-3" id={pubWiseAdUnitDivId} autoSequencer />}
           </React.Fragment>
         );
       })}

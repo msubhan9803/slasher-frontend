@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import RoundButton from '../../../components/ui/RoundButton';
 import SocialGroupsHeader from '../SocialGroupsHeader';
 import { homePost } from '../SocialGroupListItem';
-import {
-  LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT, XL_MEDIA_BREAKPOINT,
-} from '../../../constants';
+import useBootstrapBreakpointName from '../../../hooks/useBootstrapBreakpoint';
 
 const popoverOptions = ['Hide post', 'Report post'];
 const smallScreenGroupHomPopoverOptions = ['Follow post', 'Unsaved post', 'Hide post', 'Report post'];
@@ -17,36 +15,18 @@ function GroupsHome() {
   const [sortVal, setSortVal] = useState<string>('recent-activity');
   const [key, setKey] = useState<string>('');
   const [postsType, setPostsType] = useState('all-groups');
+  const bp = useBootstrapBreakpointName();
+
   const posts = homePost;
-  const [smallScreen, setSmallScreen] = useState(false);
-  const [mediumScreen, setMediumScreen] = useState(false);
-  const [largeScreen, setLargeScreen] = useState(false);
-  const [xLargeScreen, setXLargeScreen] = useState(false);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setSmallScreen(window.matchMedia(`(max-width: ${MD_MEDIA_BREAKPOINT})`).matches);
-      setMediumScreen(window.matchMedia(`(min-width: ${MD_MEDIA_BREAKPOINT}) and (max-width: ${LG_MEDIA_BREAKPOINT})`).matches);
-      setLargeScreen(window.matchMedia(`(min-width: ${LG_MEDIA_BREAKPOINT}) and (max-width: ${XL_MEDIA_BREAKPOINT})`).matches);
-      setXLargeScreen(window.matchMedia(`(min-width: ${XL_MEDIA_BREAKPOINT})`).matches);
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
 
   const handleResponsivePopoverOptions = () => {
-    if (smallScreen) {
+    if (bp === 'xs' || bp === 'sm') {
       return smallScreenGroupHomPopoverOptions;
-    } if (mediumScreen) {
+    } if (bp === 'md') {
       return popoverOptions;
-    } if (largeScreen) {
+    } if (bp === 'lg') {
       return smallScreenGroupHomPopoverOptions;
-    } if (xLargeScreen) {
+    } if (bp === 'xl' || bp === 'xxl') {
       return popoverOptions;
     }
     return popoverOptions;
@@ -68,7 +48,7 @@ function GroupsHome() {
         setShowKeys={setShowKeys}
         setSearch={setSearch}
         search={search}
-        sort={(e: React.ChangeEvent<HTMLSelectElement>) => setSortVal(e.target.value)}
+        sort={(value: string) => setSortVal(value)}
         selectedKey={key}
         applyFilter={applyFilter}
         postType="group-post"
@@ -93,7 +73,7 @@ function GroupsHome() {
             size="sm"
             variant="form"
             name="all-groups"
-            className={`${postsType === 'all-groups' ? 'text-black' : 'text-white'} py-2 px-4 mx-2`}
+            className={`${postsType === 'all-groups' ? 'text-black' : 'text-white'} px-4 mx-2`}
             active={postsType === 'all-groups'}
             onClick={(e: any) => setPostsType((e.target as HTMLButtonElement).name)}
           >
@@ -103,7 +83,7 @@ function GroupsHome() {
             variant="form"
             size="sm"
             name="your-groups"
-            className={`${postsType === 'your-groups' ? 'text-black' : 'text-white'} py-2 px-4`}
+            className={`${postsType === 'your-groups' ? 'text-black' : 'text-white'} px-4`}
             active={postsType === 'your-groups'}
             onClick={(e: any) => setPostsType((e.target as HTMLButtonElement).name)}
           >

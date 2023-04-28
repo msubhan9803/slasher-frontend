@@ -11,7 +11,7 @@ export async function getEvents(startDate: string, endDate: string, lastRetrieve
   if (lastRetrievedEventId) {
     queryParameter += `&after=${lastRetrievedEventId}`;
   }
-  return axios.get(`${apiUrl}/api/v1/events${queryParameter}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/events/by-date-range${queryParameter}`, { headers });
 }
 
 export async function getEventsDateCount(startDate: string, endDate: string) {

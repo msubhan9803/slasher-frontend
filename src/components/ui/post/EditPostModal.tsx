@@ -87,6 +87,8 @@ function EditPostModal({
           setFormatMention={setFormatMention}
           deleteImageIds={deleteImageIds}
           setDeleteImageIds={setDeleteImageIds}
+          placeHolder="Create a post"
+          showSaveButton
         />
       </Modal.Body>
     </ModalContainer>

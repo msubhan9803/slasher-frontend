@@ -17,6 +17,8 @@ import { StyledBorder } from '../../../components/ui/StyledBorder';
 import { LinearIcon } from '../../../components/ui/FavoriteLinearIcon';
 import ShareLinksModal from '../../../components/ui/ShareLinksModal';
 import { enableDevFeatures } from '../../../utils/configEnvironment';
+import { customlinkifyOpts } from '../../../utils/linkify-utils';
+import { urlForEvent } from '../../../utils/url-utils';
 
 const EventBanner = styled.div`
   aspect-ratio : 1.78;
@@ -144,15 +146,23 @@ function EventDetails() {
             dangerouslySetInnerHTML={
               {
                 __html: newLineToBr(
-                  linkifyHtml(escapeHtmlSpecialCharacters(eventDetails?.event_info || '')),
+                  linkifyHtml(escapeHtmlSpecialCharacters(eventDetails?.event_info || ''), customlinkifyOpts),
                 ),
               }
             }
           />
         </div>
       </div>
-      {showShareLinks && <ShareLinksModal show={showShareLinks} setShow={setShowShareLinks} />}
-      <PubWiseAd className="text-center my-3" id={EVENT_DETAIL_DIV_ID} autoSequencer />
+      {showShareLinks
+        && (
+        <ShareLinksModal
+          copyLinkUrl={urlForEvent(id!)}
+          show={showShareLinks}
+          setShow={setShowShareLinks}
+        />
+        )}
+
+      <PubWiseAd className="my-3" id={EVENT_DETAIL_DIV_ID} autoSequencer />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Route, Navigate, RouterProvider, createBrowserRouter, createRoutesFromElements,
+  Route, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
 import VerificationEmailNotReceived from './routes/verification-email-not-received/VerificationEmailNotReceived';
 import ForgotPassword from './routes/forgot-password/ForgotPassword';
@@ -34,12 +34,11 @@ import Music from './routes/music/Music';
 import SocialGroups from './routes/social-group/SocialGroups';
 import { enableDevFeatures } from './utils/configEnvironment';
 import ActivateAccount from './routes/activate-account/ActivateAccount';
-import PublicHomePage from './routes/public-home-page/PublicHomePage';
+import PasswordResetSuccess from './routes/password-reset-success/PasswordResetSuccess';
+import Index from './routes/Index';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
-
-const DEFAULT_INDEX_REDIRECT = 'app/home';
 
 interface TopLevelRoute {
   component: any;
@@ -52,8 +51,8 @@ interface TopLevelRoute {
 }
 
 const routes: Record<string, TopLevelRoute> = {
-  'app/home': { wrapper: AuthenticatedPageWrapper, component: Home },
   ':userName/*': { wrapper: AuthenticatedPageWrapper, component: Profile },
+  'app/home': { wrapper: AuthenticatedPageWrapper, component: Home },
   'app/search/*': { wrapper: AuthenticatedPageWrapper, component: Search },
   'app/messages': { wrapper: AuthenticatedPageWrapper, component: Messages },
   'app/messages/conversation/:conversationId': { wrapper: AuthenticatedPageWrapper, component: Conversation },
@@ -65,13 +64,14 @@ const routes: Record<string, TopLevelRoute> = {
   'app/notifications': { wrapper: AuthenticatedPageWrapper, component: Notifications },
   'app/account/*': { wrapper: AuthenticatedPageWrapper, component: Account },
   'app/podcasts/*': { wrapper: AuthenticatedPageWrapper, component: Podcasts },
-  // 'shopping/*': { wrapper: AuthenticatedPageWrapper, component: Shopping },
-  // 'places/*': { wrapper: AuthenticatedPageWrapper, component: Places },
+  // 'app/shopping/*': { wrapper: AuthenticatedPageWrapper, component: Shopping },
+  // 'app/places/*': { wrapper: AuthenticatedPageWrapper, component: Places },
   'app/books/*': { wrapper: AuthenticatedPageWrapper, component: Books },
   'app/music/*': { wrapper: AuthenticatedPageWrapper, component: Music },
   'app/art/*': { wrapper: AuthenticatedPageWrapper, component: Artists },
   'app/forgot-password': { wrapper: UnauthenticatedPageWrapper, component: ForgotPassword },
   'app/reset-password': { wrapper: UnauthenticatedPageWrapper, component: ResetPassword },
+  'app/password-reset-success': { wrapper: UnauthenticatedPageWrapper, component: PasswordResetSuccess },
   'app/verification-email-not-received': {
     wrapper: UnauthenticatedPageWrapper,
     component: VerificationEmailNotReceived,
@@ -98,7 +98,7 @@ function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route>
-        <Route path="/" element={<Navigate to={DEFAULT_INDEX_REDIRECT} replace />} />
+        <Route path="/" element={<Index />} />
         {
           Object.entries(routes).map(
             ([routePath, opts]) => (
@@ -114,7 +114,6 @@ function App() {
             ),
           )
         }
-        <Route path="app/public-home-page" element={<PublicHomePage />} />
         <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />
       </Route>,
     ),

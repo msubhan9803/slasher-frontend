@@ -11,6 +11,7 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/la
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import CreatePostComponent from '../../../components/ui/CreatePostComponent';
+import { PostType } from '../../../types';
 
 export interface MentionProps {
   id: string;
@@ -32,13 +33,12 @@ function CreatePost() {
   const [searchParams] = useSearchParams();
 
   const navigate = useNavigate();
+  const location = useLocation();
   const paramsType = searchParams.get('type');
   const paramsGroupId = searchParams.get('groupId');
   const [titleContent, setTitleContent] = useState<string>('');
   const [containSpoiler, setContainSpoiler] = useState<boolean>(false);
   const [selectedPostType, setSelectedPostType] = useState<string>('');
-  const location = useLocation();
-
   const mentionReplacementMatchFunc = (match: string) => {
     if (match) {
       const finalString: any = formatMention.find(
@@ -66,13 +66,20 @@ function CreatePost() {
       };
       return groupPostData;
     }
-    return createPost(postContentWithMentionReplacements, imageArray)
+    const createPostData = {
+      message: postContentWithMentionReplacements,
+      postType: PostType.User,
+    };
+    return createPost(createPostData, imageArray)
       .then(() => {
         setErrorMessage([]);
         navigate(location.state);
       })
       .catch((error) => {
-        setErrorMessage(error.response.data.message);
+        const msg = error.response.status === 0 && !error.response.data
+          ? 'Combined size of files is too large.'
+          : error.response.data.message;
+        setErrorMessage(msg);
       });
   };
   return (
@@ -103,6 +110,7 @@ function CreatePost() {
             setContainSpoiler={setContainSpoiler}
             selectedPostType={selectedPostType}
             setSelectedPostType={setSelectedPostType}
+            placeHolder="Create a post"
           />
         </Form>
       </ContentPageWrapper>

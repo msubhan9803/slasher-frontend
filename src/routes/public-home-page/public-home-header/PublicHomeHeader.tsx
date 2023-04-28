@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Navbar } from 'react-bootstrap';
+import {
+  Col, Navbar, Row,
+} from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { StyledNav } from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageHeader';
 import HeaderLogo from '../../../components/ui/HeaderLogo';
-import { LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT } from '../../../constants';
+import { LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT, XL_MEDIA_BREAKPOINT } from '../../../constants';
 import slasherLogo from '../../../images/slasher-logo-medium.png';
+import { enableDevFeatures } from '../../../utils/configEnvironment';
 
 interface HeaderStyleProps {
   isOpen: boolean;
@@ -17,7 +20,7 @@ const NavbarToggle = styled(Navbar.Toggle)`
   }
 `;
 
-const StyledNavLink = styled(Link)`
+const StyledNavLink = styled.a`
   @media (min-width: ${LG_MEDIA_BREAKPOINT}){
     text-transform: uppercase;
     font-weight: bold;
@@ -44,9 +47,26 @@ const StyledHeader = styled.header<HeaderStyleProps>`
   transition: all 0.5s;
   &.header-scrolled {
     background: var(--bs-secondary) !important;
-    height: 70px;
+    height: 82px;
+  }
+  .login-btn{
+    top: 48px;
+    right: -20px;
+  }
+  @media (max-width: ${XL_MEDIA_BREAKPOINT}){
+    .login-btn{
+      right: -30px;
+    }
+  }
+  @media only screen and (max-width: ${LG_MEDIA_BREAKPOINT}){
+    height: ${({ isOpen }) => (isOpen ? 'auto' : '100px')} !important;
+    &.header-scrolled {
+      background: var(--bs-secondary) !important;
+      height: ${({ isOpen }) => (isOpen ? 'auto' : '70px')} !important;
+    }
   }
   @media (max-width: ${MD_MEDIA_BREAKPOINT}){
+    background:  ${({ isOpen }) => (isOpen ? 'var(--bs-secondary)' : '')} !important;
     height: ${({ isOpen }) => (isOpen ? 'auto' : '100px')} !important;
     &.header-scrolled {
       background: var(--bs-secondary) !important;
@@ -54,33 +74,34 @@ const StyledHeader = styled.header<HeaderStyleProps>`
     }
   }
 `;
+const navList = [
+  { value: 'home', label: 'Home' },
+  { value: 'about', label: 'About' },
+  { value: 'shop', label: 'Shop' },
+  { value: 'advertise', label: 'Advertise' },
+  { value: 'help', label: 'Help' },
+  { value: 'contact', label: 'Contact Us' },
+];
 function PublicHomeHeader() {
-  const navList = ['Home', 'About', 'Shop', 'Advertise', 'Help', 'Contact Us'];
-  const midIndex = Math.ceil(navList.length / 2);
   const [isOpen, setIsOpen] = useState(false);
-  const beforeBrand = navList.slice(0, midIndex);
-  const afterBrand = navList.slice(midIndex);
 
   useEffect(() => {
     const selectHeader = document.querySelector('#header');
-    const selectBeforeNavLink = document.querySelector('.before-link');
-    const selectAfterNavLink = document.querySelector('.after-link');
+    const selectLoginButton = document.querySelector('.login-btn');
     const selectLogo1 = document.querySelector('.logo1');
     const selectLogo2 = document.querySelector('.logo2');
     const selectToggle = document.querySelector('.toggle');
 
     const headerScrolled = () => {
-      if (window.pageYOffset > 100) {
+      if (window.pageYOffset > 120) {
         selectHeader?.classList.add('header-scrolled');
-        selectBeforeNavLink?.classList.add('mt-md-4');
-        selectAfterNavLink?.classList.add('mt-md-4');
+        selectLoginButton?.classList.add('mt-3');
         selectLogo1?.classList.add('mt-4');
         selectLogo2?.classList.add('mt-4');
         selectToggle?.classList.add('mt-4');
       } else {
         selectHeader?.classList.remove('header-scrolled');
-        selectBeforeNavLink?.classList.remove('mt-md-4');
-        selectAfterNavLink?.classList.remove('mt-md-4');
+        selectLoginButton?.classList.remove('mt-3');
         selectLogo1?.classList.remove('mt-4');
         selectLogo2?.classList.remove('mt-4');
         selectToggle?.classList.remove('mt-4');
@@ -100,49 +121,64 @@ function PublicHomeHeader() {
 
   return (
     <StyledHeader isOpen={isOpen} id="header" className="fixed-top d-flex align-items-center bg-transparent">
-      <Container>
+      <div className="container-md position-relative">
         <Navbar
           collapseOnSelect
           expand="lg"
           bg="transparent"
           variant="dark"
-          className="pt-0 px-lg-5 mb-3"
+          className="mb-3 d-lg-flex justify-content-lg-center"
         >
           <NavbarToggle onClick={() => setIsOpen(!isOpen)} aria-controls="responsive-navbar-nav" className="toggle border-0" />
-          <Navbar.Brand as={Link} to="/" className="logo1 mx-auto pe-5 d-lg-none py-0">
-            <HeaderLogo logo={slasherLogo} height="6.5rem" />
+          <Navbar.Brand as={Link} to="/" style={{ marginTop: isOpen ? '-10px' : '0' }} className={`mx-auto pe-4 ${!isOpen ? 'logo2' : ''} d-lg-none py-0`}>
+            {/* This header is only shown on mobile screens */}
+            <HeaderLogo logo={slasherLogo} height="8rem" />
           </Navbar.Brand>
           <StyledNavbarCollapse id="responsive-navbar-nav" className="bg-black mt-2 mt-lg-0">
-            <StyledNav className="w-100 justify-content-between px-3 mx-lg-5 small-screen">
-              <div className="before-link d-lg-flex align-items-lg-center">
-                {beforeBrand.map((nav) => (
-                  <StyledNavLink
-                    key={nav}
-                    to="/app/public-home-page"
-                    className="nav-link py-3 px-5 p-lg-3 mx-xl-2 text-lg-center fs-3 text-decoration-none text-white"
+            <StyledNav className="justify-content-between px-3 small-screen w-100">
+              <Row className="w-100 align-items-center">
+                <Col lg={2}>
+                  <Navbar.Brand as={Link} to="/" className="logo1 d-none d-lg-flex py-0 justify-content-center">
+                    {/* This header is only shown on desktop screen (not on tablet and mobile)  */}
+                    <HeaderLogo logo={slasherLogo} height="6.25rem" />
+                  </Navbar.Brand>
+                </Col>
+                <Col lg={8}>
+                  <div className="d-lg-flex justify-content-between">
+                    {navList.map((nav) => (
+                      <StyledNavLink
+                        key={nav.value}
+                        href={nav.value === 'home' ? '/' : `https://pages.slasher.tv/${nav.value}`}
+                        className="text-start w-100 rounded-0 nav-link py-3 px-5 p-lg-2 text-lg-center fs-3 text-decoration-none text-white"
+                      >
+                        {nav.label}
+                      </StyledNavLink>
+                    ))}
+                    <StyledNavLink
+                      href="/app/home"
+                      className={
+                        `${enableDevFeatures ? '' : 'd-none'} text-start w-100 rounded-0 nav-link d-lg-none py-3 py-lg-0 px-5 px-lg-2 mx-xl-2 text-lg-center fs-3 text-decoration-none text-white`
+                      }
+                    >
+                      Sign In
+                    </StyledNavLink>
+                  </div>
+                </Col>
+                <Col lg={2} className="d-none d-lg-block d-flex justify-content-between">
+                  <Link
+                    style={{ width: 100 }}
+                    to="/app/sign-in"
+                    className={`${enableDevFeatures ? '' : 'd-none'} btn btn-primary d-flex justify-content-center mx-auto rounded-pill`}
                   >
-                    {nav}
-                  </StyledNavLink>
-                ))}
-              </div>
-              <Navbar.Brand as={Link} to="/" className="logo2 d-none d-lg-block mx-lg-auto py-0">
-                <HeaderLogo logo={slasherLogo} height="8rem" />
-              </Navbar.Brand>
-              <div className="after-link d-lg-flex align-items-lg-center">
-                {afterBrand.map((nav) => (
-                  <StyledNavLink
-                    key={nav}
-                    to="/app/public-home-page"
-                    className="nav-link py-3 py-lg-0 px-5 px-lg-2 mx-xl-3 text-lg-center fs-3 text-decoration-none text-white"
-                  >
-                    {nav}
-                  </StyledNavLink>
-                ))}
-              </div>
+                    SIGN IN
+
+                  </Link>
+                </Col>
+              </Row>
             </StyledNav>
           </StyledNavbarCollapse>
         </Navbar>
-      </Container>
+      </div>
     </StyledHeader>
   );
 }

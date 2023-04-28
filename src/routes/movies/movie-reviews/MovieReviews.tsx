@@ -451,6 +451,7 @@ function MovieReviews({
             onLikeClick={onLikeClick}
             onSelect={persistScrollPosition}
             onSpoilerClick={handleSpoiler}
+            isSinglePost={false}
           />
         </div>
       </InfiniteScroll>

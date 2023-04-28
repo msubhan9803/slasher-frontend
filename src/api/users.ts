@@ -5,6 +5,9 @@ import { apiUrl } from '../constants';
 import { RegisterUser } from '../types';
 
 export async function signIn(emailOrUsername: string, password: string) {
+  // Note from Sahil: Added this log for short-term-debugging only!
+  // eslint-disable-next-line no-alert
+  alert(`apiUrl?${apiUrl}`);
   return axios.post(
     `${apiUrl}/api/v1/users/sign-in`,
     {

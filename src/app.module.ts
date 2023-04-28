@@ -141,6 +141,8 @@ export class AppModule {
         '/api/v1',
         '/api/v1/remote-constants',
         '/api/v1/ip-check',
+        '/api/v1/sleep-test',
+        '/api/v1/cpu-test',
         '/health-check',
         '/placeholders/(.*)', // the placeholders endpoint is only used in development and test environments
         '/api/v1/local-storage/(.*)', // the local-storage endpoint is only used in development and test environments

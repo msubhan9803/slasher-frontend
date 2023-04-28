@@ -3,6 +3,7 @@ import { Controller, Get } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { relativeToFullImagePath } from '../utils/image-utils';
 import { IpOrForwardedIp } from './decorators/ip-or-forwarded-ip.decorator';
+import { sleep } from '../utils/timer-utils';
 
 @Controller()
 export class AppController {
@@ -23,14 +24,7 @@ export class AppController {
   // This route handler only exists to provide a nice-looking response at the /api/v1 url
   @Get('api/v1')
   apiV1() {
-    // Temporarily do an expensive computation (for testing)
-    this.fibonacci(41);
     return this.getVersionResponse();
-  }
-
-  fibonacci(num) {
-    if (num <= 1) { return num; }
-    return this.fibonacci(num - 1) + this.fibonacci(num - 2);
   }
 
   // Returns various server-side values that should be treated as constants on the client side
@@ -49,6 +43,18 @@ export class AppController {
     };
   }
 
+  @Get('api/v1/sleep-test')
+  async sleepTest() {
+    await sleep(70_000);
+    return this.getVersionResponse();
+  }
+
+  @Get('api/v1/cpu-test')
+  async cpuTest() {
+    this.fibonacci(41); // Temporarily do an expensive computation (for testing)
+    return this.getVersionResponse();
+  }
+
   // This route handler only exists to provide a 200 status and "ok" message as a health check endpoint
   @Get('health-check')
   healthCheck(): object {
@@ -61,5 +67,10 @@ export class AppController {
     return {
       version: process.env.npm_package_version,
     };
+  }
+
+  fibonacci(num) {
+    if (num <= 1) { return num; }
+    return this.fibonacci(num - 1) + this.fibonacci(num - 2);
   }
 }

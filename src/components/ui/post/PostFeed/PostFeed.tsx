@@ -126,12 +126,18 @@ const StyledContentContainer = styled.div<StyledProps>`
     display: inline-block;
   }
 `;
-
+type PostContentPropsType = {
+  post: any, postType: string | undefined, generateReadMoreLink: any,
+  escapeHtml: boolean | undefined, onPostContentClick: (post: any) => void,
+  handlePostContentKeyDown: (e: React.KeyboardEvent, post: any) => void,
+  loginUserId: string | undefined, spoilerId: any,
+  onSpoilerClick: ((value: string) => void) | undefined, isSinglePost: boolean | undefined,
+};
 function PostContent({
   post, postType, generateReadMoreLink,
   escapeHtml, onPostContentClick, handlePostContentKeyDown, loginUserId,
   spoilerId, onSpoilerClick, isSinglePost,
-}: any) {
+}: PostContentPropsType) {
   const messageRef = useRef<any>(null);
   const visible = useOnScreen(messageRef);
   const [showReadMoreLink, setShowReadMoreLink] = useState(false);
@@ -438,17 +444,17 @@ function PostFeed({
               <Card.Body className="px-0 pt-3">
                 {postType === 'group-post' && renderGroupPostContent(post)}
                 {post?.rssFeedTitle && <h1 className="h2">{post.rssFeedTitle}</h1>}
-                <PostContent {...({
-                  post,
-                  postType,
-                  generateReadMoreLink,
-                  escapeHtml,
-                  onPostContentClick,
-                  handlePostContentKeyDown,
-                  loginUserId,
-                  spoilerId,
-                  onSpoilerClick,
-                })}
+                <PostContent
+                  post={post}
+                  postType={postType}
+                  generateReadMoreLink={generateReadMoreLink}
+                  escapeHtml={escapeHtml}
+                  onPostContentClick={onPostContentClick}
+                  handlePostContentKeyDown={handlePostContentKeyDown}
+                  loginUserId={loginUserId}
+                  spoilerId={spoilerId}
+                  onSpoilerClick={onSpoilerClick}
+                  isSinglePost={isSinglePost}
                 />
                 {(post?.images?.length > 0 || findFirstYouTubeLinkVideoId(post?.message)) && (
                   <CustomSwiper

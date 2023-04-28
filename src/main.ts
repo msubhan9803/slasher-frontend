@@ -28,7 +28,7 @@ async function bootstrap() {
 
   // Applying the timeout extension below to see if it helps with ALB issues
   // See: https://github.com/nodejs/node/issues/20256#issuecomment-900197258
-  app.getHttpAdapter().getHttpServer().keepAliveTimeout = 75 * 1000;
+  // app.getHttpAdapter().getHttpServer().keepAliveTimeout = 75 * 1000;
 
   const config = app.get(ConfigService);
   const port = config.get<number>('PORT', 4000);

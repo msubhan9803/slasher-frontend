@@ -98,6 +98,8 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         moviesFactory.build(
           {
             status: MovieActiveStatus.Active,
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+            logo: 'https://picsum.photos/id/237/200/300',
           },
         ),
       );
@@ -292,7 +294,12 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         sharedList: 0,
         likedByUser: false,
         spoilers: false,
-        movieId: movie._id.toString(),
+        movieId: {
+          _id: movie._id.toString(),
+          name: movie.name,
+          logo: movie.logo,
+          releaseDate: '2022-10-17T00:00:00.000Z',
+        },
         postType: 3,
         message: 'Message 1',
         reviewData: { rating: 5, goreFactorRating: 4, worthWatching: 1 },

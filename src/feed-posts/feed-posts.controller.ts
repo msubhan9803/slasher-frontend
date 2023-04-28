@@ -191,7 +191,7 @@ export class FeedPostsController {
     if (postType === PostType.MovieReview) {
       const movieUserStatusData = await this.movieUserStatusService.findMovieUserStatus(
         (feedPost.userId as any)._id.toString(),
-        feedPost.movieId.toString(),
+        (feedPost.movieId as any)._id.toString(),
       );
       if (movieUserStatusData) {
         reviewData = {
@@ -377,7 +377,7 @@ export class FeedPostsController {
         feedPost,
         ['_id', 'message', 'createdAt', 'lastUpdateAt',
           'rssfeedProviderId', 'images', 'userId', 'commentCount',
-          'likeCount', 'likedByUser'],
+          'likeCount', 'likedByUser', 'movieId'],
       ),
     );
   }

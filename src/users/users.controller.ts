@@ -67,6 +67,7 @@ import { MoviesService } from '../movies/providers/movies.service';
 import { FindAllMoviesDto } from '../movies/dto/find-all-movies.dto';
 import { relativeToFullImagePath } from '../utils/image-utils';
 import { IpOrForwardedIp } from '../app/decorators/ip-or-forwarded-ip.decorator';
+import { BetaTesterService } from '../beta-tester/providers/beta-tester.service';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -87,6 +88,7 @@ export class UsersController {
     private readonly notificationsService: NotificationsService,
     private readonly disallowedUsernameService: DisallowedUsernameService,
     private readonly moviesService: MoviesService,
+    private readonly betaTesterService: BetaTesterService,
     private configService: ConfigService,
   ) { }
 
@@ -103,9 +105,13 @@ export class UsersController {
       );
     }
 
-    // This is temporary, but required during the beta release phase
     if (!user.betaTester) {
-      throw new HttpException('Only beta testers are able to sign in at this time, sorry!', HttpStatus.UNAUTHORIZED);
+      const betaTester = await this.betaTesterService.findBetaTesterEmail(user.email);
+      if (betaTester) {
+        await this.usersService.findBetaTesterAndUpdate(user.email);
+      } else {
+        throw new HttpException('Only beta testers are able to sign in at this time, sorry!', HttpStatus.UNAUTHORIZED);
+      }
     }
 
     if (user.userSuspended) {
@@ -266,6 +272,14 @@ export class UsersController {
       throw new HttpException(
         'Username is not available',
         HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
+
+    const betaTester = await this.betaTesterService.findBetaTesterEmail(userRegisterDto.email);
+    if (!betaTester) {
+      throw new HttpException(
+        'Only beta testers are able to register at this time, sorry!',
+        HttpStatus.BAD_REQUEST,
       );
     }
 

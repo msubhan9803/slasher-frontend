@@ -16,6 +16,8 @@ import { UserSettingsService } from '../../../../../src/settings/providers/user-
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { BetaTesterService } from '../../../../../src/beta-tester/providers/beta-tester.service';
+import { betaTesterFactory } from '../../../../factories/beta-tester.factory';
 
 describe('Users / Register (e2e)', () => {
   let app: INestApplication;
@@ -24,6 +26,7 @@ describe('Users / Register (e2e)', () => {
   let mailService: MailService;
   let disallowedUsernameService: DisallowedUsernameService;
   let userSettingsService: UserSettingsService;
+  let betaTesterService: BetaTesterService;
 
   const sampleUserRegisterObject = {
     firstName: 'user',
@@ -46,6 +49,7 @@ describe('Users / Register (e2e)', () => {
     mailService = moduleRef.get<MailService>(MailService);
     disallowedUsernameService = moduleRef.get<DisallowedUsernameService>(DisallowedUsernameService);
     userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
+    betaTesterService = moduleRef.get<BetaTesterService>(BetaTesterService);
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -60,6 +64,16 @@ describe('Users / Register (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    await betaTesterService.create(
+      betaTesterFactory.build(
+        { name: 'TestUser', email: 'testuser@gmail.com' },
+      ),
+    );
+    await betaTesterService.create(
+      betaTesterFactory.build(
+        { name: 'TestUser', email: 'differenttestuser@gmail.com' },
+      ),
+    );
     // Reset sequences so we start fresh before each test
     rewindAllFactories();
   });
@@ -395,6 +409,21 @@ describe('Users / Register (e2e)', () => {
         expect(response.body.message).toContain(
           'Username is not available',
         );
+      });
+    });
+
+    describe('A user who is not a beta tester', () => {
+      it('receives an error message when attempting to register', async () => {
+        jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
+        postBody.email = 'slasherusertest@gmail.com';
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/users/register')
+          .send(postBody)
+          .expect(HttpStatus.BAD_REQUEST);
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'Only beta testers are able to register at this time, sorry!',
+        });
       });
     });
   });

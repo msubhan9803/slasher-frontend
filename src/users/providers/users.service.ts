@@ -212,4 +212,9 @@ export class UsersService {
       .findOneAndUpdate({ _id: id }, { $set: { newConversationIds: [] } }, { new: true })
       .exec();
   }
+
+  async findBetaTesterAndUpdate(email: string): Promise<UserDocument> {
+    return this.userModel.findOneAndUpdate({ email }, { $set: { betaTester: true } }, { new: true })
+    .exec();
+  }
 }

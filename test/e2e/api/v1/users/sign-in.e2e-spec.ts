@@ -14,6 +14,8 @@ import { UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { BetaTesterService } from '../../../../../src/beta-tester/providers/beta-tester.service';
+import { betaTesterFactory } from '../../../../factories/beta-tester.factory';
 
 describe('Users sign-in (e2e)', () => {
   let app: INestApplication;
@@ -21,6 +23,8 @@ describe('Users sign-in (e2e)', () => {
   let usersService: UsersService;
   let activeUser: UserDocument;
   let activeUserUnhashedPassword: string;
+  let betaTesterService: BetaTesterService;
+
   const simpleJwtRegex = /^[\w-]*\.[\w-]*\.[\w-]*$/;
   const deviceAndAppVersionPlaceholderSignInFields = {
     device_id: 'sample-device-id',
@@ -37,6 +41,7 @@ describe('Users sign-in (e2e)', () => {
     connection = moduleRef.get<Connection>(getConnectionToken());
 
     usersService = moduleRef.get<UsersService>(UsersService);
+    betaTesterService = moduleRef.get<BetaTesterService>(BetaTesterService);
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
     await app.init();
@@ -131,6 +136,40 @@ describe('Users sign-in (e2e)', () => {
             statusCode: 401,
             message: 'Only beta testers are able to sign in at this time, sorry!',
           });
+      });
+
+      it('when email is exist on betatester', async () => {
+        const nonBetaUserUnhashedPassword = 'TestPassword';
+        const nonBetaUser = await usersService.create(
+          userFactory.build(
+            { betaTester: false },
+            { transient: { unhashedPassword: nonBetaUserUnhashedPassword } },
+          ),
+        );
+
+        await betaTesterService.create(
+          betaTesterFactory.build(
+            { name: 'TestUser', email: nonBetaUser.email },
+          ),
+        );
+        const postBody: UserSignInDto = {
+          emailOrUsername: nonBetaUser.email,
+          password: nonBetaUserUnhashedPassword,
+          ...deviceAndAppVersionPlaceholderSignInFields,
+        };
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/users/sign-in')
+          .send(postBody)
+          .expect(HttpStatus.CREATED);
+        expect(response.body).toEqual({
+          id: nonBetaUser.id,
+          userName: 'Username2',
+          email: 'User2@Example.com',
+          firstName: 'First name 2',
+          token: expect.stringMatching(simpleJwtRegex),
+        });
+        const user = await usersService.findById(response.body.id);
+        expect(user.betaTester).toBe(true);
       });
     });
 

@@ -30,6 +30,8 @@ interface PostFooterProps {
     modalLikeCountValue: number,
   ) => void;
   movieId?: string;
+  detailsPage?: boolean;
+  onCommentClick?: () => void
 }
 const StyleDot = styled(FontAwesomeIcon)`
   width: 0.267rem;
@@ -42,7 +44,7 @@ const LinearIcon = styled.span<LinearIconProps>`
 `;
 function PostFooter({
   likeIcon, postId, userName, rssfeedProviderId, onLikeClick, onSelect,
-  likeCount, commentCount, handleLikeModal, postType, movieId,
+  likeCount, commentCount, handleLikeModal, postType, movieId, detailsPage, onCommentClick,
 }: PostFooterProps) {
   const { pathname } = useLocation();
   return (
@@ -82,22 +84,33 @@ function PostFooter({
           /* eslint-disable no-nested-ternary */
           className="text-center"
         >
-          <Link
-            onClick={() => (postType !== 'review' && onSelect!(rssfeedProviderId || postId))}
-            to={
-              (postType === 'review' && movieId && `/app/movies/${movieId}/reviews/${postId}`)
-              || (rssfeedProviderId
-                ? `/app/news/partner/${rssfeedProviderId}/posts/${postId}`
-                : `/${userName}/posts/${postId}`)
-            }
-            state={pathname}
-            className="d-inline-block text-decoration-none rounded"
-          >
-            <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-            <span className="fs-3 d-none d-md-inline d-lg-none d-xl-inline me-2">Comment</span>
-            <StyleDot icon={solid('circle')} size="xs" className="py-1 me-2" />
-            <span className="fs-3">{commentCount}</span>
-          </Link>
+          {!detailsPage
+            ? (
+              <Link
+                onClick={() => (postType !== 'review' && onSelect!(rssfeedProviderId || postId))}
+                to={
+                  (postType === 'review' && movieId && `/app/movies/${movieId}/reviews/${postId}`)
+                  || (rssfeedProviderId
+                    ? `/app/news/partner/${rssfeedProviderId}/posts/${postId}`
+                    : `/${userName}/posts/${postId}`)
+                }
+                state={pathname}
+                className="d-inline-block text-decoration-none rounded"
+              >
+                <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
+                <span className="fs-3 d-none d-md-inline d-lg-none d-xl-inline me-2">Comment</span>
+                <StyleDot icon={solid('circle')} size="xs" className="py-1 me-2" />
+                <span className="fs-3">{commentCount}</span>
+              </Link>
+            )
+            : (
+              <Button variant="link" onClick={onCommentClick}>
+                <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
+                <span className="fs-3 d-none d-md-inline d-lg-none d-xl-inline me-2">Comment</span>
+                <StyleDot icon={solid('circle')} size="xs" className="py-1 me-2" />
+                <span className="fs-3">{commentCount}</span>
+              </Button>
+            )}
         </Col>
         <Col xs={4} className={'text-end \'d-inline\'}'}>
           <ShareLinkButton text textClass={postType === 'group-post' ? 'd-none d-md-inline d-lg-none d-xl-inline' : 'd-none d-md-inline d-lg-none d-xl-inline'} copyLinkUrl={rssfeedProviderId ? urlForNewsPost(rssfeedProviderId!, postId!) : urlForUserPost(userName!, postId!)} />
@@ -121,5 +134,7 @@ PostFooter.defaultProps = {
   handleLikeModal: () => { },
   postType: '',
   movieId: '',
+  detailsPage: false,
+  onCommentClick: () => { },
 };
 export default PostFooter;

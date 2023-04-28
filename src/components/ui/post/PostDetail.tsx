@@ -730,7 +730,7 @@ function PostDetail({ user, postType }: Props) {
             <div>
               <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
               <PostFeed
-                detailPage
+                isSinglePost
                 postFeedData={postData}
                 popoverOptions={loginUserPopoverOptions}
                 onPopoverClick={handlePopoverOption}
@@ -755,7 +755,6 @@ function PostDetail({ user, postType }: Props) {
                 addUpdateComment={addUpdateComment}
                 updateState={updateState}
                 setUpdateState={setUpdateState}
-                isSinglePagePost
                 newsPostPopoverOptions={postType === 'news' ? newsPostPopoverOptions : undefined}
                 escapeHtml={postType === 'news' ? false : undefined}
                 handleSearch={handleSearch}
@@ -799,7 +798,7 @@ function PostDetail({ user, postType }: Props) {
           <div>
             <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
             <PostFeed
-              detailPage
+              isSinglePost
               postFeedData={postData}
               popoverOptions={loginUserPopoverOptions}
               onPopoverClick={handlePopoverOption}
@@ -825,7 +824,6 @@ function PostDetail({ user, postType }: Props) {
               addUpdateComment={addUpdateComment}
               updateState={updateState}
               setUpdateState={setUpdateState}
-              isSinglePagePost
               newsPostPopoverOptions={postType === 'news' ? newsPostPopoverOptions : undefined}
               escapeHtml={postType === 'news' ? false : undefined}
               handleSearch={handleSearch}

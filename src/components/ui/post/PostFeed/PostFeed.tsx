@@ -53,7 +53,7 @@ interface Props {
   commentsData?: any[];
   isCommentSection?: boolean;
   onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void;
-  detailPage?: boolean;
+  isSinglePost?: boolean;
   removeComment?: () => void;
   setCommentID?: (value: string) => void;
   setCommentReplyID?: (value: string) => void;
@@ -72,7 +72,6 @@ interface Props {
   escapeHtml?: boolean;
   loadNewerComment?: () => void;
   previousCommentsAvailable?: boolean;
-  isSinglePagePost?: boolean;
   addUpdateReply?: (value: ReplyValue) => void;
   addUpdateComment?: (addUpdateComment: CommentValue) => void;
   updateState?: boolean;
@@ -123,18 +122,19 @@ const StyledContentContainer = styled.div<StyledProps>`
   }
 `;
 function PostFeed({
-  postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
+  postFeedData, popoverOptions, isCommentSection, onPopoverClick, isSinglePost,
   commentsData, removeComment, setCommentID, setCommentReplyID, commentID,
   commentReplyID, otherUserPopoverOptions, postCreaterPopoverOptions,
   loginUserMoviePopoverOptions, setIsEdit, setRequestAdditionalPosts,
   noMoreData, isEdit, loadingPosts, onLikeClick, newsPostPopoverOptions,
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
-  addUpdateComment, updateState, setUpdateState, isSinglePagePost, onSelect,
+  addUpdateComment, updateState, setUpdateState, onSelect,
   handleSearch, mentionList, commentImages, setCommentImages, commentError,
   commentReplyError, postType, onSpoilerClick,
   commentSent, setCommentReplyErrorMessage, setCommentErrorMessage,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
+  const [isCommentClick, setCommentClick] = useState<boolean>(false);
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
@@ -213,7 +213,7 @@ function PostFeed({
   };
   const handlePostContentKeyDown = (event: React.KeyboardEvent, post: any) => {
     if (event.key === 'Enter') {
-      const shouldCallPostContentClick = !detailPage;
+      const shouldCallPostContentClick = !isSinglePost;
       if (shouldCallPostContentClick) {
         onPostContentClick(post);
       }
@@ -247,7 +247,7 @@ function PostFeed({
     }
 
     let showReadMoreLink = false;
-    if (!detailPage && message?.length >= READ_MORE_TEXT_LIMIT) {
+    if (!isSinglePost && message?.length >= READ_MORE_TEXT_LIMIT) {
       let reducedContentLength = post.message.substring(0, READ_MORE_TEXT_LIMIT).lastIndexOf(' ');
       if (reducedContentLength === -1) {
         // This means that no spaces were found anywhere in the post content.  Since posts can't be
@@ -313,7 +313,7 @@ function PostFeed({
             <span>
               {/* eslint-disable-next-line react/no-danger */}
               <StyledContentContainer
-                detailsPage={detailPage ?? false}
+                detailsPage={isSinglePost ?? false}
                 dangerouslySetInnerHTML={
                   {
                     __html: escapeHtml && !post?.spoiler
@@ -322,7 +322,7 @@ function PostFeed({
                       : cleanExternalHtmlContent(message),
                   }
                 }
-                onClick={() => !detailPage && onPostContentClick(post)}
+                onClick={() => !isSinglePost && onPostContentClick(post)}
                 aria-label="post-content"
                 onKeyDown={(e) => handlePostContentKeyDown(e, post)}
               />
@@ -335,7 +335,7 @@ function PostFeed({
                 ))
               }
               {
-                !detailPage
+                !isSinglePost
                 && showReadMoreLink
                 && (
                   <>
@@ -397,12 +397,17 @@ function PostFeed({
       return ({
         videoKey: imageData.videoKey,
         imageUrl: imageData.image_path,
-        linkUrl: detailPage ? undefined : imageLinkUrl(post, imageData._id),
+        linkUrl: isSinglePost ? undefined : imageLinkUrl(post, imageData._id),
         postId: post.id,
         imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
       });
     });
   };
+
+  const handleComment = () => {
+    setCommentClick(!isCommentClick);
+  };
+
   return (
     <StyledPostFeed>
       {postData.map((post: any, i) => (
@@ -411,7 +416,7 @@ function PostFeed({
             <Card className="bg-transparent border-0 rounded-3 mb-md-4 mb-0 pt-md-3 px-sm-0">
               <Card.Header className="border-0 px-0 bg-transparent">
                 <PostHeader
-                  detailPage={detailPage}
+                  isSinglePost={isSinglePost}
                   id={post.id}
                   userName={post.userName || post.title}
                   postDate={post.postDate}
@@ -454,6 +459,8 @@ function PostFeed({
                       handleLikeModal={handleLikeModal}
                       postType={postType}
                       movieId={post.movieId}
+                      detailsPage={isSinglePost}
+                      onCommentClick={handleComment}
                     />
                   </Col>
                 </Row>
@@ -462,7 +469,7 @@ function PostFeed({
             {
               isCommentSection
               && (
-                <>
+                <div>
                   {/* <StyledBorder className="d-md-block d-none mb-4" /> */}
                   <InfiniteScroll
                     threshold={1000}
@@ -505,18 +512,19 @@ function PostFeed({
                       setCommentReplyErrorMessage={setCommentReplyErrorMessage}
                       setCommentErrorMessage={setCommentErrorMessage}
                       handleLikeModal={handleLikeModal}
+                      isMainPostCommentClick={isCommentClick}
                     />
                   </InfiniteScroll>
                   {loadingPosts && <LoadingIndicator />}
-                </>
+                </div>
               )
             }
           </div>
           {/* NOTE: Below ad is temporarily removed as per request on SD-1019 */}
           {/* Below ad is to be shown in the end of a single page post */}
-          {/* {isSinglePagePost && <PubWiseAd className="text-center mt-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />} */}
+          {/* {isSinglePost && <PubWiseAd className="text-center mt-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />} */}
 
-          {!detailPage && <hr className="post-separator" />}
+          {!isSinglePost && <hr className="post-separator" />}
 
           {/* Show ad after every three posts. */}
           {(i + 1) % 3 === 0 && pubWiseAdDivId && (
@@ -529,7 +537,7 @@ function PostFeed({
       ))}
 
       {/* Show an ad if posts are less than 3 */}
-      {!isSinglePagePost && pubWiseAdDivId && postData.length < 3 && postData.length !== 0 && <PubWiseAd className="my-3" id={pubWiseAdDivId} autoSequencer />}
+      {!isSinglePost && pubWiseAdDivId && postData.length < 3 && postData.length !== 0 && <PubWiseAd className="my-3" id={pubWiseAdDivId} autoSequencer />}
       {
         showLikeShareModal
         && (
@@ -549,7 +557,7 @@ function PostFeed({
 }
 PostFeed.defaultProps = {
   isCommentSection: false,
-  detailPage: false,
+  isSinglePost: false,
   commentsData: [],
   removeComment: undefined,
   setCommentID: undefined,
@@ -569,7 +577,6 @@ PostFeed.defaultProps = {
   escapeHtml: true,
   loadNewerComment: undefined,
   previousCommentsAvailable: false,
-  isSinglePagePost: false,
   addUpdateReply: undefined,
   addUpdateComment: undefined,
   updateState: false,

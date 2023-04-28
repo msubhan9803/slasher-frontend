@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Row, Image, Col,
 } from 'react-bootstrap';
@@ -78,15 +78,41 @@ const filterEnableDevFeatures = (t: OptionType) => (enableDevFeatures ? true : (
 function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData) {
   const [searchParams] = useSearchParams();
   const [movieIdList, setMovieIdList] = useState();
+  const [isReviewDetail, setReviewDetail] = useState<boolean>(false);
   const selfView = searchParams.get('view') === 'self';
   const tabs = (selfView ? tabsForSelf : tabsForViewer).filter(filterEnableDevFeatures);
   const navigate = useNavigate();
   const params = useParams();
   const [reviewForm, setReviewForm] = useState(false);
-
+  const movieReviewRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (params['*'] === 'edit' && !selfView) { navigate(`/app/movies/${params.id}/details`); }
   });
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (params && params['*']!.startsWith('reviews/') && isReviewDetail && movieReviewRef?.current) {
+        document.documentElement.style.scrollBehavior = 'auto';
+        movieReviewRef?.current?.scrollIntoView({
+          behavior: 'instant' as any,
+          block: 'nearest',
+          inline: 'nearest',
+        });
+      }
+    }, 10);
+    setTimeout(() => {
+      document.documentElement.style.scrollBehavior = 'smooth';
+    }, 20);
+  }, [isReviewDetail, params]);
+
+  // TODO: Can this be removed, now that the comment button no longer links to the comment input?
+  useEffect(() => {
+    if (params && params['*']!.startsWith('reviews/')) {
+      setReviewDetail(true);
+    } else {
+      setReviewDetail(false);
+    }
+  }, [params]);
 
   const [bgColor, setBgColor] = useState<boolean>(false);
   const [movieIconListData, setMovieIconListData] = useState(MovieIconList);
@@ -243,19 +269,20 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
               </Col>
             </Row>
           )}
-
-        <Row className="justify-content-center">
-          <Col xs={12}>
-            <TabLinks
-              tabsClass="start"
-              tabsClassSmall="start"
-              tabLink={tabs}
-              toLink={`/app/movies/${params.id}`}
-              selectedTab={params && params['*']!.startsWith('reviews/') ? 'reviews' : params['*']}
-              params={selfView ? '?view=self' : ''}
-            />
-          </Col>
-        </Row>
+        <div ref={movieReviewRef}>
+          <Row className="justify-content-center">
+            <Col xs={12}>
+              <TabLinks
+                tabsClass="start"
+                tabsClassSmall="start"
+                tabLink={tabs}
+                toLink={`/app/movies/${params.id}`}
+                selectedTab={params && params['*']!.startsWith('reviews/') ? 'reviews' : params['*']}
+                params={selfView ? '?view=self' : ''}
+              />
+            </Col>
+          </Row>
+        </div>
       </div>
 
       <Routes>

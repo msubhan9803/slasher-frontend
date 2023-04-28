@@ -53,7 +53,7 @@ function PostcastPostFeed({ episode }: Props) {
           // userName={postData?.userName}
           // postDate={postData.postDate}
           // profileImage={postData.podcastImage}
-          detailPage={false}
+          isSinglePost={false}
           id={postData.id}
           userName={postData.userName}
           postDate={postData.postDate}

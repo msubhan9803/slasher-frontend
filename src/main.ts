@@ -26,12 +26,13 @@ async function bootstrap() {
   });
   configureAppPrefixAndVersioning(app);
 
-  // Applying the timeout extension below to see if it helps with ALB issues
-  // See: https://github.com/nodejs/node/issues/20256#issuecomment-900197258
-  // app.getHttpAdapter().getHttpServer().keepAliveTimeout = 75 * 1000;
-
   const config = app.get(ConfigService);
   const port = config.get<number>('PORT', 4000);
+
+  // This timeout extension fixes some AWS ALB issues that we're encountering where high CPU
+  // acitivity in a container causes 502 errors from the ALB.
+  // See: https://github.com/nodejs/node/issues/20256#issuecomment-900197258
+  app.getHttpAdapter().getHttpServer().keepAliveTimeout = config.get<number>('REQUEST_TIMEOUT', 70) * 1000;
 
   const uploadDir = config.get<string>('UPLOAD_DIR');
   if (uploadDir && !fs.existsSync(uploadDir)) {

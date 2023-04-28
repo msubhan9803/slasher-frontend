@@ -115,7 +115,7 @@ const StyleSpoilerButton = styled(RoundButton)`
 
 const StyledContentContainer = styled.div<StyledProps>`
   max-width: max-content;
-  cursor: ${(props) => (!props?.detailsPage ? 'pointer' : 'auto')};
+  cursor: pointer;
   a {
     display: inline-block;
   }
@@ -216,6 +216,14 @@ function PostFeed({
       if (shouldCallPostContentClick) {
         onPostContentClick(post);
       }
+    }
+  };
+  const handleHashtagClick = (content: string, post: any) => {
+    const state = { pathname };
+    if (content.startsWith('#')) {
+      navigate(`/app/search/posts?hashtag=${content.slice(1)}`, { state });
+    } else {
+      navigate(`/${post.userName}/posts/${post.id}`, { state });
     }
   };
 
@@ -321,7 +329,13 @@ function PostFeed({
                       : cleanExternalHtmlContent(message),
                   }
                 }
-                onClick={() => !isSinglePost && onPostContentClick(post)}
+                onClick={(e: any) => {
+                  if (e.target.tagName === 'SPAN' && e.target.textContent.startsWith('#')) {
+                    handleHashtagClick(e.target.innerText, post);
+                  } else if (!isSinglePost) {
+                    onPostContentClick(post);
+                  }
+                }}
                 aria-label="post-content"
                 onKeyDown={(e) => handlePostContentKeyDown(e, post)}
               />

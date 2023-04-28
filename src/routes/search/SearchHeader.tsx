@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, Col, Row } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
@@ -33,14 +33,19 @@ function SearchHeader({
 }: Search) {
   const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => !t.devOnly);
   const location = useLocation();
-  const query = location.search.substring(1);
+  const [query, setQueryParam] = useState<any>();
   const [notificationOn, setNotificationOn] = useState(false);
   const [bgColor, setBgColor] = useState<boolean>(false);
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const hashtag = urlParams.get('hashtag');
+    setQueryParam(hashtag);
+  }, [location.search]);
 
   const handlePopoverOption = (value: string) => value;
 
   return (
-    <div className={`${query ? 'bg-dark pt-3 rounded' : 'bg-transparent'} mt-3 mt-lg-0`}>
+    <div className={`${query ? 'bg-dark py-3 rounded' : 'bg-transparent'} mt-3 mt-lg-0`}>
       {query && query.length > 0
         ? (
           <div>
@@ -86,13 +91,16 @@ function SearchHeader({
             </Row>
           </div>
         ) : (
-          <span className="mt-3 mt-md-0 mb-3">
-            <CustomSearchInput label={label} setSearch={setSearch} search={search} />
-          </span>
+          <>
+            <span className="mt-3 mt-md-0 mb-3">
+              <CustomSearchInput label={label} setSearch={setSearch} search={search} />
+            </span>
+            <div className="mt-3">
+              <TabLinks display={query ? '' : 'underline'} tabLink={allTabs} toLink="/app/search" selectedTab={tabKey} />
+            </div>
+          </>
         )}
-      <div className="mt-3">
-        <TabLinks display={query ? '' : 'underline'} tabLink={allTabs} toLink="/app/search" selectedTab={tabKey} />
-      </div>
+
     </div>
   );
 }

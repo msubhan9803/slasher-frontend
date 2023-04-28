@@ -4,48 +4,48 @@ import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import ReportModal from '../../../components/ui/ReportModal';
 import { Post } from '../../../types';
 import SearchHeader from '../SearchHeader';
-import { hashTagPosts, posts } from '../SearchResult';
-import FormatImageVideoList from '../../../utils/video-utils';
+import { posts } from '../SearchResult';
+import { getHashtagPostList } from '../../../api/feed-posts';
+import { unlikeFeedPost, likeFeedPost } from '../../../api/feed-likes';
 
-interface SearchPostsProps {
-  id: number;
-  profileImage: string;
-  userName: string;
-  postUrl: string;
-  postDate: string;
-  message: string;
-  hashTag: string[];
-  likeIcon: boolean;
-}
 const popoverOptions = ['Report'];
 
 function SearchPosts() {
   const [search, setSearch] = useState<string>('');
   const [searchPosts, setSearchPosts] = useState<Post[]>([]);
   const [show, setShow] = useState(false);
+  const [query, setQueryParam] = useState<any>();
   const [dropDownValue, setDropDownValue] = useState('');
   const location = useLocation();
-  const query = location.search.substring(1);
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const hashtag = urlParams.get('hashtag');
+    setQueryParam(hashtag);
+  }, [location.search]);
+
   const getSearchPost = useCallback(() => {
-    const postData = query ? hashTagPosts : posts;
-    const newPosts: any = postData.map((data: any) => {
-      const setPost = {
-        _id: data._id,
-        id: data._id,
-        postDate: data.createdAt,
-        content: data.message,
-        images: FormatImageVideoList(data.images, data.message),
-        userName: data.userId.userName,
-        profileImage: data.userId.profilePic,
-        userId: data.userId._id,
-        likeIcon: data.likedByUser,
-        likeCount: data.likeCount,
-        commentCount: data.commentCount,
-        hashTag: data.hashTag,
-      };
-      return setPost;
-    });
-    setSearchPosts(newPosts);
+    if (query) {
+      getHashtagPostList(query).then((res) => {
+        const postData = query ? res.data : posts;
+        const newPosts: any = postData.map((data: any) => {
+          const setPost = {
+            _id: data._id,
+            id: data._id,
+            postDate: data.createdAt,
+            message: data.message,
+            images: data.images,
+            userName: data.userId.userName,
+            profileImage: data.userId.profilePic,
+            userId: data.userId._id,
+            likeIcon: data.likedByUser,
+            likeCount: data.likeCount,
+            commentCount: data.commentCount,
+          };
+          return setPost;
+        });
+        setSearchPosts(newPosts);
+      });
+    }
   }, [query]);
 
   const searchData = useCallback(() => {
@@ -68,6 +68,48 @@ function SearchPosts() {
     setShow(true);
     setDropDownValue(value);
   };
+
+  const onLikeClick = (feedPostId: string) => {
+    const checkLike = searchPosts.some((post) => post.id === feedPostId
+      && post.likeIcon);
+    if (checkLike) {
+      unlikeFeedPost(feedPostId).then((res) => {
+        if (res.status === 200) {
+          const unLikePostData = searchPosts.map(
+            (unLikePost: Post) => {
+              if (unLikePost._id === feedPostId) {
+                return {
+                  ...unLikePost,
+                  likeIcon: false,
+                  likedByUser: false,
+                  likeCount: unLikePost.likeCount - 1,
+                };
+              }
+              return unLikePost;
+            },
+          );
+          setSearchPosts(unLikePostData);
+        }
+      });
+    } else {
+      likeFeedPost(feedPostId).then((res) => {
+        if (res.status === 201) {
+          const likePostData = searchPosts.map((likePost: Post) => {
+            if (likePost._id === feedPostId) {
+              return {
+                ...likePost,
+                likeIcon: true,
+                likedByUser: true,
+                likeCount: likePost.likeCount + 1,
+              };
+            }
+            return likePost;
+          });
+          setSearchPosts(likePostData);
+        }
+      });
+    }
+  };
   return (
     <div>
       <SearchHeader
@@ -80,6 +122,7 @@ function SearchPosts() {
         popoverOptions={popoverOptions}
         isCommentSection={false}
         onPopoverClick={handlePopoverOption}
+        onLikeClick={onLikeClick}
       />
       <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </div>

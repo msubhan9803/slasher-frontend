@@ -6,13 +6,16 @@ export function findFirstYouTubeLinkVideoId(message: string) {
 }
 
 export function escapeHtmlSpecialCharacters(str: string) {
+  const hashtagRegex = /(^|\s)(#[\w-]+)/g;
+  const mentionRegex = /@(\w+)/g;
   return str.replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
+    .replaceAll("'", '&#039;')
+    .replace(hashtagRegex, '$1<span style="color:red;">$2</span>')
+    .replace(mentionRegex, '<a href="/$1">@$1</a>');
 }
-
 /**
  * For the given string, replaces all new line characters with '<br />'.
  * @param htmlString

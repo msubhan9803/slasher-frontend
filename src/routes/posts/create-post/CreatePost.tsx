@@ -76,11 +76,6 @@ function CreatePost() {
     return createPost(createPostData, imageArray)
       .then(() => {
         setErrorMessage([]);
-        // TODO: Need Opinion
-        // TODO SAHIL NOW: I need to navigate to postDetails page instead?
-        // shoud we? (as its not the case with general post creation)
-        // FYI: SAHIL: Currently I am passing `state` from the ShareLinksModal.tsx
-        // so that after post-creation we redirect to back to movieDetails page again.
         navigate(location.state);
       })
       .catch((error) => {

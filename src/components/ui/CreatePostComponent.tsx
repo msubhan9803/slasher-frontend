@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 /* eslint-disable max-lines */
 import React, {
   ChangeEvent, useEffect, useRef, useState,

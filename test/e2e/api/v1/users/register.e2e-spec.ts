@@ -425,6 +425,17 @@ describe('Users / Register (e2e)', () => {
           message: 'Only beta testers are able to register at this time, sorry!',
         });
       });
+
+      it('when email is already exists in betatester than expected response', async () => {
+        jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/users/register')
+          .send(postBody)
+          .expect(HttpStatus.CREATED);
+        expect(response.body).toEqual({
+          id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        });
+      });
     });
   });
 });

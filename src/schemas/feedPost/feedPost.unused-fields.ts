@@ -25,6 +25,8 @@ export class FeedPostUnusedFields {
       FeedPostType.Text,
       FeedPostType.Images,
       FeedPostType.TextAndImages,
+      FeedPostType.Others1,
+      FeedPostType.Others2,
     ],
     default: FeedPostType.Text,
   })

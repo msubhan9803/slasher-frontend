@@ -23,6 +23,8 @@ import { MoviesService } from '../../../../../src/movies/providers/movies.servic
 import { moviesFactory } from '../../../../factories/movies.factory';
 import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
 import { PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
+import { MovieUserStatusService } from '../../../../../src/movie-user-status/providers/movie-user-status.service';
+import { WorthWatchingStatus } from '../../../../../src/types';
 
 describe('Update Feed Post (e2e)', () => {
   let app: INestApplication;
@@ -35,6 +37,7 @@ describe('Update Feed Post (e2e)', () => {
   let feedPostsService: FeedPostsService;
   let feedPost: FeedPostDocument;
   let moviesService: MoviesService;
+  let movieUserStatusService: MovieUserStatusService;
 
   const sampleFeedPostObject = {
     message: 'hello all test user upload your feed post',
@@ -52,6 +55,7 @@ describe('Update Feed Post (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     moviesService = moduleRef.get<MoviesService>(MoviesService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
+    movieUserStatusService = moduleRef.get<MovieUserStatusService>(MovieUserStatusService);
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
     await app.init();
@@ -477,10 +481,17 @@ describe('Update Feed Post (e2e)', () => {
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'this new post')
           .field('moviePostFields[spoilers]', true)
+          .field('moviePostFields[rating]', 3)
+          .field('moviePostFields[goreFactorRating]', 4)
+          .field('moviePostFields[worthWatching]', WorthWatchingStatus.Down)
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1]);
         const post = await feedPostsService.findById(response.body._id, true);
+        const movieUserStatus = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString());
         expect(post.spoilers).toBe(true);
+        expect(movieUserStatus.rating).toBe(3);
+        expect(movieUserStatus.goreFactorRating).toBe(4);
+        expect(movieUserStatus.worthWatching).toBe(WorthWatchingStatus.Down);
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)

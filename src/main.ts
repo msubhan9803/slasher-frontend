@@ -25,6 +25,11 @@ async function bootstrap() {
     // logger: process.env.NODE_ENV === 'development' ? ['log', 'error', 'warn', 'debug', 'verbose'] : ['error', 'warn'],
   });
   configureAppPrefixAndVersioning(app);
+
+  // Applying the timeout extension below to see if it helps with ALB issues
+  // See: https://github.com/nodejs/node/issues/20256#issuecomment-900197258
+  app.getHttpAdapter().getHttpServer().keepAliveTimeout = 75 * 1000;
+
   const config = app.get(ConfigService);
   const port = config.get<number>('PORT', 4000);
 

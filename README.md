@@ -71,7 +71,7 @@ For a production build, make sure to read in the correct production environment 
 
 Note: You need to get your local ip address of your machine, usually it looks like `192.168.18.5` (we will consider this ip for our example in below steps so you **must use your own ip address**).
 
-1. Create a local capacitor config directory by running `cp capacitor-configs-template capacitor-configs`. And update your local network ip address in `live-reload.capacitor.config.ts` file in `capacitor-configs` directory.
+1. Create a local capacitor config directory by running `cp -r capacitor-configs-template capacitor-configs`. And update your local network ip address in `live-reload.capacitor.config.ts` file in `capacitor-configs` directory.
 2. In frontend create a file with name `.env.development.local` in the project root directory. Then add an environment variable `REACT_APP_API_URL=http://192.168.18.5:4000`.
 3. In backend open `.env.development` file and add an environment variable `API_URL=http://192.168.18.5:4000`. (Note: This is helpful for backend to provide correct image urls for the api responses).
 

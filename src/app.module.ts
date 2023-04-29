@@ -39,6 +39,7 @@ import { QueuedJobsModule } from './global/queued-jobs.module';
 import { MulterUploadCleanupInterceptor } from './app/interceptors/multer-upload-cleanup.interceptor';
 import { MovieUserStatusModule } from './movie-user-status/movie.user.status.module';
 import { AppController } from './app/app.controller';
+import { BetaTesterModule } from './beta-tester/beta-tester.module';
 
 @Module({
   imports: [
@@ -96,6 +97,7 @@ import { AppController } from './app/app.controller';
     ReportsModule,
     QueuedJobsModule,
     MovieUserStatusModule,
+    BetaTesterModule,
   ],
   controllers: [AppController],
   providers: [

@@ -18,7 +18,9 @@ export class BetaTester {
   @Prop({ default: null, required: true, trim: true })
   name: string;
 
-  @Prop({ default: null, required: true, trim: true })
+  @Prop({
+    default: null, required: true, trim: true, unique: true,
+  })
   email: string;
 
   /***********

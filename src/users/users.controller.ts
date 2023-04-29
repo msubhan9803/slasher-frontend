@@ -67,6 +67,7 @@ import { MoviesService } from '../movies/providers/movies.service';
 import { FindAllMoviesDto } from '../movies/dto/find-all-movies.dto';
 import { relativeToFullImagePath } from '../utils/image-utils';
 import { IpOrForwardedIp } from '../app/decorators/ip-or-forwarded-ip.decorator';
+import { BetaTestersService } from '../beta-tester/providers/beta-testers.service';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -87,12 +88,13 @@ export class UsersController {
     private readonly notificationsService: NotificationsService,
     private readonly disallowedUsernameService: DisallowedUsernameService,
     private readonly moviesService: MoviesService,
+    private readonly betaTestersService: BetaTestersService,
     private configService: ConfigService,
   ) { }
 
   @Post('sign-in')
   async signIn(@Body() userSignInDto: UserSignInDto, @IpOrForwardedIp() ip) {
-    const user = await this.usersService.findByEmailOrUsername(
+    let user = await this.usersService.findByEmailOrUsername(
       userSignInDto.emailOrUsername,
     );
 
@@ -103,9 +105,14 @@ export class UsersController {
       );
     }
 
-    // This is temporary, but required during the beta release phase
     if (!user.betaTester) {
-      throw new HttpException('Only beta testers are able to sign in at this time, sorry!', HttpStatus.UNAUTHORIZED);
+      const betaTester = await this.betaTestersService.findByEmail(user.email);
+      if (betaTester) {
+        // Since a BetaTester record was found for this user's email, mark them as a beta tester.
+        user = await this.usersService.update(user.id, { betaTester: true });
+      } else {
+        throw new HttpException('Only beta testers are able to sign in at this time, sorry!', HttpStatus.UNAUTHORIZED);
+      }
     }
 
     if (user.userSuspended) {
@@ -152,17 +159,17 @@ export class UsersController {
       device_id: userSignInDto.device_id,
     };
 
-    // During successful sign-in, update certain fields and re-save the object:
-    user.last_login = new Date();
-    user.lastSignInIp = ip;
-
-    // Store the user's latest token in the database.  This is mostly just done for compatibility
-    // with the old API, which does the same thing, but we don't actually do any comparisons with
-    // the database-stored version of the token.
-    user.token = `Bearer ${token}`;
-    user.addOrUpdateDeviceEntry(deviceEntry);
     try {
-      await user.save();
+      // During successful sign-in, update certain fields and re-save the object:
+      user = await this.usersService.update(user.id, {
+        last_login: new Date(),
+        lastSignInIp: ip,
+        // Store the user's latest token in the database.  This is mostly just done for compatibility
+        // with the old API, which does the same thing, but we don't actually do any comparisons with
+        // the database-stored version of the token in the new API app.
+        token: `Bearer ${token}`,
+        userDevices: user.generatedUpdatedDeviceEntryList(deviceEntry),
+      });
     } catch (e) {
       if (e.name !== 'MongoServerError') {
         // Handle db read-only scenario. But if it's another type of unexpected exception
@@ -266,6 +273,14 @@ export class UsersController {
       throw new HttpException(
         'Username is not available',
         HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
+
+    const betaTester = await this.betaTestersService.findByEmail(userRegisterDto.email);
+    if (!betaTester) {
+      throw new HttpException(
+        'Only beta testers are able to register at this time, sorry!',
+        HttpStatus.BAD_REQUEST,
       );
     }
 

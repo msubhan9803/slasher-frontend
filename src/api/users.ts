@@ -113,7 +113,7 @@ export async function getProfilePosts(id: string, lastRetrievedPostId?: string) 
   return axios.get(`${apiUrl}/api/v1/users/${id}/posts${queryParameter}`, { headers });
 }
 
-export async function userProfileFriends(userId: string, page: number, search = '') {
+export async function userProfileFriends(signal:AbortSignal, userId: string, page: number, search = '') {
   const token = Cookies.get('sessionToken');
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -123,7 +123,7 @@ export async function userProfileFriends(userId: string, page: number, search = 
   if (search) {
     queryParameter += `&userNameContains=${search}`;
   }
-  return axios.get(`${apiUrl}/api/v1/users/${userId}/friends${queryParameter}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/users/${userId}/friends${queryParameter}`, { headers, signal });
 }
 
 // export async function getUserProfileDetail(userName: string) {

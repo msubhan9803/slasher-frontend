@@ -531,17 +531,4 @@ describe('UsersService', () => {
       expect(userData.newConversationIds).toEqual([]);
     });
   });
-
-  describe('#findBetaTesterAndUpdate', () => {
-    let user;
-    beforeEach(async () => {
-      user = await usersService.create(
-        userFactory.build(),
-      );
-    });
-    it('finds expected user using email and update betatester', async () => {
-      const userData = await usersService.findBetaTesterAndUpdate(user.email);
-      expect(userData.betaTester).toBe(true);
-    });
-  });
 });

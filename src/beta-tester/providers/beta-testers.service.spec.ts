@@ -4,22 +4,22 @@ import { Test } from '@nestjs/testing';
 import { Connection } from 'mongoose';
 import { BetaTesterDocument } from 'src/schemas/betaTester/betaTester.schema';
 import { AppModule } from '../../app.module';
-import { BetaTesterService } from './beta-tester.service';
+import { BetaTestersService } from './beta-testers.service';
 import { betaTesterFactory } from '../../../test/factories/beta-tester.factory';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
-describe('BetaTesterService', () => {
+describe('BetaTestersService', () => {
   let app: INestApplication;
   let connection: Connection;
-  let betaTestersService: BetaTesterService;
+  let betaTestersService: BetaTestersService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
     connection = moduleRef.get<Connection>(getConnectionToken());
-    betaTestersService = moduleRef.get<BetaTesterService>(BetaTesterService);
+    betaTestersService = moduleRef.get<BetaTestersService>(BetaTestersService);
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -49,7 +49,7 @@ describe('BetaTesterService', () => {
     });
   });
 
-  describe('#findBetaTesterEmail', () => {
+  describe('#findByEmail', () => {
     let betaTester: BetaTesterDocument;
     const sampleBetaTester = betaTesterFactory.build();
     beforeEach(async () => {
@@ -59,7 +59,7 @@ describe('BetaTesterService', () => {
     });
 
     it('finds the expected user using email', async () => {
-      expect((await betaTestersService.findBetaTesterEmail(sampleBetaTester.email)).email).toEqual(
+      expect((await betaTestersService.findByEmail(sampleBetaTester.email)).email).toEqual(
         betaTester.email,
       );
     });

@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { BetaTesterService } from './providers/beta-tester.service';
+import { BetaTestersService } from './providers/beta-testers.service';
 import { BetaTester, BetaTesterSchema } from '../schemas/betaTester/betaTester.schema';
 
 @Global()
@@ -9,7 +9,7 @@ import { BetaTester, BetaTesterSchema } from '../schemas/betaTester/betaTester.s
     MongooseModule.forFeature([{ name: BetaTester.name, schema: BetaTesterSchema }]),
   ],
   controllers: [],
-  providers: [BetaTesterService],
-  exports: [BetaTesterService],
+  providers: [BetaTestersService],
+  exports: [BetaTestersService],
 })
 export class BetaTesterModule { }

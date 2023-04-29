@@ -16,7 +16,7 @@ import { UserSettingsService } from '../../../../../src/settings/providers/user-
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
-import { BetaTesterService } from '../../../../../src/beta-tester/providers/beta-tester.service';
+import { BetaTestersService } from '../../../../../src/beta-tester/providers/beta-testers.service';
 import { betaTesterFactory } from '../../../../factories/beta-tester.factory';
 
 describe('Users / Register (e2e)', () => {
@@ -26,7 +26,7 @@ describe('Users / Register (e2e)', () => {
   let mailService: MailService;
   let disallowedUsernameService: DisallowedUsernameService;
   let userSettingsService: UserSettingsService;
-  let betaTesterService: BetaTesterService;
+  let betaTestersService: BetaTestersService;
 
   const sampleUserRegisterObject = {
     firstName: 'user',
@@ -49,7 +49,7 @@ describe('Users / Register (e2e)', () => {
     mailService = moduleRef.get<MailService>(MailService);
     disallowedUsernameService = moduleRef.get<DisallowedUsernameService>(DisallowedUsernameService);
     userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
-    betaTesterService = moduleRef.get<BetaTesterService>(BetaTesterService);
+    betaTestersService = moduleRef.get<BetaTestersService>(BetaTestersService);
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -64,12 +64,12 @@ describe('Users / Register (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
-    await betaTesterService.create(
+    await betaTestersService.create(
       betaTesterFactory.build(
         { name: 'TestUser', email: 'testuser@gmail.com' },
       ),
     );
-    await betaTesterService.create(
+    await betaTestersService.create(
       betaTesterFactory.build(
         { name: 'TestUser', email: 'differenttestuser@gmail.com' },
       ),
@@ -412,7 +412,7 @@ describe('Users / Register (e2e)', () => {
       });
     });
 
-    describe('A user who is not a beta tester', () => {
+    describe('A user whose email is not in the BetaTesters collection', () => {
       it('receives an error message when attempting to register', async () => {
         jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
         postBody.email = 'slasherusertest@gmail.com';

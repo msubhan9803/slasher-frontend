@@ -90,6 +90,10 @@ describe('DisallowedUsernameService', () => {
       });
     });
 
+    it('does not find any DisallowedUsername if the given username does not exist in the collection', async () => {
+      expect((await disallowedUsernameService.findUserName('DOES-NOT-EXIST'))._id).toBeNull();
+    });
+
     it('finds the expected disallowedUsername using the same-case userName', async () => {
       expect((await disallowedUsernameService.findUserName(disallowedUsername.username))._id).toEqual(
         disallowedUsername._id,

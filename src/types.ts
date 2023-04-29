@@ -187,6 +187,7 @@ export enum NotificationType {
   UserCommentedOnYourPost = 15,
   UserMentionedYouInPost = 99,
   UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost = 101,
+  UserMentionedYouInACommentOnANewsPost = 121,
   UserLikedYourCommentOnANewsPost = 122,
   NewPostFromFollowedRssFeedProvider = 125,
 }

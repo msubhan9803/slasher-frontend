@@ -43,6 +43,7 @@ import LoadingIndicator from '../../LoadingIndicator';
 import { customlinkifyOpts } from '../../../../utils/linkify-utils';
 import { getLocalStorage } from '../../../../utils/localstorage-utils';
 import FormatImageVideoList from '../../../../utils/video-utils';
+import { hasMovieDetailsFields, postMovieDataToMovieDBformat } from '../../../../routes/movies/movie-utils';
 
 const READ_MORE_TEXT_LIMIT = 300;
 
@@ -387,13 +388,20 @@ function PostFeed({
   );
   const swiperDataForPost = (post: any) => {
     const imageVideoList = FormatImageVideoList(post.images, post.message);
-    return imageVideoList.map((imageData: any) => ({
-      videoKey: imageData.videoKey,
-      imageUrl: imageData.image_path,
-      linkUrl: isSinglePost ? undefined : imageLinkUrl(post, imageData._id),
-      postId: post.id,
-      imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
-    }));
+    if (post.movieId) {
+      const movieData = postMovieDataToMovieDBformat(post.movieId);
+      imageVideoList.splice(0, 0, { movieData });
+    }
+    return imageVideoList.map((imageData: any) => {
+      if (imageData.movieData) { return imageData; }
+      return ({
+        videoKey: imageData.videoKey,
+        imageUrl: imageData.image_path,
+        linkUrl: isSinglePost ? undefined : imageLinkUrl(post, imageData._id),
+        postId: post.id,
+        imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
+      });
+    });
   };
 
   const handleComment = () => {
@@ -427,7 +435,7 @@ function PostFeed({
                 {postType === 'group-post' && renderGroupPostContent(post)}
                 {post?.rssFeedTitle && <h1 className="h2">{post.rssFeedTitle}</h1>}
                 {renderPostContent(post)}
-                {(post?.images?.length > 0 || findFirstYouTubeLinkVideoId(post?.message)) && (
+                {(post?.images?.length > 0 || findFirstYouTubeLinkVideoId(post?.message) || hasMovieDetailsFields(post.movieId)) && (
                   <CustomSwiper
                     context="post"
                     images={

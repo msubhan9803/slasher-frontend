@@ -39,6 +39,8 @@ function CreatePost() {
   const [titleContent, setTitleContent] = useState<string>('');
   const [containSpoiler, setContainSpoiler] = useState<boolean>(false);
   const [selectedPostType, setSelectedPostType] = useState<string>('');
+  const paramsMovieId = searchParams.get('movieId');
+
   const mentionReplacementMatchFunc = (match: string) => {
     if (match) {
       const finalString: any = formatMention.find(
@@ -66,9 +68,10 @@ function CreatePost() {
       };
       return groupPostData;
     }
-    const createPostData = {
+    const createPostData: any = {
       message: postContentWithMentionReplacements,
       postType: PostType.User,
+      movieId: paramsMovieId,
     };
     return createPost(createPostData, imageArray)
       .then(() => {

@@ -107,5 +107,9 @@ describe('DisallowedUsernameService', () => {
         (await disallowedUsernameService.findUserName(disallowedUsername.username.toUpperCase()))._id,
       ).toEqual(disallowedUsername._id);
     });
+
+    it('does not find a DisallowedUsername record if the given username does not exist in the collection', async () => {
+      expect((await disallowedUsernameService.findUserName('DOES-NOT-EXIST'))).toBeNull();
+    });
   });
 });

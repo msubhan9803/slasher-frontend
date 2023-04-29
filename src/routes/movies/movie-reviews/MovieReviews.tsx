@@ -34,7 +34,7 @@ type Props = {
   setReviewForm: (value: boolean) => void;
 };
 
-const StyledReviewContainer = styled.div`
+export const StyledReviewContainer = styled.div`
   min-height: 100vh;
 `;
 

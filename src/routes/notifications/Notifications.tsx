@@ -142,7 +142,6 @@ function Notifications() {
               const positionData = {
                 pathname: '',
                 position: 0,
-                data: [],
                 positionElementId: '',
               };
               dispatch(setScrollPosition(positionData));
@@ -159,15 +158,14 @@ function Notifications() {
       });
   };
   useEffect(() => {
-    if (notificationData.length > 0
-      && scrollPosition.position > 0
+    if (scrollPosition.position > 0
       && scrollPosition?.pathname === location.pathname) {
       window.scrollTo({
         top: scrollPosition?.position,
         behavior: 'instant' as any,
       });
     }
-  }, [notificationData, scrollPosition, location.pathname]);
+  }, [scrollPosition, location.pathname]);
   const groupNotificationsByDateRange = (notifications: Notification[]) => {
     const groupedNotifications: {
       today: Notification[],
@@ -274,6 +272,7 @@ function Notifications() {
             </div>
           )}
           <InfiniteScroll
+            threshold={3000}
             pageStart={0}
             initialLoad
             loadMore={() => { setRequestAdditionalPosts(true); }}

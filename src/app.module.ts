@@ -40,6 +40,7 @@ import { MulterUploadCleanupInterceptor } from './app/interceptors/multer-upload
 import { MovieUserStatusModule } from './movie-user-status/movie.user.status.module';
 import { AppController } from './app/app.controller';
 import { BetaTesterModule } from './beta-tester/beta-tester.module';
+import { TimeoutInterceptor } from './app/interceptors/timeout.interceptor';
 
 @Module({
   imports: [
@@ -121,6 +122,11 @@ import { BetaTesterModule } from './beta-tester/beta-tester.module';
           return new BadRequestException(flattenedConstraints);
         },
       }),
+    },
+    // Interceptor to stop requests for running longer than a certain amount of time
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TimeoutInterceptor,
     },
     // Interceptor to delete temp files created by mutler. It delete files in `request.filesToBeRemoved` after the request is settled.
     {

@@ -4,6 +4,7 @@ import { Nav } from 'react-bootstrap';
 import SidebarNavItem from './SidebarNavItem';
 import { enableDevFeatures } from '../../../utils/configEnvironment';
 import { GOOGLE_PLAY_DOWNLOAD_URL, APP_STORE_DOWNLOAD_URL } from '../../../constants';
+import RoundButtonLink from '../../ui/RoundButtonLink';
 
 const MAX_ALLOWED_COMING_SOON_ITEMS_IN_MENU = 1;
 
@@ -87,42 +88,54 @@ customSidebarMenuList = customSidebarMenuList.concat(additionalMenuListItemsAfte
 
 function SidebarNavContent({ onToggleCanvas }: Props) {
   return (
-    <Nav>
-      {customSidebarMenuList.map((menu) => (
-        <SidebarNavItem
-          id={menu.id}
-          key={menu.id}
-          label={menu.label}
-          icon={menu.icon}
-          iconColor={menu.iconColor}
-          to={menu.to}
-          className={menu.desktopOnly ? 'd-none d-md-flex' : ''}
-          onToggleCanvas={onToggleCanvas}
-        />
-      ))}
-      <ul className="list-inline mt-4 link-hover-underline fs-6">
-        {
-          enableDevFeatures
-          && (
-            <>
-              <li><a className="text-light text-decoration-none" href={GOOGLE_PLAY_DOWNLOAD_URL} target="_blank" rel="noreferrer">Download for Android</a></li>
-              <li><a className="text-light text-decoration-none" href={APP_STORE_DOWNLOAD_URL} target="_blank" rel="noreferrer">Download for iOS</a></li>
-            </>
-          )
-        }
-        <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/advertise" target="_blank" rel="noreferrer">Advertise on Slasher</a></li>
-        <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/terms" target="_blank" rel="noreferrer">Terms &amp; Policies</a></li>
-        <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/about" target="_blank" rel="noreferrer">About</a></li>
-        <li className="text-light text-decoration-none">
-          &copy;
-          {' '}
-          {new Date().getFullYear()}
-          {' '}
-          Slasher Corp
-        </li>
-      </ul>
-      <br />
-    </Nav>
+    <>
+      <RoundButtonLink
+        usePlainAnchorTag
+        to="mailto:help@slasher.tv?subject=Slasher%20Bug%20Report"
+        variant="primary"
+        className="w-100"
+        style={{ marginBottom: '0.75rem' }}
+      >
+        Report a bug
+
+      </RoundButtonLink>
+      <Nav>
+        {customSidebarMenuList.map((menu) => (
+          <SidebarNavItem
+            id={menu.id}
+            key={menu.id}
+            label={menu.label}
+            icon={menu.icon}
+            iconColor={menu.iconColor}
+            to={menu.to}
+            className={menu.desktopOnly ? 'd-none d-md-flex' : ''}
+            onToggleCanvas={onToggleCanvas}
+          />
+        ))}
+        <ul className="list-inline mt-4 link-hover-underline fs-6">
+          {
+            enableDevFeatures
+            && (
+              <>
+                <li><a className="text-light text-decoration-none" href={GOOGLE_PLAY_DOWNLOAD_URL} target="_blank" rel="noreferrer">Download for Android</a></li>
+                <li><a className="text-light text-decoration-none" href={APP_STORE_DOWNLOAD_URL} target="_blank" rel="noreferrer">Download for iOS</a></li>
+              </>
+            )
+          }
+          <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/advertise" target="_blank" rel="noreferrer">Advertise on Slasher</a></li>
+          <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/terms" target="_blank" rel="noreferrer">Terms &amp; Policies</a></li>
+          <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/about" target="_blank" rel="noreferrer">About</a></li>
+          <li className="text-light text-decoration-none">
+            &copy;
+            {' '}
+            {new Date().getFullYear()}
+            {' '}
+            Slasher Corp
+          </li>
+        </ul>
+        <br />
+      </Nav>
+    </>
   );
 }
 SidebarNavContent.defaultProps = {

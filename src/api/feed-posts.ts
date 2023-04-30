@@ -31,7 +31,9 @@ export async function createPost(postData: any, file: any) {
   }
   formData.append('message', postData.message);
   formData.append('postType', postData.postType);
-
+  if (postData.movieId) {
+    formData.append('movieId', postData.movieId);
+  }
   if (postData.postType === PostType.MovieReview) {
     formData.append('moviePostFields[spoilers]', postData.spoiler);
     formData.append('movieId', postData.movieId);

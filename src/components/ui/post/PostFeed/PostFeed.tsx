@@ -44,6 +44,9 @@ import { customlinkifyOpts } from '../../../../utils/linkify-utils';
 import { getLocalStorage } from '../../../../utils/localstorage-utils';
 import FormatImageVideoList from '../../../../utils/video-utils';
 import useOnScreen from '../../../../hooks/useOnScreen';
+import { hasMovieDetailsFields, postMovieDataToMovieDBformat } from '../../../../routes/movies/movie-utils';
+
+const READ_MORE_TEXT_LIMIT = 300;
 
 interface Props {
   popoverOptions: string[];
@@ -405,13 +408,20 @@ function PostFeed({
   );
   const swiperDataForPost = (post: any) => {
     const imageVideoList = FormatImageVideoList(post.images, post.message);
-    return imageVideoList.map((imageData: any) => ({
-      videoKey: imageData.videoKey,
-      imageUrl: imageData.image_path,
-      linkUrl: isSinglePost ? undefined : imageLinkUrl(post, imageData._id),
-      postId: post.id,
-      imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
-    }));
+    if (post.movieId) {
+      const movieData = postMovieDataToMovieDBformat(post.movieId);
+      imageVideoList.splice(0, 0, { movieData });
+    }
+    return imageVideoList.map((imageData: any) => {
+      if (imageData.movieData) { return imageData; }
+      return ({
+        videoKey: imageData.videoKey,
+        imageUrl: imageData.image_path,
+        linkUrl: isSinglePost ? undefined : imageLinkUrl(post, imageData._id),
+        postId: post.id,
+        imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
+      });
+    });
   };
 
   const handleComment = () => {
@@ -456,7 +466,7 @@ function PostFeed({
                   onSpoilerClick={onSpoilerClick}
                   isSinglePost={isSinglePost}
                 />
-                {(post?.images?.length > 0 || findFirstYouTubeLinkVideoId(post?.message)) && (
+                {(post?.images?.length > 0 || findFirstYouTubeLinkVideoId(post?.message) || hasMovieDetailsFields(post.movieId)) && (
                   <CustomSwiper
                     context="post"
                     images={

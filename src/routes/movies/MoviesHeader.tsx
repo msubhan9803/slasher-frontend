@@ -32,9 +32,9 @@ const tabs = [
 ];
 const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => !t.devOnly);
 const sortoptions = [
-  { value: 'name', label: 'Alphabetical' },
-  { value: 'releaseDate', label: 'Release Date' },
-  { value: 'rating', label: 'User Rating' },
+  { value: 'name', label: 'Sort: Alphabetical' },
+  { value: 'releaseDate', label: 'Sort: Release Date' },
+  { value: 'rating', label: 'Sort: User Rating' },
 ];
 function MoviesHeader({
   tabKey, showKeys, setShowKeys, setSearch, search, sort, selectedKey,
@@ -57,7 +57,7 @@ function MoviesHeader({
           />
         </Col>
         <Col md={4} className="d-none d-lg-block">
-          <SortData sortVal={sortVal} onSelectSort={sort} sortoptions={sortoptions} title="Sort: " type="sort" />
+          <SortData sortVal={sortVal} onSelectSort={sort} sortoptions={sortoptions} placeholder="Sort..." type="sort" />
         </Col>
         <Col md={4} className="order-first order-md-last">
           <RoundButton className="d-lg-none w-100">Add your movie</RoundButton>

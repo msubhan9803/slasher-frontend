@@ -42,7 +42,7 @@ const LeftSidebarWrapper = styled.div`
   position: sticky;
   top: 93.75px;
   overflow-y: overlay;
-  padding: 2px 1rem 0 2px;
+  padding: 0px 1rem 0 0px;
   overscroll-behavior: contain;
 
   &::-webkit-scrollbar { display: none; }

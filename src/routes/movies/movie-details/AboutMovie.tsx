@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   Row, Image, Col,
 } from 'react-bootstrap';
-import styled from 'styled-components';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import {
@@ -29,6 +28,7 @@ import { enableDevFeatures } from '../../../utils/configEnvironment';
 import MovieReviews from '../movie-reviews/MovieReviews';
 import { addMovieUserStatus, deleteMovieUserStatus, getMoviesIdList } from '../../../api/movies';
 import MovieReviewDetails from '../movie-reviews/MovieReviewDetails';
+import { StyledMoviePoster } from './StyledUtils';
 
 interface MovieIconProps {
   label: string;
@@ -45,13 +45,6 @@ interface AboutMovieData {
   movieData: MovieData
   setMovieData: React.Dispatch<React.SetStateAction<MovieData | undefined>>
 }
-const StyledMoviePoster = styled.div`
-  aspect-ratio: 0.67;
-  img{
-    object-fit: cover;
-    box-shadow: 0 0 0 1px var(--poster-border-color);
-  }
-`;
 const MovieIconList = [
   {
     label: 'Favorite', key: 'favorite', icon: solid('heart'), iconColor: '#8F00FF', width: '1.354rem', height: '1.185rem', addMovie: false,

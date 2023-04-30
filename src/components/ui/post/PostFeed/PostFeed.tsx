@@ -46,8 +46,6 @@ import FormatImageVideoList from '../../../../utils/video-utils';
 import useOnScreen from '../../../../hooks/useOnScreen';
 import { hasMovieDetailsFields, postMovieDataToMovieDBformat } from '../../../../routes/movies/movie-utils';
 
-const READ_MORE_TEXT_LIMIT = 300;
-
 interface Props {
   popoverOptions: string[];
   postFeedData: any[];

@@ -300,7 +300,7 @@ function EventSuggestion() {
         <ErrorMessageList errorMessages={errors} className="mt-4" />
         {isEventSuggestionSuccessful && (
           <Alert variant="info" className="my-4">
-            <strong>Thank you for your suggestion!</strong>
+            Thank you for your suggestion!
           </Alert>
         )}
         <Row className="my-4 pe-md-5">

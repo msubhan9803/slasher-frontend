@@ -117,7 +117,7 @@ function prettifyErrorMessages(errorMessageList: string[]) {
 }
 
 const INITIAL_EVENTFORM: EventForm = {
-  name: '', eventType: '', country: '', state: '', city: '', eventInfo: '', url: '', author: '', address: '', startDate: null, endDate: null,
+  name: '', eventType: '', country: 'disabled', state: 'disabled', city: '', eventInfo: '', url: '', author: '', address: '', startDate: null, endDate: null,
 };
 
 function EventSuggestion() {
@@ -130,7 +130,6 @@ function EventSuggestion() {
   const [errors, setErrors] = useState<string[]>([]);
   const [isEventSuggestionSuccessful, setIsEventSuggestionSuccessful] = useState(false);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
-  const [selectedEventState, setSelectedEventState] = useState('disabled');
 
   const resetFormData = () => {
     setImageUpload(undefined);
@@ -142,7 +141,7 @@ function EventSuggestion() {
     setIsEventSuggestionSuccessful(false);
 
     if (key === 'country') {
-      setEventForm({ ...eventForm, [key]: value, state: '' });
+      setEventForm({ ...eventForm, [key]: value, state: 'disabled' });
       return;
     }
     setEventForm({ ...eventForm, [key]: value });
@@ -283,8 +282,8 @@ function EventSuggestion() {
           </Col>
           <Col md={6} className="mt-3">
             <SortData
-              sortVal={selectedEventState}
-              onSelectSort={(val) => { setSelectedEventState(val); }}
+              sortVal={eventForm.state}
+              onSelectSort={(val) => { handleChange(val, 'state'); }}
               sortoptions={[{ value: 'disabled', label: 'State/Province' }, ...getStatesbyCountryName(eventForm.country)]}
               type="form"
             />

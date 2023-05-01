@@ -349,6 +349,7 @@ export class FeedPostsService {
         $and: [
           { userId: new mongoose.Types.ObjectId(userId) },
           { movieId: new mongoose.Types.ObjectId(movieId) },
+          { postType: PostType.MovieReview },
           { is_deleted: FeedPostDeletionState.NotDeleted }],
       })
       .exec();

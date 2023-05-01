@@ -842,6 +842,7 @@ describe('FeedPostsService', () => {
         feedPostFactory.build({
           userId: activeUser.id,
           movieId: movie.id,
+          postType: PostType.MovieReview
         }),
       );
       await feedPostsService.findById(feedPostData.id, false);
@@ -851,6 +852,7 @@ describe('FeedPostsService', () => {
       const post = await feedPostsService.findFeedPost(activeUser.id, movie.id);
       expect(post.movieId.toString()).toEqual(movie.id);
       expect(post.userId.toString()).toEqual(activeUser.id);
+      expect(post.postType).toEqual(PostType.MovieReview);
     });
   });
 

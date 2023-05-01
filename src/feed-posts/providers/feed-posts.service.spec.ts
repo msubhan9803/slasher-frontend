@@ -835,7 +835,7 @@ describe('FeedPostsService', () => {
     });
   });
 
-  describe('#findFeedPost', () => {
+  describe('#findMovieReviewPost', () => {
     beforeEach(async () => {
       // Created post is associated with the `activeUser`
       const feedPostData = await feedPostsService.create(
@@ -849,7 +849,7 @@ describe('FeedPostsService', () => {
     });
 
     it('successfully find feed post details', async () => {
-      const post = await feedPostsService.findFeedPost(activeUser.id, movie.id);
+      const post = await feedPostsService.findMovieReviewPost(activeUser.id, movie.id);
       expect(post.movieId.toString()).toEqual(movie.id);
       expect(post.userId.toString()).toEqual(activeUser.id);
       expect(post.postType).toEqual(PostType.MovieReview);

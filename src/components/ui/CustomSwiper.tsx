@@ -58,6 +58,7 @@ const StyledSwiper = styled(Swiper)`
   background: var(--bs-black);
   height:100%;
   width: fit-content;
+  padding: 2px 0px;
 
   /* Center slide text vertically */
   display: -webkit-box;

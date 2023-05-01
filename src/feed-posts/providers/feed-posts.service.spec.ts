@@ -842,7 +842,7 @@ describe('FeedPostsService', () => {
         feedPostFactory.build({
           userId: activeUser.id,
           movieId: movie.id,
-          postType: PostType.MovieReview
+          postType: PostType.MovieReview,
         }),
       );
       await feedPostsService.findById(feedPostData.id, false);

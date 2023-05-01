@@ -87,6 +87,7 @@ interface Props {
   commentSent?: boolean;
   setCommentReplyErrorMessage?: (value: string[]) => void;
   setCommentErrorMessage?: (value: string[]) => void;
+  showPubWiseAdAtPageBottom?: boolean;
 }
 
 interface StyledProps {
@@ -284,6 +285,7 @@ function PostFeed({
   handleSearch, mentionList, commentImages, setCommentImages, commentError,
   commentReplyError, postType, onSpoilerClick,
   commentSent, setCommentReplyErrorMessage, setCommentErrorMessage,
+  showPubWiseAdAtPageBottom,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [isCommentClick, setCommentClick] = useState<boolean>(false);
@@ -550,7 +552,7 @@ function PostFeed({
             }
           </div>
           {/* Below ad is to be shown in the end of a single page post */}
-          {isSinglePost && <PubWiseAd className="text-center mt-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />}
+          {isSinglePost && showPubWiseAdAtPageBottom && <PubWiseAd className="text-center mt-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />}
 
           {!isSinglePost && <hr className="post-separator" />}
 
@@ -621,5 +623,6 @@ PostFeed.defaultProps = {
   commentSent: undefined,
   setCommentReplyErrorMessage: undefined,
   setCommentErrorMessage: undefined,
+  showPubWiseAdAtPageBottom: undefined,
 };
 export default PostFeed;

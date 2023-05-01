@@ -210,7 +210,7 @@ export class FeedPostsController {
     if (postType === PostType.MovieReview) {
       const movieUserStatusData = await this.movieUserStatusService.findMovieUserStatus(
         (feedPost.userId as any)._id.toString(),
-        feedPost.movieId.toString(),
+        (feedPost.movieId as any)._id.toString(),
       );
       if (movieUserStatusData) {
         reviewData = {
@@ -356,21 +356,21 @@ export class FeedPostsController {
       (updateFeedPostsDto as unknown as FeedPost).spoilers = updateFeedPostsDto.moviePostFields.spoilers;
       if (updateFeedPostsDto.moviePostFields.rating) {
         await this.moviesService.createOrUpdateRating(
-          feedPost.movieId.toString(),
+          (feedPost.movieId as any)._id.toString(),
           updateFeedPostsDto.moviePostFields.rating,
           user.id,
         );
       }
       if (updateFeedPostsDto.moviePostFields.goreFactorRating) {
         await this.moviesService.createOrUpdateGoreFactorRating(
-          feedPost.movieId.toString(),
+          (feedPost.movieId as any)._id.toString(),
           updateFeedPostsDto.moviePostFields.goreFactorRating,
           user.id,
         );
       }
       if (updateFeedPostsDto.moviePostFields.worthWatching) {
         await this.moviesService.createOrUpdateWorthWatching(
-          feedPost.movieId.toString(),
+          (feedPost.movieId as any)._id.toString(),
           updateFeedPostsDto.moviePostFields.worthWatching,
           user.id,
         );
@@ -426,7 +426,7 @@ export class FeedPostsController {
         feedPost,
         ['_id', 'message', 'createdAt', 'lastUpdateAt',
           'rssfeedProviderId', 'images', 'userId', 'commentCount',
-          'likeCount', 'likedByUser'],
+          'likeCount', 'likedByUser', 'movieId'],
       ),
     );
   }

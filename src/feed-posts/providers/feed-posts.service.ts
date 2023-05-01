@@ -52,6 +52,7 @@ export class FeedPostsService {
       .populate('userId', 'userName _id profilePic profile_status')
       .populate('rssfeedProviderId', 'title _id logo')
       .populate('rssFeedId', 'content title')
+      .populate('movieId', 'logo name releaseDate')
       .exec();
 
     if (feedPost) {
@@ -177,6 +178,7 @@ export class FeedPostsService {
       })
       .populate('userId', '_id userName profilePic')
       .populate('rssfeedProviderId', '_id title logo')
+      .populate('movieId', 'logo name releaseDate')
       .sort({ lastUpdateAt: -1 })
       .limit(limit)
       .exec();

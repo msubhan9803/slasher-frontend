@@ -16,6 +16,8 @@ import { UserSettingsService } from '../../../../../src/settings/providers/user-
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { BetaTestersService } from '../../../../../src/beta-tester/providers/beta-testers.service';
+import { betaTesterFactory } from '../../../../factories/beta-tester.factory';
 
 describe('Users / Register (e2e)', () => {
   let app: INestApplication;
@@ -24,6 +26,7 @@ describe('Users / Register (e2e)', () => {
   let mailService: MailService;
   let disallowedUsernameService: DisallowedUsernameService;
   let userSettingsService: UserSettingsService;
+  let betaTestersService: BetaTestersService;
 
   const sampleUserRegisterObject = {
     firstName: 'user',
@@ -46,6 +49,7 @@ describe('Users / Register (e2e)', () => {
     mailService = moduleRef.get<MailService>(MailService);
     disallowedUsernameService = moduleRef.get<DisallowedUsernameService>(DisallowedUsernameService);
     userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
+    betaTestersService = moduleRef.get<BetaTestersService>(BetaTestersService);
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -60,6 +64,16 @@ describe('Users / Register (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    await betaTestersService.create(
+      betaTesterFactory.build(
+        { name: 'TestUser', email: 'testuser@gmail.com' },
+      ),
+    );
+    await betaTestersService.create(
+      betaTesterFactory.build(
+        { name: 'TestUser', email: 'differenttestuser@gmail.com' },
+      ),
+    );
     // Reset sequences so we start fresh before each test
     rewindAllFactories();
   });
@@ -395,6 +409,32 @@ describe('Users / Register (e2e)', () => {
         expect(response.body.message).toContain(
           'Username is not available',
         );
+      });
+    });
+
+    describe('A user whose email is not in the BetaTesters collection', () => {
+      it('receives an error message when attempting to register', async () => {
+        jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
+        postBody.email = 'slasherusertest@gmail.com';
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/users/register')
+          .send(postBody)
+          .expect(HttpStatus.BAD_REQUEST);
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'Only beta testers are able to register at this time, sorry!',
+        });
+      });
+
+      it('when email is already exists in betatester than expected response', async () => {
+        jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/users/register')
+          .send(postBody)
+          .expect(HttpStatus.CREATED);
+        expect(response.body).toEqual({
+          id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        });
       });
     });
   });

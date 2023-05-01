@@ -7,7 +7,7 @@ export class GetFriendsDto {
   @IsNotEmpty()
   @Type(() => Number)
   @IsNumber()
-  @Max(20)
+  @Max(40)
   limit: number;
 
   @Type(() => Number)

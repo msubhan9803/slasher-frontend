@@ -22,6 +22,10 @@ import getMainFeedPostResponse from '../../../../fixtures/feed-post/main-feed-po
 import { FeedPostDocument } from '../../../../../src/schemas/feedPost/feedPost.schema';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { Movie } from '../../../../../src/schemas/movie/movie.schema';
+import { MoviesService } from '../../../../../src/movies/providers/movies.service';
+import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
+import { moviesFactory } from '../../../../factories/movies.factory';
 
 describe('Feed-Post / Main Feed Posts (e2e)', () => {
   let app: INestApplication;
@@ -38,6 +42,8 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
   let friendsModel: Model<FriendDocument>;
   let rssFeedProviderFollowsService: RssFeedProviderFollowsService;
   let rssFeedProvidersService: RssFeedProvidersService;
+  let movie: Movie;
+  let moviesService: MoviesService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -46,6 +52,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
     connection = moduleRef.get<Connection>(getConnectionToken());
 
     usersService = moduleRef.get<UsersService>(UsersService);
+    moviesService = moduleRef.get<MoviesService>(MoviesService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
@@ -97,6 +104,16 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
         rssfeedProviderId: rssFeedProviderData2._id,
       },
     );
+    movie = await moviesService.create(
+      moviesFactory.build(
+        {
+          name: 'Shawshank Redemption',
+          status: MovieActiveStatus.Active,
+          releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          logo: 'https://picsum.photos/id/237/200/300',
+        },
+      ),
+    );
     await feedPostsService.create(
       feedPostFactory.build({
         userId: activeUser._id,
@@ -114,6 +131,8 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
         createdAt: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(),
         updatedAt: DateTime.fromISO('2022-10-23T00:00:00Z').toJSDate(),
         lastUpdateAt: DateTime.fromISO('2022-10-19T00:00:00Z').toJSDate(),
+        // Feedpost with a movie (feature: Share movie as a post)
+        movieId: movie._id,
       }),
     );
   });

@@ -62,7 +62,7 @@ definitions:
         caches:
           - docker
         name: 'terraform plan and apply'
-        image: hashicorp/terraform:1.1.1
+        image: hashicorp/terraform:1.4.0
         script:
           - echo "Deploying infra"
           - export ENVIRONMENT=$(cat ./environment.txt)

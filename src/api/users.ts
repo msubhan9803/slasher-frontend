@@ -304,3 +304,36 @@ export async function resetPassword(
     },
   );
 }
+
+export async function getFollowedHashtags(
+  userId: string,
+) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.get(`${apiUrl}/api/v1/users/${userId}/hashtag-follows`, { headers });
+}
+
+export async function followHashtag(
+  hashtag: string,
+  userId: string,
+  notification: number,
+) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.put(`${apiUrl}/api/v1/users/${userId}/hashtag-follows/${hashtag}`, { hashtag, notification }, { headers });
+}
+
+export async function unfollowHashtag(
+  hashtag: string,
+  userId: string,
+) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.delete(`${apiUrl}/api/v1/users/${userId}/followed-hashtags/${hashtag}`, { headers });
+}

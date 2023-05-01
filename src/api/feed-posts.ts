@@ -137,12 +137,15 @@ export async function getMovieReview(postId: string, lastRetrievedPostId?: strin
   return axios.get(`${apiUrl}/api/v1/feed-posts/${postId}/reviews${queryParameter}`, { headers });
 }
 
-export async function getHashtagPostList(hashTag: string) {
+export async function getHashtagPostList(hashTag: string, lastRetrievedPostId?: string) {
   const token = Cookies.get('sessionToken');
   const headers = {
     Authorization: `Bearer ${token}`,
   };
   const limit = 10;
-  const queryParameter = `?limit=${limit}`;
+  let queryParameter = `?limit=${limit}`;
+  if (lastRetrievedPostId) {
+    queryParameter += `&before=${lastRetrievedPostId}`;
+  }
   return axios.get(`${apiUrl}/api/v1/feed-posts/hashtag/${hashTag}${queryParameter}`, { headers });
 }

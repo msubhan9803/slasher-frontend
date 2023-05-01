@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+/* eslint-disable max-lines */
+import React, { useEffect, useState, useCallback } from 'react';
 import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, Col, Row } from 'react-bootstrap';
@@ -9,25 +10,113 @@ import { StyledHastagsCircle } from '../../../search/component/Hashtags';
 import FollowingHeader from '../FollowingHeader';
 import { HashtagButton } from '../../../onboarding/hashtag/OnboardingHashtag';
 import { enableDevFeatures } from '../../../../utils/configEnvironment';
+import { followHashtag, getFollowedHashtags, unfollowHashtag } from '../../../../api/users';
+import { useAppSelector } from '../../../../redux/hooks';
 
 const CustomHashTagButton = styled(HashtagButton)`
   background-color: #383838;
 `;
+interface FollowHashtagProps {
+  notification: number,
+  userId: string,
+  _id: string,
+  id: string,
+  title: string,
+  totalPost: number,
+  followed: boolean,
+}
 
-const followHashtags = [
-  { id: 'hashtag01', title: 'horrortrickortreat', notify: true },
-  { id: 'hashtag02', title: 'horrorgothicbook', notify: true },
-  { id: 'hashtag03', title: 'slasherhorrormovies', notify: true },
-  { id: 'hashtag04', title: 'americanhorrorstory', notify: false },
-];
 const hashTags = [
   { title: 'Trending', tags: ['onlinebusiness', 'slasher', 'follow4follow', 'slashershop', 'follow4follow'] },
   { title: 'Most popular', tags: ['onlinebusiness', 'slasher', 'follow4follow', 'slashershop', 'follow4follow'] },
 ];
 function FollowingHashtags() {
+  const userData = useAppSelector((state) => state.user);
   const [search, setSearch] = useState<string>('');
-  const [notificationOn, setNotificationOn] = useState(false);
-  const [bgColor, setBgColor] = useState<boolean>(false);
+  const [followedHashtag, setFollowedHastag] = useState<FollowHashtagProps[]>();
+
+  const getFollowingHashtags = useCallback(() => {
+    if (userData.user) {
+      getFollowedHashtags(userData.user.id).then((res: any) => {
+        const newHashtags = res.data.map((hashtagDetail: any) => (
+          {
+            _id: hashtagDetail.hashTagId._id,
+            id: hashtagDetail.hashTagId._id,
+            notification: hashtagDetail.notification,
+            title: hashtagDetail.hashTagId.name,
+            totalPost: hashtagDetail.hashTagId.totalPost,
+            followed: true,
+          }
+        ));
+        setFollowedHastag(newHashtags);
+      });
+    }
+  }, [userData.user]);
+  useEffect(() => {
+    getFollowingHashtags();
+  }, [getFollowingHashtags]);
+
+  const followUnfollowClick = (hashtagData: any) => {
+    if (!hashtagData.followed) {
+      followHashtag(hashtagData.title, userData.user.id, 1).then(() => {
+        const updatedHashtag = followedHashtag?.map((hashtag) => {
+          if (hashtag.id === hashtagData.id) {
+            return {
+              ...hashtag,
+              followed: true,
+              notification: 0,
+            };
+          }
+          return hashtag;
+        });
+        setFollowedHastag(updatedHashtag);
+      });
+    } else {
+      unfollowHashtag(hashtagData.title, userData.user.id).then(() => {
+        const updatedHashtag = followedHashtag?.map((hashtag) => {
+          if (hashtag.id === hashtagData.id) {
+            return {
+              ...hashtag,
+              followed: false,
+              notification: 1,
+            };
+          }
+          return hashtag;
+        });
+        setFollowedHastag(updatedHashtag);
+      });
+    }
+  };
+
+  const onOffNotificationClick = (hashtagData: any) => {
+    if (hashtagData.notification === 0) {
+      followHashtag(hashtagData.title, userData.user.id, 1).then(() => {
+        const updatedHashtag = followedHashtag?.map((hashtag) => {
+          if (hashtag.id === hashtagData.id) {
+            return {
+              ...hashtag,
+              notification: 1,
+            };
+          }
+          return hashtag;
+        });
+        setFollowedHastag(updatedHashtag);
+      });
+    } else {
+      followHashtag(hashtagData.title, userData.user.id, 0).then(() => {
+        const updatedHashtag = followedHashtag?.map((hashtag) => {
+          if (hashtag.id === hashtagData.id) {
+            return {
+              ...hashtag,
+              notification: 0,
+            };
+          }
+          return hashtag;
+        });
+        setFollowedHastag(updatedHashtag);
+      });
+    }
+  };
 
   return (
     <div>
@@ -60,39 +149,53 @@ function FollowingHashtags() {
             ))}
           </div>
         )}
-        {followHashtags.map((hashtag: any, index: number) => (
-          <div key={hashtag.id}>
-            <Row className="align-items-center p-3 mb-0">
-              <Col sm={7} md={8} lg={7} xl={8}>
-                <span className="d-flex align-items-center">
-                  <StyledHastagsCircle className="ms-sm-2 me-sm-4 bg-black align-items-center d-flex fs-1 justify-content-around fw-light">#</StyledHastagsCircle>
-                  <div>
-                    <p className="fs-3 fw-bold mb-0">
-                      #
-                      {hashtag.title}
-                    </p>
-                    <small className="text-light mb-0">24.3M posts</small>
-                  </div>
-                </span>
-              </Col>
-              <Col sm={5} md={4} lg={5} xl={4} className="mt-4 mt-sm-0">
-                <div className="d-flex align-items-center justify-content-center justify-content-sm-end">
-                  <Button aria-label="notificatio bell" size="sm" className="me-2 pe-2" variant="link" onClick={() => setNotificationOn(!notificationOn)}>
-                    <FontAwesomeIcon size="lg" className={`${notificationOn ? 'me-0' : 'me-1'} `} icon={notificationOn ? regular('bell-slash') : regular('bell')} />
-                  </Button>
-                  <BorderButton
-                    buttonClass={`${bgColor ? 'text-black' : 'text-white'} py-2 w-100`}
-                    variant="sm"
-                    toggleBgColor={bgColor}
-                    handleClick={() => setBgColor(!bgColor)}
-                    toggleButton
-                  />
-                </div>
-              </Col>
-            </Row>
-            {(index !== (followHashtags.length - 1)) && <StyledBorder />}
-          </div>
-        ))}
+        {followedHashtag
+          && followedHashtag.length > 0
+          && followedHashtag.map(
+            (hashtag: FollowHashtagProps, index: number) => (
+              <div key={hashtag.id}>
+                <Row className="align-items-center p-3 mb-0">
+                  <Col sm={7} md={8} lg={7} xl={8}>
+                    <span className="d-flex align-items-center">
+                      <StyledHastagsCircle
+                        className="ms-sm-2 me-sm-4 bg-black align-items-center d-flex fs-1 justify-content-around fw-light"
+                      >
+                        #
+                      </StyledHastagsCircle>
+                      <div>
+                        <p className="fs-3 fw-bold mb-0">
+                          #
+                          {hashtag.title}
+                        </p>
+                        <small className="text-light mb-0">
+                          {hashtag.totalPost}
+                          {' '}
+                          posts
+                        </small>
+                      </div>
+                    </span>
+                  </Col>
+                  <Col sm={5} md={4} lg={5} xl={4} className="mt-4 mt-sm-0">
+                    <div className="d-flex align-items-center justify-content-center justify-content-sm-end">
+                      {hashtag.followed && (
+                        <Button aria-label="notificatio bell" size="sm" className="me-2 pe-2" variant="link" onClick={() => onOffNotificationClick(hashtag)}>
+                          <FontAwesomeIcon size="lg" className={`${hashtag.notification === 1 ? 'me-0' : 'me-1'} `} icon={hashtag.notification === 1 ? regular('bell-slash') : regular('bell')} />
+                        </Button>
+                      )}
+                      <BorderButton
+                        buttonClass={'hashtag.followed? \'text-white\' : \'text-black\'} py-2 w-100'}
+                        variant="sm"
+                        toggleBgColor={hashtag.followed}
+                        handleClick={() => followUnfollowClick(hashtag)}
+                        toggleButton
+                      />
+                    </div>
+                  </Col>
+                </Row>
+                {(index !== (followedHashtag.length - 1)) && <StyledBorder />}
+              </div>
+            ),
+          )}
       </div>
     </div>
   );

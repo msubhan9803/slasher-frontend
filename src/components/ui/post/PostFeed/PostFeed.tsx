@@ -142,6 +142,8 @@ function PostContent({
   const messageRef = useRef<any>(null);
   const visible = useOnScreen(messageRef);
   const [showReadMoreLink, setShowReadMoreLink] = useState(false);
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   let { message } = post;
 
@@ -178,8 +180,17 @@ function PostContent({
     }
   }, [isSinglePost, visible]);
 
+  const handleHashtagClick = (content: string, postDetail: any) => {
+    const state = { pathname };
+    if (content.startsWith('#')) {
+      navigate(`/app/search/posts?hashtag=${content.slice(1)}`, { state });
+    } else {
+      navigate(`/${postDetail.userName}/posts/${postDetail.id}`, { state });
+    }
+  };
+
   return (
-    <div>
+    <div className="d-flex">
       {postType === 'review' && (
         <div className="d-flex align-items-center mb-3">
           {post?.rating !== 0 && (
@@ -242,7 +253,13 @@ function PostContent({
                     : cleanExternalHtmlContent(message),
                 }
               }
-              onClick={() => !isSinglePost && onPostContentClick(post)}
+              onClick={(e: any) => {
+                if (e.target.tagName === 'SPAN' && e.target.textContent.startsWith('#')) {
+                  handleHashtagClick(e.target.innerText, post);
+                } else if (!isSinglePost) {
+                  onPostContentClick(post);
+                }
+              }}
               aria-label="post-content"
               onKeyDown={(e) => handlePostContentKeyDown(e, post)}
             />
@@ -368,14 +385,6 @@ function PostFeed({
       if (shouldCallPostContentClick) {
         onPostContentClick(post);
       }
-    }
-  };
-  const handleHashtagClick = (content: string, post: any) => {
-    const state = { pathname };
-    if (content.startsWith('#')) {
-      navigate(`/app/search/posts?hashtag=${content.slice(1)}`, { state });
-    } else {
-      navigate(`/${post.userName}/posts/${post.id}`, { state });
     }
   };
 

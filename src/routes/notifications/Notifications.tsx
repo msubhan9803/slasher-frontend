@@ -37,7 +37,7 @@ function Notifications() {
   const lastLocationKeyRef = useRef(location.key);
   const fetchNotifcations = useCallback((forceReload = false) => {
     setLoadingPosts(true);
-    const lastNotificationId = (notificationData.length > 1) ? notificationData[notificationData.length - 1]._id : undefined;
+    const lastNotificationId = (notificationData.length > 0) ? notificationData[notificationData.length - 1]._id : undefined;
     getNotifications(forceReload ? undefined : lastNotificationId).then((res) => {
       const notification = res.data;
       setNotificationData((prev: any) => [

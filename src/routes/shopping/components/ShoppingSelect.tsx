@@ -14,10 +14,10 @@ function ShoppingSelect() {
   return (
     <Row className="justify-content-between align-items-center">
       <Col md={4} lg={5} className="">
-        <SortData type="select" />
+        <SortData />
       </Col>
       <Col md={3} lg={5} xl={4} className="mt-4 mt-md-0">
-        <SortData title="Sort: " sortoptions={sortoptions} type="sort" />
+        <SortData sortoptions={sortoptions} type="sort" />
       </Col>
       <Col className={`d-lg-none mt-3 mt-md-0 mb-3 mb-md-0 order-md-3 order-first ${params['*'] === 'all' && 'd-none'}`}>
         <RoundButtonLink to="/shopping/all" className="w-100" variant="primary">

@@ -1,9 +1,12 @@
 import React from 'react';
 import PostDetail from '../../../components/ui/post/PostDetail';
+import { StyledReviewContainer } from './MovieReviews';
 
 function MovieReviewDetails() {
   return (
-    <PostDetail postType="review" />
+    <StyledReviewContainer>
+      <PostDetail postType="review" />
+    </StyledReviewContainer>
   );
 }
 

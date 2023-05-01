@@ -1,12 +1,12 @@
 /* eslint-disable max-lines */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Card, Col, Row,
 } from 'react-bootstrap';
 import {
   Link, useLocation, useNavigate, useSearchParams,
 } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import linkifyHtml from 'linkify-html';
 import 'swiper/swiper-bundle.css';
 import Cookies from 'js-cookie';
@@ -43,8 +43,8 @@ import LoadingIndicator from '../../LoadingIndicator';
 import { customlinkifyOpts } from '../../../../utils/linkify-utils';
 import { getLocalStorage } from '../../../../utils/localstorage-utils';
 import FormatImageVideoList from '../../../../utils/video-utils';
-
-const READ_MORE_TEXT_LIMIT = 300;
+import useOnScreen from '../../../../hooks/useOnScreen';
+import { hasMovieDetailsFields, postMovieDataToMovieDBformat } from '../../../../routes/movies/movie-utils';
 
 interface Props {
   popoverOptions: string[];
@@ -114,12 +114,165 @@ const StyleSpoilerButton = styled(RoundButton)`
 `;
 
 const StyledContentContainer = styled.div<StyledProps>`
-  max-width: max-content;
-  cursor: pointer;
+    ${(props) => (!props?.detailsPage) && css`
+      display: -webkit-box;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-clamp: 4;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 4;
+    `}
+  cursor: ${(props) => (!props?.detailsPage ? 'pointer' : 'auto')};
   a {
     display: inline-block;
   }
 `;
+type PostContentPropsType = {
+  post: any, postType: string | undefined, generateReadMoreLink: any,
+  escapeHtml: boolean | undefined, onPostContentClick: (post: any) => void,
+  handlePostContentKeyDown: (e: React.KeyboardEvent, post: any) => void,
+  loginUserId: string | undefined, spoilerId: any,
+  onSpoilerClick: ((value: string) => void) | undefined, isSinglePost: boolean | undefined,
+};
+function PostContent({
+  post, postType, generateReadMoreLink,
+  escapeHtml, onPostContentClick, handlePostContentKeyDown, loginUserId,
+  spoilerId, onSpoilerClick, isSinglePost,
+}: PostContentPropsType) {
+  const messageRef = useRef<any>(null);
+  const visible = useOnScreen(messageRef);
+  const [showReadMoreLink, setShowReadMoreLink] = useState(false);
+
+  let { message } = post;
+
+  if (post.rssFeedTitle) {
+    // Posts almost always have a title, but sometimes the post title also appears redundantly in
+    // the content (and when it is in the content, we've always found it in an h1 tag so far).
+    // Having a double title display doesn't look good, so we'll remove the second title if we
+    // find it.
+    const firstH1TagRegex = /<h1[^>]*>(.+)<\/h1>/i;
+    const firstH1Tag = message.match(firstH1TagRegex)?.[0];
+    const firstH1TagContent = message.match(firstH1TagRegex)?.[1];
+
+    if (firstH1Tag && firstH1TagContent) {
+      // If the normalized title is very similar to the content from the first h1 tag, then we'll
+      // remove the h1 tag content.
+      const similarity = stringSimilarity.compareTwoStrings(post.rssFeedTitle, firstH1TagContent);
+      // Generally, differences between the title and the h1 title come from html-entity-encoded
+      // versions of the same characters in the h1 title.
+      // We may want to move this logic to the server side feed sync code later on.
+      if (similarity > 0.75) {
+        // Remove first h1 tag because a likely duplicate title was found.
+        message = message.replace(firstH1Tag, '');
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (!isSinglePost) {
+      if (messageRef.current) {
+        // Note: We are checking to show the "...read more" text based on the
+        const s = messageRef.current?.scrollHeight > messageRef.current?.clientHeight;
+        setShowReadMoreLink(s);
+      }
+    }
+  }, [isSinglePost, visible]);
+
+  return (
+    <div>
+      {postType === 'review' && (
+        <div className="d-flex align-items-center mb-3">
+          {post?.rating !== 0 && (
+            <div className={`px-3 py-2 bg-dark rounded-pill d-flex align-items-center ${(post.worthWatching && !post.goreFactor) && 'me-3'}`}>
+              <CustomRatingText
+                rating={post.rating}
+                icon={solid('star')}
+                ratingType="star"
+                customWidth="16.77px"
+                customHeight="16px"
+              />
+            </div>
+          )}
+          {post?.goreFactor !== 0 && (
+            <div className={`align-items-center bg-dark d-flex py-2 px-3 rounded-pill ${post.rating && 'ms-3'} ${post.worthWatching && 'me-3'}`}>
+              <CustomRatingText
+                rating={post.goreFactor}
+                icon={solid('burst')}
+                ratingType="burst"
+                customWidth="15.14px"
+                customHeight="16px"
+              />
+            </div>
+          )}
+          {post.worthWatching !== WorthWatchingStatus.NoRating && (
+            <CustomWortItText
+              divClass="align-items-center py-2 px-3 bg-dark rounded-pill"
+              textClass="fs-4"
+              customCircleWidth="16px"
+              customCircleHeight="16px"
+              customIconWidth="8.53px"
+              customIconHeight="8.53px"
+              worthIt={post.worthWatching}
+            />
+          )}
+        </div>
+      )}
+      {(post.spoilers
+        && post.userId !== loginUserId && !spoilerId.includes(post.id)
+      )
+        ? (
+          <div className="d-flex flex-column align-items-center p-5 mt-3" style={{ backgroundColor: '#1B1B1B' }}>
+            <h2 className="text-primary fw-bold">Warning</h2>
+            <p className="fs-3">Contains spoilers</p>
+            <StyleSpoilerButton variant="filter" className="fs-5" onClick={() => onSpoilerClick && onSpoilerClick(post.id)}>
+              Click to view
+            </StyleSpoilerButton>
+          </div>
+        ) : (
+          <span>
+            {/* eslint-disable-next-line react/no-danger */}
+            <StyledContentContainer
+              ref={messageRef}
+              detailsPage={isSinglePost ?? false}
+              dangerouslySetInnerHTML={
+                {
+                  __html: escapeHtml && !post?.spoiler
+                    // eslint-disable-next-line max-len
+                    ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(message)), customlinkifyOpts))
+                    : cleanExternalHtmlContent(message),
+                }
+              }
+              onClick={() => !isSinglePost && onPostContentClick(post)}
+              aria-label="post-content"
+              onKeyDown={(e) => handlePostContentKeyDown(e, post)}
+            />
+            {
+              post.hashTag?.map((hashtag: string) => (
+                <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
+                  #
+                  {hashtag}
+                </span>
+              ))
+            }
+            {
+              !isSinglePost
+              && showReadMoreLink
+              && (
+                <>
+                  {' '}
+                  <Link to={generateReadMoreLink(post)} className="text-decoration-none text-primary">
+                    ...read more
+                  </Link>
+                </>
+              )
+            }
+          </span>
+        )}
+
+    </div>
+  );
+}
+
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, isSinglePost,
   commentsData, removeComment, setCommentID, setCommentReplyID, commentID,
@@ -157,7 +310,6 @@ function PostFeed({
     }
     return `/${post.userName}/posts/${post.id}`;
   };
-
   useEffect(() => {
     setPostData(postFeedData);
   }, [postFeedData]);
@@ -227,145 +379,6 @@ function PostFeed({
     }
   };
 
-  const renderPostContent = (post: any) => {
-    let { message } = post;
-
-    if (post.rssFeedTitle) {
-      // Posts almost always have a title, but sometimes the post title also appears redundantly in
-      // the content (and when it is in the content, we've always found it in an h1 tag so far).
-      // Having a double title display doesn't look good, so we'll remove the second title if we
-      // find it.
-      const firstH1TagRegex = /<h1[^>]*>(.+)<\/h1>/i;
-      const firstH1Tag = message.match(firstH1TagRegex)?.[0];
-      const firstH1TagContent = message.match(firstH1TagRegex)?.[1];
-
-      if (firstH1Tag && firstH1TagContent) {
-        // If the normalized title is very similar to the content from the first h1 tag, then we'll
-        // remove the h1 tag content.
-        const similarity = stringSimilarity.compareTwoStrings(post.rssFeedTitle, firstH1TagContent);
-        // Generally, differences between the title and the h1 title come from html-entity-encoded
-        // versions of the same characters in the h1 title.
-        // We may want to move this logic to the server side feed sync code later on.
-        if (similarity > 0.75) {
-          // Remove first h1 tag because a likely duplicate title was found.
-          message = message.replace(firstH1Tag, '');
-        }
-      }
-    }
-
-    let showReadMoreLink = false;
-    if (!isSinglePost && message?.length >= READ_MORE_TEXT_LIMIT) {
-      let reducedContentLength = post.message.substring(0, READ_MORE_TEXT_LIMIT).lastIndexOf(' ');
-      if (reducedContentLength === -1) {
-        // This means that no spaces were found anywhere in the post content.  Since posts can't be
-        // empty, that means that someone either put in a really long link or a lot of text with
-        // no spaces.  In either case, we'll fall back to just cutting the post content to
-        // READ_MORE_TEXT_LIMIT.
-        reducedContentLength = READ_MORE_TEXT_LIMIT;
-      }
-      message = post.message.substring(0, reducedContentLength);
-      showReadMoreLink = true;
-    }
-    return (
-      <div>
-        {postType === 'review' && (
-          <div className="d-flex align-items-center mb-3">
-            {post?.rating !== 0 && (
-              <div className={`px-3 py-2 bg-dark rounded-pill d-flex align-items-center ${(post.worthWatching && !post.goreFactor) && 'me-3'}`}>
-                <CustomRatingText
-                  rating={post.rating}
-                  icon={solid('star')}
-                  ratingType="star"
-                  customWidth="16.77px"
-                  customHeight="16px"
-                />
-              </div>
-            )}
-            {post?.goreFactor !== 0 && (
-              <div className={`align-items-center bg-dark d-flex py-2 px-3 rounded-pill ${post.rating && 'ms-3'} ${post.worthWatching && 'me-3'}`}>
-                <CustomRatingText
-                  rating={post.goreFactor}
-                  icon={solid('burst')}
-                  ratingType="burst"
-                  customWidth="15.14px"
-                  customHeight="16px"
-                />
-              </div>
-            )}
-            {post.worthWatching !== WorthWatchingStatus.NoRating && (
-              <CustomWortItText
-                divClass="align-items-center py-2 px-3 bg-dark rounded-pill"
-                textClass="fs-4"
-                customCircleWidth="16px"
-                customCircleHeight="16px"
-                customIconWidth="8.53px"
-                customIconHeight="8.53px"
-                worthIt={post.worthWatching}
-              />
-            )}
-          </div>
-        )}
-        {(post.spoilers
-          && post.userId !== loginUserId && !spoilerId.includes(post.id)
-        )
-          ? (
-            <div className="d-flex flex-column align-items-center p-5 mt-3" style={{ backgroundColor: '#1B1B1B' }}>
-              <h2 className="text-primary fw-bold">Warning</h2>
-              <p className="fs-3">Contains spoilers</p>
-              <StyleSpoilerButton variant="filter" className="fs-5" onClick={() => onSpoilerClick && onSpoilerClick(post.id)}>
-                Click to view
-              </StyleSpoilerButton>
-            </div>
-          ) : (
-            <span>
-              {/* eslint-disable-next-line react/no-danger */}
-              <StyledContentContainer
-                detailsPage={isSinglePost ?? false}
-                dangerouslySetInnerHTML={
-                  {
-                    __html: escapeHtml && !post?.spoiler
-                      // eslint-disable-next-line max-len
-                      ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(message)), customlinkifyOpts))
-                      : cleanExternalHtmlContent(message),
-                  }
-                }
-                onClick={(e: any) => {
-                  if (e.target.tagName === 'SPAN' && e.target.textContent.startsWith('#')) {
-                    handleHashtagClick(e.target.innerText, post);
-                  } else if (!isSinglePost) {
-                    onPostContentClick(post);
-                  }
-                }}
-                aria-label="post-content"
-                onKeyDown={(e) => handlePostContentKeyDown(e, post)}
-              />
-              {
-                post.hashTag?.map((hashtag: string) => (
-                  <Link to={`/app/search/posts?${hashtag}`} key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
-                    #
-                    {hashtag}
-                  </Link>
-                ))
-              }
-              {
-                !isSinglePost
-                && showReadMoreLink
-                && (
-                  <>
-                    {' '}
-                    <Link to={generateReadMoreLink(post)} className="text-decoration-none text-primary">
-                      ...read more
-                    </Link>
-                  </>
-                )
-              }
-            </span>
-          )}
-
-      </div>
-    );
-  };
-
   let pubWiseAdDivId: string = '';
   if (location.pathname === '/app/home' || location.pathname.endsWith('/posts')) {
     pubWiseAdDivId = HOME_WEB_DIV_ID;
@@ -401,13 +414,20 @@ function PostFeed({
   );
   const swiperDataForPost = (post: any) => {
     const imageVideoList = FormatImageVideoList(post.images, post.message);
-    return imageVideoList.map((imageData: any) => ({
-      videoKey: imageData.videoKey,
-      imageUrl: imageData.image_path,
-      linkUrl: isSinglePost ? undefined : imageLinkUrl(post, imageData._id),
-      postId: post.id,
-      imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
-    }));
+    if (post.movieId) {
+      const movieData = postMovieDataToMovieDBformat(post.movieId);
+      imageVideoList.splice(0, 0, { movieData });
+    }
+    return imageVideoList.map((imageData: any) => {
+      if (imageData.movieData) { return imageData; }
+      return ({
+        videoKey: imageData.videoKey,
+        imageUrl: imageData.image_path,
+        linkUrl: isSinglePost ? undefined : imageLinkUrl(post, imageData._id),
+        postId: post.id,
+        imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
+      });
+    });
   };
 
   const handleComment = () => {
@@ -440,8 +460,19 @@ function PostFeed({
               <Card.Body className="px-0 pt-3">
                 {postType === 'group-post' && renderGroupPostContent(post)}
                 {post?.rssFeedTitle && <h1 className="h2">{post.rssFeedTitle}</h1>}
-                {renderPostContent(post)}
-                {(post?.images?.length > 0 || findFirstYouTubeLinkVideoId(post?.message)) && (
+                <PostContent
+                  post={post}
+                  postType={postType}
+                  generateReadMoreLink={generateReadMoreLink}
+                  escapeHtml={escapeHtml}
+                  onPostContentClick={onPostContentClick}
+                  handlePostContentKeyDown={handlePostContentKeyDown}
+                  loginUserId={loginUserId}
+                  spoilerId={spoilerId}
+                  onSpoilerClick={onSpoilerClick}
+                  isSinglePost={isSinglePost}
+                />
+                {(post?.images?.length > 0 || findFirstYouTubeLinkVideoId(post?.message) || hasMovieDetailsFields(post.movieId)) && (
                   <CustomSwiper
                     context="post"
                     images={

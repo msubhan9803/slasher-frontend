@@ -31,10 +31,15 @@ export async function createPost(postData: any, file: any) {
   }
   formData.append('message', postData.message);
   formData.append('postType', postData.postType);
-
+  if (postData.movieId) {
+    formData.append('movieId', postData.movieId);
+  }
   if (postData.postType === PostType.MovieReview) {
     formData.append('moviePostFields[spoilers]', postData.spoiler);
-    formData.append('movieId', postData.movieId);
+    const formDataHasMovieId = formData.has('movieId');
+    // Check before adding movieId to `formData` as we're already
+    // adding `movieId` to `formData` for feature: `share-movie-as-a-post`
+    if (!formDataHasMovieId) { formData.append('movieId', postData.movieId); }
   }
   if (postData.rate) {
     formData.append('moviePostFields[rating]', postData.rate);

@@ -29,6 +29,7 @@ import MovieReviews from '../movie-reviews/MovieReviews';
 import { addMovieUserStatus, deleteMovieUserStatus, getMoviesIdList } from '../../../api/movies';
 import MovieReviewDetails from '../movie-reviews/MovieReviewDetails';
 import { StyledMoviePoster } from './StyledUtils';
+import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 
 interface MovieIconProps {
   label: string;
@@ -79,6 +80,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
   const [searchParams] = useSearchParams();
   const [movieIdList, setMovieIdList] = useState();
   const [isReviewDetail, setReviewDetail] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const selfView = searchParams.get('view') === 'self';
   const tabs = (selfView ? tabsForSelf : tabsForViewer).filter(filterEnableDevFeatures);
   const navigate = useNavigate();
@@ -90,19 +92,23 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
   });
 
   useEffect(() => {
-    setTimeout(() => {
-      if (params && params['*']!.startsWith('reviews/') && isReviewDetail && movieReviewRef?.current) {
-        document.documentElement.style.scrollBehavior = 'auto';
-        movieReviewRef?.current?.scrollIntoView({
-          behavior: 'instant' as any,
-          block: 'nearest',
-          inline: 'nearest',
-        });
-      }
-    }, 10);
-    setTimeout(() => {
-      document.documentElement.style.scrollBehavior = 'smooth';
-    }, 20);
+    if (params && params['*']!.startsWith('reviews/') && isReviewDetail && movieReviewRef?.current) {
+      document.documentElement.style.scrollBehavior = 'auto';
+      movieReviewRef?.current?.scrollIntoView({
+        behavior: 'instant' as any,
+        block: 'start',
+        inline: 'nearest',
+      });
+
+      const showContent = () => {
+        setIsLoading(false);
+        document.documentElement.style.scrollBehavior = 'smooth';
+        document.body.classList.remove('no-scroll');
+      };
+      setTimeout(showContent, 10);
+    } else {
+      setIsLoading(false);
+    }
   }, [isReviewDetail, params]);
 
   // TODO: Can this be removed, now that the comment button no longer links to the comment input?
@@ -170,142 +176,156 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
     updateMovieIconList();
   }, [movieIdList]);
   return (
+
     <div>
-      <div className="bg-dark my-3 p-4 pb-0 rounded-2">
-        <Row className="justify-content-center">
-          <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
-            <div>
-              <StyledMoviePoster className="mx-4">
-                <Image src={aboutMovieData?.mainData?.poster_path} alt="movie poster" className="rounded-3 w-100 h-100" />
-              </StyledMoviePoster>
-              <div className="d-none d-xl-block mt-3">
-                <p className="fs-5">Your lists</p>
-                <div className="mt-2 d-flex justify-content-between">
-                  {movieIconListData.map((iconList: MovieIconProps) => (
-                    <CustomGroupIcons
-                      key={iconList.key}
-                      label={iconList.label}
-                      icon={iconList.icon}
-                      iconColor={iconList.iconColor}
-                      width={iconList.width}
-                      height={iconList.height}
-                      addData={iconList.addMovie}
-                      onClickIcon={() => handleMovieAddRemove(iconList.key, iconList.addMovie)}
-                    />
-                  ))}
-                </div>
-              </div>
+      {!isLoading
+        ? (
+          <div>
+            <div className="bg-dark my-3 p-4 pb-0 rounded-2">
+              <Row className="justify-content-center">
+                <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
+                  <div>
+                    <StyledMoviePoster className="mx-4">
+                      <Image src={aboutMovieData?.mainData?.poster_path} alt="movie poster" className="rounded-3 w-100 h-100" />
+                    </StyledMoviePoster>
+                    <div className="d-none d-xl-block mt-3">
+                      <p className="fs-5">Your lists</p>
+                      <div className="mt-2 d-flex justify-content-between">
+                        {movieIconListData.map((iconList: MovieIconProps) => (
+                          <CustomGroupIcons
+                            key={iconList.key}
+                            label={iconList.label}
+                            icon={iconList.icon}
+                            iconColor={iconList.iconColor}
+                            width={iconList.width}
+                            height={iconList.height}
+                            addData={iconList.addMovie}
+                            onClickIcon={() => handleMovieAddRemove(
+                              iconList.key,
+                              iconList.addMovie,
+                            )}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    {enableDevFeatures
+                      && (
+                        <div className="p-3 d-none d-xl-block">
+                          <RoundButton variant="black" className="w-100">Add to list</RoundButton>
+                        </div>
+                      )}
+                  </div>
+                </Col>
+                <Col xl={7}>
+                  <AboutDetails
+                    setReviewForm={setReviewForm}
+                    movieData={movieData}
+                    setMovieData={setMovieData}
+                    aboutMovieDetail={aboutMovieData as AdditionalMovieData}
+                  />
+                </Col>
+              </Row>
+              <Row className="d-xl-none justify-content-center mt-3">
+                <Col xs={12} sm={7} md={5} lg={9} className="text-center">
+                  <span className="fs-5">Your lists</span>
+                  <div className="mt-2 d-flex justify-content-around">
+                    {movieIconListData.map((iconList: MovieIconProps) => (
+                      <CustomGroupIcons
+                        key={iconList.key}
+                        label={iconList.label}
+                        icon={iconList.icon}
+                        iconColor={iconList.iconColor}
+                        width={iconList.width}
+                        height={iconList.height}
+                        addData={iconList.addMovie}
+                        onClickIcon={() => handleMovieAddRemove(iconList.key, iconList.addMovie)}
+                      />
+                    ))}
+                  </div>
+                  {enableDevFeatures
+                    && (
+                      <div className="p-3 d-xl-none justify-content-center mt-xl-2">
+                        <RoundButton variant="black" className="w-100">Add to list</RoundButton>
+                      </div>
+                    )}
+                </Col>
+              </Row>
+
               {enableDevFeatures
                 && (
-                  <div className="p-3 d-none d-xl-block">
-                    <RoundButton variant="black" className="w-100">Add to list</RoundButton>
-                  </div>
+                  <Row className="d-lg-none text-center">
+                    <StyledBorder />
+                    <Col xs={12}>
+                      <p className="text-center fw-bold  mt-3">Get updates for this movie</p>
+                    </Col>
+                    <Col xs={12} sm={7} md={5} className="m-auto">
+                      <BorderButton
+                        customButtonCss="width: 100% !important;"
+                        buttonClass=""
+                        variant="lg"
+                        toggleBgColor={bgColor}
+                        handleClick={setBgColor}
+                        toggleButton
+                      />
+                    </Col>
+                  </Row>
                 )}
-            </div>
-          </Col>
-          <Col xl={7}>
-            <AboutDetails
-              setReviewForm={setReviewForm}
-              movieData={movieData}
-              setMovieData={setMovieData}
-              aboutMovieDetail={aboutMovieData as AdditionalMovieData}
-            />
-          </Col>
-        </Row>
-        <Row className="d-xl-none justify-content-center mt-3">
-          <Col xs={12} sm={7} md={5} lg={9} className="text-center">
-            <span className="fs-5">Your lists</span>
-            <div className="mt-2 d-flex justify-content-around">
-              {movieIconListData.map((iconList: MovieIconProps) => (
-                <CustomGroupIcons
-                  key={iconList.key}
-                  label={iconList.label}
-                  icon={iconList.icon}
-                  iconColor={iconList.iconColor}
-                  width={iconList.width}
-                  height={iconList.height}
-                  addData={iconList.addMovie}
-                  onClickIcon={() => handleMovieAddRemove(iconList.key, iconList.addMovie)}
-                />
-              ))}
-            </div>
-            {enableDevFeatures
-              && (
-                <div className="p-3 d-xl-none justify-content-center mt-xl-2">
-                  <RoundButton variant="black" className="w-100">Add to list</RoundButton>
-                </div>
-              )}
-          </Col>
-        </Row>
 
-        {enableDevFeatures
-          && (
-            <Row className="d-lg-none text-center">
-              <StyledBorder />
-              <Col xs={12}>
-                <p className="text-center fw-bold  mt-3">Get updates for this movie</p>
-              </Col>
-              <Col xs={12} sm={7} md={5} className="m-auto">
-                <BorderButton
-                  customButtonCss="width: 100% !important;"
-                  buttonClass=""
-                  variant="lg"
-                  toggleBgColor={bgColor}
-                  handleClick={setBgColor}
-                  toggleButton
-                />
-              </Col>
-            </Row>
-          )}
+              {enableDevFeatures
+                && (
+                  <Row className="align-items-center justify-content-center mt-4 d-lg-none">
+                    <Col sm={6} md={5}>
+                      <div className="align-items-center d-flex justify-content-evenly">
+                        <span className="mb-2">Push notifications</span>
+                        <Switch id="pushNotificationsSwitch" className="ms-4" />
+                      </div>
+                    </Col>
+                  </Row>
+                )}
 
-        {enableDevFeatures
-          && (
-            <Row className="align-items-center justify-content-center mt-4 d-lg-none">
-              <Col sm={6} md={5}>
-                <div className="align-items-center d-flex justify-content-evenly">
-                  <span className="mb-2">Push notifications</span>
-                  <Switch id="pushNotificationsSwitch" className="ms-4" />
-                </div>
-              </Col>
-            </Row>
-          )}
-        <div ref={movieReviewRef}>
-          <Row className="justify-content-center">
-            <Col xs={12}>
-              <TabLinks
-                tabsClass="start"
-                tabsClassSmall="start"
-                tabLink={tabs}
-                toLink={`/app/movies/${params.id}`}
-                selectedTab={params && params['*']!.startsWith('reviews/') ? 'reviews' : params['*']}
-                params={selfView ? '?view=self' : ''}
+              <div ref={movieReviewRef}>
+                <Row className="justify-content-center">
+                  <Col xs={12}>
+                    <TabLinks
+                      tabsClass="start"
+                      tabsClassSmall="start"
+                      tabLink={tabs}
+                      toLink={`/app/movies/${params.id}`}
+                      selectedTab={params && params['*']!.startsWith('reviews/') ? 'reviews' : params['*']}
+                      params={selfView ? '?view=self' : ''}
+                    />
+                  </Col>
+                </Row>
+              </div>
+            </div>
+            <Routes>
+              <Route path="/" element={<Navigate to="details" replace />} />
+              <Route
+                path="details"
+                element={(
+                  <>
+                    <MovieOverview overView={aboutMovieData?.mainData?.overview} />
+                    <PubWiseAd className="my-3" id={MOVIE_INDIE_DIV} autoSequencer />
+                    <MovieCasts castList={aboutMovieData?.cast as any} />
+                    {
+                      aboutMovieData?.video?.length > 0
+                      && (
+                        <MovieTrailers
+                          trailerList={aboutMovieData && aboutMovieData.video as any}
+                        />
+                      )
+                    }
+                  </>
+                )}
               />
-            </Col>
-          </Row>
-        </div>
-      </div>
-
-      <Routes>
-        <Route path="/" element={<Navigate to="details" replace />} />
-        <Route
-          path="details"
-          element={(
-            <>
-              <MovieOverview overView={aboutMovieData?.mainData?.overview} />
-              <PubWiseAd className="my-3" id={MOVIE_INDIE_DIV} autoSequencer />
-              <MovieCasts castList={aboutMovieData?.cast as any} />
-              {
-                aboutMovieData?.video?.length > 0
-                && <MovieTrailers trailerList={aboutMovieData && aboutMovieData.video as any} />
-              }
-            </>
-          )}
-        />
-        <Route path="reviews" element={<MovieReviews reviewForm={reviewForm} setReviewForm={setReviewForm} movieData={movieData} setMovieData={setMovieData} />} />
-        <Route path="reviews/:postId" element={<MovieReviewDetails />} />
-        <Route path="posts" element={<MoviePosts />} />
-        <Route path="edit" element={<MovieEdit />} />
-      </Routes>
+              <Route path="reviews" element={<MovieReviews reviewForm={reviewForm} setReviewForm={setReviewForm} movieData={movieData} setMovieData={setMovieData} />} />
+              <Route path="reviews/:postId" element={<MovieReviewDetails />} />
+              <Route path="posts" element={<MoviePosts />} />
+              <Route path="edit" element={<MovieEdit />} />
+            </Routes>
+          </div>
+        )
+        : <LoadingIndicator />}
     </div>
   );
 }

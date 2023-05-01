@@ -45,6 +45,8 @@ import { getLocalStorage } from '../../../../utils/localstorage-utils';
 import FormatImageVideoList from '../../../../utils/video-utils';
 import useOnScreen from '../../../../hooks/useOnScreen';
 import { hasMovieDetailsFields, postMovieDataToMovieDBformat } from '../../../../routes/movies/movie-utils';
+import { isPostDetailsPage } from '../../../../utils/url-utils';
+import ScrollToTop from '../../../ScrollToTop';
 
 interface Props {
   popoverOptions: string[];
@@ -428,6 +430,7 @@ function PostFeed({
 
   return (
     <StyledPostFeed>
+      {isPostDetailsPage(pathname) && <ScrollToTop />}
       {postData.map((post: any, i) => (
         <div key={post.id}>
           <div className="post">

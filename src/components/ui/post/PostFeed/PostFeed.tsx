@@ -44,7 +44,7 @@ import { customlinkifyOpts } from '../../../../utils/linkify-utils';
 import { getLocalStorage } from '../../../../utils/localstorage-utils';
 import FormatImageVideoList from '../../../../utils/video-utils';
 import useOnScreen from '../../../../hooks/useOnScreen';
-import { hasMovieDetailsFields, postMovieDataToMovieDBformat } from '../../../../routes/movies/movie-utils';
+import { postMovieDataToMovieDBformat, showMoviePoster } from '../../../../routes/movies/movie-utils';
 
 interface Props {
   popoverOptions: string[];
@@ -464,7 +464,8 @@ function PostFeed({
                   onSpoilerClick={onSpoilerClick}
                   isSinglePost={isSinglePost}
                 />
-                {(post?.images?.length > 0 || findFirstYouTubeLinkVideoId(post?.message) || hasMovieDetailsFields(post.movieId)) && (
+                <p />
+                {(post?.images?.length > 0 || findFirstYouTubeLinkVideoId(post?.message) || showMoviePoster(post.movieId, postType)) && (
                   <CustomSwiper
                     context="post"
                     images={

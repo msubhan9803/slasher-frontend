@@ -374,7 +374,7 @@ function PostFeed({
   };
 
   let pubWiseAdDivId: string = '';
-  if (location.pathname === '/app/home' || location.pathname.endsWith('/posts')) {
+  if (location.pathname === '/app/home') {
     pubWiseAdDivId = HOME_WEB_DIV_ID;
   }
   if (location.pathname.includes('/app/news/partner/')) {

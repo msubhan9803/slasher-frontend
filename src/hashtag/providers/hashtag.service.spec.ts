@@ -123,6 +123,14 @@ describe('HashtagService', () => {
       expect(suggestUserNames).toHaveLength(1);
     });
 
+    it('when query is exists and limited and offset are applied, returns expected response', async () => {
+      const query = 'goo';
+      const limit = 5;
+      const offset = 1;
+      const suggestUserNames = await hashtagService.suggestHashtagName(query, limit, true, offset);
+      expect(suggestUserNames).toHaveLength(3);
+    });
+
     it('when query is wrong than expected response', async () => {
       const query = 'wq';
       const limit = 5;

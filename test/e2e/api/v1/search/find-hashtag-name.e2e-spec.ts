@@ -101,6 +101,23 @@ describe('Find Hashtag Name (e2e)', () => {
           ]);
         });
 
+        it('returns suggestions when there are results that match the query and offset(and even includes the '
+        + "requesting hashtags's name when the query matches)", async () => {
+          const limit = 20;
+          const query = 'goo';
+          const offset = 1;
+          const response = await request(app.getHttpServer())
+            .get(`/api/v1/search/hashtags?query=${query}&limit=${limit}&offset=${offset}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .send();
+
+          expect(response.body).toEqual([
+            { _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX), name: 'goodbook', totalPost: 0 },
+            { _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX), name: 'goodidea', totalPost: 0 },
+            { _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX), name: 'goodnight', totalPost: 0 },
+          ]);
+        });
+
       it('when query is wrong than expected response', async () => {
         const limit = 5;
         const query = 'yy';

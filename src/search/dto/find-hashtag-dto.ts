@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 import {
-  IsNotEmpty, IsNumber, IsString, Max,
+  IsNotEmpty, IsNumber, IsOptional, IsString, Max,
 } from 'class-validator';
 
 export class FindHashtagDto {
@@ -13,4 +13,9 @@ export class FindHashtagDto {
   @IsNumber()
   @Max(30)
   limit: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  offset: number;
 }

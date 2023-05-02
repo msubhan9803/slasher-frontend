@@ -45,6 +45,6 @@ export class SearchController {
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     query: FindHashtagDto,
   ) {
-    return this.hashtagService.suggestHashtagName(query.query, query.limit, true);
+    return this.hashtagService.suggestHashtagName(query.query, query.limit, true, query.offset);
   }
 }

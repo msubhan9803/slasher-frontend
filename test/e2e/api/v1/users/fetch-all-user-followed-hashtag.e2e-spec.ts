@@ -22,7 +22,6 @@ describe('Followed Hashtags (e2e)', () => {
   let hashtagService: HashtagService;
   let activeUserAuthToken: string;
   let activeUser: User;
-  let user0: User;
   let configService: ConfigService;
 
   beforeAll(async () => {
@@ -46,6 +45,8 @@ describe('Followed Hashtags (e2e)', () => {
 
   let hashtag1;
   let hashtag2;
+  let hashtag3;
+  
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
@@ -54,9 +55,9 @@ describe('Followed Hashtags (e2e)', () => {
     rewindAllFactories();
 
     activeUser = await usersService.create(userFactory.build());
-    user0 = await usersService.create(userFactory.build());
     hashtag1 = await hashtagService.createOrUpdateHashtags(['ok']);
     hashtag2 = await hashtagService.createOrUpdateHashtags(['good']);
+    hashtag3 = await hashtagService.createOrUpdateHashtags(['hello']);
 
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -70,12 +71,12 @@ describe('Followed Hashtags (e2e)', () => {
       hashTagId: hashtag2[0]._id,
     });
     await hashtagFollowsService.create({
-      userId: user0._id,
-      hashTagId: hashtag2[0]._id,
+      userId: activeUser._id,
+      hashTagId: hashtag3[0]._id,
     });
   });
 
-  describe('PUT /api/v1/users/:userId/hashtag-follows', () => {
+  describe('GET /api/v1/users/:userId/hashtag-follows', () => {
     it('requires authentication', async () => {
       const userId = new mongoose.Types.ObjectId();
       await request(app.getHttpServer()).get(
@@ -84,10 +85,34 @@ describe('Followed Hashtags (e2e)', () => {
     });
 
     it('get the hashtag follows successful if parameter hashtag and userId is exists and notification is true', async () => {
+      const limit = 2;
+      const offset = 1;
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/users/${activeUser._id.toString()}/hashtag-follows`)
+        .get(`/api/v1/users/${activeUser._id.toString()}/hashtag-follows?limit=${limit}&offset=${offset}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ notification: true });
+      
+      expect(response.body).toEqual([
+        {
+          notification: 0,
+          userId: activeUser._id.toString(),
+          hashTagId: { _id: hashtag2[0].id, name: 'good', totalPost: 1 },
+        },
+        {
+          notification: 0,
+          userId: activeUser._id.toString(),
+          hashTagId: { _id: hashtag3[0].id, name: 'hello', totalPost: 1 },
+        },
+      ])
+    });
+
+    it('get the hashtag follows successful if parameter hashtag and userId is exists and notification is true', async () => {
+      const limit = 2;
+      const response = await request(app.getHttpServer())
+        .get(`/api/v1/users/${activeUser._id.toString()}/hashtag-follows?limit=${limit}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send({ notification: true });
+
       expect(response.body).toEqual([
         {
           notification: 0,
@@ -99,13 +124,15 @@ describe('Followed Hashtags (e2e)', () => {
           userId: activeUser._id.toString(),
           hashTagId: { _id: hashtag2[0].id, name: 'good', totalPost: 1 },
         },
-      ]);
+      ])
     });
 
     it("returns the expected error response when a user tries to get another user's hashtag-follow status", async () => {
+      const limit = 2;
+      const offset = 1;
       const differentUserId = '6337f478980180f44e64487c';
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/users/${differentUserId}/hashtag-follows`)
+        .get(`/api/v1/users/${differentUserId}/hashtag-follows?limit=${limit}&offset=${offset}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ notification: true });
       expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
@@ -117,9 +144,11 @@ describe('Followed Hashtags (e2e)', () => {
 
     describe('Validation', () => {
       it('userId must be a mongodb id', async () => {
+        const limit = 5;
+        const offset = 1;
         const activeUserId = '634912b22c2f4f5edsamkm2m';
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/users/${activeUserId}/hashtag-follows`)
+          .get(`/api/v1/users/${activeUserId}/hashtag-follows?limit=${limit}&offset=${offset}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send({ notification: true });
         expect(response.body.message).toEqual(['userId must be a mongodb id']);

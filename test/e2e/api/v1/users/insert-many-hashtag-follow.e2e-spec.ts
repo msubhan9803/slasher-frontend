@@ -67,10 +67,10 @@ describe('Insert Many Hashtags Follow (e2e)', () => {
     });
   });
 
-  describe('GET /api/v1/users/:userId/followed-hashtags', () => {
+  describe('GET /api/v1/users/:userId/hashtag-follows', () => {
     it('requires authentication', async () => {
       const userId = new mongoose.Types.ObjectId();
-      await request(app.getHttpServer()).get(`/api/v1/users/${userId}/followed-hashtags`).expect(HttpStatus.UNAUTHORIZED);
+      await request(app.getHttpServer()).get(`/api/v1/users/${userId}/hashtag-follows`).expect(HttpStatus.UNAUTHORIZED);
     });
 
     describe('insert many hashtags follow', () => {
@@ -78,7 +78,7 @@ describe('Insert Many Hashtags Follow (e2e)', () => {
         const userId = activeUser.id;
         const hashtags = [hashtag0.name, hashtag1.name];
         const response = await request(app.getHttpServer())
-          .post(`/api/v1/users/${userId}/followed-hashtags`)
+          .post(`/api/v1/users/${userId}/hashtag-follows`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send({ hashtags });
         expect(response.body).toEqual([
@@ -99,7 +99,7 @@ describe('Insert Many Hashtags Follow (e2e)', () => {
         const userId = activeUser.id;
         const hashtags = ['misery', 'slasher'];
         const response = await request(app.getHttpServer())
-          .post(`/api/v1/users/${userId}/followed-hashtags`)
+          .post(`/api/v1/users/${userId}/hashtag-follows`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send({ hashtags });
         expect(response.body).toEqual({
@@ -112,7 +112,7 @@ describe('Insert Many Hashtags Follow (e2e)', () => {
         const userId = user0.id;
         const hashtags = ['misery', 'slasher'];
         const response = await request(app.getHttpServer())
-          .post(`/api/v1/users/${userId}/followed-hashtags`)
+          .post(`/api/v1/users/${userId}/hashtag-follows`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send({ hashtags });
         expect(response.body).toEqual({ statusCode: 401, message: 'Not authorized' });
@@ -122,7 +122,7 @@ describe('Insert Many Hashtags Follow (e2e)', () => {
     describe('Validation', () => {
       it('hashtag should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .post(`/api/v1/users/${activeUser.id}/followed-hashtags`)
+          .post(`/api/v1/users/${activeUser.id}/hashtag-follows`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send({ hashtags: '' });
         expect(response.body.message).toEqual([
@@ -134,7 +134,7 @@ describe('Insert Many Hashtags Follow (e2e)', () => {
 
       it('hashtag should be a number', async () => {
         const response = await request(app.getHttpServer())
-          .post(`/api/v1/users/${activeUser.id}/followed-hashtags`)
+          .post(`/api/v1/users/${activeUser.id}/hashtag-follows`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send({ hashtags: [] });
         expect(response.body.message).toContain('hashtags must contain at least 1 elements');

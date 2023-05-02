@@ -39,7 +39,7 @@ export class HashtagService {
     return hastags;
   }
 
-  async suggestHashtagName(query: string, limit: number, activeOnly: boolean): Promise<Hashtag[]> {
+  async suggestHashtagName(query: string, limit: number, activeOnly: boolean, offset?:number): Promise<Hashtag[]> {
     const nameFindQuery: any = {
       name: new RegExp(`^${escapeStringForRegex(query)}`, 'i'),
     };
@@ -50,6 +50,7 @@ export class HashtagService {
     const hashtags = await this.HashtagModel
       .find(nameFindQuery)
       .sort({ name: 1 })
+      .skip(offset)
       .limit(limit)
       .collation({ locale: 'en', strength: 2 })
       .exec();

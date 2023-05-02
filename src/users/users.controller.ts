@@ -73,6 +73,7 @@ import { HashtagService } from '../hashtag/providers/hashtag.service';
 import { NotificationDto } from './dto/notification.dto';
 import { IpOrForwardedIp } from '../app/decorators/ip-or-forwarded-ip.decorator';
 import { HashtagsDto } from './dto/hashtags.dto';
+import { HashtagQueryDto } from './dto/hashtag-query.dto';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -936,17 +937,39 @@ export class UsersController {
   async fetchAllUserFollowedHashtag(
     @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: HashtagQueryDto,
   ) {
     const user = getUserFromRequest(request);
     if (user.id !== params.userId) { throw new HttpException('Not authorized', HttpStatus.UNAUTHORIZED); }
 
-    const hashtagFollows = await this.hashtagFollowsService.findAllByUserId(params.userId);
+    const hashtagFollows = await this.hashtagFollowsService.findAllByUserId(params.userId, query.limit, query.offset);
     if (!hashtagFollows.length) {
       throw new HttpException('Hashtag not found', HttpStatus.NOT_FOUND);
     }
     return hashtagFollows.map(
       (follow) => pick(follow, ['notification', 'userId', 'hashTagId']),
     );
+  }
+
+  @Get(':userId/hashtag-follows/:hashtag')
+  async fetchUserFollowedHashtag(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: FollowHashtagDto,
+  ) {
+    const user = getUserFromRequest(request);
+    if (user.id !== params.userId) { throw new HttpException('Not authorized', HttpStatus.UNAUTHORIZED); }
+
+    const hashtag = await this.hashtagService.findByHashTagName(params.hashtag, true);
+    if (!hashtag) {
+      throw new HttpException('Hashtag not found', HttpStatus.NOT_FOUND);
+    }
+
+    const hashtagFollows = await this.hashtagFollowsService.findByUserAndHashtag(params.userId, hashtag._id.toString());
+    if (!hashtagFollows) {
+      throw new HttpException('Hashtag follow not found', HttpStatus.NOT_FOUND);
+    }
+    return pick(hashtagFollows, ['notification', 'hashTagId']);
   }
 
   @Put(':userId/hashtag-follows/:hashtag')
@@ -971,7 +994,7 @@ export class UsersController {
     return pick(hashtagFollow, ['notification', 'userId', 'hashTagId']);
   }
 
-  @Delete(':userId/followed-hashtags/:hashtag')
+  @Delete(':userId/hashtag-follows/:hashtag')
   async deleteHashtagsFollow(
     @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: FollowHashtagDto,
@@ -991,7 +1014,7 @@ export class UsersController {
     return { success: true };
   }
 
-  @Post(':userId/followed-hashtags')
+  @Post(':userId/hashtag-follows')
   async insertManyHashtagFollow(
     @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ParamUserIdDto,

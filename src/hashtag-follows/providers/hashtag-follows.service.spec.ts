@@ -155,9 +155,17 @@ describe('HashtagFollowsService', () => {
       });
     });
 
-    it('finds the expected hashtag follow details by userId', async () => {
-      const hashtagFollowDetails = await hashtagFollowsService.findAllByUserId(user0._id.toString());
+    it('finds the expected hashtag follow details with limit by userId', async () => {
+      const limit = 5;
+      const hashtagFollowDetails = await hashtagFollowsService.findAllByUserId(user0._id.toString(),limit);
       expect(hashtagFollowDetails.map((hashtagFollow) => hashtagFollow.userId)).toEqual([user0._id, user0._id]);
+    });
+
+    it.only('finds the expected hashtag follow details with limit and offset by userId', async () => {
+      const limit = 5;
+      const offset = 1;
+      const hashtagFollowDetails = await hashtagFollowsService.findAllByUserId(user0._id.toString(),limit,offset);
+      expect(hashtagFollowDetails.map((hashtagFollow) => hashtagFollow.userId)).toEqual([user0._id]);
     });
   });
 

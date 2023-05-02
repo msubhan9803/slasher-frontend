@@ -11,10 +11,10 @@ import { User } from '../../../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
-import { HashtagService } from '../../../../../src/hashtag/providers/hashtag.service';
 import { HashtagFollowsService } from '../../../../../src/hashtag-follows/providers/hashtag-follows.service';
+import { HashtagService } from '../../../../../src/hashtag/providers/hashtag.service';
 
-describe('Delete Hashtags Follow (e2e)', () => {
+describe('Fetch User Followed Hashtag (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
@@ -44,6 +44,7 @@ describe('Delete Hashtags Follow (e2e)', () => {
   });
 
   let hashtag;
+  let hashtag1;
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
@@ -53,6 +54,7 @@ describe('Delete Hashtags Follow (e2e)', () => {
 
     activeUser = await usersService.create(userFactory.build());
     hashtag = await hashtagService.createOrUpdateHashtags(['ok']);
+    hashtag1 = await hashtagService.createOrUpdateHashtags(['hello']);
 
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -63,27 +65,29 @@ describe('Delete Hashtags Follow (e2e)', () => {
     });
   });
 
-  describe('Delete /api/v1/users/:userId/hashtag-follows/:hashtag', () => {
+  describe('GET /api/v1/users/:userId/hashtag-follows/:hashtag', () => {
     it('requires authentication', async () => {
-      const hashtag1 = String;
       const userId = new mongoose.Types.ObjectId();
-      await request(app.getHttpServer()).delete(
-        `/api/v1/users/${userId}/hashtag-follows/${hashtag1}`,
+      await request(app.getHttpServer()).put(
+        `/api/v1/users/${userId}/hashtag-follows/${hashtag}`,
       ).expect(HttpStatus.UNAUTHORIZED);
     });
 
-    it('delete the hashtag follows successful if parameter hashtag and userId is exists', async () => {
+    it('get the hashtag follows successful if parameter hashtag and userId is exists', async () => {
       const response = await request(app.getHttpServer())
-        .delete(`/api/v1/users/${activeUser._id.toString()}/hashtag-follows/${hashtag[0].name}`)
+        .get(`/api/v1/users/${activeUser._id.toString()}/hashtag-follows/${hashtag[0].name}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      expect(response.body).toEqual({ success: true });
+      expect(response.body).toEqual({
+        notification: 0,
+        hashTagId: hashtag[0].id,
+      });
     });
 
     it('returns the expected response when the hashtag is not found', async () => {
       const hashtagName = 'slasherhashtagname';
       const response = await request(app.getHttpServer())
-        .delete(`/api/v1/users/${activeUser._id.toString()}/hashtag-follows/${hashtagName}`)
+        .get(`/api/v1/users/${activeUser._id.toString()}/hashtag-follows/${hashtagName}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.status).toEqual(HttpStatus.NOT_FOUND);
@@ -93,10 +97,23 @@ describe('Delete Hashtags Follow (e2e)', () => {
       });
     });
 
+    it('returns the expected response when the hashtag follow is not found', async () => {
+      const response = await request(app.getHttpServer())
+        .get(`/api/v1/users/${activeUser._id.toString()}/hashtag-follows/${hashtag1[0].name}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+
+      expect(response.status).toEqual(HttpStatus.NOT_FOUND);
+      expect(response.body).toEqual({
+        message: 'Hashtag follow not found',
+        statusCode: 404,
+      });
+    });
+
     it("returns the expected error response when a user tries to get another user's hashtag-follow status", async () => {
       const differentUserId = '6337f478980180f44e64487c';
       const response = await request(app.getHttpServer())
-        .delete(`/api/v1/users/${differentUserId}/hashtag-follows/${hashtag[0].name}`)
+        .get(`/api/v1/users/${differentUserId}/hashtag-follows/${hashtag[0].name}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
@@ -110,7 +127,7 @@ describe('Delete Hashtags Follow (e2e)', () => {
       it('userId must be a mongodb id', async () => {
         const activeUserId = '634912b22c2f4f5edsamkm2m';
         const response = await request(app.getHttpServer())
-          .delete(`/api/v1/users/${activeUserId}/hashtag-follows/${hashtag[0].name}`)
+          .get(`/api/v1/users/${activeUserId}/hashtag-follows/${hashtag[0].name}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toEqual(['userId must be a mongodb id']);

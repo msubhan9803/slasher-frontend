@@ -453,7 +453,7 @@ export class UsersController {
     if (SIMPLE_MONGODB_ID_REGEX.test(userNameOrId)) {
       user = await this.usersService.findById(userNameOrId, true);
     } else {
-      user = await this.usersService.findByUsername(userNameOrId);
+      user = await this.usersService.findByUsername(userNameOrId, true);
     }
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);

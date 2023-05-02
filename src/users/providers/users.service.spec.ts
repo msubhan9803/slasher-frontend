@@ -142,20 +142,20 @@ describe('UsersService', () => {
     });
 
     it('finds the expected user using the same-case userName', async () => {
-      expect((await usersService.findByUsername(user.userName))._id).toEqual(
+      expect((await usersService.findByUsername(user.userName, true))._id).toEqual(
         user._id,
       );
     });
 
     it('finds the expected user using a lower-case variant of the userName', async () => {
       expect(
-        (await usersService.findByUsername(user.userName.toLowerCase()))._id,
+        (await usersService.findByUsername(user.userName.toLowerCase(), true))._id,
       ).toEqual(user._id);
     });
 
     it('finds the expected user using an upper-case variant of the userName', async () => {
       expect(
-        (await usersService.findByUsername(user.userName.toUpperCase()))._id,
+        (await usersService.findByUsername(user.userName.toUpperCase(), true))._id,
       ).toEqual(user._id);
     });
   });
@@ -358,8 +358,8 @@ describe('UsersService', () => {
       const limit = 5;
       const suggestUserNames = await usersService.suggestUserName(query, limit, true, excludedUserIds);
       expect(suggestUserNames).toEqual([
-        pick(await usersService.findByUsername('test1'), ['userName', 'id', 'profilePic']),
-        pick(await usersService.findByUsername('test2'), ['userName', 'id', 'profilePic']),
+        pick(await usersService.findByUsername('test1', true), ['userName', 'id', 'profilePic']),
+        pick(await usersService.findByUsername('test2', true), ['userName', 'id', 'profilePic']),
       ]);
       expect(suggestUserNames.map((suggestUserName) => suggestUserName.userName)).not.toContain('test4');
     });

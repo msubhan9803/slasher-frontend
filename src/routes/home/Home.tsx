@@ -41,12 +41,12 @@ function Home() {
   const [postUserId, setPostUserId] = useState<string>('');
   const [rssfeedProviderId, setRssfeedProviderId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
-  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  const scrollPosition = useAppSelector((state) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const location = useLocation();
-  const reloadData = useAppSelector((state) => state.user.screenReload);
+  const shouldRestoreScrollPositionWithData = scrollPosition.pathname === location.pathname;
   const [posts, setPosts] = useState<Post[]>(
-    scrollPosition.pathname === location.pathname && !reloadData
+    shouldRestoreScrollPositionWithData
       ? scrollPosition?.data : [],
   );
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
@@ -299,6 +299,8 @@ function Home() {
   };
 
   const persistScrollPosition = (id: string) => {
+    console.log('called - persistScrollPosition', id);
+
     const positionData = {
       pathname: location.pathname,
       position: window.pageYOffset,

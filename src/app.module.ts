@@ -41,6 +41,8 @@ import { MovieUserStatusModule } from './movie-user-status/movie.user.status.mod
 import { AppController } from './app/app.controller';
 import { HashtagModule } from './hashtag/hashtag.module';
 import { HashtagFollowsModule } from './hashtag-follows/hashtag-follows.module';
+import { BetaTesterModule } from './beta-tester/beta-tester.module';
+import { TimeoutInterceptor } from './app/interceptors/timeout.interceptor';
 
 @Module({
   imports: [
@@ -100,6 +102,7 @@ import { HashtagFollowsModule } from './hashtag-follows/hashtag-follows.module';
     MovieUserStatusModule,
     HashtagModule,
     HashtagFollowsModule,
+    BetaTesterModule,
   ],
   controllers: [AppController],
   providers: [
@@ -124,6 +127,11 @@ import { HashtagFollowsModule } from './hashtag-follows/hashtag-follows.module';
         },
       }),
     },
+    // Interceptor to stop requests for running longer than a certain amount of time
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TimeoutInterceptor,
+    },
     // Interceptor to delete temp files created by mutler. It delete files in `request.filesToBeRemoved` after the request is settled.
     {
       provide: APP_INTERCEPTOR,
@@ -145,6 +153,8 @@ export class AppModule {
         '/api/v1',
         '/api/v1/remote-constants',
         '/api/v1/ip-check',
+        '/api/v1/sleep-test',
+        '/api/v1/cpu-test',
         '/health-check',
         '/placeholders/(.*)', // the placeholders endpoint is only used in development and test environments
         '/api/v1/local-storage/(.*)', // the local-storage endpoint is only used in development and test environments

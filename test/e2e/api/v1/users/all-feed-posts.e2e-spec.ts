@@ -67,7 +67,7 @@ describe('All Feed Post (e2e)', () => {
       await feedPostsService.create(
         feedPostFactory.build({
           userId: activeUser.id,
-        likes: [activeUser.id, user0.id],
+          likes: [activeUser.id, user0.id],
         }),
       );
       await feedPostsService.create(

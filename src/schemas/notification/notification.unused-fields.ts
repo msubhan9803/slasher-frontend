@@ -32,7 +32,7 @@ export class NotificationUnusedFields {
       NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
       NotificationType.Type102,
       NotificationType.Type103,
-      NotificationType.Type121,
+      NotificationType.UserMentionedYouInACommentOnANewsPost,
       NotificationType.UserLikedYourCommentOnANewsPost,
       NotificationType.NewPostFromFollowedRssFeedProvider,
     ],

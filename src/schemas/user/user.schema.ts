@@ -178,30 +178,34 @@ export class User extends UserUnusedFields {
     return jwt.sign(jwtPayload, jwtSecretKey);
   }
 
-  addOrUpdateDeviceEntry(deviceEntry: Device) {
-    // Check if a device already exists with the given device_id.
-    const searchResult = this.userDevices.find(
-      (device) => device.device_id === deviceEntry.device_id,
-    );
+  generatedUpdatedDeviceEntryList(newDeviceEntry: Device) {
+    // Duplicate existing Device entries into a local variable
+    const newDeviceEntries = this.userDevices.map((existingEntry) => ({ ...(existingEntry as any).toObject() }));
 
-    // If so, update it
+    // Check if a device already exists with the given device_id.
+    const searchResult = newDeviceEntries.find(
+      (device) => device.device_id === newDeviceEntry.device_id,
+    );
+    // If so, update that entry and immediately return
     if (searchResult) {
-      Object.assign(searchResult, deviceEntry);
-      return;
+      Object.assign(searchResult, newDeviceEntry);
+      return newDeviceEntries;
     }
 
-    this.userDevices.sort((a, b) => {
+    newDeviceEntries.sort((a, b) => {
       if (!a.login_date) { return -1; } // if a is null, then b is later
       if (!b.login_date) { return 1; } // if b is null, then a is later
       return a.login_date.getTime() - b.login_date.getTime();
     }); // sort devices by ascending login_date
 
-    if (this.userDevices.length >= 10) {
-      this.userDevices.shift(); // remove earliest login_date item
+    if (newDeviceEntries.length >= 10) {
+      newDeviceEntries.shift(); // remove earliest login_date item
     }
 
-    // If not, add a new entry.
-    this.userDevices.push(deviceEntry);
+    // Add new entry.
+    newDeviceEntries.push(newDeviceEntry);
+
+    return newDeviceEntries;
   }
 
   setUnhashedPassword(unhashedPassword: string) {
@@ -247,7 +251,7 @@ UserSchema.index(
 // NOTE: Must define instance or static methods on the UserSchema as well, otherwise they won't
 // be available on the schema documents.
 UserSchema.methods.generateNewJwtToken = User.prototype.generateNewJwtToken;
-UserSchema.methods.addOrUpdateDeviceEntry = User.prototype.addOrUpdateDeviceEntry;
+UserSchema.methods.generatedUpdatedDeviceEntryList = User.prototype.generatedUpdatedDeviceEntryList;
 UserSchema.methods.setUnhashedPassword = User.prototype.setUnhashedPassword;
 
 export type UserDocument = HydratedDocument<User>;

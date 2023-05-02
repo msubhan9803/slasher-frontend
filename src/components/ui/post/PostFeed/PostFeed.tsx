@@ -464,7 +464,6 @@ function PostFeed({
                   onSpoilerClick={onSpoilerClick}
                   isSinglePost={isSinglePost}
                 />
-                <p />
                 {(post?.images?.length > 0 || findFirstYouTubeLinkVideoId(post?.message) || showMoviePoster(post.movieId, postType)) && (
                   <CustomSwiper
                     context="post"

@@ -31,8 +31,14 @@ export class UsersService {
       .exec();
   }
 
-  async findById(id: string): Promise<UserDocument> {
-    return this.userModel.findById(id).exec();
+  async findById(id: string, activeOnly: boolean): Promise<UserDocument> {
+    const userFindQuery: any = { _id: id };
+    if (activeOnly) {
+      userFindQuery.deleted = false;
+      userFindQuery.status = ActiveStatus.Active;
+    }
+    const user = await this.userModel.findOne(userFindQuery).exec();
+    return user;
   }
 
   /**
@@ -53,9 +59,14 @@ export class UsersService {
       .exec();
   }
 
-  async findByUsername(userName: string): Promise<UserDocument> {
+  async findByUsername(userName: string, activeOnly: boolean): Promise<UserDocument> {
+    const userFindQuery: any = { userName: new RegExp(`^${escapeStringForRegex(userName)}$`, 'i') };
+    if (activeOnly) {
+      userFindQuery.deleted = false;
+      userFindQuery.status = ActiveStatus.Active;
+    }
     return this.userModel
-      .findOne({ userName: new RegExp(`^${escapeStringForRegex(userName)}$`, 'i') })
+      .findOne(userFindQuery)
       .exec();
   }
 
@@ -63,7 +74,7 @@ export class UsersService {
     if (EmailValidator.validate(emailOrUsername)) {
       return this.findByEmail(emailOrUsername);
     }
-    return this.findByUsername(emailOrUsername);
+    return this.findByUsername(emailOrUsername, false);
   }
 
   async userNameExists(userName: string): Promise<boolean> {

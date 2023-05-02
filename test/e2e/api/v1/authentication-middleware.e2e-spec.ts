@@ -59,14 +59,14 @@ describe('Authentication middleware tests', () => {
         await activeUser.save({ timestamps: false });
 
         // Make request
-        const userBeforeRequest = await usersService.findById(activeUser.id);
+        const userBeforeRequest = await usersService.findById(activeUser.id, true);
         await request(app.getHttpServer())
           .get(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
 
         // Expect timestamp change
-        const userAfterRequest = await usersService.findById(activeUser.id);
+        const userAfterRequest = await usersService.findById(activeUser.id, true);
         expect(userBeforeRequest.updatedAt).toBeInstanceOf(Date);
         expect(userAfterRequest.updatedAt).toBeInstanceOf(Date);
         expect(userAfterRequest.updatedAt > activeUser.updatedAt).toBeTruthy();
@@ -81,7 +81,7 @@ describe('Authentication middleware tests', () => {
           .send();
 
         // Expect NO second timestamp change (because previous request was so recent)
-        const userAfterSecondRequest = await usersService.findById(activeUser.id);
+        const userAfterSecondRequest = await usersService.findById(activeUser.id, true);
         expect(userAfterRequest.updatedAt).toEqual(userAfterSecondRequest.updatedAt);
       });
   });

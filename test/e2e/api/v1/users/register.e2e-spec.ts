@@ -94,9 +94,8 @@ describe('Users / Register (e2e)', () => {
         expect(response.body).toEqual({
           id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
         });
-
         // Verify that the correct fields were set on the created user object
-        const registeredUser = await usersService.findById(response.body.id);
+        const registeredUser = await usersService.findById(response.body.id, false);
         expect(await userSettingsService.findByUserId(response.body.id)).not.toBeNull();
         expect(postBody.firstName).toEqual(registeredUser.firstName);
         expect(postBody.userName).toEqual(registeredUser.userName);
@@ -124,7 +123,7 @@ describe('Users / Register (e2e)', () => {
           .post('/api/v1/users/register')
           .send(postBody)
           .expect(HttpStatus.CREATED);
-        const registeredUser = await usersService.findById(response.body.id);
+        const registeredUser = await usersService.findById(response.body.id, false);
 
         expect(registeredUser.registrationIp.length).toBeGreaterThan(4); // test for presence of IP value
       });

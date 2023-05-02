@@ -64,7 +64,7 @@ describe('#message-count-update', () => {
     it('when add matchId in newConversationIds', async () => {
       const message = await chatService.sendPrivateDirectMessage(activeUser.id, user1.id, 'Hi, test message 1.');
       await messageCountUpdateConsumer.sendUpdateIfMessageUnread({ data: { messageId: message._id.toString() } } as Job);
-      const user = await usersService.findById(user1.id);
+      const user = await usersService.findById(user1.id, true);
       expect(user.newConversationIds).toEqual([message.matchId.toString()]);
     });
   });

@@ -274,7 +274,7 @@ describe('Create Feed Comment Like (e2e)', () => {
         .send()
         .expect(HttpStatus.CREATED);
 
-        const commentCreatorUserNewNotificationCount = await usersService.findById(commentCreatorUser.id);
+        const commentCreatorUserNewNotificationCount = await usersService.findById(commentCreatorUser.id, true);
         expect(commentCreatorUserNewNotificationCount.newNotificationCount).toBe(1);
       });
     });

@@ -576,8 +576,8 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
           )
           .expect(HttpStatus.OK);
 
-        const user3NewNotificationCount = await usersService.findById(user3.id);
-        const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id);
+        const user3NewNotificationCount = await usersService.findById(user3.id, true);
+        const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id, true);
 
         expect(user3NewNotificationCount.newNotificationCount).toBe(1);
         expect(otherUser2NewNotificationCount.newNotificationCount).toBe(1);

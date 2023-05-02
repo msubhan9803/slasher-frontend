@@ -169,7 +169,7 @@ describe('Users sign-in (e2e)', () => {
             firstName: 'First name 2',
             token: expect.stringMatching(simpleJwtRegex),
           });
-          const user = await usersService.findById(response.body.id);
+          const user = await usersService.findById(response.body.id, true);
           expect(user.betaTester).toBe(true);
         });
     });
@@ -183,7 +183,6 @@ describe('Users sign-in (e2e)', () => {
             { transient: { unhashedPassword: inactiveUserUnhashedPassword } },
           ),
         );
-
         const postBody: UserSignInDto = {
           emailOrUsername: inactiveUser.userName,
           password: inactiveUserUnhashedPassword,

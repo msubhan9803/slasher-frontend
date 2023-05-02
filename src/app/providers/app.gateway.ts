@@ -55,7 +55,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       try {
         payload = jwt.verify(token, this.config.get<string>('JWT_SECRET_KEY'));
         const { userId, passwordChangedAt } = payload;
-        const user = await this.usersService.findById(userId);
+        const user = await this.usersService.findById(userId, true);
 
         if (user && user.passwordChangedAt?.toISOString() === passwordChangedAt) {
           // User is valid. Create SocketUser entry for this socketId + userId combination.

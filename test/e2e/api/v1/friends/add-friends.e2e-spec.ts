@@ -165,7 +165,7 @@ describe('Add Friends (e2e)', () => {
             .send({ userId: otherUser1._id })
             .expect(HttpStatus.CREATED);
 
-          const otherUser1NewCount = await usersService.findById(otherUser1.id);
+          const otherUser1NewCount = await usersService.findById(otherUser1.id, true);
           expect(otherUser1NewCount.newNotificationCount).toBe(1);
           expect(otherUser1NewCount.newFriendRequestCount).toBe(1);
         });

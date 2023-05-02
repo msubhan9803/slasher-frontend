@@ -612,8 +612,8 @@ describe('Update Feed Post (e2e)', () => {
           + `##LINK_ID##${otherUser3._id.toString()}@OtherUser3##LINK_END## other user 3`);
       expect(response.status).toEqual(HttpStatus.OK);
 
-      const otherUser3NewNotificationCount = await usersService.findById(otherUser3.id);
-      const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id);
+      const otherUser3NewNotificationCount = await usersService.findById(otherUser3.id, true);
+      const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id, true);
       expect(otherUser3NewNotificationCount.newNotificationCount).toBe(1);
       expect(otherUser2NewNotificationCount.newNotificationCount).toBe(1);
     });

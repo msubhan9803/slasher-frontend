@@ -127,7 +127,7 @@ export class ChatGateway {
 
   async emitConversationCountUpdateEvent(userId: string) {
     const targetUserSocketIds = await this.usersService.findSocketIdsForUser(userId);
-    const user = await this.usersService.findById(userId);
+    const user = await this.usersService.findById(userId, true);
     const unreadConversationCount = user.newConversationIds.length;
     targetUserSocketIds.forEach((socketId) => {
       this.server.to(socketId).emit('unreadConversationCountUpdate', { unreadConversationCount });

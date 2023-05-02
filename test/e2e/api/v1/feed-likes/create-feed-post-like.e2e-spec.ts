@@ -201,7 +201,7 @@ describe('Create Feed Post Like (e2e)', () => {
         .send()
         .expect(HttpStatus.CREATED);
 
-        const postCreatorUserNewNotificationCount = await usersService.findById(postCreatorUser.id);
+        const postCreatorUserNewNotificationCount = await usersService.findById(postCreatorUser.id, true);
         expect(postCreatorUserNewNotificationCount.newNotificationCount).toBe(1);
       });
     });

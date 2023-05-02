@@ -31,8 +31,14 @@ export class UsersService {
       .exec();
   }
 
-  async findById(id: string): Promise<UserDocument> {
-    return this.userModel.findById(id).exec();
+  async findById(id: string, activeOnly: boolean): Promise<UserDocument> {
+    const userFindQuery: any = { _id: id };
+    if (activeOnly) {
+      userFindQuery.deleted = false;
+      userFindQuery.status = ActiveStatus.Active;
+    }
+    const user = await this.userModel.findOne(userFindQuery).exec();
+    return user;
   }
 
   /**
@@ -55,7 +61,10 @@ export class UsersService {
 
   async findByUsername(userName: string): Promise<UserDocument> {
     return this.userModel
-      .findOne({ userName: new RegExp(`^${escapeStringForRegex(userName)}$`, 'i') })
+      .findOne({
+        userName: new RegExp(`^${escapeStringForRegex(userName)}$`, 'i'),
+        deleted: false,
+      })
       .exec();
   }
 

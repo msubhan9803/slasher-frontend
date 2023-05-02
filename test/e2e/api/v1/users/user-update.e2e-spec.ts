@@ -139,7 +139,7 @@ describe('Users / :id (e2e)', () => {
           aboutMe: 'I am a human being',
         });
 
-        const user = await usersService.findById(response.body._id);
+        const user = await usersService.findById(response.body._id, true);
         expect(user.userName).toEqual(postBody.userName);
         expect(user.email).toEqual(postBody.email);
         expect(user.firstName).toEqual(postBody.firstName);

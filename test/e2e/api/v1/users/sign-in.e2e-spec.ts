@@ -143,7 +143,6 @@ describe('Users sign-in (e2e)', () => {
             { transient: { unhashedPassword: inactiveUserUnhashedPassword } },
           ),
         );
-
         const postBody: UserSignInDto = {
           emailOrUsername: inactiveUser.userName,
           password: inactiveUserUnhashedPassword,

@@ -183,7 +183,7 @@ describe('Create Feed Reply Like (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send()
           .expect(HttpStatus.CREATED);
-        const otherUser1NewNotificationCount = await usersService.findById(otherUser1.id);
+        const otherUser1NewNotificationCount = await usersService.findById(otherUser1.id, true);
         expect(otherUser1NewNotificationCount.newNotificationCount).toBe(1);
       });
 

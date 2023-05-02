@@ -41,7 +41,7 @@ export class JwtAuthenticationMiddleware implements NestMiddleware {
     }
 
     const { userId, passwordChangedAt } = payload;
-    const user = await this.usersService.findById(userId);
+    const user = await this.usersService.findById(userId, true);
 
     if (!user) {
       // If we got here, the token was valid (at some point in time), but the id in the payload

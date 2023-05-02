@@ -451,7 +451,7 @@ export class UsersController {
     const loggedInUser = getUserFromRequest(request);
     let user: UserDocument;
     if (SIMPLE_MONGODB_ID_REGEX.test(userNameOrId)) {
-      user = await this.usersService.findById(userNameOrId);
+      user = await this.usersService.findById(userNameOrId, true);
     } else {
       user = await this.usersService.findByUsername(userNameOrId);
     }
@@ -577,7 +577,7 @@ export class UsersController {
     query: AllFeedPostQueryDto,
   ) {
     const loggedInUser = getUserFromRequest(request);
-    const user = await this.usersService.findById(param.userId);
+    const user = await this.usersService.findById(param.userId, true);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -611,7 +611,7 @@ export class UsersController {
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: GetFriendsDto,
   ) {
     const loggedInUser = getUserFromRequest(request);
-    const user = await this.usersService.findById(param.userId);
+    const user = await this.usersService.findById(param.userId, true);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -671,7 +671,7 @@ export class UsersController {
     query: AllFeedPostQueryDto,
   ) {
     const loggedInUser = getUserFromRequest(request);
-    const user = await this.usersService.findById(param.userId);
+    const user = await this.usersService.findById(param.userId, true);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -773,7 +773,7 @@ export class UsersController {
     query: FindAllMoviesDto,
   ) {
     const loggedInUser = getUserFromRequest(request);
-    const user = await this.usersService.findById(param.userId);
+    const user = await this.usersService.findById(param.userId, true);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -820,7 +820,7 @@ export class UsersController {
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     query: FindAllMoviesDto,
   ) {
-    const user = await this.usersService.findById(param.userId);
+    const user = await this.usersService.findById(param.userId, true);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -857,7 +857,7 @@ export class UsersController {
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     query: FindAllMoviesDto,
   ) {
-    const user = await this.usersService.findById(param.userId);
+    const user = await this.usersService.findById(param.userId, true);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -894,7 +894,7 @@ export class UsersController {
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     query: FindAllMoviesDto,
   ) {
-    const user = await this.usersService.findById(param.userId);
+    const user = await this.usersService.findById(param.userId, true);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }

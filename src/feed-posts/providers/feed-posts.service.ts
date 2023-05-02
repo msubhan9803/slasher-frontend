@@ -149,7 +149,7 @@ export class FeedPostsService {
     const beforeQuery: any = {};
     if (before) {
       const feedPost = await this.feedPostModel.findById(before).exec();
-      beforeQuery.updatedAt = { $lt: feedPost.updatedAt };
+      beforeQuery.lastUpdateAt = { $lt: feedPost.lastUpdateAt };
     }
 
     const query = await this.feedPostModel

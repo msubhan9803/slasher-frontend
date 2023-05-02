@@ -259,13 +259,13 @@ describe('Get All Friends (e2e)', () => {
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
       });
 
-      it('limit should not be grater than 20', async () => {
-        const limit = 21;
+      it('limit should not be grater than 40', async () => {
+        const limit = 41;
         const response = await request(app.getHttpServer())
           .get(`/api/v1/users/${activeUser.id}/friends?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain('limit must not be greater than 20');
+        expect(response.body.message).toContain('limit must not be greater than 40');
       });
 
       it('offset should be a number', async () => {

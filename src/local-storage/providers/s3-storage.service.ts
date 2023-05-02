@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   S3Client, HeadObjectCommand, HeadObjectCommandInput, PutObjectCommand, PutObjectCommandInput,
@@ -9,6 +9,8 @@ import { S3FileExistsError } from '../../errors';
 
 @Injectable()
 export class S3StorageService {
+  private readonly logger = new Logger(S3StorageService.name);
+
   private s3Client: S3Client;
 
   private s3Bucket: string;
@@ -61,6 +63,9 @@ export class S3StorageService {
     } catch (error) {
       if (error.$metadata?.httpStatusCode === 404) {
         return false;
+      }
+      if (error.$metadata?.httpStatusCode === 403) {
+        this.logger.debug(`Received 403 response from S3 (using S3_USER_ACCESS_KEY_ID ${this.config.get<string>('S3_USER_ACCESS_KEY_ID')}`);
       }
       throw error; // re-throw unexpected error
     }

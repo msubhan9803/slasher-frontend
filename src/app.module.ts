@@ -39,6 +39,8 @@ import { QueuedJobsModule } from './global/queued-jobs.module';
 import { MulterUploadCleanupInterceptor } from './app/interceptors/multer-upload-cleanup.interceptor';
 import { MovieUserStatusModule } from './movie-user-status/movie.user.status.module';
 import { AppController } from './app/app.controller';
+import { BetaTesterModule } from './beta-tester/beta-tester.module';
+import { TimeoutInterceptor } from './app/interceptors/timeout.interceptor';
 
 @Module({
   imports: [
@@ -96,6 +98,7 @@ import { AppController } from './app/app.controller';
     ReportsModule,
     QueuedJobsModule,
     MovieUserStatusModule,
+    BetaTesterModule,
   ],
   controllers: [AppController],
   providers: [
@@ -120,6 +123,11 @@ import { AppController } from './app/app.controller';
         },
       }),
     },
+    // Interceptor to stop requests for running longer than a certain amount of time
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TimeoutInterceptor,
+    },
     // Interceptor to delete temp files created by mutler. It delete files in `request.filesToBeRemoved` after the request is settled.
     {
       provide: APP_INTERCEPTOR,
@@ -141,6 +149,8 @@ export class AppModule {
         '/api/v1',
         '/api/v1/remote-constants',
         '/api/v1/ip-check',
+        '/api/v1/sleep-test',
+        '/api/v1/cpu-test',
         '/health-check',
         '/placeholders/(.*)', // the placeholders endpoint is only used in development and test environments
         '/api/v1/local-storage/(.*)', // the local-storage endpoint is only used in development and test environments

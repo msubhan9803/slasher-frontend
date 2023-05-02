@@ -24,7 +24,7 @@ export class DisallowedUsernameService {
 
   async findUserName(username: string): Promise<DisallowedUsername> {
     return this.disallowedUsernameModel
-      .findOne({ userName: new RegExp(`^${escapeStringForRegex(username)}$`, 'i') })
+      .findOne({ username: new RegExp(`^${escapeStringForRegex(username)}$`, 'i') })
       .exec();
   }
 }

@@ -61,7 +61,15 @@ export class NotificationsService {
           {
             userId,
             is_deleted: NotificationDeletionStatus.NotDeleted,
-            notifyType: { $ne: NotificationType.UserLikedYourCommentOnANewsPost },
+            notifyType: {
+              $nin: [
+                // Ignoring these in the new app because they're associated with
+                // comments from the old API structure, which is incompatible with
+                // the new structure (and Damon knows about this problem).
+                NotificationType.UserMentionedYouInACommentOnANewsPost,
+                NotificationType.UserLikedYourCommentOnANewsPost,
+              ],
+            },
           },
           before ? { createdAt: beforeCreatedAt } : {},
         ],

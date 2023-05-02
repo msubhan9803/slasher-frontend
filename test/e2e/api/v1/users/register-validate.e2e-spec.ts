@@ -9,11 +9,14 @@ import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { DisallowedUsernameService } from '../../../../../src/disallowedUsername/providers/disallowed-username.service';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { BetaTestersService } from '../../../../../src/beta-tester/providers/beta-testers.service';
+import { betaTesterFactory } from '../../../../factories/beta-tester.factory';
 
 describe('Users / Register (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let disallowedUsernameService: DisallowedUsernameService;
+  let betaTestersService: BetaTestersService;
 
   const sampleUserRegisterObject = {
     firstName: 'user',
@@ -32,6 +35,7 @@ describe('Users / Register (e2e)', () => {
     }).compile();
     connection = moduleRef.get<Connection>(getConnectionToken());
     disallowedUsernameService = moduleRef.get<DisallowedUsernameService>(DisallowedUsernameService);
+    betaTestersService = moduleRef.get<BetaTestersService>(BetaTestersService);
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -45,6 +49,18 @@ describe('Users / Register (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    await betaTestersService.create(
+      betaTesterFactory.build(
+        { name: 'TestUser', email: 'differenttestuser@gmail.com' },
+      ),
+    );
+
+    await betaTestersService.create(
+      betaTesterFactory.build(
+        { name: 'TestUser', email: 'testuser@gmail.com' },
+      ),
+    );
 
     // Reset sequences so we start fresh before each test
     rewindAllFactories();

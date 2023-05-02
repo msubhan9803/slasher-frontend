@@ -14,6 +14,8 @@ import { UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { BetaTestersService } from '../../../../../src/beta-tester/providers/beta-testers.service';
+import { betaTesterFactory } from '../../../../factories/beta-tester.factory';
 
 describe('Users sign-in (e2e)', () => {
   let app: INestApplication;
@@ -21,6 +23,8 @@ describe('Users sign-in (e2e)', () => {
   let usersService: UsersService;
   let activeUser: UserDocument;
   let activeUserUnhashedPassword: string;
+  let betaTestersService: BetaTestersService;
+
   const simpleJwtRegex = /^[\w-]*\.[\w-]*\.[\w-]*$/;
   const deviceAndAppVersionPlaceholderSignInFields = {
     device_id: 'sample-device-id',
@@ -37,6 +41,7 @@ describe('Users sign-in (e2e)', () => {
     connection = moduleRef.get<Connection>(getConnectionToken());
 
     usersService = moduleRef.get<UsersService>(UsersService);
+    betaTestersService = moduleRef.get<BetaTestersService>(BetaTestersService);
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
     await app.init();
@@ -132,6 +137,41 @@ describe('Users sign-in (e2e)', () => {
             message: 'Only beta testers are able to sign in at this time, sorry!',
           });
       });
+
+      it('when user is not marked as a beta tester yet, but user.email exists in the BetaTester collection,'
+        + 'the user is allowed to sign in and is marked as a betaTester going forward', async () => {
+          const nonBetaUserUnhashedPassword = 'TestPassword';
+          const nonBetaUser = await usersService.create(
+            userFactory.build(
+              { betaTester: false },
+              { transient: { unhashedPassword: nonBetaUserUnhashedPassword } },
+            ),
+          );
+
+          await betaTestersService.create(
+            betaTesterFactory.build(
+              { name: 'TestUser', email: nonBetaUser.email },
+            ),
+          );
+          const postBody: UserSignInDto = {
+            emailOrUsername: nonBetaUser.email,
+            password: nonBetaUserUnhashedPassword,
+            ...deviceAndAppVersionPlaceholderSignInFields,
+          };
+          const response = await request(app.getHttpServer())
+            .post('/api/v1/users/sign-in')
+            .send(postBody)
+            .expect(HttpStatus.CREATED);
+          expect(response.body).toEqual({
+            id: nonBetaUser.id,
+            userName: 'Username2',
+            email: 'User2@Example.com',
+            firstName: 'First name 2',
+            token: expect.stringMatching(simpleJwtRegex),
+          });
+          const user = await usersService.findById(response.body.id);
+          expect(user.betaTester).toBe(true);
+        });
     });
 
     describe('An inactive user', () => {
@@ -466,7 +506,7 @@ describe('Users sign-in (e2e)', () => {
       });
     });
 
-    describe('when device is exists than change in same device', () => {
+    describe('when latest user device is already among the set of known user devices', () => {
       let user;
       const userUnhashedPassword = 'password';
       beforeEach(async () => {
@@ -488,7 +528,8 @@ describe('Users sign-in (e2e)', () => {
         userData.userDevices = userDevices;
         user = await usersService.create(userData);
       });
-      it('returns the expected userDevices', async () => {
+
+      it('updates the existing user device entry and does not add a new one', async () => {
         const postBody: any = {
           emailOrUsername: user.userName,
           password: userUnhashedPassword,

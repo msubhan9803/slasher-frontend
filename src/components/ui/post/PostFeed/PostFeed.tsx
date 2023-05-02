@@ -45,7 +45,7 @@ import { getLocalStorage } from '../../../../utils/localstorage-utils';
 import FormatImageVideoList from '../../../../utils/video-utils';
 import useOnScreen from '../../../../hooks/useOnScreen';
 import { hasMovieDetailsFields, postMovieDataToMovieDBformat } from '../../../../routes/movies/movie-utils';
-import { isPostDetailsPage } from '../../../../utils/url-utils';
+import { isHomePage, isNewsPartnerPage, isPostDetailsPage } from '../../../../utils/url-utils';
 import ScrollToTop from '../../../ScrollToTop';
 
 interface Props {
@@ -374,10 +374,10 @@ function PostFeed({
   };
 
   let pubWiseAdDivId: string = '';
-  if (location.pathname === '/app/home' || location.pathname.endsWith('/posts')) {
+  if (isHomePage(location.pathname)) {
     pubWiseAdDivId = HOME_WEB_DIV_ID;
   }
-  if (location.pathname.includes('/app/news/partner/')) {
+  if (isNewsPartnerPage(location.pathname)) {
     pubWiseAdDivId = NEWS_PARTNER_POSTS_DIV_ID;
   }
 

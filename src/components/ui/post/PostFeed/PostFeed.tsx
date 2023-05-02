@@ -38,7 +38,7 @@ import RoundButton from '../../RoundButton';
 import CustomRatingText from '../../CustomRatingText';
 import CustomWortItText from '../../CustomWortItText';
 import { useAppSelector } from '../../../../redux/hooks';
-import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
+import { HOME_WEB_DIV_ID, NEWS_PARTNER_DETAILS_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
 import LoadingIndicator from '../../LoadingIndicator';
 import { customlinkifyOpts } from '../../../../utils/linkify-utils';
 import { getLocalStorage } from '../../../../utils/localstorage-utils';
@@ -87,6 +87,7 @@ interface Props {
   commentSent?: boolean;
   setCommentReplyErrorMessage?: (value: string[]) => void;
   setCommentErrorMessage?: (value: string[]) => void;
+  showPubWiseAdAtPageBottom?: boolean;
 }
 
 interface StyledProps {
@@ -284,6 +285,7 @@ function PostFeed({
   handleSearch, mentionList, commentImages, setCommentImages, commentError,
   commentReplyError, postType, onSpoilerClick,
   commentSent, setCommentReplyErrorMessage, setCommentErrorMessage,
+  showPubWiseAdAtPageBottom,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [isCommentClick, setCommentClick] = useState<boolean>(false);
@@ -372,7 +374,7 @@ function PostFeed({
   };
 
   let pubWiseAdDivId: string = '';
-  if (location.pathname === '/app/home' || location.pathname.endsWith('/posts')) {
+  if (location.pathname === '/app/home') {
     pubWiseAdDivId = HOME_WEB_DIV_ID;
   }
   if (location.pathname.includes('/app/news/partner/')) {
@@ -549,9 +551,8 @@ function PostFeed({
               )
             }
           </div>
-          {/* NOTE: Below ad is temporarily removed as per request on SD-1019 */}
           {/* Below ad is to be shown in the end of a single page post */}
-          {/* {isSinglePost && <PubWiseAd className="text-center mt-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />} */}
+          {isSinglePost && showPubWiseAdAtPageBottom && <PubWiseAd className="text-center mt-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />}
 
           {!isSinglePost && <hr className="post-separator" />}
 
@@ -622,5 +623,6 @@ PostFeed.defaultProps = {
   commentSent: undefined,
   setCommentReplyErrorMessage: undefined,
   setCommentErrorMessage: undefined,
+  showPubWiseAdAtPageBottom: undefined,
 };
 export default PostFeed;

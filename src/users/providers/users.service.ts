@@ -84,12 +84,22 @@ export class UsersService {
 
   async userNameAvailable(userName: string): Promise<boolean> {
     const user = await this.userModel.findOne({ userName: new RegExp(`^${escapeStringForRegex(userName)}$`, 'i') }).exec();
-    return (!((user && !user.deleted) || (user && (user.userBanned || user.status === ActiveStatus.Inactive))));
+    if ((user && !user.deleted)
+      || (user && user.deleted && user.userBanned)
+      || (user && (user.userBanned || user.status === ActiveStatus.Inactive))) {
+      return false;
+    }
+    return true;
   }
 
   async emailAvailable(email: string): Promise<boolean> {
     const user = await this.userModel.findOne({ email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') }).exec();
-    return (!((user && !user.deleted) || (user && (user.userBanned || user.status === ActiveStatus.Inactive))));
+    if ((user && !user.deleted)
+      || (user && user.deleted && user.userBanned)
+      || (user && (user.userBanned || user.status === ActiveStatus.Inactive))) {
+      return false;
+    }
+    return true;
   }
 
   async resetPasswordTokenIsValid(email: string, resetPasswordToken: string) {

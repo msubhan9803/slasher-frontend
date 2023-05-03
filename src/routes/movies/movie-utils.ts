@@ -16,4 +16,8 @@ export const postMovieDataToMovieDBformat = (movie: any) => {
   });
 };
 
-export const hasMovieDetailsFields = (movie: any) => movie?._id || movie?.name || movie?.logo;
+export const showMoviePoster = (movie: any, postType: string | undefined) => {
+  const moviePosterDetails = movie?._id || movie?.name || movie?.logo;
+  const isNotMovieReview = postType !== 'review';
+  return moviePosterDetails && isNotMovieReview;
+};

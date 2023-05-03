@@ -44,7 +44,6 @@ function userNameForReceivedFriendRequestNotification(notification: Notification
 function urlForNotification(notification: Notification) {
   switch (notification.notifyType) {
     case NotificationType.UserAcceptedYourFriendRequest:
-      return `/${notification.userId}/friends`;
     case NotificationType.UserSentYouAFriendRequest:
       // NOTE: The old API app doesn't sent the right user id, so we'll temporarily extract the
       // username from the notificationMsg string.
@@ -113,7 +112,7 @@ function NotificationCard({ notification, lastCard, onSelect }: Props) {
 
   if (notification.notifyType === NotificationType.NewPostFromFollowedRssFeedProvider) {
     sender = '';
-  } else if (NotificationType.UserSentYouAFriendRequest && notification.senderId.userName === 'Slasher') {
+  } else if ((NotificationType.UserSentYouAFriendRequest || NotificationType.UserAcceptedYourFriendRequest) && notification.senderId.userName === 'Slasher') {
     sender = '';
   } else {
     sender = `${notification.senderId?.userName} `;
@@ -141,9 +140,9 @@ function NotificationCard({ notification, lastCard, onSelect }: Props) {
         )}
         <div>
           <div className="d-flex align-items-center">
-            <h2 className="h4 mb-0 me-1">
+            <h2 className="h4 mb-0 me-1 fw-normal">
               {sender}
-              <span className="fs-4 mb-0 fw-normal">
+              <span className="fs-4 mb-0">
                 {notification.notificationMsg}
                 .&nbsp;&nbsp;
                 {notification.isRead === NotificationReadStatus.Unread && (

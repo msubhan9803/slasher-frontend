@@ -3,7 +3,6 @@ import { IconDefinition, SizeProp } from '@fortawesome/fontawesome-svg-core';
 import { Link, useLocation } from 'react-router-dom';
 import IconWithTextNavItemInnerElement from './IconWithTextNavItemInnerElement';
 import { useAppDispatch } from '../../../../redux/hooks';
-import { setScreenReload } from '../../../../redux/slices/userSlice';
 import { setScrollPosition } from '../../../../redux/slices/scrollPositionSlice';
 import { scrollToTop } from '../../../../utils/scrollFunctions';
 
@@ -49,11 +48,7 @@ function IconWithTextNavLink({
       positionElementId: '',
     };
     dispatch(setScrollPosition(positionData));
-    if (label === 'Home') {
-      dispatch(setScreenReload(true));
-    } else {
-      scrollToTop('instant');
-    }
+    scrollToTop('instant');
   };
   return (
     <Link to={to} onClick={handleRefresh} ref={linkRef} className={`text-decoration-none pb-1 mb-1 ${className}`}>

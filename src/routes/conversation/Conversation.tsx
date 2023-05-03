@@ -15,10 +15,11 @@ import {
   getConversation, createOrFindConversation, attachFile, markAllReadForSingleConversation,
 } from '../../api/messages';
 import NotFound from '../../components/NotFound';
-import useGlobalSocket from '../../hooks/useGlobalSocket';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
+import { useAppSelector } from '../../redux/hooks';
+import socketStore from '../../socketStore';
 
 function Conversation() {
   const userId = Cookies.get('userId');
@@ -26,7 +27,7 @@ function Conversation() {
   const lastConversationIdRef = useRef('');
   const [chatUser, setChatUser] = useState<any>();
   const [messageList, setMessageList] = useState<any>([]);
-  const { socket, socketConnected } = useGlobalSocket();
+  const { socket } = socketStore;
   const [message, setMessage] = useState('');
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [noMoreData, setNoMoreData] = useState<boolean>(false);
@@ -39,6 +40,7 @@ function Conversation() {
   const [imageArray, setImageArray] = useState<any>([]);
   const [uploadPost, setUploadPost] = useState<string[]>([]);
   const [messageLoading, setMessageLoading] = useState<boolean>(false);
+  const isSocketConnected = useAppSelector((state) => state.socket.isConnected);
 
   useEffect(() => {
     if (location.pathname.includes('/new')) {
@@ -62,7 +64,7 @@ function Conversation() {
       image: payload.message.image ?? null,
     };
     if (payload.message.matchId === conversationId) {
-      socket?.emit('messageRead', { messageId: payload.message._id });
+      socket!.emit('messageRead', { messageId: payload.message._id });
       setMessageList((prev: any) => [
         ...prev,
         chatreceivedObj,
@@ -202,7 +204,7 @@ function Conversation() {
     }
   }, [conversationId, requestAdditionalPosts, messageList, loadingMessages, socket, userId]);
 
-  if (isLoading || !socketConnected) { return null; }
+  if (isLoading || !isSocketConnected) { return null; }
 
   if (showPageDoesNotExist) {
     return (

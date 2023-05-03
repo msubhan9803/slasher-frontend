@@ -7,6 +7,7 @@
   }
   --slasher-comments-bg-color: #{$slasher-comments-bg-color};
   --stroke-and-line-separator-color: #{$stroke-and-line-separator-color};
+  --primary-light: #ffbdb6;
   --poster-border-color: #0e0e0e;
 
   --fs-1: #{$h1-font-size};
@@ -160,7 +161,7 @@ a:not(.btn) {
     $border: $stroke-and-line-separator-color,
     $color: #ffffff,
     $hover-color: #ffffff,
-    $hover-border: lighten($stroke-and-line-separator-color, 10%),
+    $hover-border: lighten($stroke-and-line-separator-color, 20%),
     $active-color: #ffffff
   );
 }

@@ -1,5 +1,7 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useEffect, useRef, useState,
+} from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Button } from 'react-bootstrap';
@@ -13,6 +15,7 @@ import { customlinkifyOpts } from '../../../../utils/linkify-utils';
 import { decryptMessage, escapeHtmlSpecialCharacters, newLineToBr } from '../../../../utils/text-utils';
 import CustomSwiper from '../../CustomSwiper';
 import { LikeShareModalResourceName, LikeShareModalTabName } from '../../../../types';
+import { LG_MEDIA_BREAKPOINT, topToDivHeight } from '../../../../constants';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -101,15 +104,18 @@ function CommentSection({
   }, [commentImg]);
 
   useEffect(() => {
-    setTimeout(() => {
-      if (highlightRef.current) {
-        highlightRef.current.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-          inline: 'center',
+    if (highlightRef.current) {
+      setTimeout(() => {
+        window.scrollTo({
+          top: highlightRef.current.offsetTop - (
+            window.innerWidth >= parseInt(LG_MEDIA_BREAKPOINT.replace('px', ''), 10)
+              ? topToDivHeight
+              : 10
+          ),
+          behavior: 'instant' as any,
         });
-      }
-    }, 500);
+      }, 0);
+    }
   }, []);
 
   const handleReply = () => {

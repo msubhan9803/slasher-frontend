@@ -117,7 +117,7 @@ function prettifyErrorMessages(errorMessageList: string[]) {
 }
 
 const INITIAL_EVENTFORM: EventForm = {
-  name: '', eventType: '', country: '', state: '', city: '', eventInfo: '', url: '', author: '', address: '', startDate: null, endDate: null,
+  name: '', eventType: '', country: 'disabled', state: 'disabled', city: '', eventInfo: '', url: '', author: '', address: '', startDate: null, endDate: null,
 };
 
 function EventSuggestion() {
@@ -130,7 +130,6 @@ function EventSuggestion() {
   const [errors, setErrors] = useState<string[]>([]);
   const [isEventSuggestionSuccessful, setIsEventSuggestionSuccessful] = useState(false);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
-  const [selectedEventState, setSelectedEventState] = useState('disabled');
 
   const resetFormData = () => {
     setImageUpload(undefined);
@@ -142,7 +141,7 @@ function EventSuggestion() {
     setIsEventSuggestionSuccessful(false);
 
     if (key === 'country') {
-      setEventForm({ ...eventForm, [key]: value, state: '' });
+      setEventForm({ ...eventForm, [key]: value, state: 'disabled' });
       return;
     }
     setEventForm({ ...eventForm, [key]: value });
@@ -222,15 +221,19 @@ function EventSuggestion() {
             <SortData
               sortVal={eventForm.eventType}
               onSelectSort={(val) => { handleChange(val, 'eventType'); }}
-              sortoptions={loadingEventCategories
-                ? [{ value: 'disabled', label: 'Event category' },
-                  { value: 'disabled', label: 'Loading event categories…' }]
-                : [{ value: 'disabled', label: 'Event category' }, ...options]}
+              placeholder={
+                loadingEventCategories ? 'Loading event categories...' : 'Event category'
+              }
+              sortoptions={
+                loadingEventCategories
+                  ? [{ value: 'disabled', label: 'Loading event categories...' }]
+                  : [...options]
+              }
               type="form"
             />
           </Col>
           <Col md={6} className="mt-3">
-            <Form.Control value={eventForm.name} aria-label="Event Name" type="text" placeholder="Event Name" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'name')} />
+            <Form.Control value={eventForm.name} aria-label="Event name" type="text" placeholder="Event name" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'name')} />
           </Col>
         </Row>
         <Row className="mt-3">
@@ -279,8 +282,8 @@ function EventSuggestion() {
           </Col>
           <Col md={6} className="mt-3">
             <SortData
-              sortVal={selectedEventState}
-              onSelectSort={(val) => { setSelectedEventState(val); }}
+              sortVal={eventForm.state}
+              onSelectSort={(val) => { handleChange(val, 'state'); }}
               sortoptions={[{ value: 'disabled', label: 'State/Province' }, ...getStatesbyCountryName(eventForm.country)]}
               type="form"
             />
@@ -288,7 +291,7 @@ function EventSuggestion() {
         </Row>
         <Row>
           <Col md={6} className="mt-3">
-            <Form.Control value={eventForm.address} aria-label="Street Address" type="text" placeholder="Street Address" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'address')} />
+            <Form.Control value={eventForm.address} aria-label="Street address" type="text" placeholder="Street address" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'address')} />
           </Col>
           <Col md={6} className="mt-3">
             <Form.Control value={eventForm.city} aria-label="City" type="text" placeholder="City" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'city')} />
@@ -297,7 +300,7 @@ function EventSuggestion() {
         <ErrorMessageList errorMessages={errors} className="mt-4" />
         {isEventSuggestionSuccessful && (
           <Alert variant="info" className="my-4">
-            <strong>Thank you for your suggestion!</strong>
+            Thank you for your suggestion!
           </Alert>
         )}
         <Row className="my-4 pe-md-5">

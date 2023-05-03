@@ -34,12 +34,21 @@ const UserCircleImageContainer = styled.div`
   }
 `;
 
+function userNameForReceivedFriendRequestNotification(notification: Notification) {
+  const extractedUserName = notification.senderId.userName === 'Slasher'
+    ? notification.notificationMsg.substring(0, notification.notificationMsg.indexOf(' '))
+    : notification.senderId.userName;
+  return extractedUserName;
+}
+
 function urlForNotification(notification: Notification) {
   switch (notification.notifyType) {
     case NotificationType.UserAcceptedYourFriendRequest:
-      return `/${notification.userId}/friends`;
     case NotificationType.UserSentYouAFriendRequest:
-      return `/${notification.userId}/friends/request`;
+      // NOTE: The old API app doesn't sent the right user id, so we'll temporarily extract the
+      // username from the notificationMsg string.
+      // eslint-disable-next-line no-case-declarations
+      return `/${userNameForReceivedFriendRequestNotification(notification)}`;
     case NotificationType.UserLikedYourPost:
       if (notification.feedPostId.postType === PostType.MovieReview) {
         return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}`;
@@ -50,13 +59,19 @@ function urlForNotification(notification: Notification) {
         return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
       }
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
-    // NOTE: Not handling the case below right now because RSS Feed Post comments are handled
-    // in a non-standard way by the old app. So we're temporary omitting them on the server side.
-    // case NotificationType.UserLikedYourCommentOnANewsPost:
-    //   if (notification.rssFeedProviderId) {
-    //     return `/app/news/partner/${notification.rssFeedProviderId._id}/posts/` +
-    //      `${notification.feedPostId._id}?commentId=${notification.rssFeedCommentId}`;
-    //   }
+    /*
+      NOTE: Not handling the case below right now because RSS Feed Post comments are handled
+      in a non-standard way by the old app. So we're temporary omitting them on the server side.
+      case NotificationType.UserLikedYourCommentOnANewsPost:
+        if (notification.rssFeedProviderId) {
+          return `/app/news/partner/${notification.rssFeedProviderId._id}/posts/` +
+          `${notification.feedPostId._id}?commentId=${notification.rssFeedCommentId}`;
+        }
+      NOTE: Not handling the case below right now because RSS Feed Post comments are handled
+      in a non-standard way by the old app. So we're temporary omitting them on the server side.
+      case UserMentionedYouInACommentOnANewsPost :
+        return '';
+    */
     case NotificationType.UserCommentedOnYourPost:
       if (notification.feedPostId.postType === PostType.MovieReview) {
         return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
@@ -93,6 +108,16 @@ function urlForNotification(notification: Notification) {
 }
 
 function NotificationCard({ notification, lastCard, onSelect }: Props) {
+  let sender = '';
+
+  if (notification.notifyType === NotificationType.NewPostFromFollowedRssFeedProvider) {
+    sender = '';
+  } else if ((NotificationType.UserSentYouAFriendRequest || NotificationType.UserAcceptedYourFriendRequest) && notification.senderId.userName === 'Slasher') {
+    sender = '';
+  } else {
+    sender = `${notification.senderId?.userName} `;
+  }
+
   return (
     <StyledBorder lastCard={lastCard} key={notification._id} className="d-flex justify-content-between py-3">
       <Link
@@ -115,14 +140,9 @@ function NotificationCard({ notification, lastCard, onSelect }: Props) {
         )}
         <div>
           <div className="d-flex align-items-center">
-            <h2 className="h4 mb-0 fw-bold me-1">
-              {
-                notification.notifyType === NotificationType.NewPostFromFollowedRssFeedProvider
-                  ? ''
-                  : notification.senderId?.userName
-              }
-              <span className="fs-4 mb-0 fw-normal">
-                &nbsp;
+            <h2 className="h4 mb-0 me-1 fw-normal">
+              {sender}
+              <span className="fs-4 mb-0">
                 {notification.notificationMsg}
                 .&nbsp;&nbsp;
                 {notification.isRead === NotificationReadStatus.Unread && (

@@ -22,7 +22,6 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layou
 import { useAppSelector, useAppDispatch } from '../../redux/hooks';
 import { setScrollPosition } from '../../redux/slices/scrollPositionSlice';
 import EditPostModal from '../../components/ui/post/EditPostModal';
-import { setHomeDataReload } from '../../redux/slices/userSlice';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
@@ -45,7 +44,7 @@ function Home() {
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const location = useLocation();
-  const reloadData = useAppSelector((state) => state.user.homeDataReload);
+  const reloadData = useAppSelector((state) => state.user.screenReload);
   const [posts, setPosts] = useState<Post[]>(
     scrollPosition.pathname === location.pathname && !reloadData
       ? scrollPosition?.data : [],
@@ -86,7 +85,6 @@ function Home() {
         || posts.length >= scrollPosition?.data?.length
         || posts.length === 0
         || scrollPosition.pathname !== location.pathname
-        || reloadData
       ) {
         setLoadingPosts(true);
         getHomeFeedPosts(
@@ -107,6 +105,7 @@ function Home() {
                 likeIcon: data.likedByUser,
                 likeCount: data.likeCount,
                 commentCount: data.commentCount,
+                movieId: data?.movieId,
               };
             }
             // RSS feed post
@@ -151,21 +150,9 @@ function Home() {
     }
   }, [
     requestAdditionalPosts, loadingPosts, loginUserId, posts, scrollPosition,
-    dispatch, location.pathname, reloadData,
+    dispatch, location.pathname,
   ]);
 
-  useEffect(() => {
-    if (reloadData) {
-      dispatch(setHomeDataReload(false));
-      const positionData = {
-        pathname: '',
-        position: 0,
-        data: [],
-        positionElementId: '',
-      };
-      dispatch(setScrollPosition(positionData));
-    }
-  }, [reloadData, dispatch]);
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -192,6 +179,7 @@ function Home() {
             likeIcon: data.likedByUser,
             likeCount: data.likeCount,
             commentCount: data.commentCount,
+            movieId: data.movieId,
           };
         }
         // RSS feed post
@@ -352,6 +340,7 @@ function Home() {
                 newsPostPopoverOptions={newsPostPopoverOptions}
                 onLikeClick={onLikeClick}
                 onSelect={persistScrollPosition}
+                isSinglePost={false}
               />
             )
           }

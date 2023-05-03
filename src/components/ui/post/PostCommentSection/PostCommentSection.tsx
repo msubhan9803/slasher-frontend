@@ -53,6 +53,7 @@ function PostCommentSection({
   setCommentReplyErrorMessage,
   setCommentErrorMessage,
   handleLikeModal,
+  isMainPostCommentClick,
 }: any) {
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [show, setShow] = useState<boolean>(false);
@@ -81,11 +82,13 @@ function PostCommentSection({
   const [scrollId, setScrollId] = useState<string>('');
   const [selectedReplyId, setSelectedReplyId] = useState<string | null>('');
   const [updatedReply, setUpdatedReply] = useState<boolean>(false);
-
+  const commentSectionRef = useRef<any>(null);
   useEffect(() => {
     if (queryReplyId && queryCommentId) {
       const showQueryIdReply = checkLoadMoreId.some((loadId) => loadId._id === queryCommentId);
-      if (!showQueryIdReply) { setCheckLoadMoreId([...checkLoadMoreId, queryCommentId]); }
+      if (!showQueryIdReply && !checkLoadMoreId.includes(queryCommentId)) {
+        setCheckLoadMoreId([...checkLoadMoreId, queryCommentId]);
+      }
     }
   }, [queryCommentId, queryReplyId, checkLoadMoreId]);
 
@@ -476,6 +479,7 @@ function PostCommentSection({
         setCommentReplyErrorMessage={setCommentReplyErrorMessage}
         setReplyImageArray={setReplyImageArray}
         isEdit={isEdit}
+        isMainPostCommentClick={isMainPostCommentClick}
       />
       {
         !isEdit && commentReplyError
@@ -483,8 +487,25 @@ function PostCommentSection({
       }
     </div>
   );
+  useEffect(() => {
+    setTimeout(() => {
+      if (isMainPostCommentClick
+        && commentSectionData
+        && commentSectionData.length > 0
+        && commentSectionRef.current) {
+        document.documentElement.style.scrollBehavior = 'auto';
+        commentSectionRef?.current?.scrollIntoView({
+          behavior: 'instant' as any,
+          block: 'start',
+        });
+      }
+    }, 500);
+    setTimeout(() => {
+      document.documentElement.style.scrollBehavior = 'smooth';
+    }, 600);
+  }, [isMainPostCommentClick, commentSectionData]);
   return (
-    <>
+    <div ref={commentSectionRef}>
       <CommentInput
         userData={userData}
         message={message}
@@ -505,6 +526,7 @@ function PostCommentSection({
         setCommentReplyErrorMessage={setCommentReplyErrorMessage}
         setReplyImageArray={setReplyImageArray}
         isEdit={isEdit}
+        isMainPostCommentClick={isMainPostCommentClick}
       />
       {commentData && commentData.length > 0 && queryCommentId && previousCommentsAvailable
         && (
@@ -671,7 +693,7 @@ function PostCommentSection({
           />
         )
       }
-    </>
+    </div>
   );
 }
 PostCommentSection.defaultProps = {

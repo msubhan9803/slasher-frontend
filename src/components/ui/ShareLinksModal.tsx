@@ -1,6 +1,8 @@
+/* eslint-disable max-len */
 import React from 'react';
 import { Col, Modal, Row } from 'react-bootstrap';
 import copy from 'copy-to-clipboard';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ModalContainer from './CustomModal';
 import ShareAsApostIcon from '../../images/share-links-modal-share-as-a-post.png';
 import ShareAsAmessageIcon from '../../images/share-links-modal-share-as-a-message.png';
@@ -24,6 +26,10 @@ function ShareIconButton({ label, onClick, imgSrc }: any) {
 }
 
 function ShareLinksModal({ copyLinkUrl, show, setShow }: any) {
+  const params = useParams();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
   const handleCloseModal = () => {
     setShow(false);
   };
@@ -44,7 +50,7 @@ function ShareLinksModal({ copyLinkUrl, show, setShow }: any) {
             enableDevFeatures && (
               <>
                 <Col className="pb-5">
-                  <ShareIconButton label="Share as a post" onClick={() => { }} imgSrc={ShareAsApostIcon} />
+                  <ShareIconButton label="Share as a post" onClick={() => { navigate(`/app/posts/create?movieId=${params.id}`, { state: pathname }); }} imgSrc={ShareAsApostIcon} />
                 </Col>
                 <Col className="pb-5">
                   <ShareIconButton label="Share as a message" onClick={() => { }} imgSrc={ShareAsAmessageIcon} />

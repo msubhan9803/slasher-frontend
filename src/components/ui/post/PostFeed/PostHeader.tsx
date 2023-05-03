@@ -17,7 +17,7 @@ interface PostHeaderProps {
   profileImage: string;
   popoverOptions?: string[];
   onPopoverClick?: (value: string, popoverClickProps: PopoverClickProps) => void,
-  detailPage: boolean | undefined;
+  isSinglePost: boolean | undefined;
   message?: string;
   userId?: string;
   rssfeedProviderId?: string;
@@ -36,7 +36,7 @@ const StyledSaveButton = styled(Button) <StyledSavedProps>`
   }
 `;
 function PostHeader({
-  id, userName, postDate, profileImage, popoverOptions, onPopoverClick, detailPage,
+  id, userName, postDate, profileImage, popoverOptions, onPopoverClick, isSinglePost,
   message, userId, rssfeedProviderId, onSelect, postImages, postType,
 }: PostHeaderProps) {
   const [notificationOn, setNotificationOn] = useState(false);
@@ -82,7 +82,7 @@ function PostHeader({
             {
               // Do *not* remove the trailing # in below `to` path
               // else the `scrollToTop/scrollWithOffset` won't work.
-              detailPage ? (
+              isSinglePost ? (
                 <p className="mb-0 fs-6 text-light">
                   {DateTime.fromISO(postDate).toFormat('MM/dd/yyyy t')}
                 </p>

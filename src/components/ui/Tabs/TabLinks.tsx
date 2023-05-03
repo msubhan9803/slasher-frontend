@@ -4,6 +4,8 @@ import Tab from '@mui/material/Tab';
 import { createTheme, ThemeProvider } from '@mui/material';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { useAppDispatch } from '../../../redux/hooks';
+import { setScrollToTabsPosition } from '../../../redux/slices/scrollPositionSlice';
 
 interface TabLinksProps {
   tabLink: TabProps[];
@@ -69,6 +71,10 @@ function TabLinks({
       },
     },
   });
+  const dispatch = useAppDispatch();
+  const handleTabsScroll = () => {
+    dispatch(setScrollToTabsPosition(true));
+  };
   return (
     <ThemeProvider theme={theme}>
       <StyleTabs className={`${display === 'underline' ? '' : 'bg-dark bg-mobile-transparent rounded-3'}`}>
@@ -96,7 +102,8 @@ function TabLinks({
                 : label}
               component={Link}
               to={params ? `${toLink}/${value}${params}` : `${toLink}/${value}`}
-              className="text-decoration-none"
+              className="text-decoration-none shadow-none"
+              onClick={handleTabsScroll}
             />
           ))}
         </Tabs>

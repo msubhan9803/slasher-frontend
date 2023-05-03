@@ -179,6 +179,72 @@ describe('UsersService', () => {
     });
   });
 
+  describe('#userNameAvailable', () => {
+    let user: UserDocument;
+    beforeEach(async () => {
+      user = await usersService.create(
+        userFactory.build(),
+      );
+    });
+
+    it('finds the expected user using the userName', async () => {
+      const available = await usersService.userNameAvailable(user.userName);
+      expect(available).toBeFalsy();
+    });
+
+    it('when user is deleted than expected response', async () => {
+      const updateStatus = await usersService.update(user._id.toString(), { deleted: true });
+      const available = await usersService.userNameAvailable(updateStatus.userName);
+      expect(available).toBeTruthy();
+    });
+
+    it('when user is deleted and user is banned than expected response', async () => {
+      const updateStatus = await usersService.update(user._id.toString(), { deleted: true, userBanned: true });
+      const available = await usersService.userNameAvailable(updateStatus.userName);
+      console.log('available', available);
+      expect(available).toBeFalsy();
+    });
+
+    it('when user is banned and status is inactive than expected response', async () => {
+      const updateStatus = await usersService.update(user._id.toString(), { status: ActiveStatus.Inactive, userBanned: true });
+      const available = await usersService.userNameAvailable(updateStatus.userName);
+      expect(available).toBeFalsy();
+    });
+  });
+
+  describe('#emailAvailable', () => {
+    let user: UserDocument;
+    beforeEach(async () => {
+      user = await usersService.create(
+        userFactory.build(),
+      );
+    });
+
+    it('finds the expected user using the email', async () => {
+      const available = await usersService.emailAvailable(user.email);
+      expect(available).toBeFalsy();
+    });
+
+    it('when user is deleted than expected response', async () => {
+      const updateStatus = await usersService.update(user._id.toString(), { deleted: true });
+      const available = await usersService.emailAvailable(updateStatus.email);
+      expect(available).toBeTruthy();
+    });
+
+    it('when user is deleted and user is banned than expected response', async () => {
+      const updateStatus = await usersService.update(user._id.toString(), { deleted: true, userBanned: true });
+      const available = await usersService.emailAvailable(updateStatus.email);
+      console.log('available', available);
+      expect(available).toBeFalsy();
+    });
+
+    it('when user is banned and status is inactive than expected response', async () => {
+      const updateStatus = await usersService.update(user._id.toString(), { status: ActiveStatus.Inactive, userBanned: true });
+      const available = await usersService.emailAvailable(updateStatus.email);
+      expect(available).toBeFalsy();
+    });
+  });
+
   describe('#validatePasswordResetToken', () => {
     let user;
     beforeEach(async () => {

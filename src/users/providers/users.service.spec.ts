@@ -201,7 +201,6 @@ describe('UsersService', () => {
     it('when user is deleted and user is banned than expected response', async () => {
       const updateStatus = await usersService.update(user._id.toString(), { deleted: true, userBanned: true });
       const available = await usersService.userNameAvailable(updateStatus.userName);
-      console.log('available', available);
       expect(available).toBeFalsy();
     });
 
@@ -234,7 +233,6 @@ describe('UsersService', () => {
     it('when user is deleted and user is banned than expected response', async () => {
       const updateStatus = await usersService.update(user._id.toString(), { deleted: true, userBanned: true });
       const available = await usersService.emailAvailable(updateStatus.email);
-      console.log('available', available);
       expect(available).toBeFalsy();
     });
 

@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
 import { Link, matchPath, useLocation } from 'react-router-dom';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
-import { setScreenReload } from '../../../redux/slices/userSlice';
 import { useAppDispatch } from '../../../redux/hooks';
 
 interface Props {
@@ -50,7 +49,6 @@ function SidebarNavItem({
   const { pathname } = useLocation();
   const dispatch = useAppDispatch();
   const handleRefresh = () => {
-    dispatch(setScreenReload(true));
     const positionData = {
       pathname: '',
       position: 0,

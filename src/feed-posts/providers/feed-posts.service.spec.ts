@@ -835,22 +835,24 @@ describe('FeedPostsService', () => {
     });
   });
 
-  describe('#findFeedPost', () => {
+  describe('#findMovieReviewPost', () => {
     beforeEach(async () => {
       // Created post is associated with the `activeUser`
       const feedPostData = await feedPostsService.create(
         feedPostFactory.build({
           userId: activeUser.id,
           movieId: movie.id,
+          postType: PostType.MovieReview,
         }),
       );
       await feedPostsService.findById(feedPostData.id, false);
     });
 
     it('successfully find feed post details', async () => {
-      const post = await feedPostsService.findFeedPost(activeUser.id, movie.id);
+      const post = await feedPostsService.findMovieReviewPost(activeUser.id, movie.id);
       expect(post.movieId.toString()).toEqual(movie.id);
       expect(post.userId.toString()).toEqual(activeUser.id);
+      expect(post.postType).toEqual(PostType.MovieReview);
     });
   });
 

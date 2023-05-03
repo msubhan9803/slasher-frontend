@@ -227,7 +227,7 @@ function Home() {
         setShow(false);
         callLatestFeedPost();
       })
-      /* eslint-disable no-console */
+      // eslint-disable-next-line no-console
       .catch((error) => console.error(error));
   };
 
@@ -279,7 +279,7 @@ function Home() {
         setShow(false);
         callLatestFeedPost();
       })
-      /* eslint-disable no-console */
+      // eslint-disable-next-line no-console
       .catch((error) => console.error(error));
   };
 
@@ -292,15 +292,13 @@ function Home() {
     reportData(reportPayload).then((res) => {
       if (res.status === 200) { callLatestFeedPost(); }
     })
-      /* eslint-disable no-console */
+      // eslint-disable-next-line no-console
       .catch((error) => console.error(error));
     // Ask to block user as well
     setDropDownValue('PostReportSuccessDialog');
   };
 
   const persistScrollPosition = (id: string) => {
-    console.log('called - persistScrollPosition', id);
-
     const positionData = {
       pathname: location.pathname,
       position: window.pageYOffset,

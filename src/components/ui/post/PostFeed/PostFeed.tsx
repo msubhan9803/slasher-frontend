@@ -44,6 +44,8 @@ import { customlinkifyOpts } from '../../../../utils/linkify-utils';
 import { getLocalStorage } from '../../../../utils/localstorage-utils';
 import FormatImageVideoList from '../../../../utils/video-utils';
 import useOnScreen from '../../../../hooks/useOnScreen';
+import { isHomePage, isNewsPartnerPage, isPostDetailsPage } from '../../../../utils/url-utils';
+import ScrollToTop from '../../../ScrollToTop';
 import { postMovieDataToMovieDBformat, showMoviePoster } from '../../../../routes/movies/movie-utils';
 
 interface Props {
@@ -374,10 +376,10 @@ function PostFeed({
   };
 
   let pubWiseAdDivId: string = '';
-  if (location.pathname === '/app/home') {
+  if (isHomePage(location.pathname)) {
     pubWiseAdDivId = HOME_WEB_DIV_ID;
   }
-  if (location.pathname.includes('/app/news/partner/')) {
+  if (isNewsPartnerPage(location.pathname)) {
     pubWiseAdDivId = NEWS_PARTNER_POSTS_DIV_ID;
   }
 
@@ -430,6 +432,7 @@ function PostFeed({
 
   return (
     <StyledPostFeed>
+      {isPostDetailsPage(pathname) && <ScrollToTop />}
       {postData.map((post: any, i) => (
         <div key={post.id}>
           <div className="post">

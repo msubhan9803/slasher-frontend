@@ -12,7 +12,6 @@ import '@fontsource/roboto/700.css';
 import './styles/global.scss';
 
 import App from './App';
-import { socket, SocketContext } from './context/socket';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
@@ -20,11 +19,9 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <SocketContext.Provider value={socket}>
-      <Provider store={store}>
-        <App />
-      </Provider>
-    </SocketContext.Provider>
+    <Provider store={store}>
+      <App />
+    </Provider>
   </React.StrictMode>,
 );
 

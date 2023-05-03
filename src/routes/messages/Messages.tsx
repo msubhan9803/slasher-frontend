@@ -15,7 +15,7 @@ import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/righ
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import { useAppDispatch } from '../../redux/hooks';
 import { resetUnreadConversationCount } from '../../redux/slices/userSlice';
-import { socket } from '../../context/socket';
+import socketStore from '../../socketStore';
 
 export interface NewMessagesList {
   unreadCount: number;
@@ -40,6 +40,7 @@ function Messages() {
   const [yPositionOfLastMessageElement, setYPositionOfLastMessageElement] = useState<number>(0);
   const [selectedMatchListId, setSelectedMatchListId] = useState('');
   const dispatch = useAppDispatch();
+  const { socket } = socketStore;
 
   const handleMessagesOption = (matchListId: string) => (messageOption: string) => {
     if (messageOption !== 'markAsRead') {
@@ -138,7 +139,7 @@ function Messages() {
   useEffect(() => {
     socket?.emit('clearNewConversationIds', {});
     dispatch(resetUnreadConversationCount());
-  }, [dispatch]);
+  }, [dispatch, socket]);
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>

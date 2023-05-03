@@ -80,7 +80,7 @@ describe('Users / Forgot Password (e2e)', () => {
           success: true,
         });
 
-        const foundUser = await usersService.findByEmail(email);
+        const foundUser = await usersService.findByEmail(email, true);
         expect(foundUser.resetPasswordToken).toMatch(validUuidV4Regex);
         expect(mailService.sendForgotPasswordEmail).toHaveBeenCalledWith(
           foundUser.firstName,

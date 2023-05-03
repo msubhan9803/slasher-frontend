@@ -115,20 +115,20 @@ describe('UsersService', () => {
     });
 
     it('finds the expected user using the same-case email', async () => {
-      expect((await usersService.findByEmail(user.email))._id).toEqual(
+      expect((await usersService.findByEmail(user.email, true))._id).toEqual(
         user._id,
       );
     });
 
     it('finds the expected user using a lower-case variant of the email', async () => {
       expect(
-        (await usersService.findByEmail(user.email.toLowerCase()))._id,
+        (await usersService.findByEmail(user.email.toLowerCase(), true))._id,
       ).toEqual(user._id);
     });
 
     it('finds the expected user using an upper-case variant of the email', async () => {
       expect(
-        (await usersService.findByEmail(user.email.toUpperCase()))._id,
+        (await usersService.findByEmail(user.email.toUpperCase(), true))._id,
       ).toEqual(user._id);
     });
   });
@@ -169,12 +169,12 @@ describe('UsersService', () => {
     });
     it('finds the expected user by email', async () => {
       expect(
-        (await usersService.findByEmailOrUsername(user.email))._id,
+        (await usersService.findByEmailOrUsername(user.email, true))._id,
       ).toEqual(user._id);
     });
     it('finds the expected user by userName', async () => {
       expect(
-        (await usersService.findByEmailOrUsername(user.userName))._id,
+        (await usersService.findByEmailOrUsername(user.userName, true))._id,
       ).toEqual(user._id);
     });
   });

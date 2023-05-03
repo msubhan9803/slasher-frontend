@@ -53,9 +53,14 @@ export class UsersService {
     }).count()) === userIds.length;
   }
 
-  async findByEmail(email: string): Promise<UserDocument> {
+  async findByEmail(email: string, activeOnly: boolean): Promise<UserDocument> {
+    const userFindQuery: any = { email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') };
+    if (activeOnly) {
+      userFindQuery.deleted = false;
+      userFindQuery.status = ActiveStatus.Active;
+    }
     return this.userModel
-      .findOne({ email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') })
+      .findOne(userFindQuery)
       .exec();
   }
 
@@ -70,29 +75,21 @@ export class UsersService {
       .exec();
   }
 
-  async findByEmailOrUsername(emailOrUsername: string): Promise<UserDocument> {
+  async findByEmailOrUsername(emailOrUsername: string, activeOnly: boolean): Promise<UserDocument> {
     if (EmailValidator.validate(emailOrUsername)) {
-      return this.findByEmail(emailOrUsername);
+      return this.findByEmail(emailOrUsername, activeOnly);
     }
-    return this.findByUsername(emailOrUsername, false);
+    return this.findByUsername(emailOrUsername, activeOnly);
   }
 
-  async userNameExists(userName: string): Promise<boolean> {
-    return (
-      (await this.userModel
-        .findOne({ userName: new RegExp(`^${escapeStringForRegex(userName)}$`, 'i') })
-        .count()
-        .exec()) > 0
-    );
+  async userNameAvailable(userName: string): Promise<boolean> {
+    const user = await this.userModel.findOne({ userName: new RegExp(`^${escapeStringForRegex(userName)}$`, 'i') }).exec();
+    return (!((user && !user.deleted) || (user && (user.userBanned || user.status === ActiveStatus.Inactive))));
   }
 
-  async emailExists(email: string): Promise<boolean> {
-    return (
-      (await this.userModel
-        .findOne({ email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') })
-        .count()
-        .exec()) > 0
-    );
+  async emailAvailable(email: string): Promise<boolean> {
+    const user = await this.userModel.findOne({ email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') }).exec();
+    return (!((user && !user.deleted) || (user && (user.userBanned || user.status === ActiveStatus.Inactive))));
   }
 
   async resetPasswordTokenIsValid(email: string, resetPasswordToken: string) {

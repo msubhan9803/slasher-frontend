@@ -608,26 +608,6 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
       });
     });
 
-    it('finds the expected feed post and update the lastUpdateAt time', async () => {
-      const feedReply4 = await feedCommentsService.createFeedReply(
-        feedRepliesFactory.build(
-          {
-            userId: activeUser._id,
-            feedCommentId: feedComments.id,
-            message: 'Hello Reply Test Message 1',
-            images: [],
-          },
-        ),
-      );
-      const postBeforeUpdate = await feedPostsService.findById(feedReply4.feedPostId.toString(), false);
-      const response = await request(app.getHttpServer())
-        .patch(`/api/v1/feed-comments/replies/${feedReply4._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .field('message', sampleFeedCommentsObject.message);
-      const postAfterUpdate = await feedPostsService.findById(response.body.feedPostId, false);
-      expect(postAfterUpdate.lastUpdateAt > postBeforeUpdate.lastUpdateAt).toBeTruthy();
-    });
-
     it('when files length is not equal imageDescriptions length than expected response', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())

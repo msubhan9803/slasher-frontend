@@ -6,12 +6,18 @@ import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import ReportModal from '../../../components/ui/ReportModal';
 import { Post } from '../../../types';
 import SearchHeader from '../SearchHeader';
-import { getHashtagPostList } from '../../../api/feed-posts';
+import {
+  deleteFeedPost, getHashtagPostList, hideFeedPost, updateFeedPost,
+} from '../../../api/feed-posts';
 import { unlikeFeedPost, likeFeedPost } from '../../../api/feed-likes';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
-import { followHashtag, unfollowHashtag } from '../../../api/users';
+import { followHashtag, getSingleHashtagDetail, unfollowHashtag } from '../../../api/users';
+import EditPostModal from '../../../components/ui/post/EditPostModal';
+import { PopoverClickProps } from '../../../components/ui/CustomPopover';
+import { createBlockUser } from '../../../api/blocks';
+import { reportData } from '../../../api/report';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
@@ -36,21 +42,38 @@ function SearchPosts() {
   const [followingHashtag, setFollowingHashtag] = useState<boolean>(false);
   const [notificationToggle, setNotificationToggle] = useState<boolean>(false);
   const userData = useAppSelector((state) => state.user);
+  const [postContent, setPostContent] = useState<string>('');
+  const [postImages, setPostImages] = useState<string[]>([]);
+  const [deleteImageIds, setDeleteImageIds] = useState<any>([]);
+  const [postId, setPostId] = useState<string>('');
+  const [postUserId, setPostUserId] = useState<string>('');
 
   useEffect(() => {
     setQueryParam(searchParams.get('hashtag'));
   }, [searchParams]);
 
+  const getHashtagDetail = useCallback(() => {
+    getSingleHashtagDetail(query.toLowerCase(), userData.user.id).then((res) => {
+      setFollowingHashtag(!!res.data.hashTagId);
+      setNotificationToggle(res.data.notification !== 0);
+    })
+      .catch(() => {
+        setFollowingHashtag(false);
+        setNotificationToggle(false);
+      });
+  }, [query, userData]);
+
   useEffect(() => {
-    setLoadingPosts(true);
+    getHashtagDetail();
     setSearchPosts([]);
-  }, [query]);
+    setRequestAdditionalPosts(true);
+  }, [query, getHashtagDetail]);
 
   const getSearchPost = useCallback(() => {
     if (query) {
       setLoadingPosts(true);
       getHashtagPostList(
-        query,
+        query.toLowerCase(),
         searchPosts.length > 0 ? searchPosts[searchPosts.length - 1]._id : undefined,
       ).then((res) => {
         const newPosts: any = res.data.map((data: any) => {
@@ -71,8 +94,7 @@ function SearchPosts() {
         });
         setSearchPosts((prev: Post[]) => [...prev, ...newPosts]);
         if (res.data.length === 0) { setNoMoreData(true); }
-        if (scrollPosition.pathname === location.pathname
-          && searchPosts.length >= scrollPosition.data.length + 10) {
+        if (scrollPosition.pathname === location.pathname) {
           const positionData = {
             pathname: '',
             position: 0,
@@ -90,11 +112,10 @@ function SearchPosts() {
         () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
       );
     }
-  }, [dispatch, location.pathname, query, searchPosts, scrollPosition.data.length,
-    scrollPosition.pathname]);
+  }, [dispatch, location.pathname, query, searchPosts, scrollPosition.pathname]);
 
   useEffect(() => {
-    if (requestAdditionalPosts && !loadingPosts) {
+    if (requestAdditionalPosts && !loadingPosts && query) {
       if (
         scrollPosition === null
         || scrollPosition?.position === 0
@@ -105,10 +126,33 @@ function SearchPosts() {
         getSearchPost();
       }
     }
-  }, [query, getSearchPost, loadingPosts, location.pathname, requestAdditionalPosts,
+  }, [getSearchPost, loadingPosts, location.pathname, requestAdditionalPosts, query,
     scrollPosition, searchPosts]);
 
-  const handlePopoverOption = (value: string) => {
+  const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
+    if (value === 'Hide') {
+      const postIdToHide = popoverClickProps.id;
+      if (!postIdToHide) { return; }
+      hideFeedPost(postIdToHide).then(() => {
+        // Set posts excluding the `focussedPost` so that the focussedPost is hidden immediately
+        setSearchPosts((allPosts) => allPosts.filter((post) => post._id !== postIdToHide));
+      });
+      return;
+    }
+
+    if (popoverClickProps.message) {
+      setPostContent(popoverClickProps.message);
+    }
+    if (popoverClickProps.postImages) {
+      setDeleteImageIds([]);
+      setPostImages(popoverClickProps.postImages);
+    }
+    if (popoverClickProps.id) {
+      setPostId(popoverClickProps.id);
+    }
+    if (popoverClickProps.userId) {
+      setPostUserId(popoverClickProps.userId);
+    }
     setShow(true);
     setDropDownValue(value);
   };
@@ -160,7 +204,7 @@ function SearchPosts() {
       {
         searchPosts.length === 0
           ? 'No posts available'
-          : ''
+          : 'No more posts'
       }
     </p>
   );
@@ -168,7 +212,7 @@ function SearchPosts() {
   const persistScrollPosition = (id: string) => {
     const positionData = {
       pathname: location.pathname,
-      position: window.pageYOffset,
+      position: window.pageYOffset === 0 ? 1 : window.pageYOffset,
       data: searchPosts,
       positionElementId: id,
     };
@@ -177,12 +221,12 @@ function SearchPosts() {
 
   const followUnfollowClick = () => {
     if (!followingHashtag) {
-      followHashtag(query, userData.user.id, 1).then((res) => {
+      followHashtag(query.toLowerCase(), userData.user.id, true).then((res) => {
         setFollowingHashtag(true);
         if (res.data.notification === 1) { setNotificationToggle(true); }
       });
     } else {
-      unfollowHashtag(query, userData.user.id).then((res) => {
+      unfollowHashtag(query.toLowerCase(), userData.user.id).then((res) => {
         setFollowingHashtag(false);
         if (res.data.notification === 0) { setNotificationToggle(false); }
       });
@@ -191,14 +235,73 @@ function SearchPosts() {
 
   const onOffNotificationClick = () => {
     if (!notificationToggle) {
-      followHashtag(query, userData.user.id, 1).then(() => {
+      followHashtag(query.toLowerCase(), userData.user.id, true).then(() => {
         setNotificationToggle(true);
       });
     } else {
-      followHashtag(query, userData.user.id, 0).then(() => {
+      followHashtag(query.toLowerCase(), userData.user.id, false).then(() => {
         setNotificationToggle(false);
       });
     }
+  };
+
+  const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
+    updateFeedPost(postId, message, images, imageDelete).then((res) => {
+      setShow(false);
+      const updatePost = searchPosts.map((post: any) => {
+        if (post._id === postId) {
+          return {
+            ...post, message: res.data.message, images: res.data.images,
+          };
+        }
+        return post;
+      });
+      const checkHahtag = updatePost.filter((tag) => tag.message.includes(query));
+      setSearchPosts(checkHahtag);
+    })
+      .catch((error) => {
+        const msg = error.response.status === 0 && !error.response.data
+          ? 'Combined size of files is too large.'
+          : error.response.data.message;
+        setErrorMessage(msg);
+      });
+  };
+
+  const onBlockYesClick = () => {
+    createBlockUser(postUserId)
+      .then(() => {
+        setShow(false);
+        getSearchPost();
+      })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+
+  const deletePostClick = () => {
+    deleteFeedPost(postId)
+      .then(() => {
+        setShow(false);
+        getSearchPost();
+      })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+
+  const reportPost = (reason: string) => {
+    const reportPayload = {
+      targetId: postId,
+      reason,
+      reportType: 'post',
+    };
+    reportData(reportPayload).then((res) => {
+      if (res.status === 200) {
+        getSearchPost();
+      }
+    })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+    // Ask to block user as well
+    setDropDownValue('PostReportSuccessDialog');
   };
 
   return (
@@ -212,14 +315,8 @@ function SearchPosts() {
         followUnfollowClick={followUnfollowClick}
         following={followingHashtag}
         notificationToggle={notificationToggle}
+        totalHashtagPosts={searchPosts.length}
       />
-      {
-        errorMessage && errorMessage.length > 0 && (
-          <div className="mt-3 text-start">
-            {errorMessage}
-          </div>
-        )
-      }
       <InfiniteScroll
         threshold={3000}
         pageStart={0}
@@ -240,12 +337,50 @@ function SearchPosts() {
               onSelect={persistScrollPosition}
               isSinglePost={false}
             />
+            // postFeedData={posts}
+            // popoverOptions={loginUserPopoverOptions}
+            // isCommentSection={false}
+            // onPopoverClick={handlePopoverOption}
+            // otherUserPopoverOptions={otherUserPopoverOptions}
+            // newsPostPopoverOptions={newsPostPopoverOptions}
+            // onLikeClick={onLikeClick}
+            // onSelect={persistScrollPosition}
+            // isSinglePost={false}
           )
         }
       </InfiniteScroll>
       {loadingPosts && <LoadingIndicator />}
       {noMoreData && renderNoMoreDataMessage()}
-      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
+      {
+        dropDownValue === 'Edit'
+        && (
+          <EditPostModal
+            show={show}
+            errorMessage={errorMessage}
+            setShow={setShow}
+            setPostContent={setPostContent}
+            postContent={postContent}
+            onUpdatePost={onUpdatePost}
+            postImages={postImages}
+            setPostImages={setPostImages}
+            deleteImageIds={deleteImageIds}
+            setDeleteImageIds={setDeleteImageIds}
+          />
+        )
+      }
+      {
+        (dropDownValue === 'Block user' || dropDownValue === 'Report' || dropDownValue === 'Delete' || dropDownValue === 'PostReportSuccessDialog')
+        && (
+          <ReportModal
+            onConfirmClick={deletePostClick}
+            show={show}
+            setShow={setShow}
+            slectedDropdownValue={dropDownValue}
+            onBlockYesClick={onBlockYesClick}
+            handleReport={reportPost}
+          />
+        )
+      }
     </div>
   );
 }

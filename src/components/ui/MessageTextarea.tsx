@@ -35,7 +35,9 @@ const StyledMention = styled(Mentions) <SytledMentionProps>`
 
 export interface MentionListProps {
   id: string;
+  _id: string;
   userName: string;
+  name: string;
   profilePic: string;
 }
 export interface FormatMentionListProps {
@@ -51,7 +53,7 @@ interface MentionProps {
   setMessageContent: (val: string) => void;
   formatMentionList: FormatMentionListProps[];
   setFormatMentionList: (val: FormatMentionListProps[]) => void;
-  handleSearch: (val: string) => void;
+  handleSearch: (val: string, prefix: string) => void;
   defaultValue?: string;
   id?: string;
   className?: string;
@@ -108,7 +110,6 @@ function MessageTextarea({
       setFormatMentionList([...formatMentionList, addFormatObject]);
     }
   };
-
   useEffect(() => {
     if (textareaRef.current && (isReply || isMainPostCommentClick)) {
       textareaRef.current.focus();
@@ -116,6 +117,7 @@ function MessageTextarea({
   }, [isReply, isMainPostCommentClick]);
   return (
     <StyledMention
+      prefix={['@', '#']}
       ref={textareaRef}
       iscommentinput={isCommentInput!}
       id={id}
@@ -133,13 +135,13 @@ function MessageTextarea({
       aria-label="message"
     >
       {mentionLists && mentionLists?.map((mentionList: MentionListProps) => (
-        <Option value={mentionList.userName} key={mentionList.id} style={{ zIndex: '100' }}>
+        <Option value={mentionList.userName || mentionList.name} key={mentionList.id || mentionList._id} style={{ zIndex: '100' }}>
           <div ref={optionRef} className="list--hover soft-half pointer">
             <div>
-              <UserCircleImage size="2rem" src={mentionList?.profilePic} className="ms-0 me-3 bg-secondary" />
+              {mentionList.userName && <UserCircleImage size="2rem" src={mentionList?.profilePic} className="ms-0 me-3 bg-secondary" />}
               <span>
-                &nbsp;@
-                {mentionList.userName}
+                {mentionList.name ? ' #' : ' @'}
+                {mentionList.userName || mentionList.name}
               </span>
             </div>
           </div>

@@ -5,7 +5,7 @@ export function findFirstYouTubeLinkVideoId(message: string) {
   return message?.match(YOUTUBE_LINK_REGEX)?.[6];
 }
 
-export function escapeHtmlSpecialCharacters(str: string) {
+export function escapeHtmlSpecialCharacters(str: string, selectedHashtag?: string) {
   const hashtagRegex = /(^|\s)(#[\w-]+)/g;
   const mentionRegex = /@(\w+)/g;
   return str.replaceAll('&', '&amp;')
@@ -13,7 +13,9 @@ export function escapeHtmlSpecialCharacters(str: string) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;')
-    .replace(hashtagRegex, '$1<span style="color:red;">$2</span>')
+    .replace(hashtagRegex, (match, p1, p2) => (p2 === selectedHashtag
+      ? `${p1}<span style="font-weight: 700; color: red;">${p2}</span>`
+      : `${p1}<span style="color: red;">${p2}</span>`))
     .replace(mentionRegex, '<a href="/$1">@$1</a>');
 }
 /**
@@ -76,7 +78,7 @@ export function cleanExternalHtmlContent(htmlString: string) {
 }
 
 export function decryptMessage(message: any) {
-  const found = message ? message.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '') : '';
+  const found = message ? message.replace(/##LINK_ID##[a-fA-F0-9]{64}|##LINK_END##/g, '') : '';
   return found;
 }
 

@@ -33,6 +33,7 @@ import ErrorMessageList from '../ErrorMessageList';
 import ReportModal from '../ReportModal';
 import EditPostModal from './EditPostModal';
 import PostFeed from './PostFeed/PostFeed';
+import { getSuggestHashtag } from '../../../api/searchHashtag';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -391,12 +392,16 @@ function PostDetail({ user, postType }: Props) {
       });
     }
   };
-
-  const handleSearch = (text: string) => {
+  const handleSearch = (text: string, prefix: string) => {
     setMentionList([]);
     if (text) {
-      getSuggestUserName(text)
-        .then((res) => setMentionList(res.data));
+      if (prefix === '@') {
+        getSuggestUserName(text)
+          .then((res) => setMentionList(res.data));
+      } else if (prefix === '#') {
+        getSuggestHashtag(text)
+          .then((res) => setMentionList(res.data));
+      }
     }
   };
 

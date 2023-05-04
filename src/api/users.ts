@@ -118,7 +118,7 @@ export async function userProfileFriends(signal: AbortSignal, userId: string, pa
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  const limit = 36;
+  const limit = 18;
   let queryParameter = `?limit=${limit}&offset=${page * limit}`;
   if (search) {
     queryParameter += `&userNameContains=${search}`;
@@ -305,6 +305,17 @@ export async function resetPassword(
   );
 }
 
+export async function addHashtags(
+  userId: string,
+  hashtags: string[],
+) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.post(`${apiUrl}/api/v1/users/${userId}/hashtag-follows`, { hashtags }, { headers });
+}
+
 export async function getFollowedHashtags(
   userId: string,
 ) {
@@ -312,19 +323,21 @@ export async function getFollowedHashtags(
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.get(`${apiUrl}/api/v1/users/${userId}/hashtag-follows`, { headers });
+  const limit = 10;
+  const queryParameter = `?limit=${limit}`;
+  return axios.get(`${apiUrl}/api/v1/users/${userId}/hashtag-follows${queryParameter}`, { headers });
 }
 
 export async function followHashtag(
   hashtag: string,
   userId: string,
-  notification: number,
+  notification: boolean,
 ) {
   const token = Cookies.get('sessionToken');
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.put(`${apiUrl}/api/v1/users/${userId}/hashtag-follows/${hashtag}`, { hashtag, notification }, { headers });
+  return axios.put(`${apiUrl}/api/v1/users/${userId}/hashtag-follows/${hashtag}`, { notification }, { headers });
 }
 
 export async function unfollowHashtag(
@@ -335,5 +348,16 @@ export async function unfollowHashtag(
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.delete(`${apiUrl}/api/v1/users/${userId}/followed-hashtags/${hashtag}`, { headers });
+  return axios.delete(`${apiUrl}/api/v1/users/${userId}/hashtag-follows/${hashtag}`, { headers });
+}
+
+export async function getSingleHashtagDetail(
+  hashtag: string,
+  userId: string,
+) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.get(`${apiUrl}/api/v1/users/${userId}/hashtag-follows/${hashtag}`, { headers });
 }

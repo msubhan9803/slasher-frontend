@@ -24,10 +24,13 @@ import { AdditionalMovieData, MovieData, WorthWatchingStatus } from '../../types
 import { getMoviesById, getMoviesDataById } from '../../api/movies';
 import { StyledMoviePoster } from '../../routes/movies/movie-details/StyledUtils';
 import { LG_MEDIA_BREAKPOINT, topToDivHeight } from '../../constants';
+import { getSuggestHashtag } from '../../api/searchHashtag';
 
 interface MentionProps {
   id: string;
+  _id: string;
   userName: string;
+  name: string;
   profilePic: string;
 }
 interface FormatMentionProps {
@@ -135,11 +138,16 @@ function CreatePostComponent({
     }
   };
 
-  const handleSearch = (text: string) => {
+  const handleSearch = (text: string, prefix: string) => {
     setMentionList([]);
     if (text) {
-      getSuggestUserName(text)
-        .then((res) => setMentionList(res.data));
+      if (prefix === '@') {
+        getSuggestUserName(text)
+          .then((res) => setMentionList(res.data));
+      } else if (prefix === '#') {
+        getSuggestHashtag(text)
+          .then((res: any) => setMentionList(res.data));
+      }
     }
   };
 

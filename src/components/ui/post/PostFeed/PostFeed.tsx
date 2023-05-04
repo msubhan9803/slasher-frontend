@@ -77,7 +77,7 @@ interface Props {
   setUpdateState?: (value: boolean) => void;
   onSelect?: (value: string) => void;
   postType?: string,
-  handleSearch?: (val: string) => void;
+  handleSearch?: (val: string, prefix: string) => void;
   mentionList?: MentionListProps[];
   commentImages?: string[];
   commentReplyError?: string[];
@@ -144,7 +144,8 @@ function PostContent({
   const [showReadMoreLink, setShowReadMoreLink] = useState(false);
   const navigate = useNavigate();
   const { pathname } = useLocation();
-
+  const [searchParams] = useSearchParams();
+  const selectedHashtag = searchParams.get('hashtag');
   let { message } = post;
 
   if (post.rssFeedTitle) {
@@ -249,7 +250,7 @@ function PostContent({
                 {
                   __html: escapeHtml && !post?.spoiler
                     // eslint-disable-next-line max-len
-                    ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(message)), customlinkifyOpts))
+                    ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(message, `#${selectedHashtag}`!)), customlinkifyOpts))
                     : cleanExternalHtmlContent(message),
                 }
               }
@@ -263,14 +264,15 @@ function PostContent({
               aria-label="post-content"
               onKeyDown={(e) => handlePostContentKeyDown(e, post)}
             />
-            {
+            {/* {
               post.hashTag?.map((hashtag: string) => (
-                <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
+                <span role="button" key={hashtag} tabIndex={0}
+                 className="fs-4 text-primary me-1" aria-hidden="true">
                   #
                   {hashtag}
                 </span>
               ))
-            }
+            } */}
             {
               !isSinglePost
               && showReadMoreLink
@@ -442,7 +444,6 @@ function PostFeed({
   const handleComment = () => {
     setCommentClick(!isCommentClick);
   };
-
   return (
     <StyledPostFeed>
       {postData.map((post: any, i) => (

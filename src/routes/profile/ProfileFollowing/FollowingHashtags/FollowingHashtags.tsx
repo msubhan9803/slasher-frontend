@@ -3,19 +3,16 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, Col, Row } from 'react-bootstrap';
-import styled from 'styled-components';
 import BorderButton from '../../../../components/ui/BorderButton';
 import { StyledBorder } from '../../../../components/ui/StyledBorder';
 import { StyledHastagsCircle } from '../../../search/component/Hashtags';
 import FollowingHeader from '../FollowingHeader';
-import { HashtagButton } from '../../../onboarding/hashtag/OnboardingHashtag';
-import { enableDevFeatures } from '../../../../utils/configEnvironment';
 import { followHashtag, getFollowedHashtags, unfollowHashtag } from '../../../../api/users';
 import { useAppSelector } from '../../../../redux/hooks';
 
-const CustomHashTagButton = styled(HashtagButton)`
-  background-color: #383838;
-`;
+// const CustomHashTagButton = styled(HashtagButton)`
+//   background-color: #383838;
+// `;
 interface FollowHashtagProps {
   notification: number,
   userId: string,
@@ -26,10 +23,12 @@ interface FollowHashtagProps {
   followed: boolean,
 }
 
-const hashTags = [
-  { title: 'Trending', tags: ['onlinebusiness', 'slasher', 'follow4follow', 'slashershop', 'follow4follow'] },
-  { title: 'Most popular', tags: ['onlinebusiness', 'slasher', 'follow4follow', 'slashershop', 'follow4follow'] },
-];
+// const hashTags = [
+//   { title: 'Trending',
+// tags: ['onlinebusiness', 'slasher', 'follow4follow', 'slashershop', 'follow4follow'] },
+//   { title: 'Most popular',
+//  tags: ['onlinebusiness', 'slasher', 'follow4follow', 'slashershop', 'follow4follow'] },
+// ];
 function FollowingHashtags() {
   const userData = useAppSelector((state) => state.user);
   const [search, setSearch] = useState<string>('');
@@ -58,7 +57,7 @@ function FollowingHashtags() {
 
   const followUnfollowClick = (hashtagData: any) => {
     if (!hashtagData.followed) {
-      followHashtag(hashtagData.title, userData.user.id, 1).then(() => {
+      followHashtag(hashtagData.title.toLowerCase(), userData.user.id, true).then(() => {
         const updatedHashtag = followedHashtag?.map((hashtag) => {
           if (hashtag.id === hashtagData.id) {
             return {
@@ -72,7 +71,7 @@ function FollowingHashtags() {
         setFollowedHastag(updatedHashtag);
       });
     } else {
-      unfollowHashtag(hashtagData.title, userData.user.id).then(() => {
+      unfollowHashtag(hashtagData.title.toLowerCase(), userData.user.id).then(() => {
         const updatedHashtag = followedHashtag?.map((hashtag) => {
           if (hashtag.id === hashtagData.id) {
             return {
@@ -90,7 +89,7 @@ function FollowingHashtags() {
 
   const onOffNotificationClick = (hashtagData: any) => {
     if (hashtagData.notification === 0) {
-      followHashtag(hashtagData.title, userData.user.id, 1).then(() => {
+      followHashtag(hashtagData.title.toLowerCase(), userData.user.id, true).then(() => {
         const updatedHashtag = followedHashtag?.map((hashtag) => {
           if (hashtag.id === hashtagData.id) {
             return {
@@ -103,7 +102,7 @@ function FollowingHashtags() {
         setFollowedHastag(updatedHashtag);
       });
     } else {
-      followHashtag(hashtagData.title, userData.user.id, 0).then(() => {
+      followHashtag(hashtagData.title.toLowerCase(), userData.user.id, false).then(() => {
         const updatedHashtag = followedHashtag?.map((hashtag) => {
           if (hashtag.id === hashtagData.id) {
             return {
@@ -127,7 +126,7 @@ function FollowingHashtags() {
       />
 
       <div className="bg-dark p-3 mt-4">
-        {enableDevFeatures && (
+        {/* {enableDevFeatures && (
           <div>
             {hashTags.map((hashtag: any) => (
               <div key={hashtag.title} className="mt-2 d-flex flex-wrap align-items-center">
@@ -148,7 +147,7 @@ function FollowingHashtags() {
               </div>
             ))}
           </div>
-        )}
+        )} */}
         {followedHashtag
           && followedHashtag.length > 0
           && followedHashtag.map(

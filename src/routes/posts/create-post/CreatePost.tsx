@@ -15,7 +15,9 @@ import { PostType } from '../../../types';
 
 export interface MentionProps {
   id: string;
+  _id: string;
   userName: string;
+  name: string;
   profilePic: string;
 }
 export interface FormatMentionProps {

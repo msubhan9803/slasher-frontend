@@ -18,7 +18,8 @@ interface Search {
   onOffNotificationClick?: () => void;
   followUnfollowClick?: () => void;
   following?: boolean;
-  notificationToggle?: boolean
+  notificationToggle?: boolean;
+  totalHashtagPosts?: number;
 }
 
 const tabs = [
@@ -34,7 +35,7 @@ const tabs = [
 const popoverOptions = ['Give feedback', 'Report'];
 function SearchHeader({
   tabKey, setSearch, search, label = '', onOffNotificationClick, followUnfollowClick,
-  following, notificationToggle,
+  following, notificationToggle, totalHashtagPosts,
 }: Search) {
   const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => !t.devOnly);
   const location = useLocation();
@@ -67,16 +68,20 @@ function SearchHeader({
                       #
                       {query}
                     </p>
-                    <small className="text-light mb-0">24.3M posts</small>
+                    <small className="text-light mb-0">
+                      {totalHashtagPosts}
+                      {' '}
+                      posts
+                    </small>
                   </div>
                 </span>
               </Col>
               <Col md={4} lg={5} xl={4} className="mt-4 mt-md-0">
                 <div className="d-flex align-items-center justify-content-center justify-content-md-end">
                   {following && (
-                  <Button aria-label="notificatio bell" size="sm" className="me-2 pe-2" variant="link" onClick={onOffNotificationClick}>
-                    <FontAwesomeIcon size="lg" className={`${notificationToggle ? 'me-0' : 'me-1'} `} icon={notificationToggle ? regular('bell-slash') : regular('bell')} />
-                  </Button>
+                    <Button aria-label="notificatio bell" size="sm" className="me-2 pe-2" variant="link" onClick={onOffNotificationClick}>
+                      <FontAwesomeIcon size="lg" className={`${notificationToggle ? 'me-0' : 'me-1'} `} icon={notificationToggle ? regular('bell-slash') : regular('bell')} />
+                    </Button>
                   )}
                   <BorderButton
                     buttonClass={`${following ? 'text-white' : 'text-black'} py-2 w-100`}
@@ -116,6 +121,7 @@ SearchHeader.defaultProps = {
   followUnfollowClick: undefined,
   following: false,
   notificationToggle: false,
+  totalHashtagPosts: 0,
 };
 
 export default SearchHeader;

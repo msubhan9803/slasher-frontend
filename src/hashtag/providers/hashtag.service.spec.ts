@@ -206,6 +206,56 @@ describe('HashtagService', () => {
     });
   });
 
+  describe('#findAllHashtagById', () => {
+    let hashtag1;
+    let hashtag2;
+    let hashtag3;
+    let hashtag4;
+    let hashtag5;
+    beforeEach(async () => {
+      hashtag1 = await hashtagModel.create({
+        name: 'horror',
+      });
+      hashtag2 = await hashtagModel.create({
+        name: 'horrorname',
+      });
+      hashtag3 = await hashtagModel.create({
+        name: 'horrormovie',
+      });
+      hashtag4 = await hashtagModel.create({
+        name: 'scary',
+      });
+      hashtag5 = await hashtagModel.create({
+        name: 'slasher',
+      });
+    });
+
+    it('find all expected hashtags using hashIds', async () => {
+      const hashtagArray = [hashtag1._id, hashtag2._id, hashtag3._id, hashtag4._id, hashtag5._id];
+      const limit = 3;
+      const offset = 1;
+      const query = 'hor';
+      const hashtags = await hashtagService.findAllHashtagById(hashtagArray, limit, query, offset);
+      expect(hashtags).toHaveLength(2);
+    });
+
+    it('find all expected hashtags when offset is not existing', async () => {
+      const hashtagArray = [hashtag1._id, hashtag2._id, hashtag3._id, hashtag4._id, hashtag5._id];
+      const limit = 2;
+      const query = 'ho';
+      const hashtags = await hashtagService.findAllHashtagById(hashtagArray, limit, query);
+      expect(hashtags).toHaveLength(2);
+    });
+
+    it('find all expected hashtags when query is not existing', async () => {
+      const hashtagArray = [hashtag1._id, hashtag2._id, hashtag3._id, hashtag4._id, hashtag5._id];
+      const limit = 3;
+      const offset = 1;
+      const hashtags = await hashtagService.findAllHashtagById(hashtagArray, limit, null, offset);
+      expect(hashtags).toHaveLength(3);
+    });
+  });
+
   describe('#hashtagOnboardingSuggestions', () => {
     beforeEach(async () => {
       const names = [

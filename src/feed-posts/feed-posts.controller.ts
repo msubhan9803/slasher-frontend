@@ -546,6 +546,7 @@ export class FeedPostsController {
       allFeedPostQueryDto.before ? new mongoose.Types.ObjectId(allFeedPostQueryDto.before) : undefined,
       user.id,
     );
+
     return feedPosts.map(
       (feedPost) => pick(
         feedPost,

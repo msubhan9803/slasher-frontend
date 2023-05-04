@@ -199,6 +199,7 @@ export class FeedPostsService {
     userId?: string,
   ): Promise<FeedPostDocument[]> {
     const privateProfileUserIds = await this.userModel.find({
+      _id: { $ne: userId },
       $or: [
         { profile_status: ProfileVisibility.Private },
         { $and: [{ profile_status: ProfileVisibility.Public, deleted: true }] },

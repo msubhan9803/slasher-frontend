@@ -35,12 +35,11 @@ export class HashtagFollowsService {
     await this.hashtagFollowModel.deleteOne({ _id: id }).exec();
   }
 
-  async findAllByUserId(userId: string, limit: number, offset?:number): Promise<HashTagsFollow[]> {
+  async findAllByUserId(userId: string): Promise<HashTagsFollow[]> {
     return this.hashtagFollowModel
-      .find({ userId })
-      .skip(offset)
-      .limit(limit)
-      .populate('hashTagId', 'name totalPost')
+      .find({ userId }, {
+ hashTagId: 1, userId: 1, notification: 1, _id: 0,
+})
       .exec();
   }
 

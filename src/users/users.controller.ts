@@ -950,6 +950,7 @@ export class UsersController {
 
   @Get(':userId/hashtag-follows')
   async fetchAllUserFollowedHashtag(
+
     @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ParamUserIdDto,
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
@@ -958,13 +959,28 @@ export class UsersController {
     const user = getUserFromRequest(request);
     if (user.id !== params.userId) { throw new HttpException('Not authorized', HttpStatus.UNAUTHORIZED); }
 
-    const hashtagFollows = await this.hashtagFollowsService.findAllByUserId(params.userId, query.limit, query.offset);
-    if (!hashtagFollows.length) {
-      throw new HttpException('Hashtag not found', HttpStatus.NOT_FOUND);
+    const hashtagFollowsData = await this.hashtagFollowsService.findAllByUserId(params.userId);
+
+    if (!(hashtagFollowsData && hashtagFollowsData.length)) {
+      throw new HttpException('Hashtag follow not found', HttpStatus.NOT_FOUND);
     }
-    return hashtagFollows.map(
-      (follow) => pick(follow, ['notification', 'userId', 'hashTagId']),
-    );
+
+    const hashtagId: any = hashtagFollowsData.map((hashtag) => hashtag.hashTagId);
+
+    const hashtagsData = await this.hashtagService.findAllHashtagById(hashtagId, query.limit, query.query, query.offset);
+
+    const hashtagFollows = [];
+    for (const follow of hashtagFollowsData) {
+      const hashtag = hashtagsData.find((id) => id._id.toString() === follow.hashTagId.toString());
+      if (hashtag) {
+        const hashtags: any = {};
+        hashtags.notification = follow.notification;
+        hashtags.userId = follow.userId;
+        hashtags.hashTagId = hashtag;
+        hashtagFollows.push(hashtags);
+      }
+    }
+    return hashtagFollows;
   }
 
   @Get(':userId/hashtag-follows/:hashtag')
@@ -1006,6 +1022,7 @@ export class UsersController {
       hashtag._id.toString(),
       notificationDto.notification,
     );
+
     return pick(hashtagFollow, ['notification', 'userId', 'hashTagId']);
   }
 

@@ -46,7 +46,7 @@ describe('Followed Hashtags (e2e)', () => {
   let hashtag1;
   let hashtag2;
   let hashtag3;
-  
+
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
@@ -55,9 +55,9 @@ describe('Followed Hashtags (e2e)', () => {
     rewindAllFactories();
 
     activeUser = await usersService.create(userFactory.build());
-    hashtag1 = await hashtagService.createOrUpdateHashtags(['ok']);
-    hashtag2 = await hashtagService.createOrUpdateHashtags(['good']);
-    hashtag3 = await hashtagService.createOrUpdateHashtags(['hello']);
+    hashtag1 = await hashtagService.createOrUpdateHashtags(['horror']);
+    hashtag2 = await hashtagService.createOrUpdateHashtags(['horrormovie']);
+    hashtag3 = await hashtagService.createOrUpdateHashtags(['horrorname']);
 
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -84,47 +84,102 @@ describe('Followed Hashtags (e2e)', () => {
       ).expect(HttpStatus.UNAUTHORIZED);
     });
 
-    it('get the hashtag follows successful if parameter hashtag and userId is exists and notification is true', async () => {
+    it('get the hashtag follows successful if query parameter limit, offset and query are exists', async () => {
       const limit = 2;
       const offset = 1;
+      const query = 'ho';
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/users/${activeUser._id.toString()}/hashtag-follows?limit=${limit}&offset=${offset}`)
+        .get(`/api/v1/users/${activeUser._id.toString()}/hashtag-follows?limit=${limit}&offset=${offset}&query=${query}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send({ notification: true });
-      
+        .send();
+
       expect(response.body).toEqual([
         {
           notification: 0,
           userId: activeUser._id.toString(),
-          hashTagId: { _id: hashtag2[0].id, name: 'good', totalPost: 1 },
+          hashTagId: {
+            _id: hashtag2[0].id,
+            name: 'horrormovie',
+            totalPost: 1,
+          },
         },
         {
           notification: 0,
           userId: activeUser._id.toString(),
-          hashTagId: { _id: hashtag3[0].id, name: 'hello', totalPost: 1 },
+          hashTagId: {
+            _id: hashtag3[0].id,
+            name: 'horrorname',
+            totalPost: 1,
+          },
         },
-      ])
+      ]);
     });
 
-    it('get the hashtag follows successful if parameter hashtag and userId is exists and notification is true', async () => {
+    it('get the hashtag follows successful if query parameter limit is exists', async () => {
       const limit = 2;
       const response = await request(app.getHttpServer())
         .get(`/api/v1/users/${activeUser._id.toString()}/hashtag-follows?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send({ notification: true });
+        .send();
 
       expect(response.body).toEqual([
         {
           notification: 0,
           userId: activeUser._id.toString(),
-          hashTagId: { _id: hashtag1[0].id, name: 'ok', totalPost: 1 },
+          hashTagId: {
+            _id: hashtag1[0].id,
+            name: 'horror',
+            totalPost: 1,
+          },
         },
         {
           notification: 0,
           userId: activeUser._id.toString(),
-          hashTagId: { _id: hashtag2[0].id, name: 'good', totalPost: 1 },
+          hashTagId: {
+            _id: hashtag2[0].id,
+            name: 'horrormovie',
+            totalPost: 1,
+          },
         },
-      ])
+      ]);
+    });
+
+    it('get the hashtag follows successful if query parameter limit and offset are exists', async () => {
+      const limit = 1;
+      const offset = 1;
+      const response = await request(app.getHttpServer())
+        .get(`/api/v1/users/${activeUser._id.toString()}/hashtag-follows?limit=${limit}&offset=${offset}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+
+      expect(response.body).toEqual([
+        {
+          notification: 0,
+          userId: activeUser._id.toString(),
+          hashTagId: {
+            _id: hashtag2[0].id,
+            name: 'horrormovie',
+            totalPost: 1,
+          },
+        },
+      ]);
+    });
+
+    it('get the hashtag follows successful if query parameter limit and query are exists', async () => {
+      const limit = 1;
+      const query = 'ho';
+      const response = await request(app.getHttpServer())
+        .get(`/api/v1/users/${activeUser._id.toString()}/hashtag-follows?limit=${limit}&query=${query}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+
+      expect(response.body).toEqual([
+        {
+          notification: 0,
+          userId: activeUser._id.toString(),
+          hashTagId: { _id: hashtag1[0].id, name: 'horror', totalPost: 1 },
+        },
+      ]);
     });
 
     it("returns the expected error response when a user tries to get another user's hashtag-follow status", async () => {
@@ -134,7 +189,7 @@ describe('Followed Hashtags (e2e)', () => {
       const response = await request(app.getHttpServer())
         .get(`/api/v1/users/${differentUserId}/hashtag-follows?limit=${limit}&offset=${offset}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send({ notification: true });
+        .send();
       expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
       expect(response.body).toEqual({
         message: 'Not authorized',
@@ -144,14 +199,30 @@ describe('Followed Hashtags (e2e)', () => {
 
     describe('Validation', () => {
       it('userId must be a mongodb id', async () => {
-        const limit = 5;
+        const limit = 2;
         const offset = 1;
         const activeUserId = '634912b22c2f4f5edsamkm2m';
         const response = await request(app.getHttpServer())
           .get(`/api/v1/users/${activeUserId}/hashtag-follows?limit=${limit}&offset=${offset}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
-          .send({ notification: true });
+          .send();
         expect(response.body.message).toEqual(['userId must be a mongodb id']);
+      });
+
+      it('limit should not be empty', async () => {
+        const response = await request(app.getHttpServer())
+          .get(`/api/v1/users/${activeUser._id.toString()}/hashtag-follows`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: [
+            'limit must not be greater than 30',
+            'limit must be a number conforming to the specified constraints',
+            'limit should not be empty',
+          ],
+          error: 'Bad Request',
+        });
       });
     });
   });

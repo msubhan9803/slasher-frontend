@@ -39,7 +39,7 @@ export class HashtagService {
     return hastags;
   }
 
-  async suggestHashtagName(query: string, limit: number, activeOnly: boolean, offset?:number): Promise<Hashtag[]> {
+  async suggestHashtagName(query: string, limit: number, activeOnly: boolean, offset?: number): Promise<Hashtag[]> {
     const nameFindQuery: any = {
       name: new RegExp(`^${escapeStringForRegex(query)}`, 'i'),
     };
@@ -84,14 +84,28 @@ export class HashtagService {
   async findAllHashtags(name: string[], limit: number): Promise<Hashtag[]> {
     return this.HashtagModel
       .find({
-          $and: [
-            { name: { $nin: name } },
-            { is_deleted: 0, status: 1 },
-          ],
-        }, { name: 1, totalPost: 1 })
+        $and: [
+          { name: { $nin: name } },
+          { is_deleted: 0, status: 1 },
+        ],
+      }, { name: 1, totalPost: 1 })
       .sort({ totalPost: -1 })
       .limit(limit)
       .exec();
+  }
+
+  async findAllHashtagById(hashtagId: Hashtag[], limit: number, query?: string, offset?: number): Promise<Hashtag[]> {
+    const name = query ? { name: new RegExp(`^${escapeStringForRegex(query)}`, 'i') } : {};
+    return this.HashtagModel.find(
+      {
+        $and: [{ _id: { $in: hashtagId } },
+        name,
+        { deleted: 0, status: 1 }],
+      },
+      {
+        name: 1, totalPost: 1, _id: 1,
+      },
+    ).skip(offset).limit(limit).exec();
   }
 
   async hashtagOnboardingSuggestions() {
@@ -110,13 +124,13 @@ export class HashtagService {
     if (hashtags.length >= 16) {
       return hashtags.slice(0, 16);
     }
-      hashtags = hashtags.concat(removedItems.slice(0, 16 - hashtags.length));
-      if (hashtags.length >= 16) {
-        return hashtags;
-      }
-        const hashtagData = (await this.findAllHashtags(hashtags, 16 - hashtags.length)).map((names) => names.name);
-        hashtags = hashtags.concat(hashtagData);
-        return hashtags;
+    hashtags = hashtags.concat(removedItems.slice(0, 16 - hashtags.length));
+    if (hashtags.length >= 16) {
+      return hashtags;
+    }
+    const hashtagData = (await this.findAllHashtags(hashtags, 16 - hashtags.length)).map((names) => names.name);
+    hashtags = hashtags.concat(hashtagData);
+    return hashtags;
   }
 
   async sortedHashtags(hashtags) {

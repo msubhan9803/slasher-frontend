@@ -141,11 +141,11 @@ function ProfileHeader({
   }
   return (
     <div className="bg-dark bg-mobile-transparent rounded mb-4">
-      <Row className="p-md-4">
-        <Col>
+      <div className="p-md-4 g-0">
+        <div>
           <ProfileCoverImage src={user.coverPhoto || defaultCoverImage} alt="Cover picture" className="mt-3 mt-md-0 w-100 rounded" />
-        </Col>
-        <Row className="d-flex ms-3">
+        </div>
+        <Row className="d-flex ps-md-4">
           <CustomCol md={3} lg={12} xl="auto" className="text-center text-lg-center text-xl-start  position-relative">
             <AboutProfileImage size="11.25rem" src={user?.profilePic} alt="user picture" />
             {!isSelfUserProfile
@@ -203,7 +203,7 @@ function ProfileHeader({
             </Row>
           </Col>
         </Row>
-      </Row>
+      </div>
       {
         showTabs && (
           <>

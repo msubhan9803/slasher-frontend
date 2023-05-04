@@ -191,7 +191,6 @@ function CommentInput({
   };
   const handleMessage = () => {
     const postContentWithMentionReplacements = (editMessage!.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
-    // const files = imageArray.filter((images: any) => images instanceof File);
     onUpdatePost(postContentWithMentionReplacements);
   };
 

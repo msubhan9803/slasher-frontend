@@ -53,3 +53,8 @@ lerna-debug.log*
 # Local storage dir
 /local-storage/*
 !/local-storage/.keep
+
+# terraform
+.terraform/
+.terraform/**
+.terraform.lock.hcl

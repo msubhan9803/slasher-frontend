@@ -9,11 +9,14 @@ import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { DisallowedUsernameService } from '../../../../../src/disallowedUsername/providers/disallowed-username.service';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { BetaTestersService } from '../../../../../src/beta-tester/providers/beta-testers.service';
+import { betaTesterFactory } from '../../../../factories/beta-tester.factory';
 
 describe('Users / Register (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let disallowedUsernameService: DisallowedUsernameService;
+  let betaTestersService: BetaTestersService;
 
   const sampleUserRegisterObject = {
     firstName: 'user',
@@ -32,6 +35,7 @@ describe('Users / Register (e2e)', () => {
     }).compile();
     connection = moduleRef.get<Connection>(getConnectionToken());
     disallowedUsernameService = moduleRef.get<DisallowedUsernameService>(DisallowedUsernameService);
+    betaTestersService = moduleRef.get<BetaTestersService>(BetaTestersService);
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -45,6 +49,18 @@ describe('Users / Register (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    await betaTestersService.create(
+      betaTesterFactory.build(
+        { name: 'TestUser', email: 'differenttestuser@gmail.com' },
+      ),
+    );
+
+    await betaTestersService.create(
+      betaTesterFactory.build(
+        { name: 'TestUser', email: 'testuser@gmail.com' },
+      ),
+    );
 
     // Reset sequences so we start fresh before each test
     rewindAllFactories();
@@ -82,7 +98,7 @@ describe('Users / Register (e2e)', () => {
           .get('/api/v1/users/validate-registration-fields')
           .query(postBody);
         expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body).toEqual(['firstName should not be empty']);
+        expect(response.body).toContain('firstName should not be empty');
       });
 
       it('firstName should not be longer than 30 characters', async () => {
@@ -91,7 +107,34 @@ describe('Users / Register (e2e)', () => {
           .get('/api/v1/users/validate-registration-fields')
           .query(postBody);
         expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body).toEqual(['firstName must be shorter than or equal to 30 characters']);
+        expect(response.body).toContain((
+          'Firstname must be between 1 and 30 characters, can only include letters/numbers/special characters, '
+          + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and space ( )'
+        ));
+      });
+
+      it('firstName should not end with special character', async () => {
+        postBody.firstName = 'testUser-';
+        const response = await request(app.getHttpServer())
+          .get('/api/v1/users/validate-registration-fields')
+          .query(postBody);
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toContain(
+          'Firstname must be between 1 and 30 characters, can only include letters/numbers/special characters, '
+          + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and space ( )',
+        );
+      });
+
+      it('firstName should not starts with special character', async () => {
+        postBody.firstName = '-testuser';
+        const response = await request(app.getHttpServer())
+          .get('/api/v1/users/validate-registration-fields')
+          .query(postBody);
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toContain(
+          'Firstname must be between 1 and 30 characters, can only include letters/numbers/special characters, '
+          + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and space ( )',
+        );
       });
 
       it('userName should not be empty', async () => {
@@ -245,19 +288,19 @@ describe('Users / Register (e2e)', () => {
           .query(postBody);
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual([
-          'securityAnswer must be longer than or equal to 5 characters',
+          'securityAnswer must be longer than or equal to 2 characters',
           'securityAnswer should not be empty',
         ]);
       });
 
-      it('securityAnswer is at least 5 characters long', async () => {
-        postBody.securityAnswer = 'Nick';
+      it('securityAnswer is at least 2 characters long', async () => {
+        postBody.securityAnswer = 'N';
         const response = await request(app.getHttpServer())
           .get('/api/v1/users/validate-registration-fields')
           .query(postBody);
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual([
-          'securityAnswer must be longer than or equal to 5 characters',
+          'securityAnswer must be longer than or equal to 2 characters',
         ]);
       });
 

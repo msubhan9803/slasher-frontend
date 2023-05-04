@@ -2,7 +2,7 @@
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { AppModule } from '../../app.module';
 import { UsersService } from './users.service';
@@ -67,7 +67,7 @@ describe('UsersService', () => {
       );
       userData.verification_token = uuidv4();
       const user = await usersService.create(userData);
-      expect(await usersService.findById(user.id)).toBeTruthy();
+      expect(await usersService.findById(user.id, true)).toBeTruthy();
     });
   });
 
@@ -142,20 +142,20 @@ describe('UsersService', () => {
     });
 
     it('finds the expected user using the same-case userName', async () => {
-      expect((await usersService.findByUsername(user.userName))._id).toEqual(
+      expect((await usersService.findByUsername(user.userName, true))._id).toEqual(
         user._id,
       );
     });
 
     it('finds the expected user using a lower-case variant of the userName', async () => {
       expect(
-        (await usersService.findByUsername(user.userName.toLowerCase()))._id,
+        (await usersService.findByUsername(user.userName.toLowerCase(), true))._id,
       ).toEqual(user._id);
     });
 
     it('finds the expected user using an upper-case variant of the userName', async () => {
       expect(
-        (await usersService.findByUsername(user.userName.toUpperCase()))._id,
+        (await usersService.findByUsername(user.userName.toUpperCase(), true))._id,
       ).toEqual(user._id);
     });
   });
@@ -287,7 +287,7 @@ describe('UsersService', () => {
         userName: 'test1_user',
       };
       const updatedUser = await usersService.update(user._id, userData);
-      const reloadedUser = await usersService.findById(updatedUser.id);
+      const reloadedUser = await usersService.findById(updatedUser.id, true);
       expect(reloadedUser.firstName).toEqual(userData.firstName);
       expect(reloadedUser.userName).toEqual(userData.userName);
       expect(reloadedUser.email).toEqual(user.email);
@@ -358,8 +358,8 @@ describe('UsersService', () => {
       const limit = 5;
       const suggestUserNames = await usersService.suggestUserName(query, limit, true, excludedUserIds);
       expect(suggestUserNames).toEqual([
-        pick(await usersService.findByUsername('test1'), ['userName', 'id', 'profilePic']),
-        pick(await usersService.findByUsername('test2'), ['userName', 'id', 'profilePic']),
+        pick(await usersService.findByUsername('test1', true), ['userName', 'id', 'profilePic']),
+        pick(await usersService.findByUsername('test2', true), ['userName', 'id', 'profilePic']),
       ]);
       expect(suggestUserNames.map((suggestUserName) => suggestUserName.userName)).not.toContain('test4');
     });
@@ -475,7 +475,9 @@ describe('UsersService', () => {
     it('finds the expected user and update newConversationIds', async () => {
       const user1 = await usersService.create(userFactory.build());
       const user2 = await usersService.create(userFactory.build());
-      const matchList = await chatService.createPrivateDirectMessageConversation([user1.id, user2.id]);
+      const matchList = await chatService.createPrivateDirectMessageConversation(
+        [new mongoose.Types.ObjectId(user1.id), new mongoose.Types.ObjectId(user2.id)],
+      );
 
       const userData = await usersService.addAndUpdateNewConversationId(user1.id, matchList.id);
       expect(userData.newConversationIds).toEqual([matchList.id]);
@@ -510,7 +512,9 @@ describe('UsersService', () => {
     it('finds the expected user and addAndUpdateNewConversationIdByMatchId', async () => {
       const user1 = await usersService.create(userFactory.build());
       const user2 = await usersService.create(userFactory.build());
-      const matchList = await chatService.createPrivateDirectMessageConversation([user1.id, user2.id]);
+      const matchList = await chatService.createPrivateDirectMessageConversation(
+        [new mongoose.Types.ObjectId(user1.id), new mongoose.Types.ObjectId(user2.id)],
+      );
       const user3 = await usersService.create(userFactory.build({
         newConversationIds: [matchList.id],
       }));

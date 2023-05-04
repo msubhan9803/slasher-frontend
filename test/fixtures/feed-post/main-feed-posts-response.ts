@@ -31,6 +31,7 @@ export default [
     likeCount: 2,
     likedByUser: true,
     lastUpdateAt: '2022-10-20T00:00:00.000Z',
+    movieId: null,
   },
   {
     _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -62,5 +63,11 @@ export default [
     likeCount: 0,
     likedByUser: false,
     lastUpdateAt: '2022-10-19T00:00:00.000Z',
+    movieId: {
+      _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+      logo: 'https://picsum.photos/id/237/200/300',
+      name: 'Shawshank Redemption',
+      releaseDate: '2022-10-17T00:00:00.000Z',
+    },
   },
 ];

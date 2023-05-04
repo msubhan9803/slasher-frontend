@@ -212,7 +212,9 @@ describe('Conversations all / (e2e)', () => {
     it('when matchListId is exist in newCoversationIds than expected response', async () => {
       const user5 = await usersService.create(userFactory.build());
       const user6 = await usersService.create(userFactory.build());
-      const matchList = await chatService.createPrivateDirectMessageConversation([user5.id, user6.id]);
+      const matchList = await chatService.createPrivateDirectMessageConversation(
+        [new mongoose.Types.ObjectId(user5.id), new mongoose.Types.ObjectId(user6.id)],
+      );
       user5.newConversationIds.push(matchList.id);
       user5.save();
       const user5AuthToken = user5.generateNewJwtToken(
@@ -226,7 +228,7 @@ describe('Conversations all / (e2e)', () => {
       expect(response.status).toEqual(HttpStatus.OK);
       expect(response.body.success).toBe(true);
 
-      const user = await usersService.findById(user5.id);
+      const user = await usersService.findById(user5.id, true);
       expect(user.newConversationIds).toEqual([]);
     });
 

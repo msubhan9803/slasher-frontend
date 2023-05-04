@@ -356,7 +356,7 @@ describe('FeedCommentsService', () => {
         feedCommentId:
           { $in: [feedComments1._id.toString(), feedComments2._id.toString()] },
       });
-      const userData = await usersService.findById(activeUser.id);
+      const userData = await usersService.findById(activeUser.id, true);
       const feedCommentsWithReplies = await feedCommentsService.findFeedCommentsWithReplies(
         feedPost1.id,
         20,
@@ -560,7 +560,7 @@ describe('FeedCommentsService', () => {
       const getFeedReplyData = await feedReplyModel.find({
         feedCommentId: feedComments1._id.toString(),
       });
-      const userData = await usersService.findById(activeUser.id);
+      const userData = await usersService.findById(activeUser.id, true);
       const feedCommentAndReply = JSON.parse(JSON.stringify(getFeedPostData));
       const replyData = JSON.parse(JSON.stringify(getFeedReplyData));
       const filterReply = replyData.map((replyId) => {

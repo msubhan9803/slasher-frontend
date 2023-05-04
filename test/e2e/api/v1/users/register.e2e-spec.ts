@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
@@ -15,6 +16,8 @@ import { UserSettingsService } from '../../../../../src/settings/providers/user-
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { BetaTestersService } from '../../../../../src/beta-tester/providers/beta-testers.service';
+import { betaTesterFactory } from '../../../../factories/beta-tester.factory';
 
 describe('Users / Register (e2e)', () => {
   let app: INestApplication;
@@ -23,6 +26,7 @@ describe('Users / Register (e2e)', () => {
   let mailService: MailService;
   let disallowedUsernameService: DisallowedUsernameService;
   let userSettingsService: UserSettingsService;
+  let betaTestersService: BetaTestersService;
 
   const sampleUserRegisterObject = {
     firstName: 'user',
@@ -30,8 +34,8 @@ describe('Users / Register (e2e)', () => {
     email: 'testuser@gmail.com',
     password: 'TestUser@123',
     passwordConfirmation: 'TestUser@123',
-    securityQuestion: 'What is favourite food?',
-    securityAnswer: 'Pizza',
+    securityQuestion: 'Name of your first pet?',
+    securityAnswer: 'tom',
     dob: DateTime.now().minus({ years: 18 }).toISODate(),
   };
 
@@ -45,6 +49,7 @@ describe('Users / Register (e2e)', () => {
     mailService = moduleRef.get<MailService>(MailService);
     disallowedUsernameService = moduleRef.get<DisallowedUsernameService>(DisallowedUsernameService);
     userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
+    betaTestersService = moduleRef.get<BetaTestersService>(BetaTestersService);
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -59,6 +64,16 @@ describe('Users / Register (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    await betaTestersService.create(
+      betaTesterFactory.build(
+        { name: 'TestUser', email: 'testuser@gmail.com' },
+      ),
+    );
+    await betaTestersService.create(
+      betaTesterFactory.build(
+        { name: 'TestUser', email: 'differenttestuser@gmail.com' },
+      ),
+    );
     // Reset sequences so we start fresh before each test
     rewindAllFactories();
   });
@@ -79,9 +94,8 @@ describe('Users / Register (e2e)', () => {
         expect(response.body).toEqual({
           id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
         });
-
         // Verify that the correct fields were set on the created user object
-        const registeredUser = await usersService.findById(response.body.id);
+        const registeredUser = await usersService.findById(response.body.id, false);
         expect(await userSettingsService.findByUserId(response.body.id)).not.toBeNull();
         expect(postBody.firstName).toEqual(registeredUser.firstName);
         expect(postBody.userName).toEqual(registeredUser.userName);
@@ -109,7 +123,7 @@ describe('Users / Register (e2e)', () => {
           .post('/api/v1/users/register')
           .send(postBody)
           .expect(HttpStatus.CREATED);
-        const registeredUser = await usersService.findById(response.body.id);
+        const registeredUser = await usersService.findById(response.body.id, false);
 
         expect(registeredUser.registrationIp.length).toBeGreaterThan(4); // test for presence of IP value
       });
@@ -134,7 +148,32 @@ describe('Users / Register (e2e)', () => {
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
-          'firstName must be shorter than or equal to 30 characters',
+          'Firstname must be between 1 and 30 characters, can only include letters/numbers/special characters, '
+          + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and space ( )',
+        );
+      });
+
+      it('firstName should not end with special character', async () => {
+        postBody.firstName = 'testUser-';
+        const response = await request(app.getHttpServer())
+          .get('/api/v1/users/validate-registration-fields')
+          .query(postBody);
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toContain(
+          'Firstname must be between 1 and 30 characters, can only include letters/numbers/special characters, '
+          + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and space ( )',
+        );
+      });
+
+      it('firstName should not starts with special character', async () => {
+        postBody.firstName = '-testuser';
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/users/register')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'Firstname must be between 1 and 30 characters, can only include letters/numbers/special characters, '
+          + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and space ( )',
         );
       });
 
@@ -276,14 +315,14 @@ describe('Users / Register (e2e)', () => {
         );
       });
 
-      it('securityAnswer is at least 5 characters long', async () => {
-        postBody.securityAnswer = 'Nick';
+      it('securityAnswer is at least 2 characters long', async () => {
+        postBody.securityAnswer = 'k';
         const response = await request(app.getHttpServer())
           .post('/api/v1/users/register')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
-          'securityAnswer must be longer than or equal to 5 characters',
+          'securityAnswer must be longer than or equal to 2 characters',
         );
       });
 
@@ -369,6 +408,32 @@ describe('Users / Register (e2e)', () => {
         expect(response.body.message).toContain(
           'Username is not available',
         );
+      });
+    });
+
+    describe('A user whose email is not in the BetaTesters collection', () => {
+      it('receives an error message when attempting to register', async () => {
+        jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
+        postBody.email = 'slasherusertest@gmail.com';
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/users/register')
+          .send(postBody)
+          .expect(HttpStatus.BAD_REQUEST);
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'Only beta testers are able to register at this time, sorry!',
+        });
+      });
+
+      it('when email is already exists in betatester than expected response', async () => {
+        jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/users/register')
+          .send(postBody)
+          .expect(HttpStatus.CREATED);
+        expect(response.body).toEqual({
+          id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        });
       });
     });
   });

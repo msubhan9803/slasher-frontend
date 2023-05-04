@@ -75,7 +75,7 @@ describe('Users change password (e2e)', () => {
         expect(
           bcrypt.compareSync(
             postBody.newPassword,
-            (await usersService.findById(user._id.toString())).password,
+            (await usersService.findById(user._id.toString(), true)).password,
           ),
         ).toBe(true);
       });

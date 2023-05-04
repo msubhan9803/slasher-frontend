@@ -1,7 +1,8 @@
 import { plainToInstance, Transform } from 'class-transformer';
 import {
-  IsBoolean, IsOptional, IsString, validateSync,
+  IsBoolean, IsNumber, IsOptional, IsString, validateSync,
 } from 'class-validator';
+import { DEFAULT_REQUEST_TIMEOUT } from '../constants';
 
 class EnvironmentVariables {
   // We only need to specify parameters in this class that we want to transform
@@ -10,6 +11,11 @@ class EnvironmentVariables {
   @IsBoolean()
   @Transform(({ value }) => value === 'true')
   CRON_ENABLED: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  @Transform(({ value }) => parseInt(value, 10))
+  REQUEST_TIMEOUT: number;
 
   @IsString()
   UPLOAD_DIR: string;
@@ -20,6 +26,9 @@ export function validateEnv(config: Record<string, unknown>) {
   const errors = validateSync(validatedConfig, { skipMissingProperties: false });
   if (errors.length > 0) {
     throw new Error(errors.toString());
+  }
+  if (!validatedConfig.REQUEST_TIMEOUT) {
+    validatedConfig.REQUEST_TIMEOUT = DEFAULT_REQUEST_TIMEOUT;
   }
   return validatedConfig;
 }

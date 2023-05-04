@@ -31,8 +31,14 @@ export class UsersService {
       .exec();
   }
 
-  async findById(id: string): Promise<UserDocument> {
-    return this.userModel.findById(id).exec();
+  async findById(id: string, activeOnly: boolean): Promise<UserDocument> {
+    const userFindQuery: any = { _id: id };
+    if (activeOnly) {
+      userFindQuery.deleted = false;
+      userFindQuery.status = ActiveStatus.Active;
+    }
+    const user = await this.userModel.findOne(userFindQuery).exec();
+    return user;
   }
 
   /**
@@ -49,15 +55,18 @@ export class UsersService {
 
   async findByEmail(email: string): Promise<UserDocument> {
     return this.userModel
-      .findOne({ email })
-      .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
+      .findOne({ email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') })
       .exec();
   }
 
-  async findByUsername(userName: string): Promise<UserDocument> {
+  async findByUsername(userName: string, activeOnly: boolean): Promise<UserDocument> {
+    const userFindQuery: any = { userName: new RegExp(`^${escapeStringForRegex(userName)}$`, 'i') };
+    if (activeOnly) {
+      userFindQuery.deleted = false;
+      userFindQuery.status = ActiveStatus.Active;
+    }
     return this.userModel
-      .findOne({ userName })
-      .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
+      .findOne(userFindQuery)
       .exec();
   }
 
@@ -65,14 +74,13 @@ export class UsersService {
     if (EmailValidator.validate(emailOrUsername)) {
       return this.findByEmail(emailOrUsername);
     }
-    return this.findByUsername(emailOrUsername);
+    return this.findByUsername(emailOrUsername, false);
   }
 
   async userNameExists(userName: string): Promise<boolean> {
     return (
       (await this.userModel
-        .findOne({ userName })
-        .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
+        .findOne({ userName: new RegExp(`^${escapeStringForRegex(userName)}$`, 'i') })
         .count()
         .exec()) > 0
     );
@@ -81,8 +89,7 @@ export class UsersService {
   async emailExists(email: string): Promise<boolean> {
     return (
       (await this.userModel
-        .findOne({ email })
-        .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
+        .findOne({ email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') })
         .count()
         .exec()) > 0
     );
@@ -91,9 +98,11 @@ export class UsersService {
   async resetPasswordTokenIsValid(email: string, resetPasswordToken: string) {
     const isValid = await this.userModel
       .findOne({
-        $and: [{ email }, { resetPasswordToken }],
+        $and: [
+          { email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') },
+          { resetPasswordToken },
+        ],
       })
-      .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
       .exec();
     return !!isValid;
   }
@@ -101,9 +110,11 @@ export class UsersService {
   async verificationTokenIsValid(email: string, verification_token: string) {
     const isValid = await this.userModel
       .findOne({
-        $and: [{ email }, { verification_token }],
+        $and: [
+          { email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') },
+          { verification_token },
+        ],
       })
-      .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
       .exec();
     return !!isValid;
   }
@@ -127,7 +138,6 @@ export class UsersService {
       .find(nameFindQuery)
       .sort({ userName: 1 })
       .limit(limit)
-      .collation({ locale: 'en', strength: 2 })
       .exec();
 
     const userNameSuggestions: UserNameSuggestion[] = users.map(

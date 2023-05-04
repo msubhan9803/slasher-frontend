@@ -139,7 +139,7 @@ describe('Users / :id (e2e)', () => {
           aboutMe: 'I am a human being',
         });
 
-        const user = await usersService.findById(response.body._id);
+        const user = await usersService.findById(response.body._id, true);
         expect(user.userName).toEqual(postBody.userName);
         expect(user.email).toEqual(postBody.email);
         expect(user.firstName).toEqual(postBody.firstName);
@@ -175,7 +175,33 @@ describe('Users / :id (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
         expect(response.body.message).toContain(
-          'firstName must be shorter than or equal to 30 characters',
+          'Firstname must be between 1 and 30 characters, can only include letters/numbers/special characters, '
+          + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and space ( )',
+        );
+      });
+
+      it('firstName is should not end with special character', async () => {
+        postBody.firstName = 'testUser-';
+        const response = await request(app.getHttpServer())
+          .get('/api/v1/users/validate-registration-fields')
+          .query(postBody);
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toContain(
+          'Firstname must be between 1 and 30 characters, can only include letters/numbers/special characters, '
+          + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and space ( )',
+        );
+      });
+
+      it('firstName should not starts with special character', async () => {
+        postBody.firstName = '-testuser';
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/users/${activeUser.id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'Firstname must be between 1 and 30 characters, can only include letters/numbers/special characters, '
+          + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and space ( )',
         );
       });
 
@@ -292,7 +318,7 @@ describe('Users / :id (e2e)', () => {
       });
 
       it('profile_status must be one of the allowed values', async () => {
-        postBody.profile_status = 2;
+        postBody.profile_status = 2 as any;
         const response = await request(app.getHttpServer())
           .patch(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })

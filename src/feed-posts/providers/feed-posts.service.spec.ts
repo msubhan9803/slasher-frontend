@@ -3,6 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import mongoose, { Connection, Model } from 'mongoose';
+import { DateTime } from 'luxon';
 import { AppModule } from '../../app.module';
 import { FeedPostsService } from './feed-posts.service';
 import { userFactory } from '../../../test/factories/user.factory';
@@ -28,6 +29,7 @@ import { MoviesService } from '../../movies/providers/movies.service';
 import { moviesFactory } from '../../../test/factories/movies.factory';
 import { MovieActiveStatus } from '../../schemas/movie/movie.enums';
 import { RssFeed } from '../../schemas/rssFeed/rssFeed.schema';
+import { Movie } from '../../schemas/movie/movie.schema';
 
 describe('FeedPostsService', () => {
   let app: INestApplication;
@@ -89,6 +91,8 @@ describe('FeedPostsService', () => {
       moviesFactory.build(
         {
           status: MovieActiveStatus.Active,
+          releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          logo: 'https://picsum.photos/id/237/200/300',
         },
       ),
     );
@@ -169,6 +173,21 @@ describe('FeedPostsService', () => {
     it("populates the title field on the post's returned rssFeedId object", async () => {
       const feedPostDetails = await feedPostsService.findById(feedPost.id, false);
       expect((feedPostDetails.rssFeedId as unknown as RssFeed).title).toEqual(rssFeed.title);
+    });
+
+    it("populates the `logo`, `name` and `releaseDate` field on the post's returned `movieid` field", async () => {
+      const feedPostNew = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: activeUser.id,
+          movieId: movie._id,
+          postType: PostType.MovieReview,
+          likes: [activeUser._id, user0._id],
+        }),
+      );
+      const feedPostDetails = await feedPostsService.findById(feedPostNew.id, false);
+      expect((feedPostDetails.movieId as unknown as Movie).name).toEqual(movie.name);
+      expect((feedPostDetails.movieId as unknown as Movie).releaseDate).toEqual(movie.releaseDate);
+      expect((feedPostDetails.movieId as unknown as Movie).logo).toEqual(movie.logo);
     });
   });
 
@@ -818,22 +837,24 @@ describe('FeedPostsService', () => {
     });
   });
 
-  describe('#findFeedPost', () => {
+  describe('#findMovieReviewPost', () => {
     beforeEach(async () => {
       // Created post is associated with the `activeUser`
       const feedPostData = await feedPostsService.create(
         feedPostFactory.build({
           userId: activeUser.id,
           movieId: movie.id,
+          postType: PostType.MovieReview,
         }),
       );
       await feedPostsService.findById(feedPostData.id, false);
     });
 
     it('successfully find feed post details', async () => {
-      const post = await feedPostsService.findFeedPost(activeUser.id, movie.id);
+      const post = await feedPostsService.findMovieReviewPost(activeUser.id, movie.id);
       expect(post.movieId.toString()).toEqual(movie.id);
       expect(post.userId.toString()).toEqual(activeUser.id);
+      expect(post.postType).toEqual(PostType.MovieReview);
     });
   });
 

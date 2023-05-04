@@ -4,7 +4,7 @@ export enum NotificationType {
   Type1 = 1,
   Type2 = 2,
   UserSentYouAFriendRequest = 11,
-  Type12 = 12,
+  UserAcceptedYourFriendRequest = 12,
   UserLikedYourPost = 13,
   UserLikedYourComment = 14,
   UserCommentedOnYourPost = 15,
@@ -21,8 +21,8 @@ export enum NotificationType {
 
   Type102 = 102,
   Type103 = 103,
-  Type121 = 121,
-  Type122 = 122,
+  UserMentionedYouInACommentOnANewsPost = 121,
+  UserLikedYourCommentOnANewsPost = 122,
   NewPostFromFollowedRssFeedProvider = 125,
 }
 

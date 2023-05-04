@@ -113,7 +113,7 @@ describe('Users / delete account (e2e)', () => {
           .expect(HttpStatus.OK);
         expect(response.body).toEqual({ success: true });
 
-        const userData = await usersService.findById(activeUser.id);
+        const userData = await usersService.findById(activeUser.id, false);
         expect(userData.deleted).toBe(true); // check delete
         expect(userData.password).not.toEqual(oldHashedPassword); // check password change
 

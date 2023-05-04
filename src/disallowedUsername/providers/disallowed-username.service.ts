@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DisallowedUsername, DisallowedUsernameDocument } from '../../schemas/disallowedUsername/disallowedUsername.schema';
+import { escapeStringForRegex } from '../../utils/escape-utils';
 
 @Injectable()
 export class DisallowedUsernameService {
@@ -23,8 +24,7 @@ export class DisallowedUsernameService {
 
   async findUserName(username: string): Promise<DisallowedUsername> {
     return this.disallowedUsernameModel
-    .findOne({ username })
-    .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
-    .exec();
+      .findOne({ username: new RegExp(`^${escapeStringForRegex(username)}$`, 'i') })
+      .exec();
   }
 }

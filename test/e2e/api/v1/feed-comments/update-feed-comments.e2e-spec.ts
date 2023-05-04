@@ -559,8 +559,8 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
           )
           .expect(HttpStatus.OK);
 
-        const user4NewNotificationCount = await usersService.findById(user4.id);
-        const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id);
+        const user4NewNotificationCount = await usersService.findById(user4.id, true);
+        const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id, true);
 
         expect(user4NewNotificationCount.newNotificationCount).toBe(1);
         expect(otherUser2NewNotificationCount.newNotificationCount).toBe(1);

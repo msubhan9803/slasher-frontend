@@ -515,6 +515,17 @@ describe('Feed-Comments/Replies File (e2e)', () => {
       expect(response.body.message).toContain('description cannot be longer than 250 characters');
     });
 
+    it('when add a reply to a post than check update post lastUpdateAt value', async () => {
+      const postBeforeUpdate = await feedPostsService.findById(feedPost._id.toString(), false);
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/feed-comments/replies')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('message', 'hello test user')
+        .field('feedCommentId', feedComment._id.toString());
+      const postAfterUpdate = await feedPostsService.findById(response.body.feedPostId, false);
+      expect(postAfterUpdate.lastUpdateAt > postBeforeUpdate.lastUpdateAt).toBeTruthy();
+    });
+
     describe('when the feed post was created by a user with a non-public profile', () => {
       let user1;
       let feedPost1;
@@ -809,9 +820,9 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           )
           .expect(HttpStatus.CREATED);
 
-        const user0NewNotificationCount = await usersService.findById(user0.id);
-        const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id);
-        const commentCreatorUser2NewNotificationCount = await usersService.findById(commentCreatorUser.id);
+        const user0NewNotificationCount = await usersService.findById(user0.id, true);
+        const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id, true);
+        const commentCreatorUser2NewNotificationCount = await usersService.findById(commentCreatorUser.id, true);
 
         expect(user0NewNotificationCount.newNotificationCount).toBe(1);
         expect(otherUser2NewNotificationCount.newNotificationCount).toBe(1);

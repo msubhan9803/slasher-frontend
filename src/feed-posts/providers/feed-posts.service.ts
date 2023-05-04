@@ -51,6 +51,7 @@ export class FeedPostsService {
       .populate('userId', 'userName _id profilePic profile_status')
       .populate('rssfeedProviderId', 'title _id logo')
       .populate('rssFeedId', 'content title')
+      .populate('movieId', 'logo name releaseDate')
       .exec();
 
     if (feedPost) {
@@ -176,6 +177,7 @@ export class FeedPostsService {
       })
       .populate('userId', '_id userName profilePic')
       .populate('rssfeedProviderId', '_id title logo')
+      .populate('movieId', 'logo name releaseDate')
       .sort({ lastUpdateAt: -1 })
       .limit(limit)
       .exec();
@@ -341,12 +343,13 @@ export class FeedPostsService {
     return likeUsersForPost;
   }
 
-  async findFeedPost(userId: string, movieId: string) {
+  async findMovieReviewPost(userId: string, movieId: string) {
     const feedPost = await this.feedPostModel
       .findOne({
         $and: [
           { userId: new mongoose.Types.ObjectId(userId) },
           { movieId: new mongoose.Types.ObjectId(movieId) },
+          { postType: PostType.MovieReview },
           { is_deleted: FeedPostDeletionState.NotDeleted }],
       })
       .exec();

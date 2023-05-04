@@ -120,8 +120,8 @@ describe('Suggested user name (e2e)', () => {
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
 
-          const test1User = await usersService.findByUsername('test1');//, ['userName', 'id', 'profilePic']
-          const test2User = await usersService.findByUsername('test2');//, ['userName', 'id', 'profilePic']
+          const test1User = await usersService.findByUsername('test1', true);//, ['userName', 'id', 'profilePic']
+          const test2User = await usersService.findByUsername('test2', true);//, ['userName', 'id', 'profilePic']
           expect(response.body).toEqual([
             {
               userName: 'test-user1',

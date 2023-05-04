@@ -510,6 +510,17 @@ describe('Feed-Comments / Comments File (e2e)', () => {
           // TODO: Examine notificationsService.create() arguments in greater detail to make sure the right ones went to the right users
         });
 
+      it('when add a comment to a post than check update post lastUpdateAt value', async () => {
+        const postBeforeUpdate = await feedPostsService.findById(feedPost._id.toString(), false);
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-comments')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .field('userId', activeUser._id.toString())
+          .field('feedPostId', feedPost._id.toString());
+        const postAfterUpdate = await feedPostsService.findById(response.body.feedPostId, false);
+        expect(postAfterUpdate.lastUpdateAt > postBeforeUpdate.lastUpdateAt).toBeTruthy();
+      });
+
       describe('when the feed post was created by a user with a non-public profile', () => {
         let user1;
         let feedPost1;
@@ -606,8 +617,8 @@ describe('Feed-Comments / Comments File (e2e)', () => {
           )
           .expect(HttpStatus.CREATED);
 
-        const user0NewNotificationCount = await usersService.findById(user0.id);
-        const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id);
+        const user0NewNotificationCount = await usersService.findById(user0.id, true);
+        const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id, true);
 
         expect(user0NewNotificationCount.newNotificationCount).toBe(1);
         expect(otherUser2NewNotificationCount.newNotificationCount).toBe(1);

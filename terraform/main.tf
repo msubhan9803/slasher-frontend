@@ -1,0 +1,26 @@
+module "ecs_fargate" {
+  source                            = "./modules/ecs_fargate"
+  web_new_desired_count             = var.web_new_desired_count
+  web_new_cpu_unit                  = var.web_new_cpu_unit
+  web_new_memory_unit               = var.web_new_memory_unit
+  web_new_min_capacity              = var.web_new_min_capacity
+  web_new_max_capacity              = var.web_new_max_capacity
+  cron_desired_count                = var.cron_desired_count
+  cron_cpu_unit                     = var.cron_cpu_unit
+  cron_memory_unit                  = var.cron_memory_unit
+  api_url                           = var.api_url
+  frontend_url                      = var.frontend_url
+  log_group_retention_in_days       = var.log_group_retention_in_days
+  slasher_web_new_host_header       = var.slasher_web_new_host_header
+  slasher_cron_host_header          = var.slasher_cron_host_header
+  upload_dir                        = var.upload_dir
+  help_email                        = var.help_email
+  report_email_recipient            = var.report_email_recipient
+  default_smtp_port                 = var.default_smtp_port
+  default_smtp_host                 = var.default_smtp_host
+  file_storage                      = var.file_storage
+  cron_enabled_web                  = var.cron_enabled_web
+  cron_enabled_cron                 = var.cron_enabled_cron
+  AWSRegion                         = var.AWSRegion
+  storage_location_generator_prefix = var.storage_location_generator_prefix
+}

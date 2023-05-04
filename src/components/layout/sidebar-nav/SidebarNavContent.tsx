@@ -1,11 +1,12 @@
 import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Nav } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 import SidebarNavItem from './SidebarNavItem';
 import { enableDevFeatures } from '../../../utils/configEnvironment';
+import { GOOGLE_PLAY_DOWNLOAD_URL, APP_STORE_DOWNLOAD_URL } from '../../../constants';
+import RoundButtonLink from '../../ui/RoundButtonLink';
 
-const MAX_ALLOWED_COMING_SOON_ITEMS_IN_MENU = 3;
+const MAX_ALLOWED_COMING_SOON_ITEMS_IN_MENU = 1;
 
 interface Props {
   onToggleCanvas?: () => void;
@@ -44,12 +45,6 @@ const sidebarMenuList: MenuType[] = [
     label: 'Art', icon: solid('palette'), iconColor: '#799F0C', to: '/app/art', id: 7,
   },
   {
-    label: 'Settings', icon: solid('gear'), iconColor: '#888888', to: '/app/account', id: 8, desktopOnly: true,
-  },
-  {
-    label: 'Help', icon: solid('circle-question'), iconColor: '#9E9E9E', to: '/app/help', id: 9, desktopOnly: true,
-  },
-  {
     label: 'Groups', icon: solid('user-group'), iconColor: '#E1B065', to: '/app/groups', id: 10, comingSoon: true,
   },
   {
@@ -66,7 +61,16 @@ const sidebarMenuList: MenuType[] = [
   },
 ];
 
-const customSidebarMenuList = sidebarMenuList.filter(
+const additionalMenuListItemsAfterComingSoon: MenuType[] = [
+  {
+    label: 'Settings', icon: solid('gear'), iconColor: '#888888', to: '/app/account', id: 8, desktopOnly: true,
+  },
+  {
+    label: 'Help', icon: solid('circle-question'), iconColor: '#9E9E9E', to: '/app/help', id: 9, desktopOnly: true,
+  },
+];
+
+let customSidebarMenuList = sidebarMenuList.filter(
   (item) => enableDevFeatures || !item.comingSoon,
 );
 const numberOfComingSoonItemsToShow = Math.min(
@@ -80,36 +84,58 @@ for (let i = 0; i < numberOfComingSoonItemsToShow; i += 1) {
   });
 }
 
+customSidebarMenuList = customSidebarMenuList.concat(additionalMenuListItemsAfterComingSoon);
+
 function SidebarNavContent({ onToggleCanvas }: Props) {
   return (
-    <Nav>
-      {customSidebarMenuList.map((menu) => (
-        <SidebarNavItem
-          id={menu.id}
-          key={menu.id}
-          label={menu.label}
-          icon={menu.icon}
-          iconColor={menu.iconColor}
-          to={menu.to}
-          className={menu.desktopOnly ? 'd-none d-md-flex' : ''}
-          onToggleCanvas={onToggleCanvas}
-        />
-      ))}
-      <ul className="list-inline mt-4 link-hover-underline fs-6">
-        <li><Link className="text-light text-decoration-none" to="/">Download the app</Link></li>
-        <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/advertise">Advertise on Slasher</a></li>
-        <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/terms">Terms &amp; Policies</a></li>
-        <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/about">About</a></li>
-        <li className="text-light text-decoration-none">
-          &copy;
-          {' '}
-          {new Date().getFullYear()}
-          {' '}
-          Slasher Corp
-        </li>
-      </ul>
-      <br />
-    </Nav>
+    <>
+      <RoundButtonLink
+        usePlainAnchorTag
+        to="mailto:help@slasher.tv?subject=Slasher%20Bug%20Report"
+        variant="primary"
+        className="w-100"
+        style={{ marginBottom: '0.75rem' }}
+      >
+        Report a bug
+
+      </RoundButtonLink>
+      <Nav>
+        {customSidebarMenuList.map((menu) => (
+          <SidebarNavItem
+            id={menu.id}
+            key={menu.id}
+            label={menu.label}
+            icon={menu.icon}
+            iconColor={menu.iconColor}
+            to={menu.to}
+            className={menu.desktopOnly ? 'd-none d-md-flex' : ''}
+            onToggleCanvas={onToggleCanvas}
+          />
+        ))}
+        <ul className="list-inline mt-4 link-hover-underline fs-6">
+          {
+            enableDevFeatures
+            && (
+              <>
+                <li><a className="text-light text-decoration-none" href={GOOGLE_PLAY_DOWNLOAD_URL} target="_blank" rel="noreferrer">Download for Android</a></li>
+                <li><a className="text-light text-decoration-none" href={APP_STORE_DOWNLOAD_URL} target="_blank" rel="noreferrer">Download for iOS</a></li>
+              </>
+            )
+          }
+          <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/advertise" target="_blank" rel="noreferrer">Advertise on Slasher</a></li>
+          <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/terms" target="_blank" rel="noreferrer">Terms &amp; Policies</a></li>
+          <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/about" target="_blank" rel="noreferrer">About</a></li>
+          <li className="text-light text-decoration-none">
+            &copy;
+            {' '}
+            {new Date().getFullYear()}
+            {' '}
+            Slasher Corp
+          </li>
+        </ul>
+        <br />
+      </Nav>
+    </>
   );
 }
 SidebarNavContent.defaultProps = {

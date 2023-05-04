@@ -14,6 +14,8 @@ import {
 import { MovieData } from '../../../types';
 import { updateMovieUserData } from './updateMovieDataUtils';
 import BorderButton from '../../../components/ui/BorderButton';
+import ModalBodyForDeactivateListing from '../../../components/ui/ModalBodyForDeactivateListing';
+import { ratingIcons } from '../../public-home-page/public-home-body/UserReview';
 
 interface MovieDetaisProps {
   show: boolean;
@@ -126,18 +128,11 @@ function MoviesModal({
           <Modal.Header className="border-0 shadow-none justify-content-end" closeButton />
           <div className="px-3">
             {ButtonType === 'deactivate' && (
-              <Modal.Body className="d-flex flex-column align-items-center text-center pb-5">
-                <div className="px-5">
-                  <h1 className="text-primary h2">Deactivate listing </h1>
-                  <p className="h5 px-4">Are you sure you want to deactivate your listing?</p>
-                </div>
-                <RoundButton onClick={closeModal} className="mt-3 w-100 border-0 bg-dark text-white">
-                  No, do not deactivate
-                </RoundButton>
-                <RoundButton onClick={() => { setDeactivate(true); setShow(false); }} className="mt-3 w-100 border-0 bg-dark text-white">
-                  Yes, please deactivate my listing
-                </RoundButton>
-              </Modal.Body>
+              <ModalBodyForDeactivateListing
+                onCancel={closeModal}
+                onConfirm={() => setDeactivate(true)}
+                setShow={() => setShow(false)}
+              />
             )}
             {ButtonType === 'rating' && (
               <Modal.Body className="d-flex flex-column align-items-center text-center pb-5">
@@ -150,7 +145,7 @@ function MoviesModal({
                   size="2x"
                 />
                 {/* Remove Star Rating Button */}
-                { hasRating
+                {hasRating
                   && (
                     <BorderButton
                       buttonClass="d-flex rate-btn bg-black w-100 d-flex justify-content-center"
@@ -172,7 +167,7 @@ function MoviesModal({
                   <h1 className="text-primary h2">How gory is this?</h1>
                 </div>
                 <RatingGore className="star-rating my-3">
-                  {[...Array(5)].map((star, index) => (
+                  {ratingIcons.map((star, index) => (
                     <Button
                       variant="link"
                       type="button"
@@ -189,7 +184,7 @@ function MoviesModal({
                   ))}
                 </RatingGore>
                 {/* Remove Gore Factor Rating Button */}
-                { hasGoreFactor
+                {hasGoreFactor
                   && (
                     <BorderButton
                       buttonClass="d-flex rate-btn bg-black w-100 d-flex justify-content-center"

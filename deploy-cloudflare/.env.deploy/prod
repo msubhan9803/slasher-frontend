@@ -5,8 +5,7 @@ CLOUDFLARE_PROJECT_NAME=slasher-frontend-prod
 ADD_NOINDEX_ROBOTS_TXT=true
 
 # For react app build
-#REACT_APP_API_URL="https://api.slasher.tv"
-REACT_APP_API_URL="https://stagingapi-v2.slasher.tv"
+REACT_APP_API_URL="https://api.slasher.tv"
 REACT_APP_VERSION=$npm_package_version
 REACT_APP_GOOGLE_ANALYTICS_PROPERTY_ID=G-NWPS6ZB302
 REACT_APP_ENABLE_ADS=true

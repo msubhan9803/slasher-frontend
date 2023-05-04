@@ -5,10 +5,11 @@ import React, {
 import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Row, Col, Button, Form,
+  Row, Col, Button, Form, Image,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useParams, useSearchParams } from 'react-router-dom';
+import { DateTime } from 'luxon';
 import { getSuggestUserName } from '../../api/users';
 import ErrorMessageList from './ErrorMessageList';
 import ImagesContainer from './ImagesContainer';
@@ -19,7 +20,12 @@ import RatingButtonGroups from './RatingButtonGroups';
 import CustomWortItText from './CustomWortItText';
 import { StyledBorder } from './StyledBorder';
 import WorthWatchIcon from '../../routes/movies/components/WorthWatchIcon';
-import { DescriptionArray, MovieData, WorthWatchingStatus } from '../../types';
+import {
+  DescriptionArray, AdditionalMovieData, MovieData, WorthWatchingStatus,
+} from '../../types';
+import { getMoviesById, getMoviesDataById } from '../../api/movies';
+import { StyledMoviePoster } from '../../routes/movies/movie-details/StyledUtils';
+import { LG_MEDIA_BREAKPOINT, topToDivHeight } from '../../constants';
 
 interface MentionProps {
   id: string;
@@ -54,7 +60,7 @@ interface Props {
   setGoreFactor?: (value: number) => void;
   selectedPostType?: string;
   setSelectedPostType?: (value: string) => void;
-  setWorthIt?: (val: boolean) => void;
+  setWorthIt?: (val: number) => void;
   liked?: boolean;
   setLike?: (val: boolean) => void;
   disLiked?: boolean;
@@ -64,6 +70,8 @@ interface Props {
   descriptionArray?: DescriptionArray[];
   setDescriptionArray?: (value: DescriptionArray[]) => void;
   showSaveButton?: boolean;
+  reviewForm?: boolean;
+  setReviewForm?: (value: boolean) => void;
 }
 
 const AddPhotosButton = styled(RoundButton)`
@@ -82,7 +90,7 @@ function CreatePostComponent({
   imageArray, setImageArray, defaultValue, formatMention, setFormatMention,
   deleteImageIds, setDeleteImageIds, postType, titleContent, setTitleContent,
   containSpoiler, setContainSpoiler, rating, setRating, goreFactor, setGoreFactor,
-  selectedPostType, setSelectedPostType, setWorthIt, liked, setLike,
+  selectedPostType, setSelectedPostType, setWorthIt, liked, setLike, reviewForm, setReviewForm,
   disLiked, setDisLike, isWorthIt, placeHolder, descriptionArray, setDescriptionArray,
   showSaveButton,
 }: Props) {
@@ -94,6 +102,19 @@ function CreatePostComponent({
   const imageArrayRef = useRef(imageArray);
   const descriptionArrayRef = useRef(descriptionArray);
   const setDescriptionArrayRef = useRef(setDescriptionArray);
+  const params = useParams();
+  const location = useLocation();
+  const movieReviewRef = useRef<HTMLDivElement>(null);
+  const movieId = searchParams.get('movieId');
+  const [aboutMovieDetail, setAboutMovieDetail] = useState<AdditionalMovieData>();
+
+  useEffect(() => {
+    if (!movieId) { return; }
+
+    getMoviesById(movieId)
+      .then((res1) => getMoviesDataById(res1.data.movieDBId)
+        .then((res2) => setAboutMovieDetail(res2.data)));
+  }, [movieId]);
 
   const handleRemoveFile = (postImage: any, index?: number) => {
     const removePostImage = imageArray.filter((image: File) => image !== postImage);
@@ -154,15 +175,17 @@ function CreatePostComponent({
 
   useEffect(() => {
     const descriptionArrayList: DescriptionArray[] = [];
-    imageArrayRef.current.map((postImage: any) => {
-      if (postImage.description) {
-        descriptionArrayList.push({ description: postImage?.description, id: postImage?._id });
-      } else {
-        descriptionArrayList.push({ description: '', id: postImage?._id });
-      }
-      return null;
-    });
-    setDescriptionArrayRef.current!([...descriptionArrayList]);
+    if (imageArrayRef && imageArrayRef.current) {
+      imageArrayRef.current.map((postImage: any) => {
+        if (postImage.description) {
+          descriptionArrayList.push({ description: postImage?.description, id: postImage?._id });
+        } else {
+          descriptionArrayList.push({ description: '', id: postImage?._id });
+        }
+        return null;
+      });
+      setDescriptionArrayRef.current!([...descriptionArrayList]);
+    }
   }, [imageArrayRef, descriptionArrayRef, setDescriptionArrayRef]);
 
   useEffect(() => {
@@ -171,8 +194,46 @@ function CreatePostComponent({
     setDescriptionArrayRef.current = setDescriptionArray;
   }, [imageArray, descriptionArray, setDescriptionArray]);
 
+  useEffect(() => {
+    setTimeout(() => {
+      if (reviewForm || params['*'] === 'reviews' || (location.state && location.state.movieId && location.state.movieId.length)) {
+        if (movieReviewRef.current) {
+          window.scrollTo({
+            top: movieReviewRef.current.offsetTop - (
+              window.innerWidth >= parseInt(LG_MEDIA_BREAKPOINT.replace('px', ''), 10)
+                ? topToDivHeight - 5
+                : 10
+            ),
+            behavior: 'instant' as any,
+          });
+        }
+        setReviewForm!(false);
+      }
+    }, 500);
+  }, [reviewForm, params, location, setReviewForm]);
+
   return (
-    <div className={postType === 'review' ? 'bg-dark mb-3 px-4 py-4 rounded-2' : ''}>
+
+    <div ref={movieReviewRef} className={postType === 'review' ? 'bg-dark mb-3 px-4 py-4 rounded-2' : ''}>
+      {aboutMovieDetail
+        && (
+          <Row className="m-0">
+            <Col className="p-0" xs={4} md={3} lg={3} xl={2}>
+              <StyledMoviePoster>
+                <Image src={aboutMovieDetail?.mainData?.poster_path} alt="movie poster" className="rounded-3 w-100 h-100" />
+              </StyledMoviePoster>
+            </Col>
+            <Col className="m-auto ps-3">
+              <div className="fw-bold mb-3">
+                {aboutMovieDetail?.mainData.title}
+              </div>
+              <div className="text-light mb-3">
+                {aboutMovieDetail?.mainData?.release_date
+                  && DateTime.fromJSDate(new Date(aboutMovieDetail?.mainData?.release_date)).toFormat('yyyy')}
+              </div>
+            </Col>
+          </Row>
+        )}
 
       {postType === 'review' && (
         <>
@@ -182,19 +243,19 @@ function CreatePostComponent({
                 rating={rating}
                 setRating={setRating}
                 label="Your rating"
-                size="1x"
+                size="lg"
               />
             </div>
-            <div className="mx-md-3 mx-lg-0 mx-xl-3 my-3 my-md-0 my-lg-3 my-xl-0">
+            <div className="mx-md-4 mx-lg-0 mx-xl-4 my-3 my-md-0 my-lg-3 my-xl-0">
               <RatingButtonGroups
                 rating={goreFactor}
                 setRating={setGoreFactor}
-                label="Your gore factor rating"
-                size="1x"
+                label="Gore factor"
+                size="lg"
                 isGoreFator
               />
             </div>
-            <div>
+            <div className="">
               <Form.Label className="fw-bold h3">Worth watching?</Form.Label>
               <div className="d-flex align-items-center">
                 <WorthWatchIcon
@@ -205,11 +266,17 @@ function CreatePostComponent({
                   disLiked={disLiked!}
                   setDisLike={setDisLike!}
                   postType={postType}
+                  circleWidth="2.534rem"
+                  circleHeight="2.534rem"
+                  iconWidth="1.352rem"
+                  iconHeight="1.352rem"
+                  isWorthIt={isWorthIt}
+                  clickType="form"
                 />
                 {isWorthIt !== WorthWatchingStatus.NoRating
                   && (
                     <CustomWortItText
-                      divClass="align-items-center px-3 bg-black rounded-pill"
+                      divClass="mt-2 align-items-center px-3 bg-black rounded-pill py-2"
                       textClass="fs-4"
                       customCircleWidth="20px"
                       customCircleHeight="20px"
@@ -303,7 +370,8 @@ function CreatePostComponent({
         type="file"
         name="post"
         className="d-none"
-        accept="image/*"
+        // eslint-disable-next-line no-useless-concat
+        accept={'image/' + '*'}
         onChange={(post) => {
           handleFileChange(post);
         }}
@@ -385,5 +453,7 @@ CreatePostComponent.defaultProps = {
   descriptionArray: [],
   setDescriptionArray: undefined,
   showSaveButton: false,
+  reviewForm: false,
+  setReviewForm: undefined,
 };
 export default CreatePostComponent;

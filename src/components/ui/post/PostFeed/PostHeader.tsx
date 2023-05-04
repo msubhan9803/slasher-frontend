@@ -17,8 +17,8 @@ interface PostHeaderProps {
   profileImage: string;
   popoverOptions?: string[];
   onPopoverClick?: (value: string, popoverClickProps: PopoverClickProps) => void,
-  detailPage: boolean | undefined;
-  content?: string;
+  isSinglePost: boolean | undefined;
+  message?: string;
   userId?: string;
   rssfeedProviderId?: string;
   onSelect?: (value: string) => void;
@@ -36,8 +36,8 @@ const StyledSaveButton = styled(Button) <StyledSavedProps>`
   }
 `;
 function PostHeader({
-  id, userName, postDate, profileImage, popoverOptions, onPopoverClick, detailPage,
-  content, userId, rssfeedProviderId, onSelect, postImages, postType,
+  id, userName, postDate, profileImage, popoverOptions, onPopoverClick, isSinglePost,
+  message, userId, rssfeedProviderId, onSelect, postImages, postType,
 }: PostHeaderProps) {
   const [notificationOn, setNotificationOn] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -56,8 +56,8 @@ function PostHeader({
               to={rssfeedProviderId
                 ? `/app/news/partner/${rssfeedProviderId}#`
                 : `/${userName}#`}
-              scroll={scrollToTop}
-              className="text-decoration-none rounded-circle"
+              scroll={() => scrollToTop('smooth')}
+              className="d-block text-decoration-none rounded-circle"
             >
               <div className="rounded-circle">
                 <UserCircleImage size="3.313rem" src={profileImage} alt={`${userName} profile picture`} className="bg-secondary d-flex" />
@@ -74,15 +74,15 @@ function PostHeader({
               to={rssfeedProviderId
                 ? `/app/news/partner/${rssfeedProviderId}#`
                 : `/${userName}#`}
-              scroll={scrollToTop}
+              scroll={() => scrollToTop('smooth')}
               className="text-decoration-none d-block"
             >
-              <h1 className="mb-0 h3 text-capitalize">{userName}</h1>
+              <h2 className="mb-0 h3 text-capitalize">{userName}</h2>
             </HashLink>
             {
               // Do *not* remove the trailing # in below `to` path
               // else the `scrollToTop/scrollWithOffset` won't work.
-              detailPage ? (
+              isSinglePost ? (
                 <p className="mb-0 fs-6 text-light">
                   {DateTime.fromISO(postDate).toFormat('MM/dd/yyyy t')}
                 </p>
@@ -92,7 +92,7 @@ function PostHeader({
                   to={rssfeedProviderId
                     ? `/app/news/partner/${rssfeedProviderId}/posts/${id}#`
                     : `/${userName}/posts/${id}#`}
-                  className="text-decoration-none"
+                  className="text-decoration-none d-block"
                 >
                   <p className="mb-0 fs-6 text-light">
                     {DateTime.fromISO(postDate).toFormat('MM/dd/yyyy t')}
@@ -129,10 +129,11 @@ function PostHeader({
           <CustomPopover
             popoverOptions={popoverOptions!}
             onPopoverClick={onPopoverClick!}
-            content={content}
+            message={message}
             id={id}
             userId={userId}
             postImages={postImages}
+            rssfeedProviderId={rssfeedProviderId}
           />
         </div>
       </Col>
@@ -141,7 +142,7 @@ function PostHeader({
 }
 
 PostHeader.defaultProps = {
-  content: null,
+  message: null,
   userId: null,
   rssfeedProviderId: null,
   // Remove after Podcast popover implementation

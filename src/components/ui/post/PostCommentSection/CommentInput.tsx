@@ -45,6 +45,7 @@ interface CommentInputProps {
   setDescriptionArray?: (value: string[]) => void;
   replyDescriptionArray?: string[];
   setReplyDescriptionArray?: (value: string[]) => void;
+  isMainPostCommentClick?: boolean;
 }
 
 interface InputProps {
@@ -89,7 +90,7 @@ function CommentInput({
   handleSearch, mentionList, addUpdateComment, replyImageArray, isReply,
   addUpdateReply, commentID, commentReplyID, checkCommnt, commentError, commentReplyError,
   commentSent, setCommentReplyErrorMessage, setReplyImageArray, isEdit, descriptionArray,
-  setDescriptionArray, replyDescriptionArray, setReplyDescriptionArray,
+  setDescriptionArray, replyDescriptionArray, setReplyDescriptionArray, isMainPostCommentClick,
 }: CommentInputProps) {
   const [editMessage, setEditMessage] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
@@ -241,6 +242,7 @@ function CommentInput({
                 id={checkCommnt}
                 className="fs-5 form-control p-0 pe-4"
                 placeholder={isReply ? 'Reply to comment' : 'Write a comment'}
+                isReply={isReply}
                 handleSearch={handleSearch}
                 mentionLists={mentionList}
                 setMessageContent={setEditMessage}
@@ -250,6 +252,7 @@ function CommentInput({
                 isCommentInput="true"
                 onFocusHandler={onFocusHandler}
                 onBlurHandler={onBlurHandler}
+                isMainPostCommentClick={isMainPostCommentClick}
               />
               <InputGroup.Text className="position-relative px-3 border-start-0">
                 <FontAwesomeIcon
@@ -350,6 +353,7 @@ CommentInput.defaultProps = {
   setDescriptionArray: undefined,
   replyDescriptionArray: undefined,
   setReplyDescriptionArray: undefined,
+  isMainPostCommentClick: undefined,
 };
 
 export default CommentInput;

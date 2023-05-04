@@ -46,6 +46,7 @@ export interface FormatMentionListProps {
 interface MentionProps {
   rows: number;
   placeholder?: string;
+  isReply?: boolean;
   mentionLists: MentionListProps[];
   setMessageContent: (val: string) => void;
   formatMentionList: FormatMentionListProps[];
@@ -57,11 +58,13 @@ interface MentionProps {
   isCommentInput?: string;
   onFocusHandler?: () => void;
   onBlurHandler?: () => void;
+  isMainPostCommentClick?: boolean;
 }
 
 function MessageTextarea({
   rows,
   placeholder,
+  isReply,
   mentionLists,
   handleSearch,
   setMessageContent,
@@ -73,6 +76,7 @@ function MessageTextarea({
   isCommentInput,
   onFocusHandler,
   onBlurHandler,
+  isMainPostCommentClick,
 }: MentionProps) {
   const { Option } = Mentions;
   const textareaRef = useRef<MentionsRef>(null);
@@ -106,14 +110,12 @@ function MessageTextarea({
   };
 
   useEffect(() => {
-    if (textareaRef.current) {
+    if (textareaRef.current && (isReply || isMainPostCommentClick)) {
       textareaRef.current.focus();
     }
-  }, []);
-
+  }, [isReply, isMainPostCommentClick]);
   return (
     <StyledMention
-      autoFocus
       ref={textareaRef}
       iscommentinput={isCommentInput!}
       id={id}
@@ -148,11 +150,13 @@ function MessageTextarea({
 }
 MessageTextarea.defaultProps = {
   placeholder: 'Type something...',
+  isReply: false,
   defaultValue: '',
   id: '',
   className: '',
   isCommentInput: undefined,
   onFocusHandler: undefined,
   onBlurHandler: undefined,
+  isMainPostCommentClick: undefined,
 };
 export default MessageTextarea;

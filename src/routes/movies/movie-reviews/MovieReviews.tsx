@@ -1,10 +1,11 @@
 /* eslint-disable max-lines */
 import React, {
-  useCallback, useEffect, useLayoutEffect, useRef, useState,
+  useCallback, useEffect, useLayoutEffect, useState,
 } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
+import styled from 'styled-components';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import CreatePostComponent from '../../../components/ui/CreatePostComponent';
@@ -15,7 +16,6 @@ import {
 import {
   MovieData, Post, PostType,
 } from '../../../types';
-import FormatImageVideoList from '../../../utils/vido-utils';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
@@ -24,23 +24,39 @@ import ReportModal from '../../../components/ui/ReportModal';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-utils';
 import { getMoviesById } from '../../../api/movies';
+import { createBlockUser } from '../../../api/blocks';
+import { reportData } from '../../../api/report';
 
 type Props = {
   movieData: MovieData;
   setMovieData: React.Dispatch<React.SetStateAction<MovieData | undefined>>;
+  reviewForm: boolean;
+  setReviewForm: (value: boolean) => void;
 };
 
-const loginUserPopoverOptions = ['Edit Review', 'Delete Review'];
-const otherUserPopoverOptions = ['Report', 'Block user'];
+export const StyledReviewContainer = styled.div`
+  min-height: 100vh;
+`;
 
-function MovieReviews({ movieData, setMovieData }: Props) {
+const loginUserPopoverOptions = ['Edit Review', 'Delete Review'] as const;
+const otherUserPopoverOptions = ['Report', 'Block user'] as const;
+const validPopOverOptions = [...loginUserPopoverOptions, ...otherUserPopoverOptions] as const;
+type PopOverValueType = typeof validPopOverOptions[number];
+// Using typeguard to get typesafe value
+// eslint-disable-next-line max-len
+const isValidPopOverValue = (v: string): v is PopOverValueType => validPopOverOptions.includes(v as any);
+
+function MovieReviews({
+  movieData, setMovieData, reviewForm, setReviewForm,
+}: Props) {
   const { id } = useParams();
   const location = useLocation();
-  const movieReviewRef = useRef<HTMLDivElement>(null);
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [errorMessage, setErrorMessage] = useState([]);
+  const [postUserId, setPostUserId] = useState<string>('');
+  const [postId, setPostId] = useState<string>('');
   const [postContent, setPostContent] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const [containSpoiler, setContainSpoiler] = useState<boolean>(false);
@@ -67,21 +83,12 @@ function MovieReviews({ movieData, setMovieData }: Props) {
       setContainSpoiler(res.data.spoilers);
     });
   };
-
-  useEffect(() => {
-    setTimeout(() => {
-      if (location.state && location.state.movieId && location.state.movieId.length) {
-        movieReviewRef?.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    }, 500);
-  }, [location]);
-
   useLayoutEffect(() => {
-    if (location.state && location.state.movieId && location.state.movieId.length) {
+    if ((location.state && location.state.movieId && location.state.movieId.length) || reviewForm) {
       setShowReviewForm(true);
-      getUserMovieReviewData(location.state.movieId);
+      getUserMovieReviewData(id!);
     }
-  }, [location]);
+  }, [location, reviewForm, id]);
 
   const callLatestFeedPost = useCallback(() => {
     if (id) {
@@ -90,17 +97,17 @@ function MovieReviews({ movieData, setMovieData }: Props) {
           _id: data._id,
           id: data._id,
           postDate: data.createdAt,
-          content: data.message,
-          images: FormatImageVideoList(data.images, data.message),
+          message: data.message,
+          images: data.images,
           userName: data.userId.userName,
           profileImage: data.userId.profilePic,
           userId: data.userId._id,
           likeIcon: data.likedByUser,
           likeCount: data.likeCount,
           commentCount: data.commentCount,
-          rating: data?.reviewData.rating || 0,
-          goreFactor: data?.reviewData.goreFactorRating || 0,
-          worthWatching: data?.reviewData.worthWatching || 0,
+          rating: data?.reviewData?.rating || 0,
+          goreFactor: data?.reviewData?.goreFactorRating || 0,
+          worthWatching: data?.reviewData?.worthWatching || 0,
           contentHeading: data.title,
           movieId: id,
           spoilers: data.spoilers,
@@ -114,7 +121,7 @@ function MovieReviews({ movieData, setMovieData }: Props) {
     if (movieData) {
       setRating(movieData.userData.rating - 1);
       setGoreFactor(movieData.userData.goreFactorRating - 1);
-      setWorthIt(movieData.worthWatching);
+      setWorthIt(movieData.userData.worthWatching);
       if (movieData.userData?.reviewPostId) {
         getUserMovieReviewData(movieData.userData?.reviewPostId);
       }
@@ -123,19 +130,26 @@ function MovieReviews({ movieData, setMovieData }: Props) {
   }, [movieData, callLatestFeedPost]);
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
-    setShow(true);
-    if (value === 'Delete Review') {
-      setDropDownValue('Delete');
-    } else {
-      setDropDownValue('Edit');
+    if (!isValidPopOverValue(value)) {
+      throw new Error(`Please call 'onPopoverClick()' with correct value! Called value: ${value}, Expected value is one of:`, validPopOverOptions as any);
     }
-    setDeletePostId(popoverClickProps.id);
+    // Tip: `value` has type of `PopOverValueType` here onwards because of typeguard.
     if (value === 'Edit Review') {
       setShowReviewForm(true);
       getUserMovieReviewData(popoverClickProps.id!);
       getMoviesById(id!)
         .then((res) => setMovieData(res.data));
+      return;
     }
+    if (popoverClickProps.id) {
+      setPostId(popoverClickProps.id);
+    }
+    if (popoverClickProps.userId) {
+      setPostUserId(popoverClickProps.userId);
+    }
+    setShow(true);
+    setDropDownValue(value);
+    setDeletePostId(popoverClickProps.id);
   };
   const mentionReplacementMatchFunc = (match: string) => {
     if (match) {
@@ -237,8 +251,8 @@ function MovieReviews({ movieData, setMovieData }: Props) {
           _id: data._id,
           id: data._id,
           postDate: data.createdAt,
-          content: data.message,
-          images: FormatImageVideoList(data.images, data.message),
+          message: data.message,
+          images: data.images,
           userName: data.userId.userName,
           profileImage: data.userId.profilePic,
           userId: data.userId._id,
@@ -283,6 +297,30 @@ function MovieReviews({ movieData, setMovieData }: Props) {
       }
     </p>
   );
+  const onBlockYesClick = () => {
+    createBlockUser(postUserId)
+      .then(() => {
+        setShow(false);
+        callLatestFeedPost();
+      })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+  const reportReview = (reason: string) => {
+    const reportPayload = {
+      targetId: postId,
+      reason,
+      reportType: 'post',
+    };
+    reportData(reportPayload).then((res) => {
+      if (res.status === 200) { callLatestFeedPost(); }
+    })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+    // Ask to block user as well
+    setDropDownValue('PostReportSuccessDialog');
+  };
+
   const persistScrollPosition = (movieId: string) => {
     const positionData = {
       pathname: location.pathname,
@@ -307,13 +345,13 @@ function MovieReviews({ movieData, setMovieData }: Props) {
         .catch((error) => console.error(error));
     }
   };
-  const handleSpoiler = (postId: string) => {
+  const handleSpoiler = (currentPostId: string) => {
     const spoilerIdList = getLocalStorage('spoilersIds');
-    if (!spoilerIdList.includes(postId)) {
-      spoilerIdList.push(postId);
+    if (!spoilerIdList.includes(currentPostId)) {
+      spoilerIdList.push(currentPostId);
       setLocalStorage('spoilersIds', JSON.stringify(spoilerIdList));
     }
-    navigate(`/app/movies/${id}/reviews/${postId}`);
+    navigate(`/app/movies/${id}/reviews/${currentPostId}`);
   };
 
   const onLikeClick = (feedPostId: string) => {
@@ -358,7 +396,7 @@ function MovieReviews({ movieData, setMovieData }: Props) {
     }
   };
   return (
-    <div ref={movieReviewRef}>
+    <StyledReviewContainer>
       {
         showReviewForm
           ? (
@@ -384,6 +422,8 @@ function MovieReviews({ movieData, setMovieData }: Props) {
               setDisLike={setDisLike}
               isWorthIt={isWorthIt}
               placeHolder="Write your review here"
+              reviewForm={reviewForm}
+              setReviewForm={setReviewForm}
             />
           ) : (
             <CustomCreatePost
@@ -400,32 +440,37 @@ function MovieReviews({ movieData, setMovieData }: Props) {
         loadMore={() => { setRequestAdditionalReviewPosts(true); }}
         hasMore={!noMoreData}
       >
-        <PostFeed
-          postFeedData={reviewPostData}
-          postType="review"
-          popoverOptions={loginUserPopoverOptions}
-          isCommentSection={false}
-          onPopoverClick={handlePopoverOption}
-          otherUserPopoverOptions={otherUserPopoverOptions}
-          onLikeClick={onLikeClick}
-          onSelect={persistScrollPosition}
-          onSpoilerClick={handleSpoiler}
-        />
+        <div className="mt-3">
+          <PostFeed
+            postFeedData={reviewPostData}
+            postType="review"
+            popoverOptions={loginUserPopoverOptions as unknown as string[]}
+            isCommentSection={false}
+            onPopoverClick={handlePopoverOption as any}
+            otherUserPopoverOptions={otherUserPopoverOptions as unknown as string[]}
+            onLikeClick={onLikeClick}
+            onSelect={persistScrollPosition}
+            onSpoilerClick={handleSpoiler}
+            isSinglePost={false}
+          />
+        </div>
       </InfiniteScroll>
       {loadingReviewPosts && <LoadingIndicator />}
       {noMoreData && renderNoMoreDataMessage()}
       {
-        dropDownValue === 'Delete'
+        (['Delete Review', 'Block user', 'Report', 'PostReportSuccessDialog'].includes(dropDownValue))
         && (
           <ReportModal
             onConfirmClick={deletePostClick}
             show={show}
             setShow={setShow}
             slectedDropdownValue={dropDownValue}
+            onBlockYesClick={onBlockYesClick}
+            handleReport={reportReview}
           />
         )
       }
-    </div>
+    </StyledReviewContainer>
   );
 }
 

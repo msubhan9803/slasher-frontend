@@ -113,17 +113,17 @@ export async function getProfilePosts(id: string, lastRetrievedPostId?: string) 
   return axios.get(`${apiUrl}/api/v1/users/${id}/posts${queryParameter}`, { headers });
 }
 
-export async function userProfileFriends(userId: string, page: number, search = '') {
+export async function userProfileFriends(signal: AbortSignal, userId: string, page: number, search = '') {
   const token = Cookies.get('sessionToken');
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  const limit = 18;
+  const limit = 36;
   let queryParameter = `?limit=${limit}&offset=${page * limit}`;
   if (search) {
     queryParameter += `&userNameContains=${search}`;
   }
-  return axios.get(`${apiUrl}/api/v1/users/${userId}/friends${queryParameter}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/users/${userId}/friends${queryParameter}`, { headers, signal });
 }
 
 // export async function getUserProfileDetail(userName: string) {
@@ -284,6 +284,23 @@ export async function activateAccount(email: string, verificationToken: string) 
     {
       email,
       verification_token: verificationToken,
+    },
+  );
+}
+
+export async function resetPassword(
+  email: string,
+  resetPasswordToken: string,
+  newPassword: string,
+  newPasswordConfirmation: string,
+) {
+  return axios.post(
+    `${apiUrl}/api/v1/users/reset-password`,
+    {
+      email,
+      resetPasswordToken,
+      newPassword,
+      newPasswordConfirmation,
     },
   );
 }

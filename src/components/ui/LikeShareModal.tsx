@@ -47,9 +47,6 @@ const CustomModal = styled(Modal)`
   .modal-content {
     background: var(--bs-black);
   }
-  .btn-close {
-    display:none;
-  }
 `;
 const CustomModalHeader = styled(Modal.Header)`
 border-bottom: 1px solid #3A3B46;
@@ -70,25 +67,26 @@ function LikeShareModal({
       scrollable
       onHide={closeModal}
     >
-      <CustomModalHeader className="shadow-none pb-0 px-0" closeButton>
+      <CustomModalHeader className="py-0" closeButton>
         <StyleTabs className="flex-nowrap w-100 border-0" activeKey={tab} onSelect={(e: any) => setTab(e)}>
           <Tab
+            disabled={!enableDevFeatures}
             eventKey="like"
             title={(
-              <LinearIcon uniqueId="like-button-dialogue">
+              <LinearIcon uniqueId="like-button-dialogue" className="pt-2 pb-1">
                 <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
                 <span>{clickedPostLikeCount}</span>
               </LinearIcon>
             )}
           />
-          { enableDevFeatures && (
+          {enableDevFeatures && (
             <Tab
               eventKey="share"
               title={(
-                <>
+                <div className="pt-2 pb-1">
                   <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
                   <span>25</span>
-                </>
+                </div>
               )}
             />
           )}
@@ -99,7 +97,6 @@ function LikeShareModal({
             <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
           </linearGradient>
         </svg>
-        <FontAwesomeIcon icon={solid('xmark')} size="lg" className="me-2" onClick={closeModal} />
       </CustomModalHeader>
       <Modal.Body className="d-flex flex-column pt-4 px-4">
         {(tab === 'like' || tab === 'share') && <LikeShareModalContent modaResourceName={modaResourceName} resourceId={clickedPostId} onSelect={onSelect} />}

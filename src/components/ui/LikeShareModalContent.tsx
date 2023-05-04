@@ -62,11 +62,11 @@ function LikeUsers({ likeUsers, onSelect, resourceId }: LikeUsersProp) {
   return (
     <div>
       {likeUsers?.map((likeUser: LikeUsersType) => (
-        <div className="pb-4 pt-0 py-3 d-flex align-items-center justify-content-between" key={likeUser._id}>
+        <div className="pb-4 pt-1 ps-1 py-3 d-flex align-items-center justify-content-between" key={likeUser._id}>
           <HashLink
             onClick={() => onSelect?.(resourceId)}
             to={`/${likeUser.userName}/posts`}
-            className="text-decoration-none"
+            className="text-decoration-none rounded"
           >
             <div className="d-flex align-items-center">
               <div>

@@ -7,6 +7,15 @@
   }
   --slasher-comments-bg-color: #{$slasher-comments-bg-color};
   --stroke-and-line-separator-color: #{$stroke-and-line-separator-color};
+  --primary-light: #ffbdb6;
+  --poster-border-color: #0e0e0e;
+
+  --fs-1: #{$h1-font-size};
+  --fs-2: #{$h2-font-size};
+  --fs-3: #{$h3-font-size};
+  --fs-4: #{$h4-font-size};
+  --fs-5: #{$h5-font-size};
+  --fs-6: #{$h6-font-size};
 }
 
 * {
@@ -37,6 +46,10 @@ html {
   // Everything else will be in rems (relative to this base size)
   // or ems (relative to parent element font size).
   font-size: 15px;
+
+  @media(min-width: 980px) {
+    scroll-padding-top: 95px; // NOTE: This needs to change if we change our desktop header height
+  }
 }
 
 body {
@@ -148,7 +161,7 @@ a:not(.btn) {
     $border: $stroke-and-line-separator-color,
     $color: #ffffff,
     $hover-color: #ffffff,
-    $hover-border: lighten($stroke-and-line-separator-color, 10%),
+    $hover-border: lighten($stroke-and-line-separator-color, 20%),
     $active-color: #ffffff
   );
 }
@@ -309,6 +322,16 @@ textarea {
   box-shadow: 0 0 0 2px rgba($stroke-and-line-separator-color, 1);
 }
 
+.btn-close {
+  // Use white X instead of black X
+  background: transparent url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27%23fff%27%3E%3Cpath d=%27M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z%27/%3e%3c/svg%3e") center/1em auto no-repeat;
+}
+
+.btn-close:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba($stroke-and-line-separator-color, 1);
+}
+
 .btn:focus-visible {
   outline: none !important;
   box-shadow: 0 0 0 2px rgba($stroke-and-line-separator-color, 1);
@@ -328,6 +351,6 @@ textarea {
   box-shadow: 0 0 0 1px var(--stroke-and-line-separator-color);
 }
 
-a {
-  display: block;
+body.modal-open {
+  overflow: visible !important;
 }

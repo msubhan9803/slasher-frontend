@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useAppSelector } from '../../redux/hooks';
 import { enableADs } from '../../constants';
+import SlasherDisableAdblocker from '../../images/slasher-disable-adblocker.jpg';
 
 declare global {
   interface Window {
@@ -78,7 +79,7 @@ function PubWiseAdUnit({ id, style, className }: PubWiseAdTypes) {
   return <AdContainer adContainerClassName={className} adContainerStyle={style} id={id} />;
 }
 
-function PlaceHolderAd({ className, style }: any) {
+function PlaceHolderAd({ className, style, showDisableAdBlocker = false }: any) {
   const placeHolderAdUnitStyle = { display: 'flex', backgroundColor: '#272727' };
   return (
     <AdContainer
@@ -86,7 +87,11 @@ function PlaceHolderAd({ className, style }: any) {
       adContainerStyle={style}
       adUnitStyle={placeHolderAdUnitStyle}
     >
-      <div style={{ margin: 'auto' }}>Slasher Ad</div>
+      <div style={{ margin: 'auto' }}>
+        {showDisableAdBlocker
+          ? <img src={SlasherDisableAdblocker} alt="Please disable adblocker" />
+          : 'Slasher Ad'}
+      </div>
     </AdContainer>
   );
 }
@@ -94,7 +99,7 @@ function PlaceHolderAd({ className, style }: any) {
 // Note: `style` and `className` are always passed to
 // `adContainerStyle` and `adContainerClassName` respectively.
 export default function PubWiseAd({ id, style, className, autoSequencer }: PubWiseAdTypes) {
-  const { isSlotsDefined } = useAppSelector((state) => state.pubWise);
+  const { isSlotsDefined, isAdBlockerDetected } = useAppSelector((state) => state.pubWise);
   const [sequencedId, setSequencedId] = useState('');
   const isFirstLoadRef = useRef(true);
 
@@ -127,6 +132,9 @@ export default function PubWiseAd({ id, style, className, autoSequencer }: PubWi
     id: autoSequencer ? sequencedId : id,
   };
 
+  if (isAdBlockerDetected) {
+    return <PlaceHolderAd {...{ className, style, showDisableAdBlocker: true }} />;
+  }
   if (!enableADs) {
     return <PlaceHolderAd {...{ className, style }} />;
   }

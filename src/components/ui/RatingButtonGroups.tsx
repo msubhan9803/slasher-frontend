@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, Form } from 'react-bootstrap';
 import styled from 'styled-components';
 import { SizeProp } from '@fortawesome/fontawesome-svg-core';
+import { ratingIcons } from '../../routes/public-home-page/public-home-body/UserReview';
 
 const RatingStar = styled.div`
   .fa-star {
@@ -31,8 +32,8 @@ function RatingButtonGroups({
   return (
     <Form.Group className="my-3">
       {label && <Form.Label className="fw-bold h3">{label}</Form.Label>}
-      <RatingStar className="align-items-center bg-black d-flex px-2 rounded-pill star-rating">
-        {[...Array(5)].map((star, index) => (
+      <RatingStar className="mt-2 align-items-center bg-black d-flex px-2 rounded-pill star-rating">
+        {ratingIcons.map((star, index) => (
           <Button
             variant="link"
             type="button"

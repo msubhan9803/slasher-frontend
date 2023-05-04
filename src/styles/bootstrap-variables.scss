@@ -31,10 +31,10 @@ $stroke-and-line-separator-color: #3A3B46;
 
 $border-radius-lg: .625rem;
 
-$font-family-base: 'Roboto';
+$font-family-base: 'Roboto, sans-serif';
 $font-size-base: 1rem !default;
 $h1-font-size:   $font-size-base * 1.86666667 !default;
-$h2-font-size:   $font-size-base * 1.33333333 !default;
+$h2-font-size:   $font-size-base * 1.13333333 !default;
 $h3-font-size:   $font-size-base * 1.06666667 !default;
 $h4-font-size:   $font-size-base * 1 !default;
 $h5-font-size:   $font-size-base * 0.93333333 !default;
@@ -47,7 +47,7 @@ $offcanvas-bg-color: $dark;
 
 $btn-font-weight: 'bold';
 $input-btn-padding-y: 0.4723rem;
-$btn-focus-width:2px;
+$btn-focus-width: 2px;
 
 $input-btn-padding-y-sm: 0.5rem;
 $input-btn-padding-x-sm: 1rem;
@@ -64,3 +64,5 @@ $form-check-input-border: 1px solid $stroke-and-line-separator-color;
 // $input-btn-focus-box-shadow: 0 0 0 $input-btn-focus-width $input-btn-focus-color;
 $input-btn-focus-width: 1px;
 $input-btn-focus-color: $stroke-and-line-separator-color;
+
+$modal-content-border-color: $stroke-and-line-separator-color;

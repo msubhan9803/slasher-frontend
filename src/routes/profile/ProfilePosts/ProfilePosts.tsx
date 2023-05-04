@@ -16,19 +16,20 @@ import { createBlockUser } from '../../../api/blocks';
 import { reportData } from '../../../api/report';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import FormatImageVideoList from '../../../utils/vido-utils';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import EditPostModal from '../../../components/ui/post/EditPostModal';
+import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
 
 interface Props {
   user: User
+  loadUser: Function
 }
 
-function ProfilePosts({ user }: Props) {
+function ProfilePosts({ user, loadUser }: Props) {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -52,8 +53,8 @@ function ProfilePosts({ user }: Props) {
   );
   const { userName: userNameOrId } = useParams<string>();
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
-    if (popoverClickProps.content) {
-      setPostContent(popoverClickProps.content);
+    if (popoverClickProps.message) {
+      setPostContent(popoverClickProps.message);
     }
     if (popoverClickProps.postImages) {
       setDeleteImageIds([]);
@@ -86,8 +87,8 @@ function ProfilePosts({ user }: Props) {
               _id: data._id,
               id: data._id,
               postDate: data.createdAt,
-              content: data.message,
-              images: FormatImageVideoList(data.images, data.message),
+              message: data.message,
+              images: data.images,
               userName: data.userId.userName,
               profileImage: data.userId.profilePic,
               userId: data.userId._id,
@@ -142,8 +143,8 @@ function ProfilePosts({ user }: Props) {
           _id: data._id,
           id: data._id,
           postDate: data.createdAt,
-          content: data.message,
-          images: FormatImageVideoList(data.images, data.message),
+          message: data.message,
+          images: data.images,
           userName: data.userId.userName,
           profileImage: data.userId.profilePic,
           userId: data.userId._id,
@@ -166,7 +167,7 @@ function ProfilePosts({ user }: Props) {
       const updatePost = posts.map((post: any) => {
         if (post._id === postId) {
           return {
-            ...post, content: message,
+            ...post, message,
           };
         }
         return post;
@@ -270,68 +271,70 @@ function ProfilePosts({ user }: Props) {
 
   return (
     <div>
-      <ProfileHeader tabKey="posts" user={user} />
-      {loginUserData.userName === user.userName
-        && (
-          <div className="my-4">
-            <CustomCreatePost />
-          </div>
-        )}
-      <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
-      <InfiniteScroll
-        pageStart={0}
-        initialLoad
-        loadMore={() => { setRequestAdditionalPosts(true); }}
-        hasMore={!noMoreData}
-      >
-        {
-          posts.length > 0
+      <ProfileHeader tabKey="posts" user={user} loadUser={loadUser} />
+      <ProfileTabContent>
+        {loginUserData.userName === user.userName
           && (
-            <PostFeed
-              postFeedData={posts}
-              popoverOptions={loginUserPopoverOptions}
-              isCommentSection={false}
-              onPopoverClick={handlePopoverOption}
-              otherUserPopoverOptions={otherUserPopoverOptions}
-              onLikeClick={onLikeClick}
-              onSelect={persistScrollPosition}
+            <div className="my-4">
+              <CustomCreatePost />
+            </div>
+          )}
+        <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+        <InfiniteScroll
+          pageStart={0}
+          initialLoad
+          loadMore={() => { setRequestAdditionalPosts(true); }}
+          hasMore={!noMoreData}
+        >
+          {
+            posts.length > 0
+            && (
+              <PostFeed
+                postFeedData={posts}
+                popoverOptions={loginUserPopoverOptions}
+                isCommentSection={false}
+                onPopoverClick={handlePopoverOption}
+                otherUserPopoverOptions={otherUserPopoverOptions}
+                onLikeClick={onLikeClick}
+                onSelect={persistScrollPosition}
+              />
+            )
+          }
+        </InfiniteScroll>
+        {loadingPosts && <LoadingIndicator />}
+        {noMoreData && renderNoMoreDataMessage()}
+        <ReportModal
+          show={showReportModal}
+          setShow={setShowReportModal}
+          slectedDropdownValue={dropDownValue}
+        />
+        {dropDownValue !== 'Edit'
+          && (
+            <ReportModal
+              onConfirmClick={deletePostClick}
+              show={showReportModal}
+              setShow={setShowReportModal}
+              slectedDropdownValue={dropDownValue}
+              onBlockYesClick={onBlockYesClick}
+              handleReport={reportProfilePost}
             />
-          )
-        }
-      </InfiniteScroll>
-      {loadingPosts && <LoadingIndicator />}
-      {noMoreData && renderNoMoreDataMessage()}
-      <ReportModal
-        show={showReportModal}
-        setShow={setShowReportModal}
-        slectedDropdownValue={dropDownValue}
-      />
-      {dropDownValue !== 'Edit'
-        && (
-          <ReportModal
-            onConfirmClick={deletePostClick}
-            show={showReportModal}
-            setShow={setShowReportModal}
-            slectedDropdownValue={dropDownValue}
-            onBlockYesClick={onBlockYesClick}
-            handleReport={reportProfilePost}
-          />
-        )}
-      {dropDownValue === 'Edit'
-        && (
-          <EditPostModal
-            show={showReportModal}
-            errorMessage={editModalErrorMessage}
-            setShow={setShowReportModal}
-            setPostContent={setPostContent}
-            postContent={postContent}
-            onUpdatePost={onUpdatePost}
-            postImages={postImages}
-            setPostImages={setPostImages}
-            deleteImageIds={deleteImageIds}
-            setDeleteImageIds={setDeleteImageIds}
-          />
-        )}
+          )}
+        {dropDownValue === 'Edit'
+          && (
+            <EditPostModal
+              show={showReportModal}
+              errorMessage={editModalErrorMessage}
+              setShow={setShowReportModal}
+              setPostContent={setPostContent}
+              postContent={postContent}
+              onUpdatePost={onUpdatePost}
+              postImages={postImages}
+              setPostImages={setPostImages}
+              deleteImageIds={deleteImageIds}
+              setDeleteImageIds={setDeleteImageIds}
+            />
+          )}
+      </ProfileTabContent>
     </div>
   );
 }

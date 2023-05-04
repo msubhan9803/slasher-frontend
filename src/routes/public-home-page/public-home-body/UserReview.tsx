@@ -1,10 +1,13 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useRef } from 'react';
+import React, {
+  useCallback, useEffect, useRef,
+} from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Card, Col } from 'react-bootstrap';
 import styled from 'styled-components';
 import { StyledCast } from '../../movies/movie-details/MovieCasts';
+import useResize from '../../../hooks/useResize';
 
 const StyledSlider = styled.div`
   .rate {
@@ -26,22 +29,36 @@ const cardData = [
   },
 ];
 
+const getElementWidth = () => (document as any)?.querySelector('#slideCasts').childNodes[0].offsetWidth;
+
+export const ratingIcons: string[] = Array.from({ length: 5 }, (_, i) => `star-${i}`);
+
 function UserReview() {
   const sliderRef = useRef<HTMLDivElement>(null);
+  const scrollValue = useRef<number | null>(null);
+  const scrollValuesRefSetter = useCallback(() => {
+    scrollValue.current = getElementWidth();
+  }, []);
+
+  useResize(scrollValuesRefSetter);
 
   const slideCastsRight = () => {
+    if (!scrollValue.current) { return; }
     const slider = sliderRef.current;
     if (slider !== null) {
       const { scrollLeft, clientWidth, scrollWidth } = slider;
       if (scrollLeft + clientWidth >= scrollWidth) {
         slider.scrollLeft = 0;
       } else {
-        slider.scrollLeft += 300;
+        slider.scrollLeft += scrollValue.current;
       }
     }
   };
 
   useEffect(() => {
+    scrollValue.current = getElementWidth();
+    if (!scrollValue.current) { return () => { }; }
+
     let interval: any;
     const slider: HTMLElement | null = sliderRef.current;
 
@@ -57,7 +74,7 @@ function UserReview() {
 
     if (slider !== null) {
       slider.scroll({
-        left: slider.scrollLeft + 300,
+        left: slider.scrollLeft + scrollValue.current,
         behavior: 'smooth',
       });
       slider.addEventListener('mouseenter', stopAutoSlide);
@@ -106,11 +123,11 @@ function UserReview() {
     };
   }, []);
 
-  if (!cardData || cardData.length === 0) {
+  if (cardData?.length === 0) {
     return null;
   }
   return (
-    <StyledSlider className="mt-5 pt-5">
+    <StyledSlider className="mt-5 pt-4">
       <div className="px-3 px-lg-5">
 
         <div className="mb-4 text-center">
@@ -123,12 +140,12 @@ function UserReview() {
 
         <div className="d-flex align-items-center overflow-hidden py-5">
           <StyledCast id="slideCasts" className="flex-nowrap w-100" ref={sliderRef}>
-            {cardData && cardData.map((card: any) => (
-              <Col key={card.name} md={6} lg={3}>
+            {cardData && cardData.map((card) => (
+              <Col key={card.id} md={6} lg={3}>
                 <Card className="bg-black border-0 rounded-3 p-4">
                   <Card.Body className="px-0 pb-0">
                     <div className="d-flex mb-3 testimonial-item position-relative">
-                      {[...Array(5)].map((star) => (
+                      {ratingIcons.map((star) => (
                         <div key={star}>
                           <FontAwesomeIcon icon={solid('star')} className="rate" />
                         </div>

@@ -20,11 +20,15 @@ interface DislikeProps {
   iconwidth?: string;
   iconheight?: string;
 }
+interface IconProps {
+  iconwidth?: string;
+  iconheight?: string;
+}
 
 export const StyledDislikeIcon = styled.div <DislikeProps>`
   color: var(--bs-primary);
   width: ${(props) => (props.width ? props.width : '1.875rem')};
-  height: ${(props) => (props.width ? props.height : '1.875rem')};
+  height: ${(props) => (props.height ? props.height : '1.875rem')};
   transform: rotateY(180deg);
   ${(props) => (props.isDislike ? ' border: 1px solid var(--bs-primary)' : ' border: 1px solid #3A3B46')};
   FontAwesomeIcon {
@@ -39,7 +43,7 @@ export const StyledDislikeIcon = styled.div <DislikeProps>`
 export const StyledLikeIcon = styled.div <LikeProps>`
   color: var(--bs-success);
   width: ${(props) => (props.width ? props.width : '1.875rem')};
-  height: ${(props) => (props.width ? props.height : '1.875rem')};
+  height: ${(props) => (props.height ? props.height : '1.875rem')};
   ${(props) => (props.isLike ? ' border: 1px solid var(--bs-success)' : ' border: 1px solid #3A3B46')};
   svg {
     margin-left: 0.125rem;
@@ -54,9 +58,9 @@ export const StyledLikeIcon = styled.div <LikeProps>`
     ${(props) => (props.isLike ? ' border: 1px solid var(--bs-success)' : ' border: 1px solid #3A3B46')};
   }
 `;
-const StyleWatchWorthIcon = styled(FontAwesomeIcon)`
-  width: 0.995rem;
-  height: 0.997rem;
+const StyleWatchWorthIcon = styled(FontAwesomeIcon) <IconProps>`
+  width: ${(props) => props.iconwidth};
+  height: ${(props) => props.iconheight};
 `;
 type Props = {
   movieData?: MovieData;
@@ -66,24 +70,30 @@ type Props = {
   disLiked: boolean;
   setDisLike: (val: boolean) => void;
   postType?: string;
+  circleWidth?: string;
+  circleHeight?: string;
+  iconWidth?: string;
+  iconHeight?: string;
+  isWorthIt?: number;
+  clickType?: string;
 };
 function WorthWatchIcon({
-  movieData, setWorthIt, liked, setLike,
-  disLiked, setDisLike, postType,
+  movieData, setWorthIt, liked, setLike, disLiked, setDisLike,
+  postType, circleWidth, circleHeight, iconWidth, iconHeight, isWorthIt,
+  clickType,
 }: Props) {
   useEffect(() => {
-    if (movieData!.userData?.worthWatching === WorthWatchingStatus.Up) {
+    if (isWorthIt === WorthWatchingStatus.Up) {
       setLike(true);
       setDisLike(false);
     }
-    if (movieData!.userData?.worthWatching === WorthWatchingStatus.Down) {
+    if (isWorthIt === WorthWatchingStatus.Down) {
       setDisLike(true);
       setLike(false);
     }
-  }, [movieData, setLike, setDisLike]);
-
+  }, [setLike, setDisLike, isWorthIt]);
   const handleThumbsUp = useCallback(() => {
-    const alreadyLiked = movieData?.userData?.worthWatching === WorthWatchingStatus.Up;
+    const alreadyLiked = clickType === 'form' ? isWorthIt === WorthWatchingStatus.Up : movieData?.userData.worthWatching === WorthWatchingStatus.Up;
     if (alreadyLiked) {
       setLike(false); setDisLike(false);
       setWorthIt(WorthWatchingStatus.NoRating);
@@ -91,10 +101,10 @@ function WorthWatchIcon({
       setLike(true); setDisLike(false);
       setWorthIt(WorthWatchingStatus.Up);
     }
-  }, [movieData?.userData?.worthWatching, setLike, setDisLike, setWorthIt]);
+  }, [movieData?.userData.worthWatching, setLike, setDisLike, setWorthIt, clickType, isWorthIt]);
 
   const handleThumbsDown = useCallback(() => {
-    const alreadyDisLiked = movieData?.userData?.worthWatching === WorthWatchingStatus.Down;
+    const alreadyDisLiked = clickType === 'form' ? isWorthIt === WorthWatchingStatus.Down : movieData?.userData.worthWatching === WorthWatchingStatus.Down;
     if (alreadyDisLiked) {
       setLike(false); setDisLike(false);
       setWorthIt(WorthWatchingStatus.NoRating);
@@ -102,14 +112,14 @@ function WorthWatchIcon({
       setLike(false); setDisLike(true);
       setWorthIt(WorthWatchingStatus.Down);
     }
-  }, [movieData?.userData?.worthWatching, setLike, setDisLike, setWorthIt]);
+  }, [movieData?.userData.worthWatching, setLike, setDisLike, setWorthIt, clickType, isWorthIt]);
 
   return (
-    <div className="mx-1 d-flex align-items-center justify-content-around">
+    <div className="me-1 d-flex align-items-center justify-content-around">
       <div className="mt-2 d-flex justify-content-center ">
         <Button className="bg-transparent p-0 border-0 me-2 rounded-circle" onClick={handleThumbsUp}>
-          <StyledLikeIcon isLike={liked} className="d-flex justify-content-center align-items-center bg-transparent rounded-circle">
-            <StyleWatchWorthIcon icon={regular('thumbs-up')} />
+          <StyledLikeIcon isLike={liked} width={circleWidth} height={circleHeight} className="d-flex justify-content-center align-items-center bg-transparent rounded-circle">
+            <StyleWatchWorthIcon iconwidth={iconWidth} iconheight={iconHeight} icon={regular('thumbs-up')} />
           </StyledLikeIcon>
         </Button>
         {!postType
@@ -123,8 +133,8 @@ function WorthWatchIcon({
       </div>
       <div className="mt-2 d-flex justify-content-center ">
         <Button className="bg-transparent p-0 border-0 me-2 rounded-circle" onClick={handleThumbsDown}>
-          <StyledDislikeIcon isDislike={disLiked} className="d-flex justify-content-center align-items-center bg-transparent rounded-circle">
-            <StyleWatchWorthIcon icon={regular('thumbs-down')} />
+          <StyledDislikeIcon isDislike={disLiked} width={circleWidth} height={circleHeight} className="d-flex justify-content-center align-items-center bg-transparent rounded-circle">
+            <StyleWatchWorthIcon iconwidth={iconWidth} iconheight={iconHeight} icon={regular('thumbs-down')} />
           </StyledDislikeIcon>
         </Button>
         {!postType
@@ -143,5 +153,11 @@ WorthWatchIcon.defaultProps = {
   movieData: null,
   setWorthIt: undefined,
   postType: '',
+  circleWidth: '1.875rem',
+  circleHeight: '1.875rem',
+  iconWidth: '0.995rem',
+  iconHeight: '0.997rem',
+  isWorthIt: 0,
+  clickType: undefined,
 };
 export default WorthWatchIcon;

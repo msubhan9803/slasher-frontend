@@ -19,11 +19,9 @@ import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import FormatImageVideoList from '../../utils/vido-utils';
 import { useAppSelector, useAppDispatch } from '../../redux/hooks';
 import { setScrollPosition } from '../../redux/slices/scrollPositionSlice';
 import EditPostModal from '../../components/ui/post/EditPostModal';
-import { setHomeDataReload } from '../../redux/slices/userSlice';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
@@ -41,15 +39,16 @@ function Home() {
   const [postContent, setPostContent] = useState<string>('');
   const [postId, setPostId] = useState<string>('');
   const [postUserId, setPostUserId] = useState<string>('');
+  const [rssfeedProviderId, setRssfeedProviderId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
-  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  const scrollPosition = useAppSelector((state) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const location = useLocation();
+  const shouldRestoreScrollPositionWithData = scrollPosition.pathname === location.pathname;
   const [posts, setPosts] = useState<Post[]>(
-    scrollPosition.pathname === location.pathname
+    shouldRestoreScrollPositionWithData
       ? scrollPosition?.data : [],
   );
-  const reloadData = useAppSelector((state) => state.user.homeDataReload);
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (value === 'Hide') {
       const postIdToHide = popoverClickProps.id;
@@ -61,8 +60,8 @@ function Home() {
       return;
     }
 
-    if (popoverClickProps.content) {
-      setPostContent(popoverClickProps.content);
+    if (popoverClickProps.message) {
+      setPostContent(popoverClickProps.message);
     }
     if (popoverClickProps.postImages) {
       setDeleteImageIds([]);
@@ -74,6 +73,7 @@ function Home() {
     if (popoverClickProps.userId) {
       setPostUserId(popoverClickProps.userId);
     }
+    setRssfeedProviderId(popoverClickProps.rssfeedProviderId ?? '');
     setShow(true);
     setDropDownValue(value);
   };
@@ -85,7 +85,6 @@ function Home() {
         || posts.length >= scrollPosition?.data?.length
         || posts.length === 0
         || scrollPosition.pathname !== location.pathname
-        || reloadData
       ) {
         setLoadingPosts(true);
         getHomeFeedPosts(
@@ -98,14 +97,15 @@ function Home() {
                 _id: data._id,
                 id: data._id,
                 postDate: data.createdAt,
-                content: data.message,
-                images: FormatImageVideoList(data.images, data.message),
+                message: data.message,
+                images: data.images,
                 userName: data.userId.userName,
                 profileImage: data.userId.profilePic,
                 userId: data.userId._id,
                 likeIcon: data.likedByUser,
                 likeCount: data.likeCount,
                 commentCount: data.commentCount,
+                movieId: data?.movieId,
               };
             }
             // RSS feed post
@@ -113,8 +113,8 @@ function Home() {
               _id: data._id,
               id: data._id,
               postDate: data.createdAt,
-              content: data.message,
-              images: FormatImageVideoList(data.images, data.message),
+              message: data.message,
+              images: data.images,
               userName: data.rssfeedProviderId?.title,
               profileImage: data.rssfeedProviderId?.logo,
               likeIcon: data.likedByUser,
@@ -150,21 +150,9 @@ function Home() {
     }
   }, [
     requestAdditionalPosts, loadingPosts, loginUserId, posts, scrollPosition,
-    dispatch, location.pathname, reloadData,
+    dispatch, location.pathname,
   ]);
 
-  useEffect(() => {
-    if (reloadData) {
-      dispatch(setHomeDataReload(false));
-      const positionData = {
-        pathname: '',
-        position: 0,
-        data: [],
-        positionElementId: '',
-      };
-      dispatch(setScrollPosition(positionData));
-    }
-  }, [reloadData, dispatch]);
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -183,14 +171,15 @@ function Home() {
             _id: data._id,
             id: data._id,
             postDate: data.createdAt,
-            content: data.message,
-            images: FormatImageVideoList(data.images, data.message),
+            message: data.message,
+            images: data.images,
             userName: data.userId.userName,
             profileImage: data.userId.profilePic,
             userId: data.userId._id,
             likeIcon: data.likedByUser,
             likeCount: data.likeCount,
             commentCount: data.commentCount,
+            movieId: data.movieId,
           };
         }
         // RSS feed post
@@ -198,8 +187,8 @@ function Home() {
           _id: data._id,
           id: data._id,
           postDate: data.createdAt,
-          content: data.message,
-          images: FormatImageVideoList(data.images, data.message),
+          message: data.message,
+          images: data.images,
           userName: data.rssfeedProviderId?.title,
           profileImage: data.rssfeedProviderId?.logo,
           likeIcon: data.likedByUser,
@@ -244,7 +233,7 @@ function Home() {
         setShow(false);
         callLatestFeedPost();
       })
-      /* eslint-disable no-console */
+      // eslint-disable-next-line no-console
       .catch((error) => console.error(error));
   };
 
@@ -296,7 +285,7 @@ function Home() {
         setShow(false);
         callLatestFeedPost();
       })
-      /* eslint-disable no-console */
+      // eslint-disable-next-line no-console
       .catch((error) => console.error(error));
   };
 
@@ -309,7 +298,7 @@ function Home() {
     reportData(reportPayload).then((res) => {
       if (res.status === 200) { callLatestFeedPost(); }
     })
-      /* eslint-disable no-console */
+      // eslint-disable-next-line no-console
       .catch((error) => console.error(error));
     // Ask to block user as well
     setDropDownValue('PostReportSuccessDialog');
@@ -357,6 +346,7 @@ function Home() {
                 newsPostPopoverOptions={newsPostPopoverOptions}
                 onLikeClick={onLikeClick}
                 onSelect={persistScrollPosition}
+                isSinglePost={false}
               />
             )
           }
@@ -373,6 +363,7 @@ function Home() {
               slectedDropdownValue={dropDownValue}
               onBlockYesClick={onBlockYesClick}
               handleReport={reportHomePost}
+              rssfeedProviderId={rssfeedProviderId}
             />
           )
         }

@@ -62,7 +62,7 @@ function SocialGroupsHeader({
           </Col>
         )}
         <Col xs={noFilter || postType === 'group-post' ? 6 : 12} md={4} className={`${noFilter || postType === 'group-post' ? 'mt-3 mt-md-0 d-block order-second order-md-third' : 'd-none d-lg-block'}`}>
-          <SortData sortVal={sortVal} onSelectSort={sort} sortoptions={sortoptions} title="Sort: " type="sort" />
+          <SortData sortVal={sortVal} onSelectSort={sort} sortoptions={sortoptions} type="sort" />
         </Col>
         {!noFilter && postType === 'group-post' && (
           <Col className="text-center d-md-none my-3">

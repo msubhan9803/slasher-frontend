@@ -421,6 +421,16 @@ describe('FriendsService', () => {
       expect(suggestedFriends).toHaveLength(8);
       expect(suggestedFriends.map((friend) => friend._id)).not.toContain(user7._id);
     });
+
+    it('when user is banned than expected response', async () => {
+      const user8 = await usersService.create(
+        userFactory.build(),
+      );
+      await usersService.update(user8.id, { userBanned: true });
+      const suggestedFriends = await friendsService.getSuggestedFriends(user, 10);
+      expect(suggestedFriends).toHaveLength(8);
+      expect(suggestedFriends.map((friend) => friend._id)).not.toContain(user8._id);
+    });
   });
 
   describe('#acceptFriendRequest', () => {

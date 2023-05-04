@@ -213,6 +213,7 @@ export class FriendsService {
       $and: [
         { _id: { $nin: idsToExclude } },
         { deleted: false },
+        { userBanned: false },
         { status: ActiveStatus.Active },
       ],
     })

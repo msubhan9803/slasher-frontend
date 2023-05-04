@@ -33,8 +33,6 @@ import { ValidatePasswordResetTokenDto } from './dto/validate-password-reset-tok
 import { ActivateAccountDto } from './dto/user-activate-account.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { MailService } from '../providers/mail.service';
-import { CheckUserNameQueryDto } from './dto/check-user-name-query.dto';
-import { CheckEmailQueryDto } from './dto/check-email-query.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { getUserFromRequest } from '../utils/request-utils';
 import { ActiveStatus, ProfileVisibility } from '../schemas/user/user.enums';
@@ -94,9 +92,7 @@ export class UsersController {
 
   @Post('sign-in')
   async signIn(@Body() userSignInDto: UserSignInDto, @IpOrForwardedIp() ip) {
-    let user = await this.usersService.findByEmailOrUsername(
-      userSignInDto.emailOrUsername,
-    );
+    let user = await this.usersService.findByEmailOrUsername(userSignInDto.emailOrUsername, false);
 
     if (!user || user.deleted) {
       throw new HttpException(
@@ -192,26 +188,6 @@ export class UsersController {
     };
   }
 
-  @Get('check-user-name')
-  async checkUserName(
-    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
-    query: CheckUserNameQueryDto,
-  ) {
-    await sleep(500); // throttle so this endpoint is less likely to be abused
-    const exists = await this.usersService.userNameExists(query.userName);
-    return { exists };
-  }
-
-  @Get('check-email')
-  async checkEmail(
-    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
-    query: CheckEmailQueryDto,
-  ) {
-    await sleep(500); // throttle so this endpoint is less likely to be abused
-    const exists = await this.usersService.emailExists(query.email);
-    return { exists };
-  }
-
   @Get('validate-registration-fields')
   async validateRegistrationFields(@Query() inputQuery) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
@@ -239,15 +215,15 @@ export class UsersController {
     const requestedErrorsList = requestedErrors.map((e) => Object.values(e.constraints)).flat();
 
     if (requestedFields.includes('userName') && !invalidFields.includes('userName')) {
-      const exists = await this.usersService.userNameExists(query.userName);
-      if (exists) { requestedErrorsList.unshift('Username is already associated with an existing user.'); }
+      const available = await this.usersService.userNameAvailable(query.userName);
+      if (!available) { requestedErrorsList.unshift('Username is already associated with an existing user.'); }
 
       const disallowedUsername = await this.disallowedUsernameService.findUserName(query.userName);
       if (disallowedUsername) { requestedErrorsList.unshift('Username is not available.'); }
     }
     if (requestedFields.includes('email') && !invalidFields.includes('email')) {
-      const exists = await this.usersService.emailExists(query.email);
-      if (exists) { requestedErrorsList.unshift('Email address is already associated with an existing user.'); }
+      const available = await this.usersService.emailAvailable(query.email);
+      if (!available) { requestedErrorsList.unshift('Email address is already associated with an existing user.'); }
     }
 
     return requestedErrorsList;
@@ -284,14 +260,14 @@ export class UsersController {
       );
     }
 
-    if (await this.usersService.userNameExists(userRegisterDto.userName)) {
+    if (!await this.usersService.userNameAvailable(userRegisterDto.userName)) {
       throw new HttpException(
         'Username is already associated with an existing user.',
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
     }
 
-    if (await this.usersService.emailExists(userRegisterDto.email)) {
+    if (!await this.usersService.emailAvailable(userRegisterDto.email)) {
       throw new HttpException(
         'Email address is already associated with an existing user.',
         HttpStatus.UNPROCESSABLE_ENTITY,
@@ -336,9 +312,7 @@ export class UsersController {
     if (isValid === false) {
       throw new HttpException('Invalid password reset token.', HttpStatus.BAD_REQUEST);
     }
-    const userDetails = await this.usersService.findByEmail(
-      resetPasswordDto.email,
-    );
+    const userDetails = await this.usersService.findByEmail(resetPasswordDto.email, true);
     userDetails.setUnhashedPassword(resetPasswordDto.newPassword);
     userDetails.resetPasswordToken = null;
     userDetails.lastPasswordResetTime = new Date();
@@ -357,9 +331,7 @@ export class UsersController {
     if (isValid === false) {
       throw new HttpException('Token is not valid', HttpStatus.BAD_REQUEST);
     }
-    const userDetails = await this.usersService.findByEmail(
-      activateAccountDto.email,
-    );
+    const userDetails = await this.usersService.findByEmail(activateAccountDto.email, true);
     userDetails.status = ActiveStatus.Active;
     userDetails.verification_token = null;
     await userDetails.save();
@@ -379,9 +351,7 @@ export class UsersController {
   @HttpCode(200)
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
-    const userData = await this.usersService.findByEmail(
-      forgotPasswordDto.email,
-    );
+    const userData = await this.usersService.findByEmail(forgotPasswordDto.email, true);
     if (userData) {
       userData.resetPasswordToken = uuidv4();
       await userData.save();
@@ -407,9 +377,7 @@ export class UsersController {
   @HttpCode(200)
   async verificationEmailNotReceived(@Body() verificationEmailNotReceivedDto: VerificationEmailNotReceivedDto) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
-    const userData = await this.usersService.findByEmail(
-      verificationEmailNotReceivedDto.email,
-    );
+    const userData = await this.usersService.findByEmail(verificationEmailNotReceivedDto.email, true);
     if (userData) {
       await this.mailService.sendVerificationEmail(
         userData.firstName,
@@ -527,7 +495,7 @@ export class UsersController {
 
     if (updateUserDto.userName
       && updateUserDto.userName !== user.userName
-      && await this.usersService.userNameExists(updateUserDto.userName)
+      && !await this.usersService.userNameAvailable(updateUserDto.userName)
     ) {
       throw new HttpException(
         'Username is already associated with an existing user.',
@@ -535,7 +503,7 @@ export class UsersController {
       );
     }
 
-    if (updateUserDto.email && updateUserDto.email !== user.email && await this.usersService.emailExists(updateUserDto.email)) {
+    if (updateUserDto.email && updateUserDto.email !== user.email && !await this.usersService.emailAvailable(updateUserDto.email)) {
       throw new HttpException(
         'Email address is already associated with an existing user.',
         HttpStatus.UNPROCESSABLE_ENTITY,

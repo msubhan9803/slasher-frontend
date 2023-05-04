@@ -148,21 +148,11 @@ describe('Chat Gateway (e2e)', () => {
             success: true,
             message: {
               message: 'Hi, test message via socket.',
-              isRead: false,
-              status: 1,
-              deleted: false,
               created: expect.any(String),
-              deletefor: [],
               createdAt: expect.any(String),
-              matchId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-              relationId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-              fromId: activeUser.id,
-              senderId: user1._id.toString(),
-              messageType: 0,
               image: null,
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-              urls: [],
-              __v: 0,
+              matchId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
           },
         );
@@ -203,12 +193,10 @@ describe('Chat Gateway (e2e)', () => {
         expect(chatMessageReceivedPayload).toEqual({
           message: {
             _id: expect.any(String),
-            createdAt: expect.any(String),
             fromId: activeUser.id,
             image: null,
             matchId: expect.any(String),
             message: 'Hi, test message via socket.',
-            senderId: user1.id,
           },
         });
       });
@@ -297,39 +285,19 @@ describe('Chat Gateway (e2e)', () => {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             message: 'Hi, there!',
             isRead: true,
-            status: 1,
-            deleted: false,
             createdAt: expect.any(String),
-            matchId: matchList.id,
-            relationId: '5c9cb7138a874f1dcd0d8dcc',
             fromId: user1.id,
             senderId: activeUser.id,
-            deletefor: [],
-            messageType: 0,
             image: 'http://localhost:4444/api/v1/local-storage//chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg',
-            created: expect.any(String),
-            urls: [],
-            __v: 0,
-            updatedAt: expect.any(String),
           },
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             message: 'Hi, test message.',
             isRead: false,
-            status: 1,
-            deleted: false,
             createdAt: expect.any(String),
-            matchId: matchList.id,
-            relationId: '5c9cb7138a874f1dcd0d8dcc',
             fromId: activeUser.id,
             senderId: user1.id,
-            deletefor: [],
-            messageType: 0,
             image: 'http://localhost:4444/api/v1/local-storage//chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg',
-            created: expect.any(String),
-            urls: [],
-            __v: 0,
-            updatedAt: expect.any(String),
           },
         ]);
         // All messages NOT from the activeUser should be marked as read when they are returned
@@ -585,12 +553,10 @@ describe('Chat Gateway (e2e)', () => {
       expect(receivedPayload).toEqual({
         message: {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          createdAt: expect.any(String),
           fromId: toUserId.toString(),
           image: null,
           matchId: matchList.id,
           message: 'Hi, there!',
-          senderId: activeUser.id,
         },
       });
     });

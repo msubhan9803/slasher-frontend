@@ -98,7 +98,7 @@ describe('Users sign-in (e2e)', () => {
       });
 
       it('updates the lastSignInIp when the user signs in', async () => {
-        const userBeforeSignIn = await usersService.findByEmail(activeUser.email);
+        const userBeforeSignIn = await usersService.findByEmail(activeUser.email, true);
         await request(app.getHttpServer())
           .post('/api/v1/users/sign-in')
           .send({
@@ -106,7 +106,7 @@ describe('Users sign-in (e2e)', () => {
             password: activeUserUnhashedPassword,
             ...deviceAndAppVersionPlaceholderSignInFields,
           });
-        const userAfterSignIn = await usersService.findByEmail(activeUser.email);
+        const userAfterSignIn = await usersService.findByEmail(activeUser.email, true);
         expect(userAfterSignIn.lastSignInIp.length).toBeGreaterThan(4); // test for presence of IP value
         expect(userAfterSignIn.lastSignInIp).not.toEqual(userBeforeSignIn.lastSignInIp); // make sure IP value has changed
       });
@@ -442,9 +442,7 @@ describe('Users sign-in (e2e)', () => {
       it('after a successful sign-in,'
         + 'the user database values for user.last_login and user.userDevices should have been updated', async () => {
           const userUnhashedPassword = 'TestPassword';
-          const userBefore = await usersService.findByEmail(
-            activeUser.email,
-          );
+          const userBefore = await usersService.findByEmail(activeUser.email, true);
           const postBody: any = {
             emailOrUsername: activeUser.userName,
             password: userUnhashedPassword,
@@ -455,9 +453,7 @@ describe('Users sign-in (e2e)', () => {
             .send(postBody);
           expect(response.status).toEqual(HttpStatus.CREATED);
 
-          const userAfter = await usersService.findByEmail(
-            response.body.email,
-          );
+          const userAfter = await usersService.findByEmail(response.body.email, true);
 
           expect(userAfter.last_login).not.toBeNull();
           expect(userAfter.last_login).not.toEqual(userBefore.last_login);
@@ -498,9 +494,7 @@ describe('Users sign-in (e2e)', () => {
           .post('/api/v1/users/sign-in')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.CREATED);
-        const userAfter = await usersService.findByEmail(
-          response.body.email,
-        );
+        const userAfter = await usersService.findByEmail(response.body.email, true);
         expect(userAfter.userDevices).toHaveLength(10);
         expect(user.userDevices).not.toEqual(userAfter.userDevices);
       });
@@ -540,9 +534,7 @@ describe('Users sign-in (e2e)', () => {
           .post('/api/v1/users/sign-in')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.CREATED);
-        const userAfter = await usersService.findByEmail(
-          response.body.email,
-        );
+        const userAfter = await usersService.findByEmail(response.body.email, true);
         expect(userAfter.userDevices).toHaveLength(5);
         expect(user.userDevices).not.toEqual(userAfter.userDevices);
       });

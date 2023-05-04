@@ -69,6 +69,7 @@ function ProfileHeader({
   const loginUserId = Cookies.get('userId');
   const { userName } = useParams();
   const navigate = useNavigate();
+  const param = useParams();
   const [clickedUserId, setClickedUserId] = useState<string>('');
   const [friendData, setFriendData] = useState<FriendType>(null);
   const positionRef = useRef<HTMLDivElement>(null);
@@ -98,7 +99,7 @@ function ProfileHeader({
   useLayoutEffect(() => {
     const element = positionRef.current;
     if (!element) { return; }
-    if (scrollPosition.scrollToTab && (friendStatus || element)) {
+    if ((scrollPosition.scrollToTab && (friendStatus || element)) || param['*'] === 'friends') {
       window.scrollTo({
         top: element.offsetTop - (
           window.innerWidth >= parseInt(LG_MEDIA_BREAKPOINT.replace('px', ''), 10)
@@ -109,7 +110,7 @@ function ProfileHeader({
       });
       dispatch(setScrollToTabsPosition(false));
     }
-  }, [positionRef, friendStatus, dispatch, scrollPosition.scrollToTab]);
+  }, [positionRef, friendStatus, dispatch, scrollPosition.scrollToTab, param]);
 
   const onBlockYesClick = () => {
     createBlockUser(clickedUserId)

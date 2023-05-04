@@ -4,9 +4,12 @@ import socketStore from '../socketStore';
 
 export const setSignInCookies = (sessionToken: string, userId: string, userName: string) => {
   const onlySendCookieOverHttps = !['development', 'test'].includes(process.env.NODE_ENV);
-  Cookies.set('sessionToken', sessionToken, { secure: onlySendCookieOverHttps });
-  Cookies.set('userId', userId);
-  Cookies.set('userName', userName);
+  const DEFAULT_COOKIE_OPTIONS = {
+    expires: 7, // Expire cookie in 7 days
+  };
+  Cookies.set('sessionToken', sessionToken, { secure: onlySendCookieOverHttps, ...DEFAULT_COOKIE_OPTIONS });
+  Cookies.set('userId', userId, DEFAULT_COOKIE_OPTIONS);
+  Cookies.set('userName', userName, DEFAULT_COOKIE_OPTIONS);
 };
 
 export const updateUserName = (userName: string) => {

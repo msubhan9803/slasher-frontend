@@ -16,9 +16,9 @@ import { User } from '../../../../types';
 import ProfileHeader from '../../ProfileHeader';
 import FriendsProfileCard from '../FriendsProfileCard';
 import { forceReloadSuggestedFriends } from '../../../../redux/slices/suggestedFriendsSlice';
-import { socket } from '../../../../context/socket';
 import { setScrollPosition } from '../../../../redux/slices/scrollPositionSlice';
 import ProfileTabContent from '../../../../components/ui/profile/ProfileTabContent';
+import socketStore from '../../../../socketStore';
 
 interface FriendProps {
   _id?: string;
@@ -45,6 +45,7 @@ function ProfileFriendRequest({ user, loadUser }: Props) {
   const [additionalFriendRequest, setAdditionalFriendRequest] = useState<boolean>(false);
   const location = useLocation();
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  const { socket } = socketStore;
   const [friendsReqList, setFriendsReqList] = useState<FriendProps[]>(
     scrollPosition.pathname === location.pathname
       ? scrollPosition?.data : [],
@@ -68,7 +69,7 @@ function ProfileFriendRequest({ user, loadUser }: Props) {
   useEffect(() => {
     socket?.emit('clearNewFriendRequestCount', {});
     dispatch(resetNewFriendRequestCountCount());
-  }, [dispatch]);
+  }, [dispatch, socket]);
 
   useEffect(() => {
     if (isFriendReLoad) {

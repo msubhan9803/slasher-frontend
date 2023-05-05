@@ -9,6 +9,7 @@ import artistsReducer from './slices/artistsSlice';
 import musicReducer from './slices/musicSlice';
 import podcastsReducer from './slices/podcastsSlice';
 import scrollPositionReducer from './slices/scrollPositionSlice';
+import socketReducer from './slices/socketSlice';
 
 export const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ export const store = configureStore({
     suggestedFriendList: suggestedFriendsReducer,
     pubWise: pubWiseReducer,
     scrollPosition: scrollPositionReducer,
+    socket: socketReducer,
   },
 });
 

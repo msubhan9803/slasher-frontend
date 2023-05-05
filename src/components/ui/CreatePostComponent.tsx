@@ -167,7 +167,7 @@ function CreatePostComponent({
           window.scrollTo({
             top: movieReviewRef.current.offsetTop - (
               window.innerWidth >= parseInt(LG_MEDIA_BREAKPOINT.replace('px', ''), 10)
-                ? topToDivHeight
+                ? topToDivHeight - 5
                 : 10
             ),
             behavior: 'instant' as any,

@@ -38,13 +38,15 @@ import RoundButton from '../../RoundButton';
 import CustomRatingText from '../../CustomRatingText';
 import CustomWortItText from '../../CustomWortItText';
 import { useAppSelector } from '../../../../redux/hooks';
-import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
+import { HOME_WEB_DIV_ID, NEWS_PARTNER_DETAILS_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
 import LoadingIndicator from '../../LoadingIndicator';
 import { customlinkifyOpts } from '../../../../utils/linkify-utils';
 import { getLocalStorage } from '../../../../utils/localstorage-utils';
 import FormatImageVideoList from '../../../../utils/video-utils';
 import useOnScreen from '../../../../hooks/useOnScreen';
-import { hasMovieDetailsFields, postMovieDataToMovieDBformat } from '../../../../routes/movies/movie-utils';
+import { isHomePage, isNewsPartnerPage, isPostDetailsPage } from '../../../../utils/url-utils';
+import ScrollToTop from '../../../ScrollToTop';
+import { postMovieDataToMovieDBformat, showMoviePoster } from '../../../../routes/movies/movie-utils';
 
 interface Props {
   popoverOptions: string[];
@@ -87,6 +89,7 @@ interface Props {
   commentSent?: boolean;
   setCommentReplyErrorMessage?: (value: string[]) => void;
   setCommentErrorMessage?: (value: string[]) => void;
+  showPubWiseAdAtPageBottom?: boolean;
 }
 
 interface StyledProps {
@@ -303,6 +306,7 @@ function PostFeed({
   handleSearch, mentionList, commentImages, setCommentImages, commentError,
   commentReplyError, postType, onSpoilerClick,
   commentSent, setCommentReplyErrorMessage, setCommentErrorMessage,
+  showPubWiseAdAtPageBottom,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [isCommentClick, setCommentClick] = useState<boolean>(false);
@@ -391,10 +395,10 @@ function PostFeed({
   };
 
   let pubWiseAdDivId: string = '';
-  if (location.pathname === '/app/home' || location.pathname.endsWith('/posts')) {
+  if (isHomePage(location.pathname)) {
     pubWiseAdDivId = HOME_WEB_DIV_ID;
   }
-  if (location.pathname.includes('/app/news/partner/')) {
+  if (isNewsPartnerPage(location.pathname)) {
     pubWiseAdDivId = NEWS_PARTNER_POSTS_DIV_ID;
   }
 
@@ -446,6 +450,7 @@ function PostFeed({
   };
   return (
     <StyledPostFeed>
+      {isPostDetailsPage(pathname) && <ScrollToTop />}
       {postData.map((post: any, i) => (
         <div key={post.id}>
           <div className="post">
@@ -482,7 +487,7 @@ function PostFeed({
                   onSpoilerClick={onSpoilerClick}
                   isSinglePost={isSinglePost}
                 />
-                {(post?.images?.length > 0 || findFirstYouTubeLinkVideoId(post?.message) || hasMovieDetailsFields(post.movieId)) && (
+                {(post?.images?.length > 0 || findFirstYouTubeLinkVideoId(post?.message) || showMoviePoster(post.movieId, postType)) && (
                   <CustomSwiper
                     context="post"
                     images={
@@ -567,9 +572,8 @@ function PostFeed({
               )
             }
           </div>
-          {/* NOTE: Below ad is temporarily removed as per request on SD-1019 */}
           {/* Below ad is to be shown in the end of a single page post */}
-          {/* {isSinglePost && <PubWiseAd className="text-center mt-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />} */}
+          {isSinglePost && showPubWiseAdAtPageBottom && <PubWiseAd className="text-center mt-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />}
 
           {!isSinglePost && <hr className="post-separator" />}
 
@@ -640,5 +644,6 @@ PostFeed.defaultProps = {
   commentSent: undefined,
   setCommentReplyErrorMessage: undefined,
   setCommentErrorMessage: undefined,
+  showPubWiseAdAtPageBottom: undefined,
 };
 export default PostFeed;

@@ -44,9 +44,13 @@ const loginUserMoviePopoverOptions = ['Edit Review', 'Delete Review'];
 interface Props {
   user?: User;
   postType?: string;
+  // TODO: Fix type for postType like below and also fix related redundant
+  //       expressions reported by typescript
+  // postType?: '' | 'review' | 'news';
+  showPubWiseAdAtPageBottom?: boolean;
 }
 
-function PostDetail({ user, postType }: Props) {
+function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   const {
     postId, id, partnerId,
   } = useParams<string>();
@@ -771,6 +775,7 @@ function PostDetail({ user, postType }: Props) {
                 commentSent={commentSent}
                 setCommentReplyErrorMessage={setCommentReplyErrorMessage}
                 setCommentErrorMessage={setCommentErrorMessage}
+                showPubWiseAdAtPageBottom={showPubWiseAdAtPageBottom}
               />
               {dropDownValue !== 'Edit'
                 && (
@@ -885,6 +890,7 @@ function PostDetail({ user, postType }: Props) {
 PostDetail.defaultProps = {
   user: null,
   postType: '',
+  showPubWiseAdAtPageBottom: false,
 };
 
 export default PostDetail;

@@ -41,12 +41,12 @@ function Home() {
   const [postUserId, setPostUserId] = useState<string>('');
   const [rssfeedProviderId, setRssfeedProviderId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
-  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  const scrollPosition = useAppSelector((state) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const location = useLocation();
-  const reloadData = useAppSelector((state) => state.user.screenReload);
+  const shouldRestoreScrollPositionWithData = scrollPosition.pathname === location.pathname;
   const [posts, setPosts] = useState<Post[]>(
-    scrollPosition.pathname === location.pathname && !reloadData
+    shouldRestoreScrollPositionWithData
       ? scrollPosition?.data : [],
   );
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
@@ -88,7 +88,7 @@ function Home() {
       ) {
         setLoadingPosts(true);
         getHomeFeedPosts(
-          posts.length > 1 ? posts[posts.length - 1]._id : undefined,
+          posts.length > 0 ? posts[posts.length - 1]._id : undefined,
         ).then((res) => {
           const newPosts = res.data.map((data: any) => {
             if (data.userId) {
@@ -227,7 +227,7 @@ function Home() {
         setShow(false);
         callLatestFeedPost();
       })
-      /* eslint-disable no-console */
+      // eslint-disable-next-line no-console
       .catch((error) => console.error(error));
   };
 
@@ -279,7 +279,7 @@ function Home() {
         setShow(false);
         callLatestFeedPost();
       })
-      /* eslint-disable no-console */
+      // eslint-disable-next-line no-console
       .catch((error) => console.error(error));
   };
 
@@ -292,7 +292,7 @@ function Home() {
     reportData(reportPayload).then((res) => {
       if (res.status === 200) { callLatestFeedPost(); }
     })
-      /* eslint-disable no-console */
+      // eslint-disable-next-line no-console
       .catch((error) => console.error(error));
     // Ask to block user as well
     setDropDownValue('PostReportSuccessDialog');

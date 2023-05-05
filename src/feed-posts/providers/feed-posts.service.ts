@@ -198,8 +198,9 @@ export class FeedPostsService {
     before?: mongoose.Types.ObjectId,
     userId?: string,
   ): Promise<FeedPostDocument[]> {
-    const privateProfileUserIds = await this.userModel.find({
-      _id: { $ne: userId },
+    const friendIds = await this.friendsService.getFriendIds(userId);
+    const profileIdsToIgnore = await this.userModel.find({
+      _id: { $nin: [...friendIds, new mongoose.Types.ObjectId(userId)] },
       $or: [
         { profile_status: ProfileVisibility.Private },
         { $and: [{ profile_status: ProfileVisibility.Public, deleted: true }] },
@@ -219,7 +220,7 @@ export class FeedPostsService {
           { hashtags: hashtag },
           { status: 1 },
           { is_deleted: 0 },
-          { userId: { $nin: privateProfileUserIds } },
+          { userId: { $nin: profileIdsToIgnore } },
           beforeQuery,
         ],
       })

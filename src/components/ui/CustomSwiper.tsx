@@ -103,7 +103,7 @@ function CustomSwiper({
   const uniqueId = `${instanceCounter += 1}`;
   const [showVideoPlayerModal, setShowYouTubeModal] = useState(false);
   const { placeholderUrlNoImageAvailable } = useAppSelector((state) => state.remoteConstants);
-  const [hideSwiper, setHideSwiper] = useState(false);
+  const [showSwiper, setShowSwiper] = useState(false);
   const navigate = useNavigate();
 
   const displayVideoAndImage = (imageAndVideo: SliderImage) => {
@@ -117,11 +117,10 @@ function CustomSwiper({
             onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
               if (images.length > 1) {
                 e.currentTarget.src = placeholderUrlNoImageAvailable;
-              } else {
-                setHideSwiper(true);
+                setShowSwiper(true);
               }
             }}
-            onLoad={() => setHideSwiper(false)}
+            onLoad={() => setShowSwiper(true)}
           />
           <StyledYouTubeButton
             variant="link"
@@ -149,11 +148,10 @@ function CustomSwiper({
               onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                 if (images.length > 1) {
                   e.currentTarget.src = placeholderUrlNoImageAvailable;
-                } else {
-                  setHideSwiper(true);
+                  setShowSwiper(true);
                 }
               }}
-              onLoad={() => setHideSwiper(false)}
+              onLoad={() => setShowSwiper(true)}
             />
           </SwiperContentContainer>
         </Link>
@@ -198,18 +196,17 @@ function CustomSwiper({
           onImgError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
             if (images.length > 1) {
               e.currentTarget.src = placeholderUrlNoImageAvailable;
-            } else {
-              setHideSwiper(true);
+              setShowSwiper(true);
             }
           }}
-          onImgLoad={() => setHideSwiper(false)}
+          onImgLoad={() => setShowSwiper(true)}
         />
       </SwiperContentContainer>
     );
   };
 
   return (
-    <div style={{ height: heightForContext[context] }} className={hideSwiper ? 'd-none' : `${images.length > 1 ? 'mb-4' : ''}`}>
+    <div style={{ height: heightForContext[context] }} className={!showSwiper ? 'd-none' : `${images.length > 1 ? 'mb-4' : ''}`}>
       <StyledSwiper
         pagination={{ type: 'fraction', el: `#swiper-pagination-el-${uniqueId}` }}
         initialSlide={initialSlide}

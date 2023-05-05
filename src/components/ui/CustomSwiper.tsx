@@ -209,21 +209,17 @@ function CustomSwiper({
   };
 
   return (
-    <div style={{ height: heightForContext[context] }} className={images.length > 1 ? 'mb-4' : ''}>
+    <div style={{ height: heightForContext[context] }} className={hideSwiper ? 'd-none' : `${images.length > 1 ? 'mb-4' : ''}`}>
       <StyledSwiper
         pagination={{ type: 'fraction', el: `#swiper-pagination-el-${uniqueId}` }}
         initialSlide={initialSlide}
         navigation
         modules={[Pagination, Navigation]}
-        className={hideSwiper ? 'd-none' : 'd-block'}
       >
         {
           images.map((image: SliderImage) => (
             <SwiperSlide
               key={`${image.imageId}${image.postId}`}
-              onError={(e: any) => {
-                e.target.src = placeholderUrlNoImageAvailable;
-              }}
             >
               {displayVideoAndImage(image)}
             </SwiperSlide>

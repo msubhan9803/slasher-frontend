@@ -60,7 +60,7 @@ export class ChatGateway {
     const targetUserSocketIds = await this.usersService.findSocketIdsForUser(toUserId);
     targetUserSocketIds.forEach((socketId) => {
       client.to(socketId).emit('chatMessageReceived', {
-        message: pick(messageObject, ['_id', 'image', 'message', 'fromId', 'senderId', 'matchId', 'createdAt']),
+        message: pick(messageObject, ['_id', 'image', 'message', 'fromId', 'matchId']),
       });
     });
     await this.messageCountUpdateQueue.add(
@@ -68,7 +68,15 @@ export class ChatGateway {
       { messageId: messageObject.id },
       { delay: UNREAD_MESSAGE_NOTIFICATION_DELAY }, // 15 second delay
     );
-    return { success: true, message: messageObject };
+    const newMessageObject: any = {
+      _id: messageObject._id,
+      message: messageObject.message,
+      createdAt: messageObject.createdAt,
+      image: messageObject.image,
+      matchId: messageObject.matchId,
+      created: messageObject.created,
+    };
+    return { success: true, message: newMessageObject };
   }
 
   @SubscribeMessage('getMessages')
@@ -103,7 +111,9 @@ export class ChatGateway {
         messageObject.image = relativeToFullImagePath(this.config, messageObject.image);
       }
     });
-    return messages;
+    return messages.map(
+      (message) => pick(message, ['_id', 'message', 'isRead', 'createdAt', 'image', 'fromId', 'senderId']),
+    );
   }
 
   @SubscribeMessage('messageRead')
@@ -127,7 +137,7 @@ export class ChatGateway {
 
   async emitConversationCountUpdateEvent(userId: string) {
     const targetUserSocketIds = await this.usersService.findSocketIdsForUser(userId);
-    const user = await this.usersService.findById(userId);
+    const user = await this.usersService.findById(userId, true);
     const unreadConversationCount = user.newConversationIds.length;
     targetUserSocketIds.forEach((socketId) => {
       this.server.to(socketId).emit('unreadConversationCountUpdate', { unreadConversationCount });
@@ -142,7 +152,7 @@ export class ChatGateway {
       // Emit message to receiver
       targetUserSocketIds.forEach((socketId) => {
         this.server.to(socketId).emit('chatMessageReceived', {
-          message: pick(cloneMessage, ['_id', 'image', 'message', 'fromId', 'senderId', 'matchId', 'createdAt']),
+          message: pick(cloneMessage, ['_id', 'image', 'message', 'fromId', 'matchId']),
         });
       });
     });

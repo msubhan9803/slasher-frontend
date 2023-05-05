@@ -122,6 +122,14 @@ FeedPostSchema.index(
     updatedAt: 1, createdAt: 1, is_deleted: 1, status: 1, rssfeedProviderId: 1, userId: 1,
   },
 );
+
+// For UsersService#findMainFeedPostsForUser
+FeedPostSchema.index(
+  {
+    status: 1, is_deleted: 1, userId: 1, rssfeedProviderId: 1, postType: 1, hideUsers: 1, lastUpdateAt: 1,
+  },
+);
+
 FeedPostSchema.index(
   {
     createdAt: 1, is_deleted: 1, status: 1, rssfeedProviderId: 1,

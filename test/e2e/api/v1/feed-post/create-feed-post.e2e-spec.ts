@@ -594,8 +594,8 @@ describe('Feed-Post / Post File (e2e)', () => {
             .attach('files', tempPaths[0])
             .expect(HttpStatus.CREATED);
 
-          const otherUser1NewNotificationCount = await usersService.findById(otherUser1.id);
-          const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id);
+          const otherUser1NewNotificationCount = await usersService.findById(otherUser1.id, true);
+          const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id, true);
           expect(otherUser1NewNotificationCount.newNotificationCount).toBe(1);
           expect(otherUser2NewNotificationCount.newNotificationCount).toBe(1);
         }, [{ extension: 'png' }]);

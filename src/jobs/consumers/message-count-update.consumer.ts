@@ -15,7 +15,7 @@ export class MessageCountUpdateConsumer {
     @Process('send-update-if-message-unread')
     async sendUpdateIfMessageUnread(job: Job<any>) {
         const message = await this.chatService.findByMessageId(job.data.messageId);
-        const user = await this.usersService.findById(message.senderId.toString());
+        const user = await this.usersService.findById(message.senderId.toString(), true);
         if (!message.isRead && !(user.newConversationIds.find((id) => id.toString() === message.matchId.toString()))) {
             await this.usersService.addAndUpdateNewConversationId(message.senderId.toString(), message.matchId.toString());
             await this.chatGateway.emitConversationCountUpdateEvent(message.senderId.toString());

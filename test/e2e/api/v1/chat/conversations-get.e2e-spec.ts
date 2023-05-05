@@ -228,7 +228,7 @@ describe('Conversations all / (e2e)', () => {
       expect(response.status).toEqual(HttpStatus.OK);
       expect(response.body.success).toBe(true);
 
-      const user = await usersService.findById(user5.id);
+      const user = await usersService.findById(user5.id, true);
       expect(user.newConversationIds).toEqual([]);
     });
 

@@ -75,7 +75,7 @@ export class MoviesController {
     }
 
     let reviewPostId;
-    const post = await this.feedPostsService.findFeedPost(user.id, movie._id.toString());
+    const post = await this.feedPostsService.findMovieReviewPost(user.id, movie._id.toString());
     if (post) {
       reviewPostId = { reviewPostId: post.id };
     }

@@ -31,8 +31,14 @@ export class UsersService {
       .exec();
   }
 
-  async findById(id: string): Promise<UserDocument> {
-    return this.userModel.findById(id).exec();
+  async findById(id: string, activeOnly: boolean): Promise<UserDocument> {
+    const userFindQuery: any = { _id: id };
+    if (activeOnly) {
+      userFindQuery.deleted = false;
+      userFindQuery.status = ActiveStatus.Active;
+    }
+    const user = await this.userModel.findOne(userFindQuery).exec();
+    return user;
   }
 
   /**
@@ -47,41 +53,53 @@ export class UsersService {
     }).count()) === userIds.length;
   }
 
-  async findByEmail(email: string): Promise<UserDocument> {
-    return this.userModel
-      .findOne({ email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') })
-      .exec();
-  }
-
-  async findByUsername(userName: string): Promise<UserDocument> {
-    return this.userModel
-      .findOne({ userName: new RegExp(`^${escapeStringForRegex(userName)}$`, 'i') })
-      .exec();
-  }
-
-  async findByEmailOrUsername(emailOrUsername: string): Promise<UserDocument> {
-    if (EmailValidator.validate(emailOrUsername)) {
-      return this.findByEmail(emailOrUsername);
+  async findByEmail(email: string, activeOnly: boolean): Promise<UserDocument> {
+    const userFindQuery: any = { email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') };
+    if (activeOnly) {
+      userFindQuery.deleted = false;
+      userFindQuery.status = ActiveStatus.Active;
     }
-    return this.findByUsername(emailOrUsername);
+    return this.userModel
+      .findOne(userFindQuery)
+      .exec();
   }
 
-  async userNameExists(userName: string): Promise<boolean> {
-    return (
-      (await this.userModel
-        .findOne({ userName: new RegExp(`^${escapeStringForRegex(userName)}$`, 'i') })
-        .count()
-        .exec()) > 0
-    );
+  async findByUsername(userName: string, activeOnly: boolean): Promise<UserDocument> {
+    const userFindQuery: any = { userName: new RegExp(`^${escapeStringForRegex(userName)}$`, 'i') };
+    if (activeOnly) {
+      userFindQuery.deleted = false;
+      userFindQuery.status = ActiveStatus.Active;
+    }
+    return this.userModel
+      .findOne(userFindQuery)
+      .exec();
   }
 
-  async emailExists(email: string): Promise<boolean> {
-    return (
-      (await this.userModel
-        .findOne({ email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') })
-        .count()
-        .exec()) > 0
-    );
+  async findByEmailOrUsername(emailOrUsername: string, activeOnly: boolean): Promise<UserDocument> {
+    if (EmailValidator.validate(emailOrUsername)) {
+      return this.findByEmail(emailOrUsername, activeOnly);
+    }
+    return this.findByUsername(emailOrUsername, activeOnly);
+  }
+
+  async userNameAvailable(userName: string): Promise<boolean> {
+    const user = await this.userModel.findOne({ userName: new RegExp(`^${escapeStringForRegex(userName)}$`, 'i') }).exec();
+    if ((user && !user.deleted)
+      || (user && user.deleted && user.userBanned)
+      || (user && (user.userBanned || user.status === ActiveStatus.Inactive))) {
+      return false;
+    }
+    return true;
+  }
+
+  async emailAvailable(email: string): Promise<boolean> {
+    const user = await this.userModel.findOne({ email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') }).exec();
+    if ((user && !user.deleted)
+      || (user && user.deleted && user.userBanned)
+      || (user && (user.userBanned || user.status === ActiveStatus.Inactive))) {
+      return false;
+    }
+    return true;
   }
 
   async resetPasswordTokenIsValid(email: string, resetPasswordToken: string) {

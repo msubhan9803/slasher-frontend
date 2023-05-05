@@ -66,7 +66,7 @@ describe('Users reset password (e2e)', () => {
         expect(
           bcrypt.compareSync(
             postBody.newPassword,
-            (await usersService.findByEmail(postBody.email)).password,
+            (await usersService.findByEmail(postBody.email, true)).password,
           ),
         ).toBe(true);
         expect(response.body).toEqual({ message: 'Password reset successfully' });

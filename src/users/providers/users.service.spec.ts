@@ -67,7 +67,7 @@ describe('UsersService', () => {
       );
       userData.verification_token = uuidv4();
       const user = await usersService.create(userData);
-      expect(await usersService.findById(user.id)).toBeTruthy();
+      expect(await usersService.findById(user.id, true)).toBeTruthy();
     });
   });
 
@@ -115,20 +115,20 @@ describe('UsersService', () => {
     });
 
     it('finds the expected user using the same-case email', async () => {
-      expect((await usersService.findByEmail(user.email))._id).toEqual(
+      expect((await usersService.findByEmail(user.email, true))._id).toEqual(
         user._id,
       );
     });
 
     it('finds the expected user using a lower-case variant of the email', async () => {
       expect(
-        (await usersService.findByEmail(user.email.toLowerCase()))._id,
+        (await usersService.findByEmail(user.email.toLowerCase(), true))._id,
       ).toEqual(user._id);
     });
 
     it('finds the expected user using an upper-case variant of the email', async () => {
       expect(
-        (await usersService.findByEmail(user.email.toUpperCase()))._id,
+        (await usersService.findByEmail(user.email.toUpperCase(), true))._id,
       ).toEqual(user._id);
     });
   });
@@ -142,20 +142,20 @@ describe('UsersService', () => {
     });
 
     it('finds the expected user using the same-case userName', async () => {
-      expect((await usersService.findByUsername(user.userName))._id).toEqual(
+      expect((await usersService.findByUsername(user.userName, true))._id).toEqual(
         user._id,
       );
     });
 
     it('finds the expected user using a lower-case variant of the userName', async () => {
       expect(
-        (await usersService.findByUsername(user.userName.toLowerCase()))._id,
+        (await usersService.findByUsername(user.userName.toLowerCase(), true))._id,
       ).toEqual(user._id);
     });
 
     it('finds the expected user using an upper-case variant of the userName', async () => {
       expect(
-        (await usersService.findByUsername(user.userName.toUpperCase()))._id,
+        (await usersService.findByUsername(user.userName.toUpperCase(), true))._id,
       ).toEqual(user._id);
     });
   });
@@ -169,13 +169,77 @@ describe('UsersService', () => {
     });
     it('finds the expected user by email', async () => {
       expect(
-        (await usersService.findByEmailOrUsername(user.email))._id,
+        (await usersService.findByEmailOrUsername(user.email, true))._id,
       ).toEqual(user._id);
     });
     it('finds the expected user by userName', async () => {
       expect(
-        (await usersService.findByEmailOrUsername(user.userName))._id,
+        (await usersService.findByEmailOrUsername(user.userName, true))._id,
       ).toEqual(user._id);
+    });
+  });
+
+  describe('#userNameAvailable', () => {
+    let user: UserDocument;
+    beforeEach(async () => {
+      user = await usersService.create(
+        userFactory.build(),
+      );
+    });
+
+    it('finds the expected user using the userName', async () => {
+      const available = await usersService.userNameAvailable(user.userName);
+      expect(available).toBeFalsy();
+    });
+
+    it('when user is deleted than expected response', async () => {
+      const updateStatus = await usersService.update(user._id.toString(), { deleted: true });
+      const available = await usersService.userNameAvailable(updateStatus.userName);
+      expect(available).toBeTruthy();
+    });
+
+    it('when user is deleted and user is banned than expected response', async () => {
+      const updateStatus = await usersService.update(user._id.toString(), { deleted: true, userBanned: true });
+      const available = await usersService.userNameAvailable(updateStatus.userName);
+      expect(available).toBeFalsy();
+    });
+
+    it('when user is banned and status is inactive than expected response', async () => {
+      const updateStatus = await usersService.update(user._id.toString(), { status: ActiveStatus.Inactive, userBanned: true });
+      const available = await usersService.userNameAvailable(updateStatus.userName);
+      expect(available).toBeFalsy();
+    });
+  });
+
+  describe('#emailAvailable', () => {
+    let user: UserDocument;
+    beforeEach(async () => {
+      user = await usersService.create(
+        userFactory.build(),
+      );
+    });
+
+    it('finds the expected user using the email', async () => {
+      const available = await usersService.emailAvailable(user.email);
+      expect(available).toBeFalsy();
+    });
+
+    it('when user is deleted than expected response', async () => {
+      const updateStatus = await usersService.update(user._id.toString(), { deleted: true });
+      const available = await usersService.emailAvailable(updateStatus.email);
+      expect(available).toBeTruthy();
+    });
+
+    it('when user is deleted and user is banned than expected response', async () => {
+      const updateStatus = await usersService.update(user._id.toString(), { deleted: true, userBanned: true });
+      const available = await usersService.emailAvailable(updateStatus.email);
+      expect(available).toBeFalsy();
+    });
+
+    it('when user is banned and status is inactive than expected response', async () => {
+      const updateStatus = await usersService.update(user._id.toString(), { status: ActiveStatus.Inactive, userBanned: true });
+      const available = await usersService.emailAvailable(updateStatus.email);
+      expect(available).toBeFalsy();
     });
   });
 
@@ -287,7 +351,7 @@ describe('UsersService', () => {
         userName: 'test1_user',
       };
       const updatedUser = await usersService.update(user._id, userData);
-      const reloadedUser = await usersService.findById(updatedUser.id);
+      const reloadedUser = await usersService.findById(updatedUser.id, true);
       expect(reloadedUser.firstName).toEqual(userData.firstName);
       expect(reloadedUser.userName).toEqual(userData.userName);
       expect(reloadedUser.email).toEqual(user.email);
@@ -358,8 +422,8 @@ describe('UsersService', () => {
       const limit = 5;
       const suggestUserNames = await usersService.suggestUserName(query, limit, true, excludedUserIds);
       expect(suggestUserNames).toEqual([
-        pick(await usersService.findByUsername('test1'), ['userName', 'id', 'profilePic']),
-        pick(await usersService.findByUsername('test2'), ['userName', 'id', 'profilePic']),
+        pick(await usersService.findByUsername('test1', true), ['userName', 'id', 'profilePic']),
+        pick(await usersService.findByUsername('test2', true), ['userName', 'id', 'profilePic']),
       ]);
       expect(suggestUserNames.map((suggestUserName) => suggestUserName.userName)).not.toContain('test4');
     });

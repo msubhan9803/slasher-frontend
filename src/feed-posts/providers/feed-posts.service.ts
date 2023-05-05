@@ -151,7 +151,7 @@ export class FeedPostsService {
     const beforeQuery: any = {};
     if (before) {
       const feedPost = await this.feedPostModel.findById(before).exec();
-      beforeQuery.updatedAt = { $lt: feedPost.updatedAt };
+      beforeQuery.lastUpdateAt = { $lt: feedPost.lastUpdateAt };
     }
 
     const query = await this.feedPostModel
@@ -404,12 +404,13 @@ export class FeedPostsService {
     return allHashtags as any;
   }
 
-  async findFeedPost(userId: string, movieId: string) {
+  async findMovieReviewPost(userId: string, movieId: string) {
     const feedPost = await this.feedPostModel
       .findOne({
         $and: [
           { userId: new mongoose.Types.ObjectId(userId) },
           { movieId: new mongoose.Types.ObjectId(movieId) },
+          { postType: PostType.MovieReview },
           { is_deleted: FeedPostDeletionState.NotDeleted }],
       })
       .exec();

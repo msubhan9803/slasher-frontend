@@ -32,7 +32,7 @@ export class ReportsController {
     const user = getUserFromRequest(request);
     switch (createReportDto.reportType) {
       case 'profile': {
-        const userData = await this.usersService.findById(createReportDto.targetId);
+        const userData = await this.usersService.findById(createReportDto.targetId, true);
         if (!userData) {
           throw new HttpException('Profile not found', HttpStatus.NOT_FOUND);
         }

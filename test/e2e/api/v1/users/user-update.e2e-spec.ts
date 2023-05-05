@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
@@ -139,7 +140,7 @@ describe('Users / :id (e2e)', () => {
           aboutMe: 'I am a human being',
         });
 
-        const user = await usersService.findById(response.body._id);
+        const user = await usersService.findById(response.body._id, true);
         expect(user.userName).toEqual(postBody.userName);
         expect(user.email).toEqual(postBody.email);
         expect(user.firstName).toEqual(postBody.firstName);
@@ -329,8 +330,8 @@ describe('Users / :id (e2e)', () => {
         );
       });
 
-      it("succeeds, and doesn't call usersService.emailExists() internally when email field is not in the request body", async () => {
-        jest.spyOn(usersService, 'emailExists').mockImplementation(() => Promise.resolve(undefined));
+      it("succeeds, and doesn't call usersService.emailAvailable() internally when email field is not in the request body", async () => {
+        jest.spyOn(usersService, 'emailAvailable').mockImplementation(() => Promise.resolve(undefined));
         const body = {
           aboutMe: 'I am a human being',
         };
@@ -338,7 +339,7 @@ describe('Users / :id (e2e)', () => {
           .patch(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(body);
-        expect(usersService.emailExists).toHaveBeenCalledTimes(0);
+        expect(usersService.emailAvailable).toHaveBeenCalledTimes(0);
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
           _id: activeUser.id,
@@ -368,22 +369,25 @@ describe('Users / :id (e2e)', () => {
           });
         });
 
-      it("succeeds, and doesn't call usersService.userNameExists() internally when userName field is not in the request body", async () => {
-        jest.spyOn(usersService, 'userNameExists').mockImplementation(() => Promise.resolve(undefined));
-        const body = {
-          aboutMe: 'I am a human being',
-        };
-        const response = await request(app.getHttpServer())
-          .patch(`/api/v1/users/${activeUser.id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .send(body);
-        expect(usersService.userNameExists).toHaveBeenCalledTimes(0);
-        expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body).toEqual({
-          _id: activeUser.id,
-          aboutMe: 'I am a human being',
-        });
-      });
+      it(
+"succeeds, and doesn't call usersService.userNameAvailable() internally when userName field is not in the request body",
+        async () => {
+          jest.spyOn(usersService, 'userNameAvailable').mockImplementation(() => Promise.resolve(undefined));
+          const body = {
+            aboutMe: 'I am a human being',
+          };
+          const response = await request(app.getHttpServer())
+            .patch(`/api/v1/users/${activeUser.id}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .send(body);
+          expect(usersService.userNameAvailable).toHaveBeenCalledTimes(0);
+          expect(response.status).toEqual(HttpStatus.OK);
+          expect(response.body).toEqual({
+            _id: activeUser.id,
+            aboutMe: 'I am a human being',
+          });
+        },
+);
     });
   });
 });

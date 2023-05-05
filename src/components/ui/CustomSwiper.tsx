@@ -146,7 +146,8 @@ function CustomSwiper({
               className="w-100 h-100"
               alt="user uploaded content"
               onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                if (images.length > 1) {
+                if ((imageAndVideo.linkUrl && imageAndVideo.linkUrl.includes('/app/news/partner') && images.length > 1)
+                || (imageAndVideo.linkUrl && !imageAndVideo.linkUrl.includes('/app/news/partner'))) {
                   e.currentTarget.src = placeholderUrlNoImageAvailable;
                   setShowSwiper(true);
                 }

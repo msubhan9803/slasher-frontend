@@ -16,6 +16,7 @@ import { BlocksService } from '../../blocks/providers/blocks.service';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
+import { ActiveStatus } from '../../schemas/user/user.enums';
 
 describe('FriendsService', () => {
   let app: INestApplication;
@@ -398,6 +399,37 @@ describe('FriendsService', () => {
     it('returns the expected number of users when the requested number is lower than the number available', async () => {
       const suggestedFriends = await friendsService.getSuggestedFriends(user, 5);
       expect(suggestedFriends).toHaveLength(5);
+    });
+
+    it('when user status is inactive than expected response', async () => {
+      const user6 = await usersService.create(
+        userFactory.build({
+          status: ActiveStatus.Inactive,
+        }),
+      );
+      const suggestedFriends = await friendsService.getSuggestedFriends(user, 10);
+      expect(suggestedFriends).toHaveLength(8);
+      expect(suggestedFriends.map((friend) => friend._id)).not.toContain(user6._id);
+    });
+
+    it('when user is deleted than expected response', async () => {
+      const user7 = await usersService.create(
+        userFactory.build(),
+      );
+      await usersService.update(user7.id, { deleted: true });
+      const suggestedFriends = await friendsService.getSuggestedFriends(user, 10);
+      expect(suggestedFriends).toHaveLength(8);
+      expect(suggestedFriends.map((friend) => friend._id)).not.toContain(user7._id);
+    });
+
+    it('when user is banned than expected response', async () => {
+      const user8 = await usersService.create(
+        userFactory.build(),
+      );
+      await usersService.update(user8.id, { userBanned: true });
+      const suggestedFriends = await friendsService.getSuggestedFriends(user, 10);
+      expect(suggestedFriends).toHaveLength(8);
+      expect(suggestedFriends.map((friend) => friend._id)).not.toContain(user8._id);
     });
   });
 

@@ -93,7 +93,7 @@ interface Props {
 }
 
 interface StyledProps {
-  detailsPage: boolean;
+  detailsPage?: boolean;
 }
 
 const StyledPostFeed = styled.div`
@@ -125,11 +125,14 @@ const StyledContentContainer = styled.div<StyledProps>`
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 4;
     `}
-  cursor: ${(props) => (!props?.detailsPage ? 'pointer' : 'auto')};
-  a {
-    display: inline-block;
-  }
-`;
+    cursor: ${(props) => (!props?.detailsPage ? 'pointer' : 'auto')};
+    span {
+      cursor: pointer
+    }
+    a {
+      display: inline-block;
+    }
+  `;
 type PostContentPropsType = {
   post: any, postType: string | undefined, generateReadMoreLink: any,
   escapeHtml: boolean | undefined, onPostContentClick: (post: any) => void,
@@ -194,7 +197,7 @@ function PostContent({
   };
 
   return (
-    <div className="d-flex">
+    <div>
       {postType === 'review' && (
         <div className="d-flex align-items-center mb-3">
           {post?.rating !== 0 && (

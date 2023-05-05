@@ -61,6 +61,7 @@ interface MentionProps {
   onFocusHandler?: () => void;
   onBlurHandler?: () => void;
   isMainPostCommentClick?: boolean;
+  notFoundContent?: string;
 }
 
 function MessageTextarea({
@@ -79,6 +80,7 @@ function MessageTextarea({
   onFocusHandler,
   onBlurHandler,
   isMainPostCommentClick,
+  notFoundContent,
 }: MentionProps) {
   const { Option } = Mentions;
   const textareaRef = useRef<MentionsRef>(null);
@@ -117,7 +119,7 @@ function MessageTextarea({
   }, [isReply, isMainPostCommentClick]);
   return (
     <StyledMention
-      prefix={['@', '#']}
+      prefix={isCommentInput ? ['@'] : ['@', '#']}
       ref={textareaRef}
       iscommentinput={isCommentInput!}
       id={id}
@@ -131,23 +133,35 @@ function MessageTextarea({
       onFocus={() => (onFocusHandler ? onFocusHandler() : {})}
       onBlur={() => (onBlurHandler ? onBlurHandler() : {})}
       value={defaultValue || ''}
-      notFoundContent="Type to search for a username"
+      notFoundContent={notFoundContent}
       aria-label="message"
     >
-      {mentionLists && mentionLists?.map((mentionList: MentionListProps) => (
-        <Option value={mentionList.userName || mentionList.name} key={mentionList.id || mentionList._id} style={{ zIndex: '100' }}>
-          <div ref={optionRef} className="list--hover soft-half pointer">
-            <div>
-              {mentionList.userName && <UserCircleImage size="2rem" src={mentionList?.profilePic} className="ms-0 me-3 bg-secondary" />}
-              <span>
-                {mentionList.name ? ' #' : ' @'}
-                {mentionList.userName || mentionList.name}
-              </span>
+      {mentionLists
+        && mentionLists.map((mentionList: MentionListProps) => (
+          <Option
+            value={mentionList.userName || mentionList.name}
+            key={mentionList.id || mentionList._id}
+            style={{ zIndex: '100' }}
+          >
+            <div ref={optionRef} className="list--hover soft-half pointer">
+              <div>
+                {mentionList.userName && (
+                  <UserCircleImage
+                    size="2rem"
+                    src={mentionList?.profilePic}
+                    className="ms-0 me-3 bg-secondary"
+                  />
+                )}
+                <span>
+                  {mentionList.name ? ' #' : ' @'}
+                  {mentionList.userName || mentionList.name}
+                </span>
+              </div>
             </div>
-          </div>
-        </Option>
-      ))}
+          </Option>
+        ))}
     </StyledMention>
+
   );
 }
 MessageTextarea.defaultProps = {
@@ -160,5 +174,6 @@ MessageTextarea.defaultProps = {
   onFocusHandler: undefined,
   onBlurHandler: undefined,
   isMainPostCommentClick: undefined,
+  notFoundContent: 'Type to search for a username',
 };
 export default MessageTextarea;

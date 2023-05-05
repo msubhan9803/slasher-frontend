@@ -5,10 +5,10 @@ import {
   Button, Col, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 import { addHashtags } from '../../../api/users';
-import { useAppSelector } from '../../../redux/hooks';
-import { getOnboardingSuggestedHashtag } from '../../../api/searchHashtag';
+import { getOnboardingSuggestedHashtag } from '../../../api/onboarding';
 
 // const hashtagList: string[] = [
 //   'horrorfilm', 'monsters', 'vintagehorror', 'horror', 'art', 'scary',
@@ -36,7 +36,7 @@ const HashtagText = styled.p`
 `;
 
 function OnboardingHashtag() {
-  const userData = useAppSelector((state: any) => state.user);
+  const navigate = useNavigate();
   const [suggestedHashtags, setSuggestedHashtags] = useState<string[]>([]);
   const [selectedHashtag, setSelectedHashtag] = useState<string[]>([]);
 
@@ -52,13 +52,13 @@ function OnboardingHashtag() {
     }
   };
 
-  const romoveHashtag = (removeTag: string) => {
+  const removeHashtag = (removeTag: string) => {
     const removeHashtags = selectedHashtag.filter((tag) => tag !== removeTag);
     setSelectedHashtag(removeHashtags);
   };
 
   const completeSignUp = () => {
-    addHashtags(userData.user.id, selectedHashtag).then(() => { });
+    addHashtags(selectedHashtag).then(() => { navigate('/app/home'); });
   };
 
   return (
@@ -87,7 +87,7 @@ function OnboardingHashtag() {
             {selectedHashtag.map((tag: string) => (
               <SelectedHashtagButton key={`${tag}-1`} type="button" className="p-1 m-2 px-3 text-light rounded-pill text-white">
                 {tag}
-                <FontAwesomeIcon icon={solid('times')} size="lg" className="text-light ms-2" onClick={() => romoveHashtag(tag)} />
+                <FontAwesomeIcon icon={solid('times')} size="lg" className="text-light ms-2" onClick={() => removeHashtag(tag)} />
               </SelectedHashtagButton>
             ))}
           </SelectedHashtagContainer>

@@ -9,6 +9,7 @@ import TabLinks from '../../components/ui/Tabs/TabLinks';
 import { enableDevFeatures } from '../../utils/configEnvironment';
 import { StyledHastagsCircle } from './component/Hashtags';
 import CustomPopover from '../../components/ui/CustomPopover';
+import ReportModal from '../../components/ui/ReportModal';
 
 interface Search {
   tabKey: string;
@@ -32,7 +33,7 @@ const tabs = [
   { value: 'books', label: 'Books', devOnly: true },
 ];
 
-const popoverOptions = ['Give feedback', 'Report'];
+const popoverOptions = ['Report'];
 function SearchHeader({
   tabKey, setSearch, search, label = '', onOffNotificationClick, followUnfollowClick,
   following, notificationToggle, totalHashtagPosts,
@@ -40,14 +41,18 @@ function SearchHeader({
   const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => !t.devOnly);
   const location = useLocation();
   const [query, setQueryParam] = useState<any>();
+  const [show, setShow] = useState(false);
+  const [dropDownValue, setDropDownValue] = useState('');
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const hashtag = urlParams.get('hashtag');
     setQueryParam(hashtag);
   }, [location.search]);
 
-  const handlePopoverOption = (value: string) => value;
-
+  const handlePopoverOption = (value: string) => {
+    setShow(true);
+    setDropDownValue(value);
+  };
   return (
     <div className={`${query ? 'bg-dark py-3 rounded' : 'bg-transparent'} mt-3 mt-lg-0`}>
       {query && query.length > 0
@@ -92,6 +97,7 @@ function SearchHeader({
                   />
                   <div className="d-none d-md-block mx-4">
                     <CustomPopover
+                      isHashtag
                       popoverOptions={popoverOptions}
                       onPopoverClick={handlePopoverOption}
                     />
@@ -110,7 +116,11 @@ function SearchHeader({
             </div>
           </>
         )}
-
+      <ReportModal
+        show={show}
+        setShow={setShow}
+        slectedDropdownValue={dropDownValue}
+      />
     </div>
   );
 }

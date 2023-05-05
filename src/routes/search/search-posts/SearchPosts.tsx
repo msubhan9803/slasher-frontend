@@ -47,6 +47,7 @@ function SearchPosts() {
   const [deleteImageIds, setDeleteImageIds] = useState<any>([]);
   const [postId, setPostId] = useState<string>('');
   const [postUserId, setPostUserId] = useState<string>('');
+  const [lastHashtagId, setLastHashtagId] = useState<string>('');
 
   useEffect(() => {
     setQueryParam(searchParams.get('hashtag'));
@@ -67,6 +68,7 @@ function SearchPosts() {
     getHashtagDetail();
     setSearchPosts([]);
     setRequestAdditionalPosts(true);
+    setLastHashtagId('');
   }, [query, getHashtagDetail]);
 
   const getSearchPost = useCallback(() => {
@@ -74,7 +76,7 @@ function SearchPosts() {
       setLoadingPosts(true);
       getHashtagPostList(
         query.toLowerCase(),
-        searchPosts.length > 0 ? searchPosts[searchPosts.length - 1]._id : undefined,
+        lastHashtagId.length > 0 ? lastHashtagId : undefined,
       ).then((res) => {
         const newPosts: any = res.data.map((data: any) => {
           const setPost = {
@@ -93,7 +95,12 @@ function SearchPosts() {
           return setPost;
         });
         setSearchPosts((prev: Post[]) => [...prev, ...newPosts]);
-        if (res.data.length === 0) { setNoMoreData(true); }
+        if (res.data.length === 0) {
+          setNoMoreData(true);
+          setLastHashtagId('');
+        } else {
+          setLastHashtagId(res.data[res.data.length - 1]._id);
+        }
         if (scrollPosition.pathname === location.pathname) {
           const positionData = {
             pathname: '',
@@ -112,7 +119,7 @@ function SearchPosts() {
         () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
       );
     }
-  }, [dispatch, location.pathname, query, searchPosts, scrollPosition.pathname]);
+  }, [dispatch, location.pathname, query, scrollPosition.pathname, lastHashtagId]);
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts && query) {

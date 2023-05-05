@@ -306,9 +306,9 @@ export async function resetPassword(
 }
 
 export async function addHashtags(
-  userId: string,
   hashtags: string[],
 ) {
+  const userId = Cookies.get('userId');
   const token = Cookies.get('sessionToken');
   const headers = {
     Authorization: `Bearer ${token}`,

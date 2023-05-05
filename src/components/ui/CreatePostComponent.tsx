@@ -97,6 +97,7 @@ function CreatePostComponent({
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [uploadPost, setUploadPost] = useState<string[]>([]);
   const [searchParams] = useSearchParams();
+  const [notFoundContent, setNotFoundContent] = useState('');
   const paramsType = searchParams.get('type');
   const params = useParams();
   const location = useLocation();
@@ -140,11 +141,17 @@ function CreatePostComponent({
 
   const handleSearch = (text: string, prefix: string) => {
     setMentionList([]);
+    if (prefix === '@') {
+      setNotFoundContent('Type to search for a username');
+    } else if (prefix === '#') {
+      setNotFoundContent('Type to search for a hashtag');
+    }
     if (text) {
       if (prefix === '@') {
         getSuggestUserName(text)
           .then((res) => setMentionList(res.data));
       } else if (prefix === '#') {
+        setNotFoundContent('Type to search for a hashtag');
         getSuggestHashtag(text)
           .then((res: any) => setMentionList(res.data));
       }
@@ -289,6 +296,7 @@ function CreatePostComponent({
           formatMentionList={formatMention}
           setFormatMentionList={setFormatMention}
           defaultValue={defaultValue}
+          notFoundContent={notFoundContent}
         />
       </div>
       {paramsType === 'group-post' && (

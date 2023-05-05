@@ -5,19 +5,36 @@ export function findFirstYouTubeLinkVideoId(message: string) {
   return message?.match(YOUTUBE_LINK_REGEX)?.[6];
 }
 
-export function escapeHtmlSpecialCharacters(str: string, selectedHashtag?: string) {
+export function escapeHtmlSpecialCharacters(
+  str: string,
+  selectedHashtag?: string,
+  isComment?: boolean,
+) {
   const hashtagRegex = /(^|\s)(#[\w-]+)/g;
   const mentionRegex = /@(\w+)/g;
-  return str.replaceAll('&', '&amp;')
+
+  let result = str
+    .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;')
-    .replace(hashtagRegex, (match, p1, p2) => (p2 === selectedHashtag
+    .replaceAll("'", '&#039;');
+
+  if (selectedHashtag) {
+    result = result.replace(hashtagRegex, (match, p1, p2) => (p2 === selectedHashtag
       ? `${p1}<span style="font-weight: 700; color: red;">${p2}</span>`
-      : `${p1}<span style="color: red;">${p2}</span>`))
-    .replace(mentionRegex, '<a href="/$1">@$1</a>');
+      : `${p1}<span style="color: red;">${p2}</span>`));
+  } else if (isComment) {
+    result = result.replace(hashtagRegex, (match, p1, p2) => `${p1}<span>${p2}</span>`);
+  } else {
+    result = result.replace(hashtagRegex, (match, p1, p2) => `${p1}<span style="color: red;">${p2}</span>`);
+  }
+
+  result = result.replace(mentionRegex, '<a href="/$1">@$1</a>');
+
+  return result;
 }
+
 /**
  * For the given string, replaces all new line characters with '<br />'.
  * @param htmlString
@@ -78,7 +95,7 @@ export function cleanExternalHtmlContent(htmlString: string) {
 }
 
 export function decryptMessage(message: any) {
-  const found = message ? message.replace(/##LINK_ID##[a-fA-F0-9]{64}|##LINK_END##/g, '') : '';
+  const found = message ? message.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '') : '';
   return found;
 }
 

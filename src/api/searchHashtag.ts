@@ -19,7 +19,3 @@ export async function getSuggestHashtag(text: string) {
   };
   return axios.get(`${apiUrl}/api/v1/hashtags/suggest?query=${text}&limit=10`, { headers });
 }
-
-export async function getOnboardingSuggestedHashtag() {
-  return axios.get(`${apiUrl}/api/v1/hashtags/onboarding-suggestions`);
-}

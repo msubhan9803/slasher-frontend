@@ -88,7 +88,7 @@ function Home() {
       ) {
         setLoadingPosts(true);
         getHomeFeedPosts(
-          posts.length > 1 ? posts[posts.length - 1]._id : undefined,
+          posts.length > 0 ? posts[posts.length - 1]._id : undefined,
         ).then((res) => {
           const newPosts = res.data.map((data: any) => {
             if (data.userId) {

@@ -14,7 +14,7 @@ export async function onboardingPhoto(
     'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
-  return axios.post(`${apiUrl}/api/v1/users/upload-profile-image`, formData, { headers });
+  return axios.post(`${apiUrl}/api/v1/users/profile-image`, formData, { headers });
 }
 
 export async function onboardingAboutMe(message: string) {

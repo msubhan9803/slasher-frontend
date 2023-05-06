@@ -45,7 +45,7 @@ function NewsPostData({ partnerId }: Props) {
         setLoadingPosts(true);
         getRssFeedProviderPosts(
           partnerId,
-          postData.length > 1 ? postData[postData.length - 1]._id : undefined,
+          postData.length > 0 ? postData[postData.length - 1]._id : undefined,
         ).then((res) => {
           const newPosts = res.data.map((data: any) => ({
             _id: data._id,

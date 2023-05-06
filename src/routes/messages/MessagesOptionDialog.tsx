@@ -11,10 +11,11 @@ interface Props {
   slectedMessageDropdownValue: string
   selectedMatchListId: string
   setMessages: any;
+  onBlockYesClick: Function,
 }
 
 function MessagesOptionDialog({
-  show, setShow, slectedMessageDropdownValue, selectedMatchListId, setMessages,
+  show, setShow, slectedMessageDropdownValue, selectedMatchListId, setMessages, onBlockYesClick,
 }: Props) {
   const closeModal = () => {
     setShow(false);
@@ -28,6 +29,10 @@ function MessagesOptionDialog({
         (message) => message._id !== selectedMatchListId,
       ));
     });
+  };
+  const handleBlockUser = () => {
+    if (onBlockYesClick) { onBlockYesClick(); }
+    closeModal();
   };
   return (
     <CustomModal
@@ -45,7 +50,7 @@ function MessagesOptionDialog({
       )}
       {slectedMessageDropdownValue === 'Block user' && (
         <ModalBodyForBlockUser
-          onConfirm={() => { }}
+          onConfirm={handleBlockUser}
           onCancel={closeModal}
         />
       )}

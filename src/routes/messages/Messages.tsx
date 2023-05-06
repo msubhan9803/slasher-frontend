@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React, {
   useState, useEffect, useRef, useCallback,
 } from 'react';
@@ -15,12 +16,13 @@ import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { resetUnreadConversationCount } from '../../redux/slices/userSlice';
 import socketStore from '../../socketStore';
+import { createBlockUser } from '../../api/blocks';
 
 export interface NewMessagesList {
   unreadCount: number;
   latestMessage: string;
-  _id: string;
-  id: string;
+  _id: string; // matchListId
+  id: string; // userId
   userName: string;
   profilePic: string;
   updatedAt: string;
@@ -38,15 +40,17 @@ function Messages() {
   const messageContainerElementRef = useRef<any>(null);
   const [yPositionOfLastMessageElement, setYPositionOfLastMessageElement] = useState<number>(0);
   const [selectedMatchListId, setSelectedMatchListId] = useState('');
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const dispatch = useAppDispatch();
   const { socket } = socketStore;
 
-  const handleMessagesOption = (matchListId: string) => (messageOption: string) => {
+  const handleMessagesOption = (message: NewMessagesList) => (messageOption: string) => {
     if (messageOption !== 'markAsRead') {
       setShow(true);
     }
     setMessageOptionValue(messageOption);
-    setSelectedMatchListId(matchListId);
+    setSelectedMatchListId(message._id);
+    setSelectedUserId(message.id);
   };
 
   useEffect(() => {
@@ -139,6 +143,14 @@ function Messages() {
     socket?.emit('clearNewConversationIds', {});
     dispatch(resetUnreadConversationCount());
   }, [dispatch, socket]);
+  const onBlockYesClick = () => {
+    createBlockUser(selectedUserId!)
+      .then(() => {
+        setShow(false);
+      })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
@@ -161,7 +173,7 @@ function Messages() {
                   message={message.latestMessage}
                   count={message.unreadCount}
                   timeStamp={DateTime.fromISO(message.updatedAt).toFormat('MM/dd/yyyy t')}
-                  handleDropdownOption={handleMessagesOption(message._id)}
+                  handleDropdownOption={handleMessagesOption(message)}
                   matchListId={message._id}
                 />
               ))
@@ -176,6 +188,7 @@ function Messages() {
           slectedMessageDropdownValue={messageOptionValue}
           selectedMatchListId={selectedMatchListId}
           setMessages={setMessages}
+          onBlockYesClick={onBlockYesClick}
         />
       </ContentPageWrapper>
       <RightSidebarWrapper>

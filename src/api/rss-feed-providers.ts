@@ -1,9 +1,9 @@
 import axios from 'axios';
-import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
+import { getSessionToken } from '../utils/session-utils';
 
 export async function rssFeedInitialData() {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -11,7 +11,7 @@ export async function rssFeedInitialData() {
 }
 
 export async function getRssFeedProviderDetail(rssFeedProviderId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -22,7 +22,7 @@ export async function getRssFeedProviderPosts(
   rssFeedProviderId: string,
   lastRetrievedPostId?: string,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -37,7 +37,7 @@ export async function getRssFeedProviderFollowUnfollow(
   rssFeedProviderId: string,
   userId: string,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -48,7 +48,7 @@ export async function followRssFeedProvider(
   rssFeedProviderId: string,
   userId: string,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -59,7 +59,7 @@ export async function unfollowRssFeedProvider(
   rssFeedProviderId: string,
   userId: string,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -70,7 +70,7 @@ export async function enableRssFeedProviderNotification(
   rssFeedProviderId: string,
   userId: string,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -81,7 +81,7 @@ export async function disableRssFeedProviderNotification(
   rssFeedProviderId: string,
   userId: string,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };

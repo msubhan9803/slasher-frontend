@@ -6,7 +6,6 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Col, Row } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import styled from 'styled-components';
 import RoundButton from '../../components/ui/RoundButton';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
@@ -65,8 +64,8 @@ function ProfileHeader({
   const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
   const [dropDownValue, setDropDownValue] = useState<string>('');
   const popoverOption = ['Report', 'Block user'];
-  const loginUserName = Cookies.get('userName');
-  const loginUserId = Cookies.get('userId');
+  const loginUserName = useAppSelector((state) => state.user.user.userName);
+  const userId = useAppSelector((state) => state.user.user.id);
   const { userName } = useParams();
   const navigate = useNavigate();
   const [clickedUserId, setClickedUserId] = useState<string>('');
@@ -93,7 +92,7 @@ function ProfileHeader({
         setFriendStatus(res.data.reaction);
       });
     }
-  }, [user, friendshipStatus, isSelfUserProfile, loginUserId]);
+  }, [user, friendshipStatus, isSelfUserProfile, userId]);
 
   useLayoutEffect(() => {
     const element = positionRef.current;

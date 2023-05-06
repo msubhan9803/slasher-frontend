@@ -6,7 +6,6 @@ import {
 import {
   useNavigate, useLocation, useParams,
 } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import { AxiosResponse } from 'axios';
 import {
   uploadUserCoverImage,
@@ -21,7 +20,7 @@ import { updateUserName } from '../../../utils/session-utils';
 import NotFound from '../../../components/NotFound';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import useProgressButton from '../../../components/ui/ProgressButton';
-import { useAppDispatch } from '../../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { updateUserProfilePic } from '../../../redux/slices/userSlice';
 
 interface Props {
@@ -43,11 +42,9 @@ function ProfileEdit({ user }: Props) {
   );
   const { userName } = useParams<string>();
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
-
   const dispatch = useAppDispatch();
-
-  const userNameCookies = Cookies.get('userName');
-  const isUnAuthorizedUser = userName !== userNameCookies;
+  const loggedInUserName = useAppSelector((state) => state.user.user.userName);
+  const isUnAuthorizedUser = userName !== loggedInUserName;
   const updateProfile = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setProgressButtonStatus('loading');
@@ -110,13 +107,14 @@ function ProfileEdit({ user }: Props) {
 
     if (errorList.length === 0) {
       // After successful update, update locally-stored username
-      updateUserName(locallyStoredUserData.userName);
-      // And update current url to use latest userName (to handle possible userName change)
-      navigate(
-        location.pathname.replace(params.userName!, locallyStoredUserData.userName),
-        { replace: true },
-      );
-      setProgressButtonStatus('success');
+      updateUserName(locallyStoredUserData.userName).finally(() => {
+        // And update current url to use latest userName (to handle possible userName change)
+        navigate(
+          location.pathname.replace(params.userName!, locallyStoredUserData.userName),
+          { replace: true },
+        );
+        setProgressButtonStatus('success');
+      });
     } else {
       setProgressButtonStatus('failure');
     }

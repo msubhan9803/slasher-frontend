@@ -1,9 +1,9 @@
 import axios from 'axios';
-import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
+import { getSessionToken } from '../utils/session-utils';
 
 export async function blockedUsers(page: number) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -13,7 +13,7 @@ export async function blockedUsers(page: number) {
 }
 
 export async function removeBlockedUsers(userId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -22,7 +22,7 @@ export async function removeBlockedUsers(userId: string) {
 }
 
 export async function createBlockUser(userId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };

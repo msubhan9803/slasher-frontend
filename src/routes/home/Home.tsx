@@ -1,7 +1,6 @@
 /* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
-import Cookies from 'js-cookie';
 import { useLocation } from 'react-router-dom';
 import CustomCreatePost from '../../components/ui/CustomCreatePost';
 import PostFeed from '../../components/ui/post/PostFeed/PostFeed';
@@ -40,7 +39,7 @@ function Home() {
   const [postId, setPostId] = useState<string>('');
   const [postUserId, setPostUserId] = useState<string>('');
   const [rssfeedProviderId, setRssfeedProviderId] = useState<string>('');
-  const loginUserId = Cookies.get('userId');
+  const userId = useAppSelector((state) => state.user.user.id);
   const scrollPosition = useAppSelector((state) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const location = useLocation();
@@ -149,7 +148,7 @@ function Home() {
       }
     }
   }, [
-    requestAdditionalPosts, loadingPosts, loginUserId, posts, scrollPosition,
+    requestAdditionalPosts, loadingPosts, userId, posts, scrollPosition,
     dispatch, location.pathname,
   ]);
 

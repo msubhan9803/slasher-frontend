@@ -3,7 +3,6 @@ import React, {
 } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { DateTime } from 'luxon';
-import Cookies from 'js-cookie';
 import { getMessagesList } from '../../api/messages';
 import UserMessageListItem from '../../components/ui/UserMessageList/UserMessageListItem';
 import { MessagesList } from '../../types';
@@ -13,7 +12,7 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layou
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
-import { useAppDispatch } from '../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { resetUnreadConversationCount } from '../../redux/slices/userSlice';
 import socketStore from '../../socketStore';
 
@@ -35,7 +34,7 @@ function Messages() {
   const [messageOptionValue, setMessageOptionValue] = useState('');
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string[]>();
-  const userId = Cookies.get('userId');
+  const userId = useAppSelector((state) => state.user.user.id);
   const messageContainerElementRef = useRef<any>(null);
   const [yPositionOfLastMessageElement, setYPositionOfLastMessageElement] = useState<number>(0);
   const [selectedMatchListId, setSelectedMatchListId] = useState('');

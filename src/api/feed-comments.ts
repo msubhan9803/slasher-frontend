@@ -1,13 +1,13 @@
 import axios from 'axios';
-import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
+import { getSessionToken } from '../utils/session-utils';
 
 export async function getFeedComments(
   feedPostId: string,
   lastRetrievedCommentId?: string,
   showComments?: boolean,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -25,7 +25,7 @@ export async function addFeedComments(
   message: string,
   file: any,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const formData = new FormData();
   for (let i = 0; i < file.length; i += 1) {
     formData.append('images', file[i]);
@@ -45,7 +45,7 @@ export async function addFeedReplyComments(
   file: any,
   commentReplyId: string,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const formData = new FormData();
   for (let i = 0; i < file.length; i += 1) {
     formData.append('images', file[i]);
@@ -61,7 +61,7 @@ export async function addFeedReplyComments(
 }
 
 export async function removeFeedComments(feedCommentId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -69,7 +69,7 @@ export async function removeFeedComments(feedCommentId: string) {
 }
 
 export async function removeFeedCommentReply(feedReplyId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -83,7 +83,7 @@ export async function updateFeedComments(
   file: string[],
   imagesToDelete: string[] | undefined,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const formData = new FormData();
   for (let i = 0; i < file.length; i += 1) {
     formData.append('files', file[i]);
@@ -109,7 +109,7 @@ export async function updateFeedCommentReply(
   file: string[],
   imagesToDelete: string[] | undefined,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const formData = new FormData();
   for (let i = 0; i < file.length; i += 1) {
     formData.append('files', file[i]);
@@ -128,7 +128,7 @@ export async function updateFeedCommentReply(
 }
 
 export async function singleComment(commentId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };

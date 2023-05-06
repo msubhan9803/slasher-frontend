@@ -1,9 +1,9 @@
 import axios from 'axios';
-import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
+import { getSessionToken } from '../utils/session-utils';
 
 export async function getMessagesList(lastRetrievedMessageId?: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -15,7 +15,7 @@ export async function getMessagesList(lastRetrievedMessageId?: string) {
 }
 
 export async function getConversation(matchListId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -24,7 +24,7 @@ export async function getConversation(matchListId: string) {
 }
 
 export async function createOrFindConversation(userId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -33,7 +33,7 @@ export async function createOrFindConversation(userId: string) {
 }
 
 export async function markAllReadForSingleConversation(matchListId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -42,7 +42,7 @@ export async function markAllReadForSingleConversation(matchListId: string) {
 }
 
 export async function attachFile(message: string, file: any, conversationId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const formData = new FormData();
   for (let i = 0; i < file.length; i += 1) {
     formData.append('files', file[i]);
@@ -56,7 +56,7 @@ export async function attachFile(message: string, file: any, conversationId: str
 }
 
 export async function deleteConversationMessages(matchListId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };

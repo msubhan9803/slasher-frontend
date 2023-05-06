@@ -10,10 +10,11 @@ import RoundButton from '../../components/ui/RoundButton';
 import CustomInputGroup from '../../components/ui/CustomInputGroup';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import { signIn } from '../../api/users';
-import { setSignInCookies, userIsLoggedIn } from '../../utils/session-utils';
+import { setSignInCookies } from '../../utils/session-utils';
 import slasherLogo from '../../images/slasher-beta-logo-medium.png';
 import signInImageMobile from '../../images/sign-in-background-beta-mobile.jpg';
 import { LG_MEDIA_BREAKPOINT } from '../../constants';
+import { useAppSelector } from '../../redux/hooks';
 
 interface UserCredentials {
   emailOrUsername: string;
@@ -52,12 +53,13 @@ function SignIn() {
     password: '',
   });
   const [searchParams] = useSearchParams();
+  const isUserLoggedIn = useAppSelector((state) => state.user.user.id);
 
   useEffect(() => {
-    if (userIsLoggedIn()) {
+    if (isUserLoggedIn) {
       navigate('/app/home');
     }
-  }, [navigate]);
+  }, [isUserLoggedIn, navigate]);
   const passwordVisiblility = () => {
     setShowPassword(!showPassword);
   };
@@ -72,9 +74,10 @@ function SignIn() {
 
     signIn(credentials.emailOrUsername, credentials.password).then((res) => {
       setErrorMessage([]);
-      setSignInCookies(res.data.token, res.data.id, res.data.userName);
-      const targetPath = searchParams.get('path');
-      navigate(`${targetPath ?? '/app/home'}`);
+      setSignInCookies(res.data.token, res.data.id, res.data.userName).finally(() => {
+        const targetPath = searchParams.get('path');
+        navigate(`${targetPath ?? '/app/home'}`);
+      });
     }).catch((error) => {
       setErrorMessage(error.response.data.message);
     });

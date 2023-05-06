@@ -4,7 +4,6 @@ import React, {
 } from 'react';
 import { Offcanvas } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import styled from 'styled-components';
 import { useMediaQuery } from 'react-responsive';
 import { io } from 'socket.io-client';
@@ -18,7 +17,7 @@ import {
   incrementFriendRequestCount,
 } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
-import { signOut } from '../../../../utils/session-utils';
+import { getSessionToken, signOut } from '../../../../utils/session-utils';
 import {
   LG_MEDIA_BREAKPOINT, analyticsId, MAIN_CONTENT_ID, apiUrl,
 } from '../../../../constants';
@@ -69,7 +68,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const userData = useAppSelector((state) => state.user);
   const remoteConstantsData = useAppSelector((state) => state.remoteConstants);
   const { pathname } = useLocation();
-  const token = Cookies.get('sessionToken');
+  const [token, setToken] = useState<null | string>(null);
   useGoogleAnalytics(analyticsId);
 
   const [show, setShow] = useState(false);
@@ -84,30 +83,34 @@ function AuthenticatedPageWrapper({ children }: Props) {
   };
 
   useEffect(() => {
-    if (!token) {
-      navigate(`/app/sign-in?path=${pathname}`);
-      return;
-    }
+    getSessionToken().then((tokenValue) => {
+      setToken(tokenValue);
 
-    if (!remoteConstantsData.loaded) {
-      fetchRemoteConstants().then((res) => {
-        dispatch(setRemoteConstantsData(res.data));
-      }).catch(() => {
-        // eslint-disable-next-line no-console
-        console.log('An unexpected error occurred while loading remote constants');
-      });
-    }
+      if (!tokenValue) {
+        navigate(`/app/sign-in?path=${pathname}`);
+        return;
+      }
 
-    if (userData.user?.userName === '') {
-      userInitialData().then((res) => {
-        dispatch(setUserInitialData(res.data));
-      }).catch((err) => {
-        if (err.response.status === 401) {
-          signOut();
-        }
-      });
-    }
-  }, [dispatch, navigate, pathname, userData.user?.userName, remoteConstantsData.loaded, token]);
+      if (!remoteConstantsData.loaded) {
+        fetchRemoteConstants().then((res) => {
+          dispatch(setRemoteConstantsData(res.data));
+        }).catch(() => {
+          // eslint-disable-next-line no-console
+          console.log('An unexpected error occurred while loading remote constants');
+        });
+      }
+
+      if (userData.user?.userName === '') {
+        userInitialData().then((res) => {
+          dispatch(setUserInitialData(res.data));
+        }).catch((err) => {
+          if (err.response.status === 401) {
+            signOut();
+          }
+        });
+      }
+    });
+  }, [dispatch, navigate, pathname, userData.user?.userName, remoteConstantsData.loaded]);
 
   const onNotificationReceivedHandler = useCallback(() => {
     dispatch(incrementUnreadNotificationCount());
@@ -129,7 +132,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
   }, [dispatch]);
 
   useEffect(() => {
-    if (isSocketConnected || isSocketConnectingRef.current) { return; }
+    if (isSocketConnected || isSocketConnectingRef.current || !token) { return; }
     isSocketConnectingRef.current = true;
 
     socketStore.socket = io(apiUrl!, {

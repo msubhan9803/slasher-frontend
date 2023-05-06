@@ -4,7 +4,6 @@ import React, {
   useCallback,
   useEffect, useRef, useState,
 } from 'react';
-import Cookies from 'js-cookie';
 import {
   useLocation, useNavigate, useParams, useSearchParams,
 } from 'react-router-dom';
@@ -22,7 +21,7 @@ import { useAppSelector } from '../../redux/hooks';
 import socketStore from '../../socketStore';
 
 function Conversation() {
-  const userId = Cookies.get('userId');
+  const userId = useAppSelector((state) => state.user.user.id);
   const { conversationId } = useParams();
   const lastConversationIdRef = useRef('');
   const [chatUser, setChatUser] = useState<any>();

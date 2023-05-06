@@ -1,10 +1,10 @@
 import axios from 'axios';
-import Cookies from 'js-cookie';
 import { toUtcStartOfDay, toUtcEndOfDay } from '../utils/date-utils';
 import { apiUrl } from '../constants';
+import { getSessionToken } from '../utils/session-utils';
 
 export async function getEventCategoriesOption() {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -25,7 +25,7 @@ export async function suggestEvent(
   endDate: Date | null,
   address: string,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,

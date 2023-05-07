@@ -142,18 +142,16 @@ export class FeedCommentsService {
     return commentReplies;
   }
 
-  async findFeedComment(id: string) {
-    const feedComment = await this.feedCommentModel
-      .findOne({ _id: id })
-      .exec();
-    return feedComment;
+  async findFeedComment(id: string, populateUser = false) {
+    const unexecutedQuery = this.feedCommentModel.findOne({ _id: id });
+    if (populateUser) { unexecutedQuery.populate('userId', 'userName'); }
+    return unexecutedQuery.exec();
   }
 
-  async findFeedReply(id: string) {
-    const feedReply = await this.feedReplyModel
-      .findOne({ _id: id })
-      .exec();
-    return feedReply;
+  async findFeedReply(id: string, populateUser = false) {
+    const unexecutedQuery = this.feedReplyModel.findOne({ _id: id });
+    if (populateUser) { unexecutedQuery.populate('userId', 'userName'); }
+    return unexecutedQuery.exec();
   }
 
   async findOneFeedCommentWithReplies(

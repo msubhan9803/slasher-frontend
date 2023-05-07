@@ -14,6 +14,8 @@ import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { MailService } from '../../../../../src/providers/mail.service';
+import { EmailRevertToken, EmailRevertTokenDocument } from '../../../../../src/schemas/emailRevertToken/emailRevertToken.schema';
 
 describe('Users / :id (e2e)', () => {
   let app: INestApplication;
@@ -22,6 +24,8 @@ describe('Users / :id (e2e)', () => {
   let activeUserAuthToken: string;
   let activeUser: UserDocument;
   let configService: ConfigService;
+  let mailService: MailService;
+  let emailRevertTokenModel: Model<EmailRevertTokenDocument>;
   let usersModel: Model<UserDocument>;
 
   const sampleUserUpdateObject = {
@@ -40,6 +44,8 @@ describe('Users / :id (e2e)', () => {
     usersModel = moduleRef.get<Model<UserDocument>>(getModelToken(User.name));
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
+    mailService = moduleRef.get<MailService>(MailService);
+    emailRevertTokenModel = moduleRef.get<Model<EmailRevertTokenDocument>>(getModelToken(EmailRevertToken.name));
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
     await app.init();
@@ -66,6 +72,7 @@ describe('Users / :id (e2e)', () => {
     let postBody: UpdateUserDto;
     beforeEach(() => {
       postBody = { ...sampleUserUpdateObject };
+      jest.spyOn(mailService, 'sendEmailChangeConfirmationEmails').mockImplementation();
     });
 
     it('requires authentication', async () => {
@@ -84,10 +91,34 @@ describe('Users / :id (e2e)', () => {
           _id: activeUser.id,
           firstName: 'user',
           userName: 'TestUser',
-          email: 'testuser@gmail.com',
+          email: 'User1@Example.com',
+          unverifiedNewEmail: 'testuser@gmail.com',
           aboutMe: 'I am a human being',
           profile_status: ProfileVisibility.Private,
         });
+      });
+
+      it('performs the expected related actions (send emails, create tokens, etc.) when an email field update happens', async () => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/users/${activeUser.id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send({ email: postBody.email });
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toEqual({
+          _id: activeUser.id,
+          email: 'User1@Example.com',
+          unverifiedNewEmail: 'testuser@gmail.com',
+        });
+        const emailRevertToken = await emailRevertTokenModel.findOne({ userId: activeUser.id });
+        expect(emailRevertToken).toBeTruthy();
+        const reloadedUser = await usersService.findById(activeUser.id, true);
+        expect(mailService.sendEmailChangeConfirmationEmails).toHaveBeenCalledWith(
+          activeUser.id,
+          activeUser.email,
+          postBody.email,
+          reloadedUser.emailChangeToken,
+          emailRevertToken.value,
+        );
       });
 
       it('when the email field is not provided, updates to other fields are still successful '
@@ -136,13 +167,15 @@ describe('Users / :id (e2e)', () => {
           _id: activeUser.id,
           firstName: 'user',
           userName: 'TestUser',
-          email: 'testuser@gmail.com',
+          email: 'User1@Example.com',
+          unverifiedNewEmail: 'testuser@gmail.com',
           aboutMe: 'I am a human being',
         });
 
         const user = await usersService.findById(response.body._id, true);
         expect(user.userName).toEqual(postBody.userName);
-        expect(user.email).toEqual(postBody.email);
+        expect(user.email).not.toEqual(postBody.email);
+        expect(user.unverifiedNewEmail).toEqual(postBody.email);
         expect(user.firstName).toEqual(postBody.firstName);
       });
     });
@@ -370,7 +403,7 @@ describe('Users / :id (e2e)', () => {
         });
 
       it(
-"succeeds, and doesn't call usersService.userNameAvailable() internally when userName field is not in the request body",
+        "succeeds, and doesn't call usersService.userNameAvailable() internally when userName field is not in the request body",
         async () => {
           jest.spyOn(usersService, 'userNameAvailable').mockImplementation(() => Promise.resolve(undefined));
           const body = {
@@ -387,7 +420,7 @@ describe('Users / :id (e2e)', () => {
             aboutMe: 'I am a human being',
           });
         },
-);
+      );
     });
   });
 });

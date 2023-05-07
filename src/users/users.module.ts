@@ -12,6 +12,8 @@ import { RssFeedProviderFollowsModule } from '../rss-feed-provider-follows/rss-f
 import { RssFeedProvidersModule } from '../rss-feed-providers/rss-feed-providers.module';
 import { MailModule } from '../providers/mail.module';
 import { DisallowedUsernameModule } from '../disallowedUsername/disallowed-username.module';
+import { UsersEmailChangeController } from './users.email-change.controller';
+import { EmailRevertTokensModule } from '../email-revert-tokens/email-revert-tokens.module';
 
 // Since the UsersModule is likely to be used in many places, we'll make it global
 @Global()
@@ -20,13 +22,14 @@ import { DisallowedUsernameModule } from '../disallowedUsername/disallowed-usern
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: SocketUser.name, schema: SocketUserSchema }]),
     UserSettingModule,
+    EmailRevertTokensModule,
     ChatModule,
     RssFeedProviderFollowsModule,
     RssFeedProvidersModule,
     MailModule,
     DisallowedUsernameModule,
   ],
-  controllers: [UsersController],
+  controllers: [UsersEmailChangeController, UsersController],
   providers: [UsersService, LocalStorageService, S3StorageService],
   exports: [UsersService],
 })

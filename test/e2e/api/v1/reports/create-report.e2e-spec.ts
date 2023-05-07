@@ -140,6 +140,7 @@ describe('Report And Unreport (e2e)', () => {
       expect(mailService.sendReportNotificationEmail).toHaveBeenCalledWith(
         reportAndUnreportObject.reportType,
         activeUser.userName,
+        user1.userName,
         reportAndUnreportObject.reason,
       );
       expect(reponse.body).toEqual({ success: true });
@@ -158,6 +159,7 @@ describe('Report And Unreport (e2e)', () => {
       expect(mailService.sendReportNotificationEmail).toHaveBeenCalledWith(
         reportAndUnreportObject.reportType,
         activeUser.userName,
+        (feedPostData.userId as unknown as UserDocument).userName,
         reportAndUnreportObject.reason,
       );
       expect(response.body).toEqual({ success: true });
@@ -171,11 +173,12 @@ describe('Report And Unreport (e2e)', () => {
         .post('/api/v1/reports')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(reportAndUnreportObject);
-      const feedCommentData = await feedCommentsService.findFeedComment(feedComments.id);
+      const feedCommentData = await feedCommentsService.findFeedComment(feedComments.id, true);
       expect(feedCommentData.id.toString()).toEqual(reportAndUnreportObject.targetId);
       expect(mailService.sendReportNotificationEmail).toHaveBeenCalledWith(
         reportAndUnreportObject.reportType,
         activeUser.userName,
+        (feedCommentData.userId as unknown as UserDocument).userName,
         reportAndUnreportObject.reason,
       );
       expect(response.body).toEqual({ success: true });
@@ -189,11 +192,12 @@ describe('Report And Unreport (e2e)', () => {
         .post('/api/v1/reports')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(reportAndUnreportObject);
-      const feedReplyData = await feedCommentsService.findFeedReply(feedReply.id);
+      const feedReplyData = await feedCommentsService.findFeedReply(feedReply.id, true);
       expect(feedReplyData.id.toString()).toEqual(reportAndUnreportObject.targetId);
       expect(mailService.sendReportNotificationEmail).toHaveBeenCalledWith(
         reportAndUnreportObject.reportType,
         activeUser.userName,
+        (feedReplyData.userId as unknown as UserDocument).userName,
         reportAndUnreportObject.reason,
       );
       expect(response.body).toEqual({ success: true });

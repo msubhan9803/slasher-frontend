@@ -16,6 +16,7 @@ export const userSlice = createSlice({
       newNotificationCount: 0,
     },
     forceFriendListReload: false,
+    isKeyboardOpen: false,
   },
   reducers: {
     setUserInitialData: (state, action) => ({
@@ -56,6 +57,9 @@ export const userSlice = createSlice({
     setFriendListReload: (state, payload) => {
       state.forceFriendListReload = payload.payload;
     },
+    setKeyboardOpen: (state, action) => {
+      state.isKeyboardOpen = action.payload;
+    },
   },
 });
 
@@ -70,6 +74,7 @@ export const {
   updateUserProfilePic,
   setUserRecentFriendRequests,
   setFriendListReload,
+  setKeyboardOpen,
 } = userSlice.actions;
 
 export default userSlice.reducer;

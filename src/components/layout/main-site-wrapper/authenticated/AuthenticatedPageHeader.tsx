@@ -59,6 +59,7 @@ function AuthenticatedPageHeader(
   }: Props,
 ) {
   const userData = useAppSelector((state) => state.user);
+  const isKeyboardOpen = useAppSelector((state) => state.user.isKeyboardOpen);
 
   const mobileNavLinkElements = [
     <IconWithTextNavButton
@@ -112,7 +113,7 @@ function AuthenticatedPageHeader(
         </StyledNavbar>
 
         {/* nav-bar for small screen */}
-        <MobileNavbar bg="dark" variant="dark" className={`d-${offcanvasSidebarExpandBreakPoint}-none fixed-bottom pt-3`}>
+        <MobileNavbar bg="dark" variant="dark" className={`d-${offcanvasSidebarExpandBreakPoint}-none fixed-bottom pt-3`} style={{ display: isKeyboardOpen ? 'none' : 'block' }}>
           <div className="w-100 d-flex">
             {
               mobileNavLinkElements.map((el, index) => {

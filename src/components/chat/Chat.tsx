@@ -1,8 +1,11 @@
-import React, { useRef, useState, useEffect } from 'react';
+/* eslint-disable max-len */
+import React, {
+  useRef, useState, useEffect,
+} from 'react';
 import {
   Card, Col,
 } from 'react-bootstrap';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import ChatInput from './ChatInput';
 import { ChatProps } from './ChatProps';
 import ChatMessage from './ChatMessage';
@@ -10,10 +13,12 @@ import ChatOptions from './ChatOptions';
 import ChatUserStatus from './ChatUserStatus';
 import { LG_MEDIA_BREAKPOINT } from '../../constants';
 import ImagesContainer from '../ui/ImagesContainer';
+import { useAppSelector } from '../../redux/hooks';
 
 interface Props {
   height: number;
   rows: number;
+  isKeyboardOpen: boolean;
 }
 
 const StyledChatContainer = styled.div<Props>`
@@ -47,6 +52,11 @@ const StyledChatContainer = styled.div<Props>`
         height: ${(props) => (props.height ? 'calc(100dvh - 278px)' : 'calc(100dvh - 170px)')};;
         .conversation-container {
           height: ${(props) => (props.height ? 'calc(100dvh - 348px)' : 'calc(100dvh - 235px)')};
+          ${(props) => props.isKeyboardOpen && css`
+            height: 100%; // this overrides the height of above rule when keyboard is open in mobile (capacitor)
+            bottom: 40px;
+            position: relative;
+        `}
         }
       }
       .image-container {
@@ -80,13 +90,14 @@ function Chat({
       setRows(currentRows);
     }
   };
+  const isKeyboardOpen = useAppSelector((state) => state.user.isKeyboardOpen);
   useEffect(() => {
     if (message?.length === 0) {
       setRows(1);
     }
   }, [message]);
   return (
-    <StyledChatContainer height={imageArray && imageArray.length ? 1 : 0} rows={rows}>
+    <StyledChatContainer isKeyboardOpen={isKeyboardOpen} height={imageArray && imageArray.length ? 1 : 0} rows={rows}>
       <Card className="bg-black bg-mobile-transparent rounded-3 border-0">
         <Card.Header className="d-flex justify-content-between position-relative border-bottom border-opacity-25 border-secondary px-0 px-lg-3 py-lg-4">
           <ChatUserStatus userData={userData} />

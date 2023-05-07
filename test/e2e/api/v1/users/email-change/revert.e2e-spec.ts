@@ -118,13 +118,13 @@ describe('Users Email Change Revert (e2e)', () => {
       });
 
       it('token should not be empty', async () => {
-        postBody.token = 'abc';
+        postBody.token = '';
         const response = await request(app.getHttpServer())
           .post('/api/v1/users/email-change/revert')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
-          'Invalid token',
+          'token should not be empty',
         );
       });
     });

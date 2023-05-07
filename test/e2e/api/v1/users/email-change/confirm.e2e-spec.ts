@@ -109,13 +109,13 @@ describe('Users Email Change Confirm (e2e)', () => {
       });
 
       it('token should not be empty', async () => {
-        postBody.token = 'abc';
+        postBody.token = '';
         const response = await request(app.getHttpServer())
           .post('/api/v1/users/email-change/confirm')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
-          'Invalid token',
+          'token should not be empty',
         );
       });
     });

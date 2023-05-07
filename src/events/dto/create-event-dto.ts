@@ -13,6 +13,7 @@ export class CreateEventDto {
 
   @IsNotEmpty()
   @IsMongoId({ message: 'Invalid event_type' })
+  // TODO: Change line below to event_type: string
   event_type: EventCategory;
 
   @IsNotEmpty()

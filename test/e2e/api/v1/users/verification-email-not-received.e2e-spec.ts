@@ -84,7 +84,6 @@ describe('Users / Verification Email Not Received (e2e)', () => {
         });
 
         expect(mailService.sendVerificationEmail).toHaveBeenCalledWith(
-          user.firstName,
           email,
           user.verification_token,
         );

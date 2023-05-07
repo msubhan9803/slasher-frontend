@@ -91,8 +91,9 @@ describe('GET /users/:id (e2e)', () => {
           profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           coverPhoto: null,
           aboutMe: 'Hello. This is me.',
-          profile_status: 0,
+          profile_status: ProfileVisibility.Public,
           email: 'User1@Example.com',
+          unverifiedNewEmail: null,
           friendshipStatus: {
             reaction: null,
             from: null,
@@ -153,6 +154,7 @@ describe('GET /users/:id (e2e)', () => {
           aboutMe: 'Hello. This is me.',
           profile_status: ProfileVisibility.Private,
           email: 'User2@Example.com',
+          unverifiedNewEmail: null,
           friendshipStatus: {
             reaction: null,
             from: null,
@@ -175,8 +177,9 @@ describe('GET /users/:id (e2e)', () => {
           profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           coverPhoto: null,
           aboutMe: 'Hello. This is me.',
-          profile_status: 0,
+          profile_status: ProfileVisibility.Public,
           email: 'User1@Example.com',
+          unverifiedNewEmail: null,
           friendshipStatus: {
             reaction: null,
             from: null,
@@ -298,20 +301,20 @@ describe('GET /users/:id (e2e)', () => {
         .get(`/api/v1/users/${user1._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-        expect(response.body).toEqual({
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          firstName: 'First name 3',
-          userName: 'Michael',
-          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-          coverPhoto: null,
-          aboutMe: 'Hello. This is me.',
-          profile_status: ProfileVisibility.Public,
-          friendshipStatus: {
-            reaction: FriendRequestReaction.Accepted,
-            from: activeUser.id,
-            to: user1.id,
-          },
-        });
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        firstName: 'First name 3',
+        userName: 'Michael',
+        profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+        coverPhoto: null,
+        aboutMe: 'Hello. This is me.',
+        profile_status: ProfileVisibility.Public,
+        friendshipStatus: {
+          reaction: FriendRequestReaction.Accepted,
+          from: activeUser.id,
+          to: user1.id,
+        },
+      });
     });
   });
 });

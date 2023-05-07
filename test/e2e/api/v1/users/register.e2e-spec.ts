@@ -111,7 +111,6 @@ describe('Users / Register (e2e)', () => {
         expect(DateTime.fromISO(postBody.dob, { zone: 'utc' }).toJSDate()).toEqual(registeredUser.dob);
         expect(registeredUser.verification_token).toMatch(validUuidV4Regex);
         expect(mailService.sendVerificationEmail).toHaveBeenCalledWith(
-          registeredUser.firstName,
           registeredUser.email,
           registeredUser.verification_token,
         );

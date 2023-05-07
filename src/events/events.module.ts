@@ -6,6 +6,8 @@ import { Event, EventSchema } from '../schemas/event/event.schema';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { addPrePostHooks } from '../schemas/event/event.pre-post-hooks';
+import { EventCategoriesModule } from '../event-categories/event-categories.module';
+import { MailModule } from '../providers/mail.module';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { addPrePostHooks } from '../schemas/event/event.pre-post-hooks';
         },
       },
     ]),
+    EventCategoriesModule,
+    MailModule,
   ],
   controllers: [EventsController],
   providers: [EventService, LocalStorageService, S3StorageService],

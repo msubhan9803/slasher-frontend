@@ -22,7 +22,7 @@ export const setSignInCookies = async (sessionToken: string, userId: string, use
     await Preferences.set({ key: 'userName', value: userName });
   }
 };
-export const updateUserName = async (userName: string) => {
+export const updateUserNameCookie = async (userName: string) => {
   const onlySendCookieOverHttps = !['development', 'test'].includes(process.env.NODE_ENV);
   Cookies.set('userName', userName, { secure: onlySendCookieOverHttps });
   if (isCapacitorApp) {

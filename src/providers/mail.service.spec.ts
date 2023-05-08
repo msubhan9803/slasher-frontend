@@ -96,17 +96,18 @@ describe('MailService', () => {
   describe('#sendVerificationEmail', () => {
     it('sends the correct mail details to the sendEmail function', async () => {
       const to = 'example@example.com';
+      const userId = new Types.ObjectId().toString();
       const token = 'd4c70121-1f0b-4e6a-aac9-b8be3720f369';
       jest
         .spyOn(mailService, 'sendEmail')
         .mockReturnValue(Promise.resolve(null));
 
-      await mailService.sendVerificationEmail(to, token);
+      await mailService.sendVerificationEmail(to, userId, token);
       expect(mailService.sendEmail).toHaveBeenCalledWith(
         to,
         mailService.getDefaultSender(),
         'Activate Your Slasher Account',
-        expect.stringContaining(token),
+        expect.stringContaining(`userId=${encodeURIComponent(userId)}&token=${encodeURIComponent(token)}`),
         'html',
       );
     });

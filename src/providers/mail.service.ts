@@ -37,11 +37,11 @@ export class MailService {
     return output;
   }
 
-  async sendVerificationEmail(email: string, verificationToken: string) {
+  async sendVerificationEmail(email: string, userId: string, verificationToken: string) {
     const htmlToSend = this.processEmailTemplate(templateForNewAccountVerification, {
       EMAIL_VERIFICATION_LINK: `${this.config.get<string>('FRONTEND_URL')}/app/`
-        + `activate-account?email=${encodeURIComponent(email)}`
-        + `&verificationToken=${encodeURIComponent(verificationToken)}`,
+        + `activate-account?userId=${encodeURIComponent(userId)}`
+        + `&token=${encodeURIComponent(verificationToken)}`,
     });
     return this.sendEmail(
       email,

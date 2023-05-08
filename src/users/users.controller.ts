@@ -287,6 +287,7 @@ export class UsersController {
 
     await this.mailService.sendVerificationEmail(
       registeredUser.email,
+      registeredUser.id,
       registeredUser.verification_token,
     );
     return { id: registeredUser.id };
@@ -326,13 +327,13 @@ export class UsersController {
   @Post('activate-account')
   async activateAccount(@Body() activateAccountDto: ActivateAccountDto) {
     const isValid = await this.usersService.verificationTokenIsValid(
-      activateAccountDto.email,
-      activateAccountDto.verification_token,
+      activateAccountDto.userId,
+      activateAccountDto.token,
     );
     if (isValid === false) {
       throw new HttpException('Token is not valid', HttpStatus.BAD_REQUEST);
     }
-    const userDetails = await this.usersService.findByEmail(activateAccountDto.email, true);
+    const userDetails = await this.usersService.findById(activateAccountDto.userId, false);
     userDetails.status = ActiveStatus.Active;
     userDetails.verification_token = null;
     await userDetails.save();
@@ -377,13 +378,19 @@ export class UsersController {
   @HttpCode(200)
   async verificationEmailNotReceived(@Body() verificationEmailNotReceivedDto: VerificationEmailNotReceivedDto) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
-    const userData = await this.usersService.findByEmail(verificationEmailNotReceivedDto.email, true);
-    if (userData) {
+    const userData = await this.usersService.findByEmail(verificationEmailNotReceivedDto.email, false);
+
+    // Only send email if the user exists and a verification token exists
+    if (userData && userData.verification_token) {
       await this.mailService.sendVerificationEmail(
         userData.email,
+        userData.id,
         userData.verification_token,
       );
     }
+
+    // Always return success so that we don't inform the user whether or not there is an account
+    // with this email address on Slasher.
     return {
       success: true,
     };

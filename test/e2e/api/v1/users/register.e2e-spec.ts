@@ -112,6 +112,7 @@ describe('Users / Register (e2e)', () => {
         expect(registeredUser.verification_token).toMatch(validUuidV4Regex);
         expect(mailService.sendVerificationEmail).toHaveBeenCalledWith(
           registeredUser.email,
+          registeredUser.id,
           registeredUser.verification_token,
         );
       });

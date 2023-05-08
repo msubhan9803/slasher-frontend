@@ -11,7 +11,7 @@ async function addBetaTesters(app: INestApplication, entries: { email: string, n
       console.log('Adding: ', entry);
       await betaTestersService.create(entry);
     } else {
-      console.log('Skipping (email already exists): ', entry);
+      console.log('Skipping (email already exists):', entry);
     }
   }
 }
@@ -21,7 +21,6 @@ async function addBetaTesters(app: INestApplication, entries: { email: string, n
     console.log("Usage: ./addBetaTesters.ts 'email1@example.com,name1|email2@example.com,name2|email3@example.com,name3'");
     return;
   }
-  console.log(process.argv.length);
   const input = process.argv[2];
   const entries = input.split('|').map((emailNameString) => {
     const indexOfComma = emailNameString.indexOf(',');

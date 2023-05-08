@@ -107,7 +107,7 @@ export class FeedPostsService {
     feedPostQuery.push({ movieId: new mongoose.Types.ObjectId(movieId) });
     feedPostQuery.push({ postType: PostType.MovieReview });
     if (requestingContextUserId) {
-      const blockUserIds = await this.blocksService.getBlockedUserIdsBySender(requestingContextUserId);
+      const blockUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(requestingContextUserId);
       feedPostQuery.push({ userId: { $nin: blockUserIds } });
     }
     if (before) {
@@ -304,7 +304,7 @@ export class FeedPostsService {
 
     // Do not return likes by blocked users
     if (requestingContextUserId) {
-      const blockUserIds = await this.blocksService.getBlockedUserIdsBySender(requestingContextUserId);
+      const blockUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(requestingContextUserId);
       filter.push({ userId: { $nin: blockUserIds } });
     }
     const feedPostLikes = await this.feedLikesModel

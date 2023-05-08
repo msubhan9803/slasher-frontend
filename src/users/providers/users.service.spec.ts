@@ -414,7 +414,7 @@ describe('UsersService', () => {
         to: user2._id,
         reaction: BlockAndUnblockReaction.Block,
       });
-      excludedUserIds = await blocksService.getBlockedUserIdsBySender(user0._id);
+      excludedUserIds = await blocksService.getUserIdsForBlocksToOrFromUser(user0.id);
       excludedUserIds.push(user0._id);
     });
     it('when query exists, returns expected response, with orders sorted alphabetically by username', async () => {

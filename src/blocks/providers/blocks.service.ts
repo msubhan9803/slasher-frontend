@@ -29,17 +29,24 @@ export class BlocksService {
     );
   }
 
-  async getBlockedUserIdsBySender(fromUserId: string): Promise<User[]> {
-    const blocks = await this.blocksModel.find({
-      $and: [{
-        from: new mongoose.Types.ObjectId(fromUserId),
-      },
+  async getUserIdsForBlocksToOrFromUser(userId: string): Promise<User[]> {
+    const blocks = await this.blocksModel.find(
       {
-        reaction: BlockAndUnblockReaction.Block,
-      }],
-    });
-    const toData = blocks.map((block) => block.to);
-    return toData;
+        $and: [
+          {
+            $or: [
+              { to: new mongoose.Types.ObjectId(userId) },
+              { from: new mongoose.Types.ObjectId(userId) },
+            ],
+          },
+          {
+            reaction: BlockAndUnblockReaction.Block,
+          },
+        ],
+      },
+    );
+    const blockFromOrToUserIds = blocks.map((block) => (block.from.toString() === userId ? block.to : block.from));
+    return blockFromOrToUserIds;
   }
 
   async getBlockedUsersBySender(fromUserId: string, limit: number, offset?: number): Promise<User[]> {

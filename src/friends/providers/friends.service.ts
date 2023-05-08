@@ -199,7 +199,7 @@ export class FriendsService {
     // TODO: Time each of the operations below to see why this method is slow to return results
     const friendIds = await this.getFriendIds(user.id, true);
     const suggestBlockUserIds = await this.getSuggestBlockedUserIdsBySender(user.id);
-    const blockUserIds = await this.blocksService.getBlockedUserIdsBySender(user.id);
+    const blockUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(user.id);
 
     const idsToExclude = friendIds.concat(
       suggestBlockUserIds as unknown as mongoose.Types.ObjectId[],

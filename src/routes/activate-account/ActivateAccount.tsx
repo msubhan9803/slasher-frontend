@@ -7,8 +7,8 @@ import useProgressButton from '../../components/ui/ProgressButton';
 
 function ActivateAccount() {
   const [searchParams] = useSearchParams();
-  const email = searchParams.get('email');
-  const verificationToken = searchParams.get('verificationToken');
+  const userId = searchParams.get('userId');
+  const token = searchParams.get('token');
 
   const navigate = useNavigate();
   const [errorMessages, setErrorMessages] = useState<string[]>();
@@ -17,7 +17,7 @@ function ActivateAccount() {
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setProgressButtonStatus('loading');
-    activateAccount(email!, verificationToken!).then(() => {
+    activateAccount(userId!, token!).then(() => {
       setProgressButtonStatus('success');
       navigate('/app/account-activated');
     }).catch((requestError: any) => {
@@ -27,7 +27,7 @@ function ActivateAccount() {
   };
 
   const renderContent = () => {
-    if (!email || !verificationToken) {
+    if (!userId || !token) {
       return 'Invalid activation URL.';
     }
 

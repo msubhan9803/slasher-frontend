@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
@@ -8,6 +9,7 @@ import { Friend, FriendDocument } from '../../schemas/friend/friend.schema';
 import { User, UserDocument } from '../../schemas/user/user.schema';
 import { escapeStringForRegex } from '../../utils/escape-utils';
 import { BlocksService } from '../../blocks/providers/blocks.service';
+import { ActiveStatus } from '../../schemas/user/user.enums';
 
 @Injectable()
 export class FriendsService {
@@ -210,7 +212,14 @@ export class FriendsService {
       [user.id],
     );
 
-    const friendUsers = await this.usersModel.find({ _id: { $nin: idsToExclude } })
+    const friendUsers = await this.usersModel.find({
+      $and: [
+        { _id: { $nin: idsToExclude } },
+        { deleted: false },
+        { userBanned: false },
+        { status: ActiveStatus.Active },
+      ],
+    })
       .sort({ createdAt: -1 }).limit(limit)
       .select({ userName: 1, profilePic: 1, _id: 1 })
       .exec();

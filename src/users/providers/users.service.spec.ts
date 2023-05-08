@@ -2,7 +2,7 @@
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import mongoose, { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model, Types } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { AppModule } from '../../app.module';
 import { UsersService } from './users.service';
@@ -300,17 +300,27 @@ describe('UsersService', () => {
     it('finds the expected user by email and verification_token', async () => {
       expect(
         await usersService.verificationTokenIsValid(
-          user.email,
+          user.id,
           user.verification_token,
         ),
       ).toBe(true);
     });
 
-    it('returns false when email does not exist', async () => {
-      const userEmail = 'non-existinging-user@gmail.com';
+    it('returns false when userId does not exist', async () => {
+      const nonExistentId = new Types.ObjectId().toString();
       expect(
         await usersService.verificationTokenIsValid(
-          userEmail,
+          nonExistentId,
+          user.verification_token,
+        ),
+      ).toBe(false);
+    });
+
+    it('returns false when userId is not a MongoID and does not exist', async () => {
+      const nonExistentId = 'zzz';
+      expect(
+        await usersService.verificationTokenIsValid(
+          nonExistentId,
           user.verification_token,
         ),
       ).toBe(false);
@@ -326,12 +336,12 @@ describe('UsersService', () => {
       ).toBe(false);
     });
 
-    it('when verification_token or email is not exists', async () => {
+    it('when verification_token or email do not exist', async () => {
       const userVerificationToken = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
-      const userEmail = 'non-existinging-user@gmail.com';
+      const nonExistentId = new Types.ObjectId().toString();
       expect(
         await usersService.verificationTokenIsValid(
-          userEmail,
+          nonExistentId,
           userVerificationToken,
         ),
       ).toBe(false);

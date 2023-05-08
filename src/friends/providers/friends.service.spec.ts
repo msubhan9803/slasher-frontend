@@ -436,7 +436,7 @@ describe('FriendsService', () => {
         }),
       );
       const suggestedFriends = await friendsService.getSuggestedFriends(user, 10);
-      expect(suggestedFriends).toHaveLength(9);
+      expect(suggestedFriends).toHaveLength(8);
       expect(suggestedFriends.map((friend) => friend._id)).not.toContain(user6._id);
     });
 
@@ -446,7 +446,7 @@ describe('FriendsService', () => {
       );
       await usersService.update(user7.id, { deleted: true });
       const suggestedFriends = await friendsService.getSuggestedFriends(user, 10);
-      expect(suggestedFriends).toHaveLength(9);
+      expect(suggestedFriends).toHaveLength(8);
       expect(suggestedFriends.map((friend) => friend._id)).not.toContain(user7._id);
     });
 
@@ -456,7 +456,7 @@ describe('FriendsService', () => {
       );
       await usersService.update(user8.id, { userBanned: true });
       const suggestedFriends = await friendsService.getSuggestedFriends(user, 10);
-      expect(suggestedFriends).toHaveLength(9);
+      expect(suggestedFriends).toHaveLength(8);
       expect(suggestedFriends.map((friend) => friend._id)).not.toContain(user8._id);
     });
   });

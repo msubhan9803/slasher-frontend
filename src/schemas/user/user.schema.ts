@@ -150,6 +150,16 @@ export class User extends UserUnusedFields {
   @Prop({ default: 0 })
   newFriendRequestCount: number;
 
+  @Prop({ trim: true, default: null })
+  unverifiedNewEmail: string;
+
+  @Prop({ trim: true, default: null })
+  emailChangeToken: string;
+
+  // This is so we have an audit trail after email address changes, in case someone's account is ever compromised
+  @Prop({ default: [] })
+  old_email_arr: string[];
+
   /***********
    * Methods *
    ***********/

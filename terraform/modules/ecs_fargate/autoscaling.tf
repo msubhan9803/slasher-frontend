@@ -15,7 +15,7 @@ resource "aws_appautoscaling_policy" "slasher-web-new-up" {
 
   step_scaling_policy_configuration {
     adjustment_type         = "ChangeInCapacity"
-    cooldown                = 60
+    cooldown                = 30
     metric_aggregation_type = "Maximum"
 
     step_adjustment {
@@ -36,7 +36,7 @@ resource "aws_appautoscaling_policy" "slasher-web-new-down" {
 
   step_scaling_policy_configuration {
     adjustment_type         = "ChangeInCapacity"
-    cooldown                = 60
+    cooldown                = 30
     metric_aggregation_type = "Maximum"
 
     step_adjustment {

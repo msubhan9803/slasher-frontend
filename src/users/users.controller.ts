@@ -66,6 +66,7 @@ import { FindAllMoviesDto } from '../movies/dto/find-all-movies.dto';
 import { relativeToFullImagePath } from '../utils/image-utils';
 import { IpOrForwardedIp } from '../app/decorators/ip-or-forwarded-ip.decorator';
 import { BetaTestersService } from '../beta-tester/providers/beta-testers.service';
+import { EmailRevertTokensService } from '../email-revert-tokens/providers/email-revert-tokens.service';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -87,6 +88,7 @@ export class UsersController {
     private readonly disallowedUsernameService: DisallowedUsernameService,
     private readonly moviesService: MoviesService,
     private readonly betaTestersService: BetaTestersService,
+    private readonly emailRevertTokensService: EmailRevertTokensService,
     private configService: ConfigService,
   ) { }
 
@@ -284,8 +286,8 @@ export class UsersController {
     await this.userSettingsService.create({ userId: registeredUser.id });
 
     await this.mailService.sendVerificationEmail(
-      registeredUser.firstName,
       registeredUser.email,
+      registeredUser.id,
       registeredUser.verification_token,
     );
     return { id: registeredUser.id };
@@ -325,13 +327,13 @@ export class UsersController {
   @Post('activate-account')
   async activateAccount(@Body() activateAccountDto: ActivateAccountDto) {
     const isValid = await this.usersService.verificationTokenIsValid(
-      activateAccountDto.email,
-      activateAccountDto.verification_token,
+      activateAccountDto.userId,
+      activateAccountDto.token,
     );
     if (isValid === false) {
       throw new HttpException('Token is not valid', HttpStatus.BAD_REQUEST);
     }
-    const userDetails = await this.usersService.findByEmail(activateAccountDto.email, true);
+    const userDetails = await this.usersService.findById(activateAccountDto.userId, false);
     userDetails.status = ActiveStatus.Active;
     userDetails.verification_token = null;
     await userDetails.save();
@@ -356,7 +358,6 @@ export class UsersController {
       userData.resetPasswordToken = uuidv4();
       await userData.save();
       await this.mailService.sendForgotPasswordEmail(
-        userData.firstName,
         userData.email,
         userData.resetPasswordToken,
       );
@@ -377,14 +378,19 @@ export class UsersController {
   @HttpCode(200)
   async verificationEmailNotReceived(@Body() verificationEmailNotReceivedDto: VerificationEmailNotReceivedDto) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
-    const userData = await this.usersService.findByEmail(verificationEmailNotReceivedDto.email, true);
-    if (userData) {
+    const userData = await this.usersService.findByEmail(verificationEmailNotReceivedDto.email, false);
+
+    // Only send email if the user exists and a verification token exists
+    if (userData && userData.verification_token) {
       await this.mailService.sendVerificationEmail(
-        userData.firstName,
         userData.email,
+        userData.id,
         userData.verification_token,
       );
     }
+
+    // Always return success so that we don't inform the user whether or not there is an account
+    // with this email address on Slasher.
     return {
       success: true,
     };
@@ -460,7 +466,10 @@ export class UsersController {
     const pickFields = ['_id', 'firstName', 'userName', 'profilePic', 'coverPhoto', 'aboutMe', 'profile_status'];
 
     // expose email to loggged in user only, when logged in user requests own user record
-    if (loggedInUser.id === user.id) { pickFields.push('email'); }
+    if (loggedInUser.id === user.id) {
+      pickFields.push('email');
+      pickFields.push('unverifiedNewEmail');
+    }
 
     return { ...pick(user, pickFields), friendshipStatus };
   }
@@ -503,17 +512,47 @@ export class UsersController {
       );
     }
 
-    if (updateUserDto.email && updateUserDto.email !== user.email && !await this.usersService.emailAvailable(updateUserDto.email)) {
-      throw new HttpException(
-        'Email address is already associated with an existing user.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
+    const additionalFieldsToUpdate: Partial<User> = {};
+    if (updateUserDto.email && updateUserDto.email !== user.email) {
+      // Check if new email address is already used by another account. If so, throw exception.
+      if (!await this.usersService.emailAvailable(updateUserDto.email)) {
+        throw new HttpException(
+          'Email address is already associated with an existing user.',
+          HttpStatus.UNPROCESSABLE_ENTITY,
+        );
+      }
+      // If new email address is available (not used by another user), then we'll assign
+      // it to the unverified email address field and and send verification emails to both
+      // the new AND old addresses.
+      additionalFieldsToUpdate.unverifiedNewEmail = updateUserDto.email;
+      additionalFieldsToUpdate.emailChangeToken = uuidv4();
+      // And we'll make sure that the old email address is retained in the existing email field
+      // during our upcoming update.
+      additionalFieldsToUpdate.email = user.email;
+
+      // And generate an email revert token, using the user's current (old) email as the email to revert to
+      const emailRevertToken = await this.emailRevertTokensService.create(user.id, uuidv4(), user.email);
+
+      // And we'll retain the current email, so we'll clear out the dto value
+      this.mailService.sendEmailChangeConfirmationEmails(
+        user.id,
+        additionalFieldsToUpdate.email,
+        additionalFieldsToUpdate.unverifiedNewEmail,
+        additionalFieldsToUpdate.emailChangeToken,
+        emailRevertToken.value,
       );
+    } else {
+      // If newly supplied email address matches existing email, make sure to clear out the
+      // unverifiedNewEmail field.
+      additionalFieldsToUpdate.unverifiedNewEmail = null;
     }
 
-    const userData = await this.usersService.update(id, updateUserDto);
+    const userData = await this.usersService.update(id, { ...updateUserDto, ...additionalFieldsToUpdate });
     return {
       _id: user.id,
       ...pick(userData, Object.keys(updateUserDto)),
+      // If a user email update was attempted, and it resulted in an unverifiedNewEmail, return the unverifiedNewEmail too
+      ...(updateUserDto.email && userData.unverifiedNewEmail ? { unverifiedNewEmail: userData.unverifiedNewEmail } : {}),
     };
   }
 

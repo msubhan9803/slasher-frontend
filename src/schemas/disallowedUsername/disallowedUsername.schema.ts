@@ -17,6 +17,9 @@ export class DisallowedUsername {
 
   @Prop({ required: true })
   username: string;
+
+  @Prop({ default: false, required: true })
+  notifyIfUsernameContains: boolean;
 }
 
 export const DisallowedUsernameSchema = SchemaFactory.createForClass(DisallowedUsername);

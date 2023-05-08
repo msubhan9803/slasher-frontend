@@ -27,11 +27,16 @@ function FollowingHeader({
       navigate(`/${userName}/posts`);
     }
   }, [loginUserName, userName, navigate]);
+
+  const handleSearch = (value: any) => {
+    setSearch(value);
+  };
+
   return (
     <div className="">
       <Row className="mt-3 mt-md-0 mb-3">
         <Col md={4} lg={5} xl={4}>
-          <CustomSearchInput label="Search..." setSearch={setSearch} search={search} />
+          <CustomSearchInput label="Search..." setSearch={handleSearch} search={search} />
         </Col>
       </Row>
       <div className="mt-3">

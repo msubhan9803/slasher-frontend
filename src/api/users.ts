@@ -316,15 +316,16 @@ export async function addHashtags(
   return axios.post(`${apiUrl}/api/v1/users/${userId}/hashtag-follows`, { hashtags }, { headers });
 }
 
-export async function getFollowedHashtags(
-  userId: string,
-) {
+export async function getFollowedHashtags(userId: string, search: string, page: number) {
   const token = Cookies.get('sessionToken');
   const headers = {
     Authorization: `Bearer ${token}`,
   };
   const limit = 10;
-  const queryParameter = `?limit=${limit}`;
+  let queryParameter = `?limit=${limit}&offset=${page * limit}`;
+  if (search) {
+    queryParameter += `&query=${search}`;
+  }
   return axios.get(`${apiUrl}/api/v1/users/${userId}/hashtag-follows${queryParameter}`, { headers });
 }
 

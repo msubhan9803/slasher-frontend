@@ -1,6 +1,4 @@
-import linkifyHtml from 'linkify-html';
 import React from 'react';
-import { customlinkifyOpts } from '../../utils/linkify-utils';
 import { newLineToBr, decryptMessage, escapeHtmlSpecialCharacters } from '../../utils/text-utils';
 
 export interface Props {
@@ -19,13 +17,7 @@ function ChatMessageText({ message, firstLineOnly }: Props) {
   }
 
   reformattedMessage = newLineToBr(
-    // TODO: Remove use of decodeURIComponent once the old API is retired and all old messages
-    // have been updated so that they're not being URI-encoded anymore. The URI-encoding is
-    // either coming from the old API or more likely the iOS and Android apps.  It's not clear
-    // why this is being done, sine non-URI-encoded messages seem to display without a problem.
-    linkifyHtml(decryptMessage(
-      escapeHtmlSpecialCharacters(reformattedMessage),
-    ), customlinkifyOpts),
+    decryptMessage(escapeHtmlSpecialCharacters(reformattedMessage)),
   );
   return (
     // eslint-disable-next-line react/no-danger

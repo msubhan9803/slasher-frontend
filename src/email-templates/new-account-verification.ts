@@ -13,7 +13,7 @@ export const templateForNewAccountVerification = `
     <p>We look forward to you being a part of our community! We've got such sights to show you!</p>
 
     <p>
-      You can login to Slasher at: <a style="color:#ffffff;" href="https://www.slasher.tv">www.slasher.tv</a>
+      You can login to Slasher at: <a style="color:#ffffff;" href="[[FRONTEND_URL]]">www.slasher.tv</a>
       <br />
       or
       <br />

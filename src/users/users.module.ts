@@ -14,6 +14,8 @@ import { MailModule } from '../providers/mail.module';
 import { DisallowedUsernameModule } from '../disallowedUsername/disallowed-username.module';
 import { MoviesModule } from '../movies/movies.module';
 import { HashtagFollowsModule } from '../hashtag-follows/hashtag-follows.module';
+import { UsersEmailChangeController } from './users.email-change.controller';
+import { EmailRevertTokensModule } from '../email-revert-tokens/email-revert-tokens.module';
 
 // Since the UsersModule is likely to be used in many places, we'll make it global
 @Global()
@@ -22,6 +24,7 @@ import { HashtagFollowsModule } from '../hashtag-follows/hashtag-follows.module'
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: SocketUser.name, schema: SocketUserSchema }]),
     UserSettingModule,
+    EmailRevertTokensModule,
     ChatModule,
     RssFeedProviderFollowsModule,
     RssFeedProvidersModule,
@@ -30,7 +33,7 @@ import { HashtagFollowsModule } from '../hashtag-follows/hashtag-follows.module'
     MoviesModule,
     HashtagFollowsModule,
   ],
-  controllers: [UsersController],
+  controllers: [UsersEmailChangeController, UsersController],
   providers: [UsersService, LocalStorageService, S3StorageService],
   exports: [UsersService],
 })

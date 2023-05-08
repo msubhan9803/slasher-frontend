@@ -1,6 +1,6 @@
 import { IsMongoId, IsNotEmpty } from 'class-validator';
 
-export class ActivateAccountDto {
+export class EmailChangeConfirmDto {
   @IsNotEmpty()
   @IsMongoId()
   userId: string;

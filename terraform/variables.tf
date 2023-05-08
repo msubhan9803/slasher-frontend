@@ -23,6 +23,7 @@ variable "slasher_cron_host_header" {}
 
 variable "upload_dir" {}
 variable "help_email" {}
+variable "event_review_email" {}
 variable "report_email_recipient" {}
 variable "default_smtp_port" {}
 variable "default_smtp_host" {}

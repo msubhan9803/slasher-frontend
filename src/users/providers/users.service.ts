@@ -1,7 +1,8 @@
-import mongoose, { Model } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as EmailValidator from 'email-validator';
+import { isMongoId } from 'class-validator';
 import { User, UserDocument } from '../../schemas/user/user.schema';
 import { escapeStringForRegex } from '../../utils/escape-utils';
 import { SocketUser, SocketUserDocument } from '../../schemas/socketUser/socketUser.schema';
@@ -114,12 +115,13 @@ export class UsersService {
     return !!isValid;
   }
 
-  async verificationTokenIsValid(email: string, verification_token: string) {
+  async verificationTokenIsValid(userId: string, token: string) {
+    if (!isMongoId(userId)) { return false; }
     const isValid = await this.userModel
       .findOne({
         $and: [
-          { email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') },
-          { verification_token },
+          { _id: new Types.ObjectId(userId) },
+          { verification_token: token },
         ],
       })
       .exec();

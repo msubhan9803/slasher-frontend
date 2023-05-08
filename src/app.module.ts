@@ -168,6 +168,8 @@ export class AppModule {
         '/api/v1/users/validate-password-reset-token',
         '/api/v1/users/check-email',
         '/api/v1/users/verification-email-not-received',
+        '/api/v1/users/email-change/confirm',
+        '/api/v1/users/email-change/revert',
       )
       .forRoutes('*');
   }

@@ -152,6 +152,7 @@ export class User extends UserUnusedFields {
 
   @Prop({ default: [] })
   hashtags: string[];
+
   @Prop({ trim: true, default: null })
   unverifiedNewEmail: string;
 

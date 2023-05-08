@@ -16,6 +16,7 @@ import { BlocksService } from '../../blocks/providers/blocks.service';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
+import { ActiveStatus } from '../../schemas/user/user.enums';
 
 describe('FriendsService', () => {
   let app: INestApplication;
@@ -40,7 +41,6 @@ describe('FriendsService', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
     suggestBlockModel = moduleRef.get<Model<SuggestBlockDocument>>(getModelToken(SuggestBlock.name));
-
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
     await app.init();
@@ -279,6 +279,35 @@ describe('FriendsService', () => {
     });
   });
 
+  describe('#getFriendIds', () => {
+    let user4;
+    beforeEach(async () => {
+      user4 = await usersService.create(userFactory.build({ userName: 'Horror' }));
+    });
+
+    it('returns the expected response with accepted status', async () => {
+      await friendsService.createFriendRequest(user1.id, user2.id);
+      await friendsService.createFriendRequest(user1.id, user3.id);
+      await friendsService.acceptFriendRequest(user1.id, user2.id);
+      await friendsService.acceptFriendRequest(user1.id, user3.id);
+      const friend = await friendsService.getFriendIds(user1.id, [FriendRequestReaction.Accepted]);
+      expect(friend).toEqual([user2._id, user3._id]);
+    });
+
+    it('returns the expected response with pending status', async () => {
+      await friendsService.createFriendRequest(user1.id, user4.id);
+      const friend = await friendsService.getFriendIds(user1.id, [FriendRequestReaction.Pending]);
+      expect(friend).toEqual([user4._id]);
+    });
+
+    it('returns the expected response with decline status', async () => {
+      await friendsService.createFriendRequest(user1.id, user4.id);
+      await friendsService.cancelFriendshipOrDeclineRequest(user1.id, user4.id);
+      const friend = await friendsService.getFriendIds(user1.id, [FriendRequestReaction.DeclinedOrCancelled]);
+      expect(friend).toEqual([user4._id]);
+    });
+  });
+
   describe('#getFriends', () => {
     beforeEach(async () => {
       const user4 = await usersService.create(userFactory.build({ userName: 'Count Dracula' }));
@@ -398,6 +427,37 @@ describe('FriendsService', () => {
     it('returns the expected number of users when the requested number is lower than the number available', async () => {
       const suggestedFriends = await friendsService.getSuggestedFriends(user, 5);
       expect(suggestedFriends).toHaveLength(5);
+    });
+
+    it('when user status is inactive than expected response', async () => {
+      const user6 = await usersService.create(
+        userFactory.build({
+          status: ActiveStatus.Inactive,
+        }),
+      );
+      const suggestedFriends = await friendsService.getSuggestedFriends(user, 10);
+      expect(suggestedFriends).toHaveLength(9);
+      expect(suggestedFriends.map((friend) => friend._id)).not.toContain(user6._id);
+    });
+
+    it('when user is deleted than expected response', async () => {
+      const user7 = await usersService.create(
+        userFactory.build(),
+      );
+      await usersService.update(user7.id, { deleted: true });
+      const suggestedFriends = await friendsService.getSuggestedFriends(user, 10);
+      expect(suggestedFriends).toHaveLength(9);
+      expect(suggestedFriends.map((friend) => friend._id)).not.toContain(user7._id);
+    });
+
+    it('when user is banned than expected response', async () => {
+      const user8 = await usersService.create(
+        userFactory.build(),
+      );
+      await usersService.update(user8.id, { userBanned: true });
+      const suggestedFriends = await friendsService.getSuggestedFriends(user, 10);
+      expect(suggestedFriends).toHaveLength(9);
+      expect(suggestedFriends.map((friend) => friend._id)).not.toContain(user8._id);
     });
   });
 

@@ -54,6 +54,16 @@ export class UsersService {
     }).count()) === userIds.length;
   }
 
+  async findInactiveUserByEmail(email: string): Promise<UserDocument> {
+    return this.userModel
+      .findOne({
+        email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i'),
+        status: ActiveStatus.Inactive,
+        deleted: false,
+      })
+      .exec();
+  }
+
   async findByEmail(email: string, activeOnly: boolean): Promise<UserDocument> {
     const userFindQuery: any = { email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') };
     if (activeOnly) {
@@ -76,11 +86,11 @@ export class UsersService {
       .exec();
   }
 
-  async findByEmailOrUsername(emailOrUsername: string, activeOnly: boolean): Promise<UserDocument> {
+  async findNonDeletedUserByEmailOrUsername(emailOrUsername: string): Promise<UserDocument> {
     if (EmailValidator.validate(emailOrUsername)) {
-      return this.findByEmail(emailOrUsername, activeOnly);
+      return this.userModel.findOne({ email: emailOrUsername, deleted: false }).exec();
     }
-    return this.findByUsername(emailOrUsername, activeOnly);
+    return this.userModel.findOne({ userName: emailOrUsername, deleted: false }).exec();
   }
 
   async userNameAvailable(userName: string): Promise<boolean> {

@@ -83,6 +83,7 @@ export class FeedCommentsService {
     parentFeedPostId: string,
     limit: number,
     sortBy: 'newestFirst' | 'oldestFirst',
+    excludeUserIds: string[],
     identifyLikesForUser?: mongoose.Types.ObjectId,
     after?: mongoose.Types.ObjectId,
   ): Promise<FeedCommentWithReplies[]> {
@@ -104,6 +105,7 @@ export class FeedCommentsService {
           { feedPostId: parentFeedPostId },
           { is_deleted: FeedCommentDeletionState.NotDeleted },
           { status: FeedCommentStatus.Active },
+          { userId: { $nin: excludeUserIds } },
           queryForAfterFilter,
         ],
       })
@@ -122,6 +124,7 @@ export class FeedCommentsService {
     const replies = await this.feedReplyModel
       .find({
         feedCommentId: { $in: commentIds },
+        userId: { $nin: excludeUserIds },
         deleted: FeedCommentDeletionState.NotDeleted,
         status: FeedCommentStatus.Active,
       })
@@ -157,9 +160,10 @@ export class FeedCommentsService {
   async findOneFeedCommentWithReplies(
     feedCommentId: string,
     activeOnly: boolean,
+    excludeUserIds: string[],
     identifyLikesForUser?: mongoose.Types.ObjectId,
   ): Promise<FeedCommentWithReplies> {
-    const commentAndReplyQuery: any = { _id: feedCommentId };
+    const commentAndReplyQuery: any = { _id: feedCommentId, userId: { $nin: excludeUserIds } };
     if (activeOnly) {
       commentAndReplyQuery.is_deleted = FeedCommentDeletionState.NotDeleted;
       commentAndReplyQuery.status = FeedCommentStatus.Active;
@@ -176,6 +180,7 @@ export class FeedCommentsService {
     const feedReply = await this.feedReplyModel
       .find({
         feedCommentId: feedCommentData._id,
+        userId: { $nin: excludeUserIds },
         deleted: FeedCommentDeletionState.NotDeleted,
         status: FeedCommentStatus.Active,
       })

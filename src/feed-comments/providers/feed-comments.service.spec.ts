@@ -20,6 +20,9 @@ import { feedCommentsFactory } from '../../../test/factories/feed-comments.facto
 import { feedRepliesFactory } from '../../../test/factories/feed-reply.factory';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
+import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
+import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndUnblock.enums';
+import { BlocksService } from '../../blocks/providers/blocks.service';
 
 describe('FeedCommentsService', () => {
   let app: INestApplication;
@@ -27,10 +30,12 @@ describe('FeedCommentsService', () => {
   let feedCommentsService: FeedCommentsService;
   let feedPostsService: FeedPostsService;
   let usersService: UsersService;
+  let blocksService: BlocksService;
   let activeUser: UserDocument;
   let feedPost: FeedPostDocument;
   let feedCommentsModel: Model<FeedCommentDocument>;
   let feedReplyModel: Model<FeedReplyDocument>;
+  let blocksModel: Model<BlockAndUnblockDocument>;
 
   const sampleFeedCommentsObject = {
     images: [
@@ -54,6 +59,8 @@ describe('FeedCommentsService', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     feedCommentsModel = moduleRef.get<Model<FeedCommentDocument>>(getModelToken(FeedComment.name));
     feedReplyModel = moduleRef.get<Model<FeedReplyDocument>>(getModelToken(FeedReply.name));
+    blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
+    blocksService = moduleRef.get<BlocksService>(BlocksService);
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -238,6 +245,20 @@ describe('FeedCommentsService', () => {
   });
 
   describe('#findFeedCommentsWithReplies', () => {
+    let user0;
+    let user1;
+    let excludedUserIds;
+    beforeEach(async () => {
+      user0 = await usersService.create(userFactory.build());
+      user1 = await usersService.create(userFactory.build());
+      await blocksModel.create({
+        from: user0._id,
+        to: user1._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      excludedUserIds = await blocksService.getUserIdsForBlocksToOrFromUser(user0.id);
+    });
+
     it('finds the expected comments and delete the details', async () => {
       const messages = ['Hello Test Reply Message 1', 'Hello Test Reply Message 2', 'Hello Test Reply Message 3'];
       const feedComments1 = await feedCommentsService.createFeedComment(
@@ -252,6 +273,15 @@ describe('FeedCommentsService', () => {
         feedCommentsFactory.build(
           {
             userId: activeUser.id,
+            feedPostId: feedPost.id,
+          },
+        ),
+      );
+      //this is block user comment
+      await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: user1.id,
             feedPostId: feedPost.id,
           },
         ),
@@ -278,7 +308,23 @@ describe('FeedCommentsService', () => {
           },
         ),
       );
-      const feedCommentsWithReplies = await feedCommentsService.findFeedCommentsWithReplies(feedPost.id, 20, 'newestFirst');
+      //this is block user reply
+      await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: user1.id,
+            feedCommentId: feedComments2.id,
+            message: 'Hello Test Reply Message 4',
+            images: sampleFeedCommentsObject.images,
+          },
+        ),
+      );
+      const feedCommentsWithReplies = await feedCommentsService.findFeedCommentsWithReplies(
+        feedPost.id,
+        20,
+        'newestFirst',
+        excludedUserIds,
+      );
       expect(feedCommentsWithReplies).toHaveLength(3);
     });
 
@@ -299,6 +345,19 @@ describe('FeedCommentsService', () => {
       const feedComments2 = await feedCommentsModel.create({
         feedPostId: feedPost1.id,
         userId: activeUser.id,
+        message: sampleFeedCommentsObject.message,
+        images: sampleFeedCommentsObject.images,
+        likes: [
+          '637b39e078b0104f975821bf',
+          '637b39e078b0104f975821bg',
+          '637b39e078b0104f975821bh',
+          activeUser.id,
+        ],
+      });
+      //this is block user comment
+      await feedCommentsModel.create({
+        feedPostId: feedPost1.id,
+        userId: user1.id,
         message: sampleFeedCommentsObject.message,
         images: sampleFeedCommentsObject.images,
         likes: [
@@ -344,18 +403,42 @@ describe('FeedCommentsService', () => {
         ],
       });
 
-      const getFeedPostData = await feedCommentsModel.find({ feedPostId: feedPost1._id });
+      await feedReplyModel.create({
+        feedCommentId: feedComments2._id.toString(),
+        userId: user1.id,
+        message: 'Hello Test Reply Message 5',
+        images: sampleFeedCommentsObject.images,
+        likes: [
+          '63772b35611dc46e8fb44455',
+          '63772b35611dc46e8fb45566',
+        ],
+      });
+
+      const getFeedPostData = await feedCommentsModel.find({
+        $and: [
+          { feedPostId: feedPost1._id },
+          { userId: { $nin: excludedUserIds } },
+        ],
+      });
       const getFeedReplyData = await feedReplyModel.find({
-        feedCommentId:
-          { $in: [feedComments1._id.toString(), feedComments2._id.toString()] },
+        $and: [
+          {
+            feedCommentId:
+              { $in: [feedComments1._id.toString(), feedComments2._id.toString()] },
+          },
+          { userId: { $nin: excludedUserIds } },
+        ],
       });
       const userData = await usersService.findById(activeUser.id, true);
+
       const feedCommentsWithReplies = await feedCommentsService.findFeedCommentsWithReplies(
         feedPost1.id,
         20,
         'newestFirst',
+        excludedUserIds,
         activeUser.id,
       );
+
       const feedCommentAndReply = JSON.parse(JSON.stringify(getFeedPostData));
       const replyData = JSON.parse(JSON.stringify(getFeedReplyData));
       for (let i = 0; i < feedCommentAndReply.length; i += 1) {
@@ -406,7 +489,15 @@ describe('FeedCommentsService', () => {
             },
           ),
         );
-
+        //this is block user comment
+        await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: user1.id,
+              feedPostId: feedPost.id,
+            },
+          ),
+        );
         await feedCommentsService.createFeedReply(
           feedRepliesFactory.build(
             {
@@ -450,14 +541,30 @@ describe('FeedCommentsService', () => {
             },
           ),
         );
-
+        //this is block user reply
+        await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: user1.id,
+              feedCommentId: feedComments2.id,
+              message: 'Hello Test Reply Message 4',
+              images: sampleFeedCommentsObject.images,
+            },
+          ),
+        );
         const limit = 3;
-        const firstResults = await feedCommentsService.findFeedCommentsWithReplies(feedPost.id, limit, 'newestFirst');
+        const firstResults = await feedCommentsService.findFeedCommentsWithReplies(
+          feedPost.id,
+          limit,
+          'newestFirst',
+          excludedUserIds,
+        );
         expect(firstResults).toHaveLength(3);
         const secondResults = await feedCommentsService.findFeedCommentsWithReplies(
           feedPost.id,
           limit,
           'newestFirst',
+          excludedUserIds,
           null,
           new mongoose.Types.ObjectId(firstResults[limit - 1]._id.toString()),
         );
@@ -512,7 +619,18 @@ describe('FeedCommentsService', () => {
   describe('#findOneFeedCommentWithReplies', () => {
     let feedPost2;
     let feedComments1;
+    let user0;
+    let user1;
+    let excludedUserIds;
     beforeEach(async () => {
+      user0 = await usersService.create(userFactory.build());
+      user1 = await usersService.create(userFactory.build());
+      await blocksModel.create({
+        from: user0._id,
+        to: user1._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      excludedUserIds = await blocksService.getUserIdsForBlocksToOrFromUser(user0.id);
       feedPost2 = await feedPostsService.create(
         feedPostFactory.build(
           {
@@ -523,6 +641,20 @@ describe('FeedCommentsService', () => {
       feedComments1 = await feedCommentsModel.create({
         feedPostId: feedPost2.id,
         userId: activeUser.id,
+        message: sampleFeedCommentsObject.message,
+        images: sampleFeedCommentsObject.images,
+        likes: [
+          '637b39e078b0104f975821bc',
+          '637b39e078b0104f975821bd',
+          '637b39e078b0104f975821be',
+          '637b39e078b0104f97582121',
+          activeUser.id,
+        ],
+      });
+      //this is block user comment
+      await feedCommentsModel.create({
+        feedPostId: feedPost2.id,
+        userId: user1.id,
         message: sampleFeedCommentsObject.message,
         images: sampleFeedCommentsObject.images,
         likes: [
@@ -545,14 +677,44 @@ describe('FeedCommentsService', () => {
           ],
         });
       }
+      //this is block user reply
+      await feedReplyModel.create({
+        feedCommentId: feedComments1._id.toString(),
+        userId: user1.id,
+        message: 'Hello Test Reply Message 1',
+        images: sampleFeedCommentsObject.images,
+        likes: [
+          '63772b35611dc46e8fb42102',
+          activeUser.id,
+        ],
+      });
     });
 
     it('successfully find single feed comments and reply.', async () => {
-      const feedCommentAndReplyDetails = await feedCommentsService.findOneFeedCommentWithReplies(feedComments1.id, true, activeUser.id);
-      const getFeedPostData = await feedCommentsModel.findOne({ feedPostId: feedPost2._id });
-      const getFeedReplyData = await feedReplyModel.find({
-        feedCommentId: feedComments1._id.toString(),
-      });
+      const feedCommentAndReplyDetails = await feedCommentsService.findOneFeedCommentWithReplies(
+        feedComments1.id,
+        true,
+        excludedUserIds,
+        activeUser.id,
+      );
+      const getFeedPostData = await feedCommentsModel.findOne(
+        {
+          $and: [
+            { feedPostId: feedPost2._id },
+            { userId: { $nin: excludedUserIds } },
+          ],
+        },
+      );
+      const getFeedReplyData = await feedReplyModel.find(
+        {
+          $and: [
+            {
+              feedCommentId: feedComments1._id.toString(),
+            },
+            { userId: { $nin: excludedUserIds } },
+          ],
+        },
+      );
       const userData = await usersService.findById(activeUser.id, true);
       const feedCommentAndReply = JSON.parse(JSON.stringify(getFeedPostData));
       const replyData = JSON.parse(JSON.stringify(getFeedReplyData));
@@ -570,7 +732,11 @@ describe('FeedCommentsService', () => {
     });
 
     it('when feed comment id is not exists than expected response.', async () => {
-      const feedCommentAndReplyDetails = await feedCommentsService.findOneFeedCommentWithReplies('637b39e078b0104f975821be', true);
+      const feedCommentAndReplyDetails = await feedCommentsService.findOneFeedCommentWithReplies(
+        '637b39e078b0104f975821be',
+        true,
+        excludedUserIds,
+      );
       expect(feedCommentAndReplyDetails).toBeNull();
     });
   });

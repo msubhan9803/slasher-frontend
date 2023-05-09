@@ -14,6 +14,8 @@ import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { Chat, ChatDocument } from '../../schemas/chat/chat.schema';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
+import { BlockAndUnblockDocument, BlockAndUnblock } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
+import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndUnblock.enums';
 
 describe('ChatService', () => {
   let app: INestApplication;
@@ -29,6 +31,7 @@ describe('ChatService', () => {
   let messageModel: Model<MessageDocument>;
   let matchListModel: Model<MatchListDocument>;
   let chatModel: Model<ChatDocument>;
+  let blocksModel: Model<BlockAndUnblockDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -40,6 +43,7 @@ describe('ChatService', () => {
     messageModel = moduleRef.get<Model<MessageDocument>>(getModelToken(Message.name));
     matchListModel = moduleRef.get<Model<MatchListDocument>>(getModelToken(MatchList.name));
     chatModel = moduleRef.get<Model<ChatDocument>>(getModelToken(Chat.name));
+    blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -178,6 +182,14 @@ describe('ChatService', () => {
       // User 1 sends two messages. Both sent messages are unread.
       m2 = await chatService.sendPrivateDirectMessage(user1.id, user2.id, 'This is a new message');
       m3 = await chatService.sendPrivateDirectMessage(user1.id, user2.id, 'This is another new message');
+
+      // Send message to `user3` and `user3` blocks `user1` (Note: Block is bidirectional)
+      await chatService.sendPrivateDirectMessage(user1.id, user3.id, 'You will block me!');
+      await blocksModel.create({
+        from: user1.id,
+        to: user3.id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
     });
 
     it('successfully returns a list of convesations for a user', async () => {
@@ -194,6 +206,9 @@ describe('ChatService', () => {
       expect(conversations[1].latestMessage).toBe('This is a reply');
       // Expect unreadCount of 1 because the unread message in the conversation is unread by the viewing user
       expect(conversations[1].unreadCount).toBe(1);
+
+      // Conversations should not converstaion from blocked users
+      expect(conversations.map((m) => m.latestMessage)).not.toContain('You will block me!');
     });
 
     it('should filter deleted message for single user when returning list of convesations for a user', async () => {

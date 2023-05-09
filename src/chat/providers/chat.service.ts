@@ -15,6 +15,7 @@ import {
 import { Message, MessageDocument } from '../../schemas/message/message.schema';
 import { NotificationReadStatus } from '../../schemas/notification/notification.enums';
 import { UsersService } from '../../users/providers/users.service';
+import { BlocksService } from '../../blocks/providers/blocks.service';
 
 export interface Conversation extends MatchList {
   latestMessage: Message;
@@ -29,6 +30,7 @@ export class ChatService {
     @InjectModel(MatchList.name) private matchListModel: Model<MatchListDocument>,
     @InjectModel(Chat.name) private chatModel: Model<ChatDocument>,
     private usersService: UsersService,
+    private readonly blocksService: BlocksService,
   ) { }
 
   async createPrivateDirectMessageConversation(participants: mongoose.Types.ObjectId[]) {
@@ -191,10 +193,13 @@ export class ChatService {
       beforeUpdatedAt = { $lt: beforeMatchList.updatedAt };
     }
 
-    const matchLists: any = await this.matchListModel
+    // Do not return conversations of blocked users
+    const blockUserIds = await this.blocksService.getBlockedUserIdsBySender(userId);
+
+    const matchLists = await this.matchListModel
       .find({
         deleted: false,
-        participants: new mongoose.Types.ObjectId(userId),
+        participants: { $in: new mongoose.Types.ObjectId(userId), $nin: blockUserIds },
         roomType: MatchListRoomType.Match,
         roomCategory: MatchListRoomCategory.DirectMessage,
         relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),

@@ -12,6 +12,7 @@ import { VerificationEmailNotReceivedDto } from '../../../../../src/users/dto/ve
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { ActiveStatus } from '../../../../../src/schemas/user/user.enums';
 
 describe('Users / Verification Email Not Received (e2e)', () => {
   let app: INestApplication;
@@ -68,10 +69,12 @@ describe('Users / Verification Email Not Received (e2e)', () => {
     describe('When a valid-format email address is supplied', () => {
       it('returns { success: true } and sends an email when the email address IS associated with a registered user', async () => {
         const user = await usersService.create(
-          userFactory.build({ email }),
+          userFactory.build({
+            email,
+            verification_token: uuidv4(),
+            status: ActiveStatus.Inactive,
+          }),
         );
-        user.verification_token = uuidv4();
-        await user.save();
 
         jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
 

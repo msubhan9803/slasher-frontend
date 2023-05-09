@@ -88,9 +88,9 @@ export class UsersService {
 
   async findNonDeletedUserByEmailOrUsername(emailOrUsername: string): Promise<UserDocument> {
     if (EmailValidator.validate(emailOrUsername)) {
-      return this.userModel.findOne({ email: emailOrUsername }).exec();
+      return this.userModel.findOne({ email: emailOrUsername, deleted: false }).exec();
     }
-    return this.userModel.findOne({ userName: emailOrUsername }).exec();
+    return this.userModel.findOne({ userName: emailOrUsername, deleted: false }).exec();
   }
 
   async userNameAvailable(userName: string): Promise<boolean> {

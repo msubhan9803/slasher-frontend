@@ -21,6 +21,7 @@ import {
 } from '../../../../../src/schemas/rssFeedProviderFollow/rssFeedProviderFollow.schema';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { ActiveStatus } from '../../../../../src/schemas/user/user.enums';
 
 describe('Users activate account (e2e)', () => {
   let app: INestApplication;
@@ -60,8 +61,10 @@ describe('Users activate account (e2e)', () => {
     let user;
     let postBody: ActivateAccountDto;
     beforeEach(async () => {
-      const userData = userFactory.build();
-      userData.verification_token = uuidv4();
+      const userData = userFactory.build({
+        verification_token: uuidv4(),
+        status: ActiveStatus.Inactive,
+      });
       user = await usersService.create(userData);
       postBody = {
         userId: user.id,

@@ -326,8 +326,7 @@ export class UsersController {
 
   @Post('activate-account')
   async activateAccount(@Body() activateAccountDto: ActivateAccountDto) {
-    const user = await this.usersService.findById(activateAccountDto.userId, false);
-
+    let user = await this.usersService.findById(activateAccountDto.userId, false);
     if (user && !user.deleted) {
       // If user is already active, return a successful response.
       if (user.status === ActiveStatus.Active) {
@@ -337,15 +336,15 @@ export class UsersController {
       // If user verification token matches, run activation setup steps and return a successful response.
       if (user.verification_token === activateAccountDto.token) {
         // If we made it here, go forward with activation.
-        const userDetails = await this.usersService.findById(activateAccountDto.userId, false);
-        userDetails.status = ActiveStatus.Active;
-        userDetails.verification_token = null;
-        await userDetails.save();
+        user = await this.usersService.update(user.id, {
+          status: ActiveStatus.Active,
+          verification_token: null,
+        });
         const autoFollowRssFeedProviders = await this.rssFeedProvidersService.findAllAutoFollowRssFeedProviders();
         autoFollowRssFeedProviders.forEach((rssFeedProvider) => {
           this.rssFeedProviderFollowsService.create({
             rssfeedProviderId: rssFeedProvider._id,
-            userId: userDetails._id,
+            userId: user._id,
           });
         });
         return { success: true };

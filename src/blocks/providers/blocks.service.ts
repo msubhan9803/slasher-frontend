@@ -47,8 +47,7 @@ export class BlocksService {
     );
     const blockFromOrToUserIds = blocks.map((block) => (block.from.toString() === userId ? block.to.toString() : block.from.toString()));
     const setBlockFromOrToUserIds = new Set(blockFromOrToUserIds);
-    const uniqueBlockFromOrToUserIds = [...setBlockFromOrToUserIds];
-    return uniqueBlockFromOrToUserIds;
+    return [...setBlockFromOrToUserIds];
   }
 
   async getBlockedUsersBySender(fromUserId: string, limit: number, offset?: number): Promise<User[]> {

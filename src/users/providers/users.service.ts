@@ -132,7 +132,7 @@ export class UsersService {
       .exec();
   }
 
-  async suggestUserName(query: string, limit: number, activeOnly: boolean, excludeUserIds: User[]): Promise<UserNameSuggestion[]> {
+  async suggestUserName(query: string, limit: number, activeOnly: boolean, excludeUserIds: string[]): Promise<UserNameSuggestion[]> {
     const nameFindQuery: any = {
       userName: new RegExp(`^${escapeStringForRegex(query)}`, 'i'),
       _id: { $nin: excludeUserIds },

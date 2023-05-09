@@ -107,29 +107,69 @@ describe('UsersService', () => {
   });
 
   describe('#findByEmail', () => {
-    let user: UserDocument;
+    let activeUser: UserDocument;
+    let inactiveUser: UserDocument;
+    let deletedUser: UserDocument;
     beforeEach(async () => {
-      user = await usersService.create(
-        userFactory.build(),
-      );
+      activeUser = await usersService.create(userFactory.build());
+      inactiveUser = await usersService.create(userFactory.build({ status: ActiveStatus.Inactive }));
+      deletedUser = await usersService.create(userFactory.build({ deleted: true }));
     });
 
     it('finds the expected user using the same-case email', async () => {
-      expect((await usersService.findByEmail(user.email, true))._id).toEqual(
-        user._id,
+      expect((await usersService.findByEmail(activeUser.email, true))._id).toEqual(
+        activeUser._id,
       );
     });
 
     it('finds the expected user using a lower-case variant of the email', async () => {
       expect(
-        (await usersService.findByEmail(user.email.toLowerCase(), true))._id,
-      ).toEqual(user._id);
+        (await usersService.findByEmail(activeUser.email.toLowerCase(), true))._id,
+      ).toEqual(activeUser._id);
     });
 
     it('finds the expected user using an upper-case variant of the email', async () => {
       expect(
-        (await usersService.findByEmail(user.email.toUpperCase(), true))._id,
-      ).toEqual(user._id);
+        (await usersService.findByEmail(activeUser.email.toUpperCase(), true))._id,
+      ).toEqual(activeUser._id);
+    });
+
+    it('does not find an inactive user or deleted user when activeOnly parameter is true', async () => {
+      expect(await usersService.findByEmail(inactiveUser.email, true)).toBeNull();
+      expect(await usersService.findByEmail(deletedUser.email, true)).toBeNull();
+    });
+
+    it('finds an inactive user when activeOnly parameter is false', async () => {
+      expect((await usersService.findByEmail(inactiveUser.email, false))._id).toEqual(inactiveUser._id);
+    });
+
+    it('finds a deleted user when activeOnly parameter is false', async () => {
+      expect((await usersService.findByEmail(deletedUser.email, false))._id).toEqual(deletedUser._id);
+    });
+  });
+
+  describe('#findInactiveUserByEmail', () => {
+    let activeUser: UserDocument;
+    let inactiveUser: UserDocument;
+    beforeEach(async () => {
+      activeUser = await usersService.create(userFactory.build());
+      inactiveUser = await usersService.create(userFactory.build({ status: ActiveStatus.Inactive }));
+    });
+
+    it('finds an inactive user using the same-case email', async () => {
+      expect((await usersService.findInactiveUserByEmail(inactiveUser.email))._id).toEqual(inactiveUser._id);
+    });
+
+    it('finds an inactive user using a lower-case variant of the email', async () => {
+      expect((await usersService.findInactiveUserByEmail(inactiveUser.email.toLowerCase()))._id).toEqual(inactiveUser._id);
+    });
+
+    it('finds an inactive user using an upper-case variant of the email', async () => {
+      expect((await usersService.findInactiveUserByEmail(inactiveUser.email.toUpperCase()))._id).toEqual(inactiveUser._id);
+    });
+
+    it('does not find an active user by email email', async () => {
+      expect(await usersService.findInactiveUserByEmail(activeUser.email)).toBeNull();
     });
   });
 
@@ -167,17 +207,14 @@ describe('UsersService', () => {
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build({
         userName: 'ActiveUser',
-        email: 'active@example.com',
       }));
       inactiveUser = await usersService.create(userFactory.build({
         status: ActiveStatus.Inactive,
         userName: 'InactiveUser',
-        email: 'inactive@example.com',
       }));
       deletedUser = await usersService.create(userFactory.build({
         deleted: true,
         userName: 'DeletedUser',
-        email: 'deleted@example.com',
       }));
     });
     it('finds an active user by email', async () => {

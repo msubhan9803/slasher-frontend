@@ -326,27 +326,33 @@ export class UsersController {
 
   @Post('activate-account')
   async activateAccount(@Body() activateAccountDto: ActivateAccountDto) {
-    const isValid = await this.usersService.verificationTokenIsValid(
-      activateAccountDto.userId,
-      activateAccountDto.token,
-    );
-    if (isValid === false) {
-      throw new HttpException('Token is not valid', HttpStatus.BAD_REQUEST);
+    const user = await this.usersService.findById(activateAccountDto.userId, false);
+
+    if (user && !user.deleted) {
+      // If user is already active, return a successful response.
+      if (user.status === ActiveStatus.Active) {
+        return { success: true };
+      }
+
+      // If user verification token matches, run activation setup steps and return a successful response.
+      if (user.verification_token === activateAccountDto.token) {
+        // If we made it here, go forward with activation.
+        const userDetails = await this.usersService.findById(activateAccountDto.userId, false);
+        userDetails.status = ActiveStatus.Active;
+        userDetails.verification_token = null;
+        await userDetails.save();
+        const autoFollowRssFeedProviders = await this.rssFeedProvidersService.findAllAutoFollowRssFeedProviders();
+        autoFollowRssFeedProviders.forEach((rssFeedProvider) => {
+          this.rssFeedProviderFollowsService.create({
+            rssfeedProviderId: rssFeedProvider._id,
+            userId: userDetails._id,
+          });
+        });
+        return { success: true };
+      }
     }
-    const userDetails = await this.usersService.findById(activateAccountDto.userId, false);
-    userDetails.status = ActiveStatus.Active;
-    userDetails.verification_token = null;
-    await userDetails.save();
-    const autoFollowRssFeedProviders = await this.rssFeedProvidersService.findAllAutoFollowRssFeedProviders();
-    autoFollowRssFeedProviders.forEach((rssFeedProvider) => {
-      this.rssFeedProviderFollowsService.create({
-        rssfeedProviderId: rssFeedProvider._id,
-        userId: userDetails._id,
-      });
-    });
-    return {
-      success: true,
-    };
+
+    throw new HttpException('Token is not valid', HttpStatus.BAD_REQUEST);
   }
 
   @Post('forgot-password')
@@ -378,7 +384,7 @@ export class UsersController {
   @HttpCode(200)
   async verificationEmailNotReceived(@Body() verificationEmailNotReceivedDto: VerificationEmailNotReceivedDto) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
-    const userData = await this.usersService.findByEmail(verificationEmailNotReceivedDto.email, false);
+    const userData = await this.usersService.findInactiveUserByEmail(verificationEmailNotReceivedDto.email);
 
     // Only send email if the user exists and a verification token exists
     if (userData && userData.verification_token) {

@@ -54,6 +54,16 @@ export class UsersService {
     }).count()) === userIds.length;
   }
 
+  async findInactiveUserByEmail(email: string): Promise<UserDocument> {
+    return this.userModel
+      .findOne({
+        email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i'),
+        status: ActiveStatus.Inactive,
+        deleted: false,
+      })
+      .exec();
+  }
+
   async findByEmail(email: string, activeOnly: boolean): Promise<UserDocument> {
     const userFindQuery: any = { email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') };
     if (activeOnly) {

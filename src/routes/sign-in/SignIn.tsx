@@ -10,11 +10,10 @@ import RoundButton from '../../components/ui/RoundButton';
 import CustomInputGroup from '../../components/ui/CustomInputGroup';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import { signIn } from '../../api/users';
-import { setSignInCookies } from '../../utils/session-utils';
+import { getSessionToken, setSignInCookies } from '../../utils/session-utils';
 import slasherLogo from '../../images/slasher-beta-logo-medium.png';
 import signInImageMobile from '../../images/sign-in-background-beta-mobile.jpg';
 import { LG_MEDIA_BREAKPOINT } from '../../constants';
-import { useAppSelector } from '../../redux/hooks';
 
 interface UserCredentials {
   emailOrUsername: string;
@@ -53,17 +52,23 @@ function SignIn() {
     password: '',
   });
   const [searchParams] = useSearchParams();
-  const isUserLoggedIn = useAppSelector((state) => state.user.user.id);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (isUserLoggedIn) {
-      navigate('/app/home');
-    }
-  }, [isUserLoggedIn, navigate]);
+    getSessionToken().then((tokenValue) => {
+      setIsLoading(false);
+      if (tokenValue) {
+        navigate('/app/home');
+      }
+    }).finally(() => setIsLoading(false));
+  }, [navigate]);
+
   const passwordVisiblility = () => {
     setShowPassword(!showPassword);
   };
   const [errorMessage, setErrorMessage] = useState<string[]>();
+
+  if (isLoading) { return null; }
 
   const handleSignIn = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCredentials({ ...credentials, [event.target.name]: event.target.value });

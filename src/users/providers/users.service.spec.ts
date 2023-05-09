@@ -160,22 +160,55 @@ describe('UsersService', () => {
     });
   });
 
-  describe('#findByEmailOrUsername', () => {
-    let user;
+  describe('#findNonDeletedUserByEmailOrUsername', () => {
+    let activeUser;
+    let inactiveUser;
+    let deletedUser;
     beforeEach(async () => {
-      user = await usersService.create(
-        userFactory.build(),
-      );
+      activeUser = await usersService.create(userFactory.build({
+        userName: 'ActiveUser',
+        email: 'active@example.com',
+      }));
+      inactiveUser = await usersService.create(userFactory.build({
+        status: ActiveStatus.Inactive,
+        userName: 'InactiveUser',
+        email: 'inactive@example.com',
+      }));
+      deletedUser = await usersService.create(userFactory.build({
+        deleted: true,
+        userName: 'DeletedUser',
+        email: 'deleted@example.com',
+      }));
     });
-    it('finds the expected user by email', async () => {
+    it('finds an active user by email', async () => {
       expect(
-        (await usersService.findByEmailOrUsername(user.email, true))._id,
-      ).toEqual(user._id);
+        (await usersService.findNonDeletedUserByEmailOrUsername(activeUser.email))._id,
+      ).toEqual(activeUser._id);
     });
-    it('finds the expected user by userName', async () => {
+    it('finds an active user by userName', async () => {
       expect(
-        (await usersService.findByEmailOrUsername(user.userName, true))._id,
-      ).toEqual(user._id);
+        (await usersService.findNonDeletedUserByEmailOrUsername(activeUser.userName))._id,
+      ).toEqual(activeUser._id);
+    });
+    it('finds an inactive user by email', async () => {
+      expect(
+        (await usersService.findNonDeletedUserByEmailOrUsername(inactiveUser.email))._id,
+      ).toEqual(inactiveUser._id);
+    });
+    it('finds an inactive user by userName', async () => {
+      expect(
+        (await usersService.findNonDeletedUserByEmailOrUsername(inactiveUser.userName))._id,
+      ).toEqual(inactiveUser._id);
+    });
+    it('does not find a deleted user by email', async () => {
+      expect(
+        (await usersService.findNonDeletedUserByEmailOrUsername(deletedUser.email))._id,
+      ).toEqual(deletedUser._id);
+    });
+    it('does not find a deleted user by userName', async () => {
+      expect(
+        (await usersService.findNonDeletedUserByEmailOrUsername(deletedUser.userName))._id,
+      ).toEqual(deletedUser._id);
     });
   });
 

@@ -94,9 +94,9 @@ export class UsersController {
 
   @Post('sign-in')
   async signIn(@Body() userSignInDto: UserSignInDto, @IpOrForwardedIp() ip) {
-    let user = await this.usersService.findByEmailOrUsername(userSignInDto.emailOrUsername, false);
+    let user = await this.usersService.findNonDeletedUserByEmailOrUsername(userSignInDto.emailOrUsername);
 
-    if (!user || user.deleted) {
+    if (!user) {
       throw new HttpException(
         'Incorrect username or password.',
         HttpStatus.UNAUTHORIZED,

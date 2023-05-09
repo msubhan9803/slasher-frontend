@@ -76,11 +76,11 @@ export class UsersService {
       .exec();
   }
 
-  async findByEmailOrUsername(emailOrUsername: string, activeOnly: boolean): Promise<UserDocument> {
+  async findNonDeletedUserByEmailOrUsername(emailOrUsername: string): Promise<UserDocument> {
     if (EmailValidator.validate(emailOrUsername)) {
-      return this.findByEmail(emailOrUsername, activeOnly);
+      return this.userModel.findOne({ email: emailOrUsername }).exec();
     }
-    return this.findByUsername(emailOrUsername, activeOnly);
+    return this.userModel.findOne({ userName: emailOrUsername }).exec();
   }
 
   async userNameAvailable(userName: string): Promise<boolean> {

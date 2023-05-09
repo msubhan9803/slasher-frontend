@@ -95,6 +95,11 @@ describe('BlocksService', () => {
         to: user3.id,
         reaction: BlockAndUnblockReaction.Block,
       });
+      await blocksModel.create({
+        from: user3.id,
+        to: user0.id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
       const block = await blocksService.getUserIdsForBlocksToOrFromUser(user0.id);
       expect(block).not.toContain(user0._id);
       expect(block).toHaveLength(3);

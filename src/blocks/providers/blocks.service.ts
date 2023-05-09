@@ -29,7 +29,7 @@ export class BlocksService {
     );
   }
 
-  async getUserIdsForBlocksToOrFromUser(userId: string): Promise<User[]> {
+  async getUserIdsForBlocksToOrFromUser(userId: string): Promise<string[]> {
     const blocks = await this.blocksModel.find(
       {
         $and: [
@@ -45,8 +45,10 @@ export class BlocksService {
         ],
       },
     );
-    const blockFromOrToUserIds = blocks.map((block) => (block.from.toString() === userId ? block.to : block.from));
-    return blockFromOrToUserIds;
+    const blockFromOrToUserIds = blocks.map((block) => (block.from.toString() === userId ? block.to.toString() : block.from.toString()));
+    const setBlockFromOrToUserIds = new Set(blockFromOrToUserIds);
+    const uniqueBlockFromOrToUserIds = [...setBlockFromOrToUserIds];
+    return uniqueBlockFromOrToUserIds;
   }
 
   async getBlockedUsersBySender(fromUserId: string, limit: number, offset?: number): Promise<User[]> {

@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 import React, { useState } from 'react';
 import {
-  Alert, Form,
+  Alert, Button, Form,
 } from 'react-bootstrap';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -102,9 +102,23 @@ function CreatePost() {
                 {loggedInUser.userName}
               </h2>
             </div>
-            <div>
-              <FontAwesomeIcon icon={solid('xmark')} size="lg" onClick={onCloseButton} style={{ cursor: 'pointer' }} />
-            </div>
+            <Button
+              variant="link"
+              className="align-self-start py-0 px-0"
+              onKeyDown={(e: any) => {
+                if (e.key === 'Enter') {
+                  onCloseButton();
+                }
+              }}
+              onClick={onCloseButton}
+            >
+              <FontAwesomeIcon
+                icon={solid('xmark')}
+                size="lg"
+                style={{ cursor: 'pointer' }}
+                aria-label="Close button"
+              />
+            </Button>
           </Form.Group>
           <CreatePostComponent
             setPostMessageContent={setPostContent}

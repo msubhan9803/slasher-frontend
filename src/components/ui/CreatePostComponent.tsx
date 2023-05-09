@@ -200,6 +200,23 @@ function CreatePostComponent({
       {postType === 'review' && (
         <>
           <div className="d-flex justify-content-between">
+            <Button
+              variant="link"
+              className="align-self-start py-0 px-0 my-3 order-last"
+              onKeyDown={(e: any) => {
+                if (e.key === 'Enter') {
+                  onMovieReviweCloseButton();
+                }
+              }}
+              onClick={onMovieReviweCloseButton}
+            >
+              <FontAwesomeIcon
+                icon={solid('xmark')}
+                size="lg"
+                style={{ cursor: 'pointer' }}
+                aria-label="Close button"
+              />
+            </Button>
             <div className="d-block d-md-flex d-lg-block d-xl-flex align-items-center mb-4 pt-4">
               <div>
                 <RatingButtonGroups
@@ -250,9 +267,6 @@ function CreatePostComponent({
                     )}
                 </div>
               </div>
-            </div>
-            <div className="my-3">
-              <FontAwesomeIcon icon={solid('xmark')} size="lg" className="mb-1" onClick={onMovieReviweCloseButton} style={{ cursor: 'pointer' }} />
             </div>
           </div>
           <h1 className="h3 mb-3">Write your review</h1>

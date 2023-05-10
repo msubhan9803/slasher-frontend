@@ -25,6 +25,7 @@ import FriendActionButtons from '../../components/ui/Friend/FriendActionButtons'
 import { LG_MEDIA_BREAKPOINT, topToDivHeight } from '../../constants';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { setScrollToTabsPosition } from '../../redux/slices/scrollPositionSlice';
+import { getLastNonProfilePathname } from '../../utils/url-utils';
 
 interface Props {
   tabKey?: string;
@@ -74,7 +75,7 @@ function ProfileHeader({
   const positionRef = useRef<HTMLDivElement>(null);
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
-  const pathnameHistory: any = useAppSelector((state) => state.user.pathnameHistory);
+  const pathnameHistory = useAppSelector((state) => state.user.pathnameHistory);
 
   const isSelfUserProfile = userName === loginUserName;
 
@@ -120,12 +121,8 @@ function ProfileHeader({
   };
 
   const afterBlockUser = () => {
-    // Find last page not having blocked user's `userName` in the pathname
-    let lastPathname = pathnameHistory.findLast((pathname: string) => !pathname.includes(userName ?? ''));
-    if (!lastPathname) {
-      lastPathname = '/app/home';
-    }
-    navigate(lastPathname);
+    const lastNonProfilePathname = getLastNonProfilePathname(pathnameHistory!, userName!);
+    navigate(lastNonProfilePathname);
   };
 
   const reportUserProfile = (reason: string) => {

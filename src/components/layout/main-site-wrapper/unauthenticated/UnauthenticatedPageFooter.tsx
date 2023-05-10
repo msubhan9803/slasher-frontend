@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container } from 'react-bootstrap';
 import styled from 'styled-components';
-import { APP_STORE_DOWNLOAD_URL, GOOGLE_PLAY_DOWNLOAD_URL } from '../../../../constants';
+// import { APP_STORE_DOWNLOAD_URL, GOOGLE_PLAY_DOWNLOAD_URL } from '../../../../constants';
 
 const StyledFooter = styled.footer`
   .footer-container {
@@ -24,9 +24,9 @@ function UnauthenticatedPageFooter() {
           <a className="px-2" href="https://pages.slasher.tv/terms">Terms of Service</a>
           <a className="px-2" href="https://pages.slasher.tv/privacy">Privacy Policy</a>
           <a className="px-2" href="https://pages.slasher.tv/cookies">Cookie Policy</a>
-          <a className="px-2" href="https://pages.slasher.tv/rules">Site Rules</a>
-          <a className="px-2" href={GOOGLE_PLAY_DOWNLOAD_URL}>Android App</a>
-          <a className="px-2" href={APP_STORE_DOWNLOAD_URL}>iOS App</a>
+          <a className="px-2" href="https://pages.slasher.tv/rules">Rules</a>
+          {/* <a className="px-2" href={GOOGLE_PLAY_DOWNLOAD_URL}>Android App</a>
+          <a className="px-2" href={APP_STORE_DOWNLOAD_URL}>iOS App</a> */}
           <div className="px-2">
             &copy;
             {' '}

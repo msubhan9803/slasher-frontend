@@ -98,7 +98,7 @@ function RegistrationTerms({ activeStep }: Props) {
         </label>
       </div>
       <div className="mt-2">
-        {showAgreeToTermsError && <Alert variant="info">You must check the checkbox above and agree to these terms if you want to sign up.</Alert>}
+        {showAgreeToTermsError && <Alert variant="danger">You must check the checkbox above and agree to these terms if you want to sign up.</Alert>}
       </div>
       <Row className="justify-content-center my-5">
         <Col sm={4} md={3} className="mb-sm-0 mb-3 order-2 order-sm-1">

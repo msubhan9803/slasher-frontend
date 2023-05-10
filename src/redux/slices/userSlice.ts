@@ -16,6 +16,7 @@ export const userSlice = createSlice({
       newNotificationCount: 0,
     },
     forceFriendListReload: false,
+    pathnameHistory: [] as Array<string>,
   },
   reducers: {
     setUserInitialData: (state, action) => ({
@@ -56,6 +57,13 @@ export const userSlice = createSlice({
     setFriendListReload: (state, payload) => {
       state.forceFriendListReload = payload.payload;
     },
+    appendToPathnameHistory: (state, action: PayloadAction<string>) => {
+      const last = state.pathnameHistory[state.pathnameHistory.length - 1];
+      // We prevent appending duplicate pathname in a row
+      if (last !== action.payload) {
+        state.pathnameHistory.push(action.payload);
+      }
+    },
   },
 });
 
@@ -70,6 +78,7 @@ export const {
   updateUserProfilePic,
   setUserRecentFriendRequests,
   setFriendListReload,
+  appendToPathnameHistory,
 } = userSlice.actions;
 
 export default userSlice.reducer;

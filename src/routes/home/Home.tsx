@@ -348,7 +348,7 @@ function Home() {
         {loadingPosts && <LoadingIndicator />}
         {noMoreData && renderNoMoreDataMessage()}
         {
-          (dropDownValue === 'Block user' || dropDownValue === 'Report' || dropDownValue === 'Delete' || dropDownValue === 'PostReportSuccessDialog')
+          ['Block user', 'Report', 'Delete', 'PostReportSuccessDialog', 'BlockUserSuccess'].includes(dropDownValue)
           && (
             <ReportModal
               onConfirmClick={deletePostClick}

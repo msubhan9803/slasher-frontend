@@ -16,6 +16,7 @@ import {
   setUserInitialData, handleUpdatedUnreadConversationCount, resetUnreadNotificationCount,
   resetNewFriendRequestCountCount, incrementUnreadNotificationCount,
   incrementFriendRequestCount,
+  appendToPathnameHistory,
 } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { signOut } from '../../../../utils/session-utils';
@@ -70,7 +71,13 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const remoteConstantsData = useAppSelector((state) => state.remoteConstants);
   const { pathname } = useLocation();
   const token = Cookies.get('sessionToken');
+  const location = useLocation();
   useGoogleAnalytics(analyticsId);
+
+  // Record all navigation by user
+  useEffect(() => {
+    dispatch(appendToPathnameHistory(location.pathname));
+  }, [dispatch, location.pathname]);
 
   const [show, setShow] = useState(false);
   const isDesktopResponsiveSize = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` });

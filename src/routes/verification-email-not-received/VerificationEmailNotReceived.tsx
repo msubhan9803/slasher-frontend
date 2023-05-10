@@ -2,15 +2,18 @@ import React, { useState } from 'react';
 import {
   Alert, Col, Form, Row,
 } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import useProgressButton from '../../components/ui/ProgressButton';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import { verificationEmailNotReceived } from '../../api/users';
+import RoundButton from '../../components/ui/RoundButton';
 
 function VerificationEmailNotReceived() {
   const [email, setEmail] = useState<string>('');
   const [errorMessages, setErrorMessages] = useState<string[]>();
   const [successMessage, setSuccessMessage] = useState<string>();
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -47,7 +50,14 @@ function VerificationEmailNotReceived() {
                 <Col xs={10} md={8} lg={6}>
                   {
                     successMessage
-                      ? <Alert variant="info" className="mb-0">{successMessage}</Alert>
+                      ? (
+                        <div>
+                          <Alert variant="info" className="mb-0">{successMessage}</Alert>
+                          <RoundButton onClick={() => navigate('/sign-in')} className="w-100 mt-4" variant="primary">
+                            Go to sign in
+                          </RoundButton>
+                        </div>
+                      )
                       : (
                         <>
                           <Form.Control

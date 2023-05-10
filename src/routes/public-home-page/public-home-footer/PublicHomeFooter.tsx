@@ -14,7 +14,7 @@ import AppStoreImage from '../../../images/app-store-badge.png';
 import PlayStoreImage from '../../../images/google-play-badge.png';
 import { APP_STORE_DOWNLOAD_URL, GOOGLE_PLAY_DOWNLOAD_URL } from '../../../constants';
 
-const socialMediaSites = [
+export const socialMediaSites = [
   { icon: faFacebookF, to: 'https://www.facebook.com/TheSlasherApp', bgColor: '#3b5998' },
   { icon: faTwitter, to: 'https://twitter.com/theslasherapp', bgColor: '#1da1f2' },
   { icon: faYoutube, to: 'https://www.youtube.com/channel/UCUcGxsG2u55zlVoe_s8TjcA', bgColor: '#CD201F' },
@@ -32,7 +32,7 @@ const StyledFooter = styled.footer`
   }
 `;
 
-const StyledMediaIcon = styled.div <SocialMediaIcon>`
+export const StyledMediaIcon = styled.div <SocialMediaIcon>`
   width: 30px;
   height: 30px;
   &:hover {

@@ -45,15 +45,9 @@ function SuggestedFriend() {
   const dispatch: any = useAppDispatch();
   const [allowReload, setAllowReload] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [friendSuggestionList, setFriendSuggestionList] = useState<any>([]);
   const {
     forceReload, lastRetrievalTime, suggestedFriends,
   } = useAppSelector((state) => state.suggestedFriendList);
-
-  useEffect(() => {
-    setFriendSuggestionList(suggestedFriends);
-  }, [suggestedFriends]);
-
   const reloadSuggestedFriends = useCallback(() => {
     setLoading(true);
     getSuggestFriends()
@@ -76,7 +70,7 @@ function SuggestedFriend() {
       && (
         forceReload
         || !lastRetrievalTime
-        || DateTime.now().diff(DateTime.fromISO(lastRetrievalTime)).as('minutes') > 1
+        || DateTime.now().diff(DateTime.fromISO(lastRetrievalTime)).as('minutes') > 5
       )
     ) {
       reloadSuggestedFriends();
@@ -92,7 +86,6 @@ function SuggestedFriend() {
         suggestedFriends: newSuggestedFriends,
         lastRetrievalTime,
       };
-      setFriendSuggestionList(newSuggestedFriends);
       dispatch(setSuggestedFriendsState(friendPayload));
       if (newSuggestedFriends.length === 0) {
         setAllowReload(true);
@@ -148,27 +141,24 @@ function SuggestedFriend() {
               className="d-flex flex-nowrap w-100 mx-4 g-0"
               tabIndex={-1}
             >
-              {friendSuggestionList.map((user: any) => (
-                !user.addFriend
-                && (
-                  <Card key={user._id}>
-                    <div className="bg-dark rounded p-2">
-                      <Link className="d-block text-decoration-none" to={`/${user.userName}/about`}>
-                        <div className=" d-flex justify-content-center position-relative">
-                          <UserCircleImage size="6.25rem" src={user.profilePic} alt="suggested friend" />
-                          <Button variant="link" className="position-absolute p-0 px-1" style={{ right: '0' }} onClick={(e: any) => onCloseClick(e, user._id)}>
-                            <FontAwesomeIcon icon={solid('xmark')} size="lg" />
-                            <span className="visually-hidden">Dismiss suggestion</span>
-                          </Button>
-                        </div>
-                        <p className="text-center my-2 text-truncate">{user.userName}</p>
-                      </Link>
-                      <RoundButton className="w-100" onClick={() => addFriendClick(user._id)}>
-                        Add friend
-                      </RoundButton>
-                    </div>
-                  </Card>
-                )
+              {suggestedFriends.map((user: any) => (
+                <Card key={user._id}>
+                  <div className="bg-dark rounded p-2">
+                    <Link className="d-block text-decoration-none" to={`/${user.userName}/about`}>
+                      <div className=" d-flex justify-content-center position-relative">
+                        <UserCircleImage size="6.25rem" src={user.profilePic} alt="suggested friend" />
+                        <Button variant="link" className="position-absolute p-0 px-1" style={{ right: '0' }} onClick={(e: any) => onCloseClick(e, user._id)}>
+                          <FontAwesomeIcon icon={solid('xmark')} size="lg" />
+                          <span className="visually-hidden">Dismiss suggestion</span>
+                        </Button>
+                      </div>
+                      <p className="text-center my-2 text-truncate">{user.userName}</p>
+                    </Link>
+                    <RoundButton className="w-100" onClick={() => addFriendClick(user._id)}>
+                      Add friend
+                    </RoundButton>
+                  </div>
+                </Card>
               ))}
             </StyleFriend>
           </div>

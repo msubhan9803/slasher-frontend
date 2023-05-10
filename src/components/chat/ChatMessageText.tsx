@@ -1,6 +1,7 @@
 import React from 'react';
 import { ignoreUsernamesLinkifyOpts } from '../../utils/linkify-utils';
 import { newLineToBr, decryptMessage, escapeHtmlSpecialCharacters } from '../../utils/text-utils';
+import linkifyHtml from 'linkify-html';
 
 export interface Props {
   message: string;

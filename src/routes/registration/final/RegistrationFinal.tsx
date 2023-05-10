@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Col, Row } from 'react-bootstrap';
 import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAppSelector } from '../../../redux/hooks';
@@ -25,10 +26,14 @@ function RegistrationFinal() {
       <p>
         We look forward to seeing you on Slasher!
       </p>
-      <RoundButton id="sign-in-button" type="submit" className="w-25 my-3" variant="primary">
-        Sign in
-      </RoundButton>
-      <div className="d-flex flex-md-row justify-content-center flex-column mt-5">
+      <Row className="d-flex justify-content-center">
+        <Col sm={6} md={2}>
+          <RoundButton id="sign-in-button" type="submit" className="w-100 my-3" variant="primary">
+            Sign in
+          </RoundButton>
+        </Col>
+      </Row>
+      <div className="d-flex flex-md-row justify-content-center flex-column mt-3">
         <p className="fs-4">Need help?</p>
         <p className="fs-4">
           &nbsp;Email

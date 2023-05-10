@@ -174,7 +174,13 @@ export class ChatController {
       newMessages.push(await this.chatService.sendPrivateDirectMessage(user.id, toUserId.id, '', image.image_path));
     }
     if (messageDto.message) {
-      newMessages.push(await this.chatService.sendPrivateDirectMessage(user.id, toUserId.id, messageDto.message));
+      // TODO: Remove use of encodeURIComponent below once the old Slasher iOS/Android apps are retired
+      // AND all old messages have been updated so that they're not being URI-encoded anymore.
+      // The URI-encoding is coming from the old API or more likely the iOS and Android apps.
+      // For some reason, the old apps will crash on a message page if the messages are not
+      // url-encoded (we saw this while Damon was testing on Android).
+      const urlEncodedMessage = encodeURIComponent(messageDto.message);
+      newMessages.push(await this.chatService.sendPrivateDirectMessage(user.id, toUserId.id, urlEncodedMessage));
     }
     if (newMessages.length > 0) {
       await this.chatGateway.emitMessageForConversation(newMessages, toUserId.id);

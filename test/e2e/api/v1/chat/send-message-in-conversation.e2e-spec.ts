@@ -235,7 +235,7 @@ describe('Send Message In Conversation / (e2e)', () => {
             {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               image: null,
-              message: 'test chat message',
+              message: encodeURIComponent('test chat message'),
               fromId: activeUser._id.toString(),
               senderId: user1._id.toString(),
               matchId: message1.matchId._id.toString(),

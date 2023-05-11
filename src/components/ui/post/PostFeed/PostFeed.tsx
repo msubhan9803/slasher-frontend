@@ -386,11 +386,14 @@ function PostFeed({
   useEffect(() => {
     if (scrollPosition.position > 0
       && scrollPosition?.pathname === location.pathname) {
-      window.scrollTo({
-        top: scrollPosition?.position,
-        behavior: 'instant' as any,
-      });
+      setTimeout(() => {
+        window.scrollTo({
+          top: scrollPosition?.position,
+          behavior: 'instant' as any,
+        });
+      }, 1000);
     }
+    return undefined;
   }, [scrollPosition, location.pathname]);
   const renderGroupPostContent = (posts: any) => (
     <>

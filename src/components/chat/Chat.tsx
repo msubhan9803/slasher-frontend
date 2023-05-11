@@ -65,6 +65,9 @@ function Chat({
 }: ChatProps) {
   const textareaRef = useRef<any>(null);
   const [rows, setRows] = useState(1);
+  const [showPicker, setShowPicker] = useState(false);
+  const [selectedEmoji, setSelectedEmoji] = useState<string[]>([]);
+
   const calculateRows = () => {
     const textareaLineHeight = 24;
     const previousRows = rows;
@@ -85,6 +88,9 @@ function Chat({
       setRows(1);
     }
   }, [message]);
+  const handleShowPicker = () => {
+    setShowPicker(!showPicker);
+  };
   return (
     <StyledChatContainer height={imageArray && imageArray.length ? 1 : 0} rows={rows}>
       <Card className="bg-black bg-mobile-transparent rounded-3 border-0">
@@ -94,7 +100,14 @@ function Chat({
         </Card.Header>
         <Card.Body className="position-relative overflow-visible p-0">
           <div className="conversation-container">
-            <ChatMessage messages={messages} messageLoading={messageLoading} />
+            <ChatMessage
+              messages={messages}
+              setMessage={setMessage}
+              messageLoading={messageLoading}
+              showPicker={showPicker}
+              selectedEmoji={selectedEmoji}
+              setSelectedEmoji={setSelectedEmoji}
+            />
           </div>
         </Card.Body>
         <ChatInput
@@ -106,6 +119,9 @@ function Chat({
           setRows={setRows}
           calculateRows={calculateRows}
           textareaRef={textareaRef}
+          onEmojiClick={handleShowPicker}
+          setShowPicker={setShowPicker}
+          setSelectedEmoji={setSelectedEmoji}
         />
         <div className="image-container overflow-auto d-flex mx-4 gap-3 mt-3">
           {imageArray!.map((post: File) => (

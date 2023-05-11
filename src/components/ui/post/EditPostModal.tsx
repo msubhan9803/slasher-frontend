@@ -16,6 +16,7 @@ interface Props {
   setPostImages: any;
   deleteImageIds?: string[];
   setDeleteImageIds?: (val: string) => void;
+  editPost?: boolean
 }
 function EditPostModal({
   show,
@@ -28,6 +29,7 @@ function EditPostModal({
   setPostImages,
   deleteImageIds,
   setDeleteImageIds,
+  editPost,
 }: Props) {
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   useEffect(() => {
@@ -89,6 +91,7 @@ function EditPostModal({
           setDeleteImageIds={setDeleteImageIds}
           placeHolder="Create a post"
           showSaveButton
+          createEditPost={editPost}
         />
       </Modal.Body>
     </ModalContainer>
@@ -97,5 +100,6 @@ function EditPostModal({
 EditPostModal.defaultProps = {
   deleteImageIds: [],
   setDeleteImageIds: undefined,
+  editPost: undefined,
 };
 export default EditPostModal;

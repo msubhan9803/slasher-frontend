@@ -375,6 +375,7 @@ function Home() {
               setPostImages={setPostImages}
               deleteImageIds={deleteImageIds}
               setDeleteImageIds={setDeleteImageIds}
+              editPost
             />
           )
         }

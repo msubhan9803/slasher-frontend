@@ -862,6 +862,7 @@ function PostDetail({ user, postType }: Props) {
                   setPostImages={setPostImages}
                   deleteImageIds={deleteImageIds}
                   setDeleteImageIds={setDeleteImageIds}
+                  editPost
                 />
               )}
           </div>

@@ -68,6 +68,7 @@ interface Props {
   showSaveButton?: boolean;
   reviewForm?: boolean;
   setReviewForm?: (value: boolean) => void;
+  createEditPost?: boolean;
 }
 
 const AddPhotosButton = styled(RoundButton)`
@@ -88,11 +89,12 @@ function CreatePostComponent({
   containSpoiler, setContainSpoiler, rating, setRating, goreFactor, setGoreFactor,
   selectedPostType, setSelectedPostType, setWorthIt, liked, setLike,
   disLiked, setDisLike, isWorthIt, placeHolder, showSaveButton,
-  reviewForm, setReviewForm,
+  reviewForm, setReviewForm, createEditPost,
 }: Props) {
   const inputFile = useRef<HTMLInputElement>(null);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [uploadPost, setUploadPost] = useState<string[]>([]);
+  const [showPicker, setShowPicker] = useState<any>(false);
   const [searchParams] = useSearchParams();
   const paramsType = searchParams.get('type');
   const params = useParams();
@@ -271,7 +273,7 @@ function CreatePostComponent({
           />
         </div>
       )}
-      <div className="mt-3">
+      <div className="mt-3 position-relative">
         <MessageTextarea
           rows={10}
           placeholder={placeHolder}
@@ -281,6 +283,9 @@ function CreatePostComponent({
           formatMentionList={formatMention}
           setFormatMentionList={setFormatMention}
           defaultValue={defaultValue}
+          showPicker={showPicker}
+          setShowPicker={setShowPicker}
+          createEditPost={createEditPost}
         />
       </div>
       {paramsType === 'group-post' && (
@@ -411,5 +416,6 @@ CreatePostComponent.defaultProps = {
   showSaveButton: false,
   reviewForm: false,
   setReviewForm: undefined,
+  createEditPost: undefined,
 };
 export default CreatePostComponent;

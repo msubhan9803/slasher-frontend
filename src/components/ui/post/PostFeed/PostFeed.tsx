@@ -386,6 +386,7 @@ function PostFeed({
   useEffect(() => {
     if (scrollPosition.position > 0
       && scrollPosition?.pathname === location.pathname) {
+      // We should only scroll-restore after 1 second else the scroll restoration doesn't work accurately on home page (SD-1187).
       setTimeout(() => {
         window.scrollTo({
           top: scrollPosition?.position,

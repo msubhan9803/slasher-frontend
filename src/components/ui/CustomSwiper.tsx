@@ -168,6 +168,13 @@ function CustomSwiper({
                   src={imageAndVideo?.movieData?.poster_path}
                   alt="movie poster"
                   className="rounded-3 w-100 h-100"
+                  onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                    if (images.length > 1) {
+                      e.currentTarget.src = placeholderUrlNoImageAvailable;
+                      setShowSwiper(true);
+                    }
+                  }}
+                  onLoad={() => setShowSwiper(true)}
                 />
               </StyledMoviePoster>
             </Col>

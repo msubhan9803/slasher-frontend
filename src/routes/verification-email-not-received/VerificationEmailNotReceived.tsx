@@ -23,7 +23,7 @@ function VerificationEmailNotReceived() {
     ).then(() => {
       setProgressButtonStatus('success');
       setSuccessMessage(
-        `If a user with email address ${email} has registered for Slasher, and the account has not been activated, a verification email will be re-sent.`,
+        `If a user with email address ${email} has registered for Slasher and the account has not been activated, a verification email will be re-sent.`,
       );
     }).catch((requestError: any) => {
       setProgressButtonStatus('failure');
@@ -53,7 +53,7 @@ function VerificationEmailNotReceived() {
                       ? (
                         <div>
                           <Alert variant="info" className="mb-0">{successMessage}</Alert>
-                          <RoundButton onClick={() => navigate('/sign-in')} className="w-100 mt-4" variant="primary">
+                          <RoundButton onClick={() => navigate('/sign-in')} className="mt-4 px-5" variant="primary">
                             Go to sign in
                           </RoundButton>
                         </div>

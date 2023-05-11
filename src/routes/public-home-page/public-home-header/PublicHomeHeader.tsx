@@ -21,6 +21,7 @@ interface HeaderStyleProps {
 }
 
 const NavbarToggle = styled(Navbar.Toggle)`
+  margin-right:0px !important;
   &:focus {
     box-shadow: none !important;
   }
@@ -41,6 +42,7 @@ const StyledNavLink = styled.a`
   }
 `;
 const StyledNavbarCollapse = styled(Navbar.Collapse)`
+  margin-right: 0px !important;
   @media (min-width: ${LG_MEDIA_BREAKPOINT}){
     background-color: transparent !important;
   }
@@ -50,6 +52,7 @@ const StyledHeader = styled.header<HeaderStyleProps>`
   height: 100px;
   z-index: 997;
   transition: all 0.5s;
+  padding-right: 0px !important;
   &.header-scrolled {
     background: var(--bs-secondary) !important;
     height: 82px;
@@ -71,8 +74,7 @@ const StyledHeader = styled.header<HeaderStyleProps>`
     }
   }
   @media (max-width: ${MD_MEDIA_BREAKPOINT}){
-    background:  ${({ isOpen }) => (isOpen ? 'var(--bs-secondary)' : '')} !important;
-    height: ${({ isOpen }) => (isOpen ? 'auto' : '100px')} !important;
+    height: auto !important;
     &.header-scrolled {
       background: var(--bs-secondary) !important;
       height: ${({ isOpen }) => (isOpen ? 'auto' : '70px')} !important;
@@ -109,23 +111,14 @@ function PublicHomeHeader() {
   useEffect(() => {
     const selectHeader = document.querySelector('#header');
     const selectLoginButton = document.querySelector('.login-btn');
-    const selectLogo1 = document.querySelector('.logo1');
-    const selectLogo2 = document.querySelector('.logo2');
-    const selectToggle = document.querySelector('.toggle');
 
     const headerScrolled = () => {
       if (window.pageYOffset > 120) {
         selectHeader?.classList.add('header-scrolled');
         selectLoginButton?.classList.add('mt-3');
-        selectLogo1?.classList.add('mt-4');
-        selectLogo2?.classList.add('mt-4');
-        selectToggle?.classList.add('mt-4');
       } else {
         selectHeader?.classList.remove('header-scrolled');
         selectLoginButton?.classList.remove('mt-3');
-        selectLogo1?.classList.remove('mt-4');
-        selectLogo2?.classList.remove('mt-4');
-        selectToggle?.classList.remove('mt-4');
       }
     };
 
@@ -141,28 +134,28 @@ function PublicHomeHeader() {
   }, []);
 
   return (
-    <StyledHeader isOpen={isOpen} id="header" className="fixed-top d-flex align-items-center bg-transparent">
+    <StyledHeader isOpen={isOpen} id="header" className="fixed-top d-flex align-items-center bg-transparent pe-0">
       <div className="container-md position-relative">
         <Navbar
           collapseOnSelect
           expand="lg"
           bg="transparent"
           variant="dark"
-          className="mb-3 d-lg-flex justify-content-lg-center"
+          className=" d-lg-flex justify-content-lg-center pt-0"
         >
           <NavbarToggle onClick={() => setIsOpen(!isOpen)} aria-controls="responsive-navbar-nav" className="toggle border-0" />
-          <Navbar.Brand as={Link} to="/" style={{ marginTop: isOpen ? '-10px' : '0' }} className={`${!isOpen ? 'logo2' : ''} d-lg-none py-0 me-0`}>
+          <Navbar.Brand as={Link} to="/" className="logo-1 d-lg-none">
             {/* This header is only shown on mobile screens */}
             <HeaderLogo logo={slasherLogo} height="4.56rem" />
           </Navbar.Brand>
           <div className="d-lg-none">
             <RoundButton onClick={() => navigate('/app/sign-in')}>SIGN IN</RoundButton>
           </div>
-          <StyledNavbarCollapse id="responsive-navbar-nav" className="bg-black mt-2 mt-lg-0">
+          <StyledNavbarCollapse id="responsive-navbar-nav" className="bg-black mt-2 mt-lg-0 d-none">
             <StyledNav className="justify-content-between px-3 small-screen w-100">
-              <Row className="w-100 align-items-center">
+              <Row className="w-100 align-items-center pt-4 ">
                 <Col lg={2}>
-                  <Navbar.Brand as={Link} to="/" className="logo1 d-none d-lg-flex py-0 justify-content-center">
+                  <Navbar.Brand as={Link} to="/" className="logo1 d-none d-lg-flex py-0 justify-content-center me-0">
                     {/* This header is only shown on desktop screen (not on tablet and mobile)  */}
                     <HeaderLogo logo={slasherLogo} height="6.25rem" />
                   </Navbar.Brand>
@@ -212,10 +205,10 @@ function PublicHomeHeader() {
             <Offcanvas.Header>
               <Offcanvas.Title>Navigation</Offcanvas.Title>
               <Button className="border-0 py-1" onClick={() => setIsOpen(!isOpen)}>
-                <FontAwesomeIcon icon={solid('xmark')} size="lg" />
+                <FontAwesomeIcon icon={solid('xmark')} size="lg" className="mt-1" />
               </Button>
             </Offcanvas.Header>
-            <Offcanvas.Body>
+            <Offcanvas.Body className="pt-0">
               {[{ value: 'sign-in', label: 'Sign in' }, ...navList].map((nav) => (
                 <StyledNavLink
                   key={nav.value}

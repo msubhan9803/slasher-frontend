@@ -8,11 +8,13 @@ import AccountChangePassword from './AccountChangePassword/AccountChangePassword
 import AccountDelete from './AccountDelete/AccountDelete';
 import AccountNotification from './AccountNotification/AccountNotification';
 import AccountSettings from './AccountSettings/AccountSettings';
+import ScrollToTopOnPathnameChange from '../../components/ScrollToTopOnPathnameChange';
 
 function Account() {
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
+        <ScrollToTopOnPathnameChange />
         <Routes>
           <Route path="/" element={<Navigate to="notifications" replace />} />
           <Route path="/notifications" element={<AccountNotification />} />

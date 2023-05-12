@@ -13,6 +13,7 @@ import { RssFeedProvidersModule } from '../rss-feed-providers/rss-feed-providers
 import { MailModule } from '../providers/mail.module';
 import { DisallowedUsernameModule } from '../disallowedUsername/disallowed-username.module';
 import { UsersEmailChangeController } from './users.email-change.controller';
+import { UsersPublicController } from './users.public.controller';
 import { EmailRevertTokensModule } from '../email-revert-tokens/email-revert-tokens.module';
 
 // Since the UsersModule is likely to be used in many places, we'll make it global
@@ -29,7 +30,7 @@ import { EmailRevertTokensModule } from '../email-revert-tokens/email-revert-tok
     MailModule,
     DisallowedUsernameModule,
   ],
-  controllers: [UsersEmailChangeController, UsersController],
+  controllers: [UsersEmailChangeController, UsersPublicController, UsersController],
   providers: [UsersService, LocalStorageService, S3StorageService],
   exports: [UsersService],
 })

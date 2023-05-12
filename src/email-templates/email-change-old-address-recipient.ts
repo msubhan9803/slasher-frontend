@@ -4,7 +4,7 @@ import { sharedEmailHeader, sharedEmailFooter } from './shared';
 
 export const templateForEmailChangeOldAddressRecipient = `
   ${sharedEmailHeader}
-    <p style="font-size:24px;">Hello!</p>
+    <p>Hello!</p>
 
     <p>An email address change request has been made on your Slasher account. Your Slasher account will no longer be associated with this email address.</p>
 

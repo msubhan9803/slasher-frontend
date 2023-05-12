@@ -4,7 +4,7 @@ import { sharedEmailHeader, sharedEmailFooter } from './shared';
 
 export const templateForEmailChangeNewAddressRecipient = `
   ${sharedEmailHeader}
-    <p style="font-size:24px;">Hello!</p>
+    <p>Hello!</p>
 
     <p>
       To confirm the email address change on your Slasher account to [[NEW_EMAIL_ADDRESS]], please click the following link:

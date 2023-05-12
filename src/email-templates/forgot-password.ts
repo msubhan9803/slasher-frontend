@@ -3,7 +3,7 @@ import { sharedEmailHeader, sharedEmailFooter } from './shared';
 /* eslint-disable max-len */
 export const templateForForgotPassword = `
   ${sharedEmailHeader}
-    <p style="font-size:24px;">Hello!</p>
+    <p>Hello!</p>
 
     <p>
       We received a password reset request from your account.

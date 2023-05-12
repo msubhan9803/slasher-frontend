@@ -51,7 +51,7 @@ function VerificationEmailNotReceived() {
                       ? (
                         <div>
                           <Alert variant="info" className="mb-0">{successMessage}</Alert>
-                          <RoundButtonLink to="/sign-in" className="mt-4 px-5" variant="primary">
+                          <RoundButtonLink to="/app/sign-in" className="mt-4 px-5" variant="primary">
                             Go to sign in
                           </RoundButtonLink>
                         </div>

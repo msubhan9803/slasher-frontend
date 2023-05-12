@@ -10,6 +10,7 @@ import { userIsLoggedIn } from '../../../utils/session-utils';
 import { getPublicProfile } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import HeroImage from '../../../images/public-home-hero-header.png';
+import ProfileLimitedView from '../../profile/ProfileLimitedView/ProfileLimitedView';
 
 const StyleSection = styled.div`
 background: url(${HeroImage}) top center;
@@ -40,7 +41,9 @@ function PublicProfie() {
               <Row className="d-flex justify-content-center px-2">
                 <Col lg={9} className="px-lg-4 px-3">
                   <PublicHomeBody>
-                    <ProfileAbout user={user} loadUser={() => { }} />
+                    {user.profile_status === 1
+                      ? <ProfileLimitedView user={user} />
+                      : <ProfileAbout user={user} loadUser={() => { }} /> }
                   </PublicHomeBody>
                 </Col>
               </Row>

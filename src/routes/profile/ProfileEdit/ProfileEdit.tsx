@@ -17,7 +17,7 @@ import {
 } from '../../../api/users';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import { ProfileVisibility, User } from '../../../types';
-import { updateUserName } from '../../../utils/session-utils';
+import { updateUserNameCookie } from '../../../utils/session-utils';
 import NotFound from '../../../components/NotFound';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import useProgressButton from '../../../components/ui/ProgressButton';
@@ -31,7 +31,10 @@ function ProfileEdit({ user }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
   const params = useParams();
-  const [locallyStoredUserData, setLocallyStoredUserData] = useState<User>(user);
+  const [userDataInForm, setUserDataInForm] = useState<User>({
+    ...user,
+    ...{ email: (user.unverifiedNewEmail || user.email) },
+  });
   const [errorMessage, setErrorMessages] = useState<string[]>();
   const [profilePhoto, setProfilePhoto] = useState<File | null | undefined>();
   const [coverPhoto, setCoverPhoto] = useState<any>();
@@ -43,8 +46,11 @@ function ProfileEdit({ user }: Props) {
   );
   const { userName } = useParams<string>();
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
-
   const dispatch = useAppDispatch();
+
+  const handleChange = (value: string, key: string) => {
+    setUserDataInForm({ ...userDataInForm, [key]: value });
+  };
 
   const userNameCookies = Cookies.get('userName');
   const isUnAuthorizedUser = userName !== userNameCookies;
@@ -94,13 +100,15 @@ function ProfileEdit({ user }: Props) {
       }
     }
 
+    let updateResponse = null;
+
     try {
-      await updateUser(
-        locallyStoredUserData.userName,
-        locallyStoredUserData.firstName,
-        locallyStoredUserData.email,
-        locallyStoredUserData._id,
-        locallyStoredUserData.profile_status,
+      updateResponse = await updateUser(
+        userDataInForm.userName,
+        userDataInForm.firstName,
+        userDataInForm.email,
+        userDataInForm._id,
+        userDataInForm.profile_status,
       );
     } catch (requestError: any) {
       errorList = errorList.concat([requestError.response.data.message]);
@@ -108,22 +116,22 @@ function ProfileEdit({ user }: Props) {
 
     setErrorMessages(errorList);
 
-    if (errorList.length === 0) {
-      // After successful update, update locally-stored username
-      updateUserName(locallyStoredUserData.userName);
+    if (updateResponse && errorList.length === 0) {
+      // Update was successful
+
+      updateUserNameCookie(userDataInForm.userName);
+      handleChange(updateResponse.data.unverifiedNewEmail || updateResponse.data.email, 'email');
+      handleChange(updateResponse.data.unverifiedNewEmail, 'unverifiedNewEmail');
+
       // And update current url to use latest userName (to handle possible userName change)
       navigate(
-        location.pathname.replace(params.userName!, locallyStoredUserData.userName),
+        location.pathname.replace(params.userName!, userDataInForm.userName),
         { replace: true },
       );
       setProgressButtonStatus('success');
     } else {
       setProgressButtonStatus('failure');
     }
-  };
-
-  const handleChange = (value: string, key: string) => {
-    setLocallyStoredUserData({ ...locallyStoredUserData, [key]: value });
   };
 
   if (isUnAuthorizedUser) {
@@ -152,7 +160,7 @@ function ProfileEdit({ user }: Props) {
   };
   return (
     <div>
-      {locallyStoredUserData.profilePic.includes('default_user_icon') && !profilePhoto
+      {userDataInForm.profilePic.includes('default_user_icon') && !profilePhoto
         && <Alert variant="info">Hey! It looks like you don’t have a profile image!   Adding one will make people more likely to friend you!</Alert>}
       <Form>
         <div className="bg-dark p-4 rounded bg-mobile-transparent">
@@ -164,9 +172,9 @@ function ProfileEdit({ user }: Props) {
                   height="10rem"
                   variant="outline"
                   defaultPhotoUrl={
-                    locallyStoredUserData.profilePic.includes('default_user_icon')
+                    userDataInForm.profilePic.includes('default_user_icon')
                       ? undefined
-                      : locallyStoredUserData.profilePic
+                      : userDataInForm.profilePic
                   }
                   onChange={(file) => { setProfilePhoto(file); }}
                 />
@@ -189,7 +197,7 @@ function ProfileEdit({ user }: Props) {
                   className="mx-auto mx-md-0 me-md-3"
                   height="10rem"
                   variant="outline"
-                  defaultPhotoUrl={locallyStoredUserData.coverPhoto}
+                  defaultPhotoUrl={userDataInForm.coverPhoto}
                   onChange={(file) => { setCoverPhoto(file); }}
                 />
                 <div className="text-center text-md-start mt-4 mt-md-0">
@@ -217,7 +225,7 @@ function ProfileEdit({ user }: Props) {
                   type="text"
                   id="name"
                   placeholder="Name"
-                  value={locallyStoredUserData.firstName || ''}
+                  value={userDataInForm.firstName || ''}
                   onChange={
                     (changeData: ChangeEvent<HTMLInputElement>) => handleChange(changeData.target.value, 'firstName')
                   }
@@ -238,7 +246,7 @@ function ProfileEdit({ user }: Props) {
                   type="text"
                   id="username"
                   placeholder="Username"
-                  value={locallyStoredUserData.userName || ''}
+                  value={userDataInForm.userName || ''}
                   onChange={
                     (changeData: ChangeEvent<HTMLInputElement>) => handleChange(changeData.target.value, 'userName')
                   }
@@ -259,13 +267,24 @@ function ProfileEdit({ user }: Props) {
                   type="email"
                   id="email"
                   placeholder="Email"
-                  value={locallyStoredUserData.email || ''}
+                  value={userDataInForm.email || ''}
                   onChange={
                     (changeData: ChangeEvent<HTMLInputElement>) => handleChange(changeData.target.value, 'email')
                   }
                   className="my-3"
                   aria-label="Email"
                 />
+                {
+                  userDataInForm.unverifiedNewEmail && (
+                    <Alert variant="info">
+                      The above email address change is pending.  Please check your email at this
+                      address for a confirmation email. Until you click the confirmation link in
+                      that email, this account will continue to use:
+                      {' '}
+                      <strong>{user.email}</strong>
+                    </Alert>
+                  )
+                }
                 <Form.Text className="text-muted d-flex my-3 fs-4">
                   When you change your email address, we will send an email to that
                   address with a confirmation link.

@@ -15,7 +15,7 @@ import useProgressButton from '../../../components/ui/ProgressButton';
 import {
   decryptMessage, escapeHtmlSpecialCharacters, newLineToBr,
 } from '../../../utils/text-utils';
-import { customlinkifyOpts } from '../../../utils/linkify-utils';
+import { defaultLinkifyOpts } from '../../../utils/linkify-utils';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
 
 interface Props {
@@ -64,7 +64,7 @@ function ProfileAbout({ user, loadUser }: Props) {
   const renderAboutMeText = (text: string) => {
     if (text && text.length > 0) {
       const safeAboutMeText = newLineToBr(
-        linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(text)), customlinkifyOpts),
+        linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(text)), defaultLinkifyOpts),
       );
 
       return (

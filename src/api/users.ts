@@ -278,12 +278,21 @@ export async function getUserMoviesList(
   return axios.get(`${apiUrl}/api/v1/users/${userId}/${name}${queryParameter}`, { headers });
 }
 
-export async function activateAccount(email: string, verificationToken: string) {
+export async function activateAccount(userId: string, token: string) {
   return axios.post(
     `${apiUrl}/api/v1/users/activate-account`,
     {
+      userId,
+      token,
+    },
+  );
+}
+
+export async function verificationEmailNotReceived(email: string) {
+  return axios.post(
+    `${apiUrl}/api/v1/users/verification-email-not-received`,
+    {
       email,
-      verification_token: verificationToken,
     },
   );
 }

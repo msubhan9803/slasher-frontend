@@ -6,7 +6,9 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { StyledNav } from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageHeader';
 import HeaderLogo from '../../../components/ui/HeaderLogo';
-import { LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT, XL_MEDIA_BREAKPOINT } from '../../../constants';
+import {
+  LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT, WORDPRESS_SITE_URL, XL_MEDIA_BREAKPOINT,
+} from '../../../constants';
 import slasherLogo from '../../../images/slasher-logo-medium.png';
 import { enableDevFeatures } from '../../../utils/configEnvironment';
 
@@ -148,7 +150,7 @@ function PublicHomeHeader() {
                     {navList.map((nav) => (
                       <StyledNavLink
                         key={nav.value}
-                        href={nav.value === 'home' ? '/' : `https://pages.slasher.tv/${nav.value}`}
+                        href={nav.value === 'home' ? '/' : `${WORDPRESS_SITE_URL}/${nav.value}`}
                         className="text-start w-100 rounded-0 nav-link py-3 px-5 p-lg-2 text-lg-center fs-3 text-decoration-none text-white"
                       >
                         {nav.label}

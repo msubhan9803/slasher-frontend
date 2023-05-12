@@ -69,6 +69,7 @@ function ProfileHeader({
   const loginUserId = Cookies.get('userId');
   const { userName } = useParams();
   const navigate = useNavigate();
+  const param = useParams();
   const [clickedUserId, setClickedUserId] = useState<string>('');
   const [friendData, setFriendData] = useState<FriendType>(null);
   const positionRef = useRef<HTMLDivElement>(null);
@@ -98,7 +99,7 @@ function ProfileHeader({
   useLayoutEffect(() => {
     const element = positionRef.current;
     if (!element) { return; }
-    if (scrollPosition.scrollToTab && (friendStatus || element)) {
+    if ((scrollPosition.scrollToTab && (friendStatus || element)) || param['*'] === 'friends') {
       window.scrollTo({
         top: element.offsetTop - (
           window.innerWidth >= parseInt(LG_MEDIA_BREAKPOINT.replace('px', ''), 10)
@@ -109,7 +110,7 @@ function ProfileHeader({
       });
       dispatch(setScrollToTabsPosition(false));
     }
-  }, [positionRef, friendStatus, dispatch, scrollPosition.scrollToTab]);
+  }, [positionRef, friendStatus, dispatch, scrollPosition.scrollToTab, param]);
 
   const onBlockYesClick = () => {
     createBlockUser(clickedUserId)
@@ -140,11 +141,11 @@ function ProfileHeader({
   }
   return (
     <div className="bg-dark bg-mobile-transparent rounded mb-4">
-      <Row className="p-md-4">
-        <Col>
+      <div className="p-md-4 g-0">
+        <div>
           <ProfileCoverImage src={user.coverPhoto || defaultCoverImage} alt="Cover picture" className="mt-3 mt-md-0 w-100 rounded" />
-        </Col>
-        <Row className="d-flex ms-3">
+        </div>
+        <Row className="d-flex ps-md-4">
           <CustomCol md={3} lg={12} xl="auto" className="text-center text-lg-center text-xl-start  position-relative">
             <AboutProfileImage size="11.25rem" src={user?.profilePic} alt="user picture" />
             {!isSelfUserProfile
@@ -202,7 +203,7 @@ function ProfileHeader({
             </Row>
           </Col>
         </Row>
-      </Row>
+      </div>
       {
         showTabs && (
           <>

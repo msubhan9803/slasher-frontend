@@ -17,8 +17,12 @@ import { templateForReport } from '../email-templates/report';
 export class MailService {
   constructor(private readonly config: ConfigService) { }
 
-  getDefaultSender() {
+  getDefaultSenderEmailAddress() {
     return this.config.get<string>('DEFAULT_SMTP_AUTH_USER');
+  }
+
+  getFormattedDefaultSenderForFromField() {
+    return `Slasher <${this.getDefaultSenderEmailAddress()}>`;
   }
 
   getEventReviewEmailReceiver() {
@@ -46,7 +50,7 @@ export class MailService {
     });
     return this.sendEmail(
       email,
-      this.getDefaultSender(),
+      this.getFormattedDefaultSenderForFromField(),
       'Activate Your Slasher Account',
       htmlToSend,
       'html',
@@ -62,7 +66,7 @@ export class MailService {
     });
     return this.sendEmail(
       email,
-      this.getDefaultSender(),
+      this.getFormattedDefaultSenderForFromField(),
       'Slasher - Password Reset',
       htmlToSend,
       'html',
@@ -85,7 +89,7 @@ export class MailService {
     const eventSuggestionSuggesterMessageHtml = this.processEmailTemplate(templateForEventSuggestionSuggester, {});
     emailPromises.push(this.sendEmail(
       suggesterEmail,
-      this.getDefaultSender(),
+      this.getFormattedDefaultSenderForFromField(),
       'Slasher - Event Suggestion Received',
       eventSuggestionSuggesterMessageHtml,
       'html',
@@ -99,7 +103,7 @@ export class MailService {
     });
     emailPromises.push(this.sendEmail(
       this.getEventReviewEmailReceiver(),
-      this.getDefaultSender(),
+      this.getFormattedDefaultSenderForFromField(),
       'Event Suggestion',
       eventSuggestionReviewerMessageHtml,
       'html',
@@ -128,7 +132,7 @@ export class MailService {
     });
     emailPromises.push(this.sendEmail(
       oldEmail,
-      this.getDefaultSender(),
+      this.getFormattedDefaultSenderForFromField(),
       'Your Slasher Account Email Has Been Changed',
       oldEmailAddressMessageHtml,
       'html',
@@ -142,7 +146,7 @@ export class MailService {
     });
     emailPromises.push(this.sendEmail(
       newEmail,
-      this.getDefaultSender(),
+      this.getFormattedDefaultSenderForFromField(),
       'Confirm Your Slasher Email Change',
       newEmailAddressMessageHtml,
       'html',
@@ -165,7 +169,7 @@ export class MailService {
     });
     return this.sendEmail(
       this.config.get<string>('REPORT_EMAIL_RECIPIENT'),
-      this.getDefaultSender(),
+      this.getFormattedDefaultSenderForFromField(),
       `Slasher Report: ${reportType}`,
       htmlToSend,
       'html',
@@ -205,7 +209,7 @@ export class MailService {
       port: this.config.get<number>('DEFAULT_SMTP_PORT'),
       secure: true,
       auth: {
-        user: this.getDefaultSender(),
+        user: this.getDefaultSenderEmailAddress(),
         pass: this.config.get<string>('DEFAULT_SMTP_AUTH_PASS'),
       },
     });

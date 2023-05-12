@@ -81,7 +81,7 @@ function RegistrationTerms({ activeStep }: Props) {
       <CommunityStandardsAndRules className="my-5" />
 
       <p className="border-top pt-5">
-        By signing up, you agree that you are at least 17 years of age, and that you agree
+        By signing up, you agree that you are at least 18 years of age, and that you agree
         to our Terms and Conditions, Privacy Policy, End User License Agreement, and Community
         Standards.
       </p>

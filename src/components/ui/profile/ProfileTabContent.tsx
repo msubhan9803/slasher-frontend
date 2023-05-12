@@ -1,5 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useParams } from 'react-router';
+import { userIsLoggedIn } from '../../../utils/session-utils';
 
 interface Props {
   children: React.ReactNode;
@@ -10,8 +12,13 @@ const ViewportMinHeightContainer = styled.div`
 `;
 
 function ProfileTabContent({ children }: Props) {
+  const { userName } = useParams();
+  const isLoggedIn = userIsLoggedIn();
   return (
-    <ViewportMinHeightContainer>{children}</ViewportMinHeightContainer>
+    <div>
+      {userName && !isLoggedIn ? children
+        : <ViewportMinHeightContainer>{children}</ViewportMinHeightContainer>}
+    </div>
   );
 }
 

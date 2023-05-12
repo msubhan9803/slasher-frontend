@@ -19,7 +19,7 @@ import {
   appendToPathnameHistory,
 } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
-import { signOut } from '../../../../utils/session-utils';
+import { getSessionToken, signOut } from '../../../../utils/session-utils';
 import {
   LG_MEDIA_BREAKPOINT, analyticsId, MAIN_CONTENT_ID, apiUrl,
 } from '../../../../constants';
@@ -31,6 +31,7 @@ import slasherLogo from '../../../../images/slasher-logo-medium.png';
 import HeaderLogo from '../../../ui/HeaderLogo';
 import { setSocketConnected } from '../../../../redux/slices/socketSlice';
 import socketStore from '../../../../socketStore';
+import useSessionTokenMonitor from '../../../../hooks/useSessionTokenMonitor';
 
 interface Props {
   children: React.ReactNode;
@@ -78,6 +79,13 @@ function AuthenticatedPageWrapper({ children }: Props) {
   useEffect(() => {
     dispatch(appendToPathnameHistory(location.pathname));
   }, [dispatch, location.pathname]);
+
+  // Reload the page if the session token changes
+  useSessionTokenMonitor(
+    getSessionToken,
+    () => { window.location.reload(); },
+    5_000,
+  );
 
   const [show, setShow] = useState(false);
   const isDesktopResponsiveSize = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` });

@@ -15,10 +15,12 @@ interface Props {
   handleReport?: (value: string,) => void;
   removeComment?: () => void;
   rssfeedProviderId?: string;
+  afterBlockUser?: Function;
 }
 function ReportModal({
   show, setShow, slectedDropdownValue, onConfirmClick, onBlockYesClick,
   handleReport, removeComment, rssfeedProviderId,
+  afterBlockUser,
 }: Props) {
   const [reports, setReports] = useState<string>('');
   const [otherReport, setOtherReport] = useState('');
@@ -47,7 +49,6 @@ function ReportModal({
   const handleBlockUser = () => {
     if (onBlockYesClick) { onBlockYesClick(); }
     setChecked(false);
-    closeModal();
   };
 
   const handleReportData = () => {
@@ -127,6 +128,14 @@ function ReportModal({
           </Modal.Body>
         )
       }
+      {
+        slectedDropdownValue === 'BlockUserSuccess' && (
+          <Modal.Body className="d-flex flex-column align-items-center text-center pt-0">
+            <p className="px-3">You have successfully blocked this user.</p>
+            <RoundButton className="mb-3 w-100 fs-3" onClick={afterBlockUser}>Ok</RoundButton>
+          </Modal.Body>
+        )
+      }
     </ModalContainer>
   );
 }
@@ -136,6 +145,7 @@ ReportModal.defaultProps = {
   handleReport: undefined,
   removeComment: undefined,
   rssfeedProviderId: undefined,
+  afterBlockUser: () => { },
 };
 
 export default ReportModal;

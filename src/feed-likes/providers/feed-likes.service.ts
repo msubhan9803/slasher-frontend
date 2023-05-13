@@ -85,7 +85,7 @@ export class FeedLikesService {
     // Do not return likes by blocked users
     let blockUserIds = [];
     if (requestingContextUserId) {
-      blockUserIds = await this.blocksService.getBlockedUserIdsBySender(requestingContextUserId);
+      blockUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(requestingContextUserId);
     }
 
     const users = await this.userModel.find({
@@ -165,7 +165,7 @@ export class FeedLikesService {
 
     // Do not return likes by blocked users
     if (requestingContextUserId) {
-      const blockUserIds = await this.blocksService.getBlockedUserIdsBySender(requestingContextUserId);
+      const blockUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(requestingContextUserId);
       filter.push({ userId: { $nin: blockUserIds } });
     }
 

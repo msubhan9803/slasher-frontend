@@ -202,7 +202,7 @@ export class FriendsService {
       FriendRequestReaction.DeclinedOrCancelled,
     ]);
     const suggestBlockUserIds = await this.getSuggestBlockedUserIdsBySender(user.id);
-    const blockUserIds = await this.blocksService.getBlockedUserIdsBySender(user.id);
+    const blockUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(user.id);
 
     const idsToExclude = friendIds.concat(
       suggestBlockUserIds as unknown as mongoose.Types.ObjectId[],

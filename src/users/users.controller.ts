@@ -435,7 +435,7 @@ export class UsersController {
   ) {
     const user = getUserFromRequest(request);
     // Note: We are allowing a user to look up their own username when getting user suggestions.
-    const excludedUserIds = await this.blocksService.getBlockedUserIdsBySender(user.id);
+    const excludedUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(user.id);
     return this.usersService.suggestUserName(query.query, query.limit, true, excludedUserIds);
   }
 

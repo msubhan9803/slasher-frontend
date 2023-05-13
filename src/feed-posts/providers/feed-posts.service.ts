@@ -13,6 +13,7 @@ import { FeedPostLike, FeedPostLikeDocument } from '../../schemas/feedPostLike/f
 import { BlocksService } from '../../blocks/providers/blocks.service';
 import { pick } from '../../utils/object-utils';
 import { FriendShip, LikeUserAndFriendship } from '../../types';
+import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
 
 @Injectable()
 export class FeedPostsService {
@@ -107,7 +108,7 @@ export class FeedPostsService {
     feedPostQuery.push({ movieId: new mongoose.Types.ObjectId(movieId) });
     feedPostQuery.push({ postType: PostType.MovieReview });
     if (requestingContextUserId) {
-      const blockUserIds = await this.blocksService.getBlockedUserIdsBySender(requestingContextUserId);
+      const blockUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(requestingContextUserId);
       feedPostQuery.push({ userId: { $nin: blockUserIds } });
     }
     if (before) {
@@ -144,7 +145,7 @@ export class FeedPostsService {
     // Get the list of rss feed providers that the user is following
     const rssFeedProviderIds = (await this.rssFeedProviderFollowsService.findAllByUserId(userId)).map((follow) => follow.rssfeedProviderId);
     // Get the list of friend ids
-    const friendIds = await this.friendsService.getFriendIds(userId);
+    const friendIds = await this.friendsService.getFriendIds(userId, [FriendRequestReaction.Accepted]);
 
     // Optionally, only include posts that are older than the given `before` post
     const beforeQuery: any = {};
@@ -304,7 +305,7 @@ export class FeedPostsService {
 
     // Do not return likes by blocked users
     if (requestingContextUserId) {
-      const blockUserIds = await this.blocksService.getBlockedUserIdsBySender(requestingContextUserId);
+      const blockUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(requestingContextUserId);
       filter.push({ userId: { $nin: blockUserIds } });
     }
     const feedPostLikes = await this.feedLikesModel

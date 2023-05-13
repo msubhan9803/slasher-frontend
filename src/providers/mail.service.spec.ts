@@ -105,7 +105,7 @@ describe('MailService', () => {
       await mailService.sendVerificationEmail(to, userId, token);
       expect(mailService.sendEmail).toHaveBeenCalledWith(
         to,
-        mailService.getDefaultSender(),
+        mailService.getFormattedDefaultSenderForFromField(),
         'Activate Your Slasher Account',
         expect.stringContaining(`userId=${encodeURIComponent(userId)}&token=${encodeURIComponent(token)}`),
         'html',
@@ -124,7 +124,7 @@ describe('MailService', () => {
       await mailService.sendForgotPasswordEmail(to, token);
       expect(mailService.sendEmail).toHaveBeenCalledWith(
         to,
-        mailService.getDefaultSender(),
+        mailService.getFormattedDefaultSenderForFromField(),
         'Slasher - Password Reset',
         expect.stringContaining(token),
         'html',
@@ -149,7 +149,7 @@ describe('MailService', () => {
       // Expect email sent to suggester
       expect(mailService.sendEmail).toHaveBeenCalledWith(
         suggesterEmail,
-        mailService.getDefaultSender(),
+        mailService.getFormattedDefaultSenderForFromField(),
         'Slasher - Event Suggestion Received',
         expect.stringContaining('Your event suggestion has been received.'),
         'html',
@@ -158,7 +158,7 @@ describe('MailService', () => {
       // Expect email sent to admin
       expect(mailService.sendEmail).toHaveBeenCalledWith(
         mailService.getEventReviewEmailReceiver(),
-        mailService.getDefaultSender(),
+        mailService.getFormattedDefaultSenderForFromField(),
         'Event Suggestion',
         expect.stringContaining(eventName),
         'html',
@@ -183,7 +183,7 @@ describe('MailService', () => {
       // Expect email sent to oldEmail
       expect(mailService.sendEmail).toHaveBeenCalledWith(
         oldEmail,
-        mailService.getDefaultSender(),
+        mailService.getFormattedDefaultSenderForFromField(),
         'Your Slasher Account Email Has Been Changed',
         expect.stringContaining(revertToken),
         'html',
@@ -192,7 +192,7 @@ describe('MailService', () => {
       // Expect email sent to newEmail
       expect(mailService.sendEmail).toHaveBeenCalledWith(
         newEmail,
-        mailService.getDefaultSender(),
+        mailService.getFormattedDefaultSenderForFromField(),
         'Confirm Your Slasher Email Change',
         expect.stringContaining(confirmToken),
         'html',
@@ -215,7 +215,7 @@ describe('MailService', () => {
       await mailService.sendReportNotificationEmail(reportType, reporterUserName, reportedUserName, reportReason);
       expect(mailService.sendEmail).toHaveBeenCalledWith(
         to,
-        mailService.getDefaultSender(),
+        mailService.getFormattedDefaultSenderForFromField(),
         `Slasher Report: ${reportType}`,
         expect.stringContaining(`The user ${reporterUserName} has reported a ${reportType} by ${reportedUserName}`),
         'html',

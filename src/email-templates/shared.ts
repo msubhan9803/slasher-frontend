@@ -30,7 +30,7 @@ export const sharedEmailHeader = `
           <table role="presentation" style="width:602px;border-collapse:collapse;background:#141414;border-spacing:0;text-align:left;">
             <tr>
               <td align="center">
-                <img src="https://d13qdlbrji2lqg.cloudfront.net/email/slasher-email-header-image.png" alt="Slasher logo" style="width:100%;height:auto;display:block;" />
+                <img src="https://imageslasher.s3.amazonaws.com/email/slasher-email-header-image-2023-05.png" alt="Slasher logo" style="width:100%;height:auto;display:block;" />
               </td>
             </tr>
 

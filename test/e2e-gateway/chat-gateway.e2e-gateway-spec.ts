@@ -131,7 +131,7 @@ describe('Chat Gateway (e2e)', () => {
         const chat = await chatModel.findOne({ matchId: chatMessageResponse.message.matchId });
 
         expect(chatMessageResponse.success).toBe(true);
-        expect(chatMessageResponse.message.message).toBe(payload.message);
+        expect(chatMessageResponse.message.message).toBe(encodeURIComponent(payload.message));
 
         const messageCreated = Number(chatMessageResponse.message.created);
         [
@@ -147,7 +147,7 @@ describe('Chat Gateway (e2e)', () => {
           {
             success: true,
             message: {
-              message: 'Hi, test message via socket.',
+              message: encodeURIComponent('Hi, test message via socket.'),
               created: expect.any(String),
               createdAt: expect.any(String),
               image: null,
@@ -196,7 +196,7 @@ describe('Chat Gateway (e2e)', () => {
             fromId: activeUser.id,
             image: null,
             matchId: expect.any(String),
-            message: 'Hi, test message via socket.',
+            message: encodeURIComponent('Hi, test message via socket.'),
           },
         });
       });

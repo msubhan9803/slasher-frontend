@@ -41,7 +41,6 @@ describe('FriendsService', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
     suggestBlockModel = moduleRef.get<Model<SuggestBlockDocument>>(getModelToken(SuggestBlock.name));
-
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
     await app.init();
@@ -277,6 +276,35 @@ describe('FriendsService', () => {
           (await friendsService.findFriendship(user0.id, user2.id)).reaction,
         ).toEqual(FriendRequestReaction.DeclinedOrCancelled);
       });
+    });
+  });
+
+  describe('#getFriendIds', () => {
+    let user4;
+    beforeEach(async () => {
+      user4 = await usersService.create(userFactory.build({ userName: 'Horror' }));
+    });
+
+    it('returns the expected response with accepted status', async () => {
+      await friendsService.createFriendRequest(user1.id, user2.id);
+      await friendsService.createFriendRequest(user1.id, user3.id);
+      await friendsService.acceptFriendRequest(user1.id, user2.id);
+      await friendsService.acceptFriendRequest(user1.id, user3.id);
+      const friend = await friendsService.getFriendIds(user1.id, [FriendRequestReaction.Accepted]);
+      expect(friend).toEqual([user2._id, user3._id]);
+    });
+
+    it('returns the expected response with pending status', async () => {
+      await friendsService.createFriendRequest(user1.id, user4.id);
+      const friend = await friendsService.getFriendIds(user1.id, [FriendRequestReaction.Pending]);
+      expect(friend).toEqual([user4._id]);
+    });
+
+    it('returns the expected response with decline status', async () => {
+      await friendsService.createFriendRequest(user1.id, user4.id);
+      await friendsService.cancelFriendshipOrDeclineRequest(user1.id, user4.id);
+      const friend = await friendsService.getFriendIds(user1.id, [FriendRequestReaction.DeclinedOrCancelled]);
+      expect(friend).toEqual([user4._id]);
     });
   });
 

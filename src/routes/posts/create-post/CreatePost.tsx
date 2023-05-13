@@ -94,7 +94,7 @@ function CreatePost() {
     <ContentSidbarWrapper>
       <ContentPageWrapper>
         {(paramsType === 'group-post' && !paramsGroupId) && <Alert variant="danger">Group id missing from URL</Alert>}
-        <Form className="bg-dark px-4 py-4 rounded-2">
+        <Form className="bg-dark px-4 py-4 rounded-2 position-relative">
           <Form.Group controlId="about-me" className="d-flex justify-content-between">
             <div className="align-items-center d-flex form-label mb-4 w-100 mb-4">
               <UserCircleImage src={loggedInUser.profilePic} alt="user picture" className="me-3" />
@@ -136,6 +136,7 @@ function CreatePost() {
             selectedPostType={selectedPostType}
             setSelectedPostType={setSelectedPostType}
             placeHolder="Create a post"
+            createEditPost
           />
         </Form>
       </ContentPageWrapper>

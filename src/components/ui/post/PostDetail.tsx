@@ -879,6 +879,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                   setPostImages={setPostImages}
                   deleteImageIds={deleteImageIds}
                   setDeleteImageIds={setDeleteImageIds}
+                  editPost
                 />
               )}
           </div>

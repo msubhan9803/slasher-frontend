@@ -194,7 +194,7 @@ export class ChatService {
     }
 
     // Do not return conversations of blocked users
-    const blockUserIds = await this.blocksService.getBlockedUserIdsBySender(userId);
+    const blockUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(userId);
 
     const matchLists = await this.matchListModel
       .find({

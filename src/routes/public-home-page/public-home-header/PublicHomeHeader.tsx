@@ -1,9 +1,13 @@
+/* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
 import {
-  Col, Navbar, Row,
+  Button,
+  Col, Navbar, Offcanvas, Row,
 } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { StyledNav } from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageHeader';
 import HeaderLogo from '../../../components/ui/HeaderLogo';
 import {
@@ -11,12 +15,15 @@ import {
 } from '../../../constants';
 import slasherLogo from '../../../images/slasher-logo-medium.png';
 import { enableDevFeatures } from '../../../utils/configEnvironment';
+import RoundButton from '../../../components/ui/RoundButton';
+import { StyledMediaIcon, socialMediaSites } from '../public-home-footer/PublicHomeFooter';
 
 interface HeaderStyleProps {
   isOpen: boolean;
 }
 
 const NavbarToggle = styled(Navbar.Toggle)`
+  margin-right:0px !important;
   &:focus {
     box-shadow: none !important;
   }
@@ -31,13 +38,13 @@ const StyledNavLink = styled.a`
     }
   }
   @media (max-width: ${LG_MEDIA_BREAKPOINT}){
-    border-top: 1px solid #252525;
     &:hover {
-      background-color: var(--bs-primary) !important;
+      color:var(--bs-primary) !important;
     }
   }
 `;
 const StyledNavbarCollapse = styled(Navbar.Collapse)`
+  margin-right: 0px !important;
   @media (min-width: ${LG_MEDIA_BREAKPOINT}){
     background-color: transparent !important;
   }
@@ -47,6 +54,7 @@ const StyledHeader = styled.header<HeaderStyleProps>`
   height: 100px;
   z-index: 997;
   transition: all 0.5s;
+  padding-right: 0px !important;
   &.header-scrolled {
     background: var(--bs-secondary) !important;
     height: 82px;
@@ -68,12 +76,27 @@ const StyledHeader = styled.header<HeaderStyleProps>`
     }
   }
   @media (max-width: ${MD_MEDIA_BREAKPOINT}){
-    background:  ${({ isOpen }) => (isOpen ? 'var(--bs-secondary)' : '')} !important;
-    height: ${({ isOpen }) => (isOpen ? 'auto' : '100px')} !important;
+    height: auto !important;
     &.header-scrolled {
       background: var(--bs-secondary) !important;
       height: ${({ isOpen }) => (isOpen ? 'auto' : '70px')} !important;
     }
+  }
+`;
+
+const StyledOffcanvas = styled(Offcanvas)`
+  background-color: #171718;
+  .btn-close {
+    background: #3A3B46;
+    border-radius: 0.625rem;  
+  }
+  .offcanvas-header button{
+    background: rgb(58, 59, 70);
+    border-radius: 0.625rem;
+  }
+  .offcanvas-title{
+    font-size: 1.25rem;
+    font-weight: normal
   }
 `;
 const navList = [
@@ -82,31 +105,22 @@ const navList = [
   { value: 'shop', label: 'Shop' },
   { value: 'advertise', label: 'Advertise' },
   { value: 'help', label: 'Help' },
-  { value: 'contact', label: 'Contact Us' },
 ];
 function PublicHomeHeader() {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const selectHeader = document.querySelector('#header');
     const selectLoginButton = document.querySelector('.login-btn');
-    const selectLogo1 = document.querySelector('.logo1');
-    const selectLogo2 = document.querySelector('.logo2');
-    const selectToggle = document.querySelector('.toggle');
 
     const headerScrolled = () => {
       if (window.pageYOffset > 120) {
         selectHeader?.classList.add('header-scrolled');
         selectLoginButton?.classList.add('mt-3');
-        selectLogo1?.classList.add('mt-4');
-        selectLogo2?.classList.add('mt-4');
-        selectToggle?.classList.add('mt-4');
       } else {
         selectHeader?.classList.remove('header-scrolled');
         selectLoginButton?.classList.remove('mt-3');
-        selectLogo1?.classList.remove('mt-4');
-        selectLogo2?.classList.remove('mt-4');
-        selectToggle?.classList.remove('mt-4');
       }
     };
 
@@ -122,31 +136,34 @@ function PublicHomeHeader() {
   }, []);
 
   return (
-    <StyledHeader isOpen={isOpen} id="header" className="fixed-top d-flex align-items-center bg-transparent">
+    <StyledHeader isOpen={isOpen} id="header" className="fixed-top d-flex align-items-center bg-transparent pe-0">
       <div className="container-md position-relative">
         <Navbar
           collapseOnSelect
           expand="lg"
           bg="transparent"
           variant="dark"
-          className="mb-3 d-lg-flex justify-content-lg-center"
+          className=" d-lg-flex justify-content-lg-center pt-0"
         >
           <NavbarToggle onClick={() => setIsOpen(!isOpen)} aria-controls="responsive-navbar-nav" className="toggle border-0" />
-          <Navbar.Brand as={Link} to="/" style={{ marginTop: isOpen ? '-10px' : '0' }} className={`mx-auto pe-4 ${!isOpen ? 'logo2' : ''} d-lg-none py-0`}>
+          <Navbar.Brand as={Link} to="/" className="logo-1 d-lg-none">
             {/* This header is only shown on mobile screens */}
-            <HeaderLogo logo={slasherLogo} height="8rem" />
+            <HeaderLogo logo={slasherLogo} height="4.56rem" />
           </Navbar.Brand>
-          <StyledNavbarCollapse id="responsive-navbar-nav" className="bg-black mt-2 mt-lg-0">
+          <div className="d-lg-none">
+            <RoundButton onClick={() => navigate('/app/sign-in')}>SIGN IN</RoundButton>
+          </div>
+          <StyledNavbarCollapse id="responsive-navbar-nav" className="bg-black mt-2 mt-lg-0 d-none">
             <StyledNav className="justify-content-between px-3 small-screen w-100">
-              <Row className="w-100 align-items-center">
+              <Row className="w-100 align-items-center pt-4 ">
                 <Col lg={2}>
-                  <Navbar.Brand as={Link} to="/" className="logo1 d-none d-lg-flex py-0 justify-content-center">
+                  <Navbar.Brand as={Link} to="/" className="logo1 d-none d-lg-flex py-0 justify-content-center me-0">
                     {/* This header is only shown on desktop screen (not on tablet and mobile)  */}
                     <HeaderLogo logo={slasherLogo} height="6.25rem" />
                   </Navbar.Brand>
                 </Col>
                 <Col lg={8}>
-                  <div className="d-lg-flex justify-content-between">
+                  <div className="d-none d-lg-flex justify-content-between">
                     {navList.map((nav) => (
                       <StyledNavLink
                         key={nav.value}
@@ -180,6 +197,41 @@ function PublicHomeHeader() {
             </StyledNav>
           </StyledNavbarCollapse>
         </Navbar>
+        {isOpen && (
+          <StyledOffcanvas
+            id="1"
+            show
+            onHide={() => setIsOpen(!isOpen)}
+            className="w-100"
+          >
+            <Offcanvas.Header>
+              <Offcanvas.Title>Navigation</Offcanvas.Title>
+              <Button className="border-0 py-1" onClick={() => setIsOpen(!isOpen)}>
+                <FontAwesomeIcon icon={solid('xmark')} size="lg" className="mt-1" />
+              </Button>
+            </Offcanvas.Header>
+            <Offcanvas.Body className="pt-0">
+              {[{ value: 'sign-in', label: 'Sign in' }, ...navList].map((nav) => (
+                <StyledNavLink
+                  key={nav.value}
+                  href={nav.value === 'home' ? '/' : `https://pages.slasher.tv/${nav.value}`}
+                  className="text-start w-100 rounded-0 nav-link py-3 p-lg-2 text-lg-center fs-3 text-decoration-none text-white"
+                >
+                  {nav.label}
+                </StyledNavLink>
+              ))}
+              <div className="align-items-center d-flex mt-4">
+                {socialMediaSites.map((site: any) => (
+                  <a href={site.to} key={site.icon}>
+                    <StyledMediaIcon style={{ height: '32px', width: '32px' }} bgcolor={site.bgColor} className="me-3 align-items-center bg-white d-flex justify-content-center rounded-circle text-black">
+                      <FontAwesomeIcon icon={site.icon} className="" />
+                    </StyledMediaIcon>
+                  </a>
+                ))}
+              </div>
+            </Offcanvas.Body>
+          </StyledOffcanvas>
+        )}
       </div>
     </StyledHeader>
   );

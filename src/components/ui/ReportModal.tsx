@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Form, Modal } from 'react-bootstrap';
+import { Modal } from 'react-bootstrap';
 import ModalContainer from './CustomModal';
-import RoundButton from './RoundButton';
 import ModalBodyForReport from './ModalBodyForReport';
 import ModalBodyForBlockUser from './ModalBodyForBlockUser';
 import ModalBodyForDelete from './ModalBodyForDelete';
+import ModalBodyForReportSuccess from './ModalBodyForReportSuccess';
 
 interface Props {
   show: boolean;
@@ -58,14 +58,6 @@ function ReportModal({
     }
   };
 
-  const postReportCloseClick = () => {
-    if (checked) {
-      handleBlockUser();
-    } else {
-      closeModal();
-    }
-  };
-
   return (
     <ModalContainer
       show={show}
@@ -105,27 +97,13 @@ function ReportModal({
       }
       {
         slectedDropdownValue === 'PostReportSuccessDialog' && (
-          <Modal.Body className="d-flex flex-column align-items-center text-center pt-0">
-            <h1 className="h3 mb-0 text-primary pb-3">Block</h1>
-            <p className="px-3">Thank you for your report. We will review it as soon as possible</p>
-
-            {/* Ask to block user as well (when post is not a rssFeedPost) */}
-            {!rssfeedProviderId
-              && (
-                <div className="d-flex pb-5">
-                  <div className="pe-3">
-                    Would you like to block this user?
-                  </div>
-                  <Form.Check
-                    type="checkbox"
-                    onChange={() => setChecked(!checked)}
-                    checked={checked}
-                  />
-
-                </div>
-              )}
-            <RoundButton className="mb-3 w-100 fs-3" onClick={postReportCloseClick}>{checked ? 'Block and close' : 'Close'}</RoundButton>
-          </Modal.Body>
+          <ModalBodyForReportSuccess
+            rssfeedProviderId={rssfeedProviderId}
+            checked={checked}
+            setChecked={setChecked}
+            closeModal={closeModal}
+            handleBlockUser={handleBlockUser}
+          />
         )
       }
       {

@@ -390,7 +390,6 @@ function PostFeed({
       setTimeout(() => {
         window.scrollTo({
           top: scrollPosition?.position,
-          behavior: 'instant' as any,
         });
       }, 1000);
     }

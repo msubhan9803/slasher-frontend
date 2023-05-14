@@ -501,6 +501,11 @@ function PostCommentSection({
       }
     }, 500);
     setTimeout(() => {
+      /**
+       * NOTE to Avadh: Plesae see if this creates some unintended sideeffect for you?
+       * Because after adding `scroll-behavior: auto !important;` to global.scss
+       * below statment has no effect. (TESTED)
+      */
       document.documentElement.style.scrollBehavior = 'smooth';
     }, 600);
   }, [isMainPostCommentClick, commentSectionData]);

@@ -119,10 +119,6 @@ export class UserUnusedFields {
   temp_email_verification_token: string;
 
   // NOT USED
-  @Prop({ default: [] })
-  old_email_arr: string[];
-
-  // NOT USED
   @Prop({ default: 0 })
   temp_email_verification_token_exp: number;
 

@@ -2,7 +2,7 @@
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import mongoose, { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model, Types } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { AppModule } from '../../app.module';
 import { UsersService } from './users.service';
@@ -107,29 +107,69 @@ describe('UsersService', () => {
   });
 
   describe('#findByEmail', () => {
-    let user: UserDocument;
+    let activeUser: UserDocument;
+    let inactiveUser: UserDocument;
+    let deletedUser: UserDocument;
     beforeEach(async () => {
-      user = await usersService.create(
-        userFactory.build(),
-      );
+      activeUser = await usersService.create(userFactory.build());
+      inactiveUser = await usersService.create(userFactory.build({ status: ActiveStatus.Inactive }));
+      deletedUser = await usersService.create(userFactory.build({ deleted: true }));
     });
 
     it('finds the expected user using the same-case email', async () => {
-      expect((await usersService.findByEmail(user.email))._id).toEqual(
-        user._id,
+      expect((await usersService.findByEmail(activeUser.email, true))._id).toEqual(
+        activeUser._id,
       );
     });
 
     it('finds the expected user using a lower-case variant of the email', async () => {
       expect(
-        (await usersService.findByEmail(user.email.toLowerCase()))._id,
-      ).toEqual(user._id);
+        (await usersService.findByEmail(activeUser.email.toLowerCase(), true))._id,
+      ).toEqual(activeUser._id);
     });
 
     it('finds the expected user using an upper-case variant of the email', async () => {
       expect(
-        (await usersService.findByEmail(user.email.toUpperCase()))._id,
-      ).toEqual(user._id);
+        (await usersService.findByEmail(activeUser.email.toUpperCase(), true))._id,
+      ).toEqual(activeUser._id);
+    });
+
+    it('does not find an inactive user or deleted user when activeOnly parameter is true', async () => {
+      expect(await usersService.findByEmail(inactiveUser.email, true)).toBeNull();
+      expect(await usersService.findByEmail(deletedUser.email, true)).toBeNull();
+    });
+
+    it('finds an inactive user when activeOnly parameter is false', async () => {
+      expect((await usersService.findByEmail(inactiveUser.email, false))._id).toEqual(inactiveUser._id);
+    });
+
+    it('finds a deleted user when activeOnly parameter is false', async () => {
+      expect((await usersService.findByEmail(deletedUser.email, false))._id).toEqual(deletedUser._id);
+    });
+  });
+
+  describe('#findInactiveUserByEmail', () => {
+    let activeUser: UserDocument;
+    let inactiveUser: UserDocument;
+    beforeEach(async () => {
+      activeUser = await usersService.create(userFactory.build());
+      inactiveUser = await usersService.create(userFactory.build({ status: ActiveStatus.Inactive }));
+    });
+
+    it('finds an inactive user using the same-case email', async () => {
+      expect((await usersService.findInactiveUserByEmail(inactiveUser.email))._id).toEqual(inactiveUser._id);
+    });
+
+    it('finds an inactive user using a lower-case variant of the email', async () => {
+      expect((await usersService.findInactiveUserByEmail(inactiveUser.email.toLowerCase()))._id).toEqual(inactiveUser._id);
+    });
+
+    it('finds an inactive user using an upper-case variant of the email', async () => {
+      expect((await usersService.findInactiveUserByEmail(inactiveUser.email.toUpperCase()))._id).toEqual(inactiveUser._id);
+    });
+
+    it('does not find an active user by email email', async () => {
+      expect(await usersService.findInactiveUserByEmail(activeUser.email)).toBeNull();
     });
   });
 
@@ -160,22 +200,116 @@ describe('UsersService', () => {
     });
   });
 
-  describe('#findByEmailOrUsername', () => {
-    let user;
+  describe('#findNonDeletedUserByEmailOrUsername', () => {
+    let activeUser;
+    let inactiveUser;
+    let deletedUser;
+    beforeEach(async () => {
+      activeUser = await usersService.create(userFactory.build({
+        userName: 'ActiveUser',
+      }));
+      inactiveUser = await usersService.create(userFactory.build({
+        status: ActiveStatus.Inactive,
+        userName: 'InactiveUser',
+      }));
+      deletedUser = await usersService.create(userFactory.build({
+        deleted: true,
+        userName: 'DeletedUser',
+      }));
+    });
+    it('finds an active user by email (case insensitive)', async () => {
+      expect((await usersService.findNonDeletedUserByEmailOrUsername(activeUser.email))._id).toEqual(activeUser._id);
+      expect((await usersService.findNonDeletedUserByEmailOrUsername(activeUser.email.toUpperCase()))._id).toEqual(activeUser._id);
+      expect((await usersService.findNonDeletedUserByEmailOrUsername(activeUser.email.toLowerCase()))._id).toEqual(activeUser._id);
+    });
+    it('finds an active user by userName (case insensitive)', async () => {
+      expect((await usersService.findNonDeletedUserByEmailOrUsername(activeUser.userName))._id).toEqual(activeUser._id);
+      expect((await usersService.findNonDeletedUserByEmailOrUsername(activeUser.userName.toUpperCase()))._id).toEqual(activeUser._id);
+      expect((await usersService.findNonDeletedUserByEmailOrUsername(activeUser.userName.toLowerCase()))._id).toEqual(activeUser._id);
+    });
+    it('finds an inactive user by email', async () => {
+      expect(
+        (await usersService.findNonDeletedUserByEmailOrUsername(inactiveUser.email))._id,
+      ).toEqual(inactiveUser._id);
+    });
+    it('finds an inactive user by userName', async () => {
+      expect(
+        (await usersService.findNonDeletedUserByEmailOrUsername(inactiveUser.userName))._id,
+      ).toEqual(inactiveUser._id);
+    });
+    it('does not find a deleted user by email', async () => {
+      expect(
+        await usersService.findNonDeletedUserByEmailOrUsername(deletedUser.email),
+      ).toBeNull();
+    });
+    it('does not find a deleted user by userName', async () => {
+      expect(
+        await usersService.findNonDeletedUserByEmailOrUsername(deletedUser.userName),
+      ).toBeNull();
+    });
+  });
+
+  describe('#userNameAvailable', () => {
+    let user: UserDocument;
     beforeEach(async () => {
       user = await usersService.create(
         userFactory.build(),
       );
     });
-    it('finds the expected user by email', async () => {
-      expect(
-        (await usersService.findByEmailOrUsername(user.email))._id,
-      ).toEqual(user._id);
+
+    it('finds the expected user using the userName', async () => {
+      const available = await usersService.userNameAvailable(user.userName);
+      expect(available).toBeFalsy();
     });
-    it('finds the expected user by userName', async () => {
-      expect(
-        (await usersService.findByEmailOrUsername(user.userName))._id,
-      ).toEqual(user._id);
+
+    it('when user is deleted than expected response', async () => {
+      const updateStatus = await usersService.update(user._id.toString(), { deleted: true });
+      const available = await usersService.userNameAvailable(updateStatus.userName);
+      expect(available).toBeTruthy();
+    });
+
+    it('when user is deleted and user is banned than expected response', async () => {
+      const updateStatus = await usersService.update(user._id.toString(), { deleted: true, userBanned: true });
+      const available = await usersService.userNameAvailable(updateStatus.userName);
+      expect(available).toBeFalsy();
+    });
+
+    it('when user is banned and status is inactive than expected response', async () => {
+      const updateStatus = await usersService.update(user._id.toString(), { status: ActiveStatus.Inactive, userBanned: true });
+      const available = await usersService.userNameAvailable(updateStatus.userName);
+      expect(available).toBeFalsy();
+    });
+  });
+
+  describe('#emailAvailable', () => {
+    let user: UserDocument;
+    beforeEach(async () => {
+      user = await usersService.create(
+        userFactory.build(),
+      );
+    });
+
+    it('finds the expected user using the email', async () => {
+      const available = await usersService.emailAvailable(user.email);
+      expect(available).toBeFalsy();
+    });
+
+    it('when user is deleted than expected response', async () => {
+      const updateStatus = await usersService.update(user._id.toString(), { deleted: true });
+      const available = await usersService.emailAvailable(updateStatus.email);
+      expect(available).toBeTruthy();
+    });
+
+    it('when user is deleted and user is banned than expected response', async () => {
+      const updateStatus = await usersService.update(user._id.toString(), { deleted: true, userBanned: true });
+      const available = await usersService.emailAvailable(updateStatus.email);
+      expect(available).toBeFalsy();
+    });
+
+    it('when user is banned and status is inactive than expected response', async () => {
+      const updateStatus = await usersService.update(user._id.toString(), { status: ActiveStatus.Inactive, userBanned: true });
+      const available = await usersService.emailAvailable(updateStatus.email);
+      expect(available).toBeFalsy();
     });
   });
 
@@ -236,17 +370,27 @@ describe('UsersService', () => {
     it('finds the expected user by email and verification_token', async () => {
       expect(
         await usersService.verificationTokenIsValid(
-          user.email,
+          user.id,
           user.verification_token,
         ),
       ).toBe(true);
     });
 
-    it('returns false when email does not exist', async () => {
-      const userEmail = 'non-existinging-user@gmail.com';
+    it('returns false when userId does not exist', async () => {
+      const nonExistentId = new Types.ObjectId().toString();
       expect(
         await usersService.verificationTokenIsValid(
-          userEmail,
+          nonExistentId,
+          user.verification_token,
+        ),
+      ).toBe(false);
+    });
+
+    it('returns false when userId is not a MongoID and does not exist', async () => {
+      const nonExistentId = 'zzz';
+      expect(
+        await usersService.verificationTokenIsValid(
+          nonExistentId,
           user.verification_token,
         ),
       ).toBe(false);
@@ -262,12 +406,12 @@ describe('UsersService', () => {
       ).toBe(false);
     });
 
-    it('when verification_token or email is not exists', async () => {
+    it('when verification_token or email do not exist', async () => {
       const userVerificationToken = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
-      const userEmail = 'non-existinging-user@gmail.com';
+      const nonExistentId = new Types.ObjectId().toString();
       expect(
         await usersService.verificationTokenIsValid(
-          userEmail,
+          nonExistentId,
           userVerificationToken,
         ),
       ).toBe(false);
@@ -350,7 +494,7 @@ describe('UsersService', () => {
         to: user2._id,
         reaction: BlockAndUnblockReaction.Block,
       });
-      excludedUserIds = await blocksService.getBlockedUserIdsBySender(user0._id);
+      excludedUserIds = await blocksService.getUserIdsForBlocksToOrFromUser(user0.id);
       excludedUserIds.push(user0._id);
     });
     it('when query exists, returns expected response, with orders sorted alphabetically by username', async () => {

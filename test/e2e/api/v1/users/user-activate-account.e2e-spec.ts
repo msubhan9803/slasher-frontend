@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection, Model } from 'mongoose';
+import { Connection, Model, Types } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { ActivateAccountDto } from 'src/users/dto/user-activate-account.dto';
@@ -21,6 +21,7 @@ import {
 } from '../../../../../src/schemas/rssFeedProviderFollow/rssFeedProviderFollow.schema';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { ActiveStatus } from '../../../../../src/schemas/user/user.enums';
 
 describe('Users activate account (e2e)', () => {
   let app: INestApplication;
@@ -60,12 +61,14 @@ describe('Users activate account (e2e)', () => {
     let user;
     let postBody: ActivateAccountDto;
     beforeEach(async () => {
-      const userData = userFactory.build();
-      userData.verification_token = uuidv4();
+      const userData = userFactory.build({
+        verification_token: uuidv4(),
+        status: ActiveStatus.Inactive,
+      });
       user = await usersService.create(userData);
       postBody = {
-        email: user.email,
-        verification_token: user.verification_token,
+        userId: user.id,
+        token: user.verification_token,
       };
       for (let i = 0; i < 3; i += 1) {
         await rssFeedProvidersService.create(rssFeedProviderFactory.build({
@@ -81,8 +84,8 @@ describe('Users activate account (e2e)', () => {
       }));
     });
 
-    describe('Email and verification_token existence cases', () => {
-      it('when email and verification_token both exist, it successfully activates, creates '
+    describe('userId and token existence cases', () => {
+      it('when userId and token both exist, it successfully activates, creates '
         + 'the expected RssFeedProviderFollow records, and returns the expected response', async () => {
           const response = await request(app.getHttpServer())
             .post('/api/v1/users/activate-account')
@@ -100,8 +103,8 @@ describe('Users activate account (e2e)', () => {
           expect(rssFeedProviderFollowData).toHaveLength(3);
         });
 
-      it('when email does not exist, but verification_token does exist, it returns the expected response', async () => {
-        postBody.email = 'usertestuser@gmail.com';
+      it('when userId does not exist, but token does exist, it returns the expected response', async () => {
+        postBody.userId = new Types.ObjectId().toString();
         const response = await request(app.getHttpServer())
           .post('/api/v1/users/activate-account')
           .send(postBody);
@@ -109,8 +112,8 @@ describe('Users activate account (e2e)', () => {
         expect(response.body.message).toBe('Token is not valid');
       });
 
-      it('when email does exist, but verification_token does not exist, it returns the expected response', async () => {
-        postBody.verification_token = uuidv4();
+      it('when userId does exist, but token does not exist, it returns the expected response', async () => {
+        postBody.token = uuidv4();
         const response = await request(app.getHttpServer())
           .post('/api/v1/users/activate-account')
           .send(postBody);
@@ -118,9 +121,9 @@ describe('Users activate account (e2e)', () => {
         expect(response.body.message).toBe('Token is not valid');
       });
 
-      it('when neither email nor verification_token exist, it returns the expected response', async () => {
-        postBody.email = 'postBodytestuser@gmail.com';
-        postBody.verification_token = uuidv4();
+      it('when neither userId nor token exist, it returns the expected response', async () => {
+        postBody.userId = new Types.ObjectId().toString();
+        postBody.token = uuidv4();
         const response = await request(app.getHttpServer())
           .post('/api/v1/users/activate-account')
           .send(postBody);
@@ -130,34 +133,34 @@ describe('Users activate account (e2e)', () => {
     });
 
     describe('Validation', () => {
-      it('verification_token should not be empty', async () => {
-        postBody.verification_token = '';
+      it('token should not be empty', async () => {
+        postBody.token = '';
         const response = await request(app.getHttpServer())
           .post('/api/v1/users/activate-account')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
-          'verification_token should not be empty',
+          'token should not be empty',
         );
       });
 
-      it('email should not be empty', async () => {
-        postBody.email = '';
+      it('userId should not be empty', async () => {
+        postBody.userId = '';
         const response = await request(app.getHttpServer())
           .post('/api/v1/users/activate-account')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('email should not be empty');
+        expect(response.body.message).toContain('userId should not be empty');
       });
 
-      it('email is a proper-form email', async () => {
-        postBody.email = 'testuserpostbodygmail.com';
+      it('userId is a MongoId', async () => {
+        postBody.userId = 'not-a-mongo-id';
         const response = await request(app.getHttpServer())
           .post('/api/v1/users/activate-account')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
-          'email must be a valid-format email',
+          'userId must be a mongodb id',
         );
       });
     });

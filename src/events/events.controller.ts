@@ -26,11 +26,15 @@ import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
 import { ValidateAllEventDistanceDto } from './dto/validate-all-event-by-distance.dto';
 import { ValidateAllEventsByRectangularAreaDto } from './dto/validate-all-event-by-rectangular-area.dto';
+import { MailService } from '../providers/mail.service';
+import { EventCategoriesService } from '../event-categories/providers/event-categories.service';
 
 @Controller({ path: 'events', version: ['1'] })
 export class EventsController {
   constructor(
     private readonly eventService: EventService,
+    private readonly eventCategoriesService: EventCategoriesService,
+    private readonly mailService: MailService,
     private readonly config: ConfigService,
     private readonly localStorageService: LocalStorageService,
     private readonly s3StorageService: S3StorageService,
@@ -51,6 +55,12 @@ export class EventsController {
   ) {
     const user = getUserFromRequest(request);
 
+    // Verify that the event category is valid
+    const eventCategory = await this.eventCategoriesService.findById(createEventDto.event_type as unknown as string, true);
+    if (!eventCategory) {
+      throw new HttpException('Invalid event category.', HttpStatus.BAD_REQUEST);
+    }
+
     const images = [];
     for (const file of files) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('event', file.filename);
@@ -66,14 +76,16 @@ export class EventsController {
     createEventData.images = images;
     const event = await this.eventService.create(createEventData);
 
-    const pickConversationFields = [
+    this.mailService.sendEventSuggestionEmails(user.email, eventCategory.event_name, event.name, event.startDate, event.endDate);
+
+    const pickEventFields = [
       '_id', 'name', 'userId',
       'images', 'startDate', 'endDate',
       'event_type', 'city',
       'state', 'address', 'country',
       'url', 'event_info',
     ];
-    return pick(event, pickConversationFields);
+    return pick(event, pickEventFields);
   }
 
   @TransformImageUrls('$[*].images[*]')

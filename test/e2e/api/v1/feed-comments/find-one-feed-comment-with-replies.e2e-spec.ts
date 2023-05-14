@@ -33,6 +33,7 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
   let user1: User;
   let user3: User;
   let user2: User;
+  let user6: User;
   let configService: ConfigService;
   let feedPost: FeedPostDocument;
   let feedPostsService: FeedPostsService;
@@ -95,6 +96,9 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
     user3 = await usersService.create(userFactory.build({
       profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
     }));
+    user6 = await usersService.create(userFactory.build({
+      profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+    }));
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
@@ -105,6 +109,11 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
         },
       ),
     );
+    await blocksModel.create({
+      from: activeUser._id,
+      to: user6._id,
+      reaction: BlockAndUnblockReaction.Block,
+    });
   });
 
   describe('GET /api/v1/feed-comments/:feedCommentId', () => {
@@ -157,6 +166,27 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
       await feedLikesService.createFeedReplyLike(feedReply2._id.toString(), user1._id.toString());
       await feedLikesService.createFeedReplyLike(feedReply2._id.toString(), user0._id.toString());
 
+      await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: user6._id,
+            feedPostId: feedPost._id,
+            message: 'This is block user comment',
+            images: commentImages,
+          },
+        ),
+      );
+      await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: user6._id,
+            feedCommentId: feedComments1.id,
+            message: 'This is block user reply',
+            images: commentImages,
+          },
+        ),
+      );
+
       const response = await request(app.getHttpServer())
         .get(`/api/v1/feed-comments/${feedComments1._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
@@ -186,7 +216,7 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
       const feedComments1 = await feedCommentsService.createFeedComment(
         feedCommentsFactory.build(
           {
-            userId: user4._id,
+            userId: activeUser._id,
             feedPostId: feedPost1.id,
             message: 'hello test user',
             images: commentImages,

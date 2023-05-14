@@ -56,11 +56,18 @@ export class ChatGateway {
       return { success: false, errorMessage: 'You must be friends with this user to perform this action.' };
     }
 
-    const messageObject = await this.chatService.sendPrivateDirectMessage(fromUserId, toUserId, data.message);
+    // TODO: Remove use of encodeURIComponent below once the old Slasher iOS/Android apps are retired
+    // AND all old messages have been updated so that they're not being URI-encoded anymore.
+    // The URI-encoding is coming from the old API or more likely the iOS and Android apps.
+    // For some reason, the old apps will crash on a message page if the messages are not
+    // url-encoded (we saw this while Damon was testing on Android).
+    const urlEncodedMessage = encodeURIComponent(data.message);
+
+    const messageObject = await this.chatService.sendPrivateDirectMessage(fromUserId, toUserId, urlEncodedMessage);
     const targetUserSocketIds = await this.usersService.findSocketIdsForUser(toUserId);
     targetUserSocketIds.forEach((socketId) => {
       client.to(socketId).emit('chatMessageReceived', {
-        message: pick(messageObject, ['_id', 'image', 'message', 'fromId', 'senderId', 'matchId', 'createdAt']),
+        message: pick(messageObject, ['_id', 'image', 'message', 'fromId', 'matchId']),
       });
     });
     await this.messageCountUpdateQueue.add(
@@ -68,7 +75,15 @@ export class ChatGateway {
       { messageId: messageObject.id },
       { delay: UNREAD_MESSAGE_NOTIFICATION_DELAY }, // 15 second delay
     );
-    return { success: true, message: messageObject };
+    const newMessageObject: any = {
+      _id: messageObject._id,
+      message: messageObject.message,
+      createdAt: messageObject.createdAt,
+      image: messageObject.image,
+      matchId: messageObject.matchId,
+      created: messageObject.created,
+    };
+    return { success: true, message: newMessageObject };
   }
 
   @SubscribeMessage('getMessages')
@@ -103,7 +118,9 @@ export class ChatGateway {
         messageObject.image = relativeToFullImagePath(this.config, messageObject.image);
       }
     });
-    return messages;
+    return messages.map(
+      (message) => pick(message, ['_id', 'message', 'isRead', 'createdAt', 'image', 'fromId', 'senderId']),
+    );
   }
 
   @SubscribeMessage('messageRead')
@@ -142,7 +159,7 @@ export class ChatGateway {
       // Emit message to receiver
       targetUserSocketIds.forEach((socketId) => {
         this.server.to(socketId).emit('chatMessageReceived', {
-          message: pick(cloneMessage, ['_id', 'image', 'message', 'fromId', 'senderId', 'matchId', 'createdAt']),
+          message: pick(cloneMessage, ['_id', 'image', 'message', 'fromId', 'matchId']),
         });
       });
     });

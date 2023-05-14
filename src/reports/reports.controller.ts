@@ -12,6 +12,7 @@ import { MailService } from '../providers/mail.service';
 import { UsersService } from '../users/providers/users.service';
 import { FeedCommentsService } from '../feed-comments/providers/feed-comments.service';
 import { ChatService } from '../chat/providers/chat.service';
+import { UserDocument } from '../schemas/user/user.schema';
 
 @Controller({ path: 'reports', version: ['1'] })
 export class ReportsController {
@@ -30,6 +31,7 @@ export class ReportsController {
     @Body() createReportDto: CreateReportDto,
   ) {
     const user = getUserFromRequest(request);
+    let userNameBeingReported: null | string = null;
     switch (createReportDto.reportType) {
       case 'profile': {
         const userData = await this.usersService.findById(createReportDto.targetId, true);
@@ -43,7 +45,7 @@ export class ReportsController {
           reasonOfReport: createReportDto.reason,
         };
         await this.reportAndUnreportService.create(reportAndUnreportObj);
-        await this.chatService.deletePrivateDirectMessageConversations(user.id, createReportDto.targetId);
+        userNameBeingReported = userData.userName;
         break;
       }
       case 'post': {
@@ -53,24 +55,27 @@ export class ReportsController {
         }
         feedPost.reportUsers.push({ userId: user._id, reason: createReportDto.reason });
         feedPost.save();
+        userNameBeingReported = (feedPost.userId as unknown as UserDocument).userName;
         break;
       }
       case 'comment': {
-        const feedComment = await this.feedCommentsService.findFeedComment(createReportDto.targetId);
+        const feedComment = await this.feedCommentsService.findFeedComment(createReportDto.targetId, true);
         if (!feedComment) {
           throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
         }
         feedComment.reportUsers.push({ userId: user._id, reason: createReportDto.reason });
         feedComment.save();
+        userNameBeingReported = (feedComment.userId as unknown as UserDocument).userName;
         break;
       }
       case 'reply': {
-        const feedReply = await this.feedCommentsService.findFeedReply(createReportDto.targetId);
+        const feedReply = await this.feedCommentsService.findFeedReply(createReportDto.targetId, true);
         if (!feedReply) {
           throw new HttpException('Reply not found', HttpStatus.NOT_FOUND);
         }
         feedReply.reportUsers.push({ userId: user._id, reason: createReportDto.reason });
         feedReply.save();
+        userNameBeingReported = (feedReply.userId as unknown as UserDocument).userName;
         break;
       }
       default:
@@ -79,6 +84,7 @@ export class ReportsController {
     await this.mailService.sendReportNotificationEmail(
       createReportDto.reportType,
       user.userName,
+      userNameBeingReported,
       createReportDto.reason,
     );
     return { success: true };

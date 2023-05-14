@@ -111,8 +111,8 @@ describe('Users / Register (e2e)', () => {
         expect(DateTime.fromISO(postBody.dob, { zone: 'utc' }).toJSDate()).toEqual(registeredUser.dob);
         expect(registeredUser.verification_token).toMatch(validUuidV4Regex);
         expect(mailService.sendVerificationEmail).toHaveBeenCalledWith(
-          registeredUser.firstName,
           registeredUser.email,
+          registeredUser.id,
           registeredUser.verification_token,
         );
       });
@@ -336,12 +336,12 @@ describe('Users / Register (e2e)', () => {
       });
 
       it('dob is under age', async () => {
-        postBody.dob = DateTime.now().minus({ years: 16, months: 11 }).toISODate();
+        postBody.dob = DateTime.now().minus({ years: 17, months: 11 }).toISODate();
         const response = await request(app.getHttpServer())
           .post('/api/v1/users/register')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('You must be at least 17 to register');
+        expect(response.body.message).toContain('You must be at least 18 to register');
       });
 
       it('dob must be a valid-format iso date', async () => {

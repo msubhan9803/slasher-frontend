@@ -76,6 +76,10 @@ resource "aws_ecs_task_definition" "slasher-web-task-new-defination" {
         "value" : "${var.help_email}"
       },
       {
+        "name" : "EVENT_REVIEW_EMAIL",
+        "value" : "${var.event_review_email}"
+      },
+      {
         "name" : "UPLOAD_DIR",
         "value" : "${var.upload_dir}"
       },

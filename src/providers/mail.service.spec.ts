@@ -1,7 +1,9 @@
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import { Connection } from 'mongoose';
+import { Connection, Types } from 'mongoose';
+import { DateTime } from 'luxon';
+import { v4 as uuidv4 } from 'uuid';
 import { clearDatabase } from '../../test/helpers/mongo-helpers';
 import { AppModule } from '../app.module';
 import { ReportType } from '../types';
@@ -91,41 +93,108 @@ describe('MailService', () => {
     });
   });
 
+  describe('#sendVerificationEmail', () => {
+    it('sends the correct mail details to the sendEmail function', async () => {
+      const to = 'example@example.com';
+      const userId = new Types.ObjectId().toString();
+      const token = 'd4c70121-1f0b-4e6a-aac9-b8be3720f369';
+      jest
+        .spyOn(mailService, 'sendEmail')
+        .mockReturnValue(Promise.resolve(null));
+
+      await mailService.sendVerificationEmail(to, userId, token);
+      expect(mailService.sendEmail).toHaveBeenCalledWith(
+        to,
+        mailService.getFormattedDefaultSenderForFromField(),
+        'Activate Your Slasher Account',
+        expect.stringContaining(`userId=${encodeURIComponent(userId)}&token=${encodeURIComponent(token)}`),
+        'html',
+      );
+    });
+  });
+
   describe('#sendForgotPasswordEmail', () => {
     it('sends the correct mail details to the sendEmail function', async () => {
-      const firstName = 'Laszlo';
       const to = 'example@example.com';
       const token = 'd4c70121-1f0b-4e6a-aac9-b8be3720f369';
       jest
         .spyOn(mailService, 'sendEmail')
         .mockReturnValue(Promise.resolve(null));
 
-      await mailService.sendForgotPasswordEmail(firstName, to, token);
+      await mailService.sendForgotPasswordEmail(to, token);
       expect(mailService.sendEmail).toHaveBeenCalledWith(
         to,
-        mailService.getDefaultSender(),
-        'Slasher - Forgot password',
+        mailService.getFormattedDefaultSenderForFromField(),
+        'Slasher - Password Reset',
         expect.stringContaining(token),
         'html',
       );
     });
   });
 
-  describe('#sendVerificationEmail', () => {
+  describe('#sendEventSuggestionEmails', () => {
     it('sends the correct mail details to the sendEmail function', async () => {
-      const firstName = 'Laszlo';
-      const to = 'example@example.com';
-      const token = 'd4c70121-1f0b-4e6a-aac9-b8be3720f369';
+      const suggesterEmail = 'suggester@example.com';
+      const eventCategory = 'Conventions';
+      const eventName = 'Great event';
+      const eventStartDate = DateTime.fromISO('2023-06-01T00:00:00.000Z').toJSDate();
+      const eventEndDate = DateTime.fromISO('2023-06-02T23:59:59.000Z').toJSDate();
+
       jest
         .spyOn(mailService, 'sendEmail')
         .mockReturnValue(Promise.resolve(null));
 
-      await mailService.sendVerificationEmail(firstName, to, token);
+      await mailService.sendEventSuggestionEmails(suggesterEmail, eventCategory, eventName, eventStartDate, eventEndDate);
+
+      // Expect email sent to suggester
       expect(mailService.sendEmail).toHaveBeenCalledWith(
-        to,
-        mailService.getDefaultSender(),
-        'Welcome to Slasher',
-        expect.stringContaining(token),
+        suggesterEmail,
+        mailService.getFormattedDefaultSenderForFromField(),
+        'Slasher - Event Suggestion Received',
+        expect.stringContaining('Your event suggestion has been received.'),
+        'html',
+      );
+
+      // Expect email sent to admin
+      expect(mailService.sendEmail).toHaveBeenCalledWith(
+        mailService.getEventReviewEmailReceiver(),
+        mailService.getFormattedDefaultSenderForFromField(),
+        'Event Suggestion',
+        expect.stringContaining(eventName),
+        'html',
+      );
+    });
+  });
+
+  describe('#sendEmailChangeConfirmationEmails', () => {
+    it('sends the correct mail details to the sendEmail function', async () => {
+      const userId = new Types.ObjectId().toString();
+      const oldEmail = 'old@example.com';
+      const newEmail = 'new@example.com';
+      const confirmToken = uuidv4();
+      const revertToken = uuidv4();
+
+      jest
+        .spyOn(mailService, 'sendEmail')
+        .mockReturnValue(Promise.resolve(null));
+
+      await mailService.sendEmailChangeConfirmationEmails(userId, oldEmail, newEmail, confirmToken, revertToken);
+
+      // Expect email sent to oldEmail
+      expect(mailService.sendEmail).toHaveBeenCalledWith(
+        oldEmail,
+        mailService.getFormattedDefaultSenderForFromField(),
+        'Your Slasher Account Email Has Been Changed',
+        expect.stringContaining(revertToken),
+        'html',
+      );
+
+      // Expect email sent to newEmail
+      expect(mailService.sendEmail).toHaveBeenCalledWith(
+        newEmail,
+        mailService.getFormattedDefaultSenderForFromField(),
+        'Confirm Your Slasher Email Change',
+        expect.stringContaining(confirmToken),
         'html',
       );
     });
@@ -135,21 +204,21 @@ describe('MailService', () => {
     it('sends the correct mail details to the sendEmail function', async () => {
       const to = 'example-report-recipient@example.com';
       const reportType: ReportType = 'profile';
-      const reportingUserName = 'ExampleUser';
+      const reporterUserName = 'ReporterUser';
+      const reportedUserName = 'ReportedUser';
       const reportReason = 'This content shocked my sensibilities.';
 
       jest
         .spyOn(mailService, 'sendEmail')
         .mockReturnValue(Promise.resolve(null));
 
-      await mailService.sendReportNotificationEmail(reportType, reportingUserName, reportReason);
+      await mailService.sendReportNotificationEmail(reportType, reporterUserName, reportedUserName, reportReason);
       expect(mailService.sendEmail).toHaveBeenCalledWith(
         to,
-        mailService.getDefaultSender(),
-        `Slasher Content Report: ${reportType}`,
-        `A user (${reportingUserName}) has reported a ${reportType}:\n\n${reportReason}\n\n`
-        + 'View the Slasher admin console for more information.',
-        'plain',
+        mailService.getFormattedDefaultSenderForFromField(),
+        `Slasher Report: ${reportType}`,
+        expect.stringContaining(`The user ${reporterUserName} has reported a ${reportType} by ${reportedUserName}`),
+        'html',
       );
     });
   });

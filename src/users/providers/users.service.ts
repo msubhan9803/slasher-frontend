@@ -1,7 +1,8 @@
-import mongoose, { Model } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as EmailValidator from 'email-validator';
+import { isMongoId } from 'class-validator';
 import { User, UserDocument } from '../../schemas/user/user.schema';
 import { escapeStringForRegex } from '../../utils/escape-utils';
 import { SocketUser, SocketUserDocument } from '../../schemas/socketUser/socketUser.schema';
@@ -53,9 +54,24 @@ export class UsersService {
     }).count()) === userIds.length;
   }
 
-  async findByEmail(email: string): Promise<UserDocument> {
+  async findInactiveUserByEmail(email: string): Promise<UserDocument> {
     return this.userModel
-      .findOne({ email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') })
+      .findOne({
+        email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i'),
+        status: ActiveStatus.Inactive,
+        deleted: false,
+      })
+      .exec();
+  }
+
+  async findByEmail(email: string, activeOnly: boolean): Promise<UserDocument> {
+    const userFindQuery: any = { email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') };
+    if (activeOnly) {
+      userFindQuery.deleted = false;
+      userFindQuery.status = ActiveStatus.Active;
+    }
+    return this.userModel
+      .findOne(userFindQuery)
       .exec();
   }
 
@@ -70,29 +86,25 @@ export class UsersService {
       .exec();
   }
 
-  async findByEmailOrUsername(emailOrUsername: string): Promise<UserDocument> {
+  async findNonDeletedUserByEmailOrUsername(emailOrUsername: string): Promise<UserDocument> {
     if (EmailValidator.validate(emailOrUsername)) {
-      return this.findByEmail(emailOrUsername);
+      return this.userModel.findOne({ email: new RegExp(`^${escapeStringForRegex(emailOrUsername)}$`, 'i'), deleted: false }).exec();
     }
-    return this.findByUsername(emailOrUsername, false);
+    return this.userModel.findOne({ userName: new RegExp(`^${escapeStringForRegex(emailOrUsername)}$`, 'i'), deleted: false }).exec();
   }
 
-  async userNameExists(userName: string): Promise<boolean> {
-    return (
-      (await this.userModel
-        .findOne({ userName: new RegExp(`^${escapeStringForRegex(userName)}$`, 'i') })
-        .count()
-        .exec()) > 0
-    );
+  async userNameAvailable(userName: string): Promise<boolean> {
+    const user = await this.userModel.findOne({ userName: new RegExp(`^${escapeStringForRegex(userName)}$`, 'i') }).exec();
+    if (!user) { return true; } // username is available if user not found
+    if (user.userBanned || !user.deleted) { return false; } // username not available if user banned or user not deleted
+    return true;
   }
 
-  async emailExists(email: string): Promise<boolean> {
-    return (
-      (await this.userModel
-        .findOne({ email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') })
-        .count()
-        .exec()) > 0
-    );
+  async emailAvailable(email: string): Promise<boolean> {
+    const user = await this.userModel.findOne({ email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') }).exec();
+    if (!user) { return true; } // email is available if user not found
+    if (user.userBanned || !user.deleted) { return false; } // email not available if user banned or user not deleted
+    return true;
   }
 
   async resetPasswordTokenIsValid(email: string, resetPasswordToken: string) {
@@ -107,12 +119,13 @@ export class UsersService {
     return !!isValid;
   }
 
-  async verificationTokenIsValid(email: string, verification_token: string) {
+  async verificationTokenIsValid(userId: string, token: string) {
+    if (!isMongoId(userId)) { return false; }
     const isValid = await this.userModel
       .findOne({
         $and: [
-          { email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') },
-          { verification_token },
+          { _id: new Types.ObjectId(userId) },
+          { verification_token: token },
         ],
       })
       .exec();
@@ -125,7 +138,7 @@ export class UsersService {
       .exec();
   }
 
-  async suggestUserName(query: string, limit: number, activeOnly: boolean, excludeUserIds: User[]): Promise<UserNameSuggestion[]> {
+  async suggestUserName(query: string, limit: number, activeOnly: boolean, excludeUserIds: string[]): Promise<UserNameSuggestion[]> {
     const nameFindQuery: any = {
       userName: new RegExp(`^${escapeStringForRegex(query)}`, 'i'),
       _id: { $nin: excludeUserIds },

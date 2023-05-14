@@ -15,6 +15,7 @@ module "ecs_fargate" {
   slasher_cron_host_header          = var.slasher_cron_host_header
   upload_dir                        = var.upload_dir
   help_email                        = var.help_email
+  event_review_email                = var.event_review_email
   report_email_recipient            = var.report_email_recipient
   default_smtp_port                 = var.default_smtp_port
   default_smtp_host                 = var.default_smtp_host

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
@@ -8,6 +9,7 @@ import { Friend, FriendDocument } from '../../schemas/friend/friend.schema';
 import { User, UserDocument } from '../../schemas/user/user.schema';
 import { escapeStringForRegex } from '../../utils/escape-utils';
 import { BlocksService } from '../../blocks/providers/blocks.service';
+import { ActiveStatus } from '../../schemas/user/user.enums';
 
 @Injectable()
 export class FriendsService {
@@ -135,11 +137,9 @@ export class FriendsService {
    * pending friends from sent or received friend requests).
    * Note: This methon can return a lot of results (thousands) if the user has a lot of friends.
    */
-  async getFriendIds(userId: string, includePendingFriends = false) {
+  async getFriendIds(userId: string, friendStatusesToInclude: FriendRequestReaction[]) {
     const friendReactionFilter = {
-      reaction: includePendingFriends
-        ? { $in: [FriendRequestReaction.Accepted, FriendRequestReaction.Pending] }
-        : FriendRequestReaction.Accepted,
+      reaction: { $in: friendStatusesToInclude },
     };
 
     const results = await this.friendsModel.aggregate([
@@ -176,7 +176,7 @@ export class FriendsService {
   }
 
   async getFriends(userId: string, limit: number, offset: number, userNameContains?: string) {
-    const friendIds = await this.getFriendIds(userId);
+    const friendIds = await this.getFriendIds(userId, [FriendRequestReaction.Accepted]);
     const friendUsers = await this.usersModel.find({
       $and: [
         { _id: { $in: friendIds } },
@@ -196,9 +196,13 @@ export class FriendsService {
 
   async getSuggestedFriends(user: UserDocument, limit: number) {
     // TODO: Time each of the operations below to see why this method is slow to return results
-    const friendIds = await this.getFriendIds(user.id, true);
+    const friendIds = await this.getFriendIds(user.id, [
+      FriendRequestReaction.Accepted,
+      FriendRequestReaction.Pending,
+      FriendRequestReaction.DeclinedOrCancelled,
+    ]);
     const suggestBlockUserIds = await this.getSuggestBlockedUserIdsBySender(user.id);
-    const blockUserIds = await this.blocksService.getBlockedUserIdsBySender(user.id);
+    const blockUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(user.id);
 
     const idsToExclude = friendIds.concat(
       suggestBlockUserIds as unknown as mongoose.Types.ObjectId[],
@@ -208,7 +212,14 @@ export class FriendsService {
       [user.id],
     );
 
-    const friendUsers = await this.usersModel.find({ _id: { $nin: idsToExclude } })
+    const friendUsers = await this.usersModel.find({
+      $and: [
+        { _id: { $nin: idsToExclude } },
+        { deleted: false },
+        { userBanned: false },
+        { status: ActiveStatus.Active },
+      ],
+    })
       .sort({ createdAt: -1 }).limit(limit)
       .select({ userName: 1, profilePic: 1, _id: 1 })
       .exec();

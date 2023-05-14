@@ -511,10 +511,12 @@ export class FeedCommentsController {
       }
     }
 
+    const excludedUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(user.id);
     const allFeedCommentsWithReplies = await this.feedCommentsService.findFeedCommentsWithReplies(
       query.feedPostId,
       query.limit,
       query.sortBy,
+      excludedUserIds,
       user.id,
       query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
     );
@@ -557,7 +559,13 @@ export class FeedCommentsController {
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: FeedCommentsIdDto,
   ) {
     const user = getUserFromRequest(request);
-    const feedCommentWithReplies = await this.feedCommentsService.findOneFeedCommentWithReplies(params.feedCommentId, true, user.id);
+    const excludedUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(user.id);
+    const feedCommentWithReplies = await this.feedCommentsService.findOneFeedCommentWithReplies(
+      params.feedCommentId,
+      true,
+      excludedUserIds,
+      user.id,
+    );
     if (!feedCommentWithReplies) {
       throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
     }

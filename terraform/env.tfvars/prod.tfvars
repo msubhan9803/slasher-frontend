@@ -10,7 +10,7 @@ cron_desired_count          = 1
 cron_cpu_unit               = 256
 cron_memory_unit            = 512
 api_url                     = "https://api.slasher.tv"
-frontend_url                = "https://www.slasher.tv"
+frontend_url                = "https://prod.slasher.tv"
 log_group_retention_in_days = 60
 slasher_web_new_host_header = "api.slasher.tv"
 slasher_cron_host_header    = "cron.slasher.tv"
@@ -18,6 +18,7 @@ slasher_cron_host_header    = "cron.slasher.tv"
 #ecs fargate env variables
 upload_dir                        = "/tmp"
 help_email                        = "help@slasher.tv"
+event_review_email                = "events@slasher.tv"
 report_email_recipient            = "help@slasher.tv"
 default_smtp_port                 = "465"
 default_smtp_host                 = "mail.slasher.tv"

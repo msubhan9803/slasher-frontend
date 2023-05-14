@@ -36,6 +36,8 @@ import { enableDevFeatures } from './utils/configEnvironment';
 import ActivateAccount from './routes/activate-account/ActivateAccount';
 import PasswordResetSuccess from './routes/password-reset-success/PasswordResetSuccess';
 import Index from './routes/Index';
+import ChangeEmailConfirm from './routes/change-email/ChangeEmailConfirm';
+import ChangeEmailRevert from './routes/change-email/ChangeEmailRevert';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -71,6 +73,8 @@ const routes: Record<string, TopLevelRoute> = {
   'app/art/*': { wrapper: AuthenticatedPageWrapper, component: Artists },
   'app/forgot-password': { wrapper: UnauthenticatedPageWrapper, component: ForgotPassword },
   'app/reset-password': { wrapper: UnauthenticatedPageWrapper, component: ResetPassword },
+  'app/email-change/confirm': { wrapper: UnauthenticatedPageWrapper, component: ChangeEmailConfirm },
+  'app/email-change/revert': { wrapper: UnauthenticatedPageWrapper, component: ChangeEmailRevert },
   'app/password-reset-success': { wrapper: UnauthenticatedPageWrapper, component: PasswordResetSuccess },
   'app/verification-email-not-received': {
     wrapper: UnauthenticatedPageWrapper,

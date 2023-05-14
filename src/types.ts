@@ -45,6 +45,7 @@ export interface User {
   aboutMe: string;
   profile_status: number;
   friendshipStatus: FriendshipStatus;
+  unverifiedNewEmail: string;
 }
 
 export interface NewsPartnerPostProps {

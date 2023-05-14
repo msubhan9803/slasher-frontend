@@ -9,7 +9,7 @@ export const setSignInCookies = (sessionToken: string, userId: string, userName:
   Cookies.set('userName', userName);
 };
 
-export const updateUserName = (userName: string) => {
+export const updateUserNameCookie = (userName: string) => {
   const onlySendCookieOverHttps = !['development', 'test'].includes(process.env.NODE_ENV);
   Cookies.set('userName', userName, { secure: onlySendCookieOverHttps });
 };

@@ -33,6 +33,7 @@ import ErrorMessageList from '../ErrorMessageList';
 import ReportModal from '../ReportModal';
 import EditPostModal from './EditPostModal';
 import PostFeed from './PostFeed/PostFeed';
+import { getLastNonProfilePathname } from '../../../utils/url-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -85,6 +86,8 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   const [checkPostUpdate, setCheckPostUpdate] = useState<boolean>(false);
   const [commentSent, setCommentSent] = useState<boolean>(false);
   const scrollPositionRef = useRef(scrollPosition);
+  const pathnameHistory = useAppSelector((state) => state.user.pathnameHistory);
+  const { userName } = useParams();
   useEffect(() => {
     scrollPositionRef.current = scrollPosition;
   });
@@ -726,12 +729,20 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   };
 
   const onBlockYesClick = () => {
-    createBlockUser(popoverClick?.id!)
+    createBlockUser(popoverClick?.userId!)
       .then(() => {
-        setShow(false);
+        if (postType === 'news') {
+          setShow(false);
+        } else {
+          setDropDownValue('BlockUserSuccess');
+        }
       })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
+  };
+  const afterBlockUser = () => {
+    const lastNonProfilePathname = getLastNonProfilePathname(pathnameHistory!, userName!);
+    navigate(lastNonProfilePathname);
   };
   return (
     <>
@@ -858,6 +869,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                   slectedDropdownValue={dropDownValue}
                   handleReport={reportPost}
                   onBlockYesClick={onBlockYesClick}
+                  afterBlockUser={afterBlockUser}
                 />
               )}
             {postType !== 'news' && dropDownValue === 'Edit'
@@ -873,6 +885,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                   setPostImages={setPostImages}
                   deleteImageIds={deleteImageIds}
                   setDeleteImageIds={setDeleteImageIds}
+                  editPost
                 />
               )}
           </div>

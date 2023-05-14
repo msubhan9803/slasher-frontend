@@ -104,7 +104,7 @@ function CustomSwiper({
   const uniqueId = `${instanceCounter += 1}`;
   const [showVideoPlayerModal, setShowYouTubeModal] = useState(false);
   const { placeholderUrlNoImageAvailable } = useAppSelector((state) => state.remoteConstants);
-  const [hideSwiper, setHideSwiper] = useState(false);
+  const [showSwiper, setShowSwiper] = useState(false);
   const navigate = useNavigate();
 
   const displayVideoAndImage = (imageAndVideo: SliderImage) => {
@@ -118,11 +118,10 @@ function CustomSwiper({
             onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
               if (images.length > 1) {
                 e.currentTarget.src = placeholderUrlNoImageAvailable;
-              } else {
-                setHideSwiper(true);
+                setShowSwiper(true);
               }
             }}
-            onLoad={() => setHideSwiper(false)}
+            onLoad={() => setShowSwiper(true)}
           />
           <StyledYouTubeButton
             variant="link"
@@ -148,13 +147,13 @@ function CustomSwiper({
               className="w-100 h-100"
               alt={`${imageAndVideo.imageDescription ? imageAndVideo.imageDescription : 'user uploaded content'} `}
               onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                if (images.length > 1) {
+                if ((imageAndVideo.linkUrl && imageAndVideo.linkUrl.includes('/app/news/partner') && images.length > 1)
+                || (imageAndVideo.linkUrl && !imageAndVideo.linkUrl.includes('/app/news/partner'))) {
                   e.currentTarget.src = placeholderUrlNoImageAvailable;
-                } else {
-                  setHideSwiper(true);
+                  setShowSwiper(true);
                 }
               }}
-              onLoad={() => setHideSwiper(false)}
+              onLoad={() => setShowSwiper(true)}
             />
           </SwiperContentContainer>
         </Link>
@@ -170,6 +169,13 @@ function CustomSwiper({
                   src={imageAndVideo?.movieData?.poster_path}
                   alt="movie poster"
                   className="rounded-3 w-100 h-100"
+                  onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                    if (images.length > 1) {
+                      e.currentTarget.src = placeholderUrlNoImageAvailable;
+                      setShowSwiper(true);
+                    }
+                  }}
+                  onLoad={() => setShowSwiper(true)}
                 />
               </StyledMoviePoster>
             </Col>
@@ -199,32 +205,27 @@ function CustomSwiper({
           onImgError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
             if (images.length > 1) {
               e.currentTarget.src = placeholderUrlNoImageAvailable;
-            } else {
-              setHideSwiper(true);
+              setShowSwiper(true);
             }
           }}
-          onImgLoad={() => setHideSwiper(false)}
+          onImgLoad={() => setShowSwiper(true)}
         />
       </SwiperContentContainer>
     );
   };
 
   return (
-    <div style={{ height: heightForContext[context] }} className={images.length > 1 ? 'mb-4' : ''}>
+    <div style={{ height: heightForContext[context] }} className={!showSwiper ? 'd-none' : `${images.length > 1 ? 'mb-4' : ''}`}>
       <StyledSwiper
         pagination={{ type: 'fraction', el: `#swiper-pagination-el-${uniqueId}` }}
         initialSlide={initialSlide}
         navigation
         modules={[Pagination, Navigation]}
-        className={hideSwiper ? 'd-none' : 'd-block'}
       >
         {
           images.map((image: SliderImage) => (
             <SwiperSlide
               key={`${image.imageId}${image.postId}`}
-              onError={(e: any) => {
-                e.target.src = placeholderUrlNoImageAvailable;
-              }}
             >
               {displayVideoAndImage(image)}
             </SwiperSlide>

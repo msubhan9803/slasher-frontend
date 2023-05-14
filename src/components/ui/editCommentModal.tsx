@@ -127,6 +127,7 @@ function EditCommentModal({
           descriptionArray={descriptionArray}
           setDescriptionArray={setDescriptionArray}
           showSaveButton
+          createEditPost
         />
       </Modal.Body>
     </ModalContainer>

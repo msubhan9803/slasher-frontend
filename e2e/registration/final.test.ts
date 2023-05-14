@@ -10,6 +10,6 @@ test.describe(pagePath, () => {
   });
 
   test('should display the expected content', async ({ page }) => {
-    await expect(page.locator('main')).toHaveText(/One more step!/);
+    await expect(page.locator('main')).toHaveText(/You’re almost there!/);
   });
 });

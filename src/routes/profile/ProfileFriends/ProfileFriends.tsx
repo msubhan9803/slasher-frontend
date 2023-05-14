@@ -31,9 +31,8 @@ interface FriendProps {
 }
 interface Props {
   user: User
-  loadUser: Function
 }
-function ProfileFriends({ user, loadUser }: Props) {
+function ProfileFriends({ user }: Props) {
   const navigate = useNavigate();
   const params = useParams();
   const [show, setShow] = useState(false);
@@ -224,7 +223,7 @@ function ProfileFriends({ user, loadUser }: Props) {
   };
   return (
     <div>
-      <ProfileHeader tabKey="friends" user={user} loadUser={loadUser} />
+      <ProfileHeader tabKey="friends" user={user} />
       <ProfileTabContent>
         <div className="mt-3">
           <Row className="justify-content-between">

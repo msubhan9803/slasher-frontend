@@ -1,9 +1,11 @@
 /* eslint-disable max-lines */
 import React, { useState } from 'react';
 import {
-  Alert, Form,
+  Alert, Button, Form,
 } from 'react-bootstrap';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
 import { createPost } from '../../../api/feed-posts';
 import { useAppSelector } from '../../../redux/hooks';
@@ -91,18 +93,38 @@ function CreatePost() {
         setErrorMessage(msg);
       });
   };
+  const onCloseButton = () => {
+    navigate(location.state);
+  };
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
         {(paramsType === 'group-post' && !paramsGroupId) && <Alert variant="danger">Group id missing from URL</Alert>}
-        <Form className="bg-dark px-4 py-4 rounded-2">
-          <Form.Group controlId="about-me">
+        <Form className="bg-dark px-4 py-4 rounded-2 position-relative">
+          <Form.Group controlId="about-me" className="d-flex justify-content-between">
             <div className="align-items-center d-flex form-label mb-4 w-100 mb-4">
               <UserCircleImage src={loggedInUser.profilePic} alt="user picture" className="me-3" />
               <h2 className="h3 mb-0 align-self-center">
                 {loggedInUser.userName}
               </h2>
             </div>
+            <Button
+              variant="link"
+              className="align-self-start py-0 px-0"
+              onKeyDown={(e: any) => {
+                if (e.key === 'Enter') {
+                  onCloseButton();
+                }
+              }}
+              onClick={onCloseButton}
+            >
+              <FontAwesomeIcon
+                icon={solid('xmark')}
+                size="lg"
+                style={{ cursor: 'pointer' }}
+                aria-label="Close button"
+              />
+            </Button>
           </Form.Group>
           <CreatePostComponent
             setPostMessageContent={setPostContent}
@@ -122,6 +144,7 @@ function CreatePost() {
             placeHolder="Create a post"
             descriptionArray={descriptionArray}
             setDescriptionArray={setDescriptionArray}
+            createEditPost
           />
         </Form>
       </ContentPageWrapper>

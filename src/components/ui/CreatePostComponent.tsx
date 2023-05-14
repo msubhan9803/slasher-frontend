@@ -2,7 +2,7 @@
 import React, {
   ChangeEvent, useEffect, useRef, useState,
 } from 'react';
-import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Row, Col, Button, Form, Image,
@@ -72,6 +72,8 @@ interface Props {
   showSaveButton?: boolean;
   reviewForm?: boolean;
   setReviewForm?: (value: boolean) => void;
+  setShowReviewForm?: (value: boolean) => void;
+  createEditPost?: boolean;
 }
 
 const AddPhotosButton = styled(RoundButton)`
@@ -92,11 +94,12 @@ function CreatePostComponent({
   containSpoiler, setContainSpoiler, rating, setRating, goreFactor, setGoreFactor,
   selectedPostType, setSelectedPostType, setWorthIt, liked, setLike, reviewForm, setReviewForm,
   disLiked, setDisLike, isWorthIt, placeHolder, descriptionArray, setDescriptionArray,
-  showSaveButton,
+  showSaveButton, setShowReviewForm, createEditPost
 }: Props) {
   const inputFile = useRef<HTMLInputElement>(null);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [uploadPost, setUploadPost] = useState<string[]>([]);
+  const [showPicker, setShowPicker] = useState<any>(false);
   const [searchParams] = useSearchParams();
   const paramsType = searchParams.get('type');
   const imageArrayRef = useRef(imageArray);
@@ -116,6 +119,9 @@ function CreatePostComponent({
         .then((res2) => setAboutMovieDetail(res2.data)));
   }, [movieId]);
 
+  const onMovieReviweCloseButton = () => {
+    setShowReviewForm!(false);
+  };
   const handleRemoveFile = (postImage: any, index?: number) => {
     const removePostImage = imageArray.filter((image: File) => image !== postImage);
     setDeleteImageIds([...deleteImageIds, postImage._id].filter(Boolean));
@@ -214,7 +220,7 @@ function CreatePostComponent({
 
   return (
 
-    <div ref={movieReviewRef} className={postType === 'review' ? 'bg-dark mb-3 px-4 py-4 rounded-2' : ''}>
+    <div ref={movieReviewRef} className={postType === 'review' ? 'bg-dark mb-3 px-4 pb-4 rounded-2' : ''}>
       {aboutMovieDetail
         && (
           <Row className="m-0">
@@ -237,54 +243,73 @@ function CreatePostComponent({
 
       {postType === 'review' && (
         <>
-          <div className="d-block d-md-flex d-lg-block d-xl-flex align-items-center mb-4">
-            <div>
-              <RatingButtonGroups
-                rating={rating}
-                setRating={setRating}
-                label="Your rating"
+          <div className="d-flex justify-content-between">
+            <Button
+              variant="link"
+              className="align-self-start py-0 px-0 my-3 order-last"
+              onKeyDown={(e: any) => {
+                if (e.key === 'Enter') {
+                  onMovieReviweCloseButton();
+                }
+              }}
+              onClick={onMovieReviweCloseButton}
+            >
+              <FontAwesomeIcon
+                icon={solid('xmark')}
                 size="lg"
+                style={{ cursor: 'pointer' }}
+                aria-label="Close button"
               />
-            </div>
-            <div className="mx-md-4 mx-lg-0 mx-xl-4 my-3 my-md-0 my-lg-3 my-xl-0">
-              <RatingButtonGroups
-                rating={goreFactor}
-                setRating={setGoreFactor}
-                label="Gore factor"
-                size="lg"
-                isGoreFator
-              />
-            </div>
-            <div className="">
-              <Form.Label className="fw-bold h3">Worth watching?</Form.Label>
-              <div className="d-flex align-items-center">
-                <WorthWatchIcon
-                  movieData={movieData}
-                  setWorthIt={setWorthIt}
-                  liked={liked!}
-                  setLike={setLike!}
-                  disLiked={disLiked!}
-                  setDisLike={setDisLike!}
-                  postType={postType}
-                  circleWidth="2.534rem"
-                  circleHeight="2.534rem"
-                  iconWidth="1.352rem"
-                  iconHeight="1.352rem"
-                  isWorthIt={isWorthIt}
-                  clickType="form"
+            </Button>
+            <div className="d-block d-md-flex d-lg-block d-xl-flex align-items-center mb-4 pt-4">
+              <div>
+                <RatingButtonGroups
+                  rating={rating}
+                  setRating={setRating}
+                  label="Your rating"
+                  size="lg"
                 />
-                {isWorthIt !== WorthWatchingStatus.NoRating
-                  && (
-                    <CustomWortItText
-                      divClass="mt-2 align-items-center px-3 bg-black rounded-pill py-2"
-                      textClass="fs-4"
-                      customCircleWidth="20px"
-                      customCircleHeight="20px"
-                      customIconWidth="10.67px"
-                      customIconHeight="10.67px"
-                      worthIt={isWorthIt}
-                    />
-                  )}
+              </div>
+              <div className="mx-md-4 mx-lg-0 mx-xl-4 my-3 my-md-0 my-lg-3 my-xl-0">
+                <RatingButtonGroups
+                  rating={goreFactor}
+                  setRating={setGoreFactor}
+                  label="Gore factor"
+                  size="lg"
+                  isGoreFator
+                />
+              </div>
+              <div>
+                <Form.Label className="fw-bold h3">Worth watching?</Form.Label>
+                <div className="d-flex align-items-center">
+                  <WorthWatchIcon
+                    movieData={movieData}
+                    setWorthIt={setWorthIt}
+                    liked={liked!}
+                    setLike={setLike!}
+                    disLiked={disLiked!}
+                    setDisLike={setDisLike!}
+                    postType={postType}
+                    circleWidth="2.534rem"
+                    circleHeight="2.534rem"
+                    iconWidth="1.352rem"
+                    iconHeight="1.352rem"
+                    isWorthIt={isWorthIt}
+                    clickType="form"
+                  />
+                  {isWorthIt !== WorthWatchingStatus.NoRating
+                    && (
+                      <CustomWortItText
+                        divClass="mt-2 align-items-center px-3 bg-black rounded-pill py-2"
+                        textClass="fs-4"
+                        customCircleWidth="20px"
+                        customCircleHeight="20px"
+                        customIconWidth="10.67px"
+                        customIconHeight="10.67px"
+                        worthIt={isWorthIt}
+                      />
+                    )}
+                </div>
               </div>
             </div>
           </div>
@@ -313,7 +338,7 @@ function CreatePostComponent({
           />
         </div>
       )}
-      <div className="mt-3">
+      <div className="mt-3 position-relative">
         <MessageTextarea
           rows={10}
           placeholder={placeHolder}
@@ -323,6 +348,9 @@ function CreatePostComponent({
           formatMentionList={formatMention}
           setFormatMentionList={setFormatMention}
           defaultValue={defaultValue}
+          showPicker={showPicker}
+          setShowPicker={setShowPicker}
+          createEditPost={createEditPost}
         />
       </div>
       {paramsType === 'group-post' && (
@@ -455,5 +483,7 @@ CreatePostComponent.defaultProps = {
   showSaveButton: false,
   reviewForm: false,
   setReviewForm: undefined,
+  setShowReviewForm: false,
+  createEditPost: undefined,
 };
 export default CreatePostComponent;

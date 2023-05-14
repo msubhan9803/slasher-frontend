@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import { DateTime } from 'luxon';
 import styled from 'styled-components';
 import { Image } from 'react-bootstrap';
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
 import { ChatProps } from './ChatProps';
 import ChatTimestamp from './ChatTimestamp';
 import LoadingIndicator from '../ui/LoadingIndicator';
@@ -30,10 +32,19 @@ const ChatMessages = styled.div`
     }
   }
 `;
-
-function ChatMessage({ messages, messageLoading }: ChatProps) {
+interface Emoji {
+  native: string
+}
+function ChatMessage({
+  messages, setMessage, messageLoading, showPicker, selectedEmoji,
+  setSelectedEmoji,
+}: ChatProps) {
   const messageRef = useRef<HTMLDivElement>(null);
   let lastTimeStampMessage = '';
+  const handleEmojiSelect = (emoji: Emoji) => {
+    setSelectedEmoji!((selectedEmoji ?? []).concat(emoji.native));
+    setMessage!((prevMessage: string) => prevMessage + emoji.native);
+  };
   useEffect(() => {
     if (messageRef.current) {
       messageRef.current.scrollIntoView(
@@ -126,6 +137,9 @@ function ChatMessage({ messages, messageLoading }: ChatProps) {
       })}
       {messageLoading && (
         <LoadingIndicator />
+      )}
+      {showPicker && (
+        <Picker data={data} onEmojiSelect={handleEmojiSelect} />
       )}
     </ChatMessages>
   );

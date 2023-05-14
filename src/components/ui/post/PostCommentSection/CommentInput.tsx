@@ -95,6 +95,7 @@ function CommentInput({
   const [editMessage, setEditMessage] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const [isFocosInput, setIsFocusInput] = useState<boolean>(false);
+  const [showPicker, setShowPicker] = useState<boolean>(false);
 
   const handleSetCommentReplyErrorMessage = useCallback((error: any) => {
     setCommentReplyErrorMessage!(error);
@@ -192,6 +193,7 @@ function CommentInput({
   const handleMessage = () => {
     const postContentWithMentionReplacements = (editMessage!.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
     onUpdatePost(postContentWithMentionReplacements);
+    setShowPicker(false);
   };
 
   const onFocusHandler = () => {
@@ -236,59 +238,63 @@ function CommentInput({
         <Col className="ps-0">
           <div className="d-flex align-items-end mb-4">
             <StyledCommentInputGroup focus={isFocosInput} className="mx-1">
-              <MessageTextarea
-                rows={1}
-                id={checkCommnt}
-                className="fs-5 form-control p-0 pe-4"
-                placeholder={isReply ? 'Reply to comment' : 'Write a comment'}
-                isReply={isReply}
-                handleSearch={handleSearch}
-                mentionLists={mentionList}
-                setMessageContent={setEditMessage}
-                formatMentionList={formatMention}
-                setFormatMentionList={setFormatMention}
-                defaultValue={decryptMessage(editMessage)}
-                isCommentInput="true"
-                onFocusHandler={onFocusHandler}
-                onBlurHandler={onBlurHandler}
-                isMainPostCommentClick={isMainPostCommentClick}
-              />
-              <InputGroup.Text className="position-relative px-3 border-start-0">
-                <FontAwesomeIcon
-                  role="button"
-                  onClick={() => {
-                    inputFile.current?.click();
-                    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-                    setIsReply!(false);
-                  }}
-                  icon={solid('camera')}
-                  size="lg"
-                  className="camera-btn position-absolute align-self-end me-3 mb-1"
-                  style={{ right: 0 }}
-                  tabIndex={0}
-                  onKeyDown={(e: any) => {
-                    if (e.key === 'Enter') {
+              <div className="position-relative d-flex w-100">
+                <MessageTextarea
+                  rows={1}
+                  id={checkCommnt}
+                  className="fs-5 form-control p-0 pe-4"
+                  placeholder={isReply ? 'Reply to comment' : 'Write a comment'}
+                  isReply={isReply}
+                  handleSearch={handleSearch}
+                  mentionLists={mentionList}
+                  setMessageContent={setEditMessage}
+                  formatMentionList={formatMention}
+                  setFormatMentionList={setFormatMention}
+                  defaultValue={decryptMessage(editMessage)}
+                  isCommentInput="true"
+                  onFocusHandler={onFocusHandler}
+                  onBlurHandler={onBlurHandler}
+                  isMainPostCommentClick={isMainPostCommentClick}
+                  showPicker={showPicker}
+                  setShowPicker={setShowPicker}
+                />
+                <InputGroup.Text className="position-relative px-3 border-start-0">
+                  <FontAwesomeIcon
+                    role="button"
+                    onClick={() => {
                       inputFile.current?.click();
                       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
                       setIsReply!(false);
-                    }
-                  }}
-                />
-                <input
-                  type="file"
-                  name={dataId ? 'reply' : 'post'}
-                  className="d-none"
-                  accept="image/*"
-                  onChange={(post) => {
-                    handleFileChange(post, dataId);
-                    /* eslint-disable no-param-reassign */
-                    post.target.value = '';
-                  }}
-                  multiple
-                  ref={inputFile}
-                  aria-label="image"
-                />
-              </InputGroup.Text>
+                    }}
+                    icon={solid('camera')}
+                    size="lg"
+                    className="camera-btn position-absolute align-self-end me-3 mb-1"
+                    style={{ right: 0 }}
+                    tabIndex={0}
+                    onKeyDown={(e: any) => {
+                      if (e.key === 'Enter') {
+                        inputFile.current?.click();
+                        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+                        setIsReply!(false);
+                      }
+                    }}
+                  />
+                  <input
+                    type="file"
+                    name={dataId ? 'reply' : 'post'}
+                    className="d-none"
+                    accept="image/*"
+                    onChange={(post) => {
+                      /* eslint-disable no-param-reassign */
+                      handleFileChange(post, dataId);
+                      post.target.value = '';
+                    }}
+                    multiple
+                    ref={inputFile}
+                    aria-label="image"
+                  />
+                </InputGroup.Text>
+              </div>
             </StyledCommentInputGroup>
             <Button onClick={() => handleMessage()} variant="link" aria-label="submit" className="ms-2 mb-1 p-0">
               <FontAwesomeIcon icon={solid('paper-plane')} style={{ fontSize: '26px' }} className="text-primary" />

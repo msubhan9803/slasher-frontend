@@ -94,7 +94,7 @@ function CreatePostComponent({
   containSpoiler, setContainSpoiler, rating, setRating, goreFactor, setGoreFactor,
   selectedPostType, setSelectedPostType, setWorthIt, liked, setLike, reviewForm, setReviewForm,
   disLiked, setDisLike, isWorthIt, placeHolder, descriptionArray, setDescriptionArray,
-  showSaveButton, setShowReviewForm, createEditPost
+  showSaveButton, setShowReviewForm, createEditPost,
 }: Props) {
   const inputFile = useRef<HTMLInputElement>(null);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);

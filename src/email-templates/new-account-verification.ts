@@ -8,7 +8,7 @@ export const templateForNewAccountVerification = `
     <p>
       Click the button to activate your Slasher account:
       <a
-        style="color:#000000;background:#ff1800;border-radius:50px;text-decoration:none;padding:0.375rem .75rem;font-size:14px;"
+        style="color:#000000;background:#ff1800;border-radius:50px;text-decoration:none;padding:0.375rem .75rem;font-size:14px;font-weight:bold;"
         href="[[EMAIL_VERIFICATION_LINK]]"
       >Click here</a>
     </p>

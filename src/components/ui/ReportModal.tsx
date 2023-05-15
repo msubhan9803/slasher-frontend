@@ -5,6 +5,7 @@ import ModalBodyForReport from './ModalBodyForReport';
 import ModalBodyForBlockUser from './ModalBodyForBlockUser';
 import ModalBodyForDelete from './ModalBodyForDelete';
 import ModalBodyForReportSuccess from './ModalBodyForReportSuccess';
+import RoundButton from './RoundButton';
 
 interface Props {
   show: boolean;

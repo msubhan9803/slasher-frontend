@@ -31,6 +31,7 @@ import HeaderLogo from '../../../ui/HeaderLogo';
 import { setSocketConnected } from '../../../../redux/slices/socketSlice';
 import socketStore from '../../../../socketStore';
 import useSessionTokenMonitorAsync from '../../../../hooks/useSessionTokenMonitorAsync';
+import useSessionToken from '../../../../hooks/useSessionToken';
 
 interface Props {
   children: React.ReactNode;
@@ -70,8 +71,10 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const userData = useAppSelector((state) => state.user);
   const remoteConstantsData = useAppSelector((state) => state.remoteConstants);
   const { pathname } = useLocation();
-  const [token, setToken] = useState<null | string>(null);
   const location = useLocation();
+  const token = useSessionToken();
+  const tokenNotFound = !token.isLoading && !token.value;
+
   useGoogleAnalytics(analyticsId);
 
   // Record all navigation by user
@@ -88,7 +91,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
 
   const [show, setShow] = useState(false);
   const isDesktopResponsiveSize = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` });
-  const isSocketConnectingRef = useRef(false);
+  const isConnectingSocketRef = useRef(false);
   const isSocketConnected = useAppSelector((state) => state.socket.isConnected);
   const { socket } = socketStore;
 
@@ -98,34 +101,33 @@ function AuthenticatedPageWrapper({ children }: Props) {
   };
 
   useEffect(() => {
-    getSessionToken().then((tokenValue) => {
-      setToken(tokenValue);
+    if (token.isLoading) { return; }
 
-      if (!tokenValue) {
-        navigate(`/app/sign-in?path=${pathname}`);
-        return;
-      }
+    if (tokenNotFound) {
+      navigate(`/app/sign-in?path=${pathname}`);
+      return;
+    }
 
-      if (!remoteConstantsData.loaded) {
-        fetchRemoteConstants().then((res) => {
-          dispatch(setRemoteConstantsData(res.data));
-        }).catch(() => {
-          // eslint-disable-next-line no-console
-          console.log('An unexpected error occurred while loading remote constants');
-        });
-      }
+    if (!remoteConstantsData.loaded) {
+      fetchRemoteConstants().then((res) => {
+        dispatch(setRemoteConstantsData(res.data));
+      }).catch(() => {
+        // eslint-disable-next-line no-console
+        console.log('An unexpected error occurred while loading remote constants');
+      });
+    }
 
-      if (userData.user?.userName === '') {
-        userInitialData().then((res) => {
-          dispatch(setUserInitialData(res.data));
-        }).catch((err) => {
-          if (err.response.status === 401) {
-            signOut();
-          }
-        });
-      }
-    });
-  }, [dispatch, navigate, pathname, userData.user?.userName, remoteConstantsData.loaded]);
+    if (userData.user?.userName === '') {
+      userInitialData().then((res) => {
+        dispatch(setUserInitialData(res.data));
+      }).catch((err) => {
+        if (err.response.status === 401) {
+          signOut();
+        }
+      });
+    }
+  }, [dispatch, navigate, pathname, userData.user?.userName,
+    remoteConstantsData.loaded, token, tokenNotFound]);
 
   const onNotificationReceivedHandler = useCallback(() => {
     dispatch(incrementUnreadNotificationCount());
@@ -147,12 +149,13 @@ function AuthenticatedPageWrapper({ children }: Props) {
   }, [dispatch]);
 
   useEffect(() => {
-    if (isSocketConnected || isSocketConnectingRef.current || !token) { return; }
-    isSocketConnectingRef.current = true;
+    if (isSocketConnected || isConnectingSocketRef.current
+      || token.isLoading || tokenNotFound) { return; }
+    isConnectingSocketRef.current = true;
 
     socketStore.socket = io(apiUrl!, {
       transports: ['websocket'],
-      auth: { token },
+      auth: { token: token.value },
     });
     socketStore.socket.on('connect', () => {
       dispatch(setSocketConnected());
@@ -165,7 +168,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
         (socketStore.socket as any).slasherAuthSuccess = true;
       }
     });
-  }, [dispatch, isSocketConnected, token]);
+  }, [dispatch, isSocketConnected, tokenNotFound, token]);
 
   useEffect(() => {
     if (!socket) { return () => { }; }
@@ -185,7 +188,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
   }, [onClearNewFriendRequestCount, onClearNewNotificationCount, onFriendRequestReceivedHandler,
     onNotificationReceivedHandler, onUnreadConversationCountUpdate, socket]);
 
-  if (!token || !userData.user?.id) {
+  if (token.isLoading || !userData.user?.id) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
         <HeaderLogo

@@ -291,10 +291,6 @@ describe('Chat Gateway (e2e)', () => {
             senderId: activeUser.id,
             image: 'http://localhost:4444/api/v1/local-storage//chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg',
             imageDescription: null,
-            created: expect.any(String),
-            urls: [],
-            __v: 0,
-            updatedAt: expect.any(String),
           },
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -305,10 +301,6 @@ describe('Chat Gateway (e2e)', () => {
             senderId: user1.id,
             image: 'http://localhost:4444/api/v1/local-storage//chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg',
             imageDescription: null,
-            created: expect.any(String),
-            urls: [],
-            __v: 0,
-            updatedAt: expect.any(String),
           },
         ]);
         // All messages NOT from the activeUser should be marked as read when they are returned

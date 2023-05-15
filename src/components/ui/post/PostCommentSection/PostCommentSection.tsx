@@ -54,6 +54,7 @@ function PostCommentSection({
   setCommentErrorMessage,
   handleLikeModal,
   isMainPostCommentClick,
+  setSelectedBlockedUserId,
 }: any) {
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [show, setShow] = useState<boolean>(false);
@@ -391,6 +392,7 @@ function PostCommentSection({
   const onBlockYesClick = () => {
     createBlockUser(commentReplyUserId)
       .then(() => {
+        setSelectedBlockedUserId(commentReplyUserId);
         setShow(false);
       })
       /* eslint-disable no-console */

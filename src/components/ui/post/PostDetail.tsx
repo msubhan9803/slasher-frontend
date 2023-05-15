@@ -88,6 +88,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   const scrollPositionRef = useRef(scrollPosition);
   const pathnameHistory = useAppSelector((state) => state.user.pathnameHistory);
   const { userName } = useParams();
+  const [selectedBlockedUserId, setSelectedBlockedUserId] = useState<string>('');
 
   useEffect(() => {
     scrollPositionRef.current = scrollPosition;
@@ -730,13 +731,58 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           setDropDownValue('BlockUserSuccess');
         }
       })
-      /* eslint-disable no-console */
+    /* eslint-disable no-console */
       .catch((error) => console.error(error));
   };
-  const afterBlockUser = () => {
+  useEffect(() => {
+    if (dropDownValue === 'BlockUserSuccess') {
+      const updatedScrollData = postData.filter(
+        (scrollData: any) => scrollData.userId !== selectedBlockedUserId,
+      );
+      const positionData = {
+        ...scrollPositionRef.current,
+        data: updatedScrollData,
+      };
+      dispatch(setScrollPosition(positionData));
+    }
+  }, [dropDownValue, dispatch, selectedBlockedUserId, postData]);
+
+  const afterBlockUser = useCallback(() => {
     const lastNonProfilePathname = getLastNonProfilePathname(pathnameHistory!, userName!);
     navigate(lastNonProfilePathname);
-  };
+  }, [pathnameHistory, userName, navigate]);
+
+  const updateCommentDataAfterBlockUser = useCallback(() => {
+    const filterUnblockUserComments = commentData.filter((comment) => {
+      if (comment.userId._id === selectedBlockedUserId) {
+        return false;
+      }
+      if (comment.replies) {
+        comment.replies = comment.replies.filter(
+          (reply) => reply.userId._id !== selectedBlockedUserId,
+        );
+      }
+      return true;
+    });
+    const updatedScrollData = postData.filter(
+      (scrollData: any) => scrollData.userId !== selectedBlockedUserId,
+    );
+    const positionData = {
+      ...scrollPositionRef.current,
+      data: updatedScrollData,
+    };
+    dispatch(setScrollPosition(positionData));
+    setCommentData(filterUnblockUserComments);
+    if (postData && postData.length > 0
+      && postData[0].userId === selectedBlockedUserId) {
+      afterBlockUser();
+    }
+  }, [afterBlockUser, commentData, dispatch, postData, selectedBlockedUserId]);
+
+  useEffect(() => {
+    updateCommentDataAfterBlockUser();
+  }, [selectedBlockedUserId, updateCommentDataAfterBlockUser]);
+
   return (
     <>
       {postType === 'news'
@@ -782,6 +828,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                 setCommentReplyErrorMessage={setCommentReplyErrorMessage}
                 setCommentErrorMessage={setCommentErrorMessage}
                 showPubWiseAdAtPageBottom={showPubWiseAdAtPageBottom}
+                setSelectedBlockedUserId={setSelectedBlockedUserId}
               />
               {dropDownValue !== 'Edit'
                 && (
@@ -853,6 +900,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
               commentSent={commentSent}
               setCommentReplyErrorMessage={setCommentReplyErrorMessage}
               setCommentErrorMessage={setCommentErrorMessage}
+              setSelectedBlockedUserId={setSelectedBlockedUserId}
             />
             {dropDownValue !== 'Edit'
               && (

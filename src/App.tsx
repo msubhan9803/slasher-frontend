@@ -38,8 +38,7 @@ import PasswordResetSuccess from './routes/password-reset-success/PasswordResetS
 import Index from './routes/Index';
 import ChangeEmailConfirm from './routes/change-email/ChangeEmailConfirm';
 import ChangeEmailRevert from './routes/change-email/ChangeEmailRevert';
-import PublicProfie from './routes/public-home-page/public-profile-web/PublicProfie';
-import { userIsLoggedIn } from './utils/session-utils';
+import PublicProfile from './routes/public-home-page/public-profile-web/PublicProfile';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -56,11 +55,8 @@ interface TopLevelRoute {
 }
 
 const routes: Record<string, TopLevelRoute> = {
-  ':userName/*': {
-    wrapper: userIsLoggedIn() ? AuthenticatedPageWrapper : UnauthenticatedPageWrapper,
-    component: userIsLoggedIn() ? Profile : PublicProfie,
-    wrapperProps: { hideTopLogo: true, hideFooter: true },
-  },
+  ':userName/*': { wrapper: AuthenticatedPageWrapper, component: Profile },
+  ':userName': { wrapper: UnauthenticatedPageWrapper, component: PublicProfile, wrapperProps: { hideTopLogo: true, hideFooter: true } },
   'app/home': { wrapper: AuthenticatedPageWrapper, component: Home },
   'app/search/*': { wrapper: AuthenticatedPageWrapper, component: Search },
   'app/messages': { wrapper: AuthenticatedPageWrapper, component: Messages },

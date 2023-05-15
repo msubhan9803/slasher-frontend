@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useParams } from 'react-router';
+import { useParams } from 'react-router-dom';
 import { userIsLoggedIn } from '../../../utils/session-utils';
 
 interface Props {

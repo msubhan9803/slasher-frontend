@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Navigate, useParams } from 'react-router';
+import { Navigate, useParams } from 'react-router-dom';
 import { Col, Row } from 'react-bootstrap';
 import PublicHomeFooter from '../public-home-footer/PublicHomeFooter';
 import PublicHomeHeader from '../public-home-header/PublicHomeHeader';
 import ProfileAbout from '../../profile/ProfileAbout/ProfileAbout';
 import PublicHomeBody from '../public-home-body/PublicHomeBody';
 import { userIsLoggedIn } from '../../../utils/session-utils';
-import { getPublicProfile } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import HeroImage from '../../../images/public-home-hero-header.png';
 import ProfileLimitedView from '../../profile/ProfileLimitedView/ProfileLimitedView';
+import { getPublicProfile } from '../../../api/users';
 
 const StyleSection = styled.div`
 background: url(${HeroImage}) top center;
@@ -18,7 +18,7 @@ padding-top:100px;
 background-repeat: no-repeat;
     background-size: contain;
 `;
-function PublicProfie() {
+function PublicProfile() {
   const { userName } = useParams();
   const [user, setUser] = useState<any>({});
   const [errorMessage, setErrorMessage] = useState<string[]>();
@@ -33,7 +33,7 @@ function PublicProfie() {
   return (
     <div>
       {userIsLoggedIn()
-        ? <Navigate to={`/${userName}`} replace />
+        ? <Navigate to={`/${userName}/about`} replace />
         : (
           <>
             <PublicHomeHeader />
@@ -43,7 +43,7 @@ function PublicProfie() {
                   <PublicHomeBody>
                     {user.profile_status === 1
                       ? <ProfileLimitedView user={user} />
-                      : <ProfileAbout user={user} loadUser={() => { }} /> }
+                      : <ProfileAbout user={user} loadUser={() => { }} />}
                   </PublicHomeBody>
                 </Col>
               </Row>
@@ -56,4 +56,4 @@ function PublicProfie() {
   );
 }
 
-export default PublicProfie;
+export default PublicProfile;

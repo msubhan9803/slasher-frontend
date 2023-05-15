@@ -101,11 +101,7 @@ export async function getUser(userName: string) {
   return axios.get(`${apiUrl}/api/v1/users/${userName}`, { headers });
 }
 export async function getPublicProfile(userName: string) {
-  const token = Cookies.get('sessionToken');
-  const headers = {
-    Authorization: `Bearer ${token}`,
-  };
-  return axios.get(`${apiUrl}/api/v1/users/public/${userName}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/users/public/${userName}`);
 }
 
 export async function getProfilePosts(id: string, lastRetrievedPostId?: string) {

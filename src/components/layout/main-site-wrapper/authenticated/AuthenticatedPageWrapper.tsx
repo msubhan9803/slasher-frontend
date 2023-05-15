@@ -15,6 +15,7 @@ import {
   setUserInitialData, handleUpdatedUnreadConversationCount, resetUnreadNotificationCount,
   resetNewFriendRequestCountCount, incrementUnreadNotificationCount,
   incrementFriendRequestCount,
+  appendToPathnameHistory,
 } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { getSessionToken, signOut } from '../../../../utils/session-utils';
@@ -29,6 +30,7 @@ import slasherLogo from '../../../../images/slasher-logo-medium.png';
 import HeaderLogo from '../../../ui/HeaderLogo';
 import { setSocketConnected } from '../../../../redux/slices/socketSlice';
 import socketStore from '../../../../socketStore';
+import useSessionTokenMonitorAsync from '../../../../hooks/useSessionTokenMonitorAsync';
 
 interface Props {
   children: React.ReactNode;
@@ -69,7 +71,20 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const remoteConstantsData = useAppSelector((state) => state.remoteConstants);
   const { pathname } = useLocation();
   const [token, setToken] = useState<null | string>(null);
+  const location = useLocation();
   useGoogleAnalytics(analyticsId);
+
+  // Record all navigation by user
+  useEffect(() => {
+    dispatch(appendToPathnameHistory(location.pathname));
+  }, [dispatch, location.pathname]);
+
+  // Reload the page if the session token changes
+  useSessionTokenMonitorAsync(
+    getSessionToken,
+    () => { window.location.reload(); },
+    5_000,
+  );
 
   const [show, setShow] = useState(false);
   const isDesktopResponsiveSize = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` });

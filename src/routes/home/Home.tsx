@@ -275,11 +275,14 @@ function Home() {
   const onBlockYesClick = () => {
     createBlockUser(postUserId)
       .then(() => {
-        setShow(false);
+        setDropDownValue('BlockUserSuccess');
         callLatestFeedPost();
       })
       // eslint-disable-next-line no-console
       .catch((error) => console.error(error));
+  };
+  const afterBlockUser = () => {
+    setShow(false);
   };
 
   const reportHomePost = (reason: string) => {
@@ -347,7 +350,7 @@ function Home() {
         {loadingPosts && <LoadingIndicator />}
         {noMoreData && renderNoMoreDataMessage()}
         {
-          (dropDownValue === 'Block user' || dropDownValue === 'Report' || dropDownValue === 'Delete' || dropDownValue === 'PostReportSuccessDialog')
+          ['Block user', 'Report', 'Delete', 'PostReportSuccessDialog', 'BlockUserSuccess'].includes(dropDownValue)
           && (
             <ReportModal
               onConfirmClick={deletePostClick}
@@ -355,6 +358,7 @@ function Home() {
               setShow={setShow}
               slectedDropdownValue={dropDownValue}
               onBlockYesClick={onBlockYesClick}
+              afterBlockUser={afterBlockUser}
               handleReport={reportHomePost}
               rssfeedProviderId={rssfeedProviderId}
             />
@@ -374,6 +378,7 @@ function Home() {
               setPostImages={setPostImages}
               deleteImageIds={deleteImageIds}
               setDeleteImageIds={setDeleteImageIds}
+              editPost
             />
           )
         }

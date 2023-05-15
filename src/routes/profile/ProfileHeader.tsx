@@ -24,12 +24,12 @@ import FriendActionButtons from '../../components/ui/Friend/FriendActionButtons'
 import { LG_MEDIA_BREAKPOINT, topToDivHeight } from '../../constants';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { setScrollToTabsPosition } from '../../redux/slices/scrollPositionSlice';
+import { getLastNonProfilePathname } from '../../utils/url-utils';
 
 interface Props {
   tabKey?: string;
   user: User | undefined;
   showTabs?: boolean;
-  loadUser?: Function;
 }
 const AboutProfileImage = styled(UserCircleImage)`
   border: 0.25rem solid #1B1B1B;
@@ -57,7 +57,7 @@ const StyledPopoverContainer = styled.div`
 type FriendType = { from: string, to: string, reaction: FriendRequestReaction } | null;
 
 function ProfileHeader({
-  tabKey, user, showTabs, loadUser,
+  tabKey, user, showTabs,
 }: Props) {
   const [show, setShow] = useState<boolean>(false);
   const [friendshipStatus, setFriendshipStatus] = useState<any>();
@@ -74,6 +74,7 @@ function ProfileHeader({
   const positionRef = useRef<HTMLDivElement>(null);
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
+  const pathnameHistory = useAppSelector((state) => state.user.pathnameHistory);
 
   const isSelfUserProfile = userName === loginUserName;
 
@@ -113,13 +114,14 @@ function ProfileHeader({
 
   const onBlockYesClick = () => {
     createBlockUser(clickedUserId)
-      .then(() => {
-        setShow(false);
-        // Refetch user from the api into application state
-        loadUser?.();
-      })
+      .then(() => setDropDownValue('BlockUserSuccess'))
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
+  };
+
+  const afterBlockUser = () => {
+    const lastNonProfilePathname = getLastNonProfilePathname(pathnameHistory!, userName!);
+    navigate(lastNonProfilePathname);
   };
 
   const reportUserProfile = (reason: string) => {
@@ -218,6 +220,7 @@ function ProfileHeader({
         setShow={setShow}
         slectedDropdownValue={dropDownValue}
         onBlockYesClick={onBlockYesClick}
+        afterBlockUser={afterBlockUser}
         handleReport={reportUserProfile}
       />
     </div>
@@ -227,7 +230,6 @@ function ProfileHeader({
 ProfileHeader.defaultProps = {
   showTabs: true,
   tabKey: tabs[0].value,
-  loadUser: () => { },
 };
 
 export default ProfileHeader;

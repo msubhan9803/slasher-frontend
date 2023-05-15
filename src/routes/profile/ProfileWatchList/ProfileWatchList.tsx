@@ -21,9 +21,8 @@ import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent'
 
 interface Props {
   user: User
-  loadUser: Function
 }
-function ProfileWatchList({ user, loadUser }: Props) {
+function ProfileWatchList({ user }: Props) {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [requestAdditionalMovies, setRequestAdditionalMovies] = useState<boolean>(false);
@@ -176,7 +175,7 @@ function ProfileWatchList({ user, loadUser }: Props) {
 
   return (
     <div>
-      <ProfileHeader tabKey="watched-list" user={user} loadUser={loadUser} />
+      <ProfileHeader tabKey="watched-list" user={user} />
       <ProfileTabContent>
         <MoviesHeader
           tabKey="watched-list"

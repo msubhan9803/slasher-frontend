@@ -17,6 +17,7 @@ export const userSlice = createSlice({
     },
     forceFriendListReload: false,
     isKeyboardOpen: false,
+    pathnameHistory: [] as Array<string>,
   },
   reducers: {
     setUserInitialData: (state, action) => ({
@@ -60,6 +61,13 @@ export const userSlice = createSlice({
     setKeyboardOpen: (state, action) => {
       state.isKeyboardOpen = action.payload;
     },
+    appendToPathnameHistory: (state, action: PayloadAction<string>) => {
+      const last = state.pathnameHistory[state.pathnameHistory.length - 1];
+      // We prevent appending duplicate pathname in a row
+      if (last !== action.payload) {
+        state.pathnameHistory.push(action.payload);
+      }
+    },
   },
 });
 
@@ -75,6 +83,7 @@ export const {
   setUserRecentFriendRequests,
   setFriendListReload,
   setKeyboardOpen,
+  appendToPathnameHistory,
 } = userSlice.actions;
 
 export default userSlice.reducer;

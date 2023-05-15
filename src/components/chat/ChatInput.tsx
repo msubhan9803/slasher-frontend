@@ -60,11 +60,15 @@ interface ChatInputProps {
   setRows: (value: number) => void;
   calculateRows: () => void;
   textareaRef: any;
+  onEmojiClick: (value: any) => void;
+  setShowPicker: (value: boolean) => void;
+  setSelectedEmoji: (value: string[]) => void;
 }
 
 function ChatInput({
   sendMessageClick, setMessage, message, handleFileChange, rows,
-  setRows, calculateRows, textareaRef,
+  setRows, calculateRows, textareaRef, onEmojiClick, setShowPicker,
+  setSelectedEmoji,
 }: ChatInputProps) {
   const [isFocusInput, setIsFocusInput] = useState<boolean>(false);
   const inputFile = useRef<HTMLInputElement>(null);
@@ -87,6 +91,8 @@ function ChatInput({
     textareaRef.current.focus(); // so that keyboard remains open click of "send-icon"
     sendMessageClick!();
     setRows(1);
+    setShowPicker(false);
+    setSelectedEmoji([]);
   };
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -98,8 +104,8 @@ function ChatInput({
     <Form onSubmit={handleSubmit}>
       <div className="d-flex align-items-end">
         <StyledChatInputGroup focus={isFocusInput} className="me-2 position-absolute">
-          <InputGroup.Text className="camera-btn position-relative border-end-0">
-            <div className="position-absolute align-self-end d-flex p-0">
+          <InputGroup.Text className="camera-btn position-relative border-end-0  pe-0">
+            <div className=" align-self-end d-flex p-0">
               <FontAwesomeIcon
                 onClick={() => {
                   inputFile.current?.click();
@@ -127,12 +133,15 @@ function ChatInput({
                 aria-label="image"
               />
             </div>
+            <Button type="button" variant="link" aria-label="emoji-picker" className=" d-flex align-self-end p-0" onClick={onEmojiClick}>
+              <FontAwesomeIcon icon={solid('smile')} size="lg" />
+            </Button>
           </InputGroup.Text>
           <Form.Control
             as="textarea"
             rows={rows}
             placeholder="Type your message here..."
-            className="shadow-none border-start-0 border-end-0"
+            className="shadow-none border-start-0 border-end-0 ps-1"
             value={message}
             onChange={
               (messageInput) => setMessage!(messageInput.target.value)

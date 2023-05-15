@@ -26,20 +26,19 @@ import useBootstrapBreakpointName from '../../hooks/useBootstrapBreakpoint';
 
 interface SharedHeaderProfilePagesProps {
   user: User;
-  loadUser: Function
 }
 
-function SharedHeaderProfilePages({ user, loadUser }: SharedHeaderProfilePagesProps) {
+function SharedHeaderProfilePages({ user }: SharedHeaderProfilePagesProps) {
   return (
     <Routes>
       <Route path="/" element={(<Navigate to="about" replace />)} />
-      <Route path="/about" element={<ProfileAbout user={user} loadUser={loadUser} />} />
-      <Route path="/posts" element={<ProfilePosts user={user} loadUser={loadUser} />} />
+      <Route path="/about" element={<ProfileAbout user={user} />} />
+      <Route path="/posts" element={<ProfilePosts user={user} />} />
       <Route path="/posts/:postId" element={<PostDetail user={user} />} />
-      <Route path="/friends" element={<ProfileFriends user={user} loadUser={loadUser} />} />
-      <Route path="/friends/request" element={<ProfileFriendRequest user={user} loadUser={loadUser} />} />
-      <Route path="/photos" element={<ProfilePhotos user={user} loadUser={loadUser} />} />
-      <Route path="/watched-list" element={<ProfileWatchList user={user} loadUser={loadUser} />} />
+      <Route path="/friends" element={<ProfileFriends user={user} />} />
+      <Route path="/friends/request" element={<ProfileFriendRequest user={user} />} />
+      <Route path="/photos" element={<ProfilePhotos user={user} />} />
+      <Route path="/watched-list" element={<ProfileWatchList user={user} />} />
       <Route path="/edit" element={<ProfileEdit user={user} />} />
     </Routes>
   );
@@ -122,7 +121,7 @@ function Profile() {
         <h1 className="sr-only">{user.userName}</h1>
         <Routes>
           <Route path="/edit" element={<ProfileEdit user={user} />} />
-          <Route path="*" element={<SharedHeaderProfilePages user={user} loadUser={loadUser} />} />
+          <Route path="*" element={<SharedHeaderProfilePages user={user} />} />
         </Routes>
       </ContentPageWrapper>
 

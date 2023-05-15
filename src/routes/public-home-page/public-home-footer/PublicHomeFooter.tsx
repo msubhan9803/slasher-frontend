@@ -12,9 +12,11 @@ import slasherLogo from '../../../images/slasher-logo-medium.png';
 import HeaderLogo from '../../../components/ui/HeaderLogo';
 import AppStoreImage from '../../../images/app-store-badge.png';
 import PlayStoreImage from '../../../images/google-play-badge.png';
-import { APP_STORE_DOWNLOAD_URL, GOOGLE_PLAY_DOWNLOAD_URL } from '../../../constants';
+import {
+  APP_STORE_DOWNLOAD_URL, GOOGLE_PLAY_DOWNLOAD_URL, WORDPRESS_SITE_URL,
+} from '../../../constants';
 
-const socialMediaSites = [
+export const socialMediaSites = [
   { icon: faFacebookF, to: 'https://www.facebook.com/TheSlasherApp', bgColor: '#3b5998' },
   { icon: faTwitter, to: 'https://twitter.com/theslasherapp', bgColor: '#1da1f2' },
   { icon: faYoutube, to: 'https://www.youtube.com/channel/UCUcGxsG2u55zlVoe_s8TjcA', bgColor: '#CD201F' },
@@ -32,7 +34,7 @@ const StyledFooter = styled.footer`
   }
 `;
 
-const StyledMediaIcon = styled.div <SocialMediaIcon>`
+export const StyledMediaIcon = styled.div <SocialMediaIcon>`
   width: 30px;
   height: 30px;
   &:hover {
@@ -80,14 +82,14 @@ function PublicHomeFooter() {
           <Col xs={6} md={2} className="mb-md-3">
             <Link to="/" className="text-decoration-none px-0 px-md-4 py-3 p-md-4 nav-link fs-3">HOME</Link>
             {footerNavList.slice(1, 3).map((navList) => (
-              <a key={navList.value} href={`https://pages.slasher.tv/${navList.value}`} className="text-decoration-none px-0 px-md-4 py-3 p-md-4 nav-link fs-3">
+              <a key={navList.value} href={`${WORDPRESS_SITE_URL}/${navList.value}`} className="text-decoration-none px-0 px-md-4 py-3 p-md-4 nav-link fs-3">
                 {navList.label}
               </a>
             ))}
           </Col>
           <Col xs={6} md={3} className="mb-md-3">
             {footerNavList.slice(-3).map((navList) => (
-              <a key={navList.value} href={`https://pages.slasher.tv/${navList.value}`} className="text-decoration-none px-0 px-md-4 py-3 p-md-4 nav-link fs-3">
+              <a key={navList.value} href={`${WORDPRESS_SITE_URL}/${navList.value}`} className="text-decoration-none px-0 px-md-4 py-3 p-md-4 nav-link fs-3">
                 {navList.label}
               </a>
             ))}

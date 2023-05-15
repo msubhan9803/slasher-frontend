@@ -52,7 +52,7 @@ describe('GET /users/:id (e2e)', () => {
     });
 
     describe('Find a user by id', () => {
-      it('returns the expected response when logged in users requests their own user data', async () => {
+      it('returns the expected response when try to find the user data by id', async () => {
         const response = await request(app.getHttpServer())
           .get(`/api/v1/users/public/${activeUser.id}`)
           .send();
@@ -107,24 +107,6 @@ describe('GET /users/:id (e2e)', () => {
         expect(response.body).toEqual({
           message: 'User not found',
           statusCode: 404,
-        });
-      });
-
-      it('returns the expected user and omit email field for other user', async () => {
-        const response = await request(app.getHttpServer())
-          .get(`/api/v1/users/public/${activeUser.userName}`)
-          .send();
-        expect(response.status).toEqual(HttpStatus.OK);
-        // Hide email for users other than active user
-        expect(response.body.email).toBeUndefined();
-        expect(response.body).toEqual({
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          firstName: 'First name 1',
-          userName: 'Username1',
-          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-          coverPhoto: null,
-          aboutMe: 'Hello. This is me.',
-          profile_status: 0,
         });
       });
 

@@ -91,6 +91,7 @@ interface Props {
   setCommentErrorMessage?: (value: string[]) => void;
   showPubWiseAdAtPageBottom?: boolean;
   setSelectedBlockedUserId?: (value: string) => void;
+  setDropDownValue?: (value: string) => void;
 }
 
 interface StyledProps {
@@ -288,7 +289,7 @@ function PostFeed({
   handleSearch, mentionList, commentImages, setCommentImages, commentError,
   commentReplyError, postType, onSpoilerClick,
   commentSent, setCommentReplyErrorMessage, setCommentErrorMessage,
-  showPubWiseAdAtPageBottom, setSelectedBlockedUserId,
+  showPubWiseAdAtPageBottom, setSelectedBlockedUserId, setDropDownValue,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [isCommentClick, setCommentClick] = useState<boolean>(false);
@@ -553,6 +554,7 @@ function PostFeed({
                       handleLikeModal={handleLikeModal}
                       isMainPostCommentClick={isCommentClick}
                       setSelectedBlockedUserId={setSelectedBlockedUserId}
+                      setCommentDropDownValue={setDropDownValue}
                     />
                   </InfiniteScroll>
                   {loadingPosts && <LoadingIndicator />}
@@ -633,6 +635,7 @@ PostFeed.defaultProps = {
   setCommentReplyErrorMessage: undefined,
   setCommentErrorMessage: undefined,
   showPubWiseAdAtPageBottom: undefined,
-  setSelectedBlockedUserId: () => { },
+  setSelectedBlockedUserId: undefined,
+  setDropDownValue: undefined,
 };
 export default PostFeed;

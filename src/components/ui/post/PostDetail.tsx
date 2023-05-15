@@ -123,6 +123,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   };
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
+    setSelectedBlockedUserId(popoverClickProps.userId!);
     if (value === 'Edit Review') {
       navigate(`/app/movies/${id}/reviews`, { state: { movieId: popoverClickProps.id } });
     }
@@ -731,7 +732,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           setDropDownValue('BlockUserSuccess');
         }
       })
-    /* eslint-disable no-console */
+      /* eslint-disable no-console */
       .catch((error) => console.error(error));
   };
   useEffect(() => {
@@ -764,7 +765,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       }
       return true;
     });
-    const updatedScrollData = postData.filter(
+    const updatedScrollData = scrollPositionRef.current.data.filter(
       (scrollData: any) => scrollData.userId !== selectedBlockedUserId,
     );
     const positionData = {
@@ -774,10 +775,12 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     dispatch(setScrollPosition(positionData));
     setCommentData(filterUnblockUserComments);
     if (postData && postData.length > 0
-      && postData[0].userId === selectedBlockedUserId) {
+      && postData[0].userId === selectedBlockedUserId
+      && (dropDownValue === 'BlockUserSuccess')) {
       afterBlockUser();
     }
-  }, [afterBlockUser, commentData, dispatch, postData, selectedBlockedUserId]);
+  }, [afterBlockUser, commentData, dispatch, postData,
+    scrollPositionRef, selectedBlockedUserId, dropDownValue]);
 
   useEffect(() => {
     updateCommentDataAfterBlockUser();
@@ -829,6 +832,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                 setCommentErrorMessage={setCommentErrorMessage}
                 showPubWiseAdAtPageBottom={showPubWiseAdAtPageBottom}
                 setSelectedBlockedUserId={setSelectedBlockedUserId}
+                setDropDownValue={setDropDownValue}
               />
               {dropDownValue !== 'Edit'
                 && (
@@ -901,6 +905,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
               setCommentReplyErrorMessage={setCommentReplyErrorMessage}
               setCommentErrorMessage={setCommentErrorMessage}
               setSelectedBlockedUserId={setSelectedBlockedUserId}
+              setDropDownValue={setDropDownValue}
             />
             {dropDownValue !== 'Edit'
               && (

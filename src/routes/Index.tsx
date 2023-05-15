@@ -22,11 +22,9 @@ function Index() {
     });
   }, []);
 
-  if (isUserLoggedIn.isLoading) { return null; }
+  if (isUserLoggedIn.isLoading || !isUserLoggedIn.value) { return <HomePage />; }
 
-  return isUserLoggedIn.value
-    ? <Navigate to="/app/home" replace />
-    : <HomePage />;
+  return <Navigate to="/app/home" replace />;
 }
 
 export default Index;

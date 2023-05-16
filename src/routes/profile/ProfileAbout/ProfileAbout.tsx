@@ -16,9 +16,10 @@ import {
 } from '../../../utils/text-utils';
 import { defaultLinkifyOpts } from '../../../utils/linkify-utils';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
+import { User } from '../../../types';
 
 interface Props {
-  user: any
+  user: User
 }
 function ProfileAbout({ user }: Props) {
   const [isEdit, setEdit] = useState<boolean>(false);

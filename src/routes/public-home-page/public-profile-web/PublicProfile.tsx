@@ -43,7 +43,7 @@ function PublicProfile() {
                   <PublicHomeBody>
                     {user.profile_status === 1
                       ? <ProfileLimitedView user={user} />
-                      : <ProfileAbout user={user} loadUser={() => { }} />}
+                      : <ProfileAbout user={user} />}
                   </PublicHomeBody>
                 </Col>
               </Row>

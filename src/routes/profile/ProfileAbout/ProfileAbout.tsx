@@ -19,7 +19,6 @@ import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent'
 
 interface Props {
   user: any
-  loadUser: Function
 }
 function ProfileAbout({ user }: Props) {
   const [isEdit, setEdit] = useState<boolean>(false);

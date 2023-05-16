@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "466332187396",
+    "project_id": "slasher-cap",
+    "storage_bucket": "slasher-cap.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:466332187396:android:03c83260996bfcf70fee51",
+        "android_client_info": {
+          "package_name": "tv.slasher.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "466332187396-019hiiepql9sji1jkiksj9kir2vte9ai.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPQTPgpWkH1K0U5qkkgTqmrrJ8TdrRSJQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "466332187396-019hiiepql9sji1jkiksj9kir2vte9ai.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

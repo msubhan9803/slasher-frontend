@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Route, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
@@ -39,6 +39,7 @@ import PasswordResetSuccess from './routes/password-reset-success/PasswordResetS
 import Index from './routes/Index';
 import ChangeEmailConfirm from './routes/change-email/ChangeEmailConfirm';
 import ChangeEmailRevert from './routes/change-email/ChangeEmailRevert';
+import { initPushNotifications } from './utils/pushNotification-utils';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -106,8 +107,10 @@ CapacitorApp.addListener('backButton', ({ canGoBack }) => {
 });
 
 function App() {
+  useEffect(() => {
+    initPushNotifications();
+  }, []);
   usePubWiseAdSlots(enableADs);
-
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route>

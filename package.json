@@ -69,7 +69,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "build": "react-scripts build",
+    "build": "CI=false react-scripts build",
     "analyze": "npm run build && source-map-explorer 'build/static/js/*.js'",
     "eject": "react-scripts eject",
     "lint": "eslint \"{src,e2e}/**/*.{ts,js,tsx, jsx}\" --max-warnings=0",

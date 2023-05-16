@@ -170,6 +170,7 @@ export class AppModule {
         '/api/v1/users/verification-email-not-received',
         '/api/v1/users/email-change/confirm',
         '/api/v1/users/email-change/revert',
+        '/api/v1/users/public/:userNameOrId',
       )
       .forRoutes('*');
   }

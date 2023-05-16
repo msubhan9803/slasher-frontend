@@ -1,7 +1,8 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
-import Cookies from 'js-cookie';
 import { useLocation } from 'react-router-dom';
 import CustomCreatePost from '../../components/ui/CustomCreatePost';
 import PostFeed from '../../components/ui/post/PostFeed/PostFeed';
@@ -19,9 +20,10 @@ import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import { useAppDispatch } from '../../redux/hooks';
 import EditPostModal from '../../components/ui/post/EditPostModal';
-import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../pageStateCache';
+import {
+  deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
+} from '../../pageStateCache';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
@@ -40,14 +42,14 @@ function Home() {
   const [postId, setPostId] = useState<string>('');
   const [postUserId, setPostUserId] = useState<string>('');
   const [rssfeedProviderId, setRssfeedProviderId] = useState<string>('');
-  const loginUserId = Cookies.get('userId');
-  const dispatch = useAppDispatch();
   const location = useLocation();
   const pageStateCache = getPageStateCache(location) ?? [];
   const [posts, setPosts] = useState<Post[]>(
     hasPageStateCache(location)
       ? pageStateCache : [],
   );
+  const lastLocationKeyRef = useRef(location.key);
+
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (value === 'Hide') {
       const postIdToHide = popoverClickProps.id;
@@ -77,6 +79,72 @@ function Home() {
     setDropDownValue(value);
   };
 
+  const fetchFeedPosts = useCallback((forceReload = false) => {
+    if (forceReload) { setPosts([]); }
+    setLoadingPosts(true);
+    const lastPostId = posts.length > 0 ? posts[posts.length - 1]._id : undefined;
+    getHomeFeedPosts(
+      forceReload ? undefined : lastPostId,
+    ).then((res) => {
+      const newPosts = res.data.map((data: any) => {
+        if (data.userId) {
+          // Regular post
+          return {
+            _id: data._id,
+            id: data._id,
+            postDate: data.createdAt,
+            message: data.message,
+            images: data.images,
+            userName: data.userId.userName,
+            profileImage: data.userId.profilePic,
+            userId: data.userId._id,
+            likeIcon: data.likedByUser,
+            likeCount: data.likeCount,
+            commentCount: data.commentCount,
+            movieId: data?.movieId,
+          };
+        }
+        // RSS feed post
+        return {
+          _id: data._id,
+          id: data._id,
+          postDate: data.createdAt,
+          message: data.message,
+          images: data.images,
+          userName: data.rssfeedProviderId?.title,
+          profileImage: data.rssfeedProviderId?.logo,
+          likeIcon: data.likedByUser,
+          likeCount: data.likeCount,
+          commentCount: data.commentCount,
+          rssfeedProviderId: data.rssfeedProviderId._id,
+        };
+      });
+      setPosts((prev: Post[]) => [
+        ...(forceReload ? [] : prev),
+        ...newPosts,
+      ]);
+      if (res.data.length === 0) { setNoMoreData(true); }
+      if (hasPageStateCache(location)
+        && posts.length >= pageStateCache.length + 10) {
+        deletePageStateCache(location);
+      }
+    }).catch(
+      (error) => {
+        setNoMoreData(true);
+        setErrorMessage(error.response.data.message);
+      },
+    ).finally(
+      () => {
+        setRequestAdditionalPosts(false);
+        setLoadingPosts(false);
+        // Fixed edge case bug when `noMoreData` is already set to `true` when user has reached the
+        // end of the page and clicks on the `notification-icon` in top navbar to reload the page
+        // otherwise pagination doesn't work.
+        if (forceReload && (noMoreData === true)) { setNoMoreData(false); }
+      },
+    );
+  }, [location, noMoreData, pageStateCache.length, posts]);
+
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
       if (
@@ -84,74 +152,33 @@ function Home() {
         || posts.length >= pageStateCache.length
         || posts.length === 0
       ) {
-        setLoadingPosts(true);
-        getHomeFeedPosts(
-          posts.length > 0 ? posts[posts.length - 1]._id : undefined,
-        ).then((res) => {
-          const newPosts = res.data.map((data: any) => {
-            if (data.userId) {
-              // Regular post
-              return {
-                _id: data._id,
-                id: data._id,
-                postDate: data.createdAt,
-                message: data.message,
-                images: data.images,
-                userName: data.userId.userName,
-                profileImage: data.userId.profilePic,
-                userId: data.userId._id,
-                likeIcon: data.likedByUser,
-                likeCount: data.likeCount,
-                commentCount: data.commentCount,
-                movieId: data?.movieId,
-              };
-            }
-            // RSS feed post
-            return {
-              _id: data._id,
-              id: data._id,
-              postDate: data.createdAt,
-              message: data.message,
-              images: data.images,
-              userName: data.rssfeedProviderId?.title,
-              profileImage: data.rssfeedProviderId?.logo,
-              likeIcon: data.likedByUser,
-              likeCount: data.likeCount,
-              commentCount: data.commentCount,
-              rssfeedProviderId: data.rssfeedProviderId._id,
-            };
-          });
-          setPosts((prev: Post[]) => [
-            ...prev,
-            ...newPosts,
-          ]);
-          if (res.data.length === 0) { setNoMoreData(true); }
-          if (hasPageStateCache(location)
-            && posts.length >= pageStateCache.length + 10) {
-            setPageStateCache(location, []);
-          }
-        }).catch(
-          (error) => {
-            setNoMoreData(true);
-            setErrorMessage(error.response.data.message);
-          },
-        ).finally(
-          () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
-        );
+        fetchFeedPosts();
       }
     }
-  }, [requestAdditionalPosts, loadingPosts, loginUserId, posts,
-    dispatch, location.pathname, location, pageStateCache.length]);
+  }, [
+    fetchFeedPosts, loadingPosts, location, pageStateCache.length,
+    posts.length, requestAdditionalPosts,
+  ]);
 
-  const renderNoMoreDataMessage = () => (
-    <p className="text-center">
-      {
-        posts.length === 0
+  useEffect(() => {
+    const isSameKey = lastLocationKeyRef.current === location.key;
+    if (isSameKey) { return; }
+    // Fetch feedPosts when we click the `home-icon` in navbar
+    fetchFeedPosts(true);
+    // Update lastLocation
+    lastLocationKeyRef.current = location.key;
+  }, [fetchFeedPosts, location.key]);
+
+  const renderNoMoreDataMessage = () => {
+    if (loadingPosts) { return null; }
+    return (
+      <p className="text-center">
+        {posts.length === 0
           ? 'No posts available'
-          : 'No more posts'
-      }
-    </p>
-  );
+          : 'No more posts'}
+      </p>
+    );
+  };
   const callLatestFeedPost = () => {
     getHomeFeedPosts().then((res) => {
       const newPosts = res.data.map((data: any) => {

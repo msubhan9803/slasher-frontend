@@ -2,8 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { IconDefinition, SizeProp } from '@fortawesome/fontawesome-svg-core';
 import { Link, useLocation } from 'react-router-dom';
 import IconWithTextNavItemInnerElement from './IconWithTextNavItemInnerElement';
-import { scrollToTop } from '../../../../utils/scrollFunctions';
-import { setPageStateCache } from '../../../../pageStateCache';
+import { deletePageStateCache } from '../../../../pageStateCache';
 
 interface Props {
   label: string;
@@ -39,8 +38,7 @@ function IconWithTextNavLink({
     };
   }, []);
   const handleRefresh = () => {
-    setPageStateCache(to, []);
-    scrollToTop('instant');
+    deletePageStateCache(to);
   };
   return (
     <Link to={to} onClick={handleRefresh} ref={linkRef} className={`text-decoration-none pb-1 mb-1 ${className}`}>

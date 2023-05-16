@@ -3,7 +3,7 @@ import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
 import { Link, matchPath, useLocation } from 'react-router-dom';
-import { setPageStateCache } from '../../../pageStateCache';
+import { deletePageStateCache } from '../../../pageStateCache';
 
 interface Props {
   label: string;
@@ -47,7 +47,7 @@ function SidebarNavItem({
 }: Props) {
   const { pathname } = useLocation();
   const handleRefresh = () => {
-    setPageStateCache(to, []);
+    deletePageStateCache(to);
   };
   return (
     <StyledLink

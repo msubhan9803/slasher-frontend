@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { Location } from 'react-router-dom';
 
 const pageStateCache = new Map<string, any>();
@@ -5,6 +6,13 @@ const pageStateCache = new Map<string, any>();
 export const getPageName = (location: Location) => location.pathname + location.search + location.hash;
 
 export const hasPageStateCache = (location: Location) => pageStateCache.has(getPageName(location));
+export const deletePageStateCache = (location: Location | string) => {
+  if (typeof location === 'string') {
+    pageStateCache.delete(location);
+    return;
+  }
+  pageStateCache.delete(getPageName(location));
+};
 export const getPageStateCache = (location: Location) => pageStateCache.get(getPageName(location));
 export const setPageStateCache = (location: Location | string, data: any) => {
   if (typeof location === 'string') {

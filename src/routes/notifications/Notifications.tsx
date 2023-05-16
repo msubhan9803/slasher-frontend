@@ -37,6 +37,7 @@ function Notifications() {
   const userData = useAppSelector((state) => state.user);
   const lastLocationKeyRef = useRef(location.key);
   const fetchNotifcations = useCallback((forceReload = false) => {
+    if (forceReload) { setNotificationData([]); }
     setLoadingPosts(true);
     const lastNotificationId = (notificationData.length > 0) ? notificationData[notificationData.length - 1]._id : undefined;
     getNotifications(forceReload ? undefined : lastNotificationId).then((res) => {
@@ -65,11 +66,10 @@ function Notifications() {
       () => {
         setRequestAdditionalPosts(false);
         setLoadingPosts(false);
-        // Fixed edge case bug when `noMoreData` is already set to `true` when user has reached the end of the page and
-        // and clicks on the `notification-icon` in top navbar to reload the page otherwise pagination doesn't work.
-        if (forceReload && (noMoreData === true)) {
-          setNoMoreData(false);
-        }
+        // Fixed edge case bug when `noMoreData` is already set to `true` when user has reached the
+        // end of the page and clicks on the `notification-icon` in top navbar to reload the page
+        // otherwise pagination doesn't work.
+        if (forceReload && (noMoreData === true)) { setNoMoreData(false); }
       },
     );
   }, [dispatch, location.pathname, noMoreData, notificationData, scrollPosition.data.length, scrollPosition.pathname]);
@@ -90,7 +90,7 @@ function Notifications() {
   useEffect(() => {
     const isSameKey = lastLocationKeyRef.current === location.key;
     if (isSameKey) { return; }
-    // Fetch notification when we click the `notfication-icon` in the top navbar
+    // Fetch notification when we click the `notfication-icon` in navbar
     fetchNotifcations(true);
     // Update lastLocation
     lastLocationKeyRef.current = location.key;
@@ -119,15 +119,16 @@ function Notifications() {
   const handleLikesOption = (likeValue: string) => {
     <Link to={`/navigations/${likeValue}`} />;
   };
-  const renderNoMoreDataMessage = () => (
-    <p className="text-center">
-      {
-        notificationData.length === 0
+  const renderNoMoreDataMessage = () => {
+    if (loadingPosts) { return null; }
+    return (
+      <p className="text-center">
+        {notificationData.length === 0
           ? 'No notifications.'
-          : 'No more notifications'
-      }
-    </p>
-  );
+          : 'No more notifications'}
+      </p>
+    );
+  };
 
   const onMarkAllReadClick = () => {
     setNoMoreData(false);

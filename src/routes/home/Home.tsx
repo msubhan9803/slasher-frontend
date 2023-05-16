@@ -19,9 +19,9 @@ import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import { useAppSelector, useAppDispatch } from '../../redux/hooks';
-import { setScrollPosition } from '../../redux/slices/scrollPositionSlice';
+import { useAppDispatch } from '../../redux/hooks';
 import EditPostModal from '../../components/ui/post/EditPostModal';
+import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../pageStateCache';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
@@ -41,13 +41,12 @@ function Home() {
   const [postUserId, setPostUserId] = useState<string>('');
   const [rssfeedProviderId, setRssfeedProviderId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
-  const scrollPosition = useAppSelector((state) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const location = useLocation();
-  const shouldRestoreScrollPositionWithData = scrollPosition.pathname === location.pathname;
+  const pageStateCache = getPageStateCache(location) ?? [];
   const [posts, setPosts] = useState<Post[]>(
-    shouldRestoreScrollPositionWithData
-      ? scrollPosition?.data : [],
+    hasPageStateCache(location)
+      ? pageStateCache : [],
   );
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (value === 'Hide') {
@@ -80,11 +79,10 @@ function Home() {
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
-      if (scrollPosition === null
-        || scrollPosition?.position === 0
-        || posts.length >= scrollPosition?.data?.length
+      if (
+        !hasPageStateCache(location)
+        || posts.length >= pageStateCache.length
         || posts.length === 0
-        || scrollPosition.pathname !== location.pathname
       ) {
         setLoadingPosts(true);
         getHomeFeedPosts(
@@ -128,15 +126,9 @@ function Home() {
             ...newPosts,
           ]);
           if (res.data.length === 0) { setNoMoreData(true); }
-          if (scrollPosition.pathname === location.pathname
-            && posts.length >= scrollPosition.data.length + 10) {
-            const positionData = {
-              pathname: '',
-              position: 0,
-              data: [],
-              positionElementId: '',
-            };
-            dispatch(setScrollPosition(positionData));
+          if (hasPageStateCache(location)
+            && posts.length >= pageStateCache.length + 10) {
+            setPageStateCache(location, []);
           }
         }).catch(
           (error) => {
@@ -148,10 +140,8 @@ function Home() {
         );
       }
     }
-  }, [
-    requestAdditionalPosts, loadingPosts, loginUserId, posts, scrollPosition,
-    dispatch, location.pathname,
-  ]);
+  }, [requestAdditionalPosts, loadingPosts, loginUserId, posts,
+    dispatch, location.pathname, location, pageStateCache.length]);
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
@@ -301,15 +291,7 @@ function Home() {
     setDropDownValue('PostReportSuccessDialog');
   };
 
-  const persistScrollPosition = (id: string) => {
-    const positionData = {
-      pathname: location.pathname,
-      position: window.pageYOffset,
-      data: posts,
-      positionElementId: id,
-    };
-    dispatch(setScrollPosition(positionData));
-  };
+  const persistScrollPosition = () => { setPageStateCache(location, posts); };
 
   return (
     <ContentSidbarWrapper>

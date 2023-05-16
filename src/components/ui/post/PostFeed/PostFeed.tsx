@@ -37,7 +37,6 @@ import { MD_MEDIA_BREAKPOINT } from '../../../../constants';
 import RoundButton from '../../RoundButton';
 import CustomRatingText from '../../CustomRatingText';
 import CustomWortItText from '../../CustomWortItText';
-import { useAppSelector } from '../../../../redux/hooks';
 import { HOME_WEB_DIV_ID, NEWS_PARTNER_DETAILS_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
 import LoadingIndicator from '../../LoadingIndicator';
 import { defaultLinkifyOpts } from '../../../../utils/linkify-utils';
@@ -296,7 +295,6 @@ function PostFeed({
   const loginUserId = Cookies.get('userId');
   const location = useLocation();
   const navigate = useNavigate();
-  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const spoilerId = getLocalStorage('spoilersIds');
   // Below states (prefixed by `modal`) are useful for `LikeShareModal` component
   const [showLikeShareModal, setShowLikeShareModal] = useState<boolean>(false);
@@ -383,19 +381,6 @@ function PostFeed({
     pubWiseAdDivId = NEWS_PARTNER_POSTS_DIV_ID;
   }
 
-  useEffect(() => {
-    if (scrollPosition.position > 0
-      && scrollPosition?.pathname === location.pathname) {
-      // We should only scroll-restore after 1 second else the scroll restoration doesn't work accurately on home page (SD-1187).
-      setTimeout(() => {
-        window.scrollTo({
-          top: scrollPosition?.position,
-          behavior: 'instant' as any,
-        });
-      }, 1000);
-    }
-    return undefined;
-  }, [scrollPosition, location.pathname]);
   const renderGroupPostContent = (posts: any) => (
     <>
       <p>

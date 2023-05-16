@@ -103,7 +103,7 @@ function CustomSwiper({
   const uniqueId = `${instanceCounter += 1}`;
   const [showVideoPlayerModal, setShowYouTubeModal] = useState(false);
   const { placeholderUrlNoImageAvailable } = useAppSelector((state) => state.remoteConstants);
-  const [showSwiper, setShowSwiper] = useState(false);
+  const [showSwiper, setShowSwiper] = useState(true);
   const navigate = useNavigate();
 
   const displayVideoAndImage = (imageAndVideo: SliderImage) => {

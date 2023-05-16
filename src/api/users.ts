@@ -100,6 +100,9 @@ export async function getUser(userName: string) {
   };
   return axios.get(`${apiUrl}/api/v1/users/${userName}`, { headers });
 }
+export async function getPublicProfile(userName: string) {
+  return axios.get(`${apiUrl}/api/v1/users/public/${userName}`);
+}
 
 export async function getProfilePosts(id: string, lastRetrievedPostId?: string) {
   const token = Cookies.get('sessionToken');

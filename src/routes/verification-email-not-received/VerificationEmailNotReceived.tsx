@@ -5,6 +5,7 @@ import {
 import useProgressButton from '../../components/ui/ProgressButton';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import { verificationEmailNotReceived } from '../../api/users';
+import RoundButtonLink from '../../components/ui/RoundButtonLink';
 
 function VerificationEmailNotReceived() {
   const [email, setEmail] = useState<string>('');
@@ -20,7 +21,7 @@ function VerificationEmailNotReceived() {
     ).then(() => {
       setProgressButtonStatus('success');
       setSuccessMessage(
-        `If a user with email address ${email} has registered for Slasher, and the account has not been activated, a verification email will be re-sent.`,
+        `If a user with email address ${email} has registered for Slasher and the account has not been activated, a verification email will be re-sent.`,
       );
     }).catch((requestError: any) => {
       setProgressButtonStatus('failure');
@@ -47,7 +48,14 @@ function VerificationEmailNotReceived() {
                 <Col xs={10} md={8} lg={6}>
                   {
                     successMessage
-                      ? <Alert variant="info" className="mb-0">{successMessage}</Alert>
+                      ? (
+                        <div>
+                          <Alert variant="info" className="mb-0">{successMessage}</Alert>
+                          <RoundButtonLink to="/app/sign-in" className="mt-4 px-5" variant="primary">
+                            Go to sign in
+                          </RoundButtonLink>
+                        </div>
+                      )
                       : (
                         <>
                           <Form.Control

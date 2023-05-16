@@ -30,9 +30,8 @@ interface FriendProps {
 
 interface Props {
   user: User
-  loadUser: Function
 }
-function ProfileFriendRequest({ user, loadUser }: Props) {
+function ProfileFriendRequest({ user }: Props) {
   const dispatch = useAppDispatch();
   const params = useParams();
   const isFriendReLoad = useAppSelector((state) => state.user.forceFriendListReload);
@@ -168,7 +167,7 @@ function ProfileFriendRequest({ user, loadUser }: Props) {
   };
   return (
     <div>
-      <ProfileHeader tabKey="friends" user={user} loadUser={loadUser} />
+      <ProfileHeader tabKey="friends" user={user} />
       <ProfileTabContent>
         <div className="mt-3">
           <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">

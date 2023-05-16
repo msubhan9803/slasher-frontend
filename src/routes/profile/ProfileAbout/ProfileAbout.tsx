@@ -21,7 +21,7 @@ interface Props {
   user: any
   loadUser: Function
 }
-function ProfileAbout({ user, loadUser }: Props) {
+function ProfileAbout({ user }: Props) {
   const [isEdit, setEdit] = useState<boolean>(false);
   const [aboutMeText, setAboutMeText] = useState<string>(user?.aboutMe || '');
   const [updatedAboutMeText, setUpdatedAboutMeText] = useState('');
@@ -87,7 +87,7 @@ function ProfileAbout({ user, loadUser }: Props) {
 
   return (
     <div>
-      <ProfileHeader tabKey="about" user={user} loadUser={loadUser} />
+      <ProfileHeader tabKey="about" user={user} />
       <ProfileTabContent>
         <div className="bg-dark rounded p-4 my-3">
           <div className="d-flex justify-content-between">

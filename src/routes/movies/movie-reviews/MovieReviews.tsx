@@ -424,6 +424,8 @@ function MovieReviews({
               placeHolder="Write your review here"
               reviewForm={reviewForm}
               setReviewForm={setReviewForm}
+              setShowReviewForm={setShowReviewForm}
+              createEditPost
             />
           ) : (
             <CustomCreatePost

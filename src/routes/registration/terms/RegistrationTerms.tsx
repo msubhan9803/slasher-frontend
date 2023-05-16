@@ -71,8 +71,7 @@ function RegistrationTerms({ activeStep }: Props) {
   return (
     <RegistrationPageWrapper activeStep={activeStep}>
       <p className="fs-3 mb-5">
-        Please scroll down to review our Terms and Conditions,
-        Privacy Policy, End User License Agreement, and Community Standards
+        You can accept our terms at the bottom of this screen.
       </p>
 
       <TermsAndConditions className="my-5" />

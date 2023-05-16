@@ -32,6 +32,7 @@ type Props = {
   setMovieData: React.Dispatch<React.SetStateAction<MovieData | undefined>>;
   reviewForm: boolean;
   setReviewForm: (value: boolean) => void;
+  handleScroll: () => void;
 };
 
 export const StyledReviewContainer = styled.div`
@@ -47,7 +48,7 @@ type PopOverValueType = typeof validPopOverOptions[number];
 const isValidPopOverValue = (v: string): v is PopOverValueType => validPopOverOptions.includes(v as any);
 
 function MovieReviews({
-  movieData, setMovieData, reviewForm, setReviewForm,
+  movieData, setMovieData, reviewForm, setReviewForm, handleScroll,
 }: Props) {
   const { id } = useParams();
   const location = useLocation();
@@ -425,6 +426,7 @@ function MovieReviews({
               reviewForm={reviewForm}
               setReviewForm={setReviewForm}
               setShowReviewForm={setShowReviewForm}
+              handleScroll={handleScroll}
             />
           ) : (
             <CustomCreatePost

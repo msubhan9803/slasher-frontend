@@ -26,9 +26,15 @@ export interface FormatMentionProps {
   format: string;
 }
 
+export interface DescriptionArray {
+  description: string;
+  id?: string;
+}
+
 function CreatePost() {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [imageArray, setImageArray] = useState<any>([]);
+  const [descriptionArray, setDescriptionArray] = useState<DescriptionArray[]>([]);
   const [postContent, setPostContent] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const loggedInUser = useAppSelector((state) => state.user.user);
@@ -75,7 +81,7 @@ function CreatePost() {
       postType: PostType.User,
       movieId: paramsMovieId,
     };
-    return createPost(createPostData, imageArray)
+    return createPost(createPostData, imageArray, descriptionArray!)
       .then(() => {
         setErrorMessage([]);
         navigate(location.state);
@@ -136,6 +142,8 @@ function CreatePost() {
             selectedPostType={selectedPostType}
             setSelectedPostType={setSelectedPostType}
             placeHolder="Create a post"
+            descriptionArray={descriptionArray}
+            setDescriptionArray={setDescriptionArray}
             createEditPost
           />
         </Form>

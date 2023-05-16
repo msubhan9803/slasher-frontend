@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
-import { PostType } from '../types';
+import { DescriptionArray, PostType } from '../types';
 
 export async function getHomeFeedPosts(lastRetrievedPostId?: string) {
   const token = Cookies.get('sessionToken');
@@ -23,11 +23,14 @@ export async function feedPostDetail(id: string) {
   return axios.get(`${apiUrl}/api/v1/feed-posts/${id}`, { headers });
 }
 
-export async function createPost(postData: any, file: any) {
+export async function createPost(postData: any, file: any, descriptionArray?: DescriptionArray[]) {
   const token = Cookies.get('sessionToken');
   const formData = new FormData();
   for (let i = 0; i < file.length; i += 1) {
     formData.append('files', file[i]);
+    if (descriptionArray) {
+      formData.append(`imageDescriptions[${[i]}][description]`, descriptionArray![i].description);
+    }
   }
   formData.append('message', postData.message);
   formData.append('postType', postData.postType);
@@ -64,13 +67,20 @@ export async function updateFeedPost(
   file?: string[],
   imagesToDelete?: string[] | undefined,
   movieReviewPostData?: any,
+  descriptionArray?: DescriptionArray[] | any,
 ) {
   const token = Cookies.get('sessionToken');
   const formData = new FormData();
-  if (file && file.length) {
-    for (let i = 0; i < file.length; i += 1) {
-      formData.append('files', file[i]);
+  for (let i = 0; i < descriptionArray.length; i += 1) {
+    if (file && file.length && file !== undefined) {
+      if (file[i] !== undefined) {
+        formData.append('files', file[i]);
+      }
     }
+    if (descriptionArray![i].id) {
+      formData.append(`imageDescriptions[${[i]}][_id]`, descriptionArray![i].id);
+    }
+    formData.append(`imageDescriptions[${[i]}][description]`, descriptionArray![i].description);
   }
   formData.append('message', message);
   if (imagesToDelete) {

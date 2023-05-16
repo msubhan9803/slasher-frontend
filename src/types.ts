@@ -255,12 +255,17 @@ export type RegisterUser = Partial<{
   dob: string,
 }>;
 
+export interface DescriptionArray {
+  description: string;
+  id?: string;
+}
 export interface CommentValue {
   commentMessage: string,
   imageArr?: string[],
   commentId?: string,
   images?: any,
   deleteImage?: string[],
+  descriptionArr?: DescriptionArray[]
 }
 export interface ReplyValue {
   replyMessage: string,
@@ -269,6 +274,7 @@ export interface ReplyValue {
   replyId?: string,
   images?: any,
   deleteImage?: string[],
+  descriptionArr?: DescriptionArray[]
 }
 export enum WorthWatchingStatus {
   NoRating = 0,

@@ -25,6 +25,10 @@ interface Props {
   setPostImages: any;
   commentError: string[];
 }
+export interface DescriptionArray {
+  description: string;
+  id?: string;
+}
 
 function EditCommentModal({
   showEdit, setShowEdit, commentID, commentReplyID, editContent, isReply,
@@ -33,6 +37,7 @@ function EditCommentModal({
 }: Props) {
   const [editMessage, setEditMessage] = useState<string>(editContent! || '');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
+  const [descriptionArray, setDescriptionArray] = useState<DescriptionArray[]>([]);
   useEffect(() => {
     if (editContent) {
       const mentionStringList = editContent.match(/##LINK_ID##[a-zA-Z0-9@_.-]+##LINK_END##/g);
@@ -59,8 +64,9 @@ function EditCommentModal({
         replyMessage: msg,
         replyId: commentReplyID,
         commentId: commentID,
-        images: imagesList,
+        images: imagesList.filter((images: any) => images instanceof File),
         deleteImage: deleteImages,
+        descriptionArr: descriptionArray,
       });
     } else {
       setCommentID(commentID);
@@ -69,8 +75,9 @@ function EditCommentModal({
       addUpdateComment({
         commentMessage: mentionReplyString,
         commentId: commentID,
-        images: postImages,
+        images: postImages.filter((images: any) => images instanceof File),
         deleteImage: deleteImages,
+        descriptionArr: descriptionArray,
       });
     }
   };
@@ -117,6 +124,8 @@ function EditCommentModal({
           deleteImageIds={deleteImageIds}
           setDeleteImageIds={setDeleteImageIds}
           placeHolder={`${commentID ? 'Write a comment' : 'Reply to comment'}`}
+          descriptionArray={descriptionArray}
+          setDescriptionArray={setDescriptionArray}
           showSaveButton
           createEditPost
         />

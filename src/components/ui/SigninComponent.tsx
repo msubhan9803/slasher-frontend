@@ -17,10 +17,11 @@ interface SignInProps {
   setShowPassword: (val: boolean) => void,
   handleUserSignIn: (val: any) => void,
   errorMessage: string[] | undefined,
+  isPublicProfile?: boolean,
 }
 function SigninComponent({
   credential, setCredential,
-  showPassword, setShowPassword, handleUserSignIn, errorMessage,
+  showPassword, setShowPassword, handleUserSignIn, errorMessage, isPublicProfile,
 }: SignInProps) {
   const handleSignIn = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCredential({ ...credential, [event.target.name]: event.target.value });
@@ -32,7 +33,7 @@ function SigninComponent({
 
   return (
     <div className="form-inner-content justify-content-center">
-      <h1 className="h2 text-center mb-4">Sign In</h1>
+      {!isPublicProfile && <h1 className="h2 text-center mb-4">Sign In</h1>}
       <Form>
         <CustomInputGroup
           size="lg"
@@ -72,24 +73,30 @@ function SigninComponent({
         <RoundButtonLink to="/app/registration" className="w-100" variant="primary">
           Create an account
         </RoundButtonLink>
+        {!isPublicProfile
+          && (
+            <>
+              <p className="mt-3 text-center text-light">
+                NOTE: If you just created an account and you are not able to login,
+                be sure you activated your account by clicking
+                the button in the email we sent when you created your account.
 
-        <p className="mt-3 text-center text-light">
-          NOTE: If you just created an account and you are not able to login,
-          be sure you activated your account by clicking
-          the button in the email we sent when you created your account.
-
-          <em>
-            Your account will not be activated until you click the link in that email.
-          </em>
-        </p>
-        <p className="text-center mb-0 text-light">
-          Please check your spam folder for the email.
-          If you have not received it, please&nbsp;
-          <Link to="/app/verification-email-not-received" className="text-primary">click here.</Link>
-        </p>
+                <em>
+                  Your account will not be activated until you click the link in that email.
+                </em>
+              </p>
+              <p className="text-center mb-0 text-light">
+                Please check your spam folder for the email.
+                If you have not received it, please&nbsp;
+                <Link to="/app/verification-email-not-received" className="text-primary">click here.</Link>
+              </p>
+            </>
+          )}
       </Form>
     </div>
   );
 }
-
+SigninComponent.defaultProps = {
+  isPublicProfile: false,
+};
 export default SigninComponent;

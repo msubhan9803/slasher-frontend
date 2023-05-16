@@ -219,8 +219,13 @@ function ProfileHeader({
         showTabs && (
           <>
             <StyledBorder className="d-md-block d-none" />
-            <div ref={positionRef} aria-hidden="true" onClick={(e) => handleSignInDialog(e)}>
-              <TabLinks tabLink={allTabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
+            <div ref={positionRef} aria-hidden="true">
+              <TabLinks
+                tabLink={allTabs}
+                toLink={`/${user?.userName}`}
+                selectedTab={tabKey}
+                overrideOnClick={userIsLoggedIn() ? () => { } : handleSignInDialog}
+              />
             </div>
           </>
         )
@@ -234,7 +239,7 @@ function ProfileHeader({
       />
       {
         showSignIn
-        && <SignInModal show={showSignIn} setShow={setShowSignIn} />
+        && <SignInModal show={showSignIn} setShow={setShowSignIn} isPublicProfile />
       }
     </div>
   );

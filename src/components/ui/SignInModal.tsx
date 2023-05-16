@@ -15,8 +15,12 @@ const StyledModal = styled(Modal)`
   padding:20px;
 }
 `;
-
-function SignInModal({ show, setShow }: any) {
+interface SignInProps {
+  show: boolean;
+  setShow: (value: boolean) => void;
+  isPublicProfile?: boolean;
+}
+function SignInModal({ show, setShow, isPublicProfile }: SignInProps) {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string[]>();
@@ -58,10 +62,14 @@ function SignInModal({ show, setShow }: any) {
           setShowPassword={setShowPassword}
           handleUserSignIn={handleUserSignIn}
           errorMessage={errorMessage}
+          isPublicProfile={isPublicProfile}
         />
       </Modal.Body>
     </StyledModal>
   );
 }
 
+SignInModal.defaultProps = {
+  isPublicProfile: false,
+};
 export default SignInModal;

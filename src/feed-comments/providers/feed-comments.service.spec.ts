@@ -41,9 +41,11 @@ describe('FeedCommentsService', () => {
     images: [
       {
         image_path: '/feed/feed_sample1.jpg',
+        description: 'this feed comment description',
       },
       {
         image_path: '/feed/feed_sample2.jpg',
+        description: 'this feed comment description',
       },
     ],
     message: 'Hello Test Message',
@@ -143,9 +145,11 @@ describe('FeedCommentsService', () => {
         images: [
           {
             image_path: '/feed/feed_sample1.jpg',
+            description: 'this feed comment description',
           },
           {
             image_path: '/feed/feed_sample2.jpg',
+            description: 'this feed comment description',
           },
         ],
       };
@@ -223,9 +227,12 @@ describe('FeedCommentsService', () => {
         images: [
           {
             image_path: '/feed/feed_sample1.jpg',
+            description: 'this feed comment description',
+
           },
           {
             image_path: '/feed/feed_sample2.jpg',
+            description: 'this feed comment description',
           },
         ],
       };

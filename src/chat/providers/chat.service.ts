@@ -83,6 +83,7 @@ export class ChatService {
     toUser: string,
     message: string,
     image?: string,
+    imageDescription?: string,
   ): Promise<MessageDocument> {
     const participants = [
       new mongoose.Types.ObjectId(fromUser),
@@ -106,6 +107,7 @@ export class ChatService {
         senderId: new mongoose.Types.ObjectId(toUser), // due to bad old-API field naming, this is the "to" field
         message: image ? 'Image' : message,
         image,
+        imageDescription,
         created: currentTime.toString(),
         createdAt: currentTime, // overwrite `createdAt`
       }],

@@ -46,9 +46,11 @@ describe('Find Feed Comments With Replies (e2e)', () => {
   const commentImages = [
     {
       image_path: 'https://picsum.photos/id/237/200/300',
+      description: 'this is feed comments with replies description 1',
     },
     {
       image_path: 'https://picsum.photos/seed/picsum/200/300',
+      description: 'this is feed comments with replies description 2',
     },
   ];
 

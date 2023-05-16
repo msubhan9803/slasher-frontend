@@ -1,8 +1,20 @@
+/* eslint-disable max-classes-per-file */
 import { Transform, TransformFnParams, Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
   IsOptional, MaxLength, ValidateNested,
 } from 'class-validator';
 import { MoviePostDto } from './create-feed-post.dto';
+import { MAX_ALLOWED_UPLOAD_FILES_FOR_POST } from '../../constants';
+
+export class UpdateImageDescriptionsDto {
+  @IsOptional()
+  _id: string;
+
+  @IsOptional()
+  @MaxLength(250, { message: 'description cannot be longer than 250 characters', each: true })
+  description: string;
+}
 
 export class UpdateFeedPostsDto {
   @IsOptional()
@@ -18,4 +30,11 @@ export class UpdateFeedPostsDto {
   @IsOptional()
   @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
   imagesToDelete?: string[];
+
+  @IsOptional()
+  @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
+  @ArrayMaxSize(MAX_ALLOWED_UPLOAD_FILES_FOR_POST, { message: 'Only allow maximum of 10 description' })
+  @Type(() => UpdateImageDescriptionsDto)
+  @ValidateNested({ each: true })
+  imageDescriptions: UpdateImageDescriptionsDto[];
 }

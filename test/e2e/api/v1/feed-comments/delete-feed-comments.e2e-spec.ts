@@ -35,9 +35,11 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
     images: [
       {
         image_path: 'https://picsum.photos/id/237/200/300',
+        description: 'this delete feed comment description 1',
       },
       {
         image_path: 'https://picsum.photos/seed/picsum/200/300',
+        description: 'this delete feed comment description 1',
       },
     ],
   };

@@ -15,14 +15,13 @@ import useProgressButton from '../../../components/ui/ProgressButton';
 import {
   decryptMessage, escapeHtmlSpecialCharacters, newLineToBr,
 } from '../../../utils/text-utils';
-import { customlinkifyOpts } from '../../../utils/linkify-utils';
+import { defaultLinkifyOpts } from '../../../utils/linkify-utils';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
 
 interface Props {
   user: User
-  loadUser: Function
 }
-function ProfileAbout({ user, loadUser }: Props) {
+function ProfileAbout({ user }: Props) {
   const [isEdit, setEdit] = useState<boolean>(false);
   const [aboutMeText, setAboutMeText] = useState<string>(user?.aboutMe || '');
   const [updatedAboutMeText, setUpdatedAboutMeText] = useState('');
@@ -64,7 +63,7 @@ function ProfileAbout({ user, loadUser }: Props) {
   const renderAboutMeText = (text: string) => {
     if (text && text.length > 0) {
       const safeAboutMeText = newLineToBr(
-        linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(text)), customlinkifyOpts),
+        linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(text)), defaultLinkifyOpts),
       );
 
       return (
@@ -88,7 +87,7 @@ function ProfileAbout({ user, loadUser }: Props) {
 
   return (
     <div>
-      <ProfileHeader tabKey="about" user={user} loadUser={loadUser} />
+      <ProfileHeader tabKey="about" user={user} />
       <ProfileTabContent>
         <div className="bg-dark rounded p-4 my-3">
           <div className="d-flex justify-content-between">

@@ -5,12 +5,15 @@ export interface ChatProps {
   userData?: User
   messages?: MessageProps[];
   sendMessageClick?: () => void;
-  setMessage?: (value: string) => void;
+  setMessage?: (value: any) => void;
   message?: string;
   handleFileChange?: (value: ChangeEvent<HTMLInputElement>) => void;
   handleRemoveFile?: (value: File) => void;
   imageArray?: any[];
   messageLoading?: boolean;
+  showPicker?: boolean;
+  selectedEmoji?: string[] | undefined;
+  setSelectedEmoji?: (value: any) => void;
 }
 interface MessageProps {
   id: string;

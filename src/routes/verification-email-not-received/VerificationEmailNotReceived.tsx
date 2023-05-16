@@ -5,6 +5,7 @@ import {
 import useProgressButton from '../../components/ui/ProgressButton';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import { verificationEmailNotReceived } from '../../api/users';
+import RoundButtonLink from '../../components/ui/RoundButtonLink';
 
 function VerificationEmailNotReceived() {
   const [email, setEmail] = useState<string>('');
@@ -19,7 +20,9 @@ function VerificationEmailNotReceived() {
       email,
     ).then(() => {
       setProgressButtonStatus('success');
-      setSuccessMessage('If a user with that email address has registered for Slasher, and the account has not been activated, a verification email will be re-sent.');
+      setSuccessMessage(
+        `If a user with email address ${email} has registered for Slasher and the account has not been activated, a verification email will be re-sent.`,
+      );
     }).catch((requestError: any) => {
       setProgressButtonStatus('failure');
       setErrorMessages(requestError.response.data.message);
@@ -43,19 +46,31 @@ function VerificationEmailNotReceived() {
             <Form className="my-5">
               <Row className="flex-column align-items-center">
                 <Col xs={10} md={8} lg={6}>
-                  <Form.Control
-                    aria-label="Email"
-                    className="mb-3"
-                    type="email"
-                    placeholder="Email address"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                  <ErrorMessageList errorMessages={errorMessages} divClass="mt-2" className="m-0" />
                   {
                     successMessage
-                      ? <Alert variant="info" className="mb-0">{successMessage}</Alert>
-                      : <ProgressButton label="Send" onClick={handleSubmit} className="mt-2 w-100" />
+                      ? (
+                        <div>
+                          <Alert variant="info" className="mb-0">{successMessage}</Alert>
+                          <RoundButtonLink to="/app/sign-in" className="mt-4 px-5" variant="primary">
+                            Go to sign in
+                          </RoundButtonLink>
+                        </div>
+                      )
+                      : (
+                        <>
+                          <Form.Control
+                            aria-label="Email"
+                            className="mb-3"
+                            type="email"
+                            placeholder="Email address"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            readOnly={!!successMessage}
+                          />
+                          <ErrorMessageList errorMessages={errorMessages} divClass="mt-2" className="m-0" />
+                          <ProgressButton label="Send" onClick={handleSubmit} className="mt-2 w-100" />
+                        </>
+                      )
                   }
                 </Col>
               </Row>

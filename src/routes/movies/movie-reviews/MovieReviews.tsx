@@ -427,6 +427,7 @@ function MovieReviews({
               setReviewForm={setReviewForm}
               setShowReviewForm={setShowReviewForm}
               handleScroll={handleScroll}
+              createEditPost
             />
           ) : (
             <CustomCreatePost

@@ -40,7 +40,7 @@ import CustomWortItText from '../../CustomWortItText';
 import { useAppSelector } from '../../../../redux/hooks';
 import { HOME_WEB_DIV_ID, NEWS_PARTNER_DETAILS_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
 import LoadingIndicator from '../../LoadingIndicator';
-import { customlinkifyOpts } from '../../../../utils/linkify-utils';
+import { defaultLinkifyOpts } from '../../../../utils/linkify-utils';
 import { getLocalStorage } from '../../../../utils/localstorage-utils';
 import FormatImageVideoList from '../../../../utils/video-utils';
 import useOnScreen from '../../../../hooks/useOnScreen';
@@ -241,7 +241,7 @@ function PostContent({
                 {
                   __html: escapeHtml && !post?.spoiler
                     // eslint-disable-next-line max-len
-                    ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(message)), customlinkifyOpts))
+                    ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(message)), defaultLinkifyOpts))
                     : cleanExternalHtmlContent(message),
                 }
               }
@@ -386,11 +386,15 @@ function PostFeed({
   useEffect(() => {
     if (scrollPosition.position > 0
       && scrollPosition?.pathname === location.pathname) {
-      window.scrollTo({
-        top: scrollPosition?.position,
-        behavior: 'instant' as any,
-      });
+      // We should only scroll-restore after 1 second else the scroll restoration doesn't work accurately on home page (SD-1187).
+      setTimeout(() => {
+        window.scrollTo({
+          top: scrollPosition?.position,
+          behavior: 'instant' as any,
+        });
+      }, 1000);
     }
+    return undefined;
   }, [scrollPosition, location.pathname]);
   const renderGroupPostContent = (posts: any) => (
     <>

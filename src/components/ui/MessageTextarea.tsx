@@ -1,18 +1,31 @@
-import React, { createRef, useEffect, useRef } from 'react';
+/* eslint-disable max-lines */
+import React, {
+  createRef, useEffect, useRef, useState,
+} from 'react';
 import Mentions from 'rc-mentions';
 import { OptionProps } from 'rc-mentions/lib/Option';
 import { MentionsRef } from 'rc-mentions/lib/Mentions';
 import styled from 'styled-components';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Button } from 'react-bootstrap';
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
 import UserCircleImage from './UserCircleImage';
 
 interface SytledMentionProps {
   iscommentinput: string;
 }
+interface PickerProp {
+  createpost: any;
+}
 
 const StyledMention = styled(Mentions) <SytledMentionProps>`
+  position:relative;
   padding: 0.063rem;
   textarea {
     border-radius: 0.875rem !important;
+    ${(props) => (props.iscommentinput && 'margin-left :0.875rem')}
   }
   ${(props) => (props.iscommentinput
     ? `&.form-control{
@@ -31,8 +44,26 @@ const StyledMention = styled(Mentions) <SytledMentionProps>`
     `
     : '')
 }
+  }
 `;
 
+const StyledEmoji = styled(Button)`
+  z-index:2;
+  ${(props) => (props.createpost
+    ? `
+    right: 0.625rem;
+    bottom: 9%; 
+    `
+    : `  
+    left: 0.688rem;
+    bottom: 30%; 
+    `)}
+`;
+
+const EmojiPicker = styled.div<PickerProp>`
+    z-index:1;
+    ${(props) => (props.createpost ? 'right:1px;' : 'top:3.125rem;')}
+`;
 export interface MentionListProps {
   id: string;
   userName: string;
@@ -48,7 +79,7 @@ interface MentionProps {
   placeholder?: string;
   isReply?: boolean;
   mentionLists: MentionListProps[];
-  setMessageContent: (val: string) => void;
+  setMessageContent: (val: any) => void;
   formatMentionList: FormatMentionListProps[];
   setFormatMentionList: (val: FormatMentionListProps[]) => void;
   handleSearch: (val: string) => void;
@@ -59,6 +90,9 @@ interface MentionProps {
   onFocusHandler?: () => void;
   onBlurHandler?: () => void;
   isMainPostCommentClick?: boolean;
+  showPicker?: boolean;
+  setShowPicker?: (val: any) => void;
+  createEditPost?: boolean;
 }
 
 function MessageTextarea({
@@ -77,10 +111,14 @@ function MessageTextarea({
   onFocusHandler,
   onBlurHandler,
   isMainPostCommentClick,
+  showPicker,
+  setShowPicker,
+  createEditPost,
 }: MentionProps) {
   const { Option } = Mentions;
   const textareaRef = useRef<MentionsRef>(null);
   const optionRef = createRef<HTMLInputElement>();
+  const [selectedEmoji, setSelectedEmoji] = useState<string[]>([]);
   const handleMessage = (e: string) => {
     setMessageContent(e);
   };
@@ -114,38 +152,66 @@ function MessageTextarea({
       textareaRef.current.focus();
     }
   }, [isReply, isMainPostCommentClick]);
+  const handleShowPicker = () => {
+    setShowPicker!(!showPicker);
+  };
+  const handleEmojiSelect = (emoji: any) => {
+    setSelectedEmoji([...selectedEmoji, emoji.native]);
+    setMessageContent!((prevMessage: string) => prevMessage + emoji.native);
+  };
   return (
-    <StyledMention
-      ref={textareaRef}
-      iscommentinput={isCommentInput!}
-      id={id}
-      className={isCommentInput ? className : ''}
-      autoSize={{ minRows: rows, maxRows: isCommentInput ? 4 : rows }}
-      rows={rows}
-      onChange={(e) => handleMessage(e)}
-      placeholder={placeholder}
-      onSearch={handleSearch}
-      onSelect={handleSelect}
-      onFocus={() => (onFocusHandler ? onFocusHandler() : {})}
-      onBlur={() => (onBlurHandler ? onBlurHandler() : {})}
-      value={defaultValue || ''}
-      notFoundContent="Type to search for a username"
-      aria-label="message"
-    >
-      {mentionLists && mentionLists?.map((mentionList: MentionListProps) => (
-        <Option value={mentionList.userName} key={mentionList.id} style={{ zIndex: '100' }}>
-          <div ref={optionRef} className="list--hover soft-half pointer">
-            <div>
-              <UserCircleImage size="2rem" src={mentionList?.profilePic} className="ms-0 me-3 bg-secondary" />
-              <span>
-                &nbsp;@
-                {mentionList.userName}
-              </span>
+    <>
+      <StyledEmoji
+        type="button"
+        variant="link"
+        aria-label="emoji-picker"
+        className=" d-flex align-self-end p-0 position-absolute"
+        createpost={createEditPost}
+      >
+        <FontAwesomeIcon icon={solid('smile')} onClick={handleShowPicker} size="lg" />
+      </StyledEmoji>
+
+      <StyledMention
+        ref={textareaRef}
+        iscommentinput={isCommentInput!}
+        id={id}
+        className={isCommentInput ? className : ''}
+        autoSize={{ minRows: rows, maxRows: isCommentInput ? 4 : rows }}
+        rows={rows}
+        onChange={(e) => handleMessage(e)}
+        placeholder={placeholder}
+        onSearch={handleSearch}
+        onSelect={handleSelect}
+        onFocus={() => (onFocusHandler ? onFocusHandler() : {})}
+        onBlur={() => (onBlurHandler ? onBlurHandler() : {})}
+        value={defaultValue || ''}
+        notFoundContent="Type to search for a username"
+        aria-label="message"
+      >
+        {mentionLists && mentionLists?.map((mentionList: MentionListProps) => (
+          <Option value={mentionList.userName} key={mentionList.id} style={{ zIndex: '100' }}>
+            <div ref={optionRef} className="list--hover soft-half pointer">
+              <div>
+                <UserCircleImage size="2rem" src={mentionList?.profilePic} className="ms-0 me-3 bg-secondary" />
+                <span>
+                  &nbsp;@
+                  {mentionList.userName}
+                </span>
+              </div>
             </div>
-          </div>
-        </Option>
-      ))}
-    </StyledMention>
+          </Option>
+        ))}
+      </StyledMention>
+
+      {showPicker && (
+        <EmojiPicker
+          className="position-absolute me-4"
+          createpost={createEditPost}
+        >
+          <Picker data={data} onEmojiSelect={handleEmojiSelect} style={{ backgroundColor: 'red' }} />
+        </EmojiPicker>
+      )}
+    </>
   );
 }
 MessageTextarea.defaultProps = {
@@ -158,5 +224,8 @@ MessageTextarea.defaultProps = {
   onFocusHandler: undefined,
   onBlurHandler: undefined,
   isMainPostCommentClick: undefined,
+  showPicker: undefined,
+  setShowPicker: undefined,
+  createEditPost: undefined,
 };
 export default MessageTextarea;

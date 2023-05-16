@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Modal } from 'react-bootstrap';
-import { DescriptionArray, FormatMentionProps } from '../../../routes/posts/create-post/CreatePost';
+import { FormatMentionProps } from '../../../routes/posts/create-post/CreatePost';
 import CreatePostComponent from '../CreatePostComponent';
 import ModalContainer from '../CustomModal';
 import { decryptMessage } from '../../../utils/text-utils';
+import { ContentDescription } from '../../../types';
 
 interface Props {
   show: boolean;
@@ -15,7 +16,7 @@ interface Props {
     value: string,
     images: string[],
     deleteImageIds: string[] | undefined,
-    descriptionArray?: DescriptionArray[]) => void;
+    descriptionArray?: ContentDescription[]) => void;
   postImages: string[];
   setPostImages: any;
   deleteImageIds?: string[];
@@ -36,7 +37,7 @@ function EditPostModal({
   editPost,
 }: Props) {
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
-  const [descriptionArray, setDescriptionArray] = useState<DescriptionArray[]>([]);
+  const [descriptionArray, setDescriptionArray] = useState<ContentDescription[]>([]);
   useEffect(() => {
     if (postContent) {
       const mentionStringList = postContent.match(/##LINK_ID##[a-zA-Z0-9@_.-]+##LINK_END##/g);

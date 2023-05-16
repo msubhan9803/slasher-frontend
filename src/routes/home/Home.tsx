@@ -10,7 +10,7 @@ import ReportModal from '../../components/ui/ReportModal';
 import {
   deleteFeedPost, getHomeFeedPosts, hideFeedPost, updateFeedPost,
 } from '../../api/feed-posts';
-import { DescriptionArray, Post } from '../../types';
+import { ContentDescription, Post } from '../../types';
 import { PopoverClickProps } from '../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../api/feed-likes';
 import { createBlockUser } from '../../api/blocks';
@@ -205,7 +205,7 @@ function Home() {
     message: string,
     images: string[],
     imageDelete: string[] | undefined,
-    descriptionArray?: DescriptionArray[],
+    descriptionArray?: ContentDescription[],
   ) => {
     updateFeedPost(postId, message, images, imageDelete, null, descriptionArray)
       .then((res) => {

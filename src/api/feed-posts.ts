@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
-import { DescriptionArray, PostType } from '../types';
+import { ContentDescription, PostType } from '../types';
 
 export async function getHomeFeedPosts(lastRetrievedPostId?: string) {
   const token = Cookies.get('sessionToken');
@@ -23,7 +23,11 @@ export async function feedPostDetail(id: string) {
   return axios.get(`${apiUrl}/api/v1/feed-posts/${id}`, { headers });
 }
 
-export async function createPost(postData: any, file: any, descriptionArray?: DescriptionArray[]) {
+export async function createPost(
+  postData: any,
+  file: any,
+  descriptionArray?: ContentDescription[],
+) {
   const token = Cookies.get('sessionToken');
   const formData = new FormData();
   for (let i = 0; i < file.length; i += 1) {
@@ -67,7 +71,7 @@ export async function updateFeedPost(
   file?: string[],
   imagesToDelete?: string[] | undefined,
   movieReviewPostData?: any,
-  descriptionArray?: DescriptionArray[] | any,
+  descriptionArray?: ContentDescription[] | any,
 ) {
   const token = Cookies.get('sessionToken');
   const formData = new FormData();

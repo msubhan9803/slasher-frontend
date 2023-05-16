@@ -21,7 +21,7 @@ import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import { MentionProps } from '../../../routes/posts/create-post/CreatePost';
 import {
-  CommentValue, DescriptionArray, FeedComments, Post, User,
+  CommentValue, ContentDescription, FeedComments, Post, User,
 } from '../../../types';
 import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-utils';
 import { decryptMessage } from '../../../utils/text-utils';
@@ -502,7 +502,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     message: string,
     images: string[],
     imageDelete: string[] | undefined,
-    descriptionArray?: DescriptionArray[],
+    descriptionArray?: ContentDescription[],
   ) => {
     if (postId) {
       updateFeedPost(postId, message, images, imageDelete, null, descriptionArray).then(() => {

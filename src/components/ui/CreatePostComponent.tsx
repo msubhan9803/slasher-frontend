@@ -21,7 +21,7 @@ import CustomWortItText from './CustomWortItText';
 import { StyledBorder } from './StyledBorder';
 import WorthWatchIcon from '../../routes/movies/components/WorthWatchIcon';
 import {
-  DescriptionArray, AdditionalMovieData, MovieData, WorthWatchingStatus,
+  ContentDescription, AdditionalMovieData, MovieData, WorthWatchingStatus,
 } from '../../types';
 import { getMoviesById, getMoviesDataById } from '../../api/movies';
 import { StyledMoviePoster } from '../../routes/movies/movie-details/StyledUtils';
@@ -67,8 +67,8 @@ interface Props {
   setDisLike?: (val: boolean) => void;
   isWorthIt?: number;
   placeHolder?: string;
-  descriptionArray?: DescriptionArray[];
-  setDescriptionArray?: (value: DescriptionArray[]) => void;
+  descriptionArray?: ContentDescription[];
+  setDescriptionArray?: (value: ContentDescription[]) => void;
   showSaveButton?: boolean;
   reviewForm?: boolean;
   setReviewForm?: (value: boolean) => void;
@@ -180,7 +180,7 @@ function CreatePostComponent({
   };
 
   useEffect(() => {
-    const descriptionArrayList: DescriptionArray[] = [];
+    const descriptionArrayList: ContentDescription[] = [];
     if (imageArrayRef && imageArrayRef.current) {
       imageArrayRef.current.map((postImage: any) => {
         if (postImage.description) {

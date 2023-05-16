@@ -13,7 +13,7 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/la
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import CreatePostComponent from '../../../components/ui/CreatePostComponent';
-import { PostType } from '../../../types';
+import { ContentDescription, PostType } from '../../../types';
 
 export interface MentionProps {
   id: string;
@@ -26,15 +26,10 @@ export interface FormatMentionProps {
   format: string;
 }
 
-export interface DescriptionArray {
-  description: string;
-  id?: string;
-}
-
 function CreatePost() {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [imageArray, setImageArray] = useState<any>([]);
-  const [descriptionArray, setDescriptionArray] = useState<DescriptionArray[]>([]);
+  const [descriptionArray, setDescriptionArray] = useState<ContentDescription[]>([]);
   const [postContent, setPostContent] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const loggedInUser = useAppSelector((state) => state.user.user);

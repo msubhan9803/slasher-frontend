@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
-import { DescriptionArray } from '../types';
+import { ContentDescription } from '../types';
 
 export async function getFeedComments(
   feedPostId: string,
@@ -91,7 +91,7 @@ export async function updateFeedComments(
   feedCommentId: string,
   file: string[],
   imagesToDelete: string[] | undefined,
-  descriptionArray?: DescriptionArray[] | any,
+  descriptionArray?: ContentDescription[] | any,
 ) {
   const token = Cookies.get('sessionToken');
   const formData = new FormData();
@@ -126,7 +126,7 @@ export async function updateFeedCommentReply(
   feedReplyId: string,
   file: string[],
   imagesToDelete: string[] | undefined,
-  descriptionArray?: DescriptionArray[] | any,
+  descriptionArray?: ContentDescription[] | any,
 ) {
   const token = Cookies.get('sessionToken');
   const formData = new FormData();

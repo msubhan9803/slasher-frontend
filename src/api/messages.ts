@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
-import { DescriptionArray } from '../types';
+import { ContentDescription } from '../types';
 
 export async function getMessagesList(lastRetrievedMessageId?: string) {
   const token = Cookies.get('sessionToken');
@@ -46,7 +46,7 @@ export async function attachFile(
   message: string,
   file: any,
   conversationId: string,
-  descriptionArray?: DescriptionArray[] | any,
+  descriptionArray?: ContentDescription[] | any,
 ) {
   const token = Cookies.get('sessionToken');
   const formData = new FormData();

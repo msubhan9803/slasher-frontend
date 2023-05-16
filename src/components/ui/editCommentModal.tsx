@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 import { Modal } from 'react-bootstrap';
 import { FormatMentionProps } from '../../routes/posts/create-post/CreatePost';
-import { CommentValue, ReplyValue } from '../../types';
+import { CommentValue, ContentDescription, ReplyValue } from '../../types';
 import { decryptMessage } from '../../utils/text-utils';
 import CreatePostComponent from './CreatePostComponent';
 import ModalContainer from './CustomModal';
@@ -25,10 +25,6 @@ interface Props {
   setPostImages: any;
   commentError: string[];
 }
-export interface DescriptionArray {
-  description: string;
-  id?: string;
-}
 
 function EditCommentModal({
   showEdit, setShowEdit, commentID, commentReplyID, editContent, isReply,
@@ -37,7 +33,7 @@ function EditCommentModal({
 }: Props) {
   const [editMessage, setEditMessage] = useState<string>(editContent! || '');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
-  const [descriptionArray, setDescriptionArray] = useState<DescriptionArray[]>([]);
+  const [descriptionArray, setDescriptionArray] = useState<ContentDescription[]>([]);
   useEffect(() => {
     if (editContent) {
       const mentionStringList = editContent.match(/##LINK_ID##[a-zA-Z0-9@_.-]+##LINK_END##/g);

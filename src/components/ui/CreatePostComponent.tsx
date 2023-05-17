@@ -73,6 +73,7 @@ interface Props {
   reviewForm?: boolean;
   setReviewForm?: (value: boolean) => void;
   setShowReviewForm?: (value: boolean) => void;
+  handleScroll?: () => void;
   createEditPost?: boolean;
 }
 
@@ -94,7 +95,7 @@ function CreatePostComponent({
   containSpoiler, setContainSpoiler, rating, setRating, goreFactor, setGoreFactor,
   selectedPostType, setSelectedPostType, setWorthIt, liked, setLike, reviewForm, setReviewForm,
   disLiked, setDisLike, isWorthIt, placeHolder, descriptionArray, setDescriptionArray,
-  showSaveButton, setShowReviewForm, createEditPost,
+  showSaveButton, setShowReviewForm, handleScroll, createEditPost,
 }: Props) {
   const inputFile = useRef<HTMLInputElement>(null);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
@@ -121,6 +122,7 @@ function CreatePostComponent({
 
   const onMovieReviweCloseButton = () => {
     setShowReviewForm!(false);
+    handleScroll!();
   };
   const handleRemoveFile = (postImage: any, index?: number) => {
     const removePostImage = imageArray.filter((image: File) => image !== postImage);
@@ -484,6 +486,7 @@ CreatePostComponent.defaultProps = {
   reviewForm: false,
   setReviewForm: undefined,
   setShowReviewForm: false,
+  handleScroll: undefined,
   createEditPost: undefined,
 };
 export default CreatePostComponent;

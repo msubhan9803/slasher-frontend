@@ -19,6 +19,11 @@ padding-top:100px;
 background-repeat: no-repeat;
     background-size: contain;
 `;
+const CustomDiv = styled.div`
+@media (max-width: 767px)  {
+ margin-top: 7.5rem;
+}
+`;
 function PublicProfile() {
   const { userName } = useParams();
   const [user, setUser] = useState<any>();
@@ -38,9 +43,9 @@ function PublicProfile() {
 
     if (errorMessage && errorMessage.length > 0) {
       return (
-        <div className="bg-dark rounded p-4 my-3">
+        <CustomDiv className="bg-dark rounded p-4 my-3">
           User not found.
-        </div>
+        </CustomDiv>
       );
     }
     return (

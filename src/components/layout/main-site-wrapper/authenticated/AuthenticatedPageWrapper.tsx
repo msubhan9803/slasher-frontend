@@ -19,7 +19,7 @@ import {
   appendToPathnameHistory,
 } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
-import { getSessionToken, signOut } from '../../../../utils/session-utils';
+import { getSessionToken, signOut, userIsLoggedIn } from '../../../../utils/session-utils';
 import {
   LG_MEDIA_BREAKPOINT, analyticsId, MAIN_CONTENT_ID, apiUrl,
 } from '../../../../constants';
@@ -100,8 +100,12 @@ function AuthenticatedPageWrapper({ children }: Props) {
   };
 
   useEffect(() => {
-    if (!token && params.userName) {
+    if (!userIsLoggedIn() && params.userName && params['*']) {
       navigate(`/${params.userName}`);
+      return;
+    } if (!token) {
+      navigate(`/app/sign-in?path=${pathname}`);
+      return;
     }
 
     if (!remoteConstantsData.loaded) {
@@ -123,7 +127,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
       });
     }
   }, [dispatch, navigate, pathname, userData.user?.userName,
-    remoteConstantsData.loaded, token, params.userName]);
+    remoteConstantsData.loaded, token, params]);
 
   const onNotificationReceivedHandler = useCallback(() => {
     dispatch(incrementUnreadNotificationCount());

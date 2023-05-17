@@ -99,13 +99,16 @@ const StyledOffcanvas = styled(Offcanvas)`
     font-weight: normal
   }
 `;
-const navList = [
+let navList = [
   { value: 'home', label: 'Home' },
   { value: 'about', label: 'About' },
   { value: 'shop', label: 'Shop' },
   { value: 'advertise', label: 'Advertise' },
   { value: 'help', label: 'Help' },
 ];
+
+navList = enableDevFeatures ? [{ value: 'sign-in', label: 'Sign in' }, ...navList] : navList;
+
 function PublicHomeHeader() {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
@@ -151,7 +154,8 @@ function PublicHomeHeader() {
             <HeaderLogo logo={slasherLogo} height="4.56rem" />
           </Navbar.Brand>
           <div className="d-lg-none">
-            <RoundButton onClick={() => navigate('/app/sign-in')}>SIGN IN</RoundButton>
+            {enableDevFeatures
+              && <RoundButton onClick={() => navigate('/app/sign-in')}>SIGN IN</RoundButton>}
           </div>
           <StyledNavbarCollapse id="responsive-navbar-nav" className="bg-black mt-2 mt-lg-0 d-none">
             <StyledNav className="justify-content-between px-3 small-screen w-100">
@@ -173,14 +177,6 @@ function PublicHomeHeader() {
                         {nav.label}
                       </StyledNavLink>
                     ))}
-                    <StyledNavLink
-                      href="/app/home"
-                      className={
-                        `${enableDevFeatures ? '' : 'd-none'} text-start w-100 rounded-0 nav-link d-lg-none py-3 py-lg-0 px-5 px-lg-2 mx-xl-2 text-lg-center fs-3 text-decoration-none text-white`
-                      }
-                    >
-                      Sign In
-                    </StyledNavLink>
                   </div>
                 </Col>
                 <Col lg={2} className="d-none d-lg-block d-flex justify-content-between">
@@ -211,7 +207,7 @@ function PublicHomeHeader() {
               </Button>
             </Offcanvas.Header>
             <Offcanvas.Body className="pt-0">
-              {[{ value: 'sign-in', label: 'Sign in' }, ...navList].map((nav) => (
+              {navList.map((nav) => (
                 <StyledNavLink
                   key={nav.value}
                   href={nav.value === 'home' ? '/' : `https://pages.slasher.tv/${nav.value}`}

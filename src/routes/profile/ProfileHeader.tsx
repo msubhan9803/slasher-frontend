@@ -24,6 +24,8 @@ import FriendActionButtons from '../../components/ui/Friend/FriendActionButtons'
 import { LG_MEDIA_BREAKPOINT, topToDivHeight } from '../../constants';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { setScrollToTabsPosition } from '../../redux/slices/scrollPositionSlice';
+import { userIsLoggedIn } from '../../utils/session-utils';
+import SignInModal from '../../components/ui/SignInModal';
 import { getLastNonProfilePathname } from '../../utils/url-utils';
 
 interface Props {
@@ -59,6 +61,7 @@ type FriendType = { from: string, to: string, reaction: FriendRequestReaction } 
 function ProfileHeader({
   tabKey, user, showTabs,
 }: Props) {
+  const [showSignIn, setShowSignIn] = useState<boolean>(false);
   const [show, setShow] = useState<boolean>(false);
   const [friendshipStatus, setFriendshipStatus] = useState<any>();
   const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
@@ -88,7 +91,7 @@ function ProfileHeader({
   };
 
   useEffect(() => {
-    if (user && !isSelfUserProfile) {
+    if (user && !isSelfUserProfile && userIsLoggedIn()) {
       friendship(user._id).then((res) => {
         setFriendData(res.data);
         setFriendStatus(res.data.reaction);
@@ -97,18 +100,20 @@ function ProfileHeader({
   }, [user, friendshipStatus, isSelfUserProfile, userId]);
 
   useLayoutEffect(() => {
-    const element = positionRef.current;
-    if (!element) { return; }
-    if ((scrollPosition.scrollToTab && (friendStatus || element)) || param['*'] === 'friends') {
-      window.scrollTo({
-        top: element.offsetTop - (
-          window.innerWidth >= parseInt(LG_MEDIA_BREAKPOINT.replace('px', ''), 10)
-            ? (topToDivHeight - 18)
-            : 0
-        ),
-        behavior: 'instant' as any,
-      });
-      dispatch(setScrollToTabsPosition(false));
+    if (userIsLoggedIn()) {
+      const element = positionRef.current;
+      if (!element) { return; }
+      if ((scrollPosition.scrollToTab && (friendStatus || element)) || param['*'] === 'friends') {
+        window.scrollTo({
+          top: element.offsetTop - (
+            window.innerWidth >= parseInt(LG_MEDIA_BREAKPOINT.replace('px', ''), 10)
+              ? (topToDivHeight - 18)
+              : 0
+          ),
+          behavior: 'instant' as any,
+        });
+        dispatch(setScrollToTabsPosition(false));
+      }
     }
   }, [positionRef, friendStatus, dispatch, scrollPosition.scrollToTab, param]);
 
@@ -140,15 +145,22 @@ function ProfileHeader({
   if (!user || (!isSelfUserProfile && typeof friendStatus === null)) {
     return <LoadingIndicator />;
   }
+  const handleSignInDialog = (e: any) => {
+    if (userIsLoggedIn()) {
+      e.preventDefault();
+    } else {
+      setShowSignIn(!showSignIn);
+    }
+  };
   return (
     <div className="bg-dark bg-mobile-transparent rounded mb-4">
       <div className="p-md-4 g-0">
         <div>
-          <ProfileCoverImage src={user.coverPhoto || defaultCoverImage} alt="Cover picture" className="mt-3 mt-md-0 w-100 rounded" />
+          <ProfileCoverImage src={user.coverPhoto || defaultCoverImage} alt="Cover picture" className="mt-3 mt-md-0 w-100 rounded" onClick={handleSignInDialog} />
         </div>
         <Row className="d-flex ps-md-4">
           <CustomCol md={3} lg={12} xl="auto" className="text-center text-lg-center text-xl-start  position-relative">
-            <AboutProfileImage size="11.25rem" src={user?.profilePic} alt="user picture" />
+            <AboutProfileImage size="11.25rem" src={user?.profilePic} alt="user picture" onClick={handleSignInDialog} />
             {!isSelfUserProfile
               && (
                 <StyledPopoverContainer className="d-block d-md-none d-lg-block d-xl-none position-absolute">
@@ -181,7 +193,7 @@ function ProfileHeader({
                       </RoundButton>
                     </div>
                   )}
-                {!isSelfUserProfile
+                {!isSelfUserProfile && userIsLoggedIn()
                   && (
                     <div className="d-flex align-items-center justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
                       <FriendActionButtons
@@ -209,8 +221,13 @@ function ProfileHeader({
         showTabs && (
           <>
             <StyledBorder className="d-md-block d-none" />
-            <div ref={positionRef}>
-              <TabLinks tabLink={allTabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
+            <div ref={positionRef} aria-hidden="true">
+              <TabLinks
+                tabLink={allTabs}
+                toLink={`/${user?.userName}`}
+                selectedTab={tabKey}
+                overrideOnClick={userIsLoggedIn() ? () => { } : handleSignInDialog}
+              />
             </div>
           </>
         )
@@ -223,6 +240,10 @@ function ProfileHeader({
         afterBlockUser={afterBlockUser}
         handleReport={reportUserProfile}
       />
+      {
+        showSignIn
+        && <SignInModal show={showSignIn} setShow={setShowSignIn} isPublicProfile />
+      }
     </div>
   );
 }

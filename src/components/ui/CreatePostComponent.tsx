@@ -20,7 +20,9 @@ import RatingButtonGroups from './RatingButtonGroups';
 import CustomWortItText from './CustomWortItText';
 import { StyledBorder } from './StyledBorder';
 import WorthWatchIcon from '../../routes/movies/components/WorthWatchIcon';
-import { AdditionalMovieData, MovieData, WorthWatchingStatus } from '../../types';
+import {
+  ContentDescription, AdditionalMovieData, MovieData, WorthWatchingStatus,
+} from '../../types';
 import { getMoviesById, getMoviesDataById } from '../../api/movies';
 import { StyledMoviePoster } from '../../routes/movies/movie-details/StyledUtils';
 import { LG_MEDIA_BREAKPOINT, topToDivHeight } from '../../constants';
@@ -65,10 +67,13 @@ interface Props {
   setDisLike?: (val: boolean) => void;
   isWorthIt?: number;
   placeHolder?: string;
+  descriptionArray?: ContentDescription[];
+  setDescriptionArray?: (value: ContentDescription[]) => void;
   showSaveButton?: boolean;
   reviewForm?: boolean;
   setReviewForm?: (value: boolean) => void;
   setShowReviewForm?: (value: boolean) => void;
+  handleScroll?: () => void;
   createEditPost?: boolean;
 }
 
@@ -88,9 +93,9 @@ function CreatePostComponent({
   imageArray, setImageArray, defaultValue, formatMention, setFormatMention,
   deleteImageIds, setDeleteImageIds, postType, titleContent, setTitleContent,
   containSpoiler, setContainSpoiler, rating, setRating, goreFactor, setGoreFactor,
-  selectedPostType, setSelectedPostType, setWorthIt, liked, setLike,
-  disLiked, setDisLike, isWorthIt, placeHolder, showSaveButton,
-  reviewForm, setReviewForm, setShowReviewForm, createEditPost,
+  selectedPostType, setSelectedPostType, setWorthIt, liked, setLike, reviewForm, setReviewForm,
+  disLiked, setDisLike, isWorthIt, placeHolder, descriptionArray, setDescriptionArray,
+  showSaveButton, setShowReviewForm, handleScroll, createEditPost,
 }: Props) {
   const inputFile = useRef<HTMLInputElement>(null);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
@@ -98,6 +103,9 @@ function CreatePostComponent({
   const [showPicker, setShowPicker] = useState<any>(false);
   const [searchParams] = useSearchParams();
   const paramsType = searchParams.get('type');
+  const imageArrayRef = useRef(imageArray);
+  const descriptionArrayRef = useRef(descriptionArray);
+  const setDescriptionArrayRef = useRef(setDescriptionArray);
   const params = useParams();
   const location = useLocation();
   const movieReviewRef = useRef<HTMLDivElement>(null);
@@ -114,11 +122,16 @@ function CreatePostComponent({
 
   const onMovieReviweCloseButton = () => {
     setShowReviewForm!(false);
+    handleScroll!();
   };
-  const handleRemoveFile = (postImage: any) => {
+  const handleRemoveFile = (postImage: any, index?: number) => {
     const removePostImage = imageArray.filter((image: File) => image !== postImage);
     setDeleteImageIds([...deleteImageIds, postImage._id].filter(Boolean));
     setImageArray(removePostImage);
+
+    const descriptionArrayList = descriptionArray;
+    descriptionArrayList!.splice(index!, 1);
+    setDescriptionArray!(descriptionArrayList!);
   };
 
   const handleFileChange = (postImage: ChangeEvent<HTMLInputElement>) => {
@@ -134,21 +147,13 @@ function CreatePostComponent({
           const image = postImage.target.files[list];
           uploadedPostList.push(image);
           imageArrayList.push(postImage.target.files[list]);
+          descriptionArray?.push({ description: '' });
         }
       }
       setUploadPost(uploadedPostList);
       setImageArray(imageArrayList);
     }
   };
-
-  const handleSearch = (text: string) => {
-    setMentionList([]);
-    if (text) {
-      getSuggestUserName(text)
-        .then((res) => setMentionList(res.data));
-    }
-  };
-
   let actionText;
   if (postType === 'review') {
     actionText = 'Submit';
@@ -157,6 +162,45 @@ function CreatePostComponent({
   } else {
     actionText = 'Post';
   }
+  const handleSearch = (text: string) => {
+    setMentionList([]);
+    if (text) {
+      getSuggestUserName(text)
+        .then((res) => setMentionList(res.data));
+    }
+  };
+
+  const onChangeDescription = (newValue: string, index: number) => {
+    const descriptionArrayList = [...descriptionArray!];
+    descriptionArrayList[index].description = newValue;
+    setDescriptionArray!([...descriptionArrayList!]);
+  };
+
+  const setAltTextValue = (index: number) => {
+    const altText = descriptionArray![index]?.description;
+    return altText;
+  };
+
+  useEffect(() => {
+    const descriptionArrayList: ContentDescription[] = [];
+    if (imageArrayRef && imageArrayRef.current) {
+      imageArrayRef.current.map((postImage: any) => {
+        if (postImage.description) {
+          descriptionArrayList.push({ description: postImage?.description, id: postImage?._id });
+        } else {
+          descriptionArrayList.push({ description: '', id: postImage?._id });
+        }
+        return null;
+      });
+      setDescriptionArrayRef.current!([...descriptionArrayList]);
+    }
+  }, [imageArrayRef, descriptionArrayRef, setDescriptionArrayRef]);
+
+  useEffect(() => {
+    imageArrayRef.current = imageArray;
+    descriptionArrayRef.current = descriptionArray;
+    setDescriptionArrayRef.current = setDescriptionArray;
+  }, [imageArray, descriptionArray, setDescriptionArray]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -368,17 +412,17 @@ function CreatePostComponent({
       <Row>
         <Col xs={12} className="order-1 order-md-0">
           <Row>
-            {imageArray && imageArray.map((post: File) => (
+            {imageArray && imageArray.map((post: File, index: number) => (
               <Col xs="auto" key={post.name} className="mb-1">
                 <ImagesContainer
                   containerWidth="7.25rem"
                   containerHeight="7.25rem"
                   containerBorder="0.125rem solid #3A3B46"
                   image={post}
-                  alt="" // TODO: set any existing alt text here (when editing existing image)
-                  // eslint-disable-next-line no-console
-                  // onAltTextChange={(newValue) => { console.log(`New value is: ${newValue}`); }}
+                  alt={setAltTextValue(index)}
+                  onAltTextChange={(newValue) => { onChangeDescription(newValue, index); }}
                   handleRemoveImage={handleRemoveFile}
+                  index={index}
                   containerClass="mt-4 position-relative d-flex justify-content-center align-items-center rounded border-0"
                   removeIconStyle={{
                     padding: '0.313rem 0.438rem',
@@ -436,10 +480,13 @@ CreatePostComponent.defaultProps = {
   setDisLike: () => { },
   isWorthIt: 0,
   placeHolder: 'Write a something...',
+  descriptionArray: [],
+  setDescriptionArray: undefined,
   showSaveButton: false,
   reviewForm: false,
   setReviewForm: undefined,
   setShowReviewForm: false,
+  handleScroll: undefined,
   createEditPost: undefined,
 };
 export default CreatePostComponent;

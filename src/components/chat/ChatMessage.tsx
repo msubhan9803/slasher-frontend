@@ -41,7 +41,6 @@ function ChatMessage({
 }: ChatProps) {
   const messageRef = useRef<HTMLDivElement>(null);
   let lastTimeStampMessage = '';
-
   const handleEmojiSelect = (emoji: Emoji) => {
     setSelectedEmoji!((selectedEmoji ?? []).concat(emoji.native));
     setMessage!((prevMessage: string) => prevMessage + emoji.native);
@@ -81,7 +80,7 @@ function ChatMessage({
               ? (
                 <Image
                   src={message.image}
-                  alt="User upload"
+                  alt={`${message.imageDescription ? message.imageDescription : 'User upload'}`}
                   className="w-50 h-auto img-fluid rounded-3"
                   onLoad={() => onImageLoad()}
                 />
@@ -113,7 +112,7 @@ function ChatMessage({
               ? (
                 <Image
                   src={message.image}
-                  alt="User upload"
+                  alt={`${message.imageDescription ? message.imageDescription : 'User upload'}`}
                   className="w-50 h-auto img-fluid rounded-3"
                   onLoad={() => onImageLoad()}
                 />

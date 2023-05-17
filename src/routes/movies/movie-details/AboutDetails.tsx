@@ -29,6 +29,9 @@ interface AboutMovieData {
   movieData: MovieData;
   setMovieData: React.Dispatch<React.SetStateAction<MovieData | undefined>>
   setReviewForm?: (value: boolean) => void;
+  reviewButtonRef?: any;
+  reviewSmallButtonRef?: any;
+  handleScroll?: () => void;
 }
 const StyledVerticalBorder = styled.div`
   border-right: 1px solid #3A3B46;
@@ -83,7 +86,8 @@ const StyledInitial = styled.p`
 `;
 
 function AboutDetails({
-  aboutMovieDetail, movieData, setMovieData, setReviewForm,
+  aboutMovieDetail, movieData, setMovieData, setReviewForm, reviewButtonRef,
+  handleScroll, reviewSmallButtonRef,
 }: AboutMovieData) {
   const [showRating, setShowRating] = useState(false);
   const [showGoreRating, setShowGoreRating] = useState(false);
@@ -223,8 +227,8 @@ function AboutDetails({
                 handleClick={() => setShowRating(true)}
               />
             </div>
-            <div className="d-flex justify-content-center my-3 d-md-none ">
-              <RoundButton className="w-100 fw-bold" onClick={() => handleReviwRedirect()}> Write a review</RoundButton>
+            <div ref={reviewSmallButtonRef} id=" reviewSmallBUtton" className="d-flex justify-content-center my-3 d-md-none ">
+              <RoundButton className="w-100 fw-bold" onClick={() => { handleReviwRedirect(); handleScroll!(); }}> Write a review</RoundButton>
             </div>
             <StyledBorder className="d-md-none" />
           </Col>
@@ -296,8 +300,8 @@ function AboutDetails({
               />
             </div>
           </Col>
-          <div className="d-none d-md-flex justify-content-center mt-3">
-            <RoundButton className="w-50 fw-bold" onClick={() => handleReviwRedirect()}>Write a review</RoundButton>
+          <div ref={reviewButtonRef} id="writeReview" className="d-none d-md-flex justify-content-center mt-3">
+            <RoundButton className="w-50 fw-bold" onClick={() => { handleReviwRedirect(); handleScroll!(); }}>Write a review</RoundButton>
           </div>
           <StyledBorder className="d-md-none my-3" />
         </Row>
@@ -318,6 +322,9 @@ function AboutDetails({
 
 AboutDetails.defaultProps = {
   setReviewForm: false,
+  reviewButtonRef: null,
+  reviewSmallButtonRef: null,
+  handleScroll: undefined,
 };
 
 export default AboutDetails;

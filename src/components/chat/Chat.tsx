@@ -71,8 +71,19 @@ const StyledChatContainer = styled.div<Props>`
 
 function Chat({
   messages, userData, sendMessageClick, setMessage, message, handleFileChange, handleRemoveFile,
-  imageArray, messageLoading,
+  imageArray, messageLoading, descriptionArray, setDescriptionArray,
 }: ChatProps) {
+  const onChangeDescription = (newValue: string, index: number) => {
+    const descriptionArrayList = [...descriptionArray!];
+    descriptionArrayList![index] = newValue;
+    setDescriptionArray!([...descriptionArrayList!]);
+  };
+
+  const setAltTextValue = (index: number) => {
+    const altText = descriptionArray![index];
+    return altText;
+  };
+
   const textareaRef = useRef<any>(null);
   const [rows, setRows] = useState(1);
   const [showPicker, setShowPicker] = useState(false);
@@ -135,17 +146,17 @@ function Chat({
           setSelectedEmoji={setSelectedEmoji}
         />
         <div className="image-container overflow-auto d-flex mx-4 gap-3 mt-3">
-          {imageArray!.map((post: File) => (
+          {imageArray!.map((post: File, index: number) => (
             <Col xs="auto" key={post.name} className="mb-2">
               <ImagesContainer
                 containerWidth="7.25rem"
                 containerHeight="7.25rem"
                 containerBorder="0.125rem solid var(--bs-input-border-color)"
                 image={post}
-                alt="" // TODO: set any existing alt text here (when editing existing image)
-                // eslint-disable-next-line no-console
-                // onAltTextChange={(newValue) => { console.log(`New value is: ${newValue}`); }}
-                handleRemoveImage={() => handleRemoveFile!(post)}
+                alt={setAltTextValue(index)}
+                onAltTextChange={(newValue) => { onChangeDescription(newValue, index); }}
+                handleRemoveImage={() => handleRemoveFile!(post, index)}
+                index={index}
                 containerClass="position-relative d-flex justify-content-center align-items-center rounded border-0"
                 removeIconStyle={{
                   padding: '0.313rem 0.438rem',

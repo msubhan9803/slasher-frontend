@@ -89,6 +89,8 @@ interface Props {
   setCommentReplyErrorMessage?: (value: string[]) => void;
   setCommentErrorMessage?: (value: string[]) => void;
   showPubWiseAdAtPageBottom?: boolean;
+  setSelectedBlockedUserId?: (value: string) => void;
+  setDropDownValue?: (value: string) => void;
 }
 
 interface StyledProps {
@@ -286,7 +288,7 @@ function PostFeed({
   handleSearch, mentionList, commentImages, setCommentImages, commentError,
   commentReplyError, postType, onSpoilerClick,
   commentSent, setCommentReplyErrorMessage, setCommentErrorMessage,
-  showPubWiseAdAtPageBottom,
+  showPubWiseAdAtPageBottom, setSelectedBlockedUserId, setDropDownValue,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [isCommentClick, setCommentClick] = useState<boolean>(false);
@@ -389,7 +391,6 @@ function PostFeed({
       setTimeout(() => {
         window.scrollTo({
           top: scrollPosition?.position,
-          behavior: 'instant' as any,
         });
       }, 1000);
     }
@@ -420,6 +421,7 @@ function PostFeed({
     return imageVideoList.map((imageData: any) => {
       if (imageData.movieData) { return imageData; }
       return ({
+        imageDescription: imageData.description,
         videoKey: imageData.videoKey,
         imageUrl: imageData.image_path,
         linkUrl: isSinglePost ? undefined : imageLinkUrl(post, imageData._id),
@@ -550,6 +552,8 @@ function PostFeed({
                       setCommentErrorMessage={setCommentErrorMessage}
                       handleLikeModal={handleLikeModal}
                       isMainPostCommentClick={isCommentClick}
+                      setSelectedBlockedUserId={setSelectedBlockedUserId}
+                      setCommentDropDownValue={setDropDownValue}
                     />
                   </InfiniteScroll>
                   {loadingPosts && <LoadingIndicator />}
@@ -630,5 +634,7 @@ PostFeed.defaultProps = {
   setCommentReplyErrorMessage: undefined,
   setCommentErrorMessage: undefined,
   showPubWiseAdAtPageBottom: undefined,
+  setSelectedBlockedUserId: undefined,
+  setDropDownValue: undefined,
 };
 export default PostFeed;

@@ -4,7 +4,6 @@ import React, {
 } from 'react';
 import { Offcanvas } from 'react-bootstrap';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import styled from 'styled-components';
 import { useMediaQuery } from 'react-responsive';
 import { io } from 'socket.io-client';
@@ -104,15 +103,17 @@ function AuthenticatedPageWrapper({ children }: Props) {
 
   useEffect(() => {
     if (token.isLoading) { return; }
-<<<<<<< HEAD
+
+    // Redirect to public profile page
+    if (!tokenNotFound && params.userName && params['*']) {
+      navigate(`/${params.userName}`);
+      return;
+    }
+    // Redirect to login page
     if (tokenNotFound) {
       navigate(`/app/sign-in?path=${pathname}`);
       return;
-=======
-    if (!token && params.userName) {
-      navigate(`/${params.userName}`);
     }
->>>>>>> 7acda2106997496d77996796b0a47afffd3d05ef
 
     if (!remoteConstantsData.loaded) {
       fetchRemoteConstants().then((res) => {
@@ -133,11 +134,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
       });
     }
   }, [dispatch, navigate, pathname, userData.user?.userName,
-<<<<<<< HEAD
-    remoteConstantsData.loaded, token, tokenNotFound]);
-=======
-    remoteConstantsData.loaded, token, params.userName]);
->>>>>>> 7acda2106997496d77996796b0a47afffd3d05ef
+    remoteConstantsData.loaded, token, tokenNotFound, params.userName, params]);
 
   const onNotificationReceivedHandler = useCallback(() => {
     dispatch(incrementUnreadNotificationCount());

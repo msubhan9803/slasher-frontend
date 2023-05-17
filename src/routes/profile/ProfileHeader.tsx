@@ -24,9 +24,9 @@ import FriendActionButtons from '../../components/ui/Friend/FriendActionButtons'
 import { LG_MEDIA_BREAKPOINT, topToDivHeight } from '../../constants';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { setScrollToTabsPosition } from '../../redux/slices/scrollPositionSlice';
-import { userIsLoggedIn } from '../../utils/session-utils';
 import SignInModal from '../../components/ui/SignInModal';
 import { getLastNonProfilePathname } from '../../utils/url-utils';
+import useSessionToken from '../../hooks/useSessionToken';
 
 interface Props {
   tabKey?: string;
@@ -78,8 +78,10 @@ function ProfileHeader({
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const pathnameHistory = useAppSelector((state) => state.user.pathnameHistory);
+  const token = useSessionToken();
 
   const isSelfUserProfile = userName === loginUserName;
+  const userIsLoggedIn = !token.isLoading && token.value;
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.userId) {
@@ -91,16 +93,19 @@ function ProfileHeader({
   };
 
   useEffect(() => {
-    if (user && !isSelfUserProfile && userIsLoggedIn()) {
+    if (token.isLoading) { return; }
+    if (user && !isSelfUserProfile && token.value) {
       friendship(user._id).then((res) => {
         setFriendData(res.data);
         setFriendStatus(res.data.reaction);
       });
     }
-  }, [user, friendshipStatus, isSelfUserProfile, userId]);
+  }, [user, friendshipStatus, isSelfUserProfile, userId, token]);
 
   useLayoutEffect(() => {
-    if (userIsLoggedIn()) {
+    if (token.isLoading) { return; }
+
+    if (userIsLoggedIn) {
       const element = positionRef.current;
       if (!element) { return; }
       if ((scrollPosition.scrollToTab && (friendStatus || element)) || param['*'] === 'friends') {
@@ -115,7 +120,8 @@ function ProfileHeader({
         dispatch(setScrollToTabsPosition(false));
       }
     }
-  }, [positionRef, friendStatus, dispatch, scrollPosition.scrollToTab, param]);
+  }, [positionRef, friendStatus, dispatch, scrollPosition.scrollToTab,
+    param, token, userIsLoggedIn]);
 
   const onBlockYesClick = () => {
     createBlockUser(clickedUserId)
@@ -146,7 +152,7 @@ function ProfileHeader({
     return <LoadingIndicator />;
   }
   const handleSignInDialog = (e: any) => {
-    if (userIsLoggedIn()) {
+    if (userIsLoggedIn) {
       e.preventDefault();
     } else {
       setShowSignIn(!showSignIn);
@@ -193,7 +199,7 @@ function ProfileHeader({
                       </RoundButton>
                     </div>
                   )}
-                {!isSelfUserProfile && userIsLoggedIn()
+                {!isSelfUserProfile && userIsLoggedIn
                   && (
                     <div className="d-flex align-items-center justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
                       <FriendActionButtons
@@ -226,7 +232,7 @@ function ProfileHeader({
                 tabLink={allTabs}
                 toLink={`/${user?.userName}`}
                 selectedTab={tabKey}
-                overrideOnClick={userIsLoggedIn() ? () => { } : handleSignInDialog}
+                overrideOnClick={userIsLoggedIn ? () => { } : handleSignInDialog}
               />
             </div>
           </>

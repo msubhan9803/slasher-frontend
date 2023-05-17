@@ -109,7 +109,7 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
             iconColor={menu.iconColor}
             to={menu.to}
             className={menu.desktopOnly ? 'd-none d-md-flex' : ''}
-            onToggleCanvas={onToggleCanvas}
+            onToggleCanvas={menu.label === 'Coming Soon' ? undefined : onToggleCanvas}
           />
         ))}
         <ul className="list-inline mt-4 link-hover-underline fs-6">

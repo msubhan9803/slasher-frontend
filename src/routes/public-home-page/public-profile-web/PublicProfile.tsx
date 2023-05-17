@@ -11,7 +11,7 @@ import HeroImage from '../../../images/public-home-hero-header.png';
 import ProfileLimitedView from '../../profile/ProfileLimitedView/ProfileLimitedView';
 import { getPublicProfile } from '../../../api/users';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
-import { User } from '../../../types';
+import { ProfileVisibility, User } from '../../../types';
 
 const StyleSection = styled.div`
 background: url(${HeroImage}) top center;
@@ -43,15 +43,12 @@ function PublicProfile() {
         </div>
       );
     }
-
-    const isProfileLimited = profileData.profile_status === 1;
-
     return (
       <StyleSection>
         <Row className="d-flex justify-content-center px-2">
           <Col lg={9} className="px-lg-4 px-3">
             <PublicHomeBody>
-              {isProfileLimited
+              {profileData.profile_status === ProfileVisibility.Private
                 ? <ProfileLimitedView user={user!} />
                 : <ProfileAbout user={user!} />}
             </PublicHomeBody>

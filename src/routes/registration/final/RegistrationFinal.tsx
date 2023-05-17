@@ -12,7 +12,8 @@ function RegistrationFinal() {
     <div className="text-center">
       <FontAwesomeIcon icon={regular('paper-plane')} size="6x" className="text-primary" />
       <h1 className="h2 mt-4">You’re almost there!</h1>
-      <h2 className="h3 mb-4">We sent you an email to activate your Slasher account. Once you activate your account, you will be able to sign in.</h2>
+      <h2 className="h3">We sent you an email to activate your Slasher account.</h2>
+      <p>Once you activate your account, you will be able to sign in.</p>
       <p>The email was sent to</p>
       <p className="fs-3 text-primary fw-bold my-3">{emailAddress}</p>
       <p>
@@ -36,7 +37,7 @@ function RegistrationFinal() {
       <div className="d-flex flex-md-row justify-content-center flex-column mt-3">
         <p className="fs-4">Need help?</p>
         <p className="fs-4">
-          &nbsp;Email
+          &nbsp;Email&nbsp;
           <a href="mailto:help@slasher.tv" className="text-decoration-none text-primary">
             help@slasher.tv
           </a>

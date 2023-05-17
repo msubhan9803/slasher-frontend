@@ -21,7 +21,7 @@ import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import { MentionProps } from '../../../routes/posts/create-post/CreatePost';
 import {
-  CommentValue, FeedComments, Post, User,
+  CommentValue, ContentDescription, FeedComments, Post, User,
 } from '../../../types';
 import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-utils';
 import { decryptMessage } from '../../../utils/text-utils';
@@ -211,6 +211,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         comment?.commentId,
         comment?.images,
         comment?.deleteImage,
+        comment?.descriptionArr,
       )
         .then((res) => {
           const updateCommentArray: any = commentData;
@@ -252,6 +253,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         postId!,
         comment.commentMessage,
         comment.imageArr,
+        comment.descriptionArr,
       )
         .then((res) => {
           let newCommentArray: any = commentData;
@@ -307,6 +309,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         reply.replyId,
         reply.images,
         reply.deleteImage,
+        reply.descriptionArr,
       )
         .then((res) => {
           const updateReplyArray: any = commentData;
@@ -347,6 +350,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         reply.replyMessage,
         reply?.imageArr,
         reply.commentId!,
+        reply.descriptionArr,
       ).then((res) => {
         const newReplyArray: any = commentData;
         replyValueData = {
@@ -497,19 +501,23 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     }
   }, [postId, getFeedPostDetail]);
 
-  const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
+  const onUpdatePost = (
+    message: string,
+    images: string[],
+    imageDelete: string[] | undefined,
+    descriptionArray?: ContentDescription[],
+  ) => {
     if (postId) {
-      updateFeedPost(postId, message, images, imageDelete).then(() => {
+      updateFeedPost(postId, message, images, imageDelete, null, descriptionArray).then(() => {
         setShow(false);
         getFeedPostDetail(postId);
         setCheckPostUpdate(true);
-      })
-        .catch((error) => {
-          const msg = error.response.status === 0 && !error.response.data
-            ? 'Combined size of files is too large.'
-            : error.response.data.message;
-          setErrorMessage(msg);
-        });
+      }).catch((error) => {
+        const msg = error.response.status === 0 && !error.response.data
+          ? 'Combined size of files is too large.'
+          : error.response.data.message;
+        setErrorMessage(msg);
+      });
     } else {
       setShow(false);
     }
@@ -863,7 +871,6 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         )
         : (
           <div>
-            <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
             <PostFeed
               isSinglePost
               postFeedData={postData}

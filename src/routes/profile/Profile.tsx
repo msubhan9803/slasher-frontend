@@ -25,16 +25,17 @@ import ContentNotAvailable from '../../components/ContentNotAvailable';
 
 interface SharedHeaderProfilePagesProps {
   user: User;
+  isSelfProfile: boolean;
 }
 
-function SharedHeaderProfilePages({ user }: SharedHeaderProfilePagesProps) {
+function SharedHeaderProfilePages({ user, isSelfProfile }: SharedHeaderProfilePagesProps) {
   return (
     <Routes>
       <Route path="/" element={(<Navigate to="about" replace />)} />
       <Route path="/about" element={<ProfileAbout user={user} />} />
       <Route path="/posts" element={<ProfilePosts user={user} />} />
       <Route path="/posts/:postId" element={<PostDetail user={user} />} />
-      <Route path="/friends" element={<ProfileFriends user={user} />} />
+      <Route path="/friends" element={<ProfileFriends user={user} isSelfProfile={isSelfProfile} />} />
       <Route path="/friends/request" element={<ProfileFriendRequest user={user} />} />
       <Route path="/photos" element={<ProfilePhotos user={user} />} />
       <Route path="/watched-list" element={<ProfileWatchList user={user} />} />
@@ -119,7 +120,7 @@ function Profile() {
         <h1 className="sr-only">{user.userName}</h1>
         <Routes>
           <Route path="/edit" element={<ProfileEdit user={user} />} />
-          <Route path="*" element={<SharedHeaderProfilePages user={user} />} />
+          <Route path="*" element={<SharedHeaderProfilePages user={user} isSelfProfile={isSelfProfile} />} />
         </Routes>
       </ContentPageWrapper>
 

@@ -24,7 +24,7 @@ function UnauthenticatedPageFooter() {
           <a className="px-2" href={`${WORDPRESS_SITE_URL}/terms`}>Terms of Service</a>
           <a className="px-2" href={`${WORDPRESS_SITE_URL}/privacy`}>Privacy Policy</a>
           <a className="px-2" href={`${WORDPRESS_SITE_URL}/cookies`}>Cookie Policy</a>
-          <a className="px-2" href={`${WORDPRESS_SITE_URL}/rules`}>Site Rules</a>
+          <a className="px-2" href={`${WORDPRESS_SITE_URL}/rules`}>Rules</a>
           {/* <a className="px-2" href={GOOGLE_PLAY_DOWNLOAD_URL}>Android App</a>
           <a className="px-2" href={APP_STORE_DOWNLOAD_URL}>iOS App</a> */}
           <div className="px-2">

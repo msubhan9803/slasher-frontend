@@ -24,7 +24,7 @@ interface CommentInputProps {
   handleFileChange: (value: ChangeEvent<HTMLInputElement>, replyUserId?: string) => void;
   sendComment: (commentId: string, message: string) => void;
   imageArray: any;
-  handleRemoveFile: (postImage: File, replyUserId?: string) => void;
+  handleRemoveFile: (postImage: File, index?: number, replyUserId?: string) => void;
   dataId?: string;
   handleSearch: (value: string) => void;
   mentionList: any;
@@ -41,6 +41,10 @@ interface CommentInputProps {
   setCommentReplyErrorMessage?: (value: string[]) => void;
   setReplyImageArray?: (value: any) => void;
   isEdit?: boolean;
+  descriptionArray?: string[];
+  setDescriptionArray?: (value: string[]) => void;
+  replyDescriptionArray?: string[];
+  setReplyDescriptionArray?: (value: string[]) => void;
   isMainPostCommentClick?: boolean;
 }
 
@@ -85,7 +89,8 @@ function CommentInput({
   handleFileChange, sendComment, imageArray, handleRemoveFile, dataId,
   handleSearch, mentionList, addUpdateComment, replyImageArray, isReply,
   addUpdateReply, commentID, commentReplyID, checkCommnt, commentError, commentReplyError,
-  commentSent, setCommentReplyErrorMessage, setReplyImageArray, isEdit, isMainPostCommentClick,
+  commentSent, setCommentReplyErrorMessage, setReplyImageArray, isEdit, descriptionArray,
+  setDescriptionArray, replyDescriptionArray, setReplyDescriptionArray, isMainPostCommentClick,
 }: CommentInputProps) {
   const [editMessage, setEditMessage] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
@@ -154,18 +159,21 @@ function CommentInput({
 
   const onUpdatePost = (msg: string) => {
     const imageArr = isReply ? replyImageArray : imageArray;
+    const descriptionArr = isReply ? replyDescriptionArray : descriptionArray;
     if (isReply) {
       addUpdateReply!({
         replyMessage: msg,
         commentId: dataId,
         imageArr,
         commentReplyID,
+        descriptionArr,
       });
     } else {
       addUpdateComment!({
         commentMessage: msg,
         commentId: dataId,
         imageArr,
+        descriptionArr,
       });
     }
   };
@@ -199,6 +207,28 @@ function CommentInput({
     setIsFocusInput(false);
   };
 
+  const setAltTextValue = (index: number) => {
+    if (descriptionArray?.length && !isReply) {
+      const altText = descriptionArray![index];
+      return altText;
+    } if (replyDescriptionArray?.length && !isReply) {
+      const altText = replyDescriptionArray![index];
+      return altText;
+    }
+    return '';
+  };
+
+  const onChangeDescription = (newValue: string, index: number) => {
+    const descriptionArrayList: string[] = isReply
+      ? [...replyDescriptionArray!] : [...descriptionArray!];
+    if (isReply) {
+      descriptionArrayList![index] = newValue;
+      setReplyDescriptionArray!([...descriptionArrayList]);
+    } else if (!isReply) {
+      descriptionArrayList![index] = newValue;
+      setDescriptionArray!([...descriptionArrayList]);
+    }
+  };
   return (
     <Form>
       <Row className="pt-2 order-last order-sm-0">
@@ -274,19 +304,20 @@ function CommentInput({
       </Row>
 
       <Row className="mx-5 px-3">
-        {imageArray.map((post: File) => (
+        {imageArray.map((post: File, index: number) => (
           <Col xs="auto" key={post.name} className="px-3 mb-1">
             <ImagesContainer
+              mainContainerWidth="7.25"
               containerWidth="4.25rem"
               containerHeight="4.25rem"
               containerBorder="0.125rem solid #3A3B46"
               image={post}
               dataId={dataId}
-              alt="" // TODO: set any existing alt text here (when editing existing image)
-              // eslint-disable-next-line no-console
-              // onAltTextChange={(newValue) => { console.log(`New value is: ${newValue}`); }}
+              alt={setAltTextValue(index)}
+              onAltTextChange={(newValue) => { onChangeDescription!(newValue, index); }}
               handleRemoveImage={handleRemoveFile}
-              containerClass="mt-2 mb-3 position-relative d-flex justify-content-center align-items-center rounded border-0"
+              index={index}
+              containerClass="mt-2 mb-3 m-auto position-relative d-flex justify-content-center align-items-center rounded border-0"
               removeIconStyle={{
                 padding: '0.313rem 0.438rem',
                 top: '-0.5rem',
@@ -323,6 +354,10 @@ CommentInput.defaultProps = {
   setCommentReplyErrorMessage: undefined,
   setReplyImageArray: undefined,
   isEdit: undefined,
+  descriptionArray: undefined,
+  setDescriptionArray: undefined,
+  replyDescriptionArray: undefined,
+  setReplyDescriptionArray: undefined,
   isMainPostCommentClick: undefined,
 };
 

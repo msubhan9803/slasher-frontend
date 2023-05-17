@@ -59,9 +59,11 @@ function MoviesHeader({
         <Col md={4} className="d-none d-lg-block">
           <SortData sortVal={sortVal} onSelectSort={sort} sortoptions={sortoptions} placeholder="Sort..." type="sort" />
         </Col>
+        {enableDevFeatures && (
         <Col md={4} className="order-first order-md-last">
           <RoundButton className="d-lg-none w-100">Add your movie</RoundButton>
         </Col>
+        )}
       </Row>
       {showKeys
         && (

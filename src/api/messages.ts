@@ -1,6 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
+import { ContentDescription } from '../types';
 
 export async function getMessagesList(lastRetrievedMessageId?: string) {
   const token = Cookies.get('sessionToken');
@@ -41,11 +42,24 @@ export async function markAllReadForSingleConversation(matchListId: string) {
   return axios.patch(`${apiUrl}/api/v1/chat/conversations/mark-all-received-messages-read-for-chat/${matchListId}`, {}, { headers });
 }
 
-export async function attachFile(message: string, file: any, conversationId: string) {
+export async function attachFile(
+  message: string,
+  file: any,
+  conversationId: string,
+  descriptionArray?: ContentDescription[] | any,
+) {
   const token = Cookies.get('sessionToken');
   const formData = new FormData();
-  for (let i = 0; i < file.length; i += 1) {
-    formData.append('files', file[i]);
+  for (let i = 0; i < descriptionArray.length; i += 1) {
+    if (file && file.length && file !== undefined) {
+      if (file[i] !== undefined) {
+        formData.append('files', file[i]);
+      }
+    }
+    if (descriptionArray![i].id) {
+      formData.append(`imageDescriptions[${[i]}][_id]`, descriptionArray![i].id);
+    }
+    formData.append(`imageDescriptions[${[i]}][description]`, descriptionArray![i]);
   }
   formData.append('message', message);
   const headers = {

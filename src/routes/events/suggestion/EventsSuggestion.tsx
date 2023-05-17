@@ -13,6 +13,7 @@ import {
 import styled from 'styled-components';
 import Cookies from 'js-cookie';
 import { Country, State } from 'country-state-city';
+import { useLocation, useNavigate } from 'react-router-dom';
 import CustomDatePicker from '../../../components/ui/CustomDatePicker';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import { suggestEvent, getEventCategoriesOption } from '../../../api/event';
@@ -130,6 +131,8 @@ function EventSuggestion() {
   const [errors, setErrors] = useState<string[]>([]);
   const [isEventSuggestionSuccessful, setIsEventSuggestionSuccessful] = useState(false);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const resetFormData = () => {
     setImageUpload(undefined);
@@ -188,9 +191,10 @@ function EventSuggestion() {
   return (
     <div>
       <CustomContainer className="rounded p-md-4 pb-0 pb-md-4">
-        <Row className="d-md-none bg-dark pt-2">
-          <Col xs="auto" className="ms-2"><FontAwesomeIcon role="button" icon={solid('arrow-left-long')} size="2x" /></Col>
-          <Col><h2 className="text-center">Event Suggest</h2></Col>
+        <Row className="d-md-none bg-dark pt-2 hustify-content-between">
+          <Col />
+          <Col><h2 className="text-center">Suggest event</h2></Col>
+          <Col className="ms-2 text-end"><FontAwesomeIcon role="button" icon={solid('xmark')} size="lg" onClick={() => navigate(location.state.prev)} /></Col>
         </Row>
         <Row>
           <Col className="h-100">

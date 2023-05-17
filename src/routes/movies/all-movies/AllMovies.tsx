@@ -13,9 +13,10 @@ import { ALL_MOVIES_DIV_ID } from '../../../utils/pubwise-ad-units';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
 import { useAppDispatch } from '../../../redux/hooks';
-import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import { UIRouteURL } from '../RouteURL';
-import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../../pageStateCache';
+import {
+  deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
+} from '../../../pageStateCache';
 
 function AllMovies() {
   const [requestAdditionalMovies, setRequestAdditionalMovies] = useState<boolean>(false);
@@ -97,16 +98,7 @@ function AllMovies() {
             } else {
               setLastMovieId(res.data[res.data.length - 1]._id);
             }
-            const positionData = {
-              pathname: '',
-              position: 0,
-              data: [],
-              positionElementId: '',
-              sortValue: '',
-              searchValue: '',
-              keyValue: '',
-            };
-            dispatch(setScrollPosition(positionData));
+            deletePageStateCache(location);
           }).catch(
             (error) => {
               setNoMoreData(true);

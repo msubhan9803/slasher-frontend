@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import { Location } from 'react-router-dom';
 
 const pageStateCache = new Map<string, any>();

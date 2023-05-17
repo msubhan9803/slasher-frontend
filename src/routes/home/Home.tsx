@@ -10,7 +10,7 @@ import ReportModal from '../../components/ui/ReportModal';
 import {
   deleteFeedPost, getHomeFeedPosts, hideFeedPost, updateFeedPost,
 } from '../../api/feed-posts';
-import { Post } from '../../types';
+import { ContentDescription, Post } from '../../types';
 import { PopoverClickProps } from '../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../api/feed-likes';
 import { createBlockUser } from '../../api/blocks';
@@ -201,19 +201,25 @@ function Home() {
     });
   };
 
-  const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
-    updateFeedPost(postId, message, images, imageDelete).then((res) => {
-      setShow(false);
-      const updatePost = posts.map((post: any) => {
-        if (post._id === postId) {
-          return {
-            ...post, message: res.data.message, images: res.data.images,
-          };
-        }
-        return post;
-      });
-      setPosts(updatePost);
-    })
+  const onUpdatePost = (
+    message: string,
+    images: string[],
+    imageDelete: string[] | undefined,
+    descriptionArray?: ContentDescription[],
+  ) => {
+    updateFeedPost(postId, message, images, imageDelete, null, descriptionArray)
+      .then((res) => {
+        setShow(false);
+        const updatePost = posts.map((post: any) => {
+          if (post._id === postId) {
+            return {
+              ...post, content: res.data.message, images: res.data.images,
+            };
+          }
+          return post;
+        });
+        setPosts(updatePost);
+      })
       .catch((error) => {
         const msg = error.response.status === 0 && !error.response.data
           ? 'Combined size of files is too large.'

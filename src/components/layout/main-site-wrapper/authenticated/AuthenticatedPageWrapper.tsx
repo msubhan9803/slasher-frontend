@@ -3,7 +3,7 @@ import React, {
   useCallback, useEffect, useRef, useState,
 } from 'react';
 import { Offcanvas } from 'react-bootstrap';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import styled from 'styled-components';
 import { useMediaQuery } from 'react-responsive';
@@ -74,6 +74,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const token = Cookies.get('sessionToken');
   const location = useLocation();
   useGoogleAnalytics(analyticsId);
+  const params = useParams();
 
   // Record all navigation by user
   useEffect(() => {
@@ -99,9 +100,8 @@ function AuthenticatedPageWrapper({ children }: Props) {
   };
 
   useEffect(() => {
-    if (!token) {
-      navigate(`/app/sign-in?path=${pathname}`);
-      return;
+    if (!token && params.userName) {
+      navigate(`/${params.userName}`);
     }
 
     if (!remoteConstantsData.loaded) {
@@ -122,7 +122,8 @@ function AuthenticatedPageWrapper({ children }: Props) {
         }
       });
     }
-  }, [dispatch, navigate, pathname, userData.user?.userName, remoteConstantsData.loaded, token]);
+  }, [dispatch, navigate, pathname, userData.user?.userName,
+    remoteConstantsData.loaded, token, params.userName]);
 
   const onNotificationReceivedHandler = useCallback(() => {
     dispatch(incrementUnreadNotificationCount());

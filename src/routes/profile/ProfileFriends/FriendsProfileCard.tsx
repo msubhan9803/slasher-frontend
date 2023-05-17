@@ -16,6 +16,7 @@ function FriendsProfileCard({
 }: any) {
   const location = useLocation();
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  const userData = useAppSelector((state) => state.user);
   useEffect(() => {
     if (scrollPosition.position > 0
       && scrollPosition?.pathname === location.pathname) {
@@ -67,6 +68,7 @@ function FriendsProfileCard({
             />
           </>
         ) : (
+          userData.user.id !== friend._id && (
           <CustomPopover
             userName={friend.userName}
             popoverOptions={popoverOption}
@@ -74,6 +76,7 @@ function FriendsProfileCard({
             id={friend._id}
             userId={friend._id}
           />
+          )
         )}
       </div>
     </Container>

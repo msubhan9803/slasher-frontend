@@ -90,7 +90,7 @@ function AuthenticatedPageHeader(
       <header>
         <StyledNavbar bg="black" variant="dark" expand={offcanvasSidebarExpandBreakPoint} className={`fixed-top py-1 mb-3 d-none d-${offcanvasSidebarExpandBreakPoint}-flex`}>
           <div className="w-100 d-flex px-4 container-xxl">
-            <Navbar.Brand as={Link} to="/" className="py-0">
+            <Navbar.Brand as={Link} to="/app/home" className="py-0">
               <HeaderLogo />
             </Navbar.Brand>
             <StyledNav className="ms-auto px-1">

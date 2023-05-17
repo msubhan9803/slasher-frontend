@@ -1,7 +1,6 @@
 /* eslint-disable max-lines */
 import React, { useCallback, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
-import Cookies from 'js-cookie';
 import { useLocation, useParams } from 'react-router-dom';
 import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import ProfileHeader from '../ProfileHeader';
@@ -42,7 +41,7 @@ function ProfilePosts({ user }: Props) {
   const [postId, setPostId] = useState<string>('');
   const loginUserData = useAppSelector((state) => state.user.user);
   const [postUserId, setPostUserId] = useState<string>('');
-  const loginUserId = Cookies.get('userId');
+  const userId = useAppSelector((state) => state.user.user.id);
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const location = useLocation();
@@ -122,7 +121,7 @@ function ProfilePosts({ user }: Props) {
       }
     }
   }, [
-    requestAdditionalPosts, loadingPosts, loginUserId, userNameOrId, user._id, user.userName,
+    requestAdditionalPosts, loadingPosts, userId, userNameOrId, user._id, user.userName,
     posts, scrollPosition, location, dispatch,
   ]);
   const renderNoMoreDataMessage = () => (

@@ -21,7 +21,9 @@ test.describe(pagePath, () => {
 
     test('should redirect to /app/home for a logged in user', async ({ page, baseURL }) => {
       const expectedUrl = `${baseURL}/app/home`;
-      await page.waitForNavigation({ url: expectedUrl, timeout: 5000 });
+      if (page.url() !== expectedUrl) {
+        await page.waitForNavigation({ url: expectedUrl, timeout: 5000 });
+      }
       await expect(page.url()).toBe(expectedUrl);
     });
   });

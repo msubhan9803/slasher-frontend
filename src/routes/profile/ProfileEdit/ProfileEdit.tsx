@@ -6,7 +6,6 @@ import {
 import {
   useNavigate, useLocation, useParams,
 } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import { AxiosResponse } from 'axios';
 import {
   uploadUserCoverImage,
@@ -21,7 +20,7 @@ import { updateUserNameCookie } from '../../../utils/session-utils';
 import NotFound from '../../../components/NotFound';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import useProgressButton from '../../../components/ui/ProgressButton';
-import { useAppDispatch } from '../../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { updateUserProfilePic } from '../../../redux/slices/userSlice';
 
 interface Props {
@@ -47,13 +46,13 @@ function ProfileEdit({ user }: Props) {
   const { userName } = useParams<string>();
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const dispatch = useAppDispatch();
+  const loggedInUserName = useAppSelector((state) => state.user.user.userName);
+  const isUnAuthorizedUser = userName !== loggedInUserName;
 
   const handleChange = (value: string, key: string) => {
     setUserDataInForm({ ...userDataInForm, [key]: value });
   };
 
-  const userNameCookies = Cookies.get('userName');
-  const isUnAuthorizedUser = userName !== userNameCookies;
   const updateProfile = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setProgressButtonStatus('loading');
@@ -100,7 +99,7 @@ function ProfileEdit({ user }: Props) {
       }
     }
 
-    let updateResponse = null;
+    let updateResponse: any = null;
 
     try {
       updateResponse = await updateUser(
@@ -119,15 +118,16 @@ function ProfileEdit({ user }: Props) {
     if (updateResponse && errorList.length === 0) {
       // Update was successful
 
-      updateUserNameCookie(userDataInForm.userName);
-      handleChange(updateResponse.data.unverifiedNewEmail || updateResponse.data.email, 'email');
-      handleChange(updateResponse.data.unverifiedNewEmail, 'unverifiedNewEmail');
+      updateUserNameCookie(userDataInForm.userName).finally(() => {
+        handleChange(updateResponse.data.unverifiedNewEmail || updateResponse.data.email, 'email');
+        handleChange(updateResponse.data.unverifiedNewEmail, 'unverifiedNewEmail');
 
-      // And update current url to use latest userName (to handle possible userName change)
-      navigate(
-        location.pathname.replace(params.userName!, userDataInForm.userName),
-        { replace: true },
-      );
+        // And update current url to use latest userName (to handle possible userName change)
+        navigate(
+          location.pathname.replace(params.userName!, userDataInForm.userName),
+          { replace: true },
+        );
+      });
       setProgressButtonStatus('success');
     } else {
       setProgressButtonStatus('failure');

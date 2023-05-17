@@ -105,7 +105,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
     if (token.isLoading) { return; }
 
     // Redirect to public profile page
-    if (!tokenNotFound && params.userName && params['*']) {
+    if (tokenNotFound && params.userName && params['*']) {
       navigate(`/${params.userName}`);
       return;
     }

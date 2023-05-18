@@ -168,13 +168,13 @@ describe('Conversations all / (e2e)', () => {
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
       });
 
-      it('limit should be less than or equal to 20', async () => {
-        const limit = 21;
+      it('limit should be less than or equal to 30', async () => {
+        const limit = 31;
         const response = await request(app.getHttpServer())
           .get(`/api/v1/chat/conversations?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain('limit must not be greater than 20');
+        expect(response.body.message).toContain('limit must not be greater than 30');
       });
 
       it('before must be a mongodb id', async () => {

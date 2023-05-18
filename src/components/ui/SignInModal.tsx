@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal } from 'react-bootstrap';
 import styled from 'styled-components';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { UserCredentials } from '../../routes/sign-in/SignIn';
 import SigninComponent from './SigninComponent';
 import { signIn } from '../../api/users';
@@ -24,12 +24,11 @@ function SignInModal({ show, setShow, isPublicProfile }: SignInProps) {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string[]>();
-  const [searchParams] = useSearchParams();
   const [credentials, setCredentials] = useState<UserCredentials>({
     emailOrUsername: '',
     password: '',
   });
-
+  const { userName } = useParams();
   const closeModal = () => {
     setShow(false);
   };
@@ -39,8 +38,8 @@ function SignInModal({ show, setShow, isPublicProfile }: SignInProps) {
     signIn(credentials.emailOrUsername, credentials.password).then((res) => {
       setErrorMessage([]);
       setSignInCookies(res.data.token, res.data.id, res.data.userName);
-      const targetPath = searchParams.get('path');
-      navigate(`${targetPath ?? '/app/home'}`);
+      const stateObj = { publicProfile: true };
+      navigate(`/${userName}/about`, { state: stateObj });
     }).catch((error) => {
       setErrorMessage(error.response.data.message);
     });

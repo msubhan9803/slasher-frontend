@@ -48,6 +48,7 @@ export class MailService {
         + `activate-account?userId=${encodeURIComponent(userId)}`
         + `&token=${encodeURIComponent(verificationToken)}`,
     });
+    console.log(htmlToSend);
     return this.sendEmail(
       email,
       this.getFormattedDefaultSenderForFromField(),

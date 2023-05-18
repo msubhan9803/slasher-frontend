@@ -99,6 +99,10 @@ describe('Feed-Post / Post File (e2e)', () => {
           .attach('files', tempPaths[1])
           .attach('files', tempPaths[2])
           .attach('files', tempPaths[3])
+          .field('imageDescriptions[0][description]', 'this is create post description 1')
+          .field('imageDescriptions[1][description]', 'this is create post description 2')
+          .field('imageDescriptions[2][description]', 'this is create post description 3')
+          .field('imageDescriptions[3][description]', 'this is create post description 4')
           .expect(HttpStatus.CREATED);
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -109,18 +113,22 @@ describe('Feed-Post / Post File (e2e)', () => {
           images: [
             {
               image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              description: 'this is create post description 1',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
               image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              description: 'this is create post description 2',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
               image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              description: 'this is create post description 3',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
               image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              description: 'this is create post description 4',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
           ],
@@ -183,6 +191,8 @@ describe('Feed-Post / Post File (e2e)', () => {
           .field('postType', PostType.User)
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1])
+          .field('imageDescriptions[0][description]', 'this is create post description 1')
+          .field('imageDescriptions[1][description]', 'this is create post description 2')
           .expect(HttpStatus.CREATED);
         expect(response.body.images).toHaveLength(2);
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
@@ -293,7 +303,9 @@ describe('Feed-Post / Post File (e2e)', () => {
           .field('userId', activeUser._id.toString())
           .field('movieId', movie._id.toString())
           .attach('files', tempPaths[0])
-          .attach('files', tempPaths[1]);
+          .attach('files', tempPaths[1])
+          .field('imageDescriptions[0][description]', 'this is create post description 0')
+          .field('imageDescriptions[1][description]', 'this is create post description 1');
         const post = await feedPostsService.findById(response.body._id, true);
         expect((post.movieId as any)._id).toEqual(movie._id);
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
@@ -315,7 +327,9 @@ describe('Feed-Post / Post File (e2e)', () => {
           .field('movieId', movie._id.toString())
           .field('moviePostFields[spoilers]', true)
           .attach('files', tempPaths[0])
-          .attach('files', tempPaths[1]);
+          .attach('files', tempPaths[1])
+          .field('imageDescriptions[0][description]', 'this is create post description 0')
+          .field('imageDescriptions[1][description]', 'this is create post description 1');
         expect(response.body).toEqual({
           statusCode: 400,
           message: 'When submitting moviePostFields, post type must be MovieReview.',
@@ -338,7 +352,9 @@ describe('Feed-Post / Post File (e2e)', () => {
           .field('userId', activeUser._id.toString())
           .field('moviePostFields[spoilers]', true)
           .attach('files', tempPaths[0])
-          .attach('files', tempPaths[1]);
+          .attach('files', tempPaths[1])
+          .field('imageDescriptions[0][description]', 'this is create post description 0')
+          .field('imageDescriptions[1][description]', 'this is create post description 1');
         expect(response.body).toEqual({
           statusCode: 400,
           message: 'When submitting moviePostFields, movieId is required.',
@@ -365,7 +381,9 @@ describe('Feed-Post / Post File (e2e)', () => {
           .field('moviePostFields[goreFactorRating]', 4)
           .field('moviePostFields[worthWatching]', WorthWatchingStatus.Down)
           .attach('files', tempPaths[0])
-          .attach('files', tempPaths[1]);
+          .attach('files', tempPaths[1])
+          .field('imageDescriptions[0][description]', 'this is create post description 0')
+          .field('imageDescriptions[1][description]', 'this is create post description 1');
         const post = await feedPostsService.findById(response.body._id, true);
         const movieUserStatus = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString());
         expect(post.spoilers).toBe(true);
@@ -422,6 +440,81 @@ describe('Feed-Post / Post File (e2e)', () => {
       );
     });
 
+    it('when files length is not equal imageDescriptions length than expected response', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'hello test user')
+          .field('postType', PostType.User)
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1])
+          .field('imageDescriptions[0][description]', 'this is create feed comments description 2');
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'files length and imagesDescriptions length should be same',
+        });
+      }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when imageDescriptions is empty string than expected response', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'hello test user')
+          .field('postType', PostType.User)
+          .field('userId', activeUser._id.toString())
+          .attach('files', tempPaths[0])
+          .field('imageDescriptions[0][description]', '')
+          .expect(HttpStatus.CREATED);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'hello test user',
+          postType: PostType.User,
+          spoilers: false,
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              description: null,
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
+      }, [{ extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('cannot add more than 10 description on post', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/feed-posts')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('imageDescriptions[0][description]', 'this is create feed post description 0')
+        .field('imageDescriptions[1][description]', 'this is create feed post description 1')
+        .field('imageDescriptions[2][description]', 'this is create feed post description 2')
+        .field('imageDescriptions[3][description]', 'this is create feed post description 3')
+        .field('imageDescriptions[4][description]', 'this is create feed post description 4')
+        .field('imageDescriptions[5][description]', 'this is create feed post description 5')
+        .field('imageDescriptions[6][description]', 'this is create feed post description 6')
+        .field('imageDescriptions[7][description]', 'this is create feed post description 7')
+        .field('imageDescriptions[8][description]', 'this is create feed post description 8')
+        .field('imageDescriptions[9][description]', 'this is create feed post description 9')
+        .field('imageDescriptions[10][description]', 'this is create feed post description 10');
+      expect(response.body.statusCode).toEqual(HttpStatus.BAD_REQUEST);
+      expect(response.body.message).toContain('Only allow maximum of 10 description');
+    });
+
     describe('notifications', () => {
       it('when notification is create for createFeedPost than check newNotificationCount is increment in user', async () => {
         const otherUser1 = await usersService.create(userFactory.build({ userName: 'Denial' }));
@@ -440,7 +533,8 @@ describe('Feed-Post / Post File (e2e)', () => {
             .field('postType', PostType.User)
             .field('userId', activeUser._id.toString())
             .attach('files', tempPaths[0])
-            .expect(HttpStatus.CREATED);
+            .field('imageDescriptions[0][description]', 'this is create post description 0')
+          .expect(HttpStatus.CREATED);
 
           const otherUser1NewNotificationCount = await usersService.findById(otherUser1.id, true);
           const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id, true);
@@ -534,6 +628,25 @@ describe('Feed-Post / Post File (e2e)', () => {
           .field('userId', activeUser._id.toString())
           .field('postType', 4);
         expect(response.body.message).toContain('postType must be one of the following values: 3, 2, 1');
+      });
+
+      it('check description length validation', async () => {
+        await createTempFiles(async (tempPaths) => {
+          const response = await request(app.getHttpServer())
+            .post('/api/v1/feed-posts')
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('message', 'create feed post message')
+            .field('userId', activeUser._id.toString())
+            .attach('files', tempPaths[0])
+            .field('imageDescriptions[0][description]', new Array(252).join('z'))
+            .expect(HttpStatus.BAD_REQUEST);
+          expect(response.body.message).toContain('description cannot be longer than 250 characters');
+        }, [{ extension: 'png' }, { extension: 'jpg' }]);
+
+        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+        expect(allFilesNames).toEqual(['.keep']);
       });
     });
   });

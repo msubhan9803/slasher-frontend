@@ -81,16 +81,26 @@ export class FeedPostsController {
         HttpStatus.BAD_REQUEST,
       );
     }
+
+    if (files && files.length && files.length && files?.length !== createFeedPostsDto.imageDescriptions?.length) {
+      throw new HttpException(
+        'files length and imagesDescriptions length should be same',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const user = getUserFromRequest(request);
     const images = [];
-    for (const file of files) {
+    for (const [index, file] of files.entries()) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
       if (this.config.get<string>('FILE_STORAGE') === 's3') {
         await this.s3StorageService.write(storageLocation, file);
       } else {
         this.localStorageService.write(storageLocation, file);
       }
-      images.push({ image_path: storageLocation });
+      const description = createFeedPostsDto?.imageDescriptions[index].description;
+      const imageDescriptions = description === '' ? null : description;
+      images.push({ image_path: storageLocation, description: imageDescriptions });
     }
 
     const feedPost = new FeedPost(createFeedPostsDto);
@@ -278,15 +288,46 @@ export class FeedPostsController {
     if (updateFeedPostsDto.imagesToDelete) {
       imagesToKeep = feedPost.images.filter((image) => !updateFeedPostsDto.imagesToDelete.includes((image as any)._id.toString()));
     }
+
+    let oldImagesDescription;
+    let newImagesDescription;
+    if (updateFeedPostsDto.imageDescriptions) {
+      oldImagesDescription = updateFeedPostsDto.imageDescriptions.filter((item) => item._id);
+      newImagesDescription = updateFeedPostsDto.imageDescriptions.filter((item) => !item._id);
+    }
+
+    if (files && files.length && files?.length !== newImagesDescription?.length) {
+      throw new HttpException(
+        'files length and imagesDescriptions length should be same',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (oldImagesDescription && oldImagesDescription.length) {
+      feedPost.images.map((image) => {
+        const matchingDesc = oldImagesDescription.find((desc) => desc._id === (image as any)._id.toString());
+        if (matchingDesc) {
+          // eslint-disable-next-line no-param-reassign
+          image.description = matchingDesc.description;
+        }
+        return image;
+      });
+    }
+
+    if (oldImagesDescription && oldImagesDescription.length && !newImagesDescription.length) {
+      Object.assign(updateFeedPostsDto, { images: feedPost.images });
+    }
+
     const images = [];
-    for (const file of files) {
+    for (const [index, file] of files.entries()) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
       if (this.config.get<string>('FILE_STORAGE') === 's3') {
         await this.s3StorageService.write(storageLocation, file);
       } else {
         this.localStorageService.write(storageLocation, file);
       }
-      images.push({ image_path: storageLocation });
+      const imageDescriptions = newImagesDescription[index]?.description === '' ? null : newImagesDescription[index]?.description;
+      images.push({ image_path: storageLocation, description: imageDescriptions });
     }
 
     if (newPostImages || imagesToDelete) {
@@ -326,7 +367,6 @@ export class FeedPostsController {
         );
       }
     }
-
     const updatedFeedPost = await this.feedPostsService.update(param.id, updateFeedPostsDto);
     const mentionedUserIdsBeforeUpdate = extractUserMentionIdsFromMessage(feedPost.message);
     const mentionedUserIdsAfterUpdate = extractUserMentionIdsFromMessage(updateFeedPostsDto?.message);

@@ -7,7 +7,7 @@ export class GetConversationsQueryDto {
   @IsNotEmpty()
   @Type(() => Number)
   @IsNumber()
-  @Max(20)
+  @Max(30)
   limit: number;
 
   @IsString()

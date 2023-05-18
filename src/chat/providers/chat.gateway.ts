@@ -82,6 +82,7 @@ export class ChatGateway {
       image: messageObject.image,
       matchId: messageObject.matchId,
       created: messageObject.created,
+      imageDescription: messageObject.imageDescription,
     };
     return { success: true, message: newMessageObject };
   }
@@ -119,7 +120,7 @@ export class ChatGateway {
       }
     });
     return messages.map(
-      (message) => pick(message, ['_id', 'message', 'isRead', 'createdAt', 'image', 'fromId', 'senderId']),
+      (message) => pick(message, ['_id', 'message', 'isRead', 'imageDescription', 'createdAt', 'image', 'fromId', 'senderId']),
     );
   }
 

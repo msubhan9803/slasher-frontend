@@ -14,6 +14,8 @@ import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { Message, MessageDocument } from '../../../../../src/schemas/message/message.schema';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { BlockAndUnblockReaction } from '../../../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
+import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 
 describe('Conversations all / (e2e)', () => {
   let app: INestApplication;
@@ -25,10 +27,12 @@ describe('Conversations all / (e2e)', () => {
   let user2: User;
   let user3: User;
   let user4: User;
+  let blockedUser: User;
   let activeUserAuthToken: string;
   let activeUser: User;
   let configService: ConfigService;
   let messageModel: Model<MessageDocument>;
+  let blocksModel: Model<BlockAndUnblockDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -40,6 +44,7 @@ describe('Conversations all / (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     messageModel = moduleRef.get<Model<MessageDocument>>(getModelToken(Message.name));
+    blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
     await app.init();
@@ -69,13 +74,21 @@ describe('Conversations all / (e2e)', () => {
     );
     await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Hi, test message 1.');
     await chatService.sendPrivateDirectMessage(activeUser._id.toString(), user1._id.toString(), 'Hi, test message 2.');
+    // create a user, send a message to it and block the user
+    blockedUser = await usersService.create(userFactory.build());
+    await chatService.sendPrivateDirectMessage(activeUser._id.toString(), blockedUser._id.toString(), 'Hi, test message 3 - blocked user.');
+    await blocksModel.create({
+      from: activeUser._id,
+      to: blockedUser._id,
+      reaction: BlockAndUnblockReaction.Block,
+    });
   });
   describe('GET /api/v1/chat/conversations', () => {
     it('requires authentication', async () => {
       await request(app.getHttpServer()).get('/api/v1/chat/conversations').expect(HttpStatus.UNAUTHORIZED);
     });
 
-    describe('Successful get all conversations', () => {
+    describe('Successful get all conversations (except from blocked users)', () => {
       it('get expected conversations that a user is part of', async () => {
         const limit = 10;
         const response = await request(app.getHttpServer())
@@ -83,6 +96,9 @@ describe('Conversations all / (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
+        // Returned conversations should not have conversation of blocked user
+        expect(response.body.map((conversation) => conversation.latestMessage)).not.toContain('Hi, test message 3 - blocked user.');
+
         expect(response.body).toEqual(
           [
             {
@@ -152,13 +168,13 @@ describe('Conversations all / (e2e)', () => {
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
       });
 
-      it('limit should be less than or equal to 20', async () => {
-        const limit = 21;
+      it('limit should be less than or equal to 30', async () => {
+        const limit = 31;
         const response = await request(app.getHttpServer())
           .get(`/api/v1/chat/conversations?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain('limit must not be greater than 20');
+        expect(response.body.message).toContain('limit must not be greater than 30');
       });
 
       it('before must be a mongodb id', async () => {

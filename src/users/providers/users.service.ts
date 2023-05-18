@@ -88,28 +88,22 @@ export class UsersService {
 
   async findNonDeletedUserByEmailOrUsername(emailOrUsername: string): Promise<UserDocument> {
     if (EmailValidator.validate(emailOrUsername)) {
-      return this.userModel.findOne({ email: emailOrUsername, deleted: false }).exec();
+      return this.userModel.findOne({ email: new RegExp(`^${escapeStringForRegex(emailOrUsername)}$`, 'i'), deleted: false }).exec();
     }
-    return this.userModel.findOne({ userName: emailOrUsername, deleted: false }).exec();
+    return this.userModel.findOne({ userName: new RegExp(`^${escapeStringForRegex(emailOrUsername)}$`, 'i'), deleted: false }).exec();
   }
 
   async userNameAvailable(userName: string): Promise<boolean> {
     const user = await this.userModel.findOne({ userName: new RegExp(`^${escapeStringForRegex(userName)}$`, 'i') }).exec();
-    if ((user && !user.deleted)
-      || (user && user.deleted && user.userBanned)
-      || (user && (user.userBanned || user.status === ActiveStatus.Inactive))) {
-      return false;
-    }
+    if (!user) { return true; } // username is available if user not found
+    if (user.userBanned || !user.deleted) { return false; } // username not available if user banned or user not deleted
     return true;
   }
 
   async emailAvailable(email: string): Promise<boolean> {
     const user = await this.userModel.findOne({ email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') }).exec();
-    if ((user && !user.deleted)
-      || (user && user.deleted && user.userBanned)
-      || (user && (user.userBanned || user.status === ActiveStatus.Inactive))) {
-      return false;
-    }
+    if (!user) { return true; } // email is available if user not found
+    if (user.userBanned || !user.deleted) { return false; } // email not available if user banned or user not deleted
     return true;
   }
 
@@ -144,7 +138,7 @@ export class UsersService {
       .exec();
   }
 
-  async suggestUserName(query: string, limit: number, activeOnly: boolean, excludeUserIds: User[]): Promise<UserNameSuggestion[]> {
+  async suggestUserName(query: string, limit: number, activeOnly: boolean, excludeUserIds: string[]): Promise<UserNameSuggestion[]> {
     const nameFindQuery: any = {
       userName: new RegExp(`^${escapeStringForRegex(query)}`, 'i'),
       _id: { $nin: excludeUserIds },

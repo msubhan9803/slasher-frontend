@@ -97,15 +97,24 @@ export class FeedCommentsController {
       }
     }
 
+    if (files && files.length && files?.length !== createFeedCommentsDto.imageDescriptions?.length) {
+      throw new HttpException(
+        'files length and imagesDescriptions length should be same',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const images = [];
-    for (const file of files) {
+    for (const [index, file] of files.entries()) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
       if (this.config.get<string>('FILE_STORAGE') === 's3') {
         await this.s3StorageService.write(storageLocation, file);
       } else {
         this.localStorageService.write(storageLocation, file);
       }
-      images.push({ image_path: storageLocation });
+      // eslint-disable-next-line max-len
+      const imageDescriptions = createFeedCommentsDto.imageDescriptions[index].description === '' ? null : createFeedCommentsDto.imageDescriptions[index].description;
+      images.push({ image_path: storageLocation, description: imageDescriptions });
     }
 
     const feedComment = new FeedComment(createFeedCommentsDto);
@@ -177,15 +186,44 @@ export class FeedCommentsController {
       imagesToKeep = comment.images.filter((image) => !updateFeedCommentsDto.imagesToDelete.includes((image as any)._id.toString()));
     }
 
+    let oldImagesDescription;
+    let newImagesDescription;
+    if (updateFeedCommentsDto.imageDescriptions) {
+      oldImagesDescription = updateFeedCommentsDto.imageDescriptions.filter((item) => item._id);
+      newImagesDescription = updateFeedCommentsDto.imageDescriptions.filter((item) => !item._id);
+    }
+
+    if (files && files.length && files?.length !== newImagesDescription?.length) {
+      throw new HttpException(
+        'files length and imagesDescriptions length should be same',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (oldImagesDescription && oldImagesDescription.length) {
+      comment.images.map((image) => {
+        const matchingDesc = oldImagesDescription.find((desc) => desc._id === (image as any)._id.toString());
+        if (matchingDesc) {
+          // eslint-disable-next-line no-param-reassign
+          image.description = matchingDesc.description;
+        }
+        return image;
+      });
+    }
+    if (oldImagesDescription && oldImagesDescription.length && !newImagesDescription.length) {
+      Object.assign(updateFeedCommentsDto, { images: comment.images });
+    }
     const images = [];
-    for (const file of files) {
+    for (const [index, file] of files.entries()) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
       if (this.config.get<string>('FILE_STORAGE') === 's3') {
         await this.s3StorageService.write(storageLocation, file);
       } else {
         this.localStorageService.write(storageLocation, file);
       }
-      images.push({ image_path: storageLocation });
+      // eslint-disable-next-line max-len
+      const imageDescriptions = newImagesDescription[index]?.description === '' ? null : newImagesDescription[index]?.description;
+      images.push({ image_path: storageLocation, description: imageDescriptions });
     }
     if (newCommentImages || imagesToDelete) {
       const feedCommentImages = images.concat(imagesToKeep);
@@ -276,15 +314,24 @@ export class FeedCommentsController {
       }
     }
 
+    if (files && files.length && files?.length !== createFeedReplyDto.imageDescriptions?.length) {
+      throw new HttpException(
+        'files length and imagesDescriptions length should be same',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const images = [];
-    for (const file of files) {
+    for (const [index, file] of files.entries()) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
       if (this.config.get<string>('FILE_STORAGE') === 's3') {
         await this.s3StorageService.write(storageLocation, file);
       } else {
         this.localStorageService.write(storageLocation, file);
       }
-      images.push({ image_path: storageLocation });
+      const { description } = createFeedReplyDto.imageDescriptions[index];
+      const imageDescriptions = description === '' ? null : description;
+      images.push({ image_path: storageLocation, description: imageDescriptions });
     }
 
     const feedReply = new FeedReply(createFeedReplyDto);
@@ -358,15 +405,42 @@ export class FeedCommentsController {
       imagesToKeep = reply.images.filter((image) => !updateFeedReplyDto.imagesToDelete.includes((image as any)._id.toString()));
     }
 
+    let oldImagesDescription;
+    let newImagesDescription;
+    if (updateFeedReplyDto.imageDescriptions) {
+      oldImagesDescription = updateFeedReplyDto.imageDescriptions.filter((item) => item._id);
+      newImagesDescription = updateFeedReplyDto.imageDescriptions.filter((item) => !item._id);
+    }
+
+    if (files && files.length && files?.length !== newImagesDescription?.length) {
+      throw new HttpException(
+        'files length and imagesDescriptions length should be same',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    if (oldImagesDescription && oldImagesDescription.length) {
+      reply.images.map((image) => {
+        const matchingDesc = oldImagesDescription.find((desc) => desc._id === (image as any)._id.toString());
+        if (matchingDesc) {
+          // eslint-disable-next-line no-param-reassign
+          image.description = matchingDesc.description;
+        }
+        return image;
+      });
+    }
+    if (oldImagesDescription && oldImagesDescription.length && !newImagesDescription.length) {
+      Object.assign(updateFeedReplyDto, { images: reply.images });
+    }
     const images = [];
-    for (const file of files) {
+    for (const [index, file] of files.entries()) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
       if (this.config.get<string>('FILE_STORAGE') === 's3') {
         await this.s3StorageService.write(storageLocation, file);
       } else {
         this.localStorageService.write(storageLocation, file);
       }
-      images.push({ image_path: storageLocation });
+      const imageDescriptions = newImagesDescription[index].description === '' ? null : newImagesDescription[index].description;
+      images.push({ image_path: storageLocation, description: imageDescriptions });
     }
 
     if (newReplyImages || imagesToDelete) {
@@ -437,10 +511,12 @@ export class FeedCommentsController {
       }
     }
 
+    const excludedUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(user.id);
     const allFeedCommentsWithReplies = await this.feedCommentsService.findFeedCommentsWithReplies(
       query.feedPostId,
       query.limit,
       query.sortBy,
+      excludedUserIds,
       user.id,
       query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
     );
@@ -483,7 +559,13 @@ export class FeedCommentsController {
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: FeedCommentsIdDto,
   ) {
     const user = getUserFromRequest(request);
-    const feedCommentWithReplies = await this.feedCommentsService.findOneFeedCommentWithReplies(params.feedCommentId, true, user.id);
+    const excludedUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(user.id);
+    const feedCommentWithReplies = await this.feedCommentsService.findOneFeedCommentWithReplies(
+      params.feedCommentId,
+      true,
+      excludedUserIds,
+      user.id,
+    );
     if (!feedCommentWithReplies) {
       throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
     }

@@ -114,9 +114,13 @@ import { TimeoutInterceptor } from './app/interceptors/timeout.interceptor';
           // DTO validation then we will need to update this method.
           const flattenedConstraints = validationErrors.map((error) => {
             let constraints = Object.values(error.constraints || {});
-            constraints = constraints.concat(
-              ((error.children || []).map((child) => Object.values(child.constraints || {}))).flat(1),
-            );
+            if (error.children && error.children && error.children[0]?.constraints) {
+              constraints = constraints.concat(
+                ((error.children || []).map((child) => Object.values(child.constraints || {}))).flat(1),
+              );
+            } else {
+              constraints = constraints.concat(error.children.map((child) => Object.values(child.children[0].constraints || {})).flat(1));
+            }
             return constraints;
           }).flat(1);
           return new BadRequestException(flattenedConstraints);
@@ -166,6 +170,7 @@ export class AppModule {
         '/api/v1/users/verification-email-not-received',
         '/api/v1/users/email-change/confirm',
         '/api/v1/users/email-change/revert',
+        '/api/v1/users/public/:userNameOrId',
       )
       .forRoutes('*');
   }

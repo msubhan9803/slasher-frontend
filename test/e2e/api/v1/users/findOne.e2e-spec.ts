@@ -57,7 +57,7 @@ describe('GET /users/:id (e2e)', () => {
     rewindAllFactories();
   });
 
-  describe('GET /api/v1/users/:idOrUserName', () => {
+  describe('GET /api/v1/users/:userNameOrId', () => {
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(
@@ -188,6 +188,30 @@ describe('GET /users/:id (e2e)', () => {
         });
       });
 
+      it('returns the expected response when logged in users requests their own user data', async () => {
+        const response = await request(app.getHttpServer())
+          .get(`/api/v1/users/${otherUser.userName}`)
+          .auth(otherUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toEqual({
+          _id: otherUser.id,
+          firstName: 'First name 2',
+          userName: 'Username2',
+          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          coverPhoto: null,
+          aboutMe: 'Hello. This is me.',
+          profile_status: ProfileVisibility.Private,
+          email: 'User2@Example.com',
+          unverifiedNewEmail: null,
+          friendshipStatus: {
+            reaction: null,
+            from: null,
+            to: null,
+          },
+        });
+      });
+
       it('returns the expected response when the user is not found', async () => {
         const nonExistentUserName = `No${activeUser.userName}`;
         const response = await request(app.getHttpServer())
@@ -237,7 +261,7 @@ describe('GET /users/:id (e2e)', () => {
           userName: 'Username2',
           profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           coverPhoto: null,
-          aboutMe: 'Hello. This is me.',
+          aboutMe: null,
           profile_status: ProfileVisibility.Private,
           friendshipStatus: {
             reaction: null,
@@ -282,7 +306,7 @@ describe('GET /users/:id (e2e)', () => {
           userName: 'Username3',
           profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           coverPhoto: null,
-          aboutMe: 'Hello. This is me.',
+          aboutMe: null,
           profile_status: 1,
           friendshipStatus: {
             reaction: null,

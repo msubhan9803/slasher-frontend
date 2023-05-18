@@ -67,6 +67,7 @@ import { relativeToFullImagePath } from '../utils/image-utils';
 import { IpOrForwardedIp } from '../app/decorators/ip-or-forwarded-ip.decorator';
 import { BetaTestersService } from '../beta-tester/providers/beta-testers.service';
 import { EmailRevertTokensService } from '../email-revert-tokens/providers/email-revert-tokens.service';
+import { FriendRequestReaction } from '../schemas/friend/friend.enums';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -435,7 +436,7 @@ export class UsersController {
   ) {
     const user = getUserFromRequest(request);
     // Note: We are allowing a user to look up their own username when getting user suggestions.
-    const excludedUserIds = await this.blocksService.getBlockedUserIdsBySender(user.id);
+    const excludedUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(user.id);
     return this.usersService.suggestUserName(query.query, query.limit, true, excludedUserIds);
   }
 
@@ -468,6 +469,10 @@ export class UsersController {
       to: null,
     };
 
+    if (user.profile_status === ProfileVisibility.Private
+      && (loggedInUser.id !== user.id && (friendshipStatus as any).reaction !== FriendRequestReaction.Accepted)) {
+      user.aboutMe = null;
+    }
     const pickFields = ['_id', 'firstName', 'userName', 'profilePic', 'coverPhoto', 'aboutMe', 'profile_status'];
 
     // expose email to loggged in user only, when logged in user requests own user record

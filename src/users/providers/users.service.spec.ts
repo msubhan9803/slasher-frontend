@@ -217,15 +217,15 @@ describe('UsersService', () => {
         userName: 'DeletedUser',
       }));
     });
-    it('finds an active user by email', async () => {
-      expect(
-        (await usersService.findNonDeletedUserByEmailOrUsername(activeUser.email))._id,
-      ).toEqual(activeUser._id);
+    it('finds an active user by email (case insensitive)', async () => {
+      expect((await usersService.findNonDeletedUserByEmailOrUsername(activeUser.email))._id).toEqual(activeUser._id);
+      expect((await usersService.findNonDeletedUserByEmailOrUsername(activeUser.email.toUpperCase()))._id).toEqual(activeUser._id);
+      expect((await usersService.findNonDeletedUserByEmailOrUsername(activeUser.email.toLowerCase()))._id).toEqual(activeUser._id);
     });
-    it('finds an active user by userName', async () => {
-      expect(
-        (await usersService.findNonDeletedUserByEmailOrUsername(activeUser.userName))._id,
-      ).toEqual(activeUser._id);
+    it('finds an active user by userName (case insensitive)', async () => {
+      expect((await usersService.findNonDeletedUserByEmailOrUsername(activeUser.userName))._id).toEqual(activeUser._id);
+      expect((await usersService.findNonDeletedUserByEmailOrUsername(activeUser.userName.toUpperCase()))._id).toEqual(activeUser._id);
+      expect((await usersService.findNonDeletedUserByEmailOrUsername(activeUser.userName.toLowerCase()))._id).toEqual(activeUser._id);
     });
     it('finds an inactive user by email', async () => {
       expect(
@@ -494,7 +494,7 @@ describe('UsersService', () => {
         to: user2._id,
         reaction: BlockAndUnblockReaction.Block,
       });
-      excludedUserIds = await blocksService.getBlockedUserIdsBySender(user0._id);
+      excludedUserIds = await blocksService.getUserIdsForBlocksToOrFromUser(user0.id);
       excludedUserIds.push(user0._id);
     });
     it('when query exists, returns expected response, with orders sorted alphabetically by username', async () => {

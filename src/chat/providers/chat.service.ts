@@ -15,6 +15,7 @@ import {
 import { Message, MessageDocument } from '../../schemas/message/message.schema';
 import { NotificationReadStatus } from '../../schemas/notification/notification.enums';
 import { UsersService } from '../../users/providers/users.service';
+import { BlocksService } from '../../blocks/providers/blocks.service';
 
 export interface Conversation extends MatchList {
   latestMessage: Message;
@@ -29,6 +30,7 @@ export class ChatService {
     @InjectModel(MatchList.name) private matchListModel: Model<MatchListDocument>,
     @InjectModel(Chat.name) private chatModel: Model<ChatDocument>,
     private usersService: UsersService,
+    private readonly blocksService: BlocksService,
   ) { }
 
   async createPrivateDirectMessageConversation(participants: mongoose.Types.ObjectId[]) {
@@ -81,6 +83,7 @@ export class ChatService {
     toUser: string,
     message: string,
     image?: string,
+    imageDescription?: string,
   ): Promise<MessageDocument> {
     const participants = [
       new mongoose.Types.ObjectId(fromUser),
@@ -104,6 +107,7 @@ export class ChatService {
         senderId: new mongoose.Types.ObjectId(toUser), // due to bad old-API field naming, this is the "to" field
         message: image ? 'Image' : message,
         image,
+        imageDescription,
         created: currentTime.toString(),
         createdAt: currentTime, // overwrite `createdAt`
       }],
@@ -191,10 +195,13 @@ export class ChatService {
       beforeUpdatedAt = { $lt: beforeMatchList.updatedAt };
     }
 
-    const matchLists: any = await this.matchListModel
+    // Do not return conversations of blocked users
+    const blockUserIds = (await this.blocksService.getUserIdsForBlocksToOrFromUser(userId)).map((id) => new mongoose.Types.ObjectId(id));
+
+    const matchLists = await this.matchListModel
       .find({
         deleted: false,
-        participants: new mongoose.Types.ObjectId(userId),
+        participants: { $in: new mongoose.Types.ObjectId(userId), $nin: blockUserIds },
         roomType: MatchListRoomType.Match,
         roomCategory: MatchListRoomCategory.DirectMessage,
         relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),

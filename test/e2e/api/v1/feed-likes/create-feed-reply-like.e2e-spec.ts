@@ -40,9 +40,11 @@ describe('Create Feed Reply Like (e2e)', () => {
     images: [
       {
         image_path: 'https://picsum.photos/id/237/200/300',
+        description: 'this create feed reply like description 1',
       },
       {
         image_path: 'https://picsum.photos/seed/picsum/200/300',
+        description: 'this create feed reply like description 2',
       },
     ],
     message: 'Hello Test Message',

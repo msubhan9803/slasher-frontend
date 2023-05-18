@@ -5,7 +5,7 @@ import React, {
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Col, Row } from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import styled from 'styled-components';
 import RoundButton from '../../components/ui/RoundButton';
@@ -73,6 +73,7 @@ function ProfileHeader({
   const { userName } = useParams();
   const navigate = useNavigate();
   const param = useParams();
+  const location = useLocation();
   const [clickedUserId, setClickedUserId] = useState<string>('');
   const [friendData, setFriendData] = useState<FriendType>(null);
   const positionRef = useRef<HTMLDivElement>(null);
@@ -104,7 +105,7 @@ function ProfileHeader({
     if (userIsLoggedIn()) {
       const element = positionRef.current;
       if (!element) { return; }
-      if ((scrollPosition.scrollToTab && (friendStatus || element)) || param['*'] === 'friends') {
+      if (((scrollPosition.scrollToTab && (friendStatus || element)) || param['*'] === 'friends') && location?.state?.publicProfile !== true) {
         window.scrollTo({
           top: element.offsetTop - (
             window.innerWidth >= parseInt(LG_MEDIA_BREAKPOINT.replace('px', ''), 10)
@@ -116,7 +117,7 @@ function ProfileHeader({
         dispatch(setScrollToTabsPosition(false));
       }
     }
-  }, [positionRef, friendStatus, dispatch, scrollPosition.scrollToTab, param]);
+  }, [positionRef, friendStatus, dispatch, scrollPosition.scrollToTab, param, location]);
 
   const onBlockYesClick = () => {
     createBlockUser(clickedUserId)

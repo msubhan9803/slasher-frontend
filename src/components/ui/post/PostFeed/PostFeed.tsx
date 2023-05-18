@@ -9,7 +9,6 @@ import {
 import styled, { css } from 'styled-components';
 import linkifyHtml from 'linkify-html';
 import 'swiper/swiper-bundle.css';
-import Cookies from 'js-cookie';
 import InfiniteScroll from 'react-infinite-scroller';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import * as stringSimilarity from 'string-similarity';
@@ -295,7 +294,7 @@ function PostFeed({
   const [isCommentClick, setCommentClick] = useState<boolean>(false);
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
-  const loginUserId = Cookies.get('userId');
+  const loginUserId = useAppSelector((state) => state.user.user.id);
   const location = useLocation();
   const navigate = useNavigate();
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);

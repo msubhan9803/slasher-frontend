@@ -12,7 +12,6 @@ import {
   Col, Container, Form, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import Cookies from 'js-cookie';
 import { Country, State } from 'country-state-city';
 import { useLocation, useNavigate } from 'react-router-dom';
 import CustomDatePicker from '../../../components/ui/CustomDatePicker';
@@ -24,6 +23,7 @@ import CustomText from '../../../components/ui/CustomText';
 import { sortInPlace } from '../../../utils/text-utils';
 import useProgressButton from '../../../components/ui/ProgressButton';
 import SortData from '../../../components/filter-sort/SortData';
+import { useAppSelector } from '../../../redux/hooks';
 
 // NOTE: From the state list of US, we get US states along with US territories.
 // We don't want to show US territories as states of US but individual countries.
@@ -127,7 +127,7 @@ function EventSuggestion() {
   const [, setImageUpload] = useState<File | null | undefined>();
   const [loadingEventCategories, setLoadingEventCategories] = useState<boolean>(false);
   const [options, setOptions] = useState<Option[]>([]);
-  const userId = Cookies.get('userId');
+  const userId = useAppSelector((state) => state.user.user.id);
   const [eventForm, setEventForm] = useState<EventForm>(INITIAL_EVENTFORM);
   const [errors, setErrors] = useState<string[]>([]);
   const [isEventSuggestionSuccessful, setIsEventSuggestionSuccessful] = useState(false);

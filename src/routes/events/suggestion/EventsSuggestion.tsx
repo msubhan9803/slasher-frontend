@@ -13,7 +13,7 @@ import {
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { Country, State } from 'country-state-city';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import CustomDatePicker from '../../../components/ui/CustomDatePicker';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import { suggestEvent, getEventCategoriesOption } from '../../../api/event';
@@ -132,7 +132,6 @@ function EventSuggestion() {
   const [errors, setErrors] = useState<string[]>([]);
   const [isEventSuggestionSuccessful, setIsEventSuggestionSuccessful] = useState(false);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
-  const location = useLocation();
   const navigate = useNavigate();
 
   const resetFormData = () => {
@@ -196,7 +195,7 @@ function EventSuggestion() {
           <Col />
           <Col><h2 className="text-center">Suggest event</h2></Col>
           <Col className="ms-2 text-end">
-            <Button variant="link" onClick={() => navigate(-1)}>
+            <Button variant="link" className="p-0 px-1" onClick={() => navigate(-1)}>
               <FontAwesomeIcon icon={solid('xmark')} size="lg" />
             </Button>
           </Col>

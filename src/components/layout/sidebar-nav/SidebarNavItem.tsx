@@ -34,6 +34,12 @@ const StyledLink = styled(Link)`
   .nav-item-label {
     line-height: 1.3em;
   }
+  @media (max-width: 767px) {
+    &:hover {
+      background-color:#141414;
+      border:0;
+    }
+  }
 `;
 const LinkContentWrapper = styled.div`
   padding-top: 0.2em;

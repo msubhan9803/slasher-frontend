@@ -1,14 +1,13 @@
 /* eslint-disable max-lines */
 import React, { useCallback, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
-import Cookies from 'js-cookie';
 import { useLocation, useParams } from 'react-router-dom';
 import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import ProfileHeader from '../ProfileHeader';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import ReportModal from '../../../components/ui/ReportModal';
 import { getProfilePosts } from '../../../api/users';
-import { User, Post } from '../../../types';
+import { User, Post, ContentDescription } from '../../../types';
 import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
@@ -26,10 +25,9 @@ const otherUserPopoverOptions = ['Report', 'Block user'];
 
 interface Props {
   user: User
-  loadUser: Function
 }
 
-function ProfilePosts({ user, loadUser }: Props) {
+function ProfilePosts({ user }: Props) {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -43,7 +41,7 @@ function ProfilePosts({ user, loadUser }: Props) {
   const [postId, setPostId] = useState<string>('');
   const loginUserData = useAppSelector((state) => state.user.user);
   const [postUserId, setPostUserId] = useState<string>('');
-  const loginUserId = Cookies.get('userId');
+  const userId = useAppSelector((state) => state.user.user.id);
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const location = useLocation();
@@ -123,7 +121,7 @@ function ProfilePosts({ user, loadUser }: Props) {
       }
     }
   }, [
-    requestAdditionalPosts, loadingPosts, loginUserId, userNameOrId, user._id, user.userName,
+    requestAdditionalPosts, loadingPosts, userId, userNameOrId, user._id, user.userName,
     posts, scrollPosition, location, dispatch,
   ]);
   const renderNoMoreDataMessage = () => (
@@ -156,8 +154,13 @@ function ProfilePosts({ user, loadUser }: Props) {
       });
     }
   }, [user]);
-  const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
-    updateFeedPost(postId, message, images, imageDelete).then(() => {
+  const onUpdatePost = (
+    message: string,
+    images: string[],
+    imageDelete: string[] | undefined,
+    descriptionArray?: ContentDescription[],
+  ) => {
+    updateFeedPost(postId, message, images, imageDelete, null, descriptionArray).then(() => {
       setShowReportModal(false);
       const updatePost = posts.map((post: any) => {
         if (post._id === postId) {
@@ -266,7 +269,7 @@ function ProfilePosts({ user, loadUser }: Props) {
 
   return (
     <div>
-      <ProfileHeader tabKey="posts" user={user} loadUser={loadUser} />
+      <ProfileHeader tabKey="posts" user={user} />
       <ProfileTabContent>
         {loginUserData.userName === user.userName
           && (

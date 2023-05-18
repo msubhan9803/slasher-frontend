@@ -3,7 +3,7 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Nav } from 'react-bootstrap';
 import SidebarNavItem from './SidebarNavItem';
 import { enableDevFeatures } from '../../../utils/configEnvironment';
-import { GOOGLE_PLAY_DOWNLOAD_URL, APP_STORE_DOWNLOAD_URL } from '../../../constants';
+import { GOOGLE_PLAY_DOWNLOAD_URL, APP_STORE_DOWNLOAD_URL, WORDPRESS_SITE_URL } from '../../../constants';
 import RoundButtonLink from '../../ui/RoundButtonLink';
 
 const MAX_ALLOWED_COMING_SOON_ITEMS_IN_MENU = 1;
@@ -109,7 +109,7 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
             iconColor={menu.iconColor}
             to={menu.to}
             className={menu.desktopOnly ? 'd-none d-md-flex' : ''}
-            onToggleCanvas={onToggleCanvas}
+            onToggleCanvas={menu.label === 'Coming Soon' ? undefined : onToggleCanvas}
           />
         ))}
         <ul className="list-inline mt-4 link-hover-underline fs-6">
@@ -122,9 +122,9 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
               </>
             )
           }
-          <li className="mb-4"><a className="text-light text-decoration-none" href="https://pages.slasher.tv/advertise" target="_blank" rel="noreferrer">Advertise on Slasher</a></li>
-          <li className="mb-4"><a className="text-light text-decoration-none" href="https://pages.slasher.tv/terms" target="_blank" rel="noreferrer">Terms &amp; Policies</a></li>
-          <li className="mb-4"><a className="text-light text-decoration-none" href="https://pages.slasher.tv/about" target="_blank" rel="noreferrer">About</a></li>
+          <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/advertise`} target="_blank" rel="noreferrer">Advertise on Slasher</a></li>
+          <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/terms`} target="_blank" rel="noreferrer">Terms &amp; Policies</a></li>
+          <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/about`} target="_blank" rel="noreferrer">About</a></li>
           <li className="text-light text-decoration-none">
             &copy;
             {' '}

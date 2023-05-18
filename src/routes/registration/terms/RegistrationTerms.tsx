@@ -71,15 +71,16 @@ function RegistrationTerms({ activeStep }: Props) {
   return (
     <RegistrationPageWrapper activeStep={activeStep}>
       <p className="fs-3 mb-5">
-        Please scroll down to review our Terms and Conditions,
-        Privacy Policy, End User License Agreement, and Community Standards
+        You can accept our terms at the bottom of this screen.
       </p>
+
       <TermsAndConditions className="my-5" />
       <PrivacyPolicy className="my-5" />
       <EndUserLicenseAgreement className="my-5" />
       <CommunityStandardsAndRules className="my-5" />
+
       <p className="border-top pt-5">
-        By signing up, you agree that you are at least 17 years of age, and that you agree
+        By signing up, you agree that you are at least 18 years of age, and that you agree
         to our Terms and Conditions, Privacy Policy, End User License Agreement, and Community
         Standards.
       </p>
@@ -98,7 +99,7 @@ function RegistrationTerms({ activeStep }: Props) {
         </label>
       </div>
       <div className="mt-2">
-        {showAgreeToTermsError && <Alert variant="info">You must check the checkbox above and agree to these terms if you want to sign up.</Alert>}
+        {showAgreeToTermsError && <Alert variant="danger">You must check the checkbox above and agree to these terms if you want to sign up.</Alert>}
       </div>
       <Row className="justify-content-center my-5">
         <Col sm={4} md={3} className="mb-sm-0 mb-3 order-2 order-sm-1">

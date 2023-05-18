@@ -9,7 +9,6 @@ import {
 import styled, { css } from 'styled-components';
 import linkifyHtml from 'linkify-html';
 import 'swiper/swiper-bundle.css';
-import Cookies from 'js-cookie';
 import InfiniteScroll from 'react-infinite-scroller';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import * as stringSimilarity from 'string-similarity';
@@ -40,7 +39,7 @@ import CustomWortItText from '../../CustomWortItText';
 import { useAppSelector } from '../../../../redux/hooks';
 import { HOME_WEB_DIV_ID, NEWS_PARTNER_DETAILS_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
 import LoadingIndicator from '../../LoadingIndicator';
-import { customlinkifyOpts } from '../../../../utils/linkify-utils';
+import { defaultLinkifyOpts } from '../../../../utils/linkify-utils';
 import { getLocalStorage } from '../../../../utils/localstorage-utils';
 import FormatImageVideoList from '../../../../utils/video-utils';
 import useOnScreen from '../../../../hooks/useOnScreen';
@@ -90,6 +89,8 @@ interface Props {
   setCommentReplyErrorMessage?: (value: string[]) => void;
   setCommentErrorMessage?: (value: string[]) => void;
   showPubWiseAdAtPageBottom?: boolean;
+  setSelectedBlockedUserId?: (value: string) => void;
+  setDropDownValue?: (value: string) => void;
 }
 
 interface StyledProps {
@@ -241,7 +242,7 @@ function PostContent({
                 {
                   __html: escapeHtml && !post?.spoiler
                     // eslint-disable-next-line max-len
-                    ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(message)), customlinkifyOpts))
+                    ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(message)), defaultLinkifyOpts))
                     : cleanExternalHtmlContent(message),
                 }
               }
@@ -287,13 +288,13 @@ function PostFeed({
   handleSearch, mentionList, commentImages, setCommentImages, commentError,
   commentReplyError, postType, onSpoilerClick,
   commentSent, setCommentReplyErrorMessage, setCommentErrorMessage,
-  showPubWiseAdAtPageBottom,
+  showPubWiseAdAtPageBottom, setSelectedBlockedUserId, setDropDownValue,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [isCommentClick, setCommentClick] = useState<boolean>(false);
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
-  const loginUserId = Cookies.get('userId');
+  const loginUserId = useAppSelector((state) => state.user.user.id);
   const location = useLocation();
   const navigate = useNavigate();
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
@@ -386,11 +387,14 @@ function PostFeed({
   useEffect(() => {
     if (scrollPosition.position > 0
       && scrollPosition?.pathname === location.pathname) {
-      window.scrollTo({
-        top: scrollPosition?.position,
-        behavior: 'instant' as any,
-      });
+      // We should only scroll-restore after 1 second else the scroll restoration doesn't work accurately on home page (SD-1187).
+      setTimeout(() => {
+        window.scrollTo({
+          top: scrollPosition?.position,
+        });
+      }, 1000);
     }
+    return undefined;
   }, [scrollPosition, location.pathname]);
   const renderGroupPostContent = (posts: any) => (
     <>
@@ -417,6 +421,7 @@ function PostFeed({
     return imageVideoList.map((imageData: any) => {
       if (imageData.movieData) { return imageData; }
       return ({
+        imageDescription: imageData.description,
         videoKey: imageData.videoKey,
         imageUrl: imageData.image_path,
         linkUrl: isSinglePost ? undefined : imageLinkUrl(post, imageData._id),
@@ -547,6 +552,8 @@ function PostFeed({
                       setCommentErrorMessage={setCommentErrorMessage}
                       handleLikeModal={handleLikeModal}
                       isMainPostCommentClick={isCommentClick}
+                      setSelectedBlockedUserId={setSelectedBlockedUserId}
+                      setCommentDropDownValue={setDropDownValue}
                     />
                   </InfiniteScroll>
                   {loadingPosts && <LoadingIndicator />}
@@ -627,5 +634,7 @@ PostFeed.defaultProps = {
   setCommentReplyErrorMessage: undefined,
   setCommentErrorMessage: undefined,
   showPubWiseAdAtPageBottom: undefined,
+  setSelectedBlockedUserId: undefined,
+  setDropDownValue: undefined,
 };
 export default PostFeed;

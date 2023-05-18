@@ -1,5 +1,4 @@
 /* eslint-disable max-lines */
-import Cookies from 'js-cookie';
 import React, {
   useCallback, useEffect, useRef, useState,
 } from 'react';
@@ -30,15 +29,14 @@ interface FriendProps {
 
 interface Props {
   user: User
-  loadUser: Function
 }
-function ProfileFriendRequest({ user, loadUser }: Props) {
+function ProfileFriendRequest({ user }: Props) {
   const dispatch = useAppDispatch();
   const params = useParams();
   const isFriendReLoad = useAppSelector((state) => state.user.forceFriendListReload);
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
-  const loginUserName = Cookies.get('userName');
+  const loginUserName = useAppSelector((state) => state.user.user.userName);
   const friendsReqCount = useAppSelector((state) => state.user.user.newFriendRequestCount);
   const friendRequestContainerElementRef = useRef<any>(null);
   const [loadingFriendRequests, setLoadingFriendRequests] = useState<boolean>(false);
@@ -168,7 +166,7 @@ function ProfileFriendRequest({ user, loadUser }: Props) {
   };
   return (
     <div>
-      <ProfileHeader tabKey="friends" user={user} loadUser={loadUser} />
+      <ProfileHeader tabKey="friends" user={user} />
       <ProfileTabContent>
         <div className="mt-3">
           <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">

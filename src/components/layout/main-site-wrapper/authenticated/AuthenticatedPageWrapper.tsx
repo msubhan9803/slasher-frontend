@@ -3,8 +3,7 @@ import React, {
   useCallback, useEffect, useRef, useState,
 } from 'react';
 import { Offcanvas } from 'react-bootstrap';
-import { useLocation, useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { useMediaQuery } from 'react-responsive';
 import { io } from 'socket.io-client';
@@ -16,9 +15,10 @@ import {
   setUserInitialData, handleUpdatedUnreadConversationCount, resetUnreadNotificationCount,
   resetNewFriendRequestCountCount, incrementUnreadNotificationCount,
   incrementFriendRequestCount,
+  appendToPathnameHistory,
 } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
-import { signOut } from '../../../../utils/session-utils';
+import { getSessionToken, signOut } from '../../../../utils/session-utils';
 import {
   LG_MEDIA_BREAKPOINT, analyticsId, MAIN_CONTENT_ID, apiUrl,
 } from '../../../../constants';
@@ -30,6 +30,8 @@ import slasherLogo from '../../../../images/slasher-logo-medium.png';
 import HeaderLogo from '../../../ui/HeaderLogo';
 import { setSocketConnected } from '../../../../redux/slices/socketSlice';
 import socketStore from '../../../../socketStore';
+import useSessionTokenMonitorAsync from '../../../../hooks/useSessionTokenMonitorAsync';
+import useSessionToken from '../../../../hooks/useSessionToken';
 
 interface Props {
   children: React.ReactNode;
@@ -69,12 +71,28 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const userData = useAppSelector((state) => state.user);
   const remoteConstantsData = useAppSelector((state) => state.remoteConstants);
   const { pathname } = useLocation();
-  const token = Cookies.get('sessionToken');
+  const location = useLocation();
+  const token = useSessionToken();
+  const tokenNotFound = !token.isLoading && !token.value;
+
   useGoogleAnalytics(analyticsId);
+  const params = useParams();
+
+  // Record all navigation by user
+  useEffect(() => {
+    dispatch(appendToPathnameHistory(location.pathname));
+  }, [dispatch, location.pathname]);
+
+  // Reload the page if the session token changes
+  useSessionTokenMonitorAsync(
+    getSessionToken,
+    () => { window.location.reload(); },
+    5_000,
+  );
 
   const [show, setShow] = useState(false);
   const isDesktopResponsiveSize = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` });
-  const isSocketConnectingRef = useRef(false);
+  const isConnectingSocketRef = useRef(false);
   const isSocketConnected = useAppSelector((state) => state.socket.isConnected);
   const { socket } = socketStore;
 
@@ -84,7 +102,15 @@ function AuthenticatedPageWrapper({ children }: Props) {
   };
 
   useEffect(() => {
-    if (!token) {
+    if (token.isLoading) { return; }
+
+    // Redirect to public profile page
+    if (tokenNotFound && params.userName && params['*']) {
+      navigate(`/${params.userName}`);
+      return;
+    }
+    // Redirect to login page
+    if (tokenNotFound) {
       navigate(`/app/sign-in?path=${pathname}`);
       return;
     }
@@ -107,7 +133,8 @@ function AuthenticatedPageWrapper({ children }: Props) {
         }
       });
     }
-  }, [dispatch, navigate, pathname, userData.user?.userName, remoteConstantsData.loaded, token]);
+  }, [dispatch, navigate, pathname, userData.user?.userName,
+    remoteConstantsData.loaded, token, tokenNotFound, params.userName, params]);
 
   const onNotificationReceivedHandler = useCallback(() => {
     dispatch(incrementUnreadNotificationCount());
@@ -129,12 +156,13 @@ function AuthenticatedPageWrapper({ children }: Props) {
   }, [dispatch]);
 
   useEffect(() => {
-    if (isSocketConnected || isSocketConnectingRef.current) { return; }
-    isSocketConnectingRef.current = true;
+    if (isSocketConnected || isConnectingSocketRef.current
+      || token.isLoading || tokenNotFound) { return; }
+    isConnectingSocketRef.current = true;
 
     socketStore.socket = io(apiUrl!, {
       transports: ['websocket'],
-      auth: { token },
+      auth: { token: token.value },
     });
     socketStore.socket.on('connect', () => {
       dispatch(setSocketConnected());
@@ -147,7 +175,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
         (socketStore.socket as any).slasherAuthSuccess = true;
       }
     });
-  }, [dispatch, isSocketConnected, token]);
+  }, [dispatch, isSocketConnected, tokenNotFound, token]);
 
   useEffect(() => {
     if (!socket) { return () => { }; }
@@ -167,7 +195,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
   }, [onClearNewFriendRequestCount, onClearNewNotificationCount, onFriendRequestReceivedHandler,
     onNotificationReceivedHandler, onUnreadConversationCountUpdate, socket]);
 
-  if (!token || !userData.user?.id) {
+  if (token.isLoading || !userData.user?.id) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
         <HeaderLogo

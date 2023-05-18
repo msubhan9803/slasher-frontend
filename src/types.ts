@@ -45,6 +45,7 @@ export interface User {
   aboutMe: string;
   profile_status: number;
   friendshipStatus: FriendshipStatus;
+  unverifiedNewEmail: string;
 }
 
 export interface NewsPartnerPostProps {
@@ -254,12 +255,17 @@ export type RegisterUser = Partial<{
   dob: string,
 }>;
 
+export interface ContentDescription {
+  description: string;
+  id?: string;
+}
 export interface CommentValue {
   commentMessage: string,
   imageArr?: string[],
   commentId?: string,
   images?: any,
   deleteImage?: string[],
+  descriptionArr?: ContentDescription[]
 }
 export interface ReplyValue {
   replyMessage: string,
@@ -268,6 +274,7 @@ export interface ReplyValue {
   replyId?: string,
   images?: any,
   deleteImage?: string[],
+  descriptionArr?: ContentDescription[]
 }
 export enum WorthWatchingStatus {
   NoRating = 0,

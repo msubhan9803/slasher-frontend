@@ -1,8 +1,11 @@
-import React, { useRef, useState, useEffect } from 'react';
+/* eslint-disable max-len */
+import React, {
+  useRef, useState, useEffect,
+} from 'react';
 import {
   Card, Col,
 } from 'react-bootstrap';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import ChatInput from './ChatInput';
 import { ChatProps } from './ChatProps';
 import ChatMessage from './ChatMessage';
@@ -10,10 +13,12 @@ import ChatOptions from './ChatOptions';
 import ChatUserStatus from './ChatUserStatus';
 import { LG_MEDIA_BREAKPOINT } from '../../constants';
 import ImagesContainer from '../ui/ImagesContainer';
+import { useAppSelector } from '../../redux/hooks';
 
 interface Props {
   height: number;
   rows: number;
+  isKeyboardOpen: boolean;
 }
 
 const StyledChatContainer = styled.div<Props>`
@@ -47,6 +52,11 @@ const StyledChatContainer = styled.div<Props>`
         height: ${(props) => (props.height ? 'calc(100dvh - 278px)' : 'calc(100dvh - 170px)')};;
         .conversation-container {
           height: ${(props) => (props.height ? 'calc(100dvh - 348px)' : 'calc(100dvh - 235px)')};
+          ${(props) => props.isKeyboardOpen && css`
+            height: 100%; // this overrides the height of above rule when keyboard is open in mobile (capacitor)
+            bottom: 40px;
+            position: relative;
+        `}
         }
       }
       .image-container {
@@ -61,10 +71,24 @@ const StyledChatContainer = styled.div<Props>`
 
 function Chat({
   messages, userData, sendMessageClick, setMessage, message, handleFileChange, handleRemoveFile,
-  imageArray, messageLoading,
+  imageArray, messageLoading, descriptionArray, setDescriptionArray,
 }: ChatProps) {
+  const onChangeDescription = (newValue: string, index: number) => {
+    const descriptionArrayList = [...descriptionArray!];
+    descriptionArrayList![index] = newValue;
+    setDescriptionArray!([...descriptionArrayList!]);
+  };
+
+  const setAltTextValue = (index: number) => {
+    const altText = descriptionArray![index];
+    return altText;
+  };
+
   const textareaRef = useRef<any>(null);
   const [rows, setRows] = useState(1);
+  const [showPicker, setShowPicker] = useState(false);
+  const [selectedEmoji, setSelectedEmoji] = useState<string[]>([]);
+
   const calculateRows = () => {
     const textareaLineHeight = 24;
     const previousRows = rows;
@@ -80,13 +104,17 @@ function Chat({
       setRows(currentRows);
     }
   };
+  const isKeyboardOpen = useAppSelector((state) => state.user.isKeyboardOpen);
   useEffect(() => {
     if (message?.length === 0) {
       setRows(1);
     }
   }, [message]);
+  const handleShowPicker = () => {
+    setShowPicker(!showPicker);
+  };
   return (
-    <StyledChatContainer height={imageArray && imageArray.length ? 1 : 0} rows={rows}>
+    <StyledChatContainer isKeyboardOpen={isKeyboardOpen} height={imageArray && imageArray.length ? 1 : 0} rows={rows}>
       <Card className="bg-black bg-mobile-transparent rounded-3 border-0">
         <Card.Header className="d-flex justify-content-between position-relative border-bottom border-opacity-25 border-secondary px-0 px-lg-3 py-lg-4">
           <ChatUserStatus userData={userData} />
@@ -94,7 +122,14 @@ function Chat({
         </Card.Header>
         <Card.Body className="position-relative overflow-visible p-0">
           <div className="conversation-container">
-            <ChatMessage messages={messages} messageLoading={messageLoading} />
+            <ChatMessage
+              messages={messages}
+              setMessage={setMessage}
+              messageLoading={messageLoading}
+              showPicker={showPicker}
+              selectedEmoji={selectedEmoji}
+              setSelectedEmoji={setSelectedEmoji}
+            />
           </div>
         </Card.Body>
         <ChatInput
@@ -106,19 +141,22 @@ function Chat({
           setRows={setRows}
           calculateRows={calculateRows}
           textareaRef={textareaRef}
+          onEmojiClick={handleShowPicker}
+          setShowPicker={setShowPicker}
+          setSelectedEmoji={setSelectedEmoji}
         />
         <div className="image-container overflow-auto d-flex mx-4 gap-3 mt-3">
-          {imageArray!.map((post: File) => (
+          {imageArray!.map((post: File, index: number) => (
             <Col xs="auto" key={post.name} className="mb-2">
               <ImagesContainer
                 containerWidth="7.25rem"
                 containerHeight="7.25rem"
                 containerBorder="0.125rem solid var(--bs-input-border-color)"
                 image={post}
-                alt="" // TODO: set any existing alt text here (when editing existing image)
-                // eslint-disable-next-line no-console
-                // onAltTextChange={(newValue) => { console.log(`New value is: ${newValue}`); }}
-                handleRemoveImage={() => handleRemoveFile!(post)}
+                alt={setAltTextValue(index)}
+                onAltTextChange={(newValue) => { onChangeDescription(newValue, index); }}
+                handleRemoveImage={() => handleRemoveFile!(post, index)}
+                index={index}
                 containerClass="position-relative d-flex justify-content-center align-items-center rounded border-0"
                 removeIconStyle={{
                   padding: '0.313rem 0.438rem',

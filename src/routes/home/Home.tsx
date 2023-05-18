@@ -1,7 +1,6 @@
 /* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
-import Cookies from 'js-cookie';
 import { useLocation } from 'react-router-dom';
 import CustomCreatePost from '../../components/ui/CustomCreatePost';
 import PostFeed from '../../components/ui/post/PostFeed/PostFeed';
@@ -10,7 +9,7 @@ import ReportModal from '../../components/ui/ReportModal';
 import {
   deleteFeedPost, getHomeFeedPosts, hideFeedPost, updateFeedPost,
 } from '../../api/feed-posts';
-import { Post } from '../../types';
+import { ContentDescription, Post } from '../../types';
 import { PopoverClickProps } from '../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../api/feed-likes';
 import { createBlockUser } from '../../api/blocks';
@@ -40,7 +39,7 @@ function Home() {
   const [postId, setPostId] = useState<string>('');
   const [postUserId, setPostUserId] = useState<string>('');
   const [rssfeedProviderId, setRssfeedProviderId] = useState<string>('');
-  const loginUserId = Cookies.get('userId');
+  const userId = useAppSelector((state) => state.user.user.id);
   const scrollPosition = useAppSelector((state) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const location = useLocation();
@@ -49,7 +48,23 @@ function Home() {
     shouldRestoreScrollPositionWithData
       ? scrollPosition?.data : [],
   );
+  useEffect(() => {
+    if (scrollPosition.pathname === location.pathname) {
+      setPosts(scrollPosition.data);
+    }
+  }, [scrollPosition.pathname, location.pathname, scrollPosition.data]);
+
+  const persistScrollPosition = (id: string) => {
+    const positionData = {
+      pathname: location.pathname,
+      position: window.pageYOffset,
+      data: posts,
+      positionElementId: id,
+    };
+    dispatch(setScrollPosition(positionData));
+  };
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
+    persistScrollPosition(popoverClickProps.id!);
     if (value === 'Hide') {
       const postIdToHide = popoverClickProps.id;
       if (!postIdToHide) { return; }
@@ -149,7 +164,7 @@ function Home() {
       }
     }
   }, [
-    requestAdditionalPosts, loadingPosts, loginUserId, posts, scrollPosition,
+    requestAdditionalPosts, loadingPosts, userId, posts, scrollPosition,
     dispatch, location.pathname,
   ]);
 
@@ -201,19 +216,25 @@ function Home() {
     });
   };
 
-  const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
-    updateFeedPost(postId, message, images, imageDelete).then((res) => {
-      setShow(false);
-      const updatePost = posts.map((post: any) => {
-        if (post._id === postId) {
-          return {
-            ...post, message: res.data.message, images: res.data.images,
-          };
-        }
-        return post;
-      });
-      setPosts(updatePost);
-    })
+  const onUpdatePost = (
+    message: string,
+    images: string[],
+    imageDelete: string[] | undefined,
+    descriptionArray?: ContentDescription[],
+  ) => {
+    updateFeedPost(postId, message, images, imageDelete, null, descriptionArray)
+      .then((res) => {
+        setShow(false);
+        const updatePost = posts.map((post: any) => {
+          if (post._id === postId) {
+            return {
+              ...post, content: res.data.message, images: res.data.images,
+            };
+          }
+          return post;
+        });
+        setPosts(updatePost);
+      })
       .catch((error) => {
         const msg = error.response.status === 0 && !error.response.data
           ? 'Combined size of files is too large.'
@@ -276,11 +297,21 @@ function Home() {
   const onBlockYesClick = () => {
     createBlockUser(postUserId)
       .then(() => {
-        setShow(false);
-        callLatestFeedPost();
+        setDropDownValue('BlockUserSuccess');
+        const updatedScrollData = posts.filter(
+          (scrollData: any) => scrollData.userId !== postUserId,
+        );
+        const positionData = {
+          ...scrollPosition,
+          data: updatedScrollData,
+        };
+        dispatch(setScrollPosition(positionData));
       })
       // eslint-disable-next-line no-console
       .catch((error) => console.error(error));
+  };
+  const afterBlockUser = () => {
+    setShow(false);
   };
 
   const reportHomePost = (reason: string) => {
@@ -296,16 +327,6 @@ function Home() {
       .catch((error) => console.error(error));
     // Ask to block user as well
     setDropDownValue('PostReportSuccessDialog');
-  };
-
-  const persistScrollPosition = (id: string) => {
-    const positionData = {
-      pathname: location.pathname,
-      position: window.pageYOffset,
-      data: posts,
-      positionElementId: id,
-    };
-    dispatch(setScrollPosition(positionData));
   };
 
   return (
@@ -348,7 +369,7 @@ function Home() {
         {loadingPosts && <LoadingIndicator />}
         {noMoreData && renderNoMoreDataMessage()}
         {
-          (dropDownValue === 'Block user' || dropDownValue === 'Report' || dropDownValue === 'Delete' || dropDownValue === 'PostReportSuccessDialog')
+          ['Block user', 'Report', 'Delete', 'PostReportSuccessDialog', 'BlockUserSuccess'].includes(dropDownValue)
           && (
             <ReportModal
               onConfirmClick={deletePostClick}
@@ -356,6 +377,7 @@ function Home() {
               setShow={setShow}
               slectedDropdownValue={dropDownValue}
               onBlockYesClick={onBlockYesClick}
+              afterBlockUser={afterBlockUser}
               handleReport={reportHomePost}
               rssfeedProviderId={rssfeedProviderId}
             />
@@ -375,6 +397,7 @@ function Home() {
               setPostImages={setPostImages}
               deleteImageIds={deleteImageIds}
               setDeleteImageIds={setDeleteImageIds}
+              editPost
             />
           )
         }

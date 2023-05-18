@@ -1,6 +1,13 @@
+import { Capacitor } from '@capacitor/core';
+
 // eslint-disable-next-line import/prefer-default-export
 export const apiUrl = process.env.REACT_APP_API_URL;
 export const analyticsId = process.env.REACT_APP_GOOGLE_ANALYTICS_PROPERTY_ID;
+export const isCapacitorApp = Capacitor.isNativePlatform();
+
+// Note from Sahil: Added this log for short-term-debugging only!
+// eslint-disable-next-line no-alert
+// window.alert(`apiUrl? ${apiUrl}`);
 
 export const MAIN_CONTENT_ID = 'main-content';
 
@@ -24,5 +31,7 @@ export const DEFAULT_EVENTS_USER_LOCATION = { lat: 41.055877, lng: -74.95479 };
 
 export const GOOGLE_PLAY_DOWNLOAD_URL = 'https://play.google.com/store/apps/details?id=com.sdei.slasher';
 export const APP_STORE_DOWNLOAD_URL = 'https://apps.apple.com/app/id1458216326';
+
+export const WORDPRESS_SITE_URL = 'https://pages.slasher.tv';
 
 export const topToDivHeight = 100;

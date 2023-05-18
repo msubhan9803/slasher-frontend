@@ -10,6 +10,6 @@ test.describe(pagePath, () => {
   });
 
   test('should display the expected content', async ({ page }) => {
-    await expect(page.locator('main')).toHaveText(/Please scroll down to review our Terms and Conditions/);
+    await expect(page.locator('main')).toHaveText(/You can accept our terms at the bottom of this screen./);
   });
 });

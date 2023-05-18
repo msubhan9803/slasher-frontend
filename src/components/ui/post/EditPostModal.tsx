@@ -4,6 +4,7 @@ import { FormatMentionProps } from '../../../routes/posts/create-post/CreatePost
 import CreatePostComponent from '../CreatePostComponent';
 import ModalContainer from '../CustomModal';
 import { decryptMessage } from '../../../utils/text-utils';
+import { ContentDescription } from '../../../types';
 
 interface Props {
   show: boolean;
@@ -11,11 +12,16 @@ interface Props {
   setShow: (value: boolean) => void;
   setPostContent: (val: string) => void;
   postContent: string;
-  onUpdatePost: (value: string, images: string[], deleteImageIds: string[] | undefined) => void;
+  onUpdatePost: (
+    value: string,
+    images: string[],
+    deleteImageIds: string[] | undefined,
+    descriptionArray?: ContentDescription[]) => void;
   postImages: string[];
   setPostImages: any;
   deleteImageIds?: string[];
   setDeleteImageIds?: (val: string) => void;
+  editPost?: boolean
 }
 function EditPostModal({
   show,
@@ -28,8 +34,10 @@ function EditPostModal({
   setPostImages,
   deleteImageIds,
   setDeleteImageIds,
+  editPost,
 }: Props) {
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
+  const [descriptionArray, setDescriptionArray] = useState<ContentDescription[]>([]);
   useEffect(() => {
     if (postContent) {
       const mentionStringList = postContent.match(/##LINK_ID##[a-zA-Z0-9@_.-]+##LINK_END##/g);
@@ -64,7 +72,7 @@ function EditPostModal({
   const updatePost = () => {
     const postContentWithMentionReplacements = (postContent.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
     const files = postImages.filter((images: any) => images instanceof File);
-    onUpdatePost(postContentWithMentionReplacements, files, deleteImageIds);
+    onUpdatePost(postContentWithMentionReplacements, files, deleteImageIds, descriptionArray);
   };
   return (
     <ModalContainer
@@ -89,6 +97,9 @@ function EditPostModal({
           setDeleteImageIds={setDeleteImageIds}
           placeHolder="Create a post"
           showSaveButton
+          descriptionArray={descriptionArray}
+          setDescriptionArray={setDescriptionArray}
+          createEditPost={editPost}
         />
       </Modal.Body>
     </ModalContainer>
@@ -97,5 +108,6 @@ function EditPostModal({
 EditPostModal.defaultProps = {
   deleteImageIds: [],
   setDeleteImageIds: undefined,
+  editPost: undefined,
 };
 export default EditPostModal;

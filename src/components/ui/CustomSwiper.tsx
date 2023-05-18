@@ -24,6 +24,7 @@ interface SliderImage {
   imageUrl: string;
   linkUrl?: string;
   videoKey?: string;
+  imageDescription?: string;
   movieData?: {
     poster_path: string,
     title: string,
@@ -103,7 +104,6 @@ function CustomSwiper({
   const uniqueId = `${instanceCounter += 1}`;
   const [showVideoPlayerModal, setShowYouTubeModal] = useState(false);
   const { placeholderUrlNoImageAvailable } = useAppSelector((state) => state.remoteConstants);
-  const [hideSwiper, setHideSwiper] = useState(false);
   const navigate = useNavigate();
 
   const displayVideoAndImage = (imageAndVideo: SliderImage) => {
@@ -113,15 +113,10 @@ function CustomSwiper({
           <img
             src={`https://img.youtube.com/vi/${imageAndVideo.videoKey}/hqdefault.jpg`}
             className="w-100 h-100"
-            alt="user uploaded content"
+            alt={`${imageAndVideo.imageDescription ? imageAndVideo.imageDescription : 'user uploaded content'} `}
             onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-              if (images.length > 1) {
-                e.currentTarget.src = placeholderUrlNoImageAvailable;
-              } else {
-                setHideSwiper(true);
-              }
+              e.currentTarget.src = placeholderUrlNoImageAvailable;
             }}
-            onLoad={() => setHideSwiper(false)}
           />
           <StyledYouTubeButton
             variant="link"
@@ -145,15 +140,10 @@ function CustomSwiper({
             <img
               src={imageAndVideo.imageUrl}
               className="w-100 h-100"
-              alt="user uploaded content"
+              alt={`${imageAndVideo.imageDescription ? imageAndVideo.imageDescription : 'user uploaded content'} `}
               onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                if (images.length > 1) {
-                  e.currentTarget.src = placeholderUrlNoImageAvailable;
-                } else {
-                  setHideSwiper(true);
-                }
+                e.currentTarget.src = placeholderUrlNoImageAvailable;
               }}
-              onLoad={() => setHideSwiper(false)}
             />
           </SwiperContentContainer>
         </Link>
@@ -169,6 +159,9 @@ function CustomSwiper({
                   src={imageAndVideo?.movieData?.poster_path}
                   alt="movie poster"
                   className="rounded-3 w-100 h-100"
+                  onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                    e.currentTarget.src = placeholderUrlNoImageAvailable;
+                  }}
                 />
               </StyledMoviePoster>
             </Col>
@@ -194,36 +187,27 @@ function CustomSwiper({
         <CustomSwiperZoomableImage
           className="h-100"
           src={imageAndVideo.imageUrl}
-          alt="user uploaded content"
+          alt={`${imageAndVideo.imageDescription ? imageAndVideo.imageDescription : 'user uploaded content'} `}
           onImgError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-            if (images.length > 1) {
-              e.currentTarget.src = placeholderUrlNoImageAvailable;
-            } else {
-              setHideSwiper(true);
-            }
+            e.currentTarget.src = placeholderUrlNoImageAvailable;
           }}
-          onImgLoad={() => setHideSwiper(false)}
         />
       </SwiperContentContainer>
     );
   };
 
   return (
-    <div style={{ height: heightForContext[context] }} className={images.length > 1 ? 'mb-4' : ''}>
+    <div style={{ height: heightForContext[context] }} className={`${images.length > 1 ? 'mb-4' : ''}`}>
       <StyledSwiper
         pagination={{ type: 'fraction', el: `#swiper-pagination-el-${uniqueId}` }}
         initialSlide={initialSlide}
         navigation
         modules={[Pagination, Navigation]}
-        className={hideSwiper ? 'd-none' : 'd-block'}
       >
         {
           images.map((image: SliderImage) => (
             <SwiperSlide
               key={`${image.imageId}${image.postId}`}
-              onError={(e: any) => {
-                e.target.src = placeholderUrlNoImageAvailable;
-              }}
             >
               {displayVideoAndImage(image)}
             </SwiperSlide>

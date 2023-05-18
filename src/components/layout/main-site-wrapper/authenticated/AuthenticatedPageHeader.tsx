@@ -14,7 +14,7 @@ import HeaderLogo from '../../../ui/HeaderLogo';
 const SOLID_BLACK_IMAGE_BASE64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
 
 const StyledNavbar = styled(Navbar)`
-  z-index: 2;
+  z-index: 3;
   // background-color: #101010 !important;
   .nav-link {
     min-width: 5rem;
@@ -59,6 +59,7 @@ function AuthenticatedPageHeader(
   }: Props,
 ) {
   const userData = useAppSelector((state) => state.user);
+  const isKeyboardOpen = useAppSelector((state) => state.user.isKeyboardOpen);
 
   const mobileNavLinkElements = [
     <IconWithTextNavButton
@@ -112,7 +113,7 @@ function AuthenticatedPageHeader(
         </StyledNavbar>
 
         {/* nav-bar for small screen */}
-        <MobileNavbar bg="dark" variant="dark" className={`d-${offcanvasSidebarExpandBreakPoint}-none fixed-bottom pt-3`}>
+        <MobileNavbar bg="dark" variant="dark" className={`d-${offcanvasSidebarExpandBreakPoint}-none fixed-bottom pt-3`} style={{ display: isKeyboardOpen ? 'none' : 'block' }}>
           <div className="w-100 d-flex">
             {
               mobileNavLinkElements.map((el, index) => {

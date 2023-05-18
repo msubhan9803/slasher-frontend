@@ -2,6 +2,7 @@ import React from 'react';
 import {
   Route, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
+import { App as CapacitorApp } from '@capacitor/app';
 import VerificationEmailNotReceived from './routes/verification-email-not-received/VerificationEmailNotReceived';
 import ForgotPassword from './routes/forgot-password/ForgotPassword';
 import Home from './routes/home/Home';
@@ -36,6 +37,9 @@ import { enableDevFeatures } from './utils/configEnvironment';
 import ActivateAccount from './routes/activate-account/ActivateAccount';
 import PasswordResetSuccess from './routes/password-reset-success/PasswordResetSuccess';
 import Index from './routes/Index';
+import ChangeEmailConfirm from './routes/change-email/ChangeEmailConfirm';
+import ChangeEmailRevert from './routes/change-email/ChangeEmailRevert';
+import PublicProfile from './routes/public-home-page/public-profile-web/PublicProfile';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -46,12 +50,14 @@ interface TopLevelRoute {
   wrapperProps?: {
     hideTopLogo?: boolean;
     hideFooter?: boolean;
-    valign?: 'start' | 'center' | 'end';
+    valign?: 'start' | 'center' | 'end',
+    isSignIn?: boolean;
   };
 }
 
 const routes: Record<string, TopLevelRoute> = {
   ':userName/*': { wrapper: AuthenticatedPageWrapper, component: Profile },
+  ':userName': { wrapper: UnauthenticatedPageWrapper, component: PublicProfile, wrapperProps: { hideTopLogo: true, hideFooter: true } },
   'app/home': { wrapper: AuthenticatedPageWrapper, component: Home },
   'app/search/*': { wrapper: AuthenticatedPageWrapper, component: Search },
   'app/messages': { wrapper: AuthenticatedPageWrapper, component: Messages },
@@ -71,6 +77,8 @@ const routes: Record<string, TopLevelRoute> = {
   'app/art/*': { wrapper: AuthenticatedPageWrapper, component: Artists },
   'app/forgot-password': { wrapper: UnauthenticatedPageWrapper, component: ForgotPassword },
   'app/reset-password': { wrapper: UnauthenticatedPageWrapper, component: ResetPassword },
+  'app/email-change/confirm': { wrapper: UnauthenticatedPageWrapper, component: ChangeEmailConfirm },
+  'app/email-change/revert': { wrapper: UnauthenticatedPageWrapper, component: ChangeEmailRevert },
   'app/password-reset-success': { wrapper: UnauthenticatedPageWrapper, component: PasswordResetSuccess },
   'app/verification-email-not-received': {
     wrapper: UnauthenticatedPageWrapper,
@@ -80,7 +88,7 @@ const routes: Record<string, TopLevelRoute> = {
   'app/onboarding/*': { wrapper: UnauthenticatedPageWrapper, component: Onboarding, wrapperProps: { hideFooter: true } },
   'app/activate-account': { wrapper: UnauthenticatedPageWrapper, component: ActivateAccount },
   'app/account-activated': { wrapper: UnauthenticatedPageWrapper, component: AccountActivated },
-  'app/sign-in': { wrapper: UnauthenticatedPageWrapper, component: SignIn, wrapperProps: { hideTopLogo: true } },
+  'app/sign-in': { wrapper: UnauthenticatedPageWrapper, component: SignIn, wrapperProps: { hideTopLogo: true, isSignIn: true } },
 };
 
 if (enableDevFeatures) {
@@ -91,6 +99,14 @@ if (enableDevFeatures) {
   // routes['shopping/*'] = { wrapper: AuthenticatedPageWrapper, component: Shopping };
   // routes['places/*'] = { wrapper: AuthenticatedPageWrapper, component: Places };
 }
+
+CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+  if (!canGoBack) {
+    CapacitorApp.exitApp();
+  } else {
+    window.history.back();
+  }
+});
 
 function App() {
   usePubWiseAdSlots(enableADs);

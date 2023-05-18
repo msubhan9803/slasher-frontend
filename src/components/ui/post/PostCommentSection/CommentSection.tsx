@@ -11,7 +11,7 @@ import linkifyHtml from 'linkify-html';
 import styled from 'styled-components';
 import UserCircleImage from '../../UserCircleImage';
 import CustomPopover, { PopoverClickProps } from '../../CustomPopover';
-import { customlinkifyOpts } from '../../../../utils/linkify-utils';
+import { defaultLinkifyOpts } from '../../../../utils/linkify-utils';
 import { decryptMessage, escapeHtmlSpecialCharacters, newLineToBr } from '../../../../utils/text-utils';
 import CustomSwiper from '../../CustomSwiper';
 import { LikeShareModalResourceName, LikeShareModalTabName } from '../../../../types';
@@ -174,7 +174,7 @@ function CommentSection({
               {
                 __html: newLineToBr(
                   // eslint-disable-next-line max-len
-                  linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(commentMsg)), customlinkifyOpts),
+                  linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(commentMsg)), defaultLinkifyOpts),
                 ),
               }
             }
@@ -187,6 +187,7 @@ function CommentSection({
                   images.map((imageData: any) => ({
                     imageUrl: imageData.image_path,
                     imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
+                    imageDescription: imageData.description,
                   }))
                 }
               />

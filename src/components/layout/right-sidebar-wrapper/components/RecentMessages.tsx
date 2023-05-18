@@ -1,5 +1,4 @@
 import React from 'react';
-import Cookies from 'js-cookie';
 import { useAppSelector } from '../../../../redux/hooks';
 import { UserMesssage } from '../../../../types';
 import UserMessageList from '../../../ui/UserMessageList/UserMessageList';
@@ -15,7 +14,8 @@ interface RecentMessage {
 
 function RecentMessages() {
   const recentMessages = useAppSelector((state) => state.user.recentMessages);
-  const userId = Cookies.get('userId');
+  const userId = useAppSelector((state) => state.user.user.id);
+
   return (
     <div className="mt-5">
       <SidebarHeaderWithLink headerLabel="Recent messages" linkLabel="View All" linkTo="/app/messages" />

@@ -2,6 +2,7 @@ import React from 'react';
 import {
   Route, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
+import { App as CapacitorApp } from '@capacitor/app';
 import VerificationEmailNotReceived from './routes/verification-email-not-received/VerificationEmailNotReceived';
 import ForgotPassword from './routes/forgot-password/ForgotPassword';
 import Home from './routes/home/Home';
@@ -98,6 +99,14 @@ if (enableDevFeatures) {
   // routes['shopping/*'] = { wrapper: AuthenticatedPageWrapper, component: Shopping };
   // routes['places/*'] = { wrapper: AuthenticatedPageWrapper, component: Places };
 }
+
+CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+  if (!canGoBack) {
+    CapacitorApp.exitApp();
+  } else {
+    window.history.back();
+  }
+});
 
 function App() {
   usePubWiseAdSlots(enableADs);

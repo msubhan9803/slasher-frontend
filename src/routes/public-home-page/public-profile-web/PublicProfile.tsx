@@ -6,12 +6,12 @@ import PublicHomeFooter from '../public-home-footer/PublicHomeFooter';
 import PublicHomeHeader from '../public-home-header/PublicHomeHeader';
 import ProfileAbout from '../../profile/ProfileAbout/ProfileAbout';
 import PublicHomeBody from '../public-home-body/PublicHomeBody';
-import { userIsLoggedIn } from '../../../utils/session-utils';
 import HeroImage from '../../../images/public-home-hero-header.png';
 import ProfileLimitedView from '../../profile/ProfileLimitedView/ProfileLimitedView';
 import { getPublicProfile } from '../../../api/users';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { ProfileVisibility, User } from '../../../types';
+import useSessionToken from '../../../hooks/useSessionToken';
 
 const StyleSection = styled.div`
 background: url(${HeroImage}) top center;
@@ -28,6 +28,9 @@ function PublicProfile() {
   const { userName } = useParams();
   const [user, setUser] = useState<any>();
   const [errorMessage, setErrorMessage] = useState<string[]>();
+  const token = useSessionToken();
+  const userIsLoggedIn = !token.isLoading && token.value;
+
   useEffect(() => {
     getPublicProfile(userName!)
       .then((res) => {
@@ -35,6 +38,8 @@ function PublicProfile() {
       })
       .catch((error: any) => setErrorMessage(error.response.data.message));
   }, [userName]);
+
+  if (token.isLoading) { return null; }
 
   const renderProfile = (profileData: User) => {
     if (!profileData && !errorMessage) {
@@ -64,7 +69,7 @@ function PublicProfile() {
   };
   return (
     <div>
-      {userIsLoggedIn()
+      {userIsLoggedIn
         ? <Navigate to={`/${userName}/about`} replace />
         : (
           <>

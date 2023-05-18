@@ -1,7 +1,6 @@
 /* eslint-disable max-lines */
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -42,7 +41,7 @@ function WatchListMovies() {
       : '',
   );
   const [callNavigate, setCallNavigate] = useState<boolean>(false);
-  const userId = Cookies.get('userId');
+  const userId = useAppSelector((state) => state.user.user.id);
   const prevSearchRef = useRef(search);
   const prevKeyRef = useRef(key);
   const prevSortValRef = useRef(sortVal);

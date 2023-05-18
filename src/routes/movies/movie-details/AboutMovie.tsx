@@ -205,7 +205,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
           <div>
             <div className="bg-dark my-3 p-4 pb-0 rounded-2">
               <Row className="justify-content-center">
-                <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
+                <Col xs={10} sm={7} lg={8} xl={5} className="text-center">
                   <div>
                     <StyledMoviePoster className="mx-4">
                       <Image src={aboutMovieData?.mainData?.poster_path} alt="movie poster" className="rounded-3 w-100 h-100" />

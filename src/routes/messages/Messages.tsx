@@ -157,6 +157,7 @@ function Messages() {
         <div className="mb-3">
           <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
           <InfiniteScroll
+            threshold={500}
             pageStart={0}
             initialLoad
             loadMore={() => { setRequestAdditionalMessages(true); }}

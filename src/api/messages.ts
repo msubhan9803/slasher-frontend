@@ -8,7 +8,7 @@ export async function getMessagesList(lastRetrievedMessageId?: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  let queryParameter = '?limit=15';
+  let queryParameter = '?limit=30';
   if (lastRetrievedMessageId) {
     queryParameter += `&before=${lastRetrievedMessageId}`;
   }

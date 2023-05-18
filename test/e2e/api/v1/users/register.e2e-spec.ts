@@ -344,8 +344,26 @@ describe('Users / Register (e2e)', () => {
         expect(response.body.message).toContain('You must be at least 18 to register');
       });
 
-      it('dob must be a valid-format iso date', async () => {
+      it('dob must be a valid', async () => {
         postBody.dob = '1970-1';
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/users/register')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('Invalid date of birth');
+      });
+
+      it('dob must be a valid-format iso date', async () => {
+        postBody.dob = '03-03-1981';
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/users/register')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('Invalid date of birth');
+      });
+
+      it('dob must not be invalid', async () => {
+        postBody.dob = '1981-02-31';
         const response = await request(app.getHttpServer())
           .post('/api/v1/users/register')
           .send(postBody);

@@ -2,7 +2,7 @@ import {
   IsNotEmpty,
   IsEmail,
   MinLength,
-  Matches,
+  IsISO8601,
 } from 'class-validator';
 import { IsValidUsername } from '../../app/decorators/class-validator/user-name.decorator';
 import { IsValidPassword } from '../../app/decorators/class-validator/valid-password.decorator';
@@ -41,8 +41,6 @@ export class UserRegisterDto {
 
   @IsNotEmpty()
   @MinYearsBeforeToday(18, { message: 'You must be at least 18 to register' })
-  @Matches(/^\d{4}(-)(((0)[0-9])|((1)[0-2]))(-)([0-2][0-9]|(3)[0-1])$/i, {
-    message: 'Invalid date of birth',
-  })
+  @IsISO8601({ strict: true }, { message: 'Invalid date of birth' })
   dob: Date;
 }

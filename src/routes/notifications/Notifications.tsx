@@ -117,7 +117,7 @@ function Notifications() {
     dispatch(setScrollPosition(positionData));
   };
 
-  const handleLikesOption = () => {
+  const handlePopover = () => {
     navigate('/app/account/notifications');
   };
   const renderNoMoreDataMessage = () => (
@@ -211,7 +211,7 @@ function Notifications() {
           show={markButton}
           onMarkAllReadClick={onMarkAllReadClick}
           popoverOption={popoverOption}
-          handleLikesOption={handleLikesOption}
+          onPopoverClick={handlePopover}
         />);
         markButton = false;
         notificationsForGroup.forEach((notification, index) => {

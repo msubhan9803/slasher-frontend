@@ -1,14 +1,14 @@
 /* eslint-disable max-len */
 
-import { sharedEmailHeader, sharedEmailFooter } from './shared';
+import { sharedEmailHeader, sharedEmailFooter, renderEmailHtmlButtonLink } from './shared';
 
 export const templateForEmailChangeNewAddressRecipient = `
   ${sharedEmailHeader}
     <p>Hello!</p>
 
     <p>
-      To confirm the email address change on your Slasher account to [[NEW_EMAIL_ADDRESS]], please click the following link:
-      <a style="color:#ffffff;" href="[[VERIFY_NEW_EMAIL_LINK]]">click here</a>
+      To confirm the email address change on your Slasher account to [[NEW_EMAIL_ADDRESS]], please click the following button:
+      ${renderEmailHtmlButtonLink('click here', '[[VERIFY_NEW_EMAIL_LINK]]')}
     </p>
 
     <p>Your email address will not be changed if you do not click the link.</p>

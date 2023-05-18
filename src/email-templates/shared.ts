@@ -60,32 +60,45 @@ export const sharedEmailFooter = `
 export function renderEmailHtmlButtonLink(linkText: string, href: string) {
   const linkTextEscapedForHtml = escapeHtmlSpecialCharacters(linkText);
   return `
-  <!--[if mso]>
-    <v:roundrect href="${href}" style="width:90px;height:26px;v-text-anchor:middle;" arcsize="50%" stroke="f" fillcolor="#FF1800" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word">
-      <w:anchorlock/>
-      <v:textbox inset="0,0,0,0">
-        <center style="color:#ffffff;font-family:sans-serif;font-size:14px;font-weight:bold;color:#000000;">${linkTextEscapedForHtml}</center>
-      </v:textbox>
-    </v:roundrect>
-  <![endif]-->
-  <a
-    style="mso-hide:all;color:#000000;background:#ff1800;border-radius:50px;text-decoration:none;padding:0.375rem .75rem;font-size:14px;font-weight:bold;"
-    href="${href}"
-  >${linkTextEscapedForHtml}</a>
+    <a
+      style="color:#000000;background:#ff1800;border-radius:50px;text-decoration:none;padding:0.375rem 1rem;font-size:14px;font-weight:bold;"
+      href="${href}"
+    >${linkTextEscapedForHtml}</a>
   `;
 }
 
-export function renderTextWithInlineButtonLinkAsTable(text: string, buttonLinkText: string, buttonLinkHref: string) {
-  return `
-  <table role="presentation" style="border-collapse:collapse;border:0;border-spacing:0;margin-bottom:12px;">
-    <tr>
-      <td style="padding:0;">
-        ${escapeHtmlSpecialCharacters(text)}&nbsp;
-      </td>
-      <td style="padding:0 auto;">
-        ${renderEmailHtmlButtonLink(buttonLinkText, buttonLinkHref)}
-      </td>
-    </tr>
-  </table>
-  `;
-}
+// Functions below are related to formatting buttons in Microsoft Outlook (which has bad compatibility with modern html/css).
+// We are keeping them here for future reference, but not using them right now.
+
+// export function renderEmailHtmlButtonLink(linkText: string, href: string) {
+//   const linkTextEscapedForHtml = escapeHtmlSpecialCharacters(linkText);
+//   return `
+//   <!--[if mso]>
+//     <v:roundrect href="${href}" style="width:90px;height:26px;v-text-anchor:middle;" arcsize="50%" stroke="f" fillcolor="#FF1800" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word">
+//       <w:anchorlock/>
+//       <v:textbox inset="0,0,0,0">
+//         <center style="color:#ffffff;font-family:sans-serif;font-size:14px;font-weight:bold;color:#000000;">${linkTextEscapedForHtml}</center>
+//       </v:textbox>
+//     </v:roundrect>
+//   <![endif]-->
+//   <a
+//     style="mso-hide:all;color:#000000;background:#ff1800;border-radius:50px;text-decoration:none;padding:0.375rem .75rem;font-size:14px;font-weight:bold;"
+//     href="${href}"
+//   >${linkTextEscapedForHtml}</a>
+//   `;
+// }
+
+// export function renderTextWithInlineButtonLinkAsTable(text: string, buttonLinkText: string, buttonLinkHref: string) {
+//   return `
+//   <table role="presentation" style="border-collapse:collapse;border:0;border-spacing:0;margin-bottom:12px;">
+//     <tr>
+//       <td style="padding:0;">
+//         ${escapeHtmlSpecialCharacters(text)}&nbsp;
+//       </td>
+//       <td style="padding:0 auto;">
+//         ${renderEmailHtmlButtonLink(buttonLinkText, buttonLinkHref)}
+//       </td>
+//     </tr>
+//   </table>
+//   `;
+// }

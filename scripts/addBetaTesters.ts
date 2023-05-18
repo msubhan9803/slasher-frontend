@@ -26,16 +26,17 @@ async function addBetaTesters(app: INestApplication, entries: { email: string, n
     const indexOfComma = emailNameString.indexOf(',');
     const email = emailNameString.substring(0, indexOfComma);
     const name = emailNameString.substring(indexOfComma + 1);
+    const entry = { email, name };
 
     if (email.length === 0 || !isEmail(email)) {
-      throw new Error(`Invalid email: ${email}`);
+      throw new Error(`Invalid email: ${entry}`);
     }
 
     if (name.length === 0 || name.length > 50) {
-      throw new Error(`Invalid name: ${name}`);
+      throw new Error(`Invalid name: ${entry}`);
     }
 
-    return { email, name };
+    return entry;
   });
 
   const app = await createApp();

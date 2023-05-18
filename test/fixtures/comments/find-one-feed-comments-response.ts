@@ -6,9 +6,11 @@ export default {
     {
       _id: expect.any(String),
       image_path: 'https://picsum.photos/id/237/200/300',
+      description: 'this is feed comment with replies description 1',
     }, {
       _id: expect.any(String),
       image_path: 'https://picsum.photos/seed/picsum/200/300',
+      description: 'this is feed comment with replies description 2',
     },
   ],
   likeCount: 5,
@@ -24,9 +26,11 @@ export default {
         {
           _id: expect.any(String),
           image_path: 'https://picsum.photos/id/237/200/300',
+          description: 'this is feed comment with replies description 1',
         }, {
           _id: expect.any(String),
           image_path: 'https://picsum.photos/seed/picsum/200/300',
+          description: 'this is feed comment with replies description 2',
         },
       ],
       likeCount: 2,
@@ -43,9 +47,11 @@ export default {
         {
           _id: expect.any(String),
           image_path: 'https://picsum.photos/id/237/200/300',
+          description: 'this is feed comment with replies description 1',
         }, {
           _id: expect.any(String),
           image_path: 'https://picsum.photos/seed/picsum/200/300',
+          description: 'this is feed comment with replies description 2',
         },
       ],
       likeCount: 2,

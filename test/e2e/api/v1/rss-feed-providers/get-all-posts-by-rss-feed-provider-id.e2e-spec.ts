@@ -130,10 +130,12 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
             {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+              description: 'this is test description',
             },
             {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+              description: 'this is test description',
             },
           ],
           createdAt: firstFeedPostsDates.createdAt.toISOString(),
@@ -196,10 +198,12 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
               {
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                 image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+                description: 'this is test description',
               },
               {
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                 image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+                description: 'this is test description',
               },
             ],
             likeCount: 2,
@@ -223,10 +227,12 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
               {
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                 image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+                description: 'this is test description',
               },
               {
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                 image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+                description: 'this is test description',
               },
             ],
             likeCount: 0,
@@ -250,10 +256,12 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
               {
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                 image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+                description: 'this is test description',
               },
               {
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                 image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+                description: 'this is test description',
               },
             ],
             likeCount: 0,

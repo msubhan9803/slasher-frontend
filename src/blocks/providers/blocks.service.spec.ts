@@ -78,20 +78,31 @@ describe('BlocksService', () => {
     });
   });
 
-  describe('#getBlockedUserIdsBySender', () => {
-    it('get all user ids by sender', async () => {
+  describe('#getUserIdsForBlocksToOrFromUser', () => {
+    it('get all block user ids', async () => {
+      await blocksModel.create({
+        from: user1.id,
+        to: user0.id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      await blocksModel.create({
+        from: user2.id,
+        to: user0.id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
       await blocksModel.create({
         from: user0.id,
         to: user3.id,
         reaction: BlockAndUnblockReaction.Block,
       });
       await blocksModel.create({
-        from: user0.id,
-        to: user2.id,
+        from: user3.id,
+        to: user0.id,
         reaction: BlockAndUnblockReaction.Block,
       });
-      const block = await blocksService.getBlockedUserIdsBySender(user0.id);
-      expect(block).toHaveLength(2);
+      const block = await blocksService.getUserIdsForBlocksToOrFromUser(user0.id);
+      expect(block).not.toContain(user0._id);
+      expect(block).toHaveLength(3);
     });
   });
 

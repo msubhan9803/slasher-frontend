@@ -1,6 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import { Transform, TransformFnParams, Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
   IsBoolean,
   IsIn,
   IsInt,
@@ -12,6 +13,7 @@ import {
 import mongoose from 'mongoose';
 import { PostType } from '../../schemas/feedPost/feedPost.enums';
 import { WorthWatchingStatus } from '../../types';
+import { MAX_ALLOWED_UPLOAD_FILES_FOR_POST } from '../../constants';
 
 export class MoviePostDto {
   @IsNotEmpty({ message: 'spoilers should not be empty' })
@@ -42,6 +44,11 @@ export class MoviePostDto {
   worthWatching: WorthWatchingStatus;
 }
 
+export class ImageDescriptionsDto {
+  @MaxLength(250, { message: 'description cannot be longer than 250 characters', each: true })
+  description: string;
+}
+
 export class CreateFeedPostsDto {
   @IsOptional()
   @MaxLength(20000, { message: 'message cannot be longer than 20,000 characters' })
@@ -62,4 +69,11 @@ export class CreateFeedPostsDto {
   @IsOptional()
   @IsMongoId()
   movieId: mongoose.Schema.Types.ObjectId;
+
+  @IsOptional()
+  @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
+  @ArrayMaxSize(MAX_ALLOWED_UPLOAD_FILES_FOR_POST, { message: 'Only allow maximum of 10 description' })
+  @ValidateNested({ each: true })
+  @Type(() => ImageDescriptionsDto)
+  imageDescriptions: ImageDescriptionsDto[];
 }

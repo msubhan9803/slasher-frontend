@@ -56,9 +56,12 @@ describe('Feed-Comments / Likes Users of Comment  (e2e)', () => {
     images: [
       {
         image_path: '/feed/feed_sample1.jpg',
+        description: 'this feed comment like users description 1',
       },
       {
         image_path: '/feed/feed_sample2.jpg',
+        description: 'this feed comment like users description 2',
+
       },
     ],
     message: 'Hello Test Message',

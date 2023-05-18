@@ -87,8 +87,10 @@ describe('Send Message In Conversation / (e2e)', () => {
             .set('Content-Type', 'multipart/form-data')
             .attach('files', tempPath[0])
             .attach('files', tempPath[1])
-            .attach('files', tempPath[2]);
-
+            .attach('files', tempPath[2])
+            .field('imageDescriptions[0][description]', 'this is chat description 1')
+            .field('imageDescriptions[1][description]', 'this is chat description 2')
+            .field('imageDescriptions[2][description]', 'this is chat description 3');
           const expectedImageValueMatcher = expect.stringMatching(/\/chat\/chat.+\.png|jpe?g|gif/);
           expect(response.body).toEqual(
             {
@@ -96,6 +98,7 @@ describe('Send Message In Conversation / (e2e)', () => {
                 {
                   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                   image: expectedImageValueMatcher,
+                  imageDescription: 'this is chat description 1',
                   message: 'Image',
                   fromId: activeUser._id.toString(),
                   senderId: user1._id.toString(),
@@ -109,6 +112,7 @@ describe('Send Message In Conversation / (e2e)', () => {
                 {
                   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                   image: expectedImageValueMatcher,
+                  imageDescription: 'this is chat description 2',
                   message: 'Image',
                   fromId: activeUser._id.toString(),
                   senderId: user1._id.toString(),
@@ -122,6 +126,7 @@ describe('Send Message In Conversation / (e2e)', () => {
                 {
                   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                   image: expectedImageValueMatcher,
+                  imageDescription: 'this is chat description 3',
                   message: 'Image',
                   fromId: activeUser._id.toString(),
                   senderId: user1._id.toString(),
@@ -235,7 +240,8 @@ describe('Send Message In Conversation / (e2e)', () => {
             {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               image: null,
-              message: 'test chat message',
+              imageDescription: null,
+              message: encodeURIComponent('test chat message'),
               fromId: activeUser._id.toString(),
               senderId: user1._id.toString(),
               matchId: message1.matchId._id.toString(),
@@ -247,6 +253,89 @@ describe('Send Message In Conversation / (e2e)', () => {
             },
           ],
         });
+      });
+
+      it('when files length is not equal imageDescriptions length than expected response', async () => {
+        await createTempFiles(async (tempPaths) => {
+          const matchListId = message1.matchId._id;
+          const response = await request(app.getHttpServer())
+            .post(`/api/v1/chat/conversation/${matchListId}/message`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('message', 'hello test user')
+            .attach('files', tempPaths[0])
+            .attach('files', tempPaths[1])
+            .field('imageDescriptions[0][description]', 'this is create feed comments description 2');
+          expect(response.body).toEqual({
+            statusCode: 400,
+            message: 'files length and imagesDescriptions length should be same',
+          });
+        }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+      });
+
+      it('when imageDescriptions is empty string than expected response', async () => {
+        await createTempFiles(async (tempPath) => {
+          const matchListId = message1.matchId._id;
+          const response = await request(app.getHttpServer())
+            .post(`/api/v1/chat/conversation/${matchListId}/message`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .attach('files', tempPath[0])
+            .field('imageDescriptions[0][description]', '');
+          const expectedImageValueMatcher = expect.stringMatching(/\/chat\/chat.+\.png|jpe?g|gif/);
+          expect(response.body).toEqual(
+            {
+              messages: [
+                {
+                  _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                  image: expectedImageValueMatcher,
+                  imageDescription: null,
+                  message: 'Image',
+                  fromId: activeUser._id.toString(),
+                  senderId: user1._id.toString(),
+                  matchId: message1.matchId._id.toString(),
+                  createdAt: expect.any(String),
+                  messageType: 0,
+                  isRead: false,
+                  status: 1,
+                  deleted: false,
+                },
+              ],
+            },
+          );
+        }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpeg' }, { extension: 'gif' }]);
+      });
+
+      it('cannot add more than 10 description on post', async () => {
+        const matchListId = message1.matchId._id;
+        const response = await request(app.getHttpServer())
+          .post(`/api/v1/chat/conversation/${matchListId}/message`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('imageDescriptions[0][description]', 'this is create feed post description 0')
+          .field('imageDescriptions[1][description]', 'this is create feed post description 1')
+          .field('imageDescriptions[2][description]', 'this is create feed post description 2')
+          .field('imageDescriptions[3][description]', 'this is create feed post description 3')
+          .field('imageDescriptions[4][description]', 'this is create feed post description 4')
+          .field('imageDescriptions[5][description]', 'this is create feed post description 5')
+          .field('imageDescriptions[6][description]', 'this is create feed post description 6')
+          .field('imageDescriptions[7][description]', 'this is create feed post description 7')
+          .field('imageDescriptions[8][description]', 'this is create feed post description 8')
+          .field('imageDescriptions[9][description]', 'this is create feed post description 9')
+          .field('imageDescriptions[10][description]', 'this is create feed post description 10');
+        expect(response.body.statusCode).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('Only allow maximum of 10 description');
+      });
+
+      it('check description length validation', async () => {
+        const matchListId = message1.matchId._id;
+        const response = await request(app.getHttpServer())
+          .post(`/api/v1/chat/conversation/${matchListId}/message`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('imageDescriptions[0][description]', new Array(252).join('z'))
+          .expect(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('description cannot be longer than 250 characters');
       });
     });
 

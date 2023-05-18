@@ -310,16 +310,16 @@ describe('Users / Register (e2e)', () => {
           .get('/api/v1/users/validate-registration-fields')
           .query(postBody);
         expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body).toEqual(['Invalid date of birth', 'You must be at least 17 to register', 'dob should not be empty']);
+        expect(response.body).toEqual(['Invalid date of birth', 'You must be at least 18 to register', 'dob should not be empty']);
       });
 
       it('dob is under age', async () => {
-        postBody.dob = DateTime.now().minus({ years: 16, months: 11 }).toISODate();
+        postBody.dob = DateTime.now().minus({ years: 17, months: 11 }).toISODate();
         const response = await request(app.getHttpServer())
           .get('/api/v1/users/validate-registration-fields')
           .query(postBody);
         expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body).toEqual(['You must be at least 17 to register']);
+        expect(response.body).toEqual(['You must be at least 18 to register']);
       });
 
       it('dob must be a valid-format iso date', async () => {

@@ -148,10 +148,12 @@ describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
           {
             image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            description: 'this is test description',
           },
           {
             image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            description: 'this is test description',
           },
         ],
         userId: {
@@ -173,10 +175,12 @@ describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
           {
             image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            description: 'this is test description',
           },
           {
             image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            description: 'this is test description',
           },
         ],
         userId: {

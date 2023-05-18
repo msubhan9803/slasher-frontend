@@ -99,6 +99,10 @@ describe('Feed-Comments / Comments File (e2e)', () => {
             .attach('images', tempPaths[1])
             .attach('images', tempPaths[2])
             .attach('images', tempPaths[3])
+            .field('imageDescriptions[0][description]', 'this is create feed comment description 0')
+            .field('imageDescriptions[1][description]', 'this is create feed comment description 1')
+            .field('imageDescriptions[2][description]', 'this is create feed comment description 2')
+            .field('imageDescriptions[3][description]', 'this is create feed comment description 3')
             .expect(HttpStatus.CREATED);
           expect(response.body).toEqual({
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -108,18 +112,22 @@ describe('Feed-Comments / Comments File (e2e)', () => {
             images: [
               {
                 image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                description: 'this is create feed comment description 0',
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               },
               {
                 image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                description: 'this is create feed comment description 1',
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               },
               {
                 image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                description: 'this is create feed comment description 2',
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               },
               {
                 image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                description: 'this is create feed comment description 3',
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               },
             ],
@@ -180,6 +188,86 @@ describe('Feed-Comments / Comments File (e2e)', () => {
         expect(response.body.message).toBe('Comments must have some text or at least one image.');
       });
 
+      it('when files length is not equal imageDescriptions length than expected response', async () => {
+        await createTempFiles(async (tempPaths) => {
+          const response = await request(app.getHttpServer())
+            .post('/api/v1/feed-comments')
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('message', 'hello test user')
+            .field('feedPostId', feedPost._id.toString())
+            .attach('images', tempPaths[0])
+            .attach('images', tempPaths[1])
+            .attach('images', tempPaths[2])
+            .field('imageDescriptions[0][description]', 'this is create feed comments description 1')
+            .field('imageDescriptions[1][description]', 'this is create feed comments description 2');
+          expect(response.body).toEqual({
+            statusCode: 400,
+            message: 'files length and imagesDescriptions length should be same',
+          });
+        }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+
+        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+        expect(allFilesNames).toEqual(['.keep']);
+      });
+
+      it('when imageDescriptions is empty string than expected response', async () => {
+        await createTempFiles(async (tempPaths) => {
+          const response = await request(app.getHttpServer())
+            .post('/api/v1/feed-comments')
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('message', 'hello test user')
+            .field('feedPostId', feedPost._id.toString())
+            .attach('images', tempPaths[0])
+            .field('imageDescriptions[0][description]', '')
+            .expect(HttpStatus.CREATED);
+          expect(response.body).toEqual({
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            feedPostId: feedPost._id.toString(),
+            message: 'hello test user',
+            userId: activeUser._id.toString(),
+            images: [
+              {
+                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                description: null,
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+            ],
+          });
+        }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+
+        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+        expect(allFilesNames).toEqual(['.keep']);
+      });
+
+      it('cannot add more than 4 description on comments', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-comments')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('imageDescriptions[0][description]', 'this is create feed comments description 0')
+          .field('imageDescriptions[1][description]', 'this is create feed comments description 1')
+          .field('imageDescriptions[2][description]', 'this is create feed comments description 2')
+          .field('imageDescriptions[3][description]', 'this is create feed comments description 3')
+          .field('imageDescriptions[4][description]', 'this is create feed comments description 4')
+          .field('imageDescriptions[5][description]', 'this is create feed comments description 5');
+        expect(response.body.statusCode).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('Only allow maximum of 4 description');
+      });
+
+      it('check description length validation', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-comments')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('imageDescriptions[0][description]', new Array(252).join('z'))
+          .expect(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('description cannot be longer than 250 characters');
+      });
+
       it('allows the creation of a comments with only files, but no message', async () => {
         await createTempFiles(async (tempPaths) => {
           const response = await request(app.getHttpServer())
@@ -189,8 +277,9 @@ describe('Feed-Comments / Comments File (e2e)', () => {
 
             .field('feedPostId', feedPost._id.toString())
             .attach('images', tempPaths[0])
-            .attach('images', tempPaths[1]);
-
+            .attach('images', tempPaths[1])
+            .field('imageDescriptions[0][description]', 'this is create feed comments description 1')
+            .field('imageDescriptions[1][description]', 'this is create feed comments description 2');
           expect(response.body).toEqual({
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             feedPostId: feedPost._id.toString(),
@@ -199,10 +288,12 @@ describe('Feed-Comments / Comments File (e2e)', () => {
             images: [
               {
                 image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                description: 'this is create feed comments description 1',
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               },
               {
                 image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                description: 'this is create feed comments description 2',
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               },
             ],
@@ -477,7 +568,9 @@ describe('Feed-Comments / Comments File (e2e)', () => {
               .field('message', 'hello test user')
               .field('feedPostId', feedPost2._id.toString())
               .attach('images', tempPaths[0])
-              .attach('images', tempPaths[1]);
+              .attach('images', tempPaths[1])
+              .field('imageDescriptions[0][description]', 'this is create feed comment description 0')
+              .field('imageDescriptions[1][description]', 'this is create feed comment description 1');
             expect(response.body).toEqual({
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               feedPostId: feedPost2._id.toString(),
@@ -486,10 +579,12 @@ describe('Feed-Comments / Comments File (e2e)', () => {
               images: [
                 {
                   image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                  description: 'this is create feed comment description 0',
                   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                 },
                 {
                   image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                  description: 'this is create feed comment description 1',
                   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                 },
               ],

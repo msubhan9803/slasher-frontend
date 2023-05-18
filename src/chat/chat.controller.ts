@@ -158,23 +158,38 @@ export class ChatController {
       throw new HttpException('You are not friends with the given user.', HttpStatus.UNAUTHORIZED);
     }
 
+    if (files && files.length && files?.length !== messageDto.imageDescriptions?.length) {
+      throw new HttpException(
+        'files length and imagesDescriptions length should be same',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const images = [];
-    for (const file of files) {
+    for (const [index, file] of files.entries()) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('chat', file.filename);
       if (this.config.get<string>('FILE_STORAGE') === 's3') {
         await this.s3StorageService.write(storageLocation, file);
       } else {
         this.localStorageService.write(storageLocation, file);
       }
-      images.push({ image_path: storageLocation });
+      const description = messageDto?.imageDescriptions[index].description;
+      const imageDescription = description === '' ? null : description;
+      images.push({ image_path: storageLocation, description: imageDescription });
     }
 
     const newMessages = [];
     for (const image of images) {
-      newMessages.push(await this.chatService.sendPrivateDirectMessage(user.id, toUserId.id, '', image.image_path));
+      newMessages.push(await this.chatService.sendPrivateDirectMessage(user.id, toUserId.id, '', image.image_path, image.description));
     }
     if (messageDto.message) {
-      newMessages.push(await this.chatService.sendPrivateDirectMessage(user.id, toUserId.id, messageDto.message));
+      // TODO: Remove use of encodeURIComponent below once the old Slasher iOS/Android apps are retired
+      // AND all old messages have been updated so that they're not being URI-encoded anymore.
+      // The URI-encoding is coming from the old API or more likely the iOS and Android apps.
+      // For some reason, the old apps will crash on a message page if the messages are not
+      // url-encoded (we saw this while Damon was testing on Android).
+      const urlEncodedMessage = encodeURIComponent(messageDto.message);
+      newMessages.push(await this.chatService.sendPrivateDirectMessage(user.id, toUserId.id, urlEncodedMessage));
     }
     if (newMessages.length > 0) {
       await this.chatGateway.emitMessageForConversation(newMessages, toUserId.id);
@@ -190,7 +205,11 @@ export class ChatController {
       messages: newMessages.map(
         (message) => pick(
           message,
-          ['_id', 'image', 'message', 'fromId', 'senderId', 'matchId', 'createdAt', 'messageType', 'isRead', 'status', 'deleted'],
+          [
+            '_id', 'imageDescription', 'image', 'message', 'fromId',
+            'senderId', 'matchId', 'createdAt', 'messageType', 'isRead',
+            'status', 'deleted',
+          ],
         ),
       ),
     };

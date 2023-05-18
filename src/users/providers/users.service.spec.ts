@@ -107,29 +107,69 @@ describe('UsersService', () => {
   });
 
   describe('#findByEmail', () => {
-    let user: UserDocument;
+    let activeUser: UserDocument;
+    let inactiveUser: UserDocument;
+    let deletedUser: UserDocument;
     beforeEach(async () => {
-      user = await usersService.create(
-        userFactory.build(),
-      );
+      activeUser = await usersService.create(userFactory.build());
+      inactiveUser = await usersService.create(userFactory.build({ status: ActiveStatus.Inactive }));
+      deletedUser = await usersService.create(userFactory.build({ deleted: true }));
     });
 
     it('finds the expected user using the same-case email', async () => {
-      expect((await usersService.findByEmail(user.email, true))._id).toEqual(
-        user._id,
+      expect((await usersService.findByEmail(activeUser.email, true))._id).toEqual(
+        activeUser._id,
       );
     });
 
     it('finds the expected user using a lower-case variant of the email', async () => {
       expect(
-        (await usersService.findByEmail(user.email.toLowerCase(), true))._id,
-      ).toEqual(user._id);
+        (await usersService.findByEmail(activeUser.email.toLowerCase(), true))._id,
+      ).toEqual(activeUser._id);
     });
 
     it('finds the expected user using an upper-case variant of the email', async () => {
       expect(
-        (await usersService.findByEmail(user.email.toUpperCase(), true))._id,
-      ).toEqual(user._id);
+        (await usersService.findByEmail(activeUser.email.toUpperCase(), true))._id,
+      ).toEqual(activeUser._id);
+    });
+
+    it('does not find an inactive user or deleted user when activeOnly parameter is true', async () => {
+      expect(await usersService.findByEmail(inactiveUser.email, true)).toBeNull();
+      expect(await usersService.findByEmail(deletedUser.email, true)).toBeNull();
+    });
+
+    it('finds an inactive user when activeOnly parameter is false', async () => {
+      expect((await usersService.findByEmail(inactiveUser.email, false))._id).toEqual(inactiveUser._id);
+    });
+
+    it('finds a deleted user when activeOnly parameter is false', async () => {
+      expect((await usersService.findByEmail(deletedUser.email, false))._id).toEqual(deletedUser._id);
+    });
+  });
+
+  describe('#findInactiveUserByEmail', () => {
+    let activeUser: UserDocument;
+    let inactiveUser: UserDocument;
+    beforeEach(async () => {
+      activeUser = await usersService.create(userFactory.build());
+      inactiveUser = await usersService.create(userFactory.build({ status: ActiveStatus.Inactive }));
+    });
+
+    it('finds an inactive user using the same-case email', async () => {
+      expect((await usersService.findInactiveUserByEmail(inactiveUser.email))._id).toEqual(inactiveUser._id);
+    });
+
+    it('finds an inactive user using a lower-case variant of the email', async () => {
+      expect((await usersService.findInactiveUserByEmail(inactiveUser.email.toLowerCase()))._id).toEqual(inactiveUser._id);
+    });
+
+    it('finds an inactive user using an upper-case variant of the email', async () => {
+      expect((await usersService.findInactiveUserByEmail(inactiveUser.email.toUpperCase()))._id).toEqual(inactiveUser._id);
+    });
+
+    it('does not find an active user by email email', async () => {
+      expect(await usersService.findInactiveUserByEmail(activeUser.email)).toBeNull();
     });
   });
 
@@ -160,22 +200,52 @@ describe('UsersService', () => {
     });
   });
 
-  describe('#findByEmailOrUsername', () => {
-    let user;
+  describe('#findNonDeletedUserByEmailOrUsername', () => {
+    let activeUser;
+    let inactiveUser;
+    let deletedUser;
     beforeEach(async () => {
-      user = await usersService.create(
-        userFactory.build(),
-      );
+      activeUser = await usersService.create(userFactory.build({
+        userName: 'ActiveUser',
+      }));
+      inactiveUser = await usersService.create(userFactory.build({
+        status: ActiveStatus.Inactive,
+        userName: 'InactiveUser',
+      }));
+      deletedUser = await usersService.create(userFactory.build({
+        deleted: true,
+        userName: 'DeletedUser',
+      }));
     });
-    it('finds the expected user by email', async () => {
-      expect(
-        (await usersService.findByEmailOrUsername(user.email, true))._id,
-      ).toEqual(user._id);
+    it('finds an active user by email (case insensitive)', async () => {
+      expect((await usersService.findNonDeletedUserByEmailOrUsername(activeUser.email))._id).toEqual(activeUser._id);
+      expect((await usersService.findNonDeletedUserByEmailOrUsername(activeUser.email.toUpperCase()))._id).toEqual(activeUser._id);
+      expect((await usersService.findNonDeletedUserByEmailOrUsername(activeUser.email.toLowerCase()))._id).toEqual(activeUser._id);
     });
-    it('finds the expected user by userName', async () => {
+    it('finds an active user by userName (case insensitive)', async () => {
+      expect((await usersService.findNonDeletedUserByEmailOrUsername(activeUser.userName))._id).toEqual(activeUser._id);
+      expect((await usersService.findNonDeletedUserByEmailOrUsername(activeUser.userName.toUpperCase()))._id).toEqual(activeUser._id);
+      expect((await usersService.findNonDeletedUserByEmailOrUsername(activeUser.userName.toLowerCase()))._id).toEqual(activeUser._id);
+    });
+    it('finds an inactive user by email', async () => {
       expect(
-        (await usersService.findByEmailOrUsername(user.userName, true))._id,
-      ).toEqual(user._id);
+        (await usersService.findNonDeletedUserByEmailOrUsername(inactiveUser.email))._id,
+      ).toEqual(inactiveUser._id);
+    });
+    it('finds an inactive user by userName', async () => {
+      expect(
+        (await usersService.findNonDeletedUserByEmailOrUsername(inactiveUser.userName))._id,
+      ).toEqual(inactiveUser._id);
+    });
+    it('does not find a deleted user by email', async () => {
+      expect(
+        await usersService.findNonDeletedUserByEmailOrUsername(deletedUser.email),
+      ).toBeNull();
+    });
+    it('does not find a deleted user by userName', async () => {
+      expect(
+        await usersService.findNonDeletedUserByEmailOrUsername(deletedUser.userName),
+      ).toBeNull();
     });
   });
 
@@ -424,7 +494,7 @@ describe('UsersService', () => {
         to: user2._id,
         reaction: BlockAndUnblockReaction.Block,
       });
-      excludedUserIds = await blocksService.getBlockedUserIdsBySender(user0._id);
+      excludedUserIds = await blocksService.getUserIdsForBlocksToOrFromUser(user0.id);
       excludedUserIds.push(user0._id);
     });
     it('when query exists, returns expected response, with orders sorted alphabetically by username', async () => {

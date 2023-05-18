@@ -15,6 +15,7 @@ import { DisallowedUsernameModule } from '../disallowedUsername/disallowed-usern
 import { MoviesModule } from '../movies/movies.module';
 import { HashtagFollowsModule } from '../hashtag-follows/hashtag-follows.module';
 import { UsersEmailChangeController } from './users.email-change.controller';
+import { UsersPublicController } from './users.public.controller';
 import { EmailRevertTokensModule } from '../email-revert-tokens/email-revert-tokens.module';
 
 // Since the UsersModule is likely to be used in many places, we'll make it global
@@ -33,7 +34,7 @@ import { EmailRevertTokensModule } from '../email-revert-tokens/email-revert-tok
     MoviesModule,
     HashtagFollowsModule,
   ],
-  controllers: [UsersEmailChangeController, UsersController],
+  controllers: [UsersEmailChangeController, UsersPublicController, UsersController],
   providers: [UsersService, LocalStorageService, S3StorageService],
   exports: [UsersService],
 })

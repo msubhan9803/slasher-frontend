@@ -131,7 +131,7 @@ describe('Chat Gateway (e2e)', () => {
         const chat = await chatModel.findOne({ matchId: chatMessageResponse.message.matchId });
 
         expect(chatMessageResponse.success).toBe(true);
-        expect(chatMessageResponse.message.message).toBe(payload.message);
+        expect(chatMessageResponse.message.message).toBe(encodeURIComponent(payload.message));
 
         const messageCreated = Number(chatMessageResponse.message.created);
         [
@@ -147,10 +147,11 @@ describe('Chat Gateway (e2e)', () => {
           {
             success: true,
             message: {
-              message: 'Hi, test message via socket.',
+              message: encodeURIComponent('Hi, test message via socket.'),
               created: expect.any(String),
               createdAt: expect.any(String),
               image: null,
+              imageDescription: null,
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               matchId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
@@ -196,7 +197,7 @@ describe('Chat Gateway (e2e)', () => {
             fromId: activeUser.id,
             image: null,
             matchId: expect.any(String),
-            message: 'Hi, test message via socket.',
+            message: encodeURIComponent('Hi, test message via socket.'),
           },
         });
       });
@@ -289,6 +290,7 @@ describe('Chat Gateway (e2e)', () => {
             fromId: user1.id,
             senderId: activeUser.id,
             image: 'http://localhost:4444/api/v1/local-storage//chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg',
+            imageDescription: null,
           },
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -298,6 +300,7 @@ describe('Chat Gateway (e2e)', () => {
             fromId: activeUser.id,
             senderId: user1.id,
             image: 'http://localhost:4444/api/v1/local-storage//chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg',
+            imageDescription: null,
           },
         ]);
         // All messages NOT from the activeUser should be marked as read when they are returned

@@ -18,7 +18,7 @@ export class SearchService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) { }
 
-  async findUsers(query: string, limit: number, offset?: number, excludeUserIds?: User[]): Promise<UserSearchResult[]> {
+  async findUsers(query: string, limit: number, offset?: number, excludeUserIds?: string[]): Promise<UserSearchResult[]> {
     const user = await this.userModel
       .find({
         $and: [

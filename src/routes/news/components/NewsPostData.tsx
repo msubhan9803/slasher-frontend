@@ -1,7 +1,6 @@
 /* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
-import Cookies from 'js-cookie';
 import { useLocation } from 'react-router-dom';
 import { getRssFeedProviderPosts } from '../../../api/rss-feed-providers';
 import { NewsPartnerPostProps } from '../../../types';
@@ -22,7 +21,7 @@ function NewsPostData({ partnerId }: Props) {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
-  const loginUserId = Cookies.get('userId');
+  const userId = useAppSelector((state) => state.user.user.id);
   const popoverOption = ['Report'];
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
@@ -86,7 +85,7 @@ function NewsPostData({ partnerId }: Props) {
       }
     }
   }, [
-    partnerId, requestAdditionalPosts, loadingPosts, loginUserId,
+    partnerId, requestAdditionalPosts, loadingPosts, userId,
     scrollPosition, postData, dispatch, location.pathname,
   ]);
 

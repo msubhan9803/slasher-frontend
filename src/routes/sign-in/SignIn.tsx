@@ -5,11 +5,12 @@ import {
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { signIn } from '../../api/users';
-import { setSignInCookies, userIsLoggedIn } from '../../utils/session-utils';
+import { setSignInCookies } from '../../utils/session-utils';
 import slasherLogo from '../../images/slasher-beta-logo-medium.png';
 import signInImageMobile from '../../images/sign-in-background-beta-mobile.jpg';
 import { LG_MEDIA_BREAKPOINT } from '../../constants';
 import SigninComponent from '../../components/ui/SigninComponent';
+import useSessionToken from '../../hooks/useSessionToken';
 
 export interface UserCredentials {
   emailOrUsername: string;
@@ -48,23 +49,26 @@ function SignIn() {
     password: '',
   });
   const [searchParams] = useSearchParams();
+  const token = useSessionToken();
 
   useEffect(() => {
-    if (userIsLoggedIn()) {
+    if (!token.isLoading && token.value) {
       navigate('/app/home');
     }
-  }, [navigate]);
+  }, [navigate, token]);
 
   const [errorMessage, setErrorMessage] = useState<string[]>();
+
+  if (token.isLoading) { return null; }
 
   const handleUserSignIn = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     signIn(credentials.emailOrUsername, credentials.password).then((res) => {
       setErrorMessage([]);
-      setSignInCookies(res.data.token, res.data.id, res.data.userName);
-      const targetPath = searchParams.get('path');
-      navigate(`${targetPath ?? '/app/home'}`);
-      userIsLoggedIn();
+      setSignInCookies(res.data.token, res.data.id, res.data.userName).finally(() => {
+        const targetPath = searchParams.get('path');
+        navigate(`${targetPath ?? '/app/home'}`);
+      });
     }).catch((error) => {
       setErrorMessage(error.response.data.message);
     });

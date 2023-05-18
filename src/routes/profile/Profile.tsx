@@ -22,6 +22,7 @@ import PostDetail from '../../components/ui/post/PostDetail';
 import ProfileLimitedView from './ProfileLimitedView/ProfileLimitedView';
 import RightSidebarAdOnly from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarAdOnly';
 import ContentNotAvailable from '../../components/ContentNotAvailable';
+import useBootstrapBreakpointName from '../../hooks/useBootstrapBreakpoint';
 
 interface SharedHeaderProfilePagesProps {
   user: User;
@@ -55,6 +56,7 @@ function Profile() {
 
   const loginUserData = useAppSelector((state) => state.user.user);
   const isSelfProfile = loginUserData.id === user?._id;
+  const bp = useBootstrapBreakpointName();
 
   /**
    * 1. This function fetch userInfo from api and set in component state.
@@ -92,7 +94,7 @@ function Profile() {
 
   if (userIsBlocked) { return (<ContentNotAvailable />); }
 
-  if (!user) { return <LoadingIndicator />; }
+  if (!user) { return <LoadingIndicator style={{ marginTop: `${['lg', 'xl', 'xxl'].includes(bp) ? '35vh' : '43vh'}` }} />; }
 
   if (userNameOrId !== user.userName) {
     setUser(undefined);

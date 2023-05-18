@@ -1,6 +1,6 @@
 import axios from 'axios';
-import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
+import { getSessionToken } from '../utils/session-utils';
 import { ContentDescription } from '../types';
 
 export async function getFeedComments(
@@ -8,7 +8,7 @@ export async function getFeedComments(
   lastRetrievedCommentId?: string,
   showComments?: boolean,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -27,7 +27,7 @@ export async function addFeedComments(
   file: any,
   descriptionArray?: any,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const formData = new FormData();
   for (let i = 0; i < descriptionArray.length; i += 1) {
     if (file && file.length && file !== undefined) {
@@ -53,7 +53,7 @@ export async function addFeedReplyComments(
   commentReplyId: string,
   descriptionArray?: string[],
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const formData = new FormData();
   for (let i = 0; i < file.length; i += 1) {
     formData.append('images', file[i]);
@@ -70,7 +70,7 @@ export async function addFeedReplyComments(
 }
 
 export async function removeFeedComments(feedCommentId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -78,7 +78,7 @@ export async function removeFeedComments(feedCommentId: string) {
 }
 
 export async function removeFeedCommentReply(feedReplyId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -93,7 +93,7 @@ export async function updateFeedComments(
   imagesToDelete: string[] | undefined,
   descriptionArray?: ContentDescription[] | any,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const formData = new FormData();
   for (let i = 0; i < descriptionArray.length; i += 1) {
     if (file && file.length && file !== undefined) {
@@ -128,7 +128,7 @@ export async function updateFeedCommentReply(
   imagesToDelete: string[] | undefined,
   descriptionArray?: ContentDescription[] | any,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const formData = new FormData();
   for (let i = 0; i < descriptionArray.length; i += 1) {
     if (file && file.length && file !== undefined) {
@@ -155,7 +155,7 @@ export async function updateFeedCommentReply(
 }
 
 export async function singleComment(commentId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };

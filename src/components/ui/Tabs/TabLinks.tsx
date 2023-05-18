@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setScrollToTabsPosition } from '../../../redux/slices/scrollPositionSlice';
-import { userIsLoggedIn } from '../../../utils/session-utils';
+import useSessionToken from '../../../hooks/useSessionToken';
 
 interface TabLinksProps {
   tabLink: TabProps[];
@@ -40,6 +40,9 @@ function TabLinks({
   tabLink, selectedTab, toLink, params, display, tabsClass, tabsClassSmall, overrideOnClick,
 }: TabLinksProps) {
   const color = 'var(--bs-link-color)';
+  const token = useSessionToken();
+  const userIsLoggedIn = !token.isLoading && token.value;
+
   const theme = createTheme({
     components: {
       MuiTabs: {
@@ -77,6 +80,7 @@ function TabLinks({
   const handleTabsScroll = () => {
     dispatch(setScrollToTabsPosition(true));
   };
+  if (token.isLoading) { return null; }
   return (
     <ThemeProvider theme={theme}>
       <StyleTabs className={`${display === 'underline' ? '' : 'bg-dark bg-mobile-transparent rounded-3'}`}>
@@ -104,7 +108,7 @@ function TabLinks({
                 : label}
               component={Link}
               /* eslint-disable no-nested-ternary */
-              to={!userIsLoggedIn() ? '' : params ? `${toLink}/${value}${params}` : `${toLink}/${value}`}
+              to={!userIsLoggedIn ? '' : params ? `${toLink}/${value}${params}` : `${toLink}/${value}`}
               className="text-decoration-none shadow-none"
               onClick={(e: any) => {
                 handleTabsScroll();

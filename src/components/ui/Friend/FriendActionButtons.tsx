@@ -1,9 +1,9 @@
 import React from 'react';
-import Cookies from 'js-cookie';
 import RoundButton from '../RoundButton';
 import { FriendRequestReaction, User } from '../../../types';
 import RoundButtonLink from '../RoundButtonLink';
 import { acceptFriendsRequest, addFriend, rejectFriendsRequest } from '../../../api/friends';
+import { useAppSelector } from '../../../redux/hooks';
 
 type FriendType = { from: string, to: string, reaction: FriendRequestReaction } | null;
 const getButtonLabelForUser = (
@@ -46,7 +46,8 @@ function FriendActionButtons({
   friendStatus, user, friendData, setFriendshipStatus, showOnlyAddAndSend = false,
   buttonType,
 }: Props) {
-  const loginUserId = Cookies.get('userId');
+  const loginUserId = useAppSelector((state) => state.user.user.id);
+
   const friendRequestApi = (status: number | null) => {
     if (!status) {
       // eslint-disable-next-line no-param-reassign

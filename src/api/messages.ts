@@ -1,10 +1,10 @@
 import axios from 'axios';
-import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
+import { getSessionToken } from '../utils/session-utils';
 import { ContentDescription } from '../types';
 
 export async function getMessagesList(lastRetrievedMessageId?: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -16,7 +16,7 @@ export async function getMessagesList(lastRetrievedMessageId?: string) {
 }
 
 export async function getConversation(matchListId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -25,7 +25,7 @@ export async function getConversation(matchListId: string) {
 }
 
 export async function createOrFindConversation(userId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -34,7 +34,7 @@ export async function createOrFindConversation(userId: string) {
 }
 
 export async function markAllReadForSingleConversation(matchListId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -48,7 +48,7 @@ export async function attachFile(
   conversationId: string,
   descriptionArray?: ContentDescription[] | any,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const formData = new FormData();
   for (let i = 0; i < descriptionArray.length; i += 1) {
     if (file && file.length && file !== undefined) {
@@ -70,7 +70,7 @@ export async function attachFile(
 }
 
 export async function deleteConversationMessages(matchListId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };

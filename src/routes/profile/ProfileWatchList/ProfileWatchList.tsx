@@ -50,7 +50,6 @@ function ProfileWatchList({ user }: Props) {
   const prevSearchRef = useRef(search);
   const prevKeyRef = useRef(key);
   const prevSortValRef = useRef(sortVal);
-  const isLoadingRef = useRef(true);
 
   useEffect(() => {
     setSearch(searchParams.get('q') || '');
@@ -124,7 +123,7 @@ function ProfileWatchList({ user }: Props) {
             },
           ).finally(
             // eslint-disable-next-line max-len
-            () => { setRequestAdditionalMovies(false); setLoadingMovies(false); isLoadingRef.current = false; },
+            () => { setRequestAdditionalMovies(false); setLoadingMovies(false); },
           );
       }
     }
@@ -222,7 +221,7 @@ function ProfileWatchList({ user }: Props) {
               />
             </InfiniteScroll>
             {loadingMovies && <LoadingIndicator />}
-            {(isLoadingRef.current || noMoreData) && renderNoMoreDataMessage()}
+            {noMoreData && renderNoMoreDataMessage()}
           </div>
         </div>
       </ProfileTabContent>

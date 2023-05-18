@@ -2,13 +2,12 @@ import React, { useEffect, useRef } from 'react';
 import { DateTime } from 'luxon';
 import styled from 'styled-components';
 import { Image } from 'react-bootstrap';
-import data from '@emoji-mart/data';
-import Picker from '@emoji-mart/react';
 import { ChatProps } from './ChatProps';
 import ChatTimestamp from './ChatTimestamp';
 import LoadingIndicator from '../ui/LoadingIndicator';
 import { enableDevFeatures } from '../../utils/configEnvironment';
 import ChatMessageText from './ChatMessageText';
+import CustomEmojiPicker from '../ui/CustomEmojiPicker';
 
 const ChatMessages = styled.div`
 .time-stamp {
@@ -139,7 +138,7 @@ function ChatMessage({
         <LoadingIndicator />
       )}
       {showPicker && (
-        <Picker data={data} onEmojiSelect={handleEmojiSelect} />
+        <CustomEmojiPicker handleEmojiSelect={handleEmojiSelect} />
       )}
     </ChatMessages>
   );

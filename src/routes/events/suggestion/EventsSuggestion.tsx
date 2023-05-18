@@ -8,6 +8,7 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Alert,
+  Button,
   Col, Container, Form, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
@@ -190,11 +191,15 @@ function EventSuggestion() {
 
   return (
     <div>
-      <CustomContainer className="rounded p-md-4 pb-0 pb-md-4">
-        <Row className="d-md-none bg-dark pt-2 hustify-content-between">
+      <CustomContainer className="rounded p-lg-4 pb-0 pb-lg-4">
+        <Row className="d-lg-none mb-2 bg-dark pt-2 justify-content-between">
           <Col />
           <Col><h2 className="text-center">Suggest event</h2></Col>
-          <Col className="ms-2 text-end"><FontAwesomeIcon role="button" icon={solid('xmark')} size="lg" onClick={() => navigate(location.state.prev)} /></Col>
+          <Col className="ms-2 text-end">
+            <Button variant="link" onClick={() => navigate(-1)}>
+              <FontAwesomeIcon icon={solid('xmark')} size="lg" />
+            </Button>
+          </Col>
         </Row>
         <Row>
           <Col className="h-100">

@@ -791,8 +791,8 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     scrollPositionRef, selectedBlockedUserId, dropDownValue]);
 
   useEffect(() => {
-    updateCommentDataAfterBlockUser();
-  }, [selectedBlockedUserId, updateCommentDataAfterBlockUser]);
+    if (dropDownValue === 'BlockUserSuccess') { updateCommentDataAfterBlockUser(); }
+  }, [selectedBlockedUserId, dropDownValue, updateCommentDataAfterBlockUser]);
 
   return (
     <>

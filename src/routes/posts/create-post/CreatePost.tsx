@@ -6,6 +6,7 @@ import {
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { useDispatch } from 'react-redux';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
 import { createPost } from '../../../api/feed-posts';
 import { useAppSelector } from '../../../redux/hooks';
@@ -14,6 +15,7 @@ import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/au
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import CreatePostComponent from '../../../components/ui/CreatePostComponent';
 import { ContentDescription, PostType } from '../../../types';
+import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 
 export interface MentionProps {
   id: string;
@@ -43,6 +45,7 @@ function CreatePost() {
   const [containSpoiler, setContainSpoiler] = useState<boolean>(false);
   const [selectedPostType, setSelectedPostType] = useState<string>('');
   const paramsMovieId = searchParams.get('movieId');
+  const dispatch = useDispatch();
 
   const mentionReplacementMatchFunc = (match: string) => {
     if (match) {
@@ -80,6 +83,10 @@ function CreatePost() {
       .then(() => {
         setErrorMessage([]);
         navigate(location.state);
+        const positionData = {
+          position: 0,
+        };
+        dispatch(setScrollPosition(positionData));
       })
       .catch((error) => {
         const msg = error.response.status === 0 && !error.response.data

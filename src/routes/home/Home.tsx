@@ -228,7 +228,7 @@ function Home() {
         const updatePost = posts.map((post: any) => {
           if (post._id === postId) {
             return {
-              ...post, content: res.data.message, images: res.data.images,
+              ...post, message: res.data.message, images: res.data.images,
             };
           }
           return post;

@@ -6,10 +6,11 @@ import PublicHomeFooter from '../public-home-footer/PublicHomeFooter';
 import PublicHomeHeader from '../public-home-header/PublicHomeHeader';
 import ProfileAbout from '../../profile/ProfileAbout/ProfileAbout';
 import PublicHomeBody from '../public-home-body/PublicHomeBody';
-import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import HeroImage from '../../../images/public-home-hero-header.png';
 import ProfileLimitedView from '../../profile/ProfileLimitedView/ProfileLimitedView';
 import { getPublicProfile } from '../../../api/users';
+import LoadingIndicator from '../../../components/ui/LoadingIndicator';
+import { ProfileVisibility, User } from '../../../types';
 import useSessionToken from '../../../hooks/useSessionToken';
 
 const StyleSection = styled.div`
@@ -18,9 +19,14 @@ padding-top:100px;
 background-repeat: no-repeat;
     background-size: contain;
 `;
+const CustomDiv = styled.div`
+@media (max-width: 767px)  {
+ margin-top: 7.5rem;
+}
+`;
 function PublicProfile() {
   const { userName } = useParams();
-  const [user, setUser] = useState<any>({});
+  const [user, setUser] = useState<any>();
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const token = useSessionToken();
   const userIsLoggedIn = !token.isLoading && token.value;
@@ -35,6 +41,32 @@ function PublicProfile() {
 
   if (token.isLoading) { return null; }
 
+  const renderProfile = (profileData: User) => {
+    if (!profileData && !errorMessage) {
+      return <LoadingIndicator />;
+    }
+
+    if (errorMessage && errorMessage.length > 0) {
+      return (
+        <CustomDiv className="bg-dark rounded p-4 my-3">
+          User not found.
+        </CustomDiv>
+      );
+    }
+    return (
+      <StyleSection>
+        <Row className="d-flex justify-content-center px-2">
+          <Col lg={9} className="px-lg-4 px-3">
+            <PublicHomeBody>
+              {profileData.profile_status === ProfileVisibility.Private
+                ? <ProfileLimitedView user={user!} />
+                : <ProfileAbout user={user!} />}
+            </PublicHomeBody>
+          </Col>
+        </Row>
+      </StyleSection>
+    );
+  };
   return (
     <div>
       {userIsLoggedIn
@@ -42,18 +74,7 @@ function PublicProfile() {
         : (
           <>
             <PublicHomeHeader />
-            <StyleSection>
-              <Row className="d-flex justify-content-center px-2">
-                <Col lg={9} className="px-lg-4 px-3">
-                  <PublicHomeBody>
-                    {user.profile_status === 1
-                      ? <ProfileLimitedView user={user} />
-                      : <ProfileAbout user={user} />}
-                  </PublicHomeBody>
-                </Col>
-              </Row>
-            </StyleSection>
-            <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+            {renderProfile(user)}
             <PublicHomeFooter />
           </>
         )}

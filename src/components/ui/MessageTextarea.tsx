@@ -9,9 +9,8 @@ import styled from 'styled-components';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from 'react-bootstrap';
-import data from '@emoji-mart/data';
-import Picker from '@emoji-mart/react';
 import UserCircleImage from './UserCircleImage';
+import CustomEmojiPicker from './CustomEmojiPicker';
 
 interface SytledMentionProps {
   iscommentinput: string;
@@ -55,7 +54,7 @@ const StyledEmoji = styled(Button)`
     bottom: 9%; 
     `
     : `  
-    left: 0.688rem;
+    left: 0.438rem;
     bottom: 30%; 
     `)}
 `;
@@ -208,7 +207,7 @@ function MessageTextarea({
           className="position-absolute me-4"
           createpost={createEditPost}
         >
-          <Picker data={data} onEmojiSelect={handleEmojiSelect} style={{ backgroundColor: 'red' }} />
+          <CustomEmojiPicker handleEmojiSelect={handleEmojiSelect} />
         </EmojiPicker>
       )}
     </>

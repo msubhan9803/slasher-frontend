@@ -169,9 +169,11 @@ function AboutDetails({
                   </StyledInitial>
                 </div>
               )}
+              {aboutMovieDetail && aboutMovieDetail?.mainData?.runtime !== 0 && (
               <p className="m-0 ms-1 fs-3 align-self-center">
                 {toHoursAndMinutes(aboutMovieDetail && aboutMovieDetail?.mainData?.runtime)}
               </p>
+              )}
             </div>
           </Col>
           <Col xs={6} md={3} className="p-0">

@@ -193,7 +193,7 @@ function EventSuggestion() {
       <CustomContainer className="rounded p-lg-4 pb-0 pb-lg-4">
         <Row className="d-lg-none mb-2 bg-dark pt-2 justify-content-between">
           <Col />
-          <Col><h2 className="text-center">Suggest event</h2></Col>
+          <Col xs="auto"><h2 className="text-center">Suggest event</h2></Col>
           <Col className="ms-2 text-end">
             <Button variant="link" className="p-0 px-1" onClick={() => navigate(-1)}>
               <FontAwesomeIcon icon={solid('xmark')} size="lg" />

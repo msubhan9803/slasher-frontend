@@ -13,14 +13,12 @@ interface Props {
   iconColor?: string;
   className?: string;
   id: number;
+  comingSoon: boolean;
   onToggleCanvas?: () => void;
 }
 
 interface LinearIconProps {
   uniqueId?: string
-}
-interface LinkProp {
-  isComingSoon?: boolean
 }
 
 const LinearIcon = styled.div<LinearIconProps>`
@@ -29,28 +27,27 @@ const LinearIcon = styled.div<LinearIconProps>`
 }
 `;
 
-const StyledLink = styled(Link) <LinkProp>`
+const StyledLink = styled(Link)`
   height: 3.35em;
   padding: 0 0 0 1.1em;
   margin-bottom: 0.75rem;
 
   .nav-item-label {
-    line-height: 1.3em; 
+    line-height: 1.3em;
   }
-    ${(prop) => prop.isComingSoon
-    && `&:active {
-    background-color:#141414 !important;
-    border-color: transparent !important;
-      }
-    @media (max-width: 767px) {
-    &:hover {
-    color: #cccccc !important;
-    background-color:#141414 !important;
-    border: 1px solid #141414 !important;
-      }
+
+  &.coming-soon {
+    &:active {
+      background-color: --var(bs-dark) !important;
+      border-color: transparent !important;
     }
-      `
-}
+
+    &:hover {
+      color: var(--bs-light) !important;
+      background-color: var(--bs-dark) !important;
+      border: 1px solid var(--bs-dark) !important;
+    }
+  }
 `;
 const LinkContentWrapper = styled.div`
 padding - top: 0.2em;
@@ -61,7 +58,7 @@ font - size: 1.25rem;
 `;
 
 function SidebarNavItem({
-  label, icon, iconColor: color, to, className, id, onToggleCanvas,
+  label, icon, iconColor: color, to, className, id, comingSoon, onToggleCanvas,
 }: Props) {
   const { pathname } = useLocation();
   const dispatch = useAppDispatch();
@@ -74,13 +71,19 @@ function SidebarNavItem({
     };
     dispatch(setScrollPosition(positionData));
   };
+  const onClickHandler = (e: React.MouseEvent) => {
+    if (comingSoon) {
+      e.preventDefault();
+      return;
+    }
+    onToggleCanvas!(); handleRefresh();
+  };
   return (
     <StyledLink
-      className={`w-100 btn rounded-3 btn-dark d-flex align-items-center ${className}
+      className={`w-100 btn rounded-3 btn-dark d-flex align-items-center ${className} ${comingSoon ? 'coming-soon' : ''}
       ${matchPath({ path: to, end: false }, pathname) ? 'btn-filter' : ''}`}
       to={to}
-      onClick={() => { onToggleCanvas!(); handleRefresh(); }}
-      isComingSoon={label === 'Coming Soon'}
+      onClick={onClickHandler}
     >
       <LinkContentWrapper className="d-flex align-items-center justify-content-between">
         <LinearIcon uniqueId={`icon-${id}`}>

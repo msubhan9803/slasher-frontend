@@ -1,17 +1,17 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import styled from 'styled-components';
 
 interface SortDataProps {
   sortoptions?: OptionsProps[];
   type?: string;
-  onSelectSort?(value: string): void | null;
-  sortVal?: string;
+  onSelectSort?(value: any): void | null;
+  sortVal?: string | number;
   placeholder?: string;
 }
 interface OptionsProps {
-  value: any;
-  label: any;
+  value: number | string;
+  label: number | string;
 }
 
 const StyledSelect = styled(Select)`
@@ -23,6 +23,8 @@ const StyledSelect = styled(Select)`
 function SortData({
   sortoptions, type, onSelectSort, sortVal, placeholder,
 }: SortDataProps) {
+  const [selectedSortVal, setSelectedSortVal] = useState<any>();
+
   const customStyles = {
     control: (base: any, state: any) => ({
       ...base,
@@ -82,17 +84,28 @@ function SortData({
       };
     },
   };
-
+  useEffect(() => {
+    setSelectedSortVal(sortVal!);
+  }, [sortVal]);
+  useEffect(() => {
+    if (sortoptions![0].label === 'Day') {
+      const updateValue = typeof sortVal! === 'number' && sortVal! > sortoptions!.length - 1 ? sortoptions!.length - 1 : sortVal;
+      setSelectedSortVal(updateValue);
+    }
+  }, [sortoptions, sortVal]);
   return (
     <StyledSelect
-      defaultValue={sortoptions![0] || sortVal}
-      onChange={(selectedOption: any) => onSelectSort!(selectedOption.value)}
+      value={sortoptions!.find((option) => option.value === selectedSortVal)}
+      onChange={(selectedOption: any) => {
+        onSelectSort!(selectedOption.value);
+        setSelectedSortVal(selectedOption.value);
+      }}
       className="fs-5"
       options={sortoptions}
       placeholder={placeholder || ''}
       styles={customStyles}
       isSearchable={false}
-      isOptionDisabled={(option: any) => option.value === 'disabled'}
+      isOptionDisabled={(option: any) => option.value === 0}
       components={{ IndicatorSeparator: () => null }}
     />
   );
@@ -102,7 +115,7 @@ SortData.defaultProps = {
   sortoptions: [],
   type: '',
   onSelectSort: null,
-  sortVal: 'name',
+  sortVal: 'name' || 0,
   placeholder: undefined,
 };
 

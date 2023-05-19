@@ -20,8 +20,23 @@ export const generateMonthOptions = (): MonthObject[] => {
 /**
  * Generates a day list
 */
-export const generateDayOptions = (startRange: number, endRange: number) => {
-  const dayList = generateRange(startRange, endRange);
+export const generateDayOptions = (
+  startRange: number,
+  endRange: number,
+  year: number = DateTime.now().year,
+  month: number = DateTime.now().month,
+) => {
+  let totalDays = endRange;
+  if (year || month) {
+    const dateTime = DateTime.local(year, month);
+
+    if (month === 2 && dateTime.isInLeapYear) {
+      totalDays = 29;
+    } else {
+      totalDays = dateTime.daysInMonth;
+    }
+  }
+  const dayList = generateRange(startRange, totalDays);
   return dayList;
 };
 

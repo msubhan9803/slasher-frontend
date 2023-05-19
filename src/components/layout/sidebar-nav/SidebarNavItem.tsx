@@ -3,8 +3,8 @@ import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
 import { Link, matchPath, useLocation } from 'react-router-dom';
-import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import { useAppDispatch } from '../../../redux/hooks';
+import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 
 interface Props {
   label: string;
@@ -13,6 +13,7 @@ interface Props {
   iconColor?: string;
   className?: string;
   id: number;
+  comingSoon: boolean;
   onToggleCanvas?: () => void;
 }
 
@@ -34,17 +35,30 @@ const StyledLink = styled(Link)`
   .nav-item-label {
     line-height: 1.3em;
   }
+
+  &.coming-soon {
+    &:active {
+      background-color: --var(bs-dark) !important;
+      border-color: transparent !important;
+    }
+
+    &:hover {
+      color: var(--bs-light) !important;
+      background-color: var(--bs-dark) !important;
+      border: 1px solid var(--bs-dark) !important;
+    }
+  }
 `;
 const LinkContentWrapper = styled.div`
-  padding-top: 0.2em;
+padding - top: 0.2em;
 `;
 
 const StyledIcon = styled(FontAwesomeIcon)`
-  font-size:1.25rem;
+font - size: 1.25rem;
 `;
 
 function SidebarNavItem({
-  label, icon, iconColor: color, to, className, id, onToggleCanvas,
+  label, icon, iconColor: color, to, className, id, comingSoon, onToggleCanvas,
 }: Props) {
   const { pathname } = useLocation();
   const dispatch = useAppDispatch();
@@ -57,12 +71,19 @@ function SidebarNavItem({
     };
     dispatch(setScrollPosition(positionData));
   };
+  const onClickHandler = (e: React.MouseEvent) => {
+    if (comingSoon) {
+      e.preventDefault();
+      return;
+    }
+    onToggleCanvas!(); handleRefresh();
+  };
   return (
     <StyledLink
-      className={`w-100 btn rounded-3 btn-dark d-flex align-items-center ${className}
+      className={`w-100 btn rounded-3 btn-dark d-flex align-items-center ${className} ${comingSoon ? 'coming-soon' : ''}
       ${matchPath({ path: to, end: false }, pathname) ? 'btn-filter' : ''}`}
       to={to}
-      onClick={() => { onToggleCanvas!(); handleRefresh(); }}
+      onClick={onClickHandler}
     >
       <LinkContentWrapper className="d-flex align-items-center justify-content-between">
         <LinearIcon uniqueId={`icon-${id}`}>

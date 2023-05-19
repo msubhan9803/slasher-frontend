@@ -11,6 +11,7 @@ import signInImageMobile from '../../images/sign-in-background-beta-mobile.jpg';
 import { LG_MEDIA_BREAKPOINT } from '../../constants';
 import SigninComponent from '../../components/ui/SigninComponent';
 import useSessionToken from '../../hooks/useSessionToken';
+import { sleep } from '../../utils/timer-utils';
 
 export interface UserCredentials {
   emailOrUsername: string;
@@ -61,9 +62,10 @@ function SignIn() {
 
   if (token.isLoading) { return null; }
 
-  const handleUserSignIn = (e: React.MouseEvent<HTMLElement>) => {
+  const handleUserSignIn = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
-    signIn(credentials.emailOrUsername, credentials.password).then((res) => {
+    signIn(credentials.emailOrUsername, credentials.password).then(async (res) => {
+      await sleep(1000);
       setErrorMessage([]);
       setSignInCookies(res.data.token, res.data.id, res.data.userName).finally(() => {
         const targetPath = searchParams.get('path');

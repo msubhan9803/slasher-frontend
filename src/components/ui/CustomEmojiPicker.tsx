@@ -2,7 +2,14 @@ import React, { useEffect, useState } from 'react';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 
-function CustomEmojiPicker({ handleEmojiSelect }: any) {
+interface Emoji {
+  native: string
+}
+interface Props {
+  handleEmojiSelect: (value: Emoji) => void
+}
+
+function CustomEmojiPicker({ handleEmojiSelect }: Props) {
   const [perLine, setPerLine] = useState(7);
   useEffect(() => {
     const handleResize = () => {
@@ -18,7 +25,7 @@ function CustomEmojiPicker({ handleEmojiSelect }: any) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
   return (
-    <Picker data={data} onEmojiSelect={handleEmojiSelect} perLine={perLine} />
+    <Picker data={data} onEmojiSelect={handleEmojiSelect} perLine={perLine} previewPosition="none" />
   );
 }
 

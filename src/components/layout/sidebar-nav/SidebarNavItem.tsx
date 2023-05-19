@@ -3,8 +3,8 @@ import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
 import { Link, matchPath, useLocation } from 'react-router-dom';
-import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import { useAppDispatch } from '../../../redux/hooks';
+import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 
 interface Props {
   label: string;
@@ -19,6 +19,9 @@ interface Props {
 interface LinearIconProps {
   uniqueId?: string
 }
+interface LinkProp {
+  isComingSoon?: boolean
+}
 
 const LinearIcon = styled.div<LinearIconProps>`
  svg * {
@@ -26,27 +29,35 @@ const LinearIcon = styled.div<LinearIconProps>`
 }
 `;
 
-const StyledLink = styled(Link)`
+const StyledLink = styled(Link) <LinkProp>`
   height: 3.35em;
   padding: 0 0 0 1.1em;
   margin-bottom: 0.75rem;
 
   .nav-item-label {
-    line-height: 1.3em;
+    line-height: 1.3em; 
   }
-  @media (max-width: 767px) {
+    ${(prop) => prop.isComingSoon
+    && `&:active {
+    background-color:#141414 !important;
+    border-color: transparent !important;
+      }
+    @media (max-width: 767px) {
     &:hover {
-      background-color:#141414;
-      border:0;
+    color: #cccccc !important;
+    background-color:#141414 !important;
+    border: 1px solid #141414 !important;
+      }
     }
-  }
+      `
+}
 `;
 const LinkContentWrapper = styled.div`
-  padding-top: 0.2em;
+padding - top: 0.2em;
 `;
 
 const StyledIcon = styled(FontAwesomeIcon)`
-  font-size:1.25rem;
+font - size: 1.25rem;
 `;
 
 function SidebarNavItem({
@@ -69,6 +80,7 @@ function SidebarNavItem({
       ${matchPath({ path: to, end: false }, pathname) ? 'btn-filter' : ''}`}
       to={to}
       onClick={() => { onToggleCanvas!(); handleRefresh(); }}
+      isComingSoon={label === 'Coming Soon'}
     >
       <LinkContentWrapper className="d-flex align-items-center justify-content-between">
         <LinearIcon uniqueId={`icon-${id}`}>

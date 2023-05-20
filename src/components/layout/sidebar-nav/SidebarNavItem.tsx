@@ -27,34 +27,21 @@ const LinearIcon = styled.div<LinearIconProps>`
 }
 `;
 
-const StyledLink = styled(Link)`
+const LinkContentWrapper = styled.div`
+  padding-top: 0.2em;
+`;
+
+const NavItemContainer = styled.div`
   height: 3.35em;
-  padding: 0 0 0 1.1em;
   margin-bottom: 0.75rem;
 
   .nav-item-label {
-    line-height: 1.3em;
+    line-height: 1.2em;
   }
-
-  &.coming-soon {
-    &:active {
-      background-color: --var(bs-dark) !important;
-      border-color: transparent !important;
-    }
-
-    &:hover {
-      color: var(--bs-light) !important;
-      background-color: var(--bs-dark) !important;
-      border: 1px solid var(--bs-dark) !important;
-    }
-  }
-`;
-const LinkContentWrapper = styled.div`
-padding - top: 0.2em;
 `;
 
 const StyledIcon = styled(FontAwesomeIcon)`
-font - size: 1.25rem;
+  font-size: 1.25rem;
 `;
 
 function SidebarNavItem({
@@ -78,28 +65,49 @@ function SidebarNavItem({
     }
     onToggleCanvas!(); handleRefresh();
   };
-  return (
-    <StyledLink
-      className={`w-100 btn rounded-3 btn-dark d-flex align-items-center ${className} ${comingSoon ? 'coming-soon' : ''}
-      ${matchPath({ path: to, end: false }, pathname) ? 'btn-filter' : ''}`}
-      to={to}
-      onClick={onClickHandler}
-    >
-      <LinkContentWrapper className="d-flex align-items-center justify-content-between">
-        <LinearIcon uniqueId={`icon-${id}`}>
-          <StyledIcon icon={icon} size="lg" className="me-1 fa-fw" />
-        </LinearIcon>
-        <div className="ms-2 text-start nav-item-label fs-5">
-          {label}
-        </div>
+
+  const renderInnerNavItemContent = () => (
+    <LinkContentWrapper className="d-flex align-items-center justify-content-start">
+      <LinearIcon uniqueId={`icon-${id}`}>
+        <StyledIcon icon={icon} size="lg" className="me-1 fa-fw" />
         <svg width="0" height="0">
           <linearGradient id={`icon-${id}`} x1="100%" y1="100%" x2="0%" y2="0%">
             <stop offset="0%" style={{ stopColor: `${color}`, stopOpacity: '1' }} />
             <stop offset="100%" style={{ stopColor: 'var(--bs-link-color)', stopOpacity: '1' }} />
           </linearGradient>
         </svg>
-      </LinkContentWrapper>
-    </StyledLink>
+      </LinearIcon>
+      <div className="ms-2 text-start nav-item-label fs-5 fw-bold text-light">
+        {label}
+      </div>
+    </LinkContentWrapper>
+  );
+
+  const commonClasses = 'h-100 w-100 rounded-3 px-3 py-2 d-flex align-items-center';
+
+  return (
+    <NavItemContainer className={`d-flex align-items-center w-100 ${className}`}>
+      {
+        comingSoon
+          ? (
+            <div className={`${commonClasses} bg-dark cursor-default`}>
+              {renderInnerNavItemContent()}
+            </div>
+          )
+          : (
+            <Link
+              className={
+                `${commonClasses} btn btn-dark text-decoration-none
+            ${matchPath({ path: to, end: false }, pathname) ? 'btn-filter' : ''}`
+              }
+              to={to}
+              onClick={onClickHandler}
+            >
+              {renderInnerNavItemContent()}
+            </Link>
+          )
+      }
+    </NavItemContainer>
   );
 }
 

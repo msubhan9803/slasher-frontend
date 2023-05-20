@@ -189,7 +189,7 @@ function MessageTextarea({
       >
         {mentionLists && mentionLists?.map((mentionList: MentionListProps) => (
           <Option value={mentionList.userName} key={mentionList.id} style={{ zIndex: '100' }}>
-            <div ref={optionRef} className="list--hover soft-half pointer">
+            <div ref={optionRef} className="list--hover soft-half cursor-pointer">
               <div>
                 <UserCircleImage size="2rem" src={mentionList?.profilePic} className="ms-0 me-3 bg-secondary" />
                 <span>

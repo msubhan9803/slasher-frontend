@@ -41,7 +41,6 @@ function Conversation() {
   const [messageLoading, setMessageLoading] = useState<boolean>(false);
   const [descriptionArray, setDescriptionArray] = useState<string[]>([]);
   const isSocketConnected = useAppSelector((state) => state.socket.isConnected);
-  const isKeyboardOpen = useAppSelector((state) => state.user.isKeyboardOpen);
 
   useEffect(() => {
     if (location.pathname.includes('/new')) {
@@ -248,7 +247,7 @@ function Conversation() {
 
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper $isKeyboardOpen={isKeyboardOpen}>
+      <ContentPageWrapper>
         <InfiniteScroll
           className="balla"
           pageStart={0}
@@ -256,7 +255,6 @@ function Conversation() {
           loadMore={() => { setRequestAdditionalPosts(true); }}
           hasMore={!noMoreData}
           isReverse
-          style={{ height: isKeyboardOpen ? '98vh' : 'auto' }}
         >
           <Chat
             messages={messageList}

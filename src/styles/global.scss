@@ -295,8 +295,12 @@ body {
   padding: 7px !important;
 }
 
-.pointer {
+.cursor-pointer {
   cursor: pointer;
+}
+
+.cursor-default {
+  cursor: default;
 }
 
 textarea {

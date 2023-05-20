@@ -42,13 +42,13 @@ const StyledOffcanvas = styled(Offcanvas)`
 `;
 
 const LeftSidebarWrapper = styled.div`
-  width: 142px;
+  width: 147px;
+  padding: .25rem 1rem 0 .25rem;
   height: calc(100vh - 93.75px);
   padding-bottom: 50px;
   position: sticky;
   top: 93.75px;
   overflow-y: overlay;
-  padding: 0px 1rem 0 0px;
   overscroll-behavior: contain;
 
   &::-webkit-scrollbar { display: none; }
@@ -225,7 +225,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
                 </LeftSidebarWrapper>
               </div>
             )}
-          <main id={MAIN_CONTENT_ID} className="px-lg-2 flex-grow-1 min-width-0">
+          <main id={MAIN_CONTENT_ID} className="px-lg-2 py-1 flex-grow-1 min-width-0">
             {children}
           </main>
         </div>

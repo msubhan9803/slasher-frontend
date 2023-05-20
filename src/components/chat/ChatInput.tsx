@@ -1,12 +1,10 @@
 import React, {
-  ChangeEvent, useEffect, useRef, useState,
+  ChangeEvent, useRef, useState,
 } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Button, Form, InputGroup } from 'react-bootstrap';
 import styled from 'styled-components';
-import { useDispatch } from 'react-redux';
-import { setKeyboardOpen } from '../../redux/slices/userSlice';
 
 interface InputProps {
   focus: boolean;
@@ -72,19 +70,6 @@ function ChatInput({
 }: ChatInputProps) {
   const [isFocusInput, setIsFocusInput] = useState<boolean>(false);
   const inputFile = useRef<HTMLInputElement>(null);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    // We're delaying the `isKeyboardOpen` so that wehn send button is pressed
-    // we want the input to focussed again and on mobile devices we wan't the
-    // keyboard to be kept open. Thus we want to clearTimeout in case when send
-    // button is pressed as by default the focus of the input is lost and thus we don't
-    // want to set isKeyboardOpen=true in that quick case (otherwise the keyboard will close).
-    const timer = setTimeout(() => {
-      dispatch(setKeyboardOpen(isFocusInput));
-    }, 200);
-    return () => clearTimeout(timer);
-  }, [dispatch, isFocusInput]);
 
   const handleSubmit = (event: any) => {
     event.preventDefault();

@@ -225,7 +225,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
                 </LeftSidebarWrapper>
               </div>
             )}
-          <main id={MAIN_CONTENT_ID} className="px-lg-2 py-1 flex-grow-1 min-width-0">
+          <main id={MAIN_CONTENT_ID} className="px-lg-2 flex-grow-1 min-width-0">
             {children}
           </main>
         </div>

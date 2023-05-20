@@ -95,15 +95,19 @@ export class UsersService {
 
   async userNameAvailable(userName: string): Promise<boolean> {
     const user = await this.userModel.findOne({ userName: new RegExp(`^${escapeStringForRegex(userName)}$`, 'i') }).exec();
-    if (!user) { return true; } // username is available if user not found
-    if (user.userBanned || !user.deleted) { return false; } // username not available if user banned or user not deleted
+    if (!user || user.status === ActiveStatus.Deactivated
+       || (user.deleted && !user.userBanned && !user.userSuspended)) { return true; } // username is available if user not found
+    if (user.status === ActiveStatus.Active || user.status === ActiveStatus.Inactive || user.userBanned
+      || !user.deleted || user.userSuspended) { return false; } // username not available if user banned or user not deleted
     return true;
   }
 
   async emailAvailable(email: string): Promise<boolean> {
     const user = await this.userModel.findOne({ email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') }).exec();
-    if (!user) { return true; } // email is available if user not found
-    if (user.userBanned || !user.deleted) { return false; } // email not available if user banned or user not deleted
+    if (!user || user.status === ActiveStatus.Deactivated
+       || (user.deleted && !user.userBanned && !user.userSuspended)) { return true; } // email is available if user not found
+    if (user.status === ActiveStatus.Active || user.status === ActiveStatus.Inactive || user.userBanned
+      || !user.deleted || user.userSuspended) { return false; } // email not available if user banned or user not deleted
     return true;
   }
 

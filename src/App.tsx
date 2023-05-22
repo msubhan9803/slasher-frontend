@@ -40,6 +40,7 @@ import Index from './routes/Index';
 import ChangeEmailConfirm from './routes/change-email/ChangeEmailConfirm';
 import ChangeEmailRevert from './routes/change-email/ChangeEmailRevert';
 import PublicProfile from './routes/public-home-page/public-profile-web/PublicProfile';
+import ConversationAlt from './routes/conversation/ConversationAlt';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -61,8 +62,10 @@ const routes: Record<string, TopLevelRoute> = {
   'app/home': { wrapper: AuthenticatedPageWrapper, component: Home },
   'app/search/*': { wrapper: AuthenticatedPageWrapper, component: Search },
   'app/messages': { wrapper: AuthenticatedPageWrapper, component: Messages },
-  'app/messages/conversation/:conversationId': { wrapper: AuthenticatedPageWrapper, component: Conversation },
-  'app/messages/conversation/user/:userId': { wrapper: AuthenticatedPageWrapper, component: Conversation },
+  'app/messages/conversation-old/:conversationId': { wrapper: AuthenticatedPageWrapper, component: Conversation },
+  'app/messages/conversation-old/user/:userId': { wrapper: AuthenticatedPageWrapper, component: Conversation },
+  'app/messages/conversation/:conversationId': { wrapper: AuthenticatedPageWrapper, component: ConversationAlt },
+  'app/messages/conversation/user/:userId': { wrapper: AuthenticatedPageWrapper, component: ConversationAlt },
   'app/news/*': { wrapper: AuthenticatedPageWrapper, component: News },
   'app/events/*': { wrapper: AuthenticatedPageWrapper, component: Events },
   'app/posts/*': { wrapper: AuthenticatedPageWrapper, component: Posts },

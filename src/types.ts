@@ -3,6 +3,7 @@
 // that are shared across multiple places in the app.
 
 import { LatLngLiteral } from 'leaflet';
+import { string } from 'prop-types';
 import { BREAK_POINTS } from './constants';
 
 export type BreakPointName = keyof typeof BREAK_POINTS;
@@ -117,6 +118,17 @@ export interface MessagesList {
   latestMessage: string;
   updatedAt: string;
   participants: UserMesssage[]
+}
+
+export interface Message {
+  _id: string;
+  message: string;
+  isRead: boolean;
+  imageDescription: string;
+  createdAt: string;
+  image: string;
+  fromId: string;
+  senderId: string; // this means toId
 }
 
 export interface UserMesssage {

@@ -2,10 +2,12 @@ import mongoose, { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DateTime } from 'luxon';
+import { ConfigService } from '@nestjs/config';
 import { Notification, NotificationDocument } from '../../schemas/notification/notification.schema';
 import { NotificationDeletionStatus, NotificationReadStatus, NotificationType } from '../../schemas/notification/notification.enums';
 import { NotificationsGateway } from './notifications.gateway';
 import { UsersService } from '../../users/providers/users.service';
+import { PushNotificationsService } from './push-notifications.service';
 
 @Injectable()
 export class NotificationsService {
@@ -13,6 +15,8 @@ export class NotificationsService {
     @InjectModel(Notification.name)
     private notificationModel: Model<NotificationDocument>,
     private notificationsGateway: NotificationsGateway,
+    private pushNotificationsService: PushNotificationsService,
+    private configService: ConfigService,
     private readonly usersService: UsersService,
   ) { }
 
@@ -20,7 +24,9 @@ export class NotificationsService {
     const newNotification = await this.notificationModel.create(notification);
     // TODO: Eventually move this to a background job (probably using a NestJS Queue: https://docs.nestjs.com/techniques/queues)
     // This can be processed in the background instead of adding a small delay to each notification creation.
-
+    if (this.configService.get<boolean>('SEND_PUSH_NOTIFICATION')) {
+      await this.pushNotificationsService.sendPushNotification(newNotification);
+    }
     await Promise.all([this.processNotification(newNotification.id),
     this.usersService.updateNewNotificationCount((notification.userId).toString())]);
     return newNotification;

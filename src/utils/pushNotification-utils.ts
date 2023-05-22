@@ -1,4 +1,4 @@
-import { PushNotifications, PushNotificationSchema, Token } from '@capacitor/push-notifications';
+import { ActionPerformed, PushNotifications, PushNotificationSchema, Token } from '@capacitor/push-notifications';
 
 export const initPushNotifications = () => {
   PushNotifications.requestPermissions().then((result) => {
@@ -14,12 +14,17 @@ export const initPushNotifications = () => {
 
   PushNotifications.addListener('pushNotificationReceived', (notification: PushNotificationSchema) => {
     // Handle the received push notification
-    console.log('Push notification received:', notification);
+    console.log('Push notification receivedgggg:', notification);
   });
 
-//   PushNotifications.addListener('pushNotificationActionPerformed',
-// (notification: PushNotificationSchema) => {
-//     // Handle the user action on the received push notification
-//     console.log('Push notification action performed:', notification);
-//   });
+  PushNotifications.addListener(
+    'pushNotificationActionPerformed',
+    async (notification: ActionPerformed) => {
+      const data = notification.notification.data;
+      console.log('Action performed: ' + JSON.stringify(notification.notification));
+      if (data.userName) {
+        // notification tap routing will be here
+      }
+    }
+  );
 };

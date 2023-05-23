@@ -2,6 +2,7 @@ import {
   Controller, Post, Req, Body, Query, Delete, ValidationPipe, Get,
 } from '@nestjs/common';
 import { Request } from 'express';
+import mongoose from 'mongoose';
 import { getUserFromRequest } from '../utils/request-utils';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { BlocksService } from './providers/blocks.service';
@@ -26,6 +27,10 @@ export class BlocksController {
     await this.blocksService.createBlock(user.id, createBlockDto.userId);
     await this.friendsService.cancelFriendshipOrDeclineRequest(user.id, createBlockDto.userId);
     await this.chatService.deletePrivateDirectMessageConversations(user.id, createBlockDto.userId);
+    await this.chatService.deletePrivateDirectMessageConversation([
+      new mongoose.Types.ObjectId(user.id),
+      new mongoose.Types.ObjectId(createBlockDto.userId),
+    ]);
     return { success: true };
   }
 

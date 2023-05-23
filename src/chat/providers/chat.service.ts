@@ -347,4 +347,26 @@ export class ChatService {
       { $addToSet: { deletefor: new mongoose.Types.ObjectId(userId) } },
     );
   }
+
+  async deletePrivateDirectMessageConversation(participants: mongoose.Types.ObjectId[]) {
+    if (participants.find((participantId) => typeof (participantId) === 'string')) {
+      throw new Error('Participant ids must be ObjectIds');
+    }
+
+    const matchList = await this.matchListModel.findOneAndUpdate(
+      {
+        participants: { $all: participants },
+        relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
+        roomType: MatchListRoomType.Match,
+        roomCategory: MatchListRoomCategory.DirectMessage,
+        deleted: false,
+      },
+      {
+        deleted: true,
+      },
+      { upsert: false, new: true },
+    );
+
+    return matchList;
+  }
 }

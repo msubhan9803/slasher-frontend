@@ -3,6 +3,7 @@ import {
   Delete, ValidationPipe, Query, HttpException, HttpStatus,
 } from '@nestjs/common';
 import { Request } from 'express';
+import mongoose from 'mongoose';
 import { pick } from '../utils/object-utils';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { getUserFromRequest } from '../utils/request-utils';
@@ -19,6 +20,7 @@ import { NotificationType } from '../schemas/notification/notification.enums';
 import { NotificationsService } from '../notifications/providers/notifications.service';
 import { UsersService } from '../users/providers/users.service';
 import { FriendsGateway } from './providers/friends.gateway';
+import { ChatService } from '../chat/providers/chat.service';
 
 @Controller({ path: 'friends', version: ['1'] })
 export class FriendsController {
@@ -28,6 +30,7 @@ export class FriendsController {
     private readonly notificationsService: NotificationsService,
     private readonly usersService: UsersService,
     private readonly friendsGateway: FriendsGateway,
+    private readonly chatService: ChatService,
   ) { }
 
   @Post()
@@ -95,6 +98,10 @@ export class FriendsController {
   ) {
     const user = getUserFromRequest(request);
     await this.friendsService.cancelFriendshipOrDeclineRequest(user.id, cancelFriendshipOrDeclineRequestDto.userId);
+    await this.chatService.deletePrivateDirectMessageConversation([
+      new mongoose.Types.ObjectId(user.id),
+      new mongoose.Types.ObjectId(cancelFriendshipOrDeclineRequestDto.userId),
+    ]);
     return { success: true };
   }
 

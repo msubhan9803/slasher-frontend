@@ -467,7 +467,7 @@ describe('Users sign-in (e2e)', () => {
       const userUnhashedPassword = 'password';
       beforeEach(async () => {
         const userDevices = [];
-        for (let i = 1; i <= 10; i += 1) {
+        for (let i = 1; i <= 30; i += 1) {
           const weekAgo = DateTime.now().minus({ days: i }).toISODate();
           userDevices.push(
             {
@@ -495,7 +495,7 @@ describe('Users sign-in (e2e)', () => {
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.CREATED);
         const userAfter = await usersService.findByEmail(response.body.email, true);
-        expect(userAfter.userDevices).toHaveLength(10);
+        expect(userAfter.userDevices).toHaveLength(30);
         expect(user.userDevices).not.toEqual(userAfter.userDevices);
       });
     });

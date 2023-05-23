@@ -39,8 +39,8 @@ function Conversation() {
   const [imageArray, setImageArray] = useState<any>([]);
   const [uploadPost, setUploadPost] = useState<string[]>([]);
   const [messageLoading, setMessageLoading] = useState<boolean>(false);
+  const [descriptionArray, setDescriptionArray] = useState<string[]>([]);
   const isSocketConnected = useAppSelector((state) => state.socket.isConnected);
-  const isKeyboardOpen = useAppSelector((state) => state.user.isKeyboardOpen);
 
   useEffect(() => {
     if (location.pathname.includes('/new')) {
@@ -122,7 +122,7 @@ function Conversation() {
   const sendMessageClick = () => {
     if (imageArray.length > 0) {
       setMessageLoading(true);
-      attachFile(message, imageArray, conversationId!)
+      attachFile(message, imageArray, conversationId!, descriptionArray)
         .then((res) => {
           res.data.messages.map((sentMessage: any) => {
             setMessageList((prev: any) => [
@@ -133,6 +133,7 @@ function Conversation() {
                 time: sentMessage.createdAt,
                 participant: 'self',
                 image: sentMessage.image ?? null,
+                imageDescription: sentMessage.imageDescription,
               },
             ]);
             setMessageLoading(false);
@@ -140,6 +141,7 @@ function Conversation() {
           });
           setMessage('');
           setImageArray([]);
+          setDescriptionArray([]);
         }).catch(
           () => {
             setMessageLoading(false);
@@ -219,12 +221,14 @@ function Conversation() {
     if (postImage.target.name === 'post' && postImage.target && postImage.target.files) {
       const uploadedPostList = [...uploadPost];
       const imageArrayList = [...imageArray];
+      // const descriptionArrayList = [...descriptionArray!]
       const fileList = postImage.target.files;
       for (let list = 0; list < fileList.length; list += 1) {
         if (uploadedPostList.length < 10) {
           const image = URL.createObjectURL(postImage.target.files[list]);
           uploadedPostList.push(image);
           imageArrayList.push(postImage.target.files[list]);
+          descriptionArray.push('');
         }
       }
       setUploadPost(uploadedPostList);
@@ -232,14 +236,18 @@ function Conversation() {
     }
   };
 
-  const handleRemoveFile = (postImage: File) => {
+  const handleRemoveFile = (postImage: File, index: number) => {
     const removePostImage = imageArray.filter((image: File) => image !== postImage);
     setImageArray(removePostImage);
+
+    const descriptionArrayList = [...descriptionArray!];
+    descriptionArrayList!.splice(index!, 1);
+    setDescriptionArray!([...descriptionArrayList!]);
   };
 
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper $isKeyboardOpen={isKeyboardOpen}>
+      <ContentPageWrapper>
         <InfiniteScroll
           className="balla"
           pageStart={0}
@@ -247,7 +255,6 @@ function Conversation() {
           loadMore={() => { setRequestAdditionalPosts(true); }}
           hasMore={!noMoreData}
           isReverse
-          style={{ height: isKeyboardOpen ? '98vh' : 'auto' }}
         >
           <Chat
             messages={messageList}
@@ -259,6 +266,8 @@ function Conversation() {
             handleRemoveFile={handleRemoveFile}
             imageArray={imageArray}
             messageLoading={messageLoading}
+            descriptionArray={descriptionArray}
+            setDescriptionArray={setDescriptionArray}
           />
         </InfiniteScroll>
       </ContentPageWrapper>

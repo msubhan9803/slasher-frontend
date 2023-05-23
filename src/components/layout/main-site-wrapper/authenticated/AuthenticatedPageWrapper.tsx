@@ -3,7 +3,7 @@ import React, {
   useCallback, useEffect, useRef, useState,
 } from 'react';
 import { Offcanvas } from 'react-bootstrap';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { useMediaQuery } from 'react-responsive';
 import { io } from 'socket.io-client';
@@ -42,13 +42,13 @@ const StyledOffcanvas = styled(Offcanvas)`
 `;
 
 const LeftSidebarWrapper = styled.div`
-  width: 142px;
+  width: 147px;
+  padding: .25rem 1rem 0 .25rem;
   height: calc(100vh - 93.75px);
   padding-bottom: 50px;
   position: sticky;
   top: 93.75px;
   overflow-y: overlay;
-  padding: 0px 1rem 0 0px;
   overscroll-behavior: contain;
 
   &::-webkit-scrollbar { display: none; }
@@ -76,6 +76,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const tokenNotFound = !token.isLoading && !token.value;
 
   useGoogleAnalytics(analyticsId);
+  const params = useParams();
 
   // Record all navigation by user
   useEffect(() => {
@@ -103,6 +104,12 @@ function AuthenticatedPageWrapper({ children }: Props) {
   useEffect(() => {
     if (token.isLoading) { return; }
 
+    // Redirect to public profile page
+    if (tokenNotFound && params.userName && params['*']) {
+      navigate(`/${params.userName}`);
+      return;
+    }
+    // Redirect to login page
     if (tokenNotFound) {
       navigate(`/app/sign-in?path=${pathname}`);
       return;
@@ -127,7 +134,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
       });
     }
   }, [dispatch, navigate, pathname, userData.user?.userName,
-    remoteConstantsData.loaded, token, tokenNotFound]);
+    remoteConstantsData.loaded, token, tokenNotFound, params.userName, params]);
 
   const onNotificationReceivedHandler = useCallback(() => {
     dispatch(incrementUnreadNotificationCount());

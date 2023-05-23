@@ -10,8 +10,8 @@ function HomePage() {
 
 function Index() {
   const token = useSessionToken();
-  const useIsNotLoggedIn = (token.isLoading || !token.value);
-  return useIsNotLoggedIn ? <HomePage /> : <Navigate to="/app/home" replace />;
+  const userIsLoggedIn = !token.isLoading && token.value;
+  return userIsLoggedIn ? <Navigate to="/app/home" replace /> : <HomePage />;
 }
 
 export default Index;

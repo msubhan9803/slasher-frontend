@@ -7,6 +7,7 @@ import AboutMovie from './AboutMovie';
 import { getMoviesById, getMoviesDataById } from '../../../api/movies';
 import { AdditionalMovieData, MovieData } from '../../../types';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
+import { enableDevFeatures } from '../../../utils/configEnvironment';
 
 function MovieDetails() {
   const params = useParams();
@@ -32,7 +33,7 @@ function MovieDetails() {
   return (
     <div>
       <Container fluid className="mb-5 p-0">
-        <RoundButton className="d-lg-none w-100 my-3 fs-4">Add your movie</RoundButton>
+        {enableDevFeatures && <RoundButton className="d-lg-none w-100 my-3 fs-4">Add your movie</RoundButton>}
         {additionalMovieData?.video?.[0]?.key && (
           <PlayMovie embedId={
             additionalMovieData && additionalMovieData.video

@@ -87,6 +87,8 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
   const params = useParams();
   const [reviewForm, setReviewForm] = useState(false);
   const movieReviewRef = useRef<HTMLDivElement>(null);
+  const reviewButtonRef = useRef<HTMLDivElement>(null);
+  const reviewSmallButtonRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (params['*'] === 'edit' && !selfView) { navigate(`/app/movies/${params.id}/details`); }
   });
@@ -175,6 +177,26 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
     };
     updateMovieIconList();
   }, [movieIdList]);
+
+  const handleScroll = () => {
+    setTimeout(() => {
+      if (reviewButtonRef.current) {
+        reviewButtonRef.current.scrollIntoView({
+          behavior: 'instant' as any,
+          inline: 'nearest',
+          block: 'center',
+        });
+      }
+      if (reviewSmallButtonRef.current) {
+        reviewSmallButtonRef.current.scrollIntoView({
+          behavior: 'instant' as any,
+          inline: 'nearest',
+          block: 'center',
+        });
+      }
+    }, 0);
+  };
+
   return (
 
     <div>
@@ -183,7 +205,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
           <div>
             <div className="bg-dark my-3 p-4 pb-0 rounded-2">
               <Row className="justify-content-center">
-                <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
+                <Col xs={10} sm={7} lg={8} xl={5} className="text-center">
                   <div>
                     <StyledMoviePoster className="mx-4">
                       <Image src={aboutMovieData?.mainData?.poster_path} alt="movie poster" className="rounded-3 w-100 h-100" />
@@ -222,6 +244,9 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
                     movieData={movieData}
                     setMovieData={setMovieData}
                     aboutMovieDetail={aboutMovieData as AdditionalMovieData}
+                    reviewButtonRef={reviewButtonRef}
+                    reviewSmallButtonRef={reviewSmallButtonRef}
+                    handleScroll={handleScroll}
                   />
                 </Col>
               </Row>
@@ -318,7 +343,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
                   </>
                 )}
               />
-              <Route path="reviews" element={<MovieReviews reviewForm={reviewForm} setReviewForm={setReviewForm} movieData={movieData} setMovieData={setMovieData} />} />
+              <Route path="reviews" element={<MovieReviews reviewForm={reviewForm} setReviewForm={setReviewForm} movieData={movieData} setMovieData={setMovieData} handleScroll={handleScroll} />} />
               <Route path="reviews/:postId" element={<MovieReviewDetails />} />
               <Route path="posts" element={<MoviePosts />} />
               <Route path="edit" element={<MovieEdit />} />

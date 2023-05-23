@@ -13,17 +13,19 @@ interface Props {
   hideTopLogo?: boolean,
   hideFooter?: boolean,
   valign?: 'start' | 'center' | 'end',
-  children: React.ReactNode;
+  children: React.ReactNode,
+  isSignIn?: boolean;
 }
 
 interface StyledMainProps {
-  hideTopLogo?: boolean
+  hideTopLogo?: boolean,
+  isSignIn?: boolean
 }
 
 const StyledMain = styled.main<StyledMainProps>`
   flex: 1;
 
-  ${(props: StyledMainProps) => props.hideTopLogo && `
+  ${(props: StyledMainProps) => props.hideTopLogo && props.isSignIn && `
     background-color: var(--bs-black);
     @media (min-width: ${LG_MEDIA_BREAKPOINT}) {
       background-image: url(${signInImage});
@@ -33,7 +35,7 @@ const StyledMain = styled.main<StyledMainProps>`
 `;
 
 function UnauthenticatedPageWrapper({
-  children, hideTopLogo, hideFooter, valign,
+  children, hideTopLogo, hideFooter, valign, isSignIn,
 }: Props) {
   useGoogleAnalytics(analyticsId);
 
@@ -47,7 +49,7 @@ function UnauthenticatedPageWrapper({
           </Link>
         </Container>
       </header>
-      <StyledMain id={MAIN_CONTENT_ID} className={`d-flex align-items-${valign}`} hideTopLogo={hideTopLogo}>
+      <StyledMain id={MAIN_CONTENT_ID} className={`d-flex align-items-${valign}`} hideTopLogo={hideTopLogo} isSignIn={isSignIn}>
         <Container fluid={`${hideTopLogo ? 'fluid' : 'lg'}`}>
           {children}
         </Container>
@@ -61,6 +63,7 @@ UnauthenticatedPageWrapper.defaultProps = {
   hideTopLogo: false,
   hideFooter: false,
   valign: 'center',
+  isSignIn: false,
 };
 
 export default UnauthenticatedPageWrapper;

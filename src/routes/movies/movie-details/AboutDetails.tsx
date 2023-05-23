@@ -29,6 +29,9 @@ interface AboutMovieData {
   movieData: MovieData;
   setMovieData: React.Dispatch<React.SetStateAction<MovieData | undefined>>
   setReviewForm?: (value: boolean) => void;
+  reviewButtonRef?: any;
+  reviewSmallButtonRef?: any;
+  handleScroll?: () => void;
 }
 const StyledVerticalBorder = styled.div`
   border-right: 1px solid #3A3B46;
@@ -83,7 +86,8 @@ const StyledInitial = styled.p`
 `;
 
 function AboutDetails({
-  aboutMovieDetail, movieData, setMovieData, setReviewForm,
+  aboutMovieDetail, movieData, setMovieData, setReviewForm, reviewButtonRef,
+  handleScroll, reviewSmallButtonRef,
 }: AboutMovieData) {
   const [showRating, setShowRating] = useState(false);
   const [showGoreRating, setShowGoreRating] = useState(false);
@@ -124,7 +128,7 @@ function AboutDetails({
   const toHoursAndMinutes = (totalMinutes: number) => {
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
-    return `${hours}h ${minutes}m`;
+    return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
   };
   const getCertification = () => {
     const releaseDateForUS = aboutMovieDetail?.mainData?.release_dates?.results?.find((result: MovieReleaseResults) => result.iso_3166_1 === 'US');
@@ -165,9 +169,11 @@ function AboutDetails({
                   </StyledInitial>
                 </div>
               )}
+              {aboutMovieDetail && aboutMovieDetail?.mainData?.runtime !== 0 && (
               <p className="m-0 ms-1 fs-3 align-self-center">
                 {toHoursAndMinutes(aboutMovieDetail && aboutMovieDetail?.mainData?.runtime)}
               </p>
+              )}
             </div>
           </Col>
           <Col xs={6} md={3} className="p-0">
@@ -223,8 +229,8 @@ function AboutDetails({
                 handleClick={() => setShowRating(true)}
               />
             </div>
-            <div className="d-flex justify-content-center my-3 d-md-none ">
-              <RoundButton className="w-100 fw-bold" onClick={() => handleReviwRedirect()}> Write a review</RoundButton>
+            <div ref={reviewSmallButtonRef} id=" reviewSmallBUtton" className="d-flex justify-content-center my-3 d-md-none ">
+              <RoundButton className="w-100 fw-bold" onClick={() => { handleReviwRedirect(); handleScroll!(); }}> Write a review</RoundButton>
             </div>
             <StyledBorder className="d-md-none" />
           </Col>
@@ -296,8 +302,8 @@ function AboutDetails({
               />
             </div>
           </Col>
-          <div className="d-none d-md-flex justify-content-center mt-3">
-            <RoundButton className="w-50 fw-bold" onClick={() => handleReviwRedirect()}>Write a review</RoundButton>
+          <div ref={reviewButtonRef} id="writeReview" className="d-none d-md-flex justify-content-center mt-3">
+            <RoundButton className="w-50 fw-bold" onClick={() => { handleReviwRedirect(); handleScroll!(); }}>Write a review</RoundButton>
           </div>
           <StyledBorder className="d-md-none my-3" />
         </Row>
@@ -318,6 +324,9 @@ function AboutDetails({
 
 AboutDetails.defaultProps = {
   setReviewForm: false,
+  reviewButtonRef: null,
+  reviewSmallButtonRef: null,
+  handleScroll: undefined,
 };
 
 export default AboutDetails;

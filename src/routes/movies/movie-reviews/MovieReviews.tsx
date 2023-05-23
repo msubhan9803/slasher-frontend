@@ -19,7 +19,7 @@ import {
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
-import { useAppDispatch } from '../../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import ReportModal from '../../../components/ui/ReportModal';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-utils';
@@ -32,6 +32,7 @@ type Props = {
   setMovieData: React.Dispatch<React.SetStateAction<MovieData | undefined>>;
   reviewForm: boolean;
   setReviewForm: (value: boolean) => void;
+  handleScroll: () => void;
 };
 
 export const StyledReviewContainer = styled.div`
@@ -47,7 +48,7 @@ type PopOverValueType = typeof validPopOverOptions[number];
 const isValidPopOverValue = (v: string): v is PopOverValueType => validPopOverOptions.includes(v as any);
 
 function MovieReviews({
-  movieData, setMovieData, reviewForm, setReviewForm,
+  movieData, setMovieData, reviewForm, setReviewForm, handleScroll,
 }: Props) {
   const { id } = useParams();
   const location = useLocation();
@@ -62,7 +63,6 @@ function MovieReviews({
   const [containSpoiler, setContainSpoiler] = useState<boolean>(false);
   const [rating, setRating] = useState(0);
   const [goreFactor, setGoreFactor] = useState(0);
-  const [reviewPostData, setReviewPostData] = useState<any>([]);
   const [deletePostId, setDeletePostId] = useState<any>([]);
   const [requestAdditionalReviewPosts, setRequestAdditionalReviewPosts] = useState<boolean>(false);
   const [loadingReviewPosts, setLoadingReviewPosts] = useState<boolean>(false);
@@ -71,11 +71,21 @@ function MovieReviews({
   const [isWorthIt, setWorthIt] = useState<any>(0);
   const [liked, setLike] = useState<boolean>(false);
   const [disLiked, setDisLike] = useState<boolean>(false);
+  const scrollPosition = useAppSelector((state) => state.scrollPosition);
+  const [reviewPostData, setReviewPostData] = useState<any>(
+    scrollPosition.pathname === location.pathname
+      ? scrollPosition.data : [],
+  );
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const handleCreateInput = () => {
     setShowReviewForm(true);
   };
+  useEffect(() => {
+    if (scrollPosition.pathname === location.pathname) {
+      setReviewPostData(scrollPosition.data);
+    }
+  }, [scrollPosition.pathname, location.pathname, scrollPosition.data]);
 
   const getUserMovieReviewData = (reviewPostId: string) => {
     feedPostDetail(reviewPostId).then((res) => {
@@ -128,8 +138,17 @@ function MovieReviews({
       callLatestFeedPost();
     }
   }, [movieData, callLatestFeedPost]);
-
+  const persistScrollPosition = (movieId: string) => {
+    const positionData = {
+      pathname: location.pathname,
+      position: window.pageYOffset,
+      data: reviewPostData,
+      positionElementId: movieId,
+    };
+    dispatch(setScrollPosition(positionData));
+  };
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
+    persistScrollPosition(popoverClickProps.id!);
     if (!isValidPopOverValue(value)) {
       throw new Error(`Please call 'onPopoverClick()' with correct value! Called value: ${value}, Expected value is one of:`, validPopOverOptions as any);
     }
@@ -301,7 +320,15 @@ function MovieReviews({
     createBlockUser(postUserId)
       .then(() => {
         setShow(false);
-        callLatestFeedPost();
+        setDropDownValue('BlockUserSuccess');
+        const updatedScrollData = reviewPostData.filter(
+          (scrollData: any) => scrollData.userId !== postUserId,
+        );
+        const positionData = {
+          ...scrollPosition,
+          data: updatedScrollData,
+        };
+        dispatch(setScrollPosition(positionData));
       })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
@@ -321,15 +348,6 @@ function MovieReviews({
     setDropDownValue('PostReportSuccessDialog');
   };
 
-  const persistScrollPosition = (movieId: string) => {
-    const positionData = {
-      pathname: location.pathname,
-      position: window.pageYOffset,
-      data: reviewPostData,
-      positionElementId: movieId,
-    };
-    dispatch(setScrollPosition(positionData));
-  };
   const deletePostClick = () => {
     if (deletePostId) {
       deleteFeedPost(deletePostId)
@@ -425,6 +443,7 @@ function MovieReviews({
               reviewForm={reviewForm}
               setReviewForm={setReviewForm}
               setShowReviewForm={setShowReviewForm}
+              handleScroll={handleScroll}
               createEditPost
             />
           ) : (

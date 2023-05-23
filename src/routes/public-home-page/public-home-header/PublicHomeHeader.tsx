@@ -14,7 +14,6 @@ import {
   LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT, WORDPRESS_SITE_URL, XL_MEDIA_BREAKPOINT,
 } from '../../../constants';
 import slasherLogo from '../../../images/slasher-logo-medium.png';
-import { enableDevFeatures } from '../../../utils/configEnvironment';
 import RoundButton from '../../../components/ui/RoundButton';
 import { StyledMediaIcon, socialMediaSites } from '../public-home-footer/PublicHomeFooter';
 
@@ -82,6 +81,34 @@ const StyledHeader = styled.header<HeaderStyleProps>`
       height: ${({ isOpen }) => (isOpen ? 'auto' : '70px')} !important;
     }
   }
+  .header__wrapper{
+    width: 100%;
+    max-width: 1263px;
+    margin: auto;
+    @media (min-width: ${MD_MEDIA_BREAKPOINT}){
+      margin-top: -23px;
+    }
+  }
+  .nav__items__container {
+    padding-top: 0px;
+    padding-right: 30px;
+    @media (max-width: ${XL_MEDIA_BREAKPOINT}){
+      padding-left: 20px !important;
+    }
+  }
+  .mobile__logo{
+    padding-left: 50px;
+    @media (max-width: 480px){
+      padding-left: 20px;
+    }
+  }
+  .mobile__signin{
+    padding-right: 30px;
+    padding-bottom: 15px;
+    @media (max-width: 480px){
+      padding-right: 8px;
+    }
+  }
 `;
 
 const StyledOffcanvas = styled(Offcanvas)`
@@ -99,13 +126,18 @@ const StyledOffcanvas = styled(Offcanvas)`
     font-weight: normal
   }
 `;
-const navList = [
-  { value: 'home', label: 'Home' },
-  { value: 'about', label: 'About' },
-  { value: 'shop', label: 'Shop' },
-  { value: 'advertise', label: 'Advertise' },
-  { value: 'help', label: 'Help' },
+type NavItem = { value: string, label: string };
+const navList: NavItem[] = [
+  { value: '/', label: 'Home' },
+  { value: `${WORDPRESS_SITE_URL}/about`, label: 'About' },
+  { value: `${WORDPRESS_SITE_URL}/news`, label: 'News' },
+  { value: `${WORDPRESS_SITE_URL}/shop`, label: 'Shop' },
+  { value: `${WORDPRESS_SITE_URL}/advertise`, label: 'Advertise' },
+  { value: `${WORDPRESS_SITE_URL}/help`, label: 'Help' },
+  { value: `${WORDPRESS_SITE_URL}/contact-new`, label: 'Contact Us' },
 ];
+const signInNavItem: NavItem = { value: '/app/sign-in', label: 'Sign in' };
+
 function PublicHomeHeader() {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
@@ -137,7 +169,9 @@ function PublicHomeHeader() {
 
   return (
     <StyledHeader isOpen={isOpen} id="header" className="fixed-top d-flex align-items-center bg-transparent pe-0">
-      <div className="container-md position-relative">
+      <div
+        className="position-relative header__wrapper"
+      >
         <Navbar
           collapseOnSelect
           expand="lg"
@@ -146,52 +180,44 @@ function PublicHomeHeader() {
           className=" d-lg-flex justify-content-lg-center pt-0"
         >
           <NavbarToggle onClick={() => setIsOpen(!isOpen)} aria-controls="responsive-navbar-nav" className="toggle border-0" />
-          <Navbar.Brand as={Link} to="/" className="logo-1 d-lg-none">
+          <Navbar.Brand as={Link} to="/" className="mobile__logo d-lg-none me-0">
             {/* This header is only shown on mobile screens */}
-            <HeaderLogo logo={slasherLogo} height="4.56rem" />
+            <HeaderLogo logo={slasherLogo} height="8rem" style={{ marginTop: -18, marginLeft: 5 }} />
           </Navbar.Brand>
-          <div className="d-lg-none">
+          <div className="d-lg-none mobile__signin">
             <RoundButton onClick={() => navigate('/app/sign-in')}>SIGN IN</RoundButton>
           </div>
           <StyledNavbarCollapse id="responsive-navbar-nav" className="bg-black mt-2 mt-lg-0 d-none">
             <StyledNav className="justify-content-between px-3 small-screen w-100">
-              <Row className="w-100 align-items-center pt-4 ">
+              <Row className="w-100 align-items-center pt-4 m-0">
                 <Col lg={2}>
                   <Navbar.Brand as={Link} to="/" className="logo1 d-none d-lg-flex py-0 justify-content-center me-0">
                     {/* This header is only shown on desktop screen (not on tablet and mobile)  */}
-                    <HeaderLogo logo={slasherLogo} height="6.25rem" />
+                    <HeaderLogo
+                      logo={slasherLogo}
+                      height="8rem"
+                      style={{ marginTop: -10, marginLeft: 16 }}
+                    />
                   </Navbar.Brand>
                 </Col>
-                <Col lg={8}>
-                  <div className="d-none d-lg-flex justify-content-between">
+                <Col lg={10}>
+                  <div className="d-none d-lg-flex justify-content-between align-items-center nav__items__container">
                     {navList.map((nav) => (
                       <StyledNavLink
-                        key={nav.value}
-                        href={nav.value === 'home' ? '/' : `${WORDPRESS_SITE_URL}/${nav.value}`}
-                        className="text-start w-100 rounded-0 nav-link py-3 px-5 p-lg-2 text-lg-center fs-3 text-decoration-none text-white"
+                        key={nav.value.slice(25)} // remove `url` from key
+                        href={nav.value}
+                        className="text-start w-100 rounded-0 nav-link py-3 px-5 px-lg-2 py-lg-0 text-lg-center fs-3 text-decoration-none text-white text-nowrap"
                       >
                         {nav.label}
                       </StyledNavLink>
                     ))}
-                    <StyledNavLink
-                      href="/app/home"
-                      className={
-                        `${enableDevFeatures ? '' : 'd-none'} text-start w-100 rounded-0 nav-link d-lg-none py-3 py-lg-0 px-5 px-lg-2 mx-xl-2 text-lg-center fs-3 text-decoration-none text-white`
-                      }
+                    <Link
+                      to="/app/sign-in"
+                      className="btn btn-primary d-flex justify-content-center rounded-pill fs-3 text-nowrap mx-4 px-4 py-2"
                     >
-                      Sign In
-                    </StyledNavLink>
+                      SIGN IN
+                    </Link>
                   </div>
-                </Col>
-                <Col lg={2} className="d-none d-lg-block d-flex justify-content-between">
-                  <Link
-                    style={{ width: 100 }}
-                    to="/app/sign-in"
-                    className={`${enableDevFeatures ? '' : 'd-none'} btn btn-primary d-flex justify-content-center mx-auto rounded-pill`}
-                  >
-                    SIGN IN
-
-                  </Link>
                 </Col>
               </Row>
             </StyledNav>
@@ -211,10 +237,10 @@ function PublicHomeHeader() {
               </Button>
             </Offcanvas.Header>
             <Offcanvas.Body className="pt-0">
-              {[{ value: 'sign-in', label: 'Sign in' }, ...navList].map((nav) => (
+              {[...navList, signInNavItem].map((nav) => (
                 <StyledNavLink
-                  key={nav.value}
-                  href={nav.value === 'home' ? '/' : `https://pages.slasher.tv/${nav.value}`}
+                  key={nav.value.slice(25)} // remove `url` from key
+                  href={nav.value}
                   className="text-start w-100 rounded-0 nav-link py-3 p-lg-2 text-lg-center fs-3 text-decoration-none text-white"
                 >
                   {nav.label}

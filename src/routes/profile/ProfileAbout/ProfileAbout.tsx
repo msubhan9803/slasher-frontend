@@ -7,7 +7,6 @@ import {
 import linkifyHtml from 'linkify-html';
 import ProfileHeader from '../ProfileHeader';
 import RoundButton from '../../../components/ui/RoundButton';
-import { User } from '../../../types';
 import { useAppSelector } from '../../../redux/hooks';
 import CharactersCounter from '../../../components/ui/CharactersCounter';
 import { updateUserAbout } from '../../../api/users';
@@ -17,6 +16,7 @@ import {
 } from '../../../utils/text-utils';
 import { defaultLinkifyOpts } from '../../../utils/linkify-utils';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
+import { User } from '../../../types';
 
 interface Props {
   user: User
@@ -68,7 +68,7 @@ function ProfileAbout({ user }: Props) {
 
       return (
         // eslint-disable-next-line react/no-danger
-        <div className="text-break" dangerouslySetInnerHTML={{ __html: safeAboutMeText }} />
+        <div className="text-break text-start" dangerouslySetInnerHTML={{ __html: safeAboutMeText }} />
       );
     }
     if (loginUserId === user?._id) {

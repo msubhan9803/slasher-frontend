@@ -9,7 +9,7 @@ import ReportModal from '../../components/ui/ReportModal';
 import {
   deleteFeedPost, getHomeFeedPosts, hideFeedPost, updateFeedPost,
 } from '../../api/feed-posts';
-import { Post } from '../../types';
+import { ContentDescription, Post } from '../../types';
 import { PopoverClickProps } from '../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../api/feed-likes';
 import { createBlockUser } from '../../api/blocks';
@@ -48,7 +48,23 @@ function Home() {
     shouldRestoreScrollPositionWithData
       ? scrollPosition?.data : [],
   );
+  useEffect(() => {
+    if (scrollPosition.pathname === location.pathname) {
+      setPosts(scrollPosition.data);
+    }
+  }, [scrollPosition.pathname, location.pathname, scrollPosition.data]);
+
+  const persistScrollPosition = (id: string) => {
+    const positionData = {
+      pathname: location.pathname,
+      position: window.pageYOffset,
+      data: posts,
+      positionElementId: id,
+    };
+    dispatch(setScrollPosition(positionData));
+  };
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
+    persistScrollPosition(popoverClickProps.id!);
     if (value === 'Hide') {
       const postIdToHide = popoverClickProps.id;
       if (!postIdToHide) { return; }
@@ -200,19 +216,25 @@ function Home() {
     });
   };
 
-  const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
-    updateFeedPost(postId, message, images, imageDelete).then((res) => {
-      setShow(false);
-      const updatePost = posts.map((post: any) => {
-        if (post._id === postId) {
-          return {
-            ...post, message: res.data.message, images: res.data.images,
-          };
-        }
-        return post;
-      });
-      setPosts(updatePost);
-    })
+  const onUpdatePost = (
+    message: string,
+    images: string[],
+    imageDelete: string[] | undefined,
+    descriptionArray?: ContentDescription[],
+  ) => {
+    updateFeedPost(postId, message, images, imageDelete, null, descriptionArray)
+      .then((res) => {
+        setShow(false);
+        const updatePost = posts.map((post: any) => {
+          if (post._id === postId) {
+            return {
+              ...post, message: res.data.message, images: res.data.images,
+            };
+          }
+          return post;
+        });
+        setPosts(updatePost);
+      })
       .catch((error) => {
         const msg = error.response.status === 0 && !error.response.data
           ? 'Combined size of files is too large.'
@@ -276,7 +298,14 @@ function Home() {
     createBlockUser(postUserId)
       .then(() => {
         setDropDownValue('BlockUserSuccess');
-        callLatestFeedPost();
+        const updatedScrollData = posts.filter(
+          (scrollData: any) => scrollData.userId !== postUserId,
+        );
+        const positionData = {
+          ...scrollPosition,
+          data: updatedScrollData,
+        };
+        dispatch(setScrollPosition(positionData));
       })
       // eslint-disable-next-line no-console
       .catch((error) => console.error(error));
@@ -298,16 +327,6 @@ function Home() {
       .catch((error) => console.error(error));
     // Ask to block user as well
     setDropDownValue('PostReportSuccessDialog');
-  };
-
-  const persistScrollPosition = (id: string) => {
-    const positionData = {
-      pathname: location.pathname,
-      position: window.pageYOffset,
-      data: posts,
-      positionElementId: id,
-    };
-    dispatch(setScrollPosition(positionData));
   };
 
   return (

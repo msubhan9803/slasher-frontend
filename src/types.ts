@@ -327,3 +327,11 @@ export interface FriendshipStatus {
   from: string;
   to: string;
 }
+
+export interface DeviceFields {
+  device_token: string;
+  device_type: string;
+  app_version: string;
+  device_version: string;
+  device_id: string;
+}

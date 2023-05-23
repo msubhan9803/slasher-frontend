@@ -1,20 +1,39 @@
 /* eslint-disable max-lines */
 import axios from 'axios';
+import { Capacitor } from '@capacitor/core';
+import { Device } from '@capacitor/device';
+import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
-import { RegisterUser } from '../types';
+import { DeviceFields, RegisterUser } from '../types';
 import { getSessionToken, getSessionUserId } from '../utils/session-utils';
 
 export async function signIn(emailOrUsername: string, password: string) {
-  return axios.post(
-    `${apiUrl}/api/v1/users/sign-in`,
-    {
-      emailOrUsername,
-      password,
+  let deviceFields: DeviceFields;
+  if (Capacitor.isNativePlatform()) {
+    const deviceId = await Device.getId();
+    const deviceInfo = await Device.getInfo();
+    deviceFields = {
+      device_id: deviceId.uuid,
+      device_token: Cookies.get('deviceToken')!,
+      device_type: deviceInfo.platform,
+      app_version: `${deviceInfo.platform}-capacitor-${process.env.REACT_APP_VERSION}`,
+      device_version: `${deviceInfo.manufacturer} ${deviceInfo.model} ${deviceInfo.operatingSystem} ${deviceInfo.osVersion}, Name: ${deviceInfo.name}`,
+    };
+  } else {
+    deviceFields = {
       device_id: 'browser',
       device_token: 'browser',
       device_type: 'browser',
       app_version: `web-${process.env.REACT_APP_VERSION}`,
       device_version: window.navigator.userAgent,
+    };
+  }
+  return axios.post(
+    `${apiUrl}/api/v1/users/sign-in`,
+    {
+      emailOrUsername,
+      password,
+      ...deviceFields,
     },
   );
 }

@@ -24,9 +24,6 @@ export class NotificationsService {
     const newNotification = await this.notificationModel.create(notification);
     // TODO: Eventually move this to a background job (probably using a NestJS Queue: https://docs.nestjs.com/techniques/queues)
     // This can be processed in the background instead of adding a small delay to each notification creation.
-    if (this.configService.get<boolean>('SEND_PUSH_NOTIFICATION')) {
-      await this.pushNotificationsService.sendPushNotification(newNotification);
-    }
     await Promise.all([this.processNotification(newNotification.id),
     this.usersService.updateNewNotificationCount((notification.userId).toString())]);
     return newNotification;
@@ -51,6 +48,20 @@ export class NotificationsService {
     //   // TODO: Send push notification
     // }
 
+    const user = await this.usersService.findById(notification.userId.toString(), true);
+    if (user.userDevices.length) {
+      let deviceToken = user.userDevices.map(
+        (device) => {
+          if (device.device_id !== 'browser' &&  device.device_id !== 'sample-device-id') {
+            return device.device_token;
+          }
+        },
+      );
+      deviceToken = deviceToken.filter(Boolean);
+      if (this.configService.get<boolean>('SEND_PUSH_NOTIFICATION')) {
+        await this.pushNotificationsService.sendPushNotification(notification, deviceToken);
+      }
+    }
     // Mark notification as processed
     await notification.updateOne({ isProcessed: true });
   }

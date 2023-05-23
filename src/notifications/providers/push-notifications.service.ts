@@ -1,49 +1,35 @@
 import { Injectable } from '@nestjs/common';
-
-import * as serviceAccount from '../../../slasher-cap.json';
-
-const admin = require('firebase-admin');
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
+import admin from '../../app/providers/firebase.service';
 
 @Injectable()
 export class PushNotificationsService {
-  async sendPushNotification(notificationData) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const registrationToken = ['qRtGhU3poeJpoMd:APA91bHTypfImlv0ncRecwZD3tb1z5HMTF1MQmN4irh1KP9qW0oo5Xzu6l0lyKIW3prK00IFz_fxEXaGhFuEQUKHVCNTlcfRrCZdc2OaC6AVGxTI6KzV33srih2sgOwo5Uq0G2K-O-o_'];
+  constructor(
+  ) { }
 
-        const payload = {
+  async sendPushNotification(notificationData, deviceToken) {
+    const convertedObjectToString = JSON.stringify(notificationData);
+    const notificationStringfyObject = {
+      data: convertedObjectToString,
+    };
+    return new Promise((resolve, reject) => {
+      const registrationToken = deviceToken;
+
+      for (const token of deviceToken) {
+        const message = {
           notification: {
-            // title: fcmData.title,
             title: 'Slasher',
             body: notificationData.notificationMsg,
           },
-          data: {
-            userId: notificationData?.userId,
-            senderId: notificationData.senderId,
-            notifyType: notificationData.notifyType,
-          },
+          data: notificationStringfyObject,
+          token: token
         };
-        console.log('message', payload);
-
-        admin
-          .messaging()
-          .sendToDevice(registrationToken, payload, {
-            priority: 'high',
-          })
+        admin.messaging().send(message)
           .then((response) => {
-            console.log('message succesfully sent !');
+            resolve(response);
           })
           .catch((error) => {
-            console.log('error', error);
-
-            // res.send(error).status(500);
+            reject(error);
           });
-      } catch (error) {
-        reject(error);
       }
     });
   }

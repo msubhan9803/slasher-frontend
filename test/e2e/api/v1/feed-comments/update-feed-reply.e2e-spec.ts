@@ -22,6 +22,8 @@ import { feedRepliesFactory } from '../../../../factories/feed-reply.factory';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 import { createTempFiles } from '../../../../helpers/tempfile-helpers';
+import { UserSettingsService } from '../../../../../src/settings/providers/user-settings.service';
+import { userSettingFactory } from '../../../../factories/user-setting.factory';
 
 describe('Feed-Comments/Replies Update File (e2e)', () => {
   let app: INestApplication;
@@ -35,6 +37,7 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
   let feedPostsService: FeedPostsService;
   let feedCommentsService: FeedCommentsService;
   let notificationsService: NotificationsService;
+  let userSettingsService: UserSettingsService;
 
   const sampleFeedCommentsObject = {
     message: 'hello all test user upload your feed reply',
@@ -55,7 +58,7 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
       imports: [AppModule],
     }).compile();
     connection = moduleRef.get<Connection>(getConnectionToken());
-
+    userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
@@ -562,10 +565,24 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
         commentCreatorUserAuthToken = commentCreatorUser.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
         otherUser1 = await usersService.create(userFactory.build());
         otherUser2 = await usersService.create(userFactory.build());
+        await userSettingsService.create(
+          userSettingFactory.build(
+            {
+              userId: otherUser2._id,
+            },
+          ),
+        );
       });
 
       it('when notification is create for updateFeedReply than check newNotificationCount is increment in user', async () => {
         const user3 = await usersService.create(userFactory.build({ userName: 'Divine' }));
+        await userSettingsService.create(
+          userSettingFactory.build(
+            {
+              userId: user3._id,
+            },
+          ),
+        );
         const post = await feedPostsService.create(feedPostFactory.build({ userId: user0._id }));
         const comment = await feedCommentsService.createFeedComment(
           feedCommentsFactory.build(

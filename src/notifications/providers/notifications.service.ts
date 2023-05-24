@@ -3,10 +3,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DateTime } from 'luxon';
 import { ConfigService } from '@nestjs/config';
-import { UserSettingsService } from 'src/settings/providers/user-settings.service';
+import { UserSettingsService } from '../../settings/providers/user-settings.service';
 import { Notification, NotificationDocument } from '../../schemas/notification/notification.schema';
 import {
- NOTIFICATION_TYPES_TO_CATEGORIES, NotificationDeletionStatus, NotificationReadStatus, NotificationType,
+  NOTIFICATION_TYPES_TO_CATEGORIES, NotificationDeletionStatus, NotificationReadStatus, NotificationType,
 } from '../../schemas/notification/notification.enums';
 import { NotificationsGateway } from './notifications.gateway';
 import { UsersService } from '../../users/providers/users.service';
@@ -57,7 +57,7 @@ export class NotificationsService {
     const isNotificationEnabled = userSetting[`${NOTIFICATION_TYPES_TO_CATEGORIES.get(notification.notifyType)}`];
     if (isNotificationEnabled && user.userDevices.length) {
       let deviceToken = user.userDevices.map(
-        (device) => {
+        (device) => {// eslint-disable-line
           if (device.device_id !== 'browser' && device.device_id !== 'sample-device-id') {
             return device.device_token;
           }

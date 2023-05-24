@@ -238,4 +238,13 @@ export class UsersService {
       .findOneAndUpdate({ _id: id }, { $set: { newConversationIds: [] } }, { new: true })
       .exec();
   }
+
+  async findOneAndUpdateDeviceToken(id: string, deviceId: string, deviceToken: string): Promise<UserDocument> {
+    const user = await this.userModel.findOneAndUpdate(
+      { _id: id, 'userDevices.device_id': deviceId },
+      { $set: { 'userDevices.$.device_token': deviceToken } },
+      { new: true },
+    ).exec();
+    return user;
+  }
 }

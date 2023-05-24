@@ -25,6 +25,8 @@ import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums'
 import { PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
 import { MovieUserStatusService } from '../../../../../src/movie-user-status/providers/movie-user-status.service';
 import { WorthWatchingStatus } from '../../../../../src/types';
+import { UserSettingsService } from '../../../../../src/settings/providers/user-settings.service';
+import { userSettingFactory } from '../../../../factories/user-setting.factory';
 
 describe('Update Feed Post (e2e)', () => {
   let app: INestApplication;
@@ -38,6 +40,7 @@ describe('Update Feed Post (e2e)', () => {
   let feedPost: FeedPostDocument;
   let moviesService: MoviesService;
   let movieUserStatusService: MovieUserStatusService;
+  let userSettingsService: UserSettingsService;
 
   const sampleFeedPostObject = {
     message: 'hello all test user upload your feed post',
@@ -56,6 +59,7 @@ describe('Update Feed Post (e2e)', () => {
     moviesService = moduleRef.get<MoviesService>(MoviesService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     movieUserStatusService = moduleRef.get<MovieUserStatusService>(MovieUserStatusService);
+    userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
     await app.init();
@@ -705,7 +709,21 @@ describe('Update Feed Post (e2e)', () => {
     it('when notification is create for updateFeedPost than check newNotificationCount is increment in user', async () => {
       const otherUser1 = await usersService.create(userFactory.build({ userName: 'Denial' }));
       const otherUser2 = await usersService.create(userFactory.build({ userName: 'Divine' }));
+      await userSettingsService.create(
+        userSettingFactory.build(
+          {
+            userId: otherUser2._id,
+          },
+        ),
+      );
       const otherUser3 = await usersService.create(userFactory.build({ userName: 'Demon' }));
+      await userSettingsService.create(
+        userSettingFactory.build(
+          {
+            userId: otherUser3._id,
+          },
+        ),
+      );
       const post = await feedPostsService.create(feedPostFactory.build(
         {
           userId: activeUser._id,

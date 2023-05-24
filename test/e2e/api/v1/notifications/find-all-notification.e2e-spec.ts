@@ -21,6 +21,8 @@ import { RssFeedProvider, RssFeedProviderDocument } from '../../../../../src/sch
 import { rssFeedProviderFactory } from '../../../../factories/rss-feed-providers.factory';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { UserSettingsService } from '../../../../../src/settings/providers/user-settings.service';
+import { userSettingFactory } from '../../../../factories/user-setting.factory';
 
 describe('All Notifications (e2e)', () => {
   let app: INestApplication;
@@ -36,6 +38,7 @@ describe('All Notifications (e2e)', () => {
   let feedPostData: FeedPostDocument;
   let rssFeedProviderData: RssFeedProviderDocument;
   let rssFeedProviderModel: Model<RssFeedProviderDocument>;
+  let userSettingsService: UserSettingsService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -47,6 +50,7 @@ describe('All Notifications (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostModel = moduleRef.get<Model<FeedPostDocument>>(getModelToken(FeedPost.name));
+    userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     rssFeedProviderModel = moduleRef.get<Model<RssFeedProviderDocument>>(getModelToken(RssFeedProvider.name));
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -88,6 +92,13 @@ describe('All Notifications (e2e)', () => {
     ];
 
     activeUser = await usersService.create(userFactory.build());
+    await userSettingsService.create(
+      userSettingFactory.build(
+        {
+          userId: activeUser._id,
+        },
+      ),
+    );
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );

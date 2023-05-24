@@ -17,6 +17,8 @@ import { notificationFactory } from '../../../../factories/notification.factory'
 import { NotificationDeletionStatus, NotificationReadStatus } from '../../../../../src/schemas/notification/notification.enums';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { UserSettingsService } from '../../../../../src/settings/providers/user-settings.service';
+import { userSettingFactory } from '../../../../factories/user-setting.factory';
 
 describe('Users suggested friends (e2e)', () => {
   let app: INestApplication;
@@ -28,6 +30,7 @@ describe('Users suggested friends (e2e)', () => {
   let friendsService: FriendsService;
   let chatService: ChatService;
   let notificationsService: NotificationsService;
+  let userSettingsService: UserSettingsService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -35,6 +38,7 @@ describe('Users suggested friends (e2e)', () => {
     }).compile();
     connection = moduleRef.get<Connection>(getConnectionToken());
 
+    userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     friendsService = moduleRef.get<FriendsService>(FriendsService);
@@ -74,6 +78,13 @@ describe('Users suggested friends (e2e)', () => {
         activeUser = await usersService.create(userFactory.build({
           profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
         }));
+        await userSettingsService.create(
+          userSettingFactory.build(
+            {
+              userId: activeUser._id,
+            },
+          ),
+        );
         activeUserAuthToken = activeUser.generateNewJwtToken(
           configService.get<string>('JWT_SECRET_KEY'),
         );

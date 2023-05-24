@@ -16,6 +16,8 @@ import {
 } from '../../../../../src/schemas/notification/notification.enums';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { UserSettingsService } from '../../../../../src/settings/providers/user-settings.service';
+import { userSettingFactory } from '../../../../factories/user-setting.factory';
 
 describe('Patch Notifications Mark As Read(e2e)', () => {
   let app: INestApplication;
@@ -28,6 +30,7 @@ describe('Patch Notifications Mark As Read(e2e)', () => {
   let user0;
   let notification;
   let notification1;
+  let userSettingsService: UserSettingsService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -38,6 +41,7 @@ describe('Patch Notifications Mark As Read(e2e)', () => {
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
+    userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
     await app.init();
@@ -55,7 +59,21 @@ describe('Patch Notifications Mark As Read(e2e)', () => {
     rewindAllFactories();
 
     activeUser = await usersService.create(userFactory.build());
+    await userSettingsService.create(
+      userSettingFactory.build(
+        {
+          userId: activeUser._id,
+        },
+      ),
+    );
     user0 = await usersService.create(userFactory.build());
+    await userSettingsService.create(
+      userSettingFactory.build(
+        {
+          userId: user0._id,
+        },
+      ),
+    );
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );

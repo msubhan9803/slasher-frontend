@@ -20,6 +20,8 @@ import { notificationFactory } from '../../../test/factories/notification.factor
 import { Notification, NotificationDocument } from '../../schemas/notification/notification.schema';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
+import { UserSettingsService } from '../../settings/providers/user-settings.service';
+import { userSettingFactory } from '../../../test/factories/user-setting.factory';
 
 describe('NotificationsService', () => {
   let app: INestApplication;
@@ -31,6 +33,7 @@ describe('NotificationsService', () => {
   let user1: UserDocument;
   let feedPostData: FeedPostDocument;
   let notificationModel: Model<NotificationDocument>;
+  let userSettingsService: UserSettingsService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -40,6 +43,7 @@ describe('NotificationsService', () => {
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     usersService = moduleRef.get<UsersService>(UsersService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
+    userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     notificationModel = moduleRef.get<Model<NotificationDocument>>(getModelToken(Notification.name));
 
     app = moduleRef.createNestApplication();
@@ -59,7 +63,21 @@ describe('NotificationsService', () => {
     rewindAllFactories();
 
     activeUser = await usersService.create(userFactory.build());
+    await userSettingsService.create(
+      userSettingFactory.build(
+        {
+          userId: activeUser._id,
+        },
+      ),
+    );
     user1 = await usersService.create(userFactory.build());
+    await userSettingsService.create(
+      userSettingFactory.build(
+        {
+          userId: activeUser._id,
+        },
+      ),
+    );
     feedPostData = await feedPostsService.create(feedPostFactory.build({
       userId: activeUser.id,
     }));

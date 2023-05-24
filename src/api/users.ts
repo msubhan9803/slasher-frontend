@@ -275,6 +275,17 @@ export async function updateUserAbout(
   return axios.patch(`${apiUrl}/api/v1/users/${id}`, { aboutMe }, { headers });
 }
 
+export async function updateUserDeviceToken(
+  device_id: string,
+  device_token: string,
+) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.post(`${apiUrl}/api/v1/users/update-device-token`, { device_id, device_token }, { headers });
+}
+
 export async function getUserMoviesList(
   name: string,
   search: string,

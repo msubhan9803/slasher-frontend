@@ -1,7 +1,9 @@
 import {
-  ActionPerformed, PushNotifications, PushNotificationSchema, Token,
+  ActionPerformed, PushNotifications, Token,
 } from '@capacitor/push-notifications';
 import Cookies from 'js-cookie';
+import { Device } from '@capacitor/device';
+import { updateUserDeviceToken } from '../api/users';
 // import { urlForNotification } from './notification-url-utils';
 
 export const initPushNotifications = () => {
@@ -11,11 +13,12 @@ export const initPushNotifications = () => {
     }
   });
 
-  PushNotifications.addListener('registration', (token: Token) => {
+  PushNotifications.addListener('registration', async (token: Token) => {
     // Send the token to your server for further processing, if needed
     const deviceToken = token.value;
     if (deviceToken !== Cookies.get('deviceToken')) {
-      // add update device token api call
+      const deviceId = await Device.getId();
+      updateUserDeviceToken(deviceId.uuid, deviceToken)
     }
     Cookies.set('deviceToken', deviceToken);
   });

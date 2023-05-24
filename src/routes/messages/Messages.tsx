@@ -147,6 +147,8 @@ function Messages() {
     createBlockUser(selectedUserId!)
       .then(() => {
         setShow(false);
+        // remove blocked user message
+        setMessages((prev) => prev.filter((m) => m.id !== selectedUserId));
       })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));

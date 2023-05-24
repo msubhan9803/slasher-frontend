@@ -40,3 +40,11 @@ export enum NotificationReadStatus {
   Unread = 0,
   Read = 1,
 }
+
+export const NOTIFICATION_TYPES_TO_CATEGORIES = new Map([
+  [NotificationType.UserSentYouAFriendRequest, 'friends_got_a_match'],
+  [NotificationType.UserAcceptedYourFriendRequest, 'friends_got_a_match'],
+  [NotificationType.UserMentionedYouInPost, 'feed_mention_on_post_comment_reply'],
+  [NotificationType.UserCommentedOnYourPost, 'feed_comment_on_post'],
+  [NotificationType.UserLikedYourPost, 'feed_post_like'],
+]);

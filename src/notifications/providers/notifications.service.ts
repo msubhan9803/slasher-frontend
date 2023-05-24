@@ -3,8 +3,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DateTime } from 'luxon';
 import { ConfigService } from '@nestjs/config';
+import { UserSettingsService } from 'src/settings/providers/user-settings.service';
 import { Notification, NotificationDocument } from '../../schemas/notification/notification.schema';
-import { NotificationDeletionStatus, NotificationReadStatus, NotificationType } from '../../schemas/notification/notification.enums';
+import {
+ NOTIFICATION_TYPES_TO_CATEGORIES, NotificationDeletionStatus, NotificationReadStatus, NotificationType,
+} from '../../schemas/notification/notification.enums';
 import { NotificationsGateway } from './notifications.gateway';
 import { UsersService } from '../../users/providers/users.service';
 import { PushNotificationsService } from './push-notifications.service';
@@ -18,6 +21,7 @@ export class NotificationsService {
     private pushNotificationsService: PushNotificationsService,
     private configService: ConfigService,
     private readonly usersService: UsersService,
+    private userSettingsService: UserSettingsService,
   ) { }
 
   async create(notification: Partial<Notification>) {
@@ -48,11 +52,13 @@ export class NotificationsService {
     //   // TODO: Send push notification
     // }
 
-    const user = await this.usersService.findById(notification.userId.toString(), true);
-    if (user.userDevices.length) {
+    const [user, userSetting] = await Promise.all([this.usersService.findById(notification.userId.toString(), true),
+    this.userSettingsService.findByUserId(notification.userId.toString())]);
+    const isNotificationEnabled = userSetting[`${NOTIFICATION_TYPES_TO_CATEGORIES.get(notification.notifyType)}`];
+    if (isNotificationEnabled && user.userDevices.length) {
       let deviceToken = user.userDevices.map(
         (device) => {
-          if (device.device_id !== 'browser' &&  device.device_id !== 'sample-device-id') {
+          if (device.device_id !== 'browser' && device.device_id !== 'sample-device-id') {
             return device.device_token;
           }
         },

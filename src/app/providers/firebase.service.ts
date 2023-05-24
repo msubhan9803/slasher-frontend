@@ -1,11 +1,11 @@
 import * as admin from 'firebase-admin';
 
 // Initialize Firebase app
-const serviceAccount = require('../../../slasher-cap.json');
+import * as serviceAccount from '../../../slasher-cap.json';
 
 if (!admin.apps.length) {
   admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
+    credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
   });
 }
 

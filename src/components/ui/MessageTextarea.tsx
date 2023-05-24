@@ -51,7 +51,7 @@ const StyledEmoji = styled(Button)`
   ${(props) => (props.createpost
     ? `
     left: 0.75rem;
-    bottom: 9%; 
+    bottom: 7%; 
     `
     : `  
     left: 0.438rem;

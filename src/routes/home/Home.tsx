@@ -53,14 +53,6 @@ function Home() {
   const persistScrollPosition = () => { setPageStateCache(location, posts); };
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
-    // persistScrollPosition(popoverClickProps.id!);
-    /**
-    // TODO
-    // SAHIL URGENT: Check Avadh's reply on this issue in DM for the
-    // concerns of passing `popoverClickProps.id`
-    // For now I am not passing any id while persisting while I call
-    // `persistScrollPosition` in below line.
-     */
     persistScrollPosition();
     if (value === 'Hide') {
       const postIdToHide = popoverClickProps.id;

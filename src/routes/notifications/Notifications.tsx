@@ -14,10 +14,12 @@ import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import { useAppSelector, useAppDispatch } from '../../redux/hooks';
-import { setScrollPosition } from '../../redux/slices/scrollPositionSlice';
 import { resetUnreadNotificationCount, setUserInitialData } from '../../redux/slices/userSlice';
 import NotificationsRightSideNav from './NotificationsRightSideNav';
 import socketStore from '../../socketStore';
+import {
+  deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
+} from '../../pageStateCache';
 
 function Notifications() {
   const popoverOption = ['Settings'];
@@ -25,15 +27,15 @@ function Notifications() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string[]>();
-  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { socket } = socketStore;
 
   const location = useLocation();
+  const pageStateCache = getPageStateCache(location) ?? [];
   const [notificationData, setNotificationData] = useState<Notification[]>(
-    scrollPosition.pathname === location.pathname
-      ? scrollPosition?.data : [],
+    hasPageStateCache(location)
+      ? pageStateCache : [],
   );
   const userData = useAppSelector((state) => state.user);
   const lastLocationKeyRef = useRef(location.key);
@@ -48,15 +50,9 @@ function Notifications() {
         ...notification,
       ]);
       if (res.data.length === 0) { setNoMoreData(true); }
-      if (scrollPosition.pathname === location.pathname
-        && notificationData.length >= scrollPosition.data.length + 10) {
-        const positionData = {
-          pathname: '',
-          position: 0,
-          data: [],
-          positionElementId: '',
-        };
-        dispatch(setScrollPosition(positionData));
+      if (hasPageStateCache(location)
+        && notificationData.length >= pageStateCache.length + 10) {
+        deletePageStateCache(location);
       }
     }).catch(
       (error) => {
@@ -73,20 +69,18 @@ function Notifications() {
         if (forceReload && (noMoreData === true)) { setNoMoreData(false); }
       },
     );
-  }, [dispatch, location.pathname, noMoreData, notificationData, scrollPosition.data.length, scrollPosition.pathname]);
+  }, [location, noMoreData, notificationData, pageStateCache.length]);
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
-      if (scrollPosition === null
-        || scrollPosition?.position === 0
-        || notificationData.length >= scrollPosition?.data?.length
+      if (hasPageStateCache(location)
+        || notificationData.length >= pageStateCache.length
         || notificationData.length === 0
-        || scrollPosition.pathname !== location.pathname
       ) {
         fetchNotifcations();
       }
     }
-  }, [fetchNotifcations, loadingPosts, location.pathname, notificationData.length, requestAdditionalPosts, scrollPosition]);
+  }, [fetchNotifcations, loadingPosts, location, location.pathname, notificationData.length, pageStateCache.length, requestAdditionalPosts]);
 
   useEffect(() => {
     const isSameKey = lastLocationKeyRef.current === location.key;
@@ -98,23 +92,12 @@ function Notifications() {
   }, [fetchNotifcations, location.key]);
 
   const persistScrollPosition = (id: string) => {
-    const updateNotification = notificationData.map((notify: any) => {
-      if (notify._id === id) {
-        return { ...notify, isRead: 1 };
-      }
-      return notify;
-    });
+    const updatedNotification = notificationData.map((notify: any) => (notify._id === id ? ({ ...notify, isRead: 1 }) : notify));
     const notifyCount = userData.unreadNotificationCount > 0 ? userData.unreadNotificationCount - 1 : 0;
     dispatch(setUserInitialData(
       { ...userData, unreadNotificationCount: notifyCount },
     ));
-    const positionData = {
-      pathname: location.pathname,
-      position: window.pageYOffset === 0 ? 1 : window.pageYOffset,
-      data: updateNotification,
-      positionElementId: id,
-    };
-    dispatch(setScrollPosition(positionData));
+    setPageStateCache(location, updatedNotification);
   };
 
   const handlePopover = () => {
@@ -142,12 +125,7 @@ function Notifications() {
               setNotificationData([
                 ...notification,
               ]);
-              const positionData = {
-                pathname: '',
-                position: 0,
-                positionElementId: '',
-              };
-              dispatch(setScrollPosition(positionData));
+              deletePageStateCache(location);
               dispatch(setUserInitialData(
                 { ...userData, unreadNotificationCount: 0 },
               ));
@@ -160,15 +138,6 @@ function Notifications() {
         }
       });
   };
-  useEffect(() => {
-    if (scrollPosition.position > 0
-      && scrollPosition?.pathname === location.pathname) {
-      window.scrollTo({
-        top: scrollPosition?.position,
-        behavior: 'instant' as any,
-      });
-    }
-  }, [scrollPosition, location.pathname]);
   const groupNotificationsByDateRange = (notifications: Notification[]) => {
     const groupedNotifications: {
       today: Notification[],

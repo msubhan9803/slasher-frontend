@@ -1,7 +1,6 @@
 /* eslint-disable max-lines */
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -17,6 +16,7 @@ import { UIRouteURL } from '../RouteURL';
 import {
   deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../../pageStateCache';
+import { useAppSelector } from '../../../redux/hooks';
 
 function WatchListMovies() {
   const [searchParams] = useSearchParams();
@@ -42,7 +42,7 @@ function WatchListMovies() {
       : '',
   );
   const [callNavigate, setCallNavigate] = useState<boolean>(false);
-  const userId = Cookies.get('userId');
+  const userId = useAppSelector((state) => state.user.user.id);
   const prevSearchRef = useRef(search);
   const prevKeyRef = useRef(key);
   const prevSortValRef = useRef(sortVal);

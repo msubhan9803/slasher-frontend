@@ -1,14 +1,13 @@
 /* eslint-disable max-lines */
 import React, { useCallback, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
-import Cookies from 'js-cookie';
 import { useLocation, useParams } from 'react-router-dom';
 import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import ProfileHeader from '../ProfileHeader';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import ReportModal from '../../../components/ui/ReportModal';
 import { getProfilePosts } from '../../../api/users';
-import { User, Post } from '../../../types';
+import { User, Post, ContentDescription } from '../../../types';
 import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
@@ -44,7 +43,7 @@ function ProfilePosts({ user }: Props) {
   const [postId, setPostId] = useState<string>('');
   const loginUserData = useAppSelector((state) => state.user.user);
   const [postUserId, setPostUserId] = useState<string>('');
-  const loginUserId = Cookies.get('userId');
+  const userId = useAppSelector((state) => state.user.user.id);
   const dispatch = useAppDispatch();
   const location = useLocation();
   const pageStateCache = getPageStateCache(location) ?? [];
@@ -115,8 +114,9 @@ function ProfilePosts({ user }: Props) {
         );
       }
     }
-  }, [requestAdditionalPosts, loadingPosts, loginUserId, userNameOrId, user._id,
-    user.userName, posts, location, dispatch, pageStateCache.length]);
+  }, [requestAdditionalPosts, loadingPosts, userId, userNameOrId, user._id,
+    user.userName, posts, location, dispatch, pageStateCache.length,
+  ]);
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -147,8 +147,13 @@ function ProfilePosts({ user }: Props) {
       });
     }
   }, [user]);
-  const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
-    updateFeedPost(postId, message, images, imageDelete).then(() => {
+  const onUpdatePost = (
+    message: string,
+    images: string[],
+    imageDelete: string[] | undefined,
+    descriptionArray?: ContentDescription[],
+  ) => {
+    updateFeedPost(postId, message, images, imageDelete, null, descriptionArray).then(() => {
       setShowReportModal(false);
       const updatePost = posts.map((post: any) => {
         if (post._id === postId) {

@@ -21,7 +21,7 @@ import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import { MentionProps } from '../../../routes/posts/create-post/CreatePost';
 import {
-  CommentValue, FeedComments, Post, User,
+  CommentValue, ContentDescription, FeedComments, Post, User,
 } from '../../../types';
 import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-utils';
 import { decryptMessage } from '../../../utils/text-utils';
@@ -88,6 +88,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   const scrollPositionRef = useRef(scrollPosition);
   const pathnameHistory = useAppSelector((state) => state.user.pathnameHistory);
   const { userName } = useParams();
+  const [selectedBlockedUserId, setSelectedBlockedUserId] = useState<string>('');
 
   useEffect(() => {
     scrollPositionRef.current = scrollPosition;
@@ -122,6 +123,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   };
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
+    setSelectedBlockedUserId(popoverClickProps.userId!);
     if (value === 'Edit Review') {
       navigate(`/app/movies/${id}/reviews`, { state: { movieId: popoverClickProps.id } });
     }
@@ -209,6 +211,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         comment?.commentId,
         comment?.images,
         comment?.deleteImage,
+        comment?.descriptionArr,
       )
         .then((res) => {
           const updateCommentArray: any = commentData;
@@ -250,6 +253,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         postId!,
         comment.commentMessage,
         comment.imageArr,
+        comment.descriptionArr,
       )
         .then((res) => {
           let newCommentArray: any = commentData;
@@ -305,6 +309,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         reply.replyId,
         reply.images,
         reply.deleteImage,
+        reply.descriptionArr,
       )
         .then((res) => {
           const updateReplyArray: any = commentData;
@@ -345,6 +350,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         reply.replyMessage,
         reply?.imageArr,
         reply.commentId!,
+        reply.descriptionArr,
       ).then((res) => {
         const newReplyArray: any = commentData;
         replyValueData = {
@@ -495,19 +501,23 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     }
   }, [postId, getFeedPostDetail]);
 
-  const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
+  const onUpdatePost = (
+    message: string,
+    images: string[],
+    imageDelete: string[] | undefined,
+    descriptionArray?: ContentDescription[],
+  ) => {
     if (postId) {
-      updateFeedPost(postId, message, images, imageDelete).then(() => {
+      updateFeedPost(postId, message, images, imageDelete, null, descriptionArray).then(() => {
         setShow(false);
         getFeedPostDetail(postId);
         setCheckPostUpdate(true);
-      })
-        .catch((error) => {
-          const msg = error.response.status === 0 && !error.response.data
-            ? 'Combined size of files is too large.'
-            : error.response.data.message;
-          setErrorMessage(msg);
-        });
+      }).catch((error) => {
+        const msg = error.response.status === 0 && !error.response.data
+          ? 'Combined size of files is too large.'
+          : error.response.data.message;
+        setErrorMessage(msg);
+      });
     } else {
       setShow(false);
     }
@@ -733,10 +743,57 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
   };
-  const afterBlockUser = () => {
+  useEffect(() => {
+    if (dropDownValue === 'BlockUserSuccess') {
+      const updatedScrollData = postData.filter(
+        (scrollData: any) => scrollData.userId !== selectedBlockedUserId,
+      );
+      const positionData = {
+        ...scrollPositionRef.current,
+        data: updatedScrollData,
+      };
+      dispatch(setScrollPosition(positionData));
+    }
+  }, [dropDownValue, dispatch, selectedBlockedUserId, postData]);
+
+  const afterBlockUser = useCallback(() => {
     const lastNonProfilePathname = getLastNonProfilePathname(pathnameHistory!, userName!);
     navigate(lastNonProfilePathname);
-  };
+  }, [pathnameHistory, userName, navigate]);
+
+  const updateCommentDataAfterBlockUser = useCallback(() => {
+    const filterUnblockUserComments = commentData.filter((comment) => {
+      if (comment.userId._id === selectedBlockedUserId) {
+        return false;
+      }
+      if (comment.replies) {
+        comment.replies = comment.replies.filter(
+          (reply) => reply.userId._id !== selectedBlockedUserId,
+        );
+      }
+      return true;
+    });
+    const updatedScrollData = scrollPositionRef.current.data.filter(
+      (scrollData: any) => scrollData.userId !== selectedBlockedUserId,
+    );
+    const positionData = {
+      ...scrollPositionRef.current,
+      data: updatedScrollData,
+    };
+    dispatch(setScrollPosition(positionData));
+    setCommentData(filterUnblockUserComments);
+    if (postData && postData.length > 0
+      && postData[0].userId === selectedBlockedUserId
+      && (dropDownValue === 'BlockUserSuccess')) {
+      afterBlockUser();
+    }
+  }, [afterBlockUser, commentData, dispatch, postData,
+    scrollPositionRef, selectedBlockedUserId, dropDownValue]);
+
+  useEffect(() => {
+    if (dropDownValue === 'BlockUserSuccess') { updateCommentDataAfterBlockUser(); }
+  }, [selectedBlockedUserId, dropDownValue, updateCommentDataAfterBlockUser]);
+
   return (
     <>
       {postType === 'news'
@@ -782,6 +839,8 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                 setCommentReplyErrorMessage={setCommentReplyErrorMessage}
                 setCommentErrorMessage={setCommentErrorMessage}
                 showPubWiseAdAtPageBottom={showPubWiseAdAtPageBottom}
+                setSelectedBlockedUserId={setSelectedBlockedUserId}
+                setDropDownValue={setDropDownValue}
               />
               {dropDownValue !== 'Edit'
                 && (
@@ -812,7 +871,6 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         )
         : (
           <div>
-            <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
             <PostFeed
               isSinglePost
               postFeedData={postData}
@@ -853,6 +911,8 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
               commentSent={commentSent}
               setCommentReplyErrorMessage={setCommentReplyErrorMessage}
               setCommentErrorMessage={setCommentErrorMessage}
+              setSelectedBlockedUserId={setSelectedBlockedUserId}
+              setDropDownValue={setDropDownValue}
             />
             {dropDownValue !== 'Edit'
               && (

@@ -1,9 +1,9 @@
+/* eslint-disable max-lines */
 import React, {
   useState, useEffect, useRef, useCallback,
 } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { DateTime } from 'luxon';
-import Cookies from 'js-cookie';
 import { getMessagesList } from '../../api/messages';
 import UserMessageListItem from '../../components/ui/UserMessageList/UserMessageListItem';
 import { MessagesList } from '../../types';
@@ -13,15 +13,16 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layou
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
-import { useAppDispatch } from '../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { resetUnreadConversationCount } from '../../redux/slices/userSlice';
 import socketStore from '../../socketStore';
+import { createBlockUser } from '../../api/blocks';
 
 export interface NewMessagesList {
   unreadCount: number;
   latestMessage: string;
-  _id: string;
-  id: string;
+  _id: string; // matchListId
+  id: string; // userId
   userName: string;
   profilePic: string;
   updatedAt: string;
@@ -35,19 +36,21 @@ function Messages() {
   const [messageOptionValue, setMessageOptionValue] = useState('');
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string[]>();
-  const userId = Cookies.get('userId');
+  const userId = useAppSelector((state) => state.user.user.id);
   const messageContainerElementRef = useRef<any>(null);
   const [yPositionOfLastMessageElement, setYPositionOfLastMessageElement] = useState<number>(0);
   const [selectedMatchListId, setSelectedMatchListId] = useState('');
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const dispatch = useAppDispatch();
   const { socket } = socketStore;
 
-  const handleMessagesOption = (matchListId: string) => (messageOption: string) => {
+  const handleMessagesOption = (message: NewMessagesList) => (messageOption: string) => {
     if (messageOption !== 'markAsRead') {
       setShow(true);
     }
     setMessageOptionValue(messageOption);
-    setSelectedMatchListId(matchListId);
+    setSelectedMatchListId(message._id);
+    setSelectedUserId(message.id);
   };
 
   useEffect(() => {
@@ -140,12 +143,21 @@ function Messages() {
     socket?.emit('clearNewConversationIds', {});
     dispatch(resetUnreadConversationCount());
   }, [dispatch, socket]);
+  const onBlockYesClick = () => {
+    createBlockUser(selectedUserId!)
+      .then(() => {
+        setShow(false);
+      })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
         <div className="mb-3">
           <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
           <InfiniteScroll
+            threshold={500}
             pageStart={0}
             initialLoad
             loadMore={() => { setRequestAdditionalMessages(true); }}
@@ -162,7 +174,7 @@ function Messages() {
                   message={message.latestMessage}
                   count={message.unreadCount}
                   timeStamp={DateTime.fromISO(message.updatedAt).toFormat('MM/dd/yyyy t')}
-                  handleDropdownOption={handleMessagesOption(message._id)}
+                  handleDropdownOption={handleMessagesOption(message)}
                   matchListId={message._id}
                 />
               ))
@@ -177,6 +189,7 @@ function Messages() {
           slectedMessageDropdownValue={messageOptionValue}
           selectedMatchListId={selectedMatchListId}
           setMessages={setMessages}
+          onBlockYesClick={onBlockYesClick}
         />
       </ContentPageWrapper>
       <RightSidebarWrapper>

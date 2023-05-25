@@ -2,7 +2,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Cookies from 'js-cookie';
 import InfiniteScroll from 'react-infinite-scroller';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
@@ -42,7 +41,7 @@ function BuyMovieList() {
       : '',
   );
   const [callNavigate, setCallNavigate] = useState<boolean>(false);
-  const userId = Cookies.get('userId');
+  const userId = useAppSelector((state) => state.user.user.id);
   const prevSearchRef = useRef(search);
   const prevKeyRef = useRef(key);
   const prevSortValRef = useRef(sortVal);

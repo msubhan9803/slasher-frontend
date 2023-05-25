@@ -4,7 +4,7 @@ import React, {
   useEffect, useState, useCallback, useRef,
 } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { DateTime } from 'luxon';
 import { getNotifications, markAllRead } from '../../api/notification';
 import { Notification } from '../../types';
@@ -27,6 +27,7 @@ function Notifications() {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { socket } = socketStore;
 
   const location = useLocation();
@@ -116,8 +117,8 @@ function Notifications() {
     dispatch(setScrollPosition(positionData));
   };
 
-  const handleLikesOption = (likeValue: string) => {
-    <Link to={`/navigations/${likeValue}`} />;
+  const handlePopover = () => {
+    navigate('/app/account/notifications');
   };
   const renderNoMoreDataMessage = () => {
     if (loadingPosts) { return null; }
@@ -211,7 +212,7 @@ function Notifications() {
           show={markButton}
           onMarkAllReadClick={onMarkAllReadClick}
           popoverOption={popoverOption}
-          handleLikesOption={handleLikesOption}
+          onPopoverClick={handlePopover}
         />);
         markButton = false;
         notificationsForGroup.forEach((notification, index) => {

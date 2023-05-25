@@ -6,6 +6,7 @@ import {
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { useDispatch } from 'react-redux';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
 import { createPost } from '../../../api/feed-posts';
 import { useAppSelector } from '../../../redux/hooks';
@@ -13,7 +14,8 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/la
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import CreatePostComponent from '../../../components/ui/CreatePostComponent';
-import { PostType } from '../../../types';
+import { ContentDescription, PostType } from '../../../types';
+import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 
 export interface MentionProps {
   id: string;
@@ -29,6 +31,7 @@ export interface FormatMentionProps {
 function CreatePost() {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [imageArray, setImageArray] = useState<any>([]);
+  const [descriptionArray, setDescriptionArray] = useState<ContentDescription[]>([]);
   const [postContent, setPostContent] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const loggedInUser = useAppSelector((state) => state.user.user);
@@ -42,6 +45,7 @@ function CreatePost() {
   const [containSpoiler, setContainSpoiler] = useState<boolean>(false);
   const [selectedPostType, setSelectedPostType] = useState<string>('');
   const paramsMovieId = searchParams.get('movieId');
+  const dispatch = useDispatch();
 
   const mentionReplacementMatchFunc = (match: string) => {
     if (match) {
@@ -75,10 +79,14 @@ function CreatePost() {
       postType: PostType.User,
       movieId: paramsMovieId,
     };
-    return createPost(createPostData, imageArray)
+    return createPost(createPostData, imageArray, descriptionArray!)
       .then(() => {
         setErrorMessage([]);
         navigate(location.state);
+        const positionData = {
+          position: 0,
+        };
+        dispatch(setScrollPosition(positionData));
       })
       .catch((error) => {
         const msg = error.response.status === 0 && !error.response.data
@@ -136,6 +144,8 @@ function CreatePost() {
             selectedPostType={selectedPostType}
             setSelectedPostType={setSelectedPostType}
             placeHolder="Create a post"
+            descriptionArray={descriptionArray}
+            setDescriptionArray={setDescriptionArray}
             createEditPost
           />
         </Form>

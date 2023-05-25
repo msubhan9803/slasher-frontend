@@ -1,8 +1,8 @@
 /* eslint-disable max-lines */
 import axios from 'axios';
-import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
 import { RegisterUser } from '../types';
+import { getSessionToken, getSessionUserId } from '../utils/session-utils';
 
 export async function signIn(emailOrUsername: string, password: string) {
   return axios.post(
@@ -78,7 +78,7 @@ export async function forgotPassword(email: string) {
 }
 
 export async function userInitialData() {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -86,7 +86,7 @@ export async function userInitialData() {
 }
 
 export async function getSuggestUserName(text: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -94,15 +94,18 @@ export async function getSuggestUserName(text: string) {
 }
 
 export async function getUser(userName: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
   return axios.get(`${apiUrl}/api/v1/users/${userName}`, { headers });
 }
+export async function getPublicProfile(userName: string) {
+  return axios.get(`${apiUrl}/api/v1/users/public/${userName}`);
+}
 
 export async function getProfilePosts(id: string, lastRetrievedPostId?: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -114,7 +117,7 @@ export async function getProfilePosts(id: string, lastRetrievedPostId?: string) 
 }
 
 export async function userProfileFriends(signal: AbortSignal, userId: string, page: number, search = '') {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -127,7 +130,7 @@ export async function userProfileFriends(signal: AbortSignal, userId: string, pa
 }
 
 // export async function getUserProfileDetail(userName: string) {
-//   const token = Cookies.get('sessionToken');
+//   const token = await getSessionToken();
 //   const headers = {
 //     Authorization: `Bearer ${token}`,
 //   };
@@ -141,7 +144,7 @@ export async function updateUser(
   id: string,
   profile_status: number,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -154,7 +157,7 @@ export async function updateUser(
 }
 
 export async function uploadUserProfileImage(file: File) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const formData = new FormData();
   formData.append('file', file);
   const headers = {
@@ -165,7 +168,7 @@ export async function uploadUserProfileImage(file: File) {
 }
 
 export async function uploadUserCoverImage(file: File) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const formData = new FormData();
   formData.append('file', file);
   const headers = {
@@ -176,7 +179,7 @@ export async function uploadUserCoverImage(file: File) {
 }
 
 export async function removeUserCoverImage() {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -184,7 +187,7 @@ export async function removeUserCoverImage() {
 }
 
 export async function reomoveUserProfileImage() {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -192,7 +195,7 @@ export async function reomoveUserProfileImage() {
 }
 
 export async function userPhotos(id: string, lastRetrievedPostId?: string, limit?: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -204,7 +207,7 @@ export async function userPhotos(id: string, lastRetrievedPostId?: string, limit
 }
 
 export async function getSuggestFriends() {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -212,7 +215,7 @@ export async function getSuggestFriends() {
 }
 
 export async function getUsersFriends(userId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -224,7 +227,7 @@ export async function changePassword(
   newPassword: string,
   newPasswordConfirmation: string,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -234,8 +237,8 @@ export async function changePassword(
 }
 
 export async function userAccountDelete() {
-  const token = Cookies.get('sessionToken');
-  const userId = Cookies.get('userId');
+  const token = await getSessionToken();
+  const userId = await getSessionUserId();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -246,7 +249,7 @@ export async function updateUserAbout(
   id: string,
   aboutMe: string,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -261,7 +264,7 @@ export async function getUserMoviesList(
   key: string,
   lastRetrievedMovieId?: string | null,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };

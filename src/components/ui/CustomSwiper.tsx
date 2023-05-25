@@ -24,6 +24,7 @@ interface SliderImage {
   imageUrl: string;
   linkUrl?: string;
   videoKey?: string;
+  imageDescription?: string;
   movieData?: {
     poster_path: string,
     title: string,
@@ -103,7 +104,6 @@ function CustomSwiper({
   const uniqueId = `${instanceCounter += 1}`;
   const [showVideoPlayerModal, setShowYouTubeModal] = useState(false);
   const { placeholderUrlNoImageAvailable } = useAppSelector((state) => state.remoteConstants);
-  const [showSwiper, setShowSwiper] = useState(true);
   const navigate = useNavigate();
 
   const displayVideoAndImage = (imageAndVideo: SliderImage) => {
@@ -113,14 +113,10 @@ function CustomSwiper({
           <img
             src={`https://img.youtube.com/vi/${imageAndVideo.videoKey}/hqdefault.jpg`}
             className="w-100 h-100"
-            alt="user uploaded content"
+            alt={`${imageAndVideo.imageDescription ? imageAndVideo.imageDescription : 'user uploaded content'} `}
             onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-              if (images.length > 1) {
-                e.currentTarget.src = placeholderUrlNoImageAvailable;
-                setShowSwiper(true);
-              }
+              e.currentTarget.src = placeholderUrlNoImageAvailable;
             }}
-            onLoad={() => setShowSwiper(true)}
           />
           <StyledYouTubeButton
             variant="link"
@@ -144,15 +140,10 @@ function CustomSwiper({
             <img
               src={imageAndVideo.imageUrl}
               className="w-100 h-100"
-              alt="user uploaded content"
+              alt={`${imageAndVideo.imageDescription ? imageAndVideo.imageDescription : 'user uploaded content'} `}
               onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                if ((imageAndVideo.linkUrl && imageAndVideo.linkUrl.includes('/app/news/partner') && images.length > 1)
-                || (imageAndVideo.linkUrl && !imageAndVideo.linkUrl.includes('/app/news/partner'))) {
-                  e.currentTarget.src = placeholderUrlNoImageAvailable;
-                  setShowSwiper(true);
-                }
+                e.currentTarget.src = placeholderUrlNoImageAvailable;
               }}
-              onLoad={() => setShowSwiper(true)}
             />
           </SwiperContentContainer>
         </Link>
@@ -169,12 +160,8 @@ function CustomSwiper({
                   alt="movie poster"
                   className="rounded-3 w-100 h-100"
                   onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                    if (images.length > 1) {
-                      e.currentTarget.src = placeholderUrlNoImageAvailable;
-                      setShowSwiper(true);
-                    }
+                    e.currentTarget.src = placeholderUrlNoImageAvailable;
                   }}
-                  onLoad={() => setShowSwiper(true)}
                 />
               </StyledMoviePoster>
             </Col>
@@ -200,21 +187,17 @@ function CustomSwiper({
         <CustomSwiperZoomableImage
           className="h-100"
           src={imageAndVideo.imageUrl}
-          alt="user uploaded content"
+          alt={`${imageAndVideo.imageDescription ? imageAndVideo.imageDescription : 'user uploaded content'} `}
           onImgError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-            if (images.length > 1) {
-              e.currentTarget.src = placeholderUrlNoImageAvailable;
-              setShowSwiper(true);
-            }
+            e.currentTarget.src = placeholderUrlNoImageAvailable;
           }}
-          onImgLoad={() => setShowSwiper(true)}
         />
       </SwiperContentContainer>
     );
   };
 
   return (
-    <div style={{ height: heightForContext[context] }} className={!showSwiper ? 'd-none' : `${images.length > 1 ? 'mb-4' : ''}`}>
+    <div style={{ height: heightForContext[context] }} className={`${images.length > 1 ? 'mb-4' : ''}`}>
       <StyledSwiper
         pagination={{ type: 'fraction', el: `#swiper-pagination-el-${uniqueId}` }}
         initialSlide={initialSlide}

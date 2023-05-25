@@ -1,13 +1,14 @@
 import axios from 'axios';
-import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
+import { getSessionToken } from '../utils/session-utils';
+import { ContentDescription } from '../types';
 
 export async function getFeedComments(
   feedPostId: string,
   lastRetrievedCommentId?: string,
   showComments?: boolean,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -24,11 +25,17 @@ export async function addFeedComments(
   feedPostId: string,
   message: string,
   file: any,
+  descriptionArray?: any,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const formData = new FormData();
-  for (let i = 0; i < file.length; i += 1) {
-    formData.append('images', file[i]);
+  for (let i = 0; i < descriptionArray.length; i += 1) {
+    if (file && file.length && file !== undefined) {
+      if (file[i] !== undefined) {
+        formData.append('images', file[i]);
+      }
+    }
+    formData.append(`imageDescriptions[${[i]}][description]`, descriptionArray![i]);
   }
   formData.append('message', message);
   formData.append('feedPostId', feedPostId);
@@ -44,11 +51,13 @@ export async function addFeedReplyComments(
   message: string,
   file: any,
   commentReplyId: string,
+  descriptionArray?: string[],
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const formData = new FormData();
   for (let i = 0; i < file.length; i += 1) {
     formData.append('images', file[i]);
+    formData.append(`imageDescriptions[${[i]}][description]`, descriptionArray![i]);
   }
   formData.append('message', message);
   formData.append('feedPostId', feedPostId);
@@ -61,7 +70,7 @@ export async function addFeedReplyComments(
 }
 
 export async function removeFeedComments(feedCommentId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -69,7 +78,7 @@ export async function removeFeedComments(feedCommentId: string) {
 }
 
 export async function removeFeedCommentReply(feedReplyId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -82,11 +91,20 @@ export async function updateFeedComments(
   feedCommentId: string,
   file: string[],
   imagesToDelete: string[] | undefined,
+  descriptionArray?: ContentDescription[] | any,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const formData = new FormData();
-  for (let i = 0; i < file.length; i += 1) {
-    formData.append('files', file[i]);
+  for (let i = 0; i < descriptionArray.length; i += 1) {
+    if (file && file.length && file !== undefined) {
+      if (file[i] !== undefined) {
+        formData.append('files', file[i]);
+      }
+    }
+    if (descriptionArray![i].id) {
+      formData.append(`imageDescriptions[${[i]}][_id]`, descriptionArray![i].id);
+    }
+    formData.append(`imageDescriptions[${[i]}][description]`, descriptionArray![i].description);
   }
   formData.append('message', message);
   formData.append('feedPostId', feedPostId);
@@ -108,11 +126,20 @@ export async function updateFeedCommentReply(
   feedReplyId: string,
   file: string[],
   imagesToDelete: string[] | undefined,
+  descriptionArray?: ContentDescription[] | any,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const formData = new FormData();
-  for (let i = 0; i < file.length; i += 1) {
-    formData.append('files', file[i]);
+  for (let i = 0; i < descriptionArray.length; i += 1) {
+    if (file && file.length && file !== undefined) {
+      if (file[i] !== undefined) {
+        formData.append('files', file[i]);
+      }
+    }
+    if (descriptionArray![i].id) {
+      formData.append(`imageDescriptions[${[i]}][_id]`, descriptionArray![i].id);
+    }
+    formData.append(`imageDescriptions[${[i]}][description]`, descriptionArray![i].description);
   }
   formData.append('message', message);
   formData.append('feedPostId', feedPostId);
@@ -128,7 +155,7 @@ export async function updateFeedCommentReply(
 }
 
 export async function singleComment(commentId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };

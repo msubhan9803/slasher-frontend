@@ -5,8 +5,10 @@
   "private": true,
   "dependencies": {
     "@capacitor/android": "^4.7.0",
+    "@capacitor/app": "^4.1.1",
     "@capacitor/core": "^4.7.0",
     "@capacitor/ios": "^4.7.0",
+    "@capacitor/preferences": "^4.0.2",
     "@date-io/date-fns": "^2.14.0",
     "@emoji-mart/data": "^1.1.2",
     "@emoji-mart/react": "^1.1.1",
@@ -35,6 +37,7 @@
     "copy-to-clipboard": "^3.3.3",
     "country-state-city": "^3.1.2",
     "date-fns": "^2.29.1",
+    "emoji-mart": "^5.5.2",
     "js-cookie": "^3.0.1",
     "leaflet": "^1.8.0",
     "linkify-html": "^4.0.2",
@@ -79,7 +82,13 @@
     "test:e2e": "playwright test",
     "test:watch": "react-scripts test",
     "storybook": "start-storybook -p 6006 -s public",
-    "build-storybook": "build-storybook -s public"
+    "build-storybook": "build-storybook -s public",
+    "cap-android": "npx cap sync android && npx cap run android",
+    "cap-ios": "npx cap sync ios && npx cap run ios",
+    "cap-live-reload-android": "cp ./capacitor-configs/live-reload.capacitor.config.ts capacitor.config.ts && npm run cap-android",
+    "cap-static-build-android": "cp ./capacitor-configs/static-build.capacitor.config.ts capacitor.config.ts && npm run build && npm run cap-android",
+    "cap-live-reload-ios": "cp ./capacitor-configs/live-reload.capacitor.config.ts capacitor.config.ts && npm run cap-ios",
+    "cap-static-build-ios": "cp ./capacitor-configs/static-build.capacitor.config.ts capacitor.config.ts && npm run build && npm run cap-ios"
   },
   "eslintConfig": {
     "extends": [
@@ -110,6 +119,7 @@
     ]
   },
   "devDependencies": {
+    "@capacitor/assets": "^2.0.4",
     "@capacitor/cli": "^4.7.0",
     "@playwright/test": "^1.21.1",
     "@storybook/addon-actions": "^6.5.13",

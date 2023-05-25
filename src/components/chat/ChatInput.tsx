@@ -73,6 +73,7 @@ function ChatInput({
 
   const handleSubmit = (event: any) => {
     event.preventDefault();
+    textareaRef.current.focus(); // so that keyboard remains open click of "send-icon"
     sendMessageClick!();
     setRows(1);
     setShowPicker(false);

@@ -1,6 +1,5 @@
 /* eslint-disable max-lines */
 import React, { useEffect, useRef, useState } from 'react';
-import Cookies from 'js-cookie';
 import InfiniteScroll from 'react-infinite-scroller';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
@@ -42,7 +41,7 @@ function WatchedListMovies() {
       : '',
   );
   const [callNavigate, setCallNavigate] = useState<boolean>(false);
-  const userId = Cookies.get('userId');
+  const userId = useAppSelector((state) => state.user.user.id);
   const prevSearchRef = useRef(search);
   const prevKeyRef = useRef(key);
   const prevSortValRef = useRef(sortVal);

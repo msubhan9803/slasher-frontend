@@ -30,9 +30,10 @@ interface FriendProps {
   profilePic: string;
 }
 interface Props {
-  user: User
+  user: User;
+  isSelfProfile: boolean;
 }
-function ProfileFriends({ user }: Props) {
+function ProfileFriends({ user, isSelfProfile }: Props) {
   const navigate = useNavigate();
   const params = useParams();
   const [show, setShow] = useState(false);
@@ -41,7 +42,9 @@ function ProfileFriends({ user }: Props) {
   const [friendCount, setFriendCount] = useState<number>();
   const [dropDownValue, setDropDownValue] = useState('');
   const [loadingFriends, setLoadingFriends] = useState<boolean>(false);
-  const popoverOption = ['View profile', 'Message', 'Unfriend', 'Report', 'Block user'];
+  const popoverOption = isSelfProfile
+    ? ['View profile', 'Message', 'Unfriend', 'Report', 'Block user']
+    : ['View profile', 'Report', 'Block user'];
   const friendsReqCount = useAppSelector((state) => state.user.user.newFriendRequestCount);
   const friendContainerElementRef = useRef<any>(null);
   const loginUserData = useAppSelector((state) => state.user.user);

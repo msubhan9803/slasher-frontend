@@ -2,13 +2,12 @@ import React, { useEffect, useRef } from 'react';
 import { DateTime } from 'luxon';
 import styled from 'styled-components';
 import { Image } from 'react-bootstrap';
-import data from '@emoji-mart/data';
-import Picker from '@emoji-mart/react';
 import { ChatProps } from './ChatProps';
 import ChatTimestamp from './ChatTimestamp';
 import LoadingIndicator from '../ui/LoadingIndicator';
 import { enableDevFeatures } from '../../utils/configEnvironment';
 import ChatMessageText from './ChatMessageText';
+import CustomEmojiPicker from '../ui/CustomEmojiPicker';
 
 const ChatMessages = styled.div`
 .time-stamp {
@@ -41,7 +40,6 @@ function ChatMessage({
 }: ChatProps) {
   const messageRef = useRef<HTMLDivElement>(null);
   let lastTimeStampMessage = '';
-
   const handleEmojiSelect = (emoji: Emoji) => {
     setSelectedEmoji!((selectedEmoji ?? []).concat(emoji.native));
     setMessage!((prevMessage: string) => prevMessage + emoji.native);
@@ -81,7 +79,7 @@ function ChatMessage({
               ? (
                 <Image
                   src={message.image}
-                  alt="User upload"
+                  alt={`${message.imageDescription ? message.imageDescription : 'User upload'}`}
                   className="w-50 h-auto img-fluid rounded-3"
                   onLoad={() => onImageLoad()}
                 />
@@ -113,7 +111,7 @@ function ChatMessage({
               ? (
                 <Image
                   src={message.image}
-                  alt="User upload"
+                  alt={`${message.imageDescription ? message.imageDescription : 'User upload'}`}
                   className="w-50 h-auto img-fluid rounded-3"
                   onLoad={() => onImageLoad()}
                 />
@@ -140,7 +138,7 @@ function ChatMessage({
         <LoadingIndicator />
       )}
       {showPicker && (
-        <Picker data={data} onEmojiSelect={handleEmojiSelect} />
+        <CustomEmojiPicker handleEmojiSelect={handleEmojiSelect} />
       )}
     </ChatMessages>
   );

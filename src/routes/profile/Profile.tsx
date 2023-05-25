@@ -22,19 +22,21 @@ import PostDetail from '../../components/ui/post/PostDetail';
 import ProfileLimitedView from './ProfileLimitedView/ProfileLimitedView';
 import RightSidebarAdOnly from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarAdOnly';
 import ContentNotAvailable from '../../components/ContentNotAvailable';
+import useBootstrapBreakpointName from '../../hooks/useBootstrapBreakpoint';
 
 interface SharedHeaderProfilePagesProps {
   user: User;
+  isSelfProfile: boolean;
 }
 
-function SharedHeaderProfilePages({ user }: SharedHeaderProfilePagesProps) {
+function SharedHeaderProfilePages({ user, isSelfProfile }: SharedHeaderProfilePagesProps) {
   return (
     <Routes>
       <Route path="/" element={(<Navigate to="about" replace />)} />
       <Route path="/about" element={<ProfileAbout user={user} />} />
       <Route path="/posts" element={<ProfilePosts user={user} />} />
       <Route path="/posts/:postId" element={<PostDetail user={user} />} />
-      <Route path="/friends" element={<ProfileFriends user={user} />} />
+      <Route path="/friends" element={<ProfileFriends user={user} isSelfProfile={isSelfProfile} />} />
       <Route path="/friends/request" element={<ProfileFriendRequest user={user} />} />
       <Route path="/photos" element={<ProfilePhotos user={user} />} />
       <Route path="/watched-list" element={<ProfileWatchList user={user} />} />
@@ -54,6 +56,7 @@ function Profile() {
 
   const loginUserData = useAppSelector((state) => state.user.user);
   const isSelfProfile = loginUserData.id === user?._id;
+  const bp = useBootstrapBreakpointName();
 
   /**
    * 1. This function fetch userInfo from api and set in component state.
@@ -91,7 +94,7 @@ function Profile() {
 
   if (userIsBlocked) { return (<ContentNotAvailable />); }
 
-  if (!user) { return <LoadingIndicator />; }
+  if (!user) { return <LoadingIndicator style={{ marginTop: `${['lg', 'xl', 'xxl'].includes(bp) ? '35vh' : '43vh'}` }} />; }
 
   if (userNameOrId !== user.userName) {
     setUser(undefined);
@@ -119,7 +122,7 @@ function Profile() {
         <h1 className="sr-only">{user.userName}</h1>
         <Routes>
           <Route path="/edit" element={<ProfileEdit user={user} />} />
-          <Route path="*" element={<SharedHeaderProfilePages user={user} />} />
+          <Route path="*" element={<SharedHeaderProfilePages user={user} isSelfProfile={isSelfProfile} />} />
         </Routes>
       </ContentPageWrapper>
 

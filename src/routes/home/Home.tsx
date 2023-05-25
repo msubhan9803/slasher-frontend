@@ -11,7 +11,7 @@ import ReportModal from '../../components/ui/ReportModal';
 import {
   deleteFeedPost, getHomeFeedPosts, hideFeedPost, updateFeedPost,
 } from '../../api/feed-posts';
-import { Post } from '../../types';
+import { ContentDescription, Post } from '../../types';
 import { PopoverClickProps } from '../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../api/feed-likes';
 import { createBlockUser } from '../../api/blocks';
@@ -50,7 +50,18 @@ function Home() {
   );
   const lastLocationKeyRef = useRef(location.key);
 
+  const persistScrollPosition = () => { setPageStateCache(location, posts); };
+
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
+    // persistScrollPosition(popoverClickProps.id!);
+    /**
+    // TODO
+    // SAHIL URGENT: Check Avadh's reply on this issue in DM for the
+    // concerns of passing `popoverClickProps.id`
+    // For now I am not passing any id while persisting while I call
+    // `persistScrollPosition` in below line.
+     */
+    persistScrollPosition();
     if (value === 'Hide') {
       const postIdToHide = popoverClickProps.id;
       if (!postIdToHide) { return; }
@@ -157,7 +168,7 @@ function Home() {
     }
   }, [
     fetchFeedPosts, loadingPosts, location, pageStateCache.length,
-    posts.length, requestAdditionalPosts,
+    posts.length, requestAdditionalPosts, location.pathname,
   ]);
 
   useEffect(() => {
@@ -218,19 +229,25 @@ function Home() {
     });
   };
 
-  const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
-    updateFeedPost(postId, message, images, imageDelete).then((res) => {
-      setShow(false);
-      const updatePost = posts.map((post: any) => {
-        if (post._id === postId) {
-          return {
-            ...post, message: res.data.message, images: res.data.images,
-          };
-        }
-        return post;
-      });
-      setPosts(updatePost);
-    })
+  const onUpdatePost = (
+    message: string,
+    images: string[],
+    imageDelete: string[] | undefined,
+    descriptionArray?: ContentDescription[],
+  ) => {
+    updateFeedPost(postId, message, images, imageDelete, null, descriptionArray)
+      .then((res) => {
+        setShow(false);
+        const updatePost = posts.map((post: any) => {
+          if (post._id === postId) {
+            return {
+              ...post, message: res.data.message, images: res.data.images,
+            };
+          }
+          return post;
+        });
+        setPosts(updatePost);
+      })
       .catch((error) => {
         const msg = error.response.status === 0 && !error.response.data
           ? 'Combined size of files is too large.'
@@ -294,7 +311,17 @@ function Home() {
     createBlockUser(postUserId)
       .then(() => {
         setDropDownValue('BlockUserSuccess');
-        callLatestFeedPost();
+        // TODO: URGENT: SAHIL FIX BEFRE MAKING PR (after discussing this with Avadh for
+        // TODO: expected behavior!
+        // TODO: Fix this with new `pageStateCache`
+        // const updatedScrollData = posts.filter(
+        //   (scrollData: any) => scrollData.userId !== postUserId,
+        // );
+        // const positionData = {
+        //   ...scrollPosition,
+        //   data: updatedScrollData,
+        // };
+        // dispatch(setScrollPosition(positionData));
       })
       // eslint-disable-next-line no-console
       .catch((error) => console.error(error));
@@ -317,8 +344,6 @@ function Home() {
     // Ask to block user as well
     setDropDownValue('PostReportSuccessDialog');
   };
-
-  const persistScrollPosition = () => { setPageStateCache(location, posts); };
 
   return (
     <ContentSidbarWrapper>

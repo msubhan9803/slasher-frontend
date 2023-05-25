@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Col, Form, Image, Row,
+  Col, Image, Row,
 } from 'react-bootstrap';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
-import RoundButtonLink from '../../components/ui/RoundButtonLink';
-import RoundButton from '../../components/ui/RoundButton';
-import CustomInputGroup from '../../components/ui/CustomInputGroup';
-import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import { signIn } from '../../api/users';
-import { setSignInCookies, userIsLoggedIn } from '../../utils/session-utils';
+import { setSignInCookies } from '../../utils/session-utils';
 import slasherLogo from '../../images/slasher-beta-logo-medium.png';
 import signInImageMobile from '../../images/sign-in-background-beta-mobile.jpg';
 import { LG_MEDIA_BREAKPOINT } from '../../constants';
+import SigninComponent from '../../components/ui/SigninComponent';
+import useSessionToken from '../../hooks/useSessionToken';
+import { sleep } from '../../utils/timer-utils';
 
-interface UserCredentials {
+export interface UserCredentials {
   emailOrUsername: string;
   password: string;
 }
@@ -28,7 +26,7 @@ const StyledMobileSlasherLogo = styled(Image)`
   margin: 0 -1rem;
 `;
 
-const LoginFormWrapper = styled.div`
+export const LoginFormWrapper = styled.div`
   .form-inner-content {
     padding: 3rem;
   }
@@ -52,29 +50,27 @@ function SignIn() {
     password: '',
   });
   const [searchParams] = useSearchParams();
+  const token = useSessionToken();
 
   useEffect(() => {
-    if (userIsLoggedIn()) {
+    if (!token.isLoading && token.value) {
       navigate('/app/home');
     }
-  }, [navigate]);
-  const passwordVisiblility = () => {
-    setShowPassword(!showPassword);
-  };
+  }, [navigate, token]);
+
   const [errorMessage, setErrorMessage] = useState<string[]>();
 
-  const handleSignIn = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setCredentials({ ...credentials, [event.target.name]: event.target.value });
-  };
+  if (token.isLoading) { return null; }
 
-  const handleUserSignIn = (e: React.MouseEvent<HTMLElement>) => {
+  const handleUserSignIn = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
-
-    signIn(credentials.emailOrUsername, credentials.password).then((res) => {
+    signIn(credentials.emailOrUsername, credentials.password).then(async (res) => {
+      await sleep(1000);
       setErrorMessage([]);
-      setSignInCookies(res.data.token, res.data.id, res.data.userName);
-      const targetPath = searchParams.get('path');
-      navigate(`${targetPath ?? '/app/home'}`);
+      setSignInCookies(res.data.token, res.data.id, res.data.userName).finally(() => {
+        const targetPath = searchParams.get('path');
+        navigate(`${targetPath ?? '/app/home'}`);
+      });
     }).catch((error) => {
       setErrorMessage(error.response.data.message);
     });
@@ -92,64 +88,14 @@ function SignIn() {
       </Col>
       <Col sm={12} lg={6}>
         <LoginFormWrapper className="bg-secondary bg-mobile-transparent mx-auto">
-          <div className="form-inner-content justify-content-center">
-            <h1 className="h2 text-center mb-4">Sign In</h1>
-            <Form>
-              <CustomInputGroup
-                size="lg"
-                addonContent={solid('user')}
-                label="Username or email"
-                inputType="email"
-                name="emailOrUsername"
-                autoComplete="username"
-                value={credentials.emailOrUsername}
-                onChangeValue={handleSignIn}
-              />
-              <CustomInputGroup
-                size="lg"
-                addonContent={solid('lock')}
-                label="Password"
-                inputType={showPassword ? 'text' : 'password'}
-                password
-                showPassword={showPassword}
-                name="password"
-                autoComplete="current-password"
-                passwordVisiblility={passwordVisiblility}
-                value={credentials.password}
-                onChangeValue={handleSignIn}
-              />
-
-              <p className="text-center fs-5 text-light">
-                Forgot your password?&nbsp;
-                <Link to="/app/forgot-password" className="text-primary">
-                  Click here
-                </Link>
-              </p>
-              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-              <RoundButton id="sign-in-button" type="submit" onClick={handleUserSignIn} className="w-100 my-3" variant="primary">
-                Sign in
-              </RoundButton>
-              <p className="text-center">OR</p>
-              <RoundButtonLink to="/app/registration" className="w-100" variant="primary">
-                Create an account
-              </RoundButtonLink>
-
-              <p className="mt-3 text-center text-light">
-                NOTE: If you just created an account and you are not able to login,
-                be sure you activated your account by clicking
-                the button in the email we sent when you created your account.
-
-                <em>
-                  Your account will not be activated until you click the link in that email.
-                </em>
-              </p>
-              <p className="text-center mb-0 text-light">
-                Please check your spam folder for the email.
-                If you have not received it, please&nbsp;
-                <Link to="/app/verification-email-not-received" className="text-primary">click here.</Link>
-              </p>
-            </Form>
-          </div>
+          <SigninComponent
+            credential={credentials}
+            setCredential={setCredentials}
+            showPassword={showPassword}
+            setShowPassword={setShowPassword}
+            handleUserSignIn={handleUserSignIn}
+            errorMessage={errorMessage}
+          />
         </LoginFormWrapper>
       </Col>
     </Row>

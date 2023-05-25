@@ -193,24 +193,27 @@ function RegistrationSecurity({ activeStep }: Props) {
               <Col sm={12} md={4}>
                 <SortData
                   sortVal={selectedMonth}
+                  placeholder="Month"
                   onSelectSort={(val) => { handleChange(val, 'month'); setSelectedMonth(val); handleChangeDay(); }}
-                  sortoptions={[{ value: 0, label: 'Month' }, ...monthOptions]}
+                  sortoptions={[...monthOptions]}
                   type="form"
                 />
               </Col>
               <Col sm={12} md={4} className="my-2 my-md-0">
                 <SortData
                   sortVal={selectedDay}
+                  placeholder="Day"
                   onSelectSort={(val) => { handleChange(val, 'day'); setSelectedDay(val); }}
-                  sortoptions={[{ value: 0, label: 'Day' }, ...convertedDayOptions]}
+                  sortoptions={[...convertedDayOptions]}
                   type="form"
                 />
               </Col>
               <Col sm={12} md={4}>
                 <SortData
                   sortVal={selectedYear}
+                  placeholder="Year"
                   onSelectSort={(val) => { handleChange(val, 'year'); setSelectedYear(val); }}
-                  sortoptions={[{ value: 0, label: 'Year' }, ...convertedYearOptions]}
+                  sortoptions={[...convertedYearOptions]}
                   type="form"
                 />
               </Col>

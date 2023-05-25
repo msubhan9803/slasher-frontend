@@ -5,10 +5,6 @@ export const apiUrl = process.env.REACT_APP_API_URL;
 export const analyticsId = process.env.REACT_APP_GOOGLE_ANALYTICS_PROPERTY_ID;
 export const isCapacitorApp = Capacitor.isNativePlatform();
 
-// Note from Sahil: Added this log for short-term-debugging only!
-// eslint-disable-next-line no-alert
-// window.alert(`apiUrl? ${apiUrl}`);
-
 export const MAIN_CONTENT_ID = 'main-content';
 
 export const BREAK_POINTS = {

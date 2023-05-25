@@ -311,17 +311,9 @@ function Home() {
     createBlockUser(postUserId)
       .then(() => {
         setDropDownValue('BlockUserSuccess');
-        // TODO: URGENT: SAHIL FIX BEFRE MAKING PR (after discussing this with Avadh for
-        // TODO: expected behavior!
-        // TODO: Fix this with new `pageStateCache`
-        // const updatedScrollData = posts.filter(
-        //   (scrollData: any) => scrollData.userId !== postUserId,
-        // );
-        // const positionData = {
-        //   ...scrollPosition,
-        //   data: updatedScrollData,
-        // };
-        // dispatch(setScrollPosition(positionData));
+        setPosts((prev) => prev.filter(
+          (scrollData: any) => scrollData.userId !== postUserId,
+        ));
       })
       // eslint-disable-next-line no-console
       .catch((error) => console.error(error));

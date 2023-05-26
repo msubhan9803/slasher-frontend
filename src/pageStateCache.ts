@@ -12,7 +12,12 @@ export const deletePageStateCache = (location: Location | string) => {
   }
   pageStateCache.delete(getPageName(location));
 };
-export const getPageStateCache = (location: Location) => pageStateCache.get(getPageName(location));
+export const getPageStateCache = (location: Location | string) => {
+  if (typeof location === 'string') {
+    return pageStateCache.get(location);
+  }
+  return pageStateCache.get(getPageName(location));
+};
 export const setPageStateCache = (location: Location | string, data: any) => {
   if (typeof location === 'string') {
     pageStateCache.set(location, data);

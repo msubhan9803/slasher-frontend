@@ -82,7 +82,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
       await request(app.getHttpServer()).post('/api/v1/feed-comments').expect(HttpStatus.UNAUTHORIZED);
     });
 
-    describe('with mocked notificationService.create', () => {
+    describe('with mocked notificationsService.create', () => {
       beforeEach(async () => {
         jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
       });

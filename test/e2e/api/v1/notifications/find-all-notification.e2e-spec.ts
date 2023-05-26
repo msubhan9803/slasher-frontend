@@ -106,6 +106,7 @@ describe('All Notifications (e2e)', () => {
           feedPostId: feedPostData.id,
           rssFeedProviderId: rssFeedProviderData._id,
           senderId: activeUser.id,
+          allUsers: [activeUser._id as any], // senderId must be in allUsers for old API compatibility
           is_deleted: NotificationDeletionStatus.NotDeleted,
           userId: activeUser.id,
           ...notificationDates[index],

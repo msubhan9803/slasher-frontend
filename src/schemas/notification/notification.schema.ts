@@ -48,6 +48,11 @@ export class Notification extends NotificationUnusedFields {
   })
   isRead: number;
 
+  // Used by the old API/app, for including a list of users who are relevant to the notification.
+  // This can be removed once the old iOS/Android apps are retired.
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], default: [] })
+  allUsers: mongoose.Types.ObjectId[];
+
   /***********
    * Methods *
    ***********/

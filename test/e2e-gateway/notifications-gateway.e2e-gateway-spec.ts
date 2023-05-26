@@ -96,6 +96,7 @@ describe('Notifications Gateway (e2e)', () => {
       feedPostId: feedPostData.id,
       rssFeedProviderId: rssFeedProviderData._id.toString(),
       senderId: user1.id,
+      allUsers: [user1._id as any], // senderId must be in allUsers for old API compatibility
       notifyType: NotificationType.UserMentionedYouInPost,
       notificationMsg: 'mentioned you in a post',
     };

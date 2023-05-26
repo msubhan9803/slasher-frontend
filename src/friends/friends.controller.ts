@@ -55,13 +55,14 @@ export class FriendsController {
       await Promise.all([this.notificationsService.create({
         userId: createFriendRequestDto.userId as any,
         senderId: user._id,
+        allUsers: [user._id as any], // senderId must be in allUsers for old API compatibility
         notifyType: NotificationType.UserSentYouAFriendRequest,
         notificationMsg: 'sent you a friend request',
       }),
       ]);
     }
     await Promise.all([this.usersService.updateNewFriendRequestCount(createFriendRequestDto.userId),
-      this.friendsGateway.emitFriendRequestReceivedEvent(friend)]);
+    this.friendsGateway.emitFriendRequestReceivedEvent(friend)]);
     return { success: true };
   }
 

@@ -36,6 +36,11 @@ export class FriendsController {
     if (user.id === createFriendRequestDto.userId) {
       throw new HttpException('You cannot send a friend request to yourself', HttpStatus.BAD_REQUEST);
     }
+    const toUser = await this.usersService.findById(createFriendRequestDto.userId, true);
+    if (!toUser) {
+      throw new HttpException('Target friend not found.', HttpStatus.BAD_REQUEST);
+    }
+
     const block = await this.blocksService.blockExistsBetweenUsers(user.id, createFriendRequestDto.userId);
     if (block) {
       throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
@@ -52,14 +57,26 @@ export class FriendsController {
     // rapid friend-unfriend-friend-unfriend actions.
     if (!recentNotificationExists) {
       // Create notification for post creator, informing them that a comment was added to their post
-      await Promise.all([this.notificationsService.create({
-        userId: createFriendRequestDto.userId as any,
-        senderId: user._id,
-        allUsers: [user._id as any], // senderId must be in allUsers for old API compatibility
-        notifyType: NotificationType.UserSentYouAFriendRequest,
-        notificationMsg: 'sent you a friend request',
-      }),
-      ]);
+      await Promise.all(
+        [
+          this.notificationsService.create({
+            userId: createFriendRequestDto.userId as any,
+            senderId: user._id,
+            allUsers: [user._id as any], // senderId must be in allUsers for old API compatibility
+            notifyType: NotificationType.UserSentYouAFriendRequest,
+            notificationMsg: 'sent you a friend request',
+            // "data" field must have exact value below for old iOS/Android app compatibility
+            // TODO: Remove this "data" field once the old iOS/Android apps are retired
+            data: {
+              relationId: '',
+              fromUser: pick(user, ['image', 'userName', '_id']),
+              toUser: pick(toUser, ['image', 'userName', '_id']),
+              notificationType: NotificationType.UserSentYouAFriendRequest,
+              badgeCount: user.newNotificationCount,
+            },
+          }),
+        ],
+      );
     }
     await Promise.all([this.usersService.updateNewFriendRequestCount(createFriendRequestDto.userId),
     this.friendsGateway.emitFriendRequestReceivedEvent(friend)]);

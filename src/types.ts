@@ -327,3 +327,6 @@ export interface FriendshipStatus {
   from: string;
   to: string;
 }
+
+// Cache for NewsPartner and NewsPartnerPosts cache (page = http://local.slasher.tv:3000/app/news/partner/:id)
+export type NewsPartnerAndPostsCache = { newsPartner: any, newsPosts: any };

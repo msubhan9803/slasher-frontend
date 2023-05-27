@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  useCallback, useEffect, useLayoutEffect, useState,
+  useCallback, useEffect, useLayoutEffect, useMemo, useState,
 } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -18,14 +18,13 @@ import {
 } from '../../../types';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
-import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import ReportModal from '../../../components/ui/ReportModal';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-utils';
 import { getMoviesById } from '../../../api/movies';
 import { createBlockUser } from '../../../api/blocks';
 import { reportData } from '../../../api/report';
+import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../../pageStateCache';
 
 type Props = {
   movieData: MovieData;
@@ -71,21 +70,20 @@ function MovieReviews({
   const [isWorthIt, setWorthIt] = useState<any>(0);
   const [liked, setLike] = useState<boolean>(false);
   const [disLiked, setDisLike] = useState<boolean>(false);
-  const scrollPosition = useAppSelector((state) => state.scrollPosition);
+  const pageStateCache = useMemo(() => getPageStateCache(location) ?? [], [location]);
   const [reviewPostData, setReviewPostData] = useState<any>(
-    scrollPosition.pathname === location.pathname
-      ? scrollPosition.data : [],
+    hasPageStateCache(location)
+      ? pageStateCache : [],
   );
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const handleCreateInput = () => {
     setShowReviewForm(true);
   };
   useEffect(() => {
-    if (scrollPosition.pathname === location.pathname) {
-      setReviewPostData(scrollPosition.data);
+    if (hasPageStateCache(location)) {
+      setReviewPostData(pageStateCache);
     }
-  }, [scrollPosition.pathname, location.pathname, scrollPosition.data]);
+  }, [location, pageStateCache]);
 
   const getUserMovieReviewData = (reviewPostId: string) => {
     feedPostDetail(reviewPostId).then((res) => {
@@ -138,17 +136,11 @@ function MovieReviews({
       callLatestFeedPost();
     }
   }, [movieData, callLatestFeedPost]);
-  const persistScrollPosition = (movieId: string) => {
-    const positionData = {
-      pathname: location.pathname,
-      position: window.pageYOffset,
-      data: reviewPostData,
-      positionElementId: movieId,
-    };
-    dispatch(setScrollPosition(positionData));
-  };
+
+  const persistScrollPosition = () => { setPageStateCache(location, reviewPostData); };
+
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
-    persistScrollPosition(popoverClickProps.id!);
+    persistScrollPosition();
     if (!isValidPopOverValue(value)) {
       throw new Error(`Please call 'onPopoverClick()' with correct value! Called value: ${value}, Expected value is one of:`, validPopOverOptions as any);
     }
@@ -321,14 +313,12 @@ function MovieReviews({
       .then(() => {
         setShow(false);
         setDropDownValue('BlockUserSuccess');
-        const updatedScrollData = reviewPostData.filter(
-          (scrollData: any) => scrollData.userId !== postUserId,
-        );
-        const positionData = {
-          ...scrollPosition,
-          data: updatedScrollData,
-        };
-        dispatch(setScrollPosition(positionData));
+        // const updatedScrollData = reviewPostData.filter(
+        //   (scrollData: any) => scrollData.userId !== postUserId,
+        // );
+        // TODO: SD-1252:
+        // blockedUsersCache.push(selectedBlockedUserId) (similar pattern discussed in SD-1252)
+        // TODO: Step 2: Filter out cached data from blocked users using `blockedUsersCache`.
       })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));

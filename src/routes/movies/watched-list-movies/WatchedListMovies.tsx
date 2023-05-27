@@ -13,9 +13,10 @@ import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
-import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import { UIRouteURL } from '../RouteURL';
-import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../../pageStateCache';
+import {
+  deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
+} from '../../../pageStateCache';
 
 function WatchedListMovies() {
   const [searchParams] = useSearchParams();
@@ -104,16 +105,7 @@ function WatchedListMovies() {
               setLastMovieId(res.data[res.data.length - 1]._id);
             }
             if (res.data.length === 0) { setNoMoreData(true); }
-            const positionData = {
-              pathname: '',
-              position: 0,
-              data: [],
-              id: '',
-              sortValue: '',
-              searchValue: '',
-              keyValue: '',
-            };
-            dispatch(setScrollPosition(positionData));
+            deletePageStateCache(location);
           }).catch(
             (error) => {
               setNoMoreData(true);

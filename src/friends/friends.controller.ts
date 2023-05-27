@@ -69,8 +69,14 @@ export class FriendsController {
             // TODO: Remove this "data" field once the old iOS/Android apps are retired
             data: {
               relationId: '',
-              fromUser: pick(user, ['image', 'userName', '_id']),
-              toUser: pick(toUser, ['image', 'userName', '_id']),
+              fromUser: {
+                ...pick(user, ['userName', '_id']),
+                image: user.profilePic,
+              },
+              toUser: {
+                ...pick(toUser, ['userName', '_id']),
+                image: toUser.profilePic,
+              },
               notificationType: NotificationType.UserSentYouAFriendRequest,
               badgeCount: user.newNotificationCount,
             },

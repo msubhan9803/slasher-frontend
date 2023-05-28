@@ -19,8 +19,6 @@ import { pick } from '../../utils/object-utils';
 import { FriendsService } from '../../friends/providers/friends.service';
 import { relativeToFullImagePath } from '../../utils/image-utils';
 
-const RECENT_MESSAGES_LIMIT = 10;
-
 type MessageReturnType = Partial<{ success: boolean, message: Message, errorMessage: string }>;
 
 @WebSocketGateway(SHARED_GATEWAY_OPTS)
@@ -87,6 +85,7 @@ export class ChatGateway {
     return { success: true, message: newMessageObject };
   }
 
+  // TODO: Delete this.  No longer used.  And verify tests have been ported properly to new replacement route handler.
   @SubscribeMessage('getMessages')
   async getMessages(@MessageBody() data: any, @ConnectedSocket() client: Socket): Promise<any> {
     const inValidData = typeof data.matchListId === 'undefined' || data.matchListId === null;
@@ -112,7 +111,7 @@ export class ChatGateway {
       await this.emitConversationCountUpdateEvent(user.id);
     }
 
-    const messages = await this.chatService.getMessages(matchListId, userId, RECENT_MESSAGES_LIMIT, before);
+    const messages = await this.chatService.getMessages(matchListId, userId, 30, before);
     messages.forEach((messageObject) => {
       if (messageObject.image) {
         // eslint-disable-next-line no-param-reassign

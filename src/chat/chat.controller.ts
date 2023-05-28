@@ -31,6 +31,8 @@ import { ChatGateway } from './providers/chat.gateway';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
 import { UsersService } from '../users/providers/users.service';
+import { GetConversationMessagesQueryDto } from './dto/get-conversation-messages-query.dto';
+import { GetConversationMessagesParamsDto } from './dto/get-conversation-messages-params.dto';
 
 @Controller({ path: 'chat', version: ['1'] })
 export class ChatController {
@@ -232,5 +234,39 @@ export class ChatController {
 
     await this.chatService.deleteConversationMessages(user.id, param.matchListId);
     return { success: true };
+  }
+
+  @Get('conversation/:matchListId/messages')
+  @TransformImageUrls('$[*].image')
+  async getConversationMessages(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) param: GetConversationMessagesParamsDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: GetConversationMessagesQueryDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const matchList = await this.chatService.findMatchList(param.matchListId, true);
+
+    if (!matchList) {
+      throw new HttpException('Conversation not found', HttpStatus.NOT_FOUND);
+    }
+
+    const matchUserIds = matchList.participants.find(
+      (participant) => (participant as any)._id.toString() === user.id,
+    );
+    if (!matchUserIds) {
+      throw new HttpException('You are not a member of this conversation', HttpStatus.UNAUTHORIZED);
+    }
+
+    // If `before` param is undefined, mark all of this conversation's messages TO this user as read,
+    // since the user is requesting the LATEST messages in the chat and will then be caught up.
+    if (!query.before) {
+      await this.chatService.markAllReceivedMessagesReadForChat(user.id, matchList.id);
+      await this.chatGateway.emitConversationCountUpdateEvent(user.id);
+    }
+
+    const messages = await this.chatService.getMessages(matchList.id, user.id, query.limit, query.before);
+    return messages.map(
+      (message) => pick(message, ['_id', 'message', 'isRead', 'imageDescription', 'createdAt', 'image', 'fromId', 'senderId']),
+    );
   }
 }

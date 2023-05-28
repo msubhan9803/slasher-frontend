@@ -52,9 +52,6 @@ export class NotificationUnusedFields {
   @Prop({ default: '5c9c60ca59bf9617c18f6cec', ref: User.name })
   senderId: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ type: Array, default: [] })
-  allUsers: { type: string[] };
-
   @Prop({ default: null, type: mongoose.Schema.Types.ObjectId, ref: FeedPost.name })
   feedPostId: FeedPost;
 

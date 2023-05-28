@@ -79,6 +79,7 @@ export class FeedLikesController {
         userId: postUserId as any,
         feedPostId: { _id: post._id.toString() } as unknown as FeedPost,
         senderId: user._id,
+        allUsers: [user._id as any], // senderId must be in allUsers for old API compatibility
         notifyType: NotificationType.UserLikedYourPost,
         notificationMsg: 'liked your post',
       });
@@ -146,6 +147,7 @@ export class FeedLikesController {
         feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
         feedCommentId: { _id: comment._id } as unknown as FeedComment,
         senderId: user._id,
+        allUsers: [user._id as any], // senderId must be in allUsers for old API compatibility
         notifyType: NotificationType.UserLikedYourComment,
         notificationMsg: 'liked your comment',
       });
@@ -204,6 +206,7 @@ export class FeedLikesController {
         feedCommentId: { _id: reply.feedCommentId } as unknown as FeedComment,
         feedReplyId: reply._id,
         senderId: user._id,
+        allUsers: [user._id as any], // senderId must be in allUsers for old API compatibility
         notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
         notificationMsg: 'liked your reply',
       });

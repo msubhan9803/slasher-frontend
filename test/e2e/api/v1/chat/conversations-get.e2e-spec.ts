@@ -14,8 +14,7 @@ import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { Message, MessageDocument } from '../../../../../src/schemas/message/message.schema';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
-import { BlockAndUnblockReaction } from '../../../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
-import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
+import { MatchList, MatchListDocument } from '../../../../../src/schemas/matchList/matchList.schema';
 
 describe('Conversations all / (e2e)', () => {
   let app: INestApplication;
@@ -32,7 +31,9 @@ describe('Conversations all / (e2e)', () => {
   let activeUser: User;
   let configService: ConfigService;
   let messageModel: Model<MessageDocument>;
-  let blocksModel: Model<BlockAndUnblockDocument>;
+  let matchListModel: Model<MatchListDocument>;
+  let blockedUserMatchListId: string;
+  let user1MatchListId: string;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -44,7 +45,7 @@ describe('Conversations all / (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     messageModel = moduleRef.get<Model<MessageDocument>>(getModelToken(Message.name));
-    blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
+    matchListModel = moduleRef.get<Model<MatchListDocument>>(getModelToken(MatchList.name));
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
     await app.init();
@@ -72,17 +73,23 @@ describe('Conversations all / (e2e)', () => {
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
-    await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Hi, test message 1.');
+    const user1Message = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Hi, test message 1.');
     await chatService.sendPrivateDirectMessage(activeUser._id.toString(), user1._id.toString(), 'Hi, test message 2.');
+    user1MatchListId = user1Message.matchId.toString();
     // create a user, send a message to it and block the user
     blockedUser = await usersService.create(userFactory.build());
-    await chatService.sendPrivateDirectMessage(activeUser._id.toString(), blockedUser._id.toString(), 'Hi, test message 3 - blocked user.');
-    await blocksModel.create({
-      from: activeUser._id,
-      to: blockedUser._id,
-      reaction: BlockAndUnblockReaction.Block,
-    });
+    // eslint-disable-next-line max-len
+    const blockedUserMessage = await chatService.sendPrivateDirectMessage(activeUser._id.toString(), blockedUser._id.toString(), 'Hi, test message 3 - blocked user.');
+    blockedUserMatchListId = blockedUserMessage.matchId.toString();
+
+    await request(app.getHttpServer())
+      .post('/api/v1/blocks')
+      .auth(activeUserAuthToken, { type: 'bearer' })
+      .send({ userId: blockedUser._id })
+      .expect(HttpStatus.CREATED)
+      .expect({ success: true });
   });
+
   describe('GET /api/v1/chat/conversations', () => {
     it('requires authentication', async () => {
       await request(app.getHttpServer()).get('/api/v1/chat/conversations').expect(HttpStatus.UNAUTHORIZED);
@@ -91,15 +98,20 @@ describe('Conversations all / (e2e)', () => {
     describe('Successful get all conversations (except from blocked users)', () => {
       it('get expected conversations that a user is part of', async () => {
         const limit = 10;
-        const response = await request(app.getHttpServer())
+        const response1 = await request(app.getHttpServer())
           .get(`/api/v1/chat/conversations?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.status).toEqual(HttpStatus.OK);
-        // Returned conversations should not have conversation of blocked user
-        expect(response.body.map((conversation) => conversation.latestMessage)).not.toContain('Hi, test message 3 - blocked user.');
+        expect(response1.status).toEqual(HttpStatus.OK);
 
-        expect(response.body).toEqual(
+        // Returned conversations should not have conversation of blocked user
+        expect(response1.body.map((conversation) => conversation.latestMessage)).not.toContain('Hi, test message 3 - blocked user.');
+        // Verify that conversation (matchlist) is marked `deleted: true`
+        const blockedUserMatchList = await matchListModel.findById(blockedUserMatchListId);
+        expect(blockedUserMatchList.deleted).toBeTruthy();
+
+        // Expect message of `user1`
+        expect(response1.body).toEqual(
           [
             {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -117,11 +129,28 @@ describe('Conversations all / (e2e)', () => {
               ],
               unreadCount: 1,
               latestMessage: 'Hi, test message 2.',
-              updatedAt: response.body[0].updatedAt,
+              updatedAt: response1.body[0].updatedAt,
             },
           ],
         );
-        expect(response.body).toHaveLength(1);
+        expect(response1.body).toHaveLength(1);
+
+        // Unfriend `user1`
+        await request(app.getHttpServer())
+          .delete(`/api/v1/friends?userId=${user1._id.toString()}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .expect(HttpStatus.OK)
+          .expect({ success: true });
+
+        const response3 = await request(app.getHttpServer())
+          .get(`/api/v1/chat/conversations?limit=${limit}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response3.status).toEqual(HttpStatus.OK);
+        expect(response3.body).toHaveLength(0);
+        // Verify that conversation (matchlist) is marked `deleted: true`
+        const unfriendedUserMatchList = await matchListModel.findById(user1MatchListId);
+        expect(unfriendedUserMatchList.deleted).toBeTruthy();
       });
     });
 

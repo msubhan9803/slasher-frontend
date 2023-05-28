@@ -42,24 +42,27 @@ export async function markAllReadForSingleConversation(matchListId: string) {
   return axios.patch(`${apiUrl}/api/v1/chat/conversations/mark-all-received-messages-read-for-chat/${matchListId}`, {}, { headers });
 }
 
-export async function attachFile(
+export async function sendMessageWithFiles(
   message: string,
-  file: any,
+  files: any,
   conversationId: string,
-  descriptionArray?: ContentDescription[] | any,
+  fileDescriptions?: ContentDescription[] | any,
 ) {
+  if (files.length !== fileDescriptions.length) {
+    throw new Error('Number of uploaded files does not match number of descriptions.');
+  }
   const token = await getSessionToken();
   const formData = new FormData();
-  for (let i = 0; i < descriptionArray.length; i += 1) {
-    if (file && file.length && file !== undefined) {
-      if (file[i] !== undefined) {
-        formData.append('files', file[i]);
+  for (let i = 0; i < fileDescriptions.length; i += 1) {
+    if (files && files.length && files !== undefined) {
+      if (files[i] !== undefined) {
+        formData.append('files', files[i]);
       }
     }
-    if (descriptionArray![i].id) {
-      formData.append(`imageDescriptions[${[i]}][_id]`, descriptionArray![i].id);
+    if (fileDescriptions![i].id) {
+      formData.append(`imageDescriptions[${[i]}][_id]`, fileDescriptions![i].id);
     }
-    formData.append(`imageDescriptions[${[i]}][description]`, descriptionArray![i]);
+    formData.append(`imageDescriptions[${[i]}][description]`, fileDescriptions![i]);
   }
   formData.append('message', message);
   const headers = {

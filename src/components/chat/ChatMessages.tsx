@@ -5,15 +5,18 @@ import { enableDevFeatures } from '../../utils/configEnvironment';
 import ChatMessageText from './ChatMessageText';
 import ChatTimestamp from './ChatTimestamp';
 import { Message } from '../../types';
+import { DEFAULT_USER_UPLOADED_CONTENT_ALT_TEXT } from '../../constants';
 
 interface Props {
   messages: Message[];
   viewerUserId: string;
+  onImageLoad: () => void;
 }
 
 interface MessageProps {
   message: Message;
   createdByViewer: boolean;
+  onImageLoad: () => void;
 }
 
 const StyledChatMessage = styled.div`
@@ -36,16 +39,34 @@ const StyledChatMessage = styled.div`
   }
 `;
 
-function UserChatMessage({ message, createdByViewer }: MessageProps) {
+function UserChatMessage({ message, createdByViewer, onImageLoad }: MessageProps) {
   return (
     <StyledChatMessage className={`mb-3 ${createdByViewer ? 'self-message' : 'other-message'}`}>
-      <div className="message-bubble p-3"><ChatMessageText message={message.message} /></div>
+      {
+        message.image
+          ? (
+            <div className="message-image p-3">
+              <img
+                className="w-50 rounded-3"
+                src={message.image}
+                alt={message.imageDescription || DEFAULT_USER_UPLOADED_CONTENT_ALT_TEXT}
+                onLoad={onImageLoad}
+              />
+            </div>
+          )
+          : (
+            <div className="message-bubble p-3 text-break"><ChatMessageText message={message.message} /></div>
+          )
+      }
+      {
+        enableDevFeatures && !createdByViewer && (<div className="report-message mt-1 fs-6">Report message</div>)
+      }
     </StyledChatMessage>
   );
 }
 
 function ChatMessages({
-  messages, viewerUserId,
+  messages, viewerUserId, onImageLoad,
 }: Props) {
   const renderMessage = (message: Message, previousMessage?: Message) => {
     if (message.fromId === viewerUserId) { <div>{message.message}</div>; }
@@ -58,79 +79,20 @@ function ChatMessages({
     }
 
     return (
-      <>
-        {insertTimestamp && <ChatTimestamp messageTime={message.createdAt} />}
-        <UserChatMessage message={message} createdByViewer={message.fromId === viewerUserId} />
-      </>
+      <React.Fragment key={`fragment-for-${message._id}`}>
+        {insertTimestamp && <ChatTimestamp key={`${message._id}-timestamp`} messageTime={message.createdAt} />}
+        <UserChatMessage
+          key={`message-${message._id}`}
+          message={message}
+          createdByViewer={message.fromId === viewerUserId}
+          onImageLoad={onImageLoad}
+        />
+      </React.Fragment>
     );
   };
 
-  // const renderMessage = (message: any) => (
-  //   <React.Fragment key={message.id}>
-  //     {(!lastTimeStampMessage || DateTime.fromISO(lastTimeStampMessage).toISODate()
-  //       !== DateTime.fromISO(message.time).toISODate())
-  //       && <ChatTimestamp messageTime={message.time} />}
-  //     {message.participant === 'other' ? (
-  //       <div className="other-message mb-3">
-  //         <div className="mb-2">
-  //           {message.image
-  //             ? (
-  //               <Image
-  //                 src={message.image}
-  //                 alt={`${message.imageDescription ? message.imageDescription : 'User upload'}`}
-  //                 className="w-50 h-auto img-fluid rounded-3"
-  //                 onLoad={() => onImageLoad()}
-  //               />
-  //             )
-  //             : (
-  //               <p className="fs-4 mb-0 p-3 text-white">
-  //                 <ChatMessageText message={message.message} />
-  //               </p>
-  //             )}
-  //         </div>
-  //         <span className="fs-6 time-stamp align-items-center d-flex">
-  //           {DateTime.fromISO(message.time).toFormat('h:mm a')}
-  //           {
-  //             enableDevFeatures && (
-  //               <>
-  //                 {' '}
-  //                 &bull;
-  //                 {' '}
-  //                 Report message
-  //               </>
-  //             )
-  //           }
-  //         </span>
-  //       </div>
-  //     ) : (
-  //       <div className="self-message align-items-end d-flex flex-column mb-3">
-  //         <div className={`mb-2 d-flex justify-content-end ${message.image ? 'w-100'
-  //            : 'w-auto'}`}
-  //            style={{ maxWidth: '100%' }}>
-  //           {message.image
-  //             ? (
-  //               <Image
-  //                 src={message.image}
-  //                 alt={`${message.imageDescription ? message.imageDescription : 'User upload'}`}
-  //                 className="w-50 h-auto img-fluid rounded-3"
-  //                 onLoad={() => onImageLoad()}
-  //               />
-  //             )
-  //             : (
-  //               <p className="fs-4 mb-0 p-3 text-white" style={{ maxWidth: '100%' }}>
-  //                 <ChatMessageText message={message.message} />
-  //               </p>
-  //             )}
-  //         </div>
-  //         <span
-  //          className="time-stamp fs-6">{DateTime.fromISO(message.time).toFormat('h:mm a')}</span>
-  //       </div>
-  //     )}
-  //   </React.Fragment>
-  // );
-
   return (
-    <div className="d-flex flex-column ps-0 pe-3">
+    <div className="d-flex flex-column pt-2 pe-3">
       {
         messages?.map(
           (message, index) => renderMessage(message, index > 0 ? messages[index - 1] : undefined),

@@ -4,6 +4,7 @@ import { Capacitor } from '@capacitor/core';
 export const apiUrl = process.env.REACT_APP_API_URL;
 export const analyticsId = process.env.REACT_APP_GOOGLE_ANALYTICS_PROPERTY_ID;
 export const isCapacitorApp = Capacitor.isNativePlatform();
+export const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
 // Note from Sahil: Added this log for short-term-debugging only!
 // eslint-disable-next-line no-alert
@@ -29,6 +30,8 @@ export const enableADs = process.env.REACT_APP_ENABLE_ADS === 'true';
 // 11 Sand Pond Rd, Hardwick Township, NJ
 export const DEFAULT_EVENTS_USER_LOCATION = { lat: 41.055877, lng: -74.95479 };
 
+export const DEFAULT_USER_UPLOADED_CONTENT_ALT_TEXT = 'User uploaded content';
+
 export const GOOGLE_PLAY_DOWNLOAD_URL = 'https://play.google.com/store/apps/details?id=com.sdei.slasher';
 export const APP_STORE_DOWNLOAD_URL = 'https://apps.apple.com/app/id1458216326';
 
@@ -37,3 +40,5 @@ export const WORDPRESS_SITE_URL = 'https://pages.slasher.tv';
 // Note: If the value below is changed, make sure that the Chat conversation page does not have
 // a body scrollbar.  If it does, this value needs to be increased.
 export const topToDivHeight = 110;
+
+export const bottomMobileNavHeight = 90;

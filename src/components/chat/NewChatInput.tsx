@@ -1,12 +1,16 @@
 import React, { useRef, useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form, Spinner } from 'react-bootstrap';
 import styled from 'styled-components';
 import { TextareaAutosize } from '@mui/material';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { isMobile } from '../../constants';
 
 interface Props {
-  onSubmit: (message: string, files: File[]) => void
+  onSubmit: (message: string, files: File[], fileDescriptions: string[]) => Promise<void>;
+  onFocus: () => void;
+  onBlur: () => void;
+  placeholder: string;
 }
 
 const StyledChatInputGroup = styled.div`
@@ -34,42 +38,101 @@ const StyledChatInputGroup = styled.div`
 `;
 
 function ChatInput({
-  onSubmit,
+  onSubmit, onFocus, onBlur, placeholder,
 }: Props) {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [message, setMessage] = useState<string>('');
-  const textareaRef = useRef<HTMLTextAreaElement>();
-  const inputFile = useRef<HTMLInputElement>(null);
+  const [sending, setSending] = useState<boolean>(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputElementRef = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = (event: any) => {
+  const clearMessageAndImages = () => {
+    setMessage('');
+    setSelectedFiles([]);
+    fileInputElementRef.current!.value = ''; // clear out the input value
+  };
+
+  const handleSubmit = async (event: any) => {
     event.preventDefault();
-    textareaRef.current?.focus(); // so that keyboard remains open click of "send-icon"
-    onSubmit(message, []);
+    // Prevent out-of-order sending by disallowing sending another message until the current one
+    // has finished sending.
+    if (sending) { return; }
+
+    // Keep keyboard focus on textarea after submission,
+    // so the user can immediately start typing another message
+    textareaRef.current?.focus();
+
+    const trimmedMessage = message.trim(); // trim leading and trailing whitespace
+    if (trimmedMessage.length > 0 || selectedFiles.length > 0) {
+      setSending(true);
+      try {
+        await onSubmit(trimmedMessage, selectedFiles, selectedFiles.map(() => ''));
+        clearMessageAndImages();
+      } finally {
+        setSending(false);
+      }
+    }
+  };
+
+  const handleTextareaKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (!isMobile && event.key === 'Enter' && !event.shiftKey) {
+      handleSubmit(event);
+    }
   };
 
   return (
     <StyledChatInputGroup className={`bg-dark rounded-5 py-2 px-3 ${isFocused ? 'focused' : ''}`}>
       <Form onSubmit={handleSubmit} className="d-flex align-items-end">
         <div className="pe-2">
-          <Button type="button" variant="link" aria-label="submit" className="upload-button">
+          <Button type="button" variant="link" aria-label="submit" className="d-none upload-button">
             <FontAwesomeIcon icon={solid('camera')} size="lg" />
           </Button>
+
+          <label htmlFor="chat-file-upload-input" className="btn btn-link emoji-button">
+            <FontAwesomeIcon icon={solid('camera')} size="lg" />
+            <input
+              id="chat-file-upload-input"
+              className="d-none"
+              ref={fileInputElementRef}
+              type="file"
+              name="files"
+              accept="image/*"
+              onChange={
+                (e) => { setSelectedFiles(Array.from(e.target.files as Iterable<File>)); }
+              }
+              multiple
+            />
+          </label>
         </div>
-        <div className="pe-3">
+        { /* TODO: Un-hide emoji icon when this feature should be enabled */}
+        <div className="pe-3 d-none">
           <Button type="button" variant="link" aria-label="submit" className="emoji-button">
             <FontAwesomeIcon icon={solid('smile')} size="lg" />
           </Button>
         </div>
         <TextareaAutosize
-          placeholder="Type your message here..."
+          ref={textareaRef}
+          maxRows={4}
+          placeholder={placeholder}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          onFocus={() => { onFocus(); setIsFocused(true); }}
+          onBlur={() => { onBlur(); setIsFocused(false); }}
+          onKeyDown={handleTextareaKeyDown}
         />
         <div className="ps-3">
-          <Button type="submit" variant="link" aria-label="submit" className="submit-button">
-            <FontAwesomeIcon icon={solid('paper-plane')} className="text-primary" style={{ fontSize: '22px' }} />
+          <Button
+            type="submit"
+            variant="link"
+            aria-label="submit"
+            className="submit-button"
+          >
+            {
+              sending
+                ? <Spinner animation="border" role="status" size="sm"><span className="visually-hidden">Loading...</span></Spinner>
+                : <FontAwesomeIcon icon={solid('paper-plane')} className="text-primary" size="lg" />
+            }
           </Button>
         </div>
       </Form>

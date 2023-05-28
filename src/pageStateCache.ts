@@ -24,5 +24,5 @@ export const deletedPostsCache = new Set();
 // Manage blocked user ids to filter out posts from them
 export const blockedUsersCache = new Set();
 
-// Note to Sahil: Only for debugging (please remove before making PR)
-Object.assign(window, { pageStateCache });
+// For debugging purposes:
+Object.assign(window, { psc: pageStateCache });

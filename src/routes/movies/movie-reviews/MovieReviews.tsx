@@ -138,7 +138,12 @@ function MovieReviews({
     }
   }, [movieData, callLatestFeedPost]);
 
-  const persistScrollPosition = () => { setPageStateCache(location, reviewPostData); };
+  const persistScrollPosition = () => {
+    setPageStateCache<MoviePageCache>(location, {
+      ...getPageStateCache(location),
+      reviews: reviewPostData,
+    });
+  };
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     persistScrollPosition();

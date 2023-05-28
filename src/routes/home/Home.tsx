@@ -22,12 +22,16 @@ import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authe
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import EditPostModal from '../../components/ui/post/EditPostModal';
 import {
-  deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
+  blockedUsersCache,
+  deletePageStateCache, deletedPostsCache, getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../pageStateCache';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
 const newsPostPopoverOptions = ['Report', 'Hide'];
+
+const removeDeletedPost = (post: any) => !deletedPostsCache.has(post._id);
+const removeBlockedUserPosts = (post: any) => !blockedUsersCache.has(post.userId);
 
 function Home() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -43,7 +47,9 @@ function Home() {
   const [postUserId, setPostUserId] = useState<string>('');
   const [rssfeedProviderId, setRssfeedProviderId] = useState<string>('');
   const location = useLocation();
-  const pageStateCache = getPageStateCache(location) ?? [];
+  const pageStateCache = (getPageStateCache(location) ?? [])
+    .filter(removeDeletedPost)
+    .filter(removeBlockedUserPosts);
   const [posts, setPosts] = useState<Post[]>(
     hasPageStateCache(location)
       ? pageStateCache : [],

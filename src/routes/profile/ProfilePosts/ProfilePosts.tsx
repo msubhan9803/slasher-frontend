@@ -19,7 +19,7 @@ import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import EditPostModal from '../../../components/ui/post/EditPostModal';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
 import {
-  deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
+  deletePageStateCache, deletedPostsCache, getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../../pageStateCache';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
@@ -28,6 +28,7 @@ const otherUserPopoverOptions = ['Report', 'Block user'];
 interface Props {
   user: User
 }
+const removeDeletedPost = (post: any) => !deletedPostsCache.has(post._id);
 
 function ProfilePosts({ user }: Props) {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -46,7 +47,7 @@ function ProfilePosts({ user }: Props) {
   const userId = useAppSelector((state) => state.user.user.id);
   const dispatch = useAppDispatch();
   const location = useLocation();
-  const pageStateCache = getPageStateCache(location) ?? [];
+  const pageStateCache = (getPageStateCache(location) ?? []).filter(removeDeletedPost);
   const [posts, setPosts] = useState<Post[]>(
     hasPageStateCache(location)
       ? pageStateCache : [],

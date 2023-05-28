@@ -17,7 +17,7 @@ import {
 import { deleteFeedPost, feedPostDetail, updateFeedPost } from '../../../api/feed-posts';
 import { reportData } from '../../../api/report';
 import { getSuggestUserName } from '../../../api/users';
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import { useAppSelector } from '../../../redux/hooks';
 import { MentionProps } from '../../../routes/posts/create-post/CreatePost';
 import {
   CommentValue, ContentDescription, FeedComments, Post, User,
@@ -32,7 +32,7 @@ import ErrorMessageList from '../ErrorMessageList';
 import ReportModal from '../ReportModal';
 import EditPostModal from './EditPostModal';
 import PostFeed from './PostFeed/PostFeed';
-import { getLastNonProfilePathname } from '../../../utils/url-utils';
+import { blockedUsersCache, deletedPostsCache } from '../../../pageStateCache';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -79,10 +79,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   const [previousCommentsAvailable, setPreviousCommentsAvailable] = useState(false);
   const userData = useAppSelector((state: any) => state.user);
   const [updateState, setUpdateState] = useState(false);
-  const dispatch = useAppDispatch();
   const [commentSent, setCommentSent] = useState<boolean>(false);
-  const pathnameHistory = useAppSelector((state) => state.user.pathnameHistory);
-  const { userName } = useParams();
   const [selectedBlockedUserId, setSelectedBlockedUserId] = useState<string>('');
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
@@ -487,10 +484,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       deleteFeedPost(postId)
         .then(() => {
           setShow(false);
-          // TODO: SD-1252:
-          // deletedPostCache.set() as discussed in the ticket.
-          // TODO: Step 2: In profile-posts and home-page posts do filter
-          // out cached data from `deletedPostCache `
+          deletedPostsCache.add(postId);
           navigate(-1); // act as if browser back icon is pressed
         })
         /* eslint-disable no-console */
@@ -704,19 +698,15 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
   };
-  useEffect(() => {
-    if (dropDownValue === 'BlockUserSuccess') {
-      // TODO: SD-1252:
-      // blockedUsersCache.push(selectedBlockedUserId) (similar pattern discussed in SD-1252)
-      // TODO: Step 2: In profile-posts and home-page posts do filter out cached data from blocked
-      // users using `blockedUsersCache`.
-    }
-  }, [dropDownValue, dispatch, selectedBlockedUserId, postData]);
 
   const afterBlockUser = useCallback(() => {
-    const lastNonProfilePathname = getLastNonProfilePathname(pathnameHistory!, userName!);
-    navigate(lastNonProfilePathname);
-  }, [pathnameHistory, userName, navigate]);
+    // Send user to last page if the current `post-details-page` belong to the blocked user
+    if (postData && postData.length > 0
+      && postData[0].userId === selectedBlockedUserId
+      && (dropDownValue === 'BlockUserSuccess')) {
+      navigate(-1); // act as if browser back icon is pressed
+    }
+  }, [dropDownValue, navigate, postData, selectedBlockedUserId]);
 
   const updateCommentDataAfterBlockUser = useCallback(() => {
     const filterUnblockUserComments = commentData.filter((comment) => {
@@ -731,21 +721,18 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       return true;
     });
 
-    // TODO: SD-1252:
-    // blockedUsersCache.push(selectedBlockedUserId) (similar pattern discussed in SD-1252)
-    // TODO: Step 2: In profile-posts and home-page posts do filter out cached data from blocked
-    // users using `blockedUsersCache`.
-
     setCommentData(filterUnblockUserComments);
-    if (postData && postData.length > 0
-      && postData[0].userId === selectedBlockedUserId
-      && (dropDownValue === 'BlockUserSuccess')) {
-      afterBlockUser();
-    }
-  }, [afterBlockUser, commentData, postData, selectedBlockedUserId, dropDownValue]);
+    blockedUsersCache.add(selectedBlockedUserId);
+    // Show report modal
+    setShow(true);
+  }, [commentData, selectedBlockedUserId]);
 
   useEffect(() => {
-    if (dropDownValue === 'BlockUserSuccess') { updateCommentDataAfterBlockUser(); }
+    if (dropDownValue === 'BlockUserSuccess') {
+      const timer = setTimeout(updateCommentDataAfterBlockUser, 200);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
   }, [selectedBlockedUserId, dropDownValue, updateCommentDataAfterBlockUser]);
 
   return (

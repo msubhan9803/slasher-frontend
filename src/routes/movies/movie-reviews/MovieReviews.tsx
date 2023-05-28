@@ -14,7 +14,7 @@ import {
   createPost, deleteFeedPost, feedPostDetail, getMovieReview, updateFeedPost,
 } from '../../../api/feed-posts';
 import {
-  MovieData, Post, PostType,
+  MovieData, MoviePageCache, Post, PostType,
 } from '../../../types';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
@@ -70,10 +70,11 @@ function MovieReviews({
   const [isWorthIt, setWorthIt] = useState<any>(0);
   const [liked, setLike] = useState<boolean>(false);
   const [disLiked, setDisLike] = useState<boolean>(false);
-  const pageStateCache = useMemo(() => getPageStateCache(location) ?? [], [location]);
+  // eslint-disable-next-line max-len
+  const ReviewsCache: MoviePageCache['reviews'] = useMemo(() => getPageStateCache<MoviePageCache>(location)?.reviews ?? [], [location]);
   const [reviewPostData, setReviewPostData] = useState<any>(
     hasPageStateCache(location)
-      ? pageStateCache : [],
+      ? ReviewsCache : [],
   );
   const navigate = useNavigate();
   const handleCreateInput = () => {
@@ -81,9 +82,9 @@ function MovieReviews({
   };
   useEffect(() => {
     if (hasPageStateCache(location)) {
-      setReviewPostData(pageStateCache);
+      setReviewPostData(ReviewsCache);
     }
-  }, [location, pageStateCache]);
+  }, [location, ReviewsCache]);
 
   const getUserMovieReviewData = (reviewPostId: string) => {
     feedPostDetail(reviewPostId).then((res) => {

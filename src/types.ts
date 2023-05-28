@@ -330,3 +330,10 @@ export interface FriendshipStatus {
 
 // Cache for NewsPartner and NewsPartnerPosts cache (page = http://local.slasher.tv:3000/app/news/partner/:id)
 export type NewsPartnerAndPostsCache = { newsPartner: any, newsPosts: any };
+
+// Cache for Movie related data (page = http://localhost:3000/app/movies/64477b42b12f5efbb3468ff4/reviews)
+export type MoviePageCache = {
+  movieData: MovieData,
+  additionalMovieData: AdditionalMovieData,
+  reviews: any
+};

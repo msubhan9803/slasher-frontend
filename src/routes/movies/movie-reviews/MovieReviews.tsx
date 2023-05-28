@@ -319,12 +319,6 @@ function MovieReviews({
       .then(() => {
         setShow(false);
         setDropDownValue('BlockUserSuccess');
-        // const updatedScrollData = reviewPostData.filter(
-        //   (scrollData: any) => scrollData.userId !== postUserId,
-        // );
-        // TODO: SD-1252:
-        // blockedUsersCache.push(selectedBlockedUserId) (similar pattern discussed in SD-1252)
-        // TODO: Step 2: Filter out cached data from blocked users using `blockedUsersCache`.
       })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));

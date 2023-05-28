@@ -4,6 +4,7 @@ import { getSessionToken } from '../utils/session-utils';
 import { store } from '../redux/store';
 import { forceReloadSuggestedFriends } from '../redux/slices/suggestedFriendsSlice';
 import { removeBlockedUserFromRecentMessages } from '../redux/slices/userSlice';
+import { blockedUsersCache } from '../pageStateCache';
 
 export async function blockedUsers(page: number) {
   const token = await getSessionToken();
@@ -31,6 +32,8 @@ export async function createBlockUser(userId: string) {
   store.dispatch(forceReloadSuggestedFriends());
   // Remove blocked user message from RecentMessages in the Sidebar
   store.dispatch(removeBlockedUserFromRecentMessages({ blockUserId: userId }));
+  // Add blockedUserId to cache to help filter pageStateCache data on browser back/forward action
+  blockedUsersCache.add(userId);
   const headers = {
     Authorization: `Bearer ${token}`,
   };

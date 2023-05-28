@@ -32,7 +32,7 @@ import ErrorMessageList from '../ErrorMessageList';
 import ReportModal from '../ReportModal';
 import EditPostModal from './EditPostModal';
 import PostFeed from './PostFeed/PostFeed';
-import { blockedUsersCache, deletedPostsCache } from '../../../pageStateCache';
+import { deletedPostsCache } from '../../../pageStateCache';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -722,7 +722,6 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     });
 
     setCommentData(filterUnblockUserComments);
-    blockedUsersCache.add(selectedBlockedUserId);
     // Show report modal
     setShow(true);
   }, [commentData, selectedBlockedUserId]);

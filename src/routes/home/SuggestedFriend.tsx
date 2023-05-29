@@ -110,7 +110,7 @@ function SuggestedFriend() {
   };
 
   const renderNoSuggestionsAvailable = () => (
-    <div className="mb-3">
+    <div className="ms-3 ms-md-0" style={{ marginBottom: 50 }}>
       No friend suggestions available right now, but check back later for more!
     </div>
   );

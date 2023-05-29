@@ -67,6 +67,8 @@ export class ChatGateway {
       client.to(socketId).emit('chatMessageReceived', {
         message: pick(messageObject, ['_id', 'image', 'message', 'fromId', 'matchId', 'createdAt']),
       });
+      // TODO: Remove line below as soon as the old Android and iOS apps are retired.  It's only here for compatibility.
+      client.to(socketId).emit('messageV3', messageObject);
     });
     await this.messageCountUpdateQueue.add(
       'send-update-if-message-unread',

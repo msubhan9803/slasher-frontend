@@ -98,6 +98,7 @@ describe('Send Message In Conversation / (e2e)', () => {
                 {
                   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                   image: expectedImageValueMatcher,
+                  urls: [expectedImageValueMatcher],
                   imageDescription: 'this is chat description 1',
                   message: 'Image',
                   fromId: activeUser._id.toString(),
@@ -112,6 +113,7 @@ describe('Send Message In Conversation / (e2e)', () => {
                 {
                   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                   image: expectedImageValueMatcher,
+                  urls: [expectedImageValueMatcher],
                   imageDescription: 'this is chat description 2',
                   message: 'Image',
                   fromId: activeUser._id.toString(),
@@ -126,6 +128,7 @@ describe('Send Message In Conversation / (e2e)', () => {
                 {
                   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                   image: expectedImageValueMatcher,
+                  urls: [expectedImageValueMatcher],
                   imageDescription: 'this is chat description 3',
                   message: 'Image',
                   fromId: activeUser._id.toString(),
@@ -240,6 +243,7 @@ describe('Send Message In Conversation / (e2e)', () => {
             {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               image: null,
+              urls: [],
               imageDescription: null,
               message: encodeURIComponent('test chat message'),
               fromId: activeUser._id.toString(),
@@ -289,6 +293,7 @@ describe('Send Message In Conversation / (e2e)', () => {
                 {
                   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                   image: expectedImageValueMatcher,
+                  urls: [expectedImageValueMatcher],
                   imageDescription: null,
                   message: 'Image',
                   fromId: activeUser._id.toString(),

@@ -78,7 +78,7 @@ export class ChatGateway {
 
     targetUserSocketIds.forEach((socketId) => {
       client.to(socketId).emit('chatMessageReceived', {
-        message: pick(messageObject, ['_id', 'image', 'message', 'fromId', 'matchId', 'createdAt']),
+        message: pick(messageObject, ['_id', 'image', 'urls', 'message', 'fromId', 'matchId', 'createdAt']),
       });
       // TODO: Remove messageV2, and messageV3 lines below as soon as the old Android and iOS apps
       // are retired.  These lines are only here for temporary compatibility.
@@ -96,6 +96,7 @@ export class ChatGateway {
       message: messageObject.message,
       createdAt: messageObject.createdAt,
       image: messageObject.image,
+      urls: messageObject.urls,
       matchId: messageObject.matchId,
       created: messageObject.created,
       imageDescription: messageObject.imageDescription,
@@ -134,10 +135,12 @@ export class ChatGateway {
       if (messageObject.image) {
         // eslint-disable-next-line no-param-reassign
         messageObject.image = relativeToFullImagePath(this.config, messageObject.image);
+        // eslint-disable-next-line no-param-reassign
+        messageObject.urls = messageObject.urls.map((url) => relativeToFullImagePath(this.config, url));
       }
     });
     return messages.map(
-      (message) => pick(message, ['_id', 'message', 'isRead', 'imageDescription', 'createdAt', 'image', 'fromId', 'senderId']),
+      (message) => pick(message, ['_id', 'message', 'isRead', 'imageDescription', 'createdAt', 'image', 'urls', 'fromId', 'senderId']),
     );
   }
 
@@ -177,7 +180,7 @@ export class ChatGateway {
       // Emit message to receiver
       targetUserSocketIds.forEach((socketId) => {
         this.server.to(socketId).emit('chatMessageReceived', {
-          message: pick(cloneMessage, ['_id', 'image', 'message', 'fromId', 'matchId', 'createdAt']),
+          message: pick(cloneMessage, ['_id', 'image', 'urls', 'message', 'fromId', 'matchId', 'createdAt']),
         });
       });
     });

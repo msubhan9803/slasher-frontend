@@ -208,7 +208,7 @@ export class ChatController {
         (message) => pick(
           message,
           [
-            '_id', 'imageDescription', 'image', 'message', 'fromId',
+            '_id', 'imageDescription', 'image', 'urls', 'message', 'fromId',
             'senderId', 'matchId', 'createdAt', 'messageType', 'isRead',
             'status', 'deleted',
           ],
@@ -237,7 +237,7 @@ export class ChatController {
   }
 
   @Get('conversation/:matchListId/messages')
-  @TransformImageUrls('$[*].image')
+  @TransformImageUrls('$[*].image', '$[*].urls[*]')
   async getConversationMessages(
     @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) param: GetConversationMessagesParamsDto,
@@ -266,7 +266,7 @@ export class ChatController {
 
     const messages = await this.chatService.getMessages(matchList.id, user.id, query.limit, query.before);
     return messages.map(
-      (message) => pick(message, ['_id', 'message', 'isRead', 'imageDescription', 'createdAt', 'image', 'fromId', 'senderId']),
+      (message) => pick(message, ['_id', 'message', 'isRead', 'imageDescription', 'createdAt', 'image', 'urls', 'fromId', 'senderId']),
     );
   }
 }

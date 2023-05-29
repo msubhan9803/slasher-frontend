@@ -107,6 +107,7 @@ export class ChatService {
         senderId: new mongoose.Types.ObjectId(toUser), // due to bad old-API field naming, this is the "to" field
         message: image ? 'Image' : message,
         image,
+        urls: image ? [image] : [],
         imageDescription,
         created: currentTime.toString(),
         createdAt: currentTime, // overwrite `createdAt`

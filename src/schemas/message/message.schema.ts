@@ -41,11 +41,20 @@ export class Message extends MessageUnusedFields {
   @Prop({ default: MessageType.Text })
   messageType: MessageType.Text;
 
-  // Each message can only have ONE image. And based on the mobile app, choosing an image
-  // sends the image instantly, sets the messageType to MessageType.Image, and populates the
+  // Each message can only have ONE image. We put this image in the `image` field and set the
+  // message text to "Image" so that it shows up with the word "Image" in message previews.
   // message field with the word "Image".
   @Prop({ default: null })
   image: string;
+
+  // The old API puts the uploaded chat message image in this urls array, so we will redundantly
+  // put it in there too.
+  // TODO: In the future, we'll probably want to migrate data `urls` field to the `image` field.
+  // In almost all cases, there is only one value in the `urls` field for legacy data.  There are
+  // only 124 cases where `urls` has more than one element in the production database, and these
+  // appear to be either tests or related to a feature that is not supported.
+  @Prop({ type: Array, default: [] })
+  urls: string[];
 
   @Prop({ default: null })
   imageDescription: string;

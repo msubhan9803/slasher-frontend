@@ -112,6 +112,7 @@ describe('Conversation / (e2e)', () => {
               createdAt: expect.stringMatching(SIMPLE_ISO_8601_REGEX),
               fromId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               image: null,
+              urls: [],
               imageDescription: null,
               isRead: true,
               message: 'Message 5: activeUser to user1',
@@ -122,6 +123,7 @@ describe('Conversation / (e2e)', () => {
               createdAt: expect.stringMatching(SIMPLE_ISO_8601_REGEX),
               fromId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               image: null,
+              urls: [],
               imageDescription: null,
               isRead: true,
               message: 'Message 4: activeUser to user1',
@@ -132,6 +134,7 @@ describe('Conversation / (e2e)', () => {
               createdAt: expect.stringMatching(SIMPLE_ISO_8601_REGEX),
               fromId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               image: 'http://localhost:4444/api/v1/local-storage/messages/12345.png',
+              urls: ['http://localhost:4444/api/v1/local-storage/messages/12345.png'],
               imageDescription: 'This is a great image',
               isRead: true,
               message: 'Image', // always expect value of "Image" for message for an image message
@@ -155,6 +158,7 @@ describe('Conversation / (e2e)', () => {
                 createdAt: expect.stringMatching(SIMPLE_ISO_8601_REGEX),
                 fromId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                 image: null,
+                urls: [],
                 imageDescription: null,
                 isRead: false, // this value was false before these results were retrieve, and it has not been modified
                 message: 'Message 2: user1 to activeUser',
@@ -165,6 +169,7 @@ describe('Conversation / (e2e)', () => {
                 createdAt: expect.stringMatching(SIMPLE_ISO_8601_REGEX),
                 fromId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                 image: null,
+                urls: [],
                 imageDescription: null,
                 isRead: false, // this value was false before these results were retrieve, and it has not been modified
                 message: 'Message 1: activeUser to user1',

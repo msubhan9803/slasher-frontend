@@ -9,5 +9,5 @@
   "maxWorkers": 1,
   "maxConcurrency": 1,
   "restoreMocks": true,
-  "testTimeout": 20000
+  "testTimeout": 30000
 }

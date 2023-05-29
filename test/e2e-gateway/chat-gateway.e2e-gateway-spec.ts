@@ -152,6 +152,7 @@ describe('Chat Gateway (e2e)', () => {
               fromId: activeUser.id,
               createdAt: expect.any(String),
               image: null,
+              urls: [],
               imageDescription: null,
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               matchId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -198,6 +199,7 @@ describe('Chat Gateway (e2e)', () => {
             createdAt: expect.stringMatching(SIMPLE_ISO_8601_REGEX),
             fromId: activeUser.id,
             image: null,
+            urls: [],
             matchId: expect.any(String),
             message: encodeURIComponent('Hi, test message via socket.'),
           },
@@ -271,9 +273,11 @@ describe('Chat Gateway (e2e)', () => {
         const payload = {
           matchListId: matchList._id,
         };
-        message1.image = '//chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg';
+        message1.image = '/chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg';
+        message1.urls = ['/chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg'];
         message1.save();
-        message0.image = '//chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg';
+        message0.image = '/chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg';
+        message0.urls = ['/chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg'];
         message0.save();
 
         const response = await new Promise<any>((resolve) => {
@@ -291,7 +295,8 @@ describe('Chat Gateway (e2e)', () => {
             createdAt: expect.any(String),
             fromId: user1.id,
             senderId: activeUser.id,
-            image: 'http://localhost:4444/api/v1/local-storage//chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg',
+            image: 'http://localhost:4444/api/v1/local-storage/chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg',
+            urls: ['http://localhost:4444/api/v1/local-storage/chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg'],
             imageDescription: null,
           },
           {
@@ -301,7 +306,8 @@ describe('Chat Gateway (e2e)', () => {
             createdAt: expect.any(String),
             fromId: activeUser.id,
             senderId: user1.id,
-            image: 'http://localhost:4444/api/v1/local-storage//chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg',
+            image: 'http://localhost:4444/api/v1/local-storage/chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg',
+            urls: ['http://localhost:4444/api/v1/local-storage/chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg'],
             imageDescription: null,
           },
         ]);
@@ -561,6 +567,7 @@ describe('Chat Gateway (e2e)', () => {
           createdAt: expect.stringMatching(SIMPLE_ISO_8601_REGEX),
           fromId: toUserId.toString(),
           image: null,
+          urls: [],
           matchId: matchList.id,
           message: 'Hi, there!',
         },

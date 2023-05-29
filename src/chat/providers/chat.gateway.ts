@@ -63,14 +63,27 @@ export class ChatGateway {
 
     const messageObject = await this.chatService.sendPrivateDirectMessage(fromUserId, toUserId, urlEncodedMessage);
     const targetUserSocketIds = await this.usersService.findSocketIdsForUser(toUserId);
+
+    // TODO: Remove messageObjectReformattedForOldApi as soon as the old Android and iOS apps
+    // are retired.  These lines are only here for temporary compatibility.
+    const messageObjectReformattedForOldApi = {
+      ...messageObject.toObject(),
+      fromUser: {
+        _id: user.id,
+        userName: user.userName,
+        profilePic: user.profilePic,
+        matchId: messageObject.matchId,
+      },
+    };
+
     targetUserSocketIds.forEach((socketId) => {
       client.to(socketId).emit('chatMessageReceived', {
         message: pick(messageObject, ['_id', 'image', 'message', 'fromId', 'matchId', 'createdAt']),
       });
-      // TODO: Remove messageV2 and messageV3 lines below as soon as the old Android and iOS apps
-      // are retired.  They're only here for temporary compatibility.
-      client.to(socketId).emit('messageV2', messageObject);
-      client.to(socketId).emit('messageV3', messageObject);
+      // TODO: Remove messageV2, and messageV3 lines below as soon as the old Android and iOS apps
+      // are retired.  These lines are only here for temporary compatibility.
+      client.to(socketId).emit('messageV2', messageObjectReformattedForOldApi);
+      client.to(socketId).emit('messageV3', messageObjectReformattedForOldApi);
     });
     await this.messageCountUpdateQueue.add(
       'send-update-if-message-unread',

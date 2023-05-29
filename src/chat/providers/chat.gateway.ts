@@ -67,7 +67,9 @@ export class ChatGateway {
       client.to(socketId).emit('chatMessageReceived', {
         message: pick(messageObject, ['_id', 'image', 'message', 'fromId', 'matchId', 'createdAt']),
       });
-      // TODO: Remove line below as soon as the old Android and iOS apps are retired.  It's only here for compatibility.
+      // TODO: Remove messageV2 and messageV3 lines below as soon as the old Android and iOS apps
+      // are retired.  They're only here for temporary compatibility.
+      client.to(socketId).emit('messageV2', messageObject);
       client.to(socketId).emit('messageV3', messageObject);
     });
     await this.messageCountUpdateQueue.add(

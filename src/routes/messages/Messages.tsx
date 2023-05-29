@@ -6,7 +6,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { DateTime } from 'luxon';
 import { getMessagesList } from '../../api/messages';
 import UserMessageListItem from '../../components/ui/UserMessageList/UserMessageListItem';
-import { MessagesList } from '../../types';
+import { MessagesList, Message } from '../../types';
 import MessagesOptionDialog from './MessagesOptionDialog';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
@@ -18,21 +18,11 @@ import { resetUnreadConversationCount } from '../../redux/slices/userSlice';
 import socketStore from '../../socketStore';
 import { createBlockUser } from '../../api/blocks';
 
-export interface NewMessagesList {
-  unreadCount: number;
-  latestMessage: string;
-  _id: string; // matchListId
-  id: string; // userId
-  userName: string;
-  profilePic: string;
-  updatedAt: string;
-}
-
 function Messages() {
   const [requestAdditionalMessages, setRequestAdditionalMessages] = useState<boolean>(false);
   const [loadingChats, setLoadingChats] = useState<boolean>(false);
   const [show, setShow] = useState(false);
-  const [messages, setMessages] = useState<NewMessagesList[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [messageOptionValue, setMessageOptionValue] = useState('');
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string[]>();
@@ -44,13 +34,13 @@ function Messages() {
   const dispatch = useAppDispatch();
   const { socket } = socketStore;
 
-  const handleMessagesOption = (message: NewMessagesList) => (messageOption: string) => {
+  const handleMessagesOption = (message: Message) => (messageOption: string) => {
     if (messageOption !== 'markAsRead') {
       setShow(true);
     }
     setMessageOptionValue(messageOption);
     setSelectedMatchListId(message._id);
-    setSelectedUserId(message.id);
+    setSelectedUserId(message.userId);
   };
 
   useEffect(() => {
@@ -59,13 +49,13 @@ function Messages() {
       getMessagesList(
         messages.length > 0 ? messages[messages.length - 1]._id : undefined,
       ).then((res) => {
-        const newMessages = res.data.map((data: MessagesList) => {
+        const newMessages = res.data.map((data: any) => {
           const userDetail = data.participants.find(
             (participant: any) => participant._id !== userId,
           );
-          const message = {
+          const message: Message = {
             _id: data._id,
-            id: userDetail!._id,
+            userId: userDetail!._id,
             unreadCount: data.unreadCount,
             latestMessage: data.latestMessage,
             userName: userDetail!.userName,
@@ -74,7 +64,7 @@ function Messages() {
           };
           return message;
         });
-        setMessages((prev: NewMessagesList[]) => [
+        setMessages((prev) => [
           ...prev,
           ...newMessages,
         ]);
@@ -107,9 +97,9 @@ function Messages() {
           const userDetail = data.participants.find(
             (participant: any) => participant._id !== userId,
           );
-          const message = {
+          const message: Message = {
             _id: data._id,
-            id: userDetail!._id,
+            userId: userDetail!._id,
             unreadCount: data.unreadCount,
             latestMessage: data.latestMessage,
             userName: userDetail!.userName,
@@ -148,7 +138,7 @@ function Messages() {
       .then(() => {
         setShow(false);
         // remove blocked user message
-        setMessages((prev) => prev.filter((m) => m.id !== selectedUserId));
+        setMessages((prev) => prev.filter((m) => m.userId !== selectedUserId));
       })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));

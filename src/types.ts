@@ -327,3 +327,13 @@ export interface FriendshipStatus {
   from: string;
   to: string;
 }
+
+export interface Message {
+  unreadCount: number;
+  latestMessage: string;
+  _id: string; // matchListId
+  userId: string;
+  userName: string;
+  profilePic: string;
+  updatedAt: string;
+}

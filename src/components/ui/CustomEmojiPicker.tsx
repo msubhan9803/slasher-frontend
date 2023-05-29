@@ -11,19 +11,24 @@ interface Props {
   onClickOutside?: () => void;
   onEscapeKeyPress?: () => void;
   autoFocus?: boolean;
+  isReply?: boolean;
 }
 
 function CustomEmojiPicker({
-  handleEmojiSelect, onClickOutside, onEscapeKeyPress, autoFocus,
+  handleEmojiSelect, onClickOutside, onEscapeKeyPress, autoFocus, isReply,
 }: Props) {
   const [perLine, setPerLine] = useState(7);
   useEffect(() => {
     const handleResize = () => {
       const screenWidth = window.innerWidth;
-      if (screenWidth >= 428) {
-        setPerLine(9);
+      if (screenWidth <= 500) {
+        if (isReply) {
+          setPerLine(5);
+        } else {
+          setPerLine(6);
+        }
       } else {
-        setPerLine(7);
+        setPerLine(9);
       }
     };
     const onKeyDown = (e: KeyboardEvent) => {
@@ -39,7 +44,7 @@ function CustomEmojiPicker({
       // Passing 3rd param true to match addEventListener.
       window.removeEventListener('keydown', onKeyDown, true);
     };
-  }, [onEscapeKeyPress]);
+  }, [onEscapeKeyPress, isReply]);
   return (
     <Picker
       data={data}
@@ -56,6 +61,7 @@ CustomEmojiPicker.defaultProps = {
   onClickOutside: undefined,
   onEscapeKeyPress: undefined,
   autoFocus: false,
+  isReply: false,
 };
 
 export default CustomEmojiPicker;

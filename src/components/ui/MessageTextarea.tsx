@@ -50,8 +50,8 @@ const StyledEmoji = styled(Button)`
   z-index:2;
   ${(props) => (props.createpost
     ? `
-    right: 0.625rem;
-    bottom: 9%; 
+    left: 0.75rem;
+    bottom: 7%; 
     `
     : `  
     left: 0.438rem;
@@ -61,7 +61,7 @@ const StyledEmoji = styled(Button)`
 
 const EmojiPicker = styled.div<PickerProp>`
     z-index:1;
-    ${(props) => (props.createpost ? 'right:1px;' : 'top:3.125rem;')}
+    ${(props) => (props.createpost ? 'left:1px;' : 'top:3.125rem;')}
 `;
 export interface MentionListProps {
   id: string;
@@ -207,7 +207,7 @@ function MessageTextarea({
           className="position-absolute me-4"
           createpost={createEditPost}
         >
-          <CustomEmojiPicker handleEmojiSelect={handleEmojiSelect} />
+          <CustomEmojiPicker handleEmojiSelect={handleEmojiSelect} isReply={isReply} />
         </EmojiPicker>
       )}
     </>

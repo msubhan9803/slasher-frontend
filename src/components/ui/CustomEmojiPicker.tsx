@@ -39,7 +39,7 @@ function CustomEmojiPicker({
       // Passing 3rd param true to match addEventListener.
       window.removeEventListener('keydown', onKeyDown, true);
     };
-  }, []);
+  }, [onEscapeKeyPress]);
   return (
     <Picker
       data={data}

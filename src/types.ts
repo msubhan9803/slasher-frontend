@@ -328,7 +328,7 @@ export interface FriendshipStatus {
   to: string;
 }
 
-export interface Message {
+export interface ConversationListItem {
   unreadCount: number;
   latestMessage: string;
   _id: string; // matchListId

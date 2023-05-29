@@ -3,14 +3,14 @@ import { apiUrl } from '../constants';
 import { getSessionToken } from '../utils/session-utils';
 import { ContentDescription } from '../types';
 
-export async function getMessagesList(lastRetrievedMessageId?: string) {
+export async function getConversations(lastRetrievedConversationId?: string) {
   const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
   let queryParameter = '?limit=30';
-  if (lastRetrievedMessageId) {
-    queryParameter += `&before=${lastRetrievedMessageId}`;
+  if (lastRetrievedConversationId) {
+    queryParameter += `&before=${lastRetrievedConversationId}`;
   }
   return axios.get(`${apiUrl}/api/v1/chat/conversations${queryParameter}`, { headers });
 }

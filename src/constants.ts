@@ -41,4 +41,4 @@ export const WORDPRESS_SITE_URL = 'https://pages.slasher.tv';
 // a body scrollbar.  If it does, this value needs to be increased.
 export const topToDivHeight = 110;
 
-export const bottomMobileNavHeight = 90;
+export const bottomMobileNavHeight = 80;

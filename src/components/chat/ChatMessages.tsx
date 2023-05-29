@@ -10,18 +10,21 @@ import { DEFAULT_USER_UPLOADED_CONTENT_ALT_TEXT } from '../../constants';
 interface Props {
   messages: Message[];
   viewerUserId: string;
+  maxChatImageHeight: number;
   onImageLoad: () => void;
 }
 
 interface MessageProps {
   message: Message;
   createdByViewer: boolean;
+  maxChatImageHeight: number;
   onImageLoad: () => void;
 }
 
 const StyledChatMessage = styled.div`
   &.self-message {
-    align-self: flex-end !important;
+    text-align: right;
+
     .message-bubble {
       border-radius: 1.25rem;
       border-bottom-right-radius: 0rem;
@@ -30,43 +33,52 @@ const StyledChatMessage = styled.div`
   }
 
   &.other-message {
-    align-self: flex-start !important;
     .message-bubble {
         background-color: #1F1F1F;
         border-radius: 1.25rem;
         border-bottom-left-radius: 0rem;
     }
   }
+
+  .message-content {
+    display: inline-block;
+    max-width: 50%;
+  }
 `;
 
-function UserChatMessage({ message, createdByViewer, onImageLoad }: MessageProps) {
+function UserChatMessage({
+  message, createdByViewer, maxChatImageHeight, onImageLoad,
+}: MessageProps) {
   return (
     <StyledChatMessage className={`mb-3 ${createdByViewer ? 'self-message' : 'other-message'}`}>
-      {
-        message.image
-          ? (
-            <div className="message-image p-3">
-              <img
-                className="w-50 rounded-3"
-                src={message.image}
-                alt={message.imageDescription || DEFAULT_USER_UPLOADED_CONTENT_ALT_TEXT}
-                onLoad={onImageLoad}
-              />
-            </div>
-          )
-          : (
-            <div className="message-bubble p-3 text-break"><ChatMessageText message={message.message} /></div>
-          )
-      }
-      {
-        enableDevFeatures && !createdByViewer && (<div className="report-message mt-1 fs-6">Report message</div>)
-      }
+      <div className="message-content">
+        {
+          message.image
+            ? (
+              <div className="message-image">
+                <img
+                  className="w-100 rounded-3"
+                  style={{ maxHeight: `${maxChatImageHeight}px` }}
+                  src={message.image}
+                  alt={message.imageDescription || DEFAULT_USER_UPLOADED_CONTENT_ALT_TEXT}
+                  onLoad={onImageLoad}
+                />
+              </div>
+            )
+            : (
+              <div className="message-bubble p-3 text-break"><ChatMessageText message={message.message} /></div>
+            )
+        }
+        {
+          enableDevFeatures && !createdByViewer && (<div className="report-message mt-1 fs-6">Report message</div>)
+        }
+      </div>
     </StyledChatMessage>
   );
 }
 
 function ChatMessages({
-  messages, viewerUserId, onImageLoad,
+  messages, viewerUserId, maxChatImageHeight, onImageLoad,
 }: Props) {
   const renderMessage = (message: Message, previousMessage?: Message) => {
     if (message.fromId === viewerUserId) { <div>{message.message}</div>; }
@@ -82,6 +94,7 @@ function ChatMessages({
       <React.Fragment key={`fragment-for-${message._id}`}>
         {insertTimestamp && <ChatTimestamp key={`${message._id}-timestamp`} messageTime={message.createdAt} />}
         <UserChatMessage
+          maxChatImageHeight={maxChatImageHeight}
           key={`message-${message._id}`}
           message={message}
           createdByViewer={message.fromId === viewerUserId}

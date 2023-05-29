@@ -3,7 +3,7 @@ import React, {
   useCallback, useEffect, useRef, useState,
 } from 'react';
 import styled from 'styled-components';
-import { AxiosError } from 'axios';
+import { AxiosError, CanceledError } from 'axios';
 import { debounce } from 'lodash';
 import InfiniteScroll from 'react-infinite-scroller';
 import LoadingIndicator from '../ui/LoadingIndicator';
@@ -25,6 +25,8 @@ interface Props {
   conversationId: string;
 }
 
+const maxChatImageHeight = 200;
+
 const StyledChatContainer = styled.div`
   // Always set height to 100vh.  We will restrict max-height separately
   // with js to work around other issues on mobile.
@@ -41,7 +43,6 @@ enum LoadState {
   LoadFailure,
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const preloadImagesFromMessageResponse = async (messagesToPreload: Message[]) => {
   const imagePromises = messagesToPreload.map((message) => {
     if (message.image) {
@@ -75,7 +76,8 @@ function NewChat({
     if (window.innerWidth >= 960) {
       newHeight -= topToDivHeight;
     } else {
-      newHeight -= bottomMobileNavHeight;
+      // add addition spacing beyond bottomMobileNavHeight so we don't cut it too close with padding
+      newHeight -= bottomMobileNavHeight + 15;
     }
     setMaxHeight(newHeight);
   }, 100);
@@ -116,7 +118,7 @@ function NewChat({
     const chatBodyElement = chatBodyElementRef.current;
     if (!chatBodyElement) { return; }
     // If user is < threshold pixels from the bottom, trigger scroll to bottom
-    const threshold = 100;
+    const threshold = maxChatImageHeight + 10;
     const scrollDistanceFromBottom = chatBodyElement.scrollHeight
       - (chatBodyElement.scrollTop + chatBodyElement.clientHeight);
     if (scrollDistanceFromBottom < threshold) {
@@ -126,6 +128,7 @@ function NewChat({
 
   const loadEarlierMessages = useCallback(async (
     beforeId: string | null,
+    preloadImages?: boolean,
     afterLoadCallback?: () => void,
   ) => {
     if (abortControllerRef.current) {
@@ -146,7 +149,7 @@ function NewChat({
         // are loaded before they are inserted into the chat.  This will eliminate any jumpiness
         // as images load gradually, but will also make the overall load time seem longer for
         // users.
-        // await preloadImagesFromMessageResponse(res.data);
+        if (preloadImages) { await preloadImagesFromMessageResponse(res.data); }
         prependEarlierMessages(res.data);
       } else {
         setNoEarlierMessagesAvailable(true);
@@ -175,11 +178,15 @@ function NewChat({
       // operation, but nothing else depends on it and it can run in the background.
       markAllReadForSingleConversation(conversationId);
       // Load messages from that conversation
-      await loadEarlierMessages(null, () => {
+      await loadEarlierMessages(null, true, () => {
         setLoadState(LoadState.LoadSuccess);
       });
     } catch (errResponse) {
-      setLoadState(LoadState.LoadFailure);
+      if (!(errResponse instanceof CanceledError)) {
+        // NOTE: We ignore CanceledError because that only occurs in the development environment
+        // when StrictMode is enabled.  But all other error types indicate load failure.
+        setLoadState(LoadState.LoadFailure);
+      }
     }
   }, [conversationId, viewerUserId, loadEarlierMessages]);
 
@@ -310,9 +317,10 @@ function NewChat({
           getScrollParent={() => chatBodyElementRef.current}
         >
           <ChatMessages
+            maxChatImageHeight={maxChatImageHeight}
             messages={messages}
             viewerUserId={viewerUserId}
-            onImageLoad={() => { }}
+            onImageLoad={scrollChatToBottomIfCloseToBottomAlready}
           />
         </InfiniteScroll>
       </div>

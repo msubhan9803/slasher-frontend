@@ -11,7 +11,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { DateTime } from 'luxon';
 import Chat from '../../components/chat/Chat';
 import {
-  getConversation, createOrFindConversation, attachFile, markAllReadForSingleConversation,
+  getConversation, createOrFindConversation, sendMessageWithFiles, markAllReadForSingleConversation,
 } from '../../api/messages';
 import NotFound from '../../components/NotFound';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
@@ -122,7 +122,7 @@ function Conversation() {
   const sendMessageClick = () => {
     if (imageArray.length > 0) {
       setMessageLoading(true);
-      attachFile(message, imageArray, conversationId!, descriptionArray)
+      sendMessageWithFiles(message, imageArray, conversationId!, descriptionArray)
         .then((res) => {
           res.data.messages.map((sentMessage: any) => {
             setMessageList((prev: any) => [

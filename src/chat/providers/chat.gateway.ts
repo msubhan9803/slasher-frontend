@@ -19,8 +19,6 @@ import { pick } from '../../utils/object-utils';
 import { FriendsService } from '../../friends/providers/friends.service';
 import { relativeToFullImagePath } from '../../utils/image-utils';
 
-type MessageReturnType = Partial<{ success: boolean, message: Message, errorMessage: string }>;
-
 @WebSocketGateway(SHARED_GATEWAY_OPTS)
 export class ChatGateway {
   constructor(
@@ -40,7 +38,7 @@ export class ChatGateway {
   }
 
   @SubscribeMessage('chatMessage')
-  async chatMessage(@MessageBody() data: any, @ConnectedSocket() client: Socket): Promise<MessageReturnType> {
+  async chatMessage(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
     const inValidMessage = typeof data.message === 'undefined' || data.message === null || data.message === '';
     const inValidUserId = typeof data.toUserId === 'undefined' || data.toUserId === null;
 
@@ -63,6 +61,12 @@ export class ChatGateway {
 
     const messageObject = await this.chatService.sendPrivateDirectMessage(fromUserId, toUserId, urlEncodedMessage);
     const targetUserSocketIds = await this.usersService.findSocketIdsForUser(toUserId);
+
+    // Convert messageObject image and urls to full paths before sending to the user
+    if (messageObject.image) {
+      messageObject.image = relativeToFullImagePath(this.config, messageObject.image);
+    }
+    messageObject.urls = messageObject.urls.map((url) => relativeToFullImagePath(this.config, url));
 
     // TODO: Remove messageObjectReformattedForOldApi as soon as the old Android and iOS apps
     // are retired.  These lines are only here for temporary compatibility.
@@ -90,18 +94,18 @@ export class ChatGateway {
       { messageId: messageObject.id },
       { delay: UNREAD_MESSAGE_NOTIFICATION_DELAY }, // 15 second delay
     );
-    const newMessageObject: any = {
-      _id: messageObject._id,
-      fromId: messageObject.fromId,
-      message: messageObject.message,
-      createdAt: messageObject.createdAt,
-      image: messageObject.image,
-      urls: messageObject.urls,
-      matchId: messageObject.matchId,
-      created: messageObject.created,
-      imageDescription: messageObject.imageDescription,
+
+    return {
+      success: true,
+      message: pick(messageObject, [
+        '_id', 'fromId', 'message', 'createdAt', 'image', 'urls', 'matchId', 'imageDescription',
+        // NOTE: created is not actually used by the website, but it may be significant
+        // in the old iOS and android apps, so we're returning it here just so we can
+        // make sure that one of our e2e tests verifies the value.
+        // TODO: Remove this from the socket event response once the old iOS and Android apps are retired.
+        'created',
+      ]),
     };
-    return { success: true, message: newMessageObject };
   }
 
   // TODO: Delete this.  No longer used.  And verify tests have been ported properly to new replacement route handler.
@@ -135,6 +139,8 @@ export class ChatGateway {
       if (messageObject.image) {
         // eslint-disable-next-line no-param-reassign
         messageObject.image = relativeToFullImagePath(this.config, messageObject.image);
+      }
+      if (messageObject.urls.length > 0) {
         // eslint-disable-next-line no-param-reassign
         messageObject.urls = messageObject.urls.map((url) => relativeToFullImagePath(this.config, url));
       }
@@ -177,6 +183,7 @@ export class ChatGateway {
     (newMessagesArray as any).forEach((messageObject) => {
       const cloneMessage = messageObject.toObject();
       cloneMessage.image = relativeToFullImagePath(this.config, cloneMessage.image);
+      cloneMessage.urls = cloneMessage.urls.map((url) => relativeToFullImagePath(this.config, url));
       // Emit message to receiver
       targetUserSocketIds.forEach((socketId) => {
         this.server.to(socketId).emit('chatMessageReceived', {

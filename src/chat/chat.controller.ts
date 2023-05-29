@@ -128,7 +128,7 @@ export class ChatController {
     return { success: true };
   }
 
-  @TransformImageUrls('$.messages[*].image')
+  @TransformImageUrls('$.messages[*].image', '$.messages[*].urls[*]')
   @Post('conversation/:matchListId/message')
   @UseInterceptors(
     ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_CHAT, {

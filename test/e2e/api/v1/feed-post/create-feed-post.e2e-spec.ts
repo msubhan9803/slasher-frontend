@@ -1,5 +1,6 @@
 /* eslint-disable max-lines */
 import * as request from 'supertest';
+import * as path from 'path';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
@@ -153,7 +154,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           .attach('files', tempPaths[2])
           .attach('files', tempPaths[3])
           .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toBe('Invalid file type');
+        expect(response.body.message).toBe(`Unsupported file type: ${path.basename(tempPaths[1])}`);
       }, [{ extension: 'png' }, { extension: 'tjpg' }, { extension: 'tjpg' }, { extension: 'zpng' }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
@@ -534,7 +535,7 @@ describe('Feed-Post / Post File (e2e)', () => {
             .field('userId', activeUser._id.toString())
             .attach('files', tempPaths[0])
             .field('imageDescriptions[0][description]', 'this is create post description 0')
-          .expect(HttpStatus.CREATED);
+            .expect(HttpStatus.CREATED);
 
           const otherUser1NewNotificationCount = await usersService.findById(otherUser1.id, true);
           const otherUser2NewNotificationCount = await usersService.findById(otherUser2.id, true);

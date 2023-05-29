@@ -1,5 +1,6 @@
 /* eslint-disable max-lines */
 import * as request from 'supertest';
+import * as path from 'path';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
@@ -183,7 +184,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
             .attach('images', tempPaths[2])
             .attach('images', tempPaths[3])
             .expect(HttpStatus.BAD_REQUEST);
-          expect(response.body.message).toBe('Invalid file type');
+          expect(response.body.message).toBe(`Unsupported file type: ${path.basename(tempPaths[1])}`);
         }, [{ extension: 'png' }, { extension: 'tjpg' }, { extension: 'tjpg' }, { extension: 'zpng' }]);
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)

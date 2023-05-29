@@ -12,7 +12,7 @@ export function defaultFileInterceptorFileFilter(req, file, callback) {
     && !file.mimetype.includes('image/gif')
   ) {
     return callback(new HttpException(
-      'Invalid file type',
+      `Unsupported file type: ${file.originalname}`,
       HttpStatus.BAD_REQUEST,
     ), false);
   }

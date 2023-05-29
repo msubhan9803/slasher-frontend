@@ -65,7 +65,7 @@ export class ChatGateway {
     const targetUserSocketIds = await this.usersService.findSocketIdsForUser(toUserId);
     targetUserSocketIds.forEach((socketId) => {
       client.to(socketId).emit('chatMessageReceived', {
-        message: pick(messageObject, ['_id', 'image', 'message', 'fromId', 'matchId']),
+        message: pick(messageObject, ['_id', 'image', 'message', 'fromId', 'matchId', 'createdAt']),
       });
     });
     await this.messageCountUpdateQueue.add(
@@ -75,6 +75,7 @@ export class ChatGateway {
     );
     const newMessageObject: any = {
       _id: messageObject._id,
+      fromId: messageObject.fromId,
       message: messageObject.message,
       createdAt: messageObject.createdAt,
       image: messageObject.image,
@@ -159,7 +160,7 @@ export class ChatGateway {
       // Emit message to receiver
       targetUserSocketIds.forEach((socketId) => {
         this.server.to(socketId).emit('chatMessageReceived', {
-          message: pick(cloneMessage, ['_id', 'image', 'message', 'fromId', 'matchId']),
+          message: pick(cloneMessage, ['_id', 'image', 'message', 'fromId', 'matchId', 'createdAt']),
         });
       });
     });

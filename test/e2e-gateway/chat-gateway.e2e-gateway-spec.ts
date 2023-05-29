@@ -16,7 +16,7 @@ import { UsersService } from '../../src/users/providers/users.service';
 import { userFactory } from '../factories/user.factory';
 import { clearDatabase } from '../helpers/mongo-helpers';
 import { Message, MessageDocument } from '../../src/schemas/message/message.schema';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../src/constants';
+import { SIMPLE_ISO_8601_REGEX, SIMPLE_MONGODB_ID_REGEX } from '../../src/constants';
 import { FriendsService } from '../../src/friends/providers/friends.service';
 import { ChatGateway } from '../../src/chat/providers/chat.gateway';
 import { rewindAllFactories } from '../helpers/factory-helpers.ts';
@@ -149,6 +149,7 @@ describe('Chat Gateway (e2e)', () => {
             message: {
               message: encodeURIComponent('Hi, test message via socket.'),
               created: expect.any(String),
+              fromId: activeUser.id,
               createdAt: expect.any(String),
               image: null,
               imageDescription: null,
@@ -194,6 +195,7 @@ describe('Chat Gateway (e2e)', () => {
         expect(chatMessageReceivedPayload).toEqual({
           message: {
             _id: expect.any(String),
+            createdAt: expect.stringMatching(SIMPLE_ISO_8601_REGEX),
             fromId: activeUser.id,
             image: null,
             matchId: expect.any(String),
@@ -556,6 +558,7 @@ describe('Chat Gateway (e2e)', () => {
       expect(receivedPayload).toEqual({
         message: {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          createdAt: expect.stringMatching(SIMPLE_ISO_8601_REGEX),
           fromId: toUserId.toString(),
           image: null,
           matchId: matchList.id,

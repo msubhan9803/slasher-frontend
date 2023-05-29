@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  useCallback, useEffect, useRef, useState,
+  useCallback, useEffect, useRef, useState, UIEvent,
 } from 'react';
 import styled from 'styled-components';
 import { AxiosError, CanceledError } from 'axios';
@@ -25,7 +25,7 @@ interface Props {
   conversationId: string;
 }
 
-const maxChatImageHeight = 200;
+const maxChatImageHeight = 400;
 
 const StyledChatContainer = styled.div`
   // Always set height to 100vh.  We will restrict max-height separately
@@ -66,10 +66,12 @@ function NewChat({
   const [loadState, setLoadState] = useState<LoadState>(LoadState.Loading);
   const [otherParticipant, setOtherParticipant] = useState<User>();
   const [messages, setMessages] = useState<Message[]>([]);
+  const [errors, setErrors] = useState<string[]>([]);
   const [maxHeight, setMaxHeight] = useState<number>(0);
   const [noEarlierMessagesAvailable, setNoEarlierMessagesAvailable] = useState<boolean>(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const chatBodyElementRef = useRef<HTMLDivElement>(null);
+  const latestChatScrollDistanceFromBottom = useRef<number>(0);
 
   const updateMaxHeightBasedOnCurrentWindowHeight = debounce(() => {
     let newHeight = window.innerHeight;
@@ -108,21 +110,28 @@ function NewChat({
     const scrollFunction = () => { chatBodyElement.scrollTop = chatBodyElement.scrollHeight; };
     // Scroll immediately so that users don't see a visual jump.
     scrollFunction();
-    // And also scroll again after 1ms slight delay to account for first-time-load delay.
-    setTimeout(() => {
-      scrollFunction();
-    }, 1);
+    // And also scroll again after 1ms slight delay to account for
+    // first-time-load delay (which minimizes visual jump).
+    setTimeout(() => { scrollFunction(); }, 1);
+    // And scroll one final time after a 100ms delay to account for
+    // delays in rendering (which minimizes visual jump).
+    setTimeout(() => { scrollFunction(); }, 100);
   }, []);
 
-  const scrollChatToBottomIfCloseToBottomAlready = useCallback(() => {
+  const adjustScrollAfterMessageListChange = useCallback(() => {
     const chatBodyElement = chatBodyElementRef.current;
     if (!chatBodyElement) { return; }
     // If user is < threshold pixels from the bottom, trigger scroll to bottom
-    const threshold = maxChatImageHeight + 10;
+    const threshold = 100;
     const scrollDistanceFromBottom = chatBodyElement.scrollHeight
-      - (chatBodyElement.scrollTop + chatBodyElement.clientHeight);
+      - chatBodyElement.scrollTop - chatBodyElement.clientHeight;
+
     if (scrollDistanceFromBottom < threshold) {
       scrollChatToBottom();
+    } else {
+      // Attempt to retain previous scroll position to make upward scroll smoother
+      const diff = latestChatScrollDistanceFromBottom.current - scrollDistanceFromBottom;
+      chatBodyElement.scrollTop -= diff;
     }
   }, [scrollChatToBottom]);
 
@@ -164,7 +173,14 @@ function NewChat({
     if (abortControllerRef.current) {
       return; // return because load is already in progress
     }
-    loadEarlierMessages(messages[0]._id);
+    if (messages.length === 0) {
+      // Load messages from that conversation
+      // Preload images on the first load in order to guarantee that we have a predictable height
+      // for the first chunk of content, so everything is loaded when we scroll to the bottom.
+      loadEarlierMessages(null, true);
+    } else {
+      loadEarlierMessages(messages[0]._id, false); // not currently preloading images here
+    }
   }, [loadEarlierMessages, messages]);
 
   const loadConversation = useCallback(async () => {
@@ -177,10 +193,7 @@ function NewChat({
       // When a conversation is loaded, we mark all messages as read.  This is an async
       // operation, but nothing else depends on it and it can run in the background.
       markAllReadForSingleConversation(conversationId);
-      // Load messages from that conversation
-      await loadEarlierMessages(null, true, () => {
-        setLoadState(LoadState.LoadSuccess);
-      });
+      setLoadState(LoadState.LoadSuccess);
     } catch (errResponse) {
       if (!(errResponse instanceof CanceledError)) {
         // NOTE: We ignore CanceledError because that only occurs in the development environment
@@ -188,7 +201,7 @@ function NewChat({
         setLoadState(LoadState.LoadFailure);
       }
     }
-  }, [conversationId, viewerUserId, loadEarlierMessages]);
+  }, [conversationId, viewerUserId]);
 
   const onChatMessageReceivedHandler = useCallback((responsePayload: any) => {
     // This message event is global and could be for ANY conversation
@@ -203,6 +216,8 @@ function NewChat({
     }
   }, [appendNewMessage, conversationId, socket]);
 
+  // For adjusting chat container height based on window size changes (to get around css 100vh issue
+  // with mobile browser navbar.
   useEffect(() => {
     updateMaxHeightBasedOnCurrentWindowHeight();
     window.addEventListener('resize', updateMaxHeightBasedOnCurrentWindowHeight);
@@ -235,12 +250,12 @@ function NewChat({
 
   // Whenever messages change, scroll to bottom if user is alreay close to the bottom
   useEffect(() => {
-    scrollChatToBottomIfCloseToBottomAlready();
-  }, [messages, scrollChatToBottomIfCloseToBottomAlready]);
+    adjustScrollAfterMessageListChange();
+  }, [messages, adjustScrollAfterMessageListChange]);
 
   const handleChatSubmit = useCallback(
     async (messageText: string, files: File[], fileDescriptions: string[]) => {
-      console.log('message: ', messageText, 'files: ', files, 'fileDescriptions: ', fileDescriptions);
+      setErrors([]);
       if (files.length > 0) {
         // Handle message with files
         try {
@@ -257,7 +272,7 @@ function NewChat({
           return await Promise.resolve();
         } catch (err: any) {
           if (err instanceof AxiosError) {
-            throw new Error(`Unexpected error while sending message with attachment: ${err.response!.data.message}`);
+            setErrors(err.response!.data.message);
           } else {
             throw new Error(err);
           }
@@ -304,12 +319,25 @@ function NewChat({
           </div>
         </div>
       </div>
-      <div ref={chatBodyElementRef} className="chat-body flex-fill">
+      <div
+        ref={chatBodyElementRef}
+        className="chat-body flex-fill"
+        onScroll={(e: UIEvent<HTMLDivElement>) => {
+          const chatBodyElement = e.target as HTMLDivElement;
+          const scrollDistanceFromBottom = chatBodyElement.scrollHeight
+            - (chatBodyElement.scrollTop + chatBodyElement.clientHeight);
+          latestChatScrollDistanceFromBottom.current = scrollDistanceFromBottom;
+        }}
+      >
         <InfiniteScroll
           isReverse
-          threshold={250}
-          initialLoad={false}
-          loader={<div><LoadingIndicator /></div>}
+          threshold={500}
+          initialLoad
+          loader={(
+            <div>
+              {!noEarlierMessagesAvailable && <div key="loader"><LoadingIndicator /></div>}
+            </div>
+          )}
           loadMore={infiniteScrollLoadMore}
           hasMore={!noEarlierMessagesAvailable}
           /* Using a custom parentNode element to base the scroll calulations on. */
@@ -317,10 +345,11 @@ function NewChat({
           getScrollParent={() => chatBodyElementRef.current}
         >
           <ChatMessages
+            key="chat-messages"
             maxChatImageHeight={maxChatImageHeight}
             messages={messages}
             viewerUserId={viewerUserId}
-            onImageLoad={scrollChatToBottomIfCloseToBottomAlready}
+            onImageLoad={adjustScrollAfterMessageListChange}
           />
         </InfiniteScroll>
       </div>
@@ -328,6 +357,7 @@ function NewChat({
         <div className="py-3">
           <NewChatInput
             placeholder="Type your message here..."
+            errorsToDisplay={errors}
             onSubmit={handleChatSubmit}
             onFocus={updateMaxHeightBasedOnCurrentWindowHeight}
             onBlur={updateMaxHeightBasedOnCurrentWindowHeight}

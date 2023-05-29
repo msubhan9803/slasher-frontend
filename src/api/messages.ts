@@ -59,9 +59,6 @@ export async function sendMessageWithFiles(
         formData.append('files', files[i]);
       }
     }
-    if (fileDescriptions![i].id) {
-      formData.append(`imageDescriptions[${[i]}][_id]`, fileDescriptions![i].id);
-    }
     formData.append(`imageDescriptions[${[i]}][description]`, fileDescriptions![i]);
   }
   formData.append('message', message);

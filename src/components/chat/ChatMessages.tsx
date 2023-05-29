@@ -6,6 +6,7 @@ import ChatMessageText from './ChatMessageText';
 import ChatTimestamp from './ChatTimestamp';
 import { Message } from '../../types';
 import { DEFAULT_USER_UPLOADED_CONTENT_ALT_TEXT } from '../../constants';
+import ZoomableImage from '../ui/ZoomableImage';
 
 interface Props {
   messages: Message[];
@@ -56,22 +57,31 @@ function UserChatMessage({
           message.image
             ? (
               <div className="message-image">
-                <img
+                <ZoomableImage
+                  containerClassName="w-100"
+                  imgClassName="w-100 rounded-3"
+                  imgStyle={{ maxHeight: `${maxChatImageHeight}px` }}
+                  src={message.image}
+                  alt={message.imageDescription || DEFAULT_USER_UPLOADED_CONTENT_ALT_TEXT}
+                  onLoad={onImageLoad}
+                />
+                {/* <img
                   className="w-100 rounded-3"
                   style={{ maxHeight: `${maxChatImageHeight}px` }}
                   src={message.image}
                   alt={message.imageDescription || DEFAULT_USER_UPLOADED_CONTENT_ALT_TEXT}
                   onLoad={onImageLoad}
-                />
+                /> */}
               </div>
             )
             : (
-              <div className="message-bubble p-3 text-break"><ChatMessageText message={message.message} /></div>
+              <div className="message-bubble d-inline-block p-3 text-break"><ChatMessageText message={message.message} /></div>
             )
         }
-        {
-          enableDevFeatures && !createdByViewer && (<div className="report-message mt-1 fs-6">Report message</div>)
-        }
+        <div className="mt-1 fs-6">
+          {DateTime.fromISO(message.createdAt).toFormat('h:mm a')}
+          {enableDevFeatures && !createdByViewer && (<> &bull; Report message</>)}
+        </div>
       </div>
     </StyledChatMessage>
   );

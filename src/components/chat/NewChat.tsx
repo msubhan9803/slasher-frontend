@@ -260,43 +260,45 @@ function NewChat({
   const handleChatSubmit = useCallback(
     async (messageText: string, files: File[], fileDescriptions: string[]) => {
       setErrors([]);
-      if (files.length > 0) {
-        // Handle message with files
-        try {
-          const response = await sendMessageWithFiles(
-            messageText,
-            files,
-            conversationId,
-            fileDescriptions,
-          );
-          setMessages((prev: any) => [
-            ...prev,
-            ...response.data.messages,
-          ]);
-          return await Promise.resolve();
-        } catch (err: any) {
-          if (err instanceof AxiosError) {
-            setErrors(err.response!.data.message);
-          } else {
-            throw new Error(err);
-          }
-        }
-      }
-      // Send single message
-      return new Promise<void>((resolve, reject) => {
-        socket?.emit('chatMessage', { message: messageText, toUserId: otherParticipant!._id }, (chatMessageResponse: any) => {
-          if (chatMessageResponse.success) {
-            const newMessage: Message = chatMessageResponse.message;
-            setMessages((prev: any) => [
-              ...prev,
-              newMessage,
-            ]);
-            resolve();
-          } else {
-            reject(new Error(chatMessageResponse.errorMessage));
-          }
+
+      if (files.length === 0) {
+        // Send single message
+        return new Promise<void>((resolve, reject) => {
+          socket?.emit('chatMessage', { message: messageText, toUserId: otherParticipant!._id }, (chatMessageResponse: any) => {
+            if (chatMessageResponse.success) {
+              const newMessage: Message = chatMessageResponse.message;
+              setMessages((prev: any) => [
+                ...prev,
+                newMessage,
+              ]);
+              resolve();
+            } else {
+              reject(new Error(chatMessageResponse.errorMessage));
+            }
+          });
         });
-      });
+      }
+
+      // Handle message with files
+      try {
+        const response = await sendMessageWithFiles(
+          messageText,
+          files,
+          conversationId,
+          fileDescriptions,
+        );
+        setMessages((prev: any) => [
+          ...prev,
+          ...response.data.messages,
+        ]);
+      } catch (err: any) {
+        if (err instanceof AxiosError) {
+          setErrors(err.response!.data.message);
+          return Promise.reject();
+        }
+        throw new Error(err);
+      }
+      return Promise.resolve();
     },
     [conversationId, otherParticipant, socket],
   );
@@ -310,7 +312,7 @@ function NewChat({
   }
 
   return (
-    <StyledChatContainer className="d-flex flex-column h-100" style={{ maxHeight: `${maxHeight}px` }}>
+    <StyledChatContainer className="d-flex flex-column" style={{ height: `${maxHeight}px` }}>
       <div className="chat-header">
         <div className="py-2">
           <div className="d-flex align-items-center">
@@ -365,6 +367,7 @@ function NewChat({
             onSubmit={handleChatSubmit}
             onFocus={updateMaxHeightBasedOnCurrentWindowHeight}
             onBlur={updateMaxHeightBasedOnCurrentWindowHeight}
+            onRemoveFile={() => setErrors([])}
           />
         </div>
       </div>

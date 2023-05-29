@@ -12,6 +12,7 @@ import { isMobile } from '../../utils/browser-utils';
 
 interface Props {
   onSubmit: (message: string, files: File[], fileDescriptions: string[]) => Promise<void>;
+  onRemoveFile: () => void;
   onFocus: () => void;
   onBlur: () => void;
   placeholder: string;
@@ -54,7 +55,7 @@ const StyledChatInputGroup = styled.div`
 `;
 
 function ChatInput({
-  onSubmit, onFocus, onBlur, placeholder, errorsToDisplay,
+  onSubmit, onFocus, onBlur, onRemoveFile, placeholder, errorsToDisplay,
 }: Props) {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [message, setMessage] = useState<string>('');
@@ -158,7 +159,7 @@ function ChatInput({
                 image={file}
                 alt={fileDescriptions[index]}
                 onAltTextChange={(newValue) => { updateFileDescription(index, newValue); }}
-                handleRemoveImage={() => removeSelectedFile(index)}
+                handleRemoveImage={() => { removeSelectedFile(index); onRemoveFile?.(); }}
                 index={index}
                 containerClass="position-relative d-flex justify-content-center align-items-center rounded border-0"
                 removeIconStyle={{

@@ -75,6 +75,7 @@ export class ChatGateway {
     );
     const newMessageObject: any = {
       _id: messageObject._id,
+      fromId: messageObject.fromId,
       message: messageObject.message,
       createdAt: messageObject.createdAt,
       image: messageObject.image,

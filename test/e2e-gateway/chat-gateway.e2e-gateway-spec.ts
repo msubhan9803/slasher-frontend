@@ -149,6 +149,7 @@ describe('Chat Gateway (e2e)', () => {
             message: {
               message: encodeURIComponent('Hi, test message via socket.'),
               created: expect.any(String),
+              fromId: activeUser.id,
               createdAt: expect.any(String),
               image: null,
               imageDescription: null,

@@ -342,6 +342,7 @@ function Home() {
             </div>
           )
         }
+        <h1 className="h2 my-3 ms-3 ms-md-0">Latest posts</h1>
         <InfiniteScroll
           threshold={3000}
           pageStart={0}

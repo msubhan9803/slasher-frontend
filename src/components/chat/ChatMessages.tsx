@@ -54,14 +54,17 @@ function UserChatMessage({
     <StyledChatMessage className={`mb-3 ${createdByViewer ? 'self-message' : 'other-message'}`}>
       <div className="message-content">
         {
-          message.image
+          message.urls.length > 0
             ? (
               <div className="message-image">
                 <ZoomableImage
                   containerClassName="w-100"
                   imgClassName="w-100 rounded-3"
                   imgStyle={{ maxHeight: `${maxChatImageHeight}px` }}
-                  src={message.image}
+                  // There should only ever be one url in `urls`
+                  src={message.urls[0]}
+                  // TODO: When old API is retired, we can switch to using `image` instead of `urls`
+                  // src={message.image}
                   alt={message.imageDescription || DEFAULT_USER_UPLOADED_CONTENT_ALT_TEXT}
                   onLoad={onImageLoad}
                 />

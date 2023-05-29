@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Button, Form, InputGroup } from 'react-bootstrap';
 import styled from 'styled-components';
-import { isMobile } from '../../constants';
+import { isMobile } from '../../utils/browser-utils';
 
 interface InputProps {
   focus: boolean;
@@ -81,7 +81,7 @@ function ChatInput({
     setSelectedEmoji([]);
   };
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key === 'Enter' && !event.shiftKey && !isMobile) {
+    if (event.key === 'Enter' && !event.shiftKey && !isMobile()) {
       handleSubmit(event);
     }
   };

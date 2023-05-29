@@ -44,17 +44,21 @@ enum LoadState {
 }
 
 const preloadImagesFromMessageResponse = async (messagesToPreload: Message[]) => {
-  const imagePromises = messagesToPreload.map((message) => {
-    if (message.image) {
-      return new Promise((resolve, reject) => {
-        const image = new Image();
-        image.onload = resolve;
-        image.onerror = reject;
-        image.src = message.image;
-      });
-    }
-    return Promise.resolve();
+  const imageUrlsToPreload: string[] = [];
+  messagesToPreload.forEach((message) => {
+    // TODO: When old API is retired, we can switch to using `image` instead of `urls`.
+    // NOTE: The `urls` field should only ever have a maximum of 1 url, but we'll iterate
+    // over it as an array just in case because that's the safest way to go.
+    message.urls.forEach((url) => {
+      imageUrlsToPreload.push(url);
+    });
   });
+  const imagePromises = imageUrlsToPreload.map((url) => new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = resolve;
+    image.onerror = reject;
+    image.src = url;
+  }));
   await Promise.all(imagePromises);
 };
 

@@ -126,6 +126,7 @@ export interface Message {
   imageDescription: string;
   createdAt: string;
   image: string;
+  urls: string[];
   fromId: string;
   senderId: string; // this means toId
 }

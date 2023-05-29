@@ -5,10 +5,10 @@ import styled from 'styled-components';
 import { TextareaAutosize } from '@mui/material';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { isMobile } from '../../constants';
 import ImagesContainer from '../ui/ImagesContainer';
 import ErrorMessageList from '../ui/ErrorMessageList';
 import CustomEmojiPicker, { Emoji } from '../ui/CustomEmojiPicker';
+import { isMobile } from '../../utils/browser-utils';
 
 interface Props {
   onSubmit: (message: string, files: File[], fileDescriptions: string[]) => Promise<void>;
@@ -129,7 +129,7 @@ function ChatInput({
       return;
     }
 
-    if (!isMobile && event.key === 'Enter' && !event.shiftKey) {
+    if (event.key === 'Enter' && !event.shiftKey && !isMobile()) {
       handleSubmit(event);
     }
   };

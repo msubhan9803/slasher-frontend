@@ -105,21 +105,20 @@ function ProfileHeader({
 
   useLayoutEffect(() => {
     if (token.isLoading) { return; }
+    if (!userIsLoggedIn) { return; }
 
-    if (userIsLoggedIn) {
-      const element = positionRef.current;
-      if (!element) { return; }
-      if (((scrollPosition.scrollToTab && (friendStatus || element)) || param['*'] === 'friends') && location?.state?.publicProfile !== true) {
-        window.scrollTo({
-          top: element.offsetTop - (
-            window.innerWidth >= parseInt(LG_MEDIA_BREAKPOINT.replace('px', ''), 10)
-              ? (topToDivHeight - 18)
-              : 0
-          ),
-          behavior: 'instant' as any,
-        });
-        dispatch(setScrollToTabsPosition(false));
-      }
+    const element = positionRef.current;
+    if (!element) { return; }
+    if (((scrollPosition.scrollToTab && (friendStatus || element)) || param['*'] === 'friends') && location?.state?.publicProfile !== true) {
+      window.scrollTo({
+        top: element.offsetTop - (
+          window.innerWidth >= parseInt(LG_MEDIA_BREAKPOINT.replace('px', ''), 10)
+            ? (topToDivHeight - 18)
+            : 0
+        ),
+        behavior: 'instant' as any,
+      });
+      dispatch(setScrollToTabsPosition(false));
     }
   }, [positionRef, friendStatus, dispatch, scrollPosition.scrollToTab,
     param, location, token, userIsLoggedIn]);

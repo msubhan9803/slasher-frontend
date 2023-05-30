@@ -1,5 +1,7 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
@@ -12,9 +14,11 @@ import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { ALL_MOVIES_DIV_ID } from '../../../utils/pubwise-ad-units';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
+import { useAppDispatch } from '../../../redux/hooks';
 import { UIRouteURL } from '../RouteURL';
+import {
+  deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
+} from '../../../pageStateCache';
 
 function AllMovies() {
   const [requestAdditionalMovies, setRequestAdditionalMovies] = useState<boolean>(false);
@@ -23,11 +27,11 @@ function AllMovies() {
   const [isKeyMoviesReady, setKeyMoviesReady] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string[]>();
-  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const location = useLocation();
+  const pageStateCache = getPageStateCache(location) ?? [];
   const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>(
-    scrollPosition.pathname === location.pathname ? scrollPosition?.data : [],
+    hasPageStateCache(location) ? pageStateCache : [],
   );
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -36,14 +40,15 @@ function AllMovies() {
   const [sortVal, setSortVal] = useState(searchParams.get('sort') || 'name');
   const [callNavigate, setCallNavigate] = useState<boolean>(false);
   const [lastMovieId, setLastMovieId] = useState(
-    ((scrollPosition.pathname === location.pathname) && (scrollPosition.data.length > 0))
-      /* eslint-disable no-unsafe-optional-chaining */
-      ? (scrollPosition?.data[scrollPosition?.data.length - 1]?._id)
+    (hasPageStateCache(location) && (pageStateCache.length > 0))
+      ? (pageStateCache[pageStateCache.length - 1]?._id)
       : '',
   );
   const prevSearchRef = useRef(search);
   const prevKeyRef = useRef(key);
   const prevSortValRef = useRef(sortVal);
+  const lastLocationKeyRef = useRef(location.key);
+
   useEffect(() => {
     setSearch(searchParams.get('q') || '');
     setKey(searchParams.get('startsWith')?.toLowerCase() || '');
@@ -70,58 +75,60 @@ function AllMovies() {
     prevSortValRef.current = sortVal;
   }, [callNavigate, search, key, sortVal]);
 
+  const fetchMovies = useCallback((forceReload = false) => {
+    if (forceReload) { setFilteredMovies([]); }
+    setNoMoreData(false);
+    setLoadingPosts(true);
+    getMovies(
+      search,
+      sortVal,
+      key.toLowerCase(),
+      forceReload ? undefined : (lastMovieId || undefined),
+    )
+      .then((res) => {
+        if (lastMovieId) {
+          setFilteredMovies((prev: MoviesProps[]) => [
+            ...(forceReload ? [] : prev),
+            ...res.data,
+          ]);
+        } else { setFilteredMovies(res.data); }
+        if (res.data.length === 0) {
+          setNoMoreData(true);
+          setLastMovieId('');
+        } else {
+          setLastMovieId(res.data[res.data.length - 1]._id);
+        }
+        deletePageStateCache(location);
+      }).catch(
+        (error) => {
+          setNoMoreData(true);
+          setErrorMessage(error.response.data.message);
+        },
+      ).finally(
+        () => { setRequestAdditionalMovies(false); setLoadingPosts(false); },
+      );
+  }, [key, lastMovieId, location, search, sortVal]);
+
   useEffect(() => {
     if (requestAdditionalMovies && !loadingPosts) {
-      if (scrollPosition === null
-        || scrollPosition?.position === 0
-        || filteredMovies.length >= scrollPosition?.data?.length
+      if (!hasPageStateCache(location)
+        || filteredMovies.length >= pageStateCache?.length
         || filteredMovies.length === 0
       ) {
-        setNoMoreData(false);
-        setLoadingPosts(true);
-        getMovies(
-          search,
-          sortVal,
-          key.toLowerCase(),
-          lastMovieId.length > 0 ? lastMovieId : undefined,
-        )
-          .then((res) => {
-            if (lastMovieId) {
-              setFilteredMovies((prev: MoviesProps[]) => [
-                ...prev,
-                ...res.data,
-              ]);
-            } else { setFilteredMovies(res.data); }
-            if (res.data.length === 0) {
-              setNoMoreData(true);
-              setLastMovieId('');
-            } else {
-              setLastMovieId(res.data[res.data.length - 1]._id);
-            }
-            const positionData = {
-              pathname: '',
-              position: 0,
-              data: [],
-              positionElementId: '',
-              sortValue: '',
-              searchValue: '',
-              keyValue: '',
-            };
-            dispatch(setScrollPosition(positionData));
-          }).catch(
-            (error) => {
-              setNoMoreData(true);
-              setErrorMessage(error.response.data.message);
-            },
-          ).finally(
-            () => { setRequestAdditionalMovies(false); setLoadingPosts(false); },
-          );
+        fetchMovies();
       }
     }
-  }, [
-    requestAdditionalMovies, loadingPosts, search, sortVal, lastMovieId,
-    filteredMovies, scrollPosition, dispatch, isKeyMoviesReady, key,
-  ]);
+  }, [requestAdditionalMovies, loadingPosts, search, sortVal, lastMovieId, filteredMovies,
+    dispatch, isKeyMoviesReady, key, location, pageStateCache?.length, fetchMovies]);
+
+  useEffect(() => {
+    const isSameKey = lastLocationKeyRef.current === location.key;
+    if (isSameKey) { return; }
+    // Fetch movies when we click the `movies` in left-side-navbar
+    fetchMovies(true);
+    // Update lastLocation
+    lastLocationKeyRef.current = location.key;
+  }, [fetchMovies, location.key]);
 
   const applyFilter = (keyValue: string, sortValue?: string) => {
     setCallNavigate(true);
@@ -151,18 +158,7 @@ function AllMovies() {
       });
   };
 
-  const persistScrollPosition = (id?: string) => {
-    const positionData = {
-      pathname: location.pathname,
-      position: window.pageYOffset === 0 ? 1 : window.pageYOffset,
-      data: filteredMovies,
-      positionElementId: id,
-      sortValue: sortVal,
-      searchValue: search,
-      keyValue: key,
-    };
-    dispatch(setScrollPosition(positionData));
-  };
+  const persistScrollPosition = () => { setPageStateCache(location, filteredMovies); };
 
   return (
     <div>
@@ -180,7 +176,7 @@ function AllMovies() {
         applyFilter={applyFilter}
         sortVal={sortVal}
       />
-      {key !== '' && (isKeyMoviesReady || scrollPosition.data.length <= filteredMovies.length)
+      {key !== '' && (isKeyMoviesReady || pageStateCache.length <= filteredMovies.length)
         && (
           <div className="w-100 d-flex justify-content-center mb-3">
             <RoundButton size="sm" variant="filter" className="px-3" onClick={clearKeyHandler}>

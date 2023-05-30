@@ -15,9 +15,11 @@ import { User } from '../../../../types';
 import ProfileHeader from '../../ProfileHeader';
 import FriendsProfileCard from '../FriendsProfileCard';
 import { forceReloadSuggestedFriends } from '../../../../redux/slices/suggestedFriendsSlice';
-import { setScrollPosition } from '../../../../redux/slices/scrollPositionSlice';
 import ProfileTabContent from '../../../../components/ui/profile/ProfileTabContent';
 import socketStore from '../../../../socketStore';
+import {
+  deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
+} from '../../../../pageStateCache';
 
 interface FriendProps {
   _id?: string;
@@ -42,15 +44,16 @@ function ProfileFriendRequest({ user }: Props) {
   const [loadingFriendRequests, setLoadingFriendRequests] = useState<boolean>(false);
   const [additionalFriendRequest, setAdditionalFriendRequest] = useState<boolean>(false);
   const location = useLocation();
-  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const { socket } = socketStore;
+  type CacheType = { page: number, data: any[] };
+  const pageStateCache: CacheType = getPageStateCache(location) ?? { page: 0, data: [] };
   const [friendsReqList, setFriendsReqList] = useState<FriendProps[]>(
-    scrollPosition.pathname === location.pathname
-      ? scrollPosition?.data : [],
+    hasPageStateCache(location)
+      ? pageStateCache?.data : [],
   );
   const [friendRequestPage, setFriendRequestPage] = useState<number>(
-    scrollPosition.pathname === location.pathname
-      ? scrollPosition?.page : 0,
+    hasPageStateCache(location)
+      ? pageStateCache?.page : 0,
   );
 
   const friendsTabs = [
@@ -94,31 +97,21 @@ function ProfileFriendRequest({ user }: Props) {
           setNoMoreData(true);
         }
         setLoadingFriendRequests(false);
-        if (scrollPosition.pathname === location.pathname
-          && friendsReqList.length >= scrollPosition.data.length + 10) {
-          const positionData = {
-            pathname: '',
-            position: 0,
-            data: [],
-            positionElementId: '',
-          };
-          dispatch(setScrollPosition(positionData));
+        if (hasPageStateCache(location)
+          && friendsReqList.length >= pageStateCache.data.length + 10) {
+          deletePageStateCache(location);
         }
       })
       .catch((error) => setErrorMessage(error.response.data.message))
       .finally(
         () => { setAdditionalFriendRequest(false); setLoadingFriendRequests(false); },
       );
-  }, [friendRequestPage, dispatch, friendsReqList.length,
-    location.pathname, scrollPosition,
-  ]);
+  }, [friendRequestPage, location, friendsReqList.length, pageStateCache.data.length]);
   useEffect(() => {
     if (additionalFriendRequest && !loadingFriendRequests) {
-      if (scrollPosition === null
-        || scrollPosition?.position === 0
-        || friendsReqList.length >= scrollPosition?.data?.length
+      if (!hasPageStateCache(location)
+        || friendsReqList.length >= pageStateCache?.data?.length
         || friendsReqList.length === 0
-        || scrollPosition.pathname !== location.pathname
       ) {
         setTimeout(() => {
           setLoadingFriendRequests(true);
@@ -127,8 +120,7 @@ function ProfileFriendRequest({ user }: Props) {
       }
     }
   }, [additionalFriendRequest, loadingFriendRequests, fetchMoreFriendReqList,
-    friendsReqList.length, location.pathname, scrollPosition,
-  ]);
+    friendsReqList.length, location.pathname, location, pageStateCache?.data?.length]);
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -154,15 +146,8 @@ function ProfileFriendRequest({ user }: Props) {
         dispatch(forceReloadSuggestedFriends());
       });
   };
-  const persistScrollPosition = (id: string) => {
-    const positionData = {
-      pathname: location.pathname,
-      position: window.pageYOffset === 0 ? 1 : window.pageYOffset,
-      data: friendsReqList,
-      positionElementId: id,
-      page: friendRequestPage,
-    };
-    dispatch(setScrollPosition(positionData));
+  const persistScrollPosition = () => {
+    setPageStateCache<CacheType>(location, { data: friendsReqList, page: friendRequestPage });
   };
   return (
     <div>

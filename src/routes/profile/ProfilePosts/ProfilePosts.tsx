@@ -16,9 +16,11 @@ import { reportData } from '../../../api/report';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
-import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import EditPostModal from '../../../components/ui/post/EditPostModal';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
+import {
+  deletePageStateCache, deletedPostsCache, getPageStateCache, hasPageStateCache, setPageStateCache,
+} from '../../../pageStateCache';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -26,6 +28,7 @@ const otherUserPopoverOptions = ['Report', 'Block user'];
 interface Props {
   user: User
 }
+const removeDeletedPost = (post: any) => !deletedPostsCache.has(post._id);
 
 function ProfilePosts({ user }: Props) {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -42,12 +45,12 @@ function ProfilePosts({ user }: Props) {
   const loginUserData = useAppSelector((state) => state.user.user);
   const [postUserId, setPostUserId] = useState<string>('');
   const userId = useAppSelector((state) => state.user.user.id);
-  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const location = useLocation();
+  const pageStateCache = (getPageStateCache(location) ?? []).filter(removeDeletedPost);
   const [posts, setPosts] = useState<Post[]>(
-    scrollPosition.pathname === location.pathname
-      ? scrollPosition?.data : [],
+    hasPageStateCache(location)
+      ? pageStateCache : [],
   );
   const { userName: userNameOrId } = useParams<string>();
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
@@ -69,11 +72,9 @@ function ProfilePosts({ user }: Props) {
   };
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts && userNameOrId === user.userName) {
-      if (scrollPosition === null
-        || scrollPosition?.position === 0
-        || posts.length >= scrollPosition?.data?.length
+      if (hasPageStateCache(location)
+        || posts.length >= pageStateCache?.length
         || posts.length === 0
-        || scrollPosition.pathname !== location.pathname
       ) {
         setLoadingPosts(true);
         getProfilePosts(
@@ -100,15 +101,9 @@ function ProfilePosts({ user }: Props) {
             ...newPosts,
           ]);
           if (res.data.length === 0) { setNoMoreData(true); }
-          if (scrollPosition.pathname === location.pathname
-            && posts.length >= scrollPosition.data.length + 10) {
-            const positionData = {
-              pathname: '',
-              position: 0,
-              data: [],
-              positionElementId: '',
-            };
-            dispatch(setScrollPosition(positionData));
+          if (hasPageStateCache(location)
+            && posts.length >= pageStateCache.length + 10) {
+            deletePageStateCache(location);
           }
         }).catch(
           (error) => {
@@ -120,9 +115,8 @@ function ProfilePosts({ user }: Props) {
         );
       }
     }
-  }, [
-    requestAdditionalPosts, loadingPosts, userId, userNameOrId, user._id, user.userName,
-    posts, scrollPosition, location, dispatch,
+  }, [requestAdditionalPosts, loadingPosts, userId, userNameOrId, user._id,
+    user.userName, posts, location, dispatch, pageStateCache.length,
   ]);
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
@@ -257,15 +251,7 @@ function ProfilePosts({ user }: Props) {
       .catch((error) => console.error(error));
   };
 
-  const persistScrollPosition = (id: string) => {
-    const positionData = {
-      pathname: location.pathname,
-      position: window.pageYOffset,
-      data: posts,
-      positionElementId: id,
-    };
-    dispatch(setScrollPosition(positionData));
-  };
+  const persistScrollPosition = () => { setPageStateCache(location, posts); };
 
   return (
     <div>

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { Helmet, HelmetData } from 'react-helmet-async';
 import {
@@ -14,10 +14,11 @@ import RoundButton from '../../../components/ui/RoundButton';
 import Switch from '../../../components/ui/Switch';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
 import { useAppSelector } from '../../../redux/hooks';
-import { RssFeedProviderFollowNotificationsEnabled } from '../../../types';
+import { NewsPartnerAndPostsCache, RssFeedProviderFollowNotificationsEnabled } from '../../../types';
 import NewsPostData from '../components/NewsPostData';
 import NewsRightSideNav from '../components/NewsRightSideNav';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
+import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../../pageStateCache';
 
 const helmetData = new HelmetData({});
 const CustomButton = styled(RoundButton)`
@@ -38,7 +39,12 @@ type RssFeedProviderType = {
 };
 function NewsPartnerDetail() {
   const { partnerId } = useParams<string>();
-  const [rssFeedProviderDetail, setRssFeedProviderDetail] = useState<RssFeedProviderType>();
+  const location = useLocation();
+  // eslint-disable-next-line max-len
+  const newsPartnerCache = getPageStateCache<NewsPartnerAndPostsCache>(location)?.newsPartner;
+  const [rssFeedProviderDetail, setRssFeedProviderDetail] = useState<RssFeedProviderType>(
+    hasPageStateCache(location) ? newsPartnerCache : undefined,
+  );
   const [following, setFollowing] = useState<boolean>(false);
   const [notificationToggle, setNotificationToggle] = useState<boolean>(false);
   const userData = useAppSelector((state) => state.user);
@@ -94,13 +100,18 @@ function NewsPartnerDetail() {
   };
 
   useEffect(() => {
-    if (partnerId) {
-      getRssFeedProviderDetail(partnerId)
-        .then((res) => {
-          setRssFeedProviderDetail(res.data);
+    // Done fetch - a.) no `partnerId` b.) rssFeedDetails already fetched from `pageStateCache`
+    if (!partnerId || rssFeedProviderDetail) { return; }
+
+    getRssFeedProviderDetail(partnerId)
+      .then((res) => {
+        setRssFeedProviderDetail(res.data);
+        setPageStateCache<NewsPartnerAndPostsCache>(location, {
+          ...(getPageStateCache(location) ?? {}),
+          newsPartner: res.data,
         });
-    }
-  }, [partnerId]);
+      });
+  }, [location, partnerId, rssFeedProviderDetail]);
 
   return (
     <>

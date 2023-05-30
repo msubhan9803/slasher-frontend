@@ -59,9 +59,9 @@ export const userSlice = createSlice({
       state.forceFriendListReload = payload.payload;
     },
     appendToPathnameHistory: (state, action: PayloadAction<string>) => {
-      const last = state.pathnameHistory[state.pathnameHistory.length - 1];
+      const lastPagePathname = state.pathnameHistory[state.pathnameHistory.length - 1];
       // We prevent appending duplicate pathname in a row
-      if (last !== action.payload) {
+      if (lastPagePathname !== action.payload) {
         state.pathnameHistory.push(action.payload);
       }
     },

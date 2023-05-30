@@ -13,7 +13,6 @@ import UnauthenticatedPageWrapper
   from './components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import AuthenticatedPageWrapper from './components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import NotFound from './components/NotFound';
-import Conversation from './routes/conversation/Conversation';
 import Messages from './routes/messages/Messages';
 import News from './routes/news/News';
 import Onboarding from './routes/onboarding/Onboarding';
@@ -42,6 +41,7 @@ import ChangeEmailRevert from './routes/change-email/ChangeEmailRevert';
 import PublicProfile from './routes/public-home-page/public-profile-web/PublicProfile';
 import { useAppSelector } from './redux/hooks';
 import ServerUnavailable from './components/ServerUnavailable';
+import Conversation from './routes/conversation/Conversation';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';

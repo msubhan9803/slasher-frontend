@@ -180,17 +180,37 @@ export class ChatGateway {
 
   async emitMessageForConversation(newMessagesArray, toUserId: string) {
     const targetUserSocketIds = await this.usersService.findSocketIdsForUser(toUserId);
-    (newMessagesArray as any).forEach((messageObject) => {
+    for (const messageObject of newMessagesArray as any) {
       const cloneMessage = messageObject.toObject();
       cloneMessage.image = relativeToFullImagePath(this.config, cloneMessage.image);
       cloneMessage.urls = cloneMessage.urls.map((url) => relativeToFullImagePath(this.config, url));
+
+      // TODO: Remove fromUser and messageObjectReformattedForOldApi as soon as the old Android and
+      // iOS apps are retired.  These lines are only here for temporary compatibility.
+      const fromUser = await this.usersService.findById(cloneMessage.fromId, false);
+      // NOTE: We are NOT transforming the image and urls fields to full https URLs because the
+      // iOS and Android apps expect relative URLs.
+      const messageObjectReformattedForOldApi = {
+        ...messageObject.toObject(),
+        fromUser: {
+          _id: fromUser.id,
+          userName: fromUser.userName,
+          profilePic: fromUser.profilePic,
+          matchId: messageObject.matchId,
+        },
+      };
+
       // Emit message to receiver
       targetUserSocketIds.forEach((socketId) => {
         this.server.to(socketId).emit('chatMessageReceived', {
           message: pick(cloneMessage, ['_id', 'image', 'urls', 'message', 'fromId', 'matchId', 'createdAt']),
         });
+        // TODO: Remove messageV2, and messageV3 lines below as soon as the old Android and iOS apps
+        // are retired.  These lines are only here for temporary compatibility.
+        this.server.to(socketId).emit('messageV2', messageObjectReformattedForOldApi);
+        this.server.to(socketId).emit('messageV3', messageObjectReformattedForOldApi);
       });
-    });
+    }
   }
 
   @SubscribeMessage('clearNewConversationIds')

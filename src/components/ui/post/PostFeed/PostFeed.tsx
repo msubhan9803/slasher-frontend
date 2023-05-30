@@ -428,8 +428,8 @@ function PostFeed({
       {postData.map((post: any, i) => (
         <div key={post.id}>
           <div className="post">
-            <Card className="bg-transparent border-0 rounded-3 mb-md-4 mb-0 pt-md-3 px-sm-0">
-              <Card.Header className="border-0 px-0 bg-transparent">
+            <Card className="bg-transparent border-0 rounded-3 px-sm-0">
+              <Card.Header className="border-0 px-0 bg-transparent" style={{ paddingTop: 6 }}>
                 <PostHeader
                   isSinglePost={isSinglePost}
                   id={post.id}
@@ -446,7 +446,7 @@ function PostFeed({
                   postType={postType}
                 />
               </Card.Header>
-              <Card.Body className="px-0 pt-3">
+              <Card.Body className="px-0 pt-3 pb-0">
                 {postType === 'group-post' && renderGroupPostContent(post)}
                 {post?.rssFeedTitle && <h1 className="h2">{post.rssFeedTitle}</h1>}
                 <PostContent

@@ -119,6 +119,18 @@ export interface MessagesList {
   participants: UserMesssage[]
 }
 
+export interface Message {
+  _id: string;
+  message: string;
+  isRead: boolean;
+  imageDescription: string;
+  createdAt: string;
+  image: string;
+  urls: string[];
+  fromId: string;
+  senderId: string; // this means toId
+}
+
 export interface UserMesssage {
   _id: string;
   userName: string;
@@ -337,3 +349,12 @@ export type MoviePageCache = {
   additionalMovieData: AdditionalMovieData,
   reviews: any
 };
+export interface ConversationListItem {
+  unreadCount: number;
+  latestMessage: string;
+  _id: string; // matchListId
+  userId: string;
+  userName: string;
+  profilePic: string;
+  updatedAt: string;
+}

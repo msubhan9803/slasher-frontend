@@ -1,8 +1,9 @@
 import React from 'react';
 import DatingPageWrapper from '../components/DatingPageWrapper';
-import Chat from '../../../components/chat/Chat';
+// import Chat from '../../../components/chat/Chat';
 
 function DatingConversation() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const messages = [
     {
       id: '1',
@@ -45,7 +46,7 @@ function DatingConversation() {
   return (
     <DatingPageWrapper>
       <div className="mt-5 pt-5 mt-lg-0 pt-lg-0">
-        <Chat messages={messages} />
+        {/* <Chat messages={messages} /> */}
       </div>
     </DatingPageWrapper>
   );

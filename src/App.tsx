@@ -13,7 +13,6 @@ import UnauthenticatedPageWrapper
   from './components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import AuthenticatedPageWrapper from './components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import NotFound from './components/NotFound';
-import Conversation from './routes/conversation/Conversation';
 import Messages from './routes/messages/Messages';
 import News from './routes/news/News';
 import Onboarding from './routes/onboarding/Onboarding';
@@ -62,8 +61,6 @@ const routes: Record<string, TopLevelRoute> = {
   'app/home': { wrapper: AuthenticatedPageWrapper, component: Home },
   'app/search/*': { wrapper: AuthenticatedPageWrapper, component: Search },
   'app/messages': { wrapper: AuthenticatedPageWrapper, component: Messages },
-  'app/messages/conversation-old/:conversationId': { wrapper: AuthenticatedPageWrapper, component: Conversation },
-  'app/messages/conversation-old/user/:userId': { wrapper: AuthenticatedPageWrapper, component: Conversation },
   'app/messages/conversation/:conversationId': { wrapper: AuthenticatedPageWrapper, component: ConversationAlt },
   'app/messages/conversation/user/:userId': { wrapper: AuthenticatedPageWrapper, component: ConversationAlt },
   'app/news/*': { wrapper: AuthenticatedPageWrapper, component: News },

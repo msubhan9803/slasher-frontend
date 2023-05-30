@@ -12,6 +12,8 @@ import { LG_MEDIA_BREAKPOINT } from '../../constants';
 import SigninComponent from '../../components/ui/SigninComponent';
 import useSessionToken from '../../hooks/useSessionToken';
 import { sleep } from '../../utils/timer-utils';
+import { setServerAvailable } from '../../redux/slices/serverAvailableSlice';
+import { useAppDispatch } from '../../redux/hooks';
 
 export interface UserCredentials {
   emailOrUsername: string;
@@ -51,6 +53,7 @@ function SignIn() {
   });
   const [searchParams] = useSearchParams();
   const token = useSessionToken();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (!token.isLoading && token.value) {
@@ -72,7 +75,12 @@ function SignIn() {
         navigate(`${targetPath ?? '/app/home'}`);
       });
     }).catch((error) => {
-      setErrorMessage(error.response.data.message);
+      const isConnectionLost = error.message === 'Network Error';
+      if (isConnectionLost) {
+        dispatch(setServerAvailable(false));
+      } else {
+        setErrorMessage(error.response.data.message);
+      }
     });
   };
 

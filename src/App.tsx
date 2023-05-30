@@ -40,6 +40,8 @@ import Index from './routes/Index';
 import ChangeEmailConfirm from './routes/change-email/ChangeEmailConfirm';
 import ChangeEmailRevert from './routes/change-email/ChangeEmailRevert';
 import PublicProfile from './routes/public-home-page/public-profile-web/PublicProfile';
+import { useAppSelector } from './redux/hooks';
+import ServerUnavailable from './components/ServerUnavailable';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -110,6 +112,7 @@ CapacitorApp.addListener('backButton', ({ canGoBack }) => {
 
 function App() {
   usePubWiseAdSlots(enableADs);
+  const isServerAvailable = useAppSelector((state) => state.serverAvailability.isAvailable);
 
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -136,7 +139,10 @@ function App() {
   );
 
   return (
-    <RouterProvider router={router} />
+    <>
+      {isServerAvailable || <ServerUnavailable />}
+      <RouterProvider router={router} />
+    </>
   );
 }
 

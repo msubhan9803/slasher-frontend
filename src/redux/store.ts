@@ -10,6 +10,7 @@ import musicReducer from './slices/musicSlice';
 import podcastsReducer from './slices/podcastsSlice';
 import scrollPositionReducer from './slices/scrollPositionSlice';
 import socketReducer from './slices/socketSlice';
+import serverAvailabilityReducer from './slices/serverAvailableSlice';
 
 export const store = configureStore({
   reducer: {
@@ -24,6 +25,7 @@ export const store = configureStore({
     pubWise: pubWiseReducer,
     scrollPosition: scrollPositionReducer,
     socket: socketReducer,
+    serverAvailability: serverAvailabilityReducer,
   },
 });
 

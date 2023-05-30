@@ -168,8 +168,11 @@ function AuthenticatedPageWrapper({ children }: Props) {
     socketStore.socket.on('connect', () => {
       dispatch(setSocketConnected());
     });
+    socketStore.socket.on('connect_error', (err: any) => {
+      const isConnectionFailure = err.message === 'websocket error';
+      if (isConnectionFailure) { dispatch(setServerAvailable(false)); }
+    });
     socketStore.socket.on('disconnect', (err) => {
-      dispatch(setSocketConnected());
       const isConnectionLost = err === 'transport close';
       if (isConnectionLost) { dispatch(setServerAvailable(false)); }
     });

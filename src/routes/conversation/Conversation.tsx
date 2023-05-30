@@ -41,7 +41,7 @@ function Conversation() {
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
-        <Chat viewerUserId={userId} conversationId={conversationId!} />
+        <Chat key={conversationId} viewerUserId={userId} conversationId={conversationId!} />
       </ContentPageWrapper>
       <RightSidebarWrapper>
         <RightSidebarSelf />

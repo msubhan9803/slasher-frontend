@@ -68,13 +68,6 @@ function UserChatMessage({
                   alt={message.imageDescription || DEFAULT_USER_UPLOADED_CONTENT_ALT_TEXT}
                   onLoad={onImageLoad}
                 />
-                {/* <img
-                  className="w-100 rounded-3"
-                  style={{ maxHeight: `${maxChatImageHeight}px` }}
-                  src={message.image}
-                  alt={message.imageDescription || DEFAULT_USER_UPLOADED_CONTENT_ALT_TEXT}
-                  onLoad={onImageLoad}
-                /> */}
               </div>
             )
             : (

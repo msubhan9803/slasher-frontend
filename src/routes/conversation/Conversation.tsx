@@ -11,9 +11,9 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layou
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import { useAppSelector } from '../../redux/hooks';
-import NewChat from '../../components/chat/NewChat';
+import Chat from '../../components/chat/Chat';
 
-function ConversationAlt() {
+function Conversation() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const { conversationId } = useParams();
@@ -41,7 +41,7 @@ function ConversationAlt() {
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
-        <NewChat viewerUserId={userId} conversationId={conversationId!} />
+        <Chat viewerUserId={userId} conversationId={conversationId!} />
       </ContentPageWrapper>
       <RightSidebarWrapper>
         <RightSidebarSelf />
@@ -50,4 +50,4 @@ function ConversationAlt() {
   );
 }
 
-export default ConversationAlt;
+export default Conversation;

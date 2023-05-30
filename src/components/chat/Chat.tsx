@@ -18,7 +18,7 @@ import {
 import ChatOptions from './ChatOptions';
 import ChatUserStatus from './ChatUserStatus';
 import ChatMessages from './ChatMessages';
-import NewChatInput from './NewChatInput';
+import NewChatInput from './ChatInput';
 
 interface Props {
   viewerUserId: string;
@@ -62,7 +62,7 @@ const preloadImagesFromMessageResponse = async (messagesToPreload: Message[]) =>
   await Promise.all(imagePromises);
 };
 
-function NewChat({
+function Chat({
   viewerUserId, conversationId,
 }: Props) {
   const { socket } = socketStore;
@@ -375,4 +375,4 @@ function NewChat({
   );
 }
 
-export default NewChat;
+export default Chat;

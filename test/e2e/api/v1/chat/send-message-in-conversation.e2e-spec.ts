@@ -16,6 +16,7 @@ import { createTempFiles } from '../../../../helpers/tempfile-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { MessageType } from '../../../../../src/schemas/message/message.enums';
 
 describe('Send Message In Conversation / (e2e)', () => {
   let app: INestApplication;
@@ -105,7 +106,7 @@ describe('Send Message In Conversation / (e2e)', () => {
                   senderId: user1._id.toString(),
                   matchId: message1.matchId._id.toString(),
                   createdAt: expect.any(String),
-                  messageType: 0,
+                  messageType: MessageType.Image,
                   isRead: false,
                   status: 1,
                   deleted: false,
@@ -120,7 +121,7 @@ describe('Send Message In Conversation / (e2e)', () => {
                   senderId: user1._id.toString(),
                   matchId: message1.matchId._id.toString(),
                   createdAt: expect.any(String),
-                  messageType: 0,
+                  messageType: MessageType.Image,
                   isRead: false,
                   status: 1,
                   deleted: false,
@@ -135,7 +136,7 @@ describe('Send Message In Conversation / (e2e)', () => {
                   senderId: user1._id.toString(),
                   matchId: message1.matchId._id.toString(),
                   createdAt: expect.any(String),
-                  messageType: 0,
+                  messageType: MessageType.Image,
                   isRead: false,
                   status: 1,
                   deleted: false,
@@ -300,7 +301,7 @@ describe('Send Message In Conversation / (e2e)', () => {
                   senderId: user1._id.toString(),
                   matchId: message1.matchId._id.toString(),
                   createdAt: expect.any(String),
-                  messageType: 0,
+                  messageType: MessageType.Image,
                   isRead: false,
                   status: 1,
                   deleted: false,

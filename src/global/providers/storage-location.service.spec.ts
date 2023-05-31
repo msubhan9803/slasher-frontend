@@ -29,15 +29,8 @@ describe('StorageLocationService', () => {
   });
 
   describe('#generateNewStorageLocationFor', () => {
-    it('generates the expected-format value when storage location prefix is an empty string', () => {
-      jest.spyOn(storageLocationService, 'getStorageLocationGeneratorPrefix').mockImplementation(() => '');
-      expect(storageLocationService.generateNewStorageLocationFor('sometype', 'somefilename.png')).toBe(
-        '/sometype/sometype_somefilename.png',
-      );
-    });
-
-    it('generates the expected-format value when storage location prefix has a value', () => {
-      jest.spyOn(storageLocationService, 'getStorageLocationGeneratorPrefix').mockImplementation(() => '/custom-prefix');
+    it('generates the expected-format value', () => {
+      jest.spyOn(storageLocationService, 'getStorageLocationGeneratorPrefix').mockImplementation(() => '/custom-prefix/');
       expect(storageLocationService.generateNewStorageLocationFor('sometype', 'somefilename.png')).toBe(
         '/custom-prefix/sometype/sometype_somefilename.png',
       );

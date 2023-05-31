@@ -19,6 +19,10 @@ class EnvironmentVariables {
 
   @IsString()
   UPLOAD_DIR: string;
+
+  @IsOptional()
+  @IsString()
+  STORAGE_LOCATION_GENERATOR_PREFIX: string;
 }
 
 export function validateEnv(config: Record<string, unknown>) {
@@ -29,6 +33,16 @@ export function validateEnv(config: Record<string, unknown>) {
   }
   if (!validatedConfig.REQUEST_TIMEOUT) {
     validatedConfig.REQUEST_TIMEOUT = DEFAULT_REQUEST_TIMEOUT;
+  }
+  if (!validatedConfig.STORAGE_LOCATION_GENERATOR_PREFIX) {
+    validatedConfig.STORAGE_LOCATION_GENERATOR_PREFIX = '/';
+  } else {
+    if (!validatedConfig.STORAGE_LOCATION_GENERATOR_PREFIX.startsWith('/')) {
+      validatedConfig.STORAGE_LOCATION_GENERATOR_PREFIX = `/${validatedConfig.STORAGE_LOCATION_GENERATOR_PREFIX}`;
+    }
+    if (!validatedConfig.STORAGE_LOCATION_GENERATOR_PREFIX.endsWith('/')) {
+      validatedConfig.STORAGE_LOCATION_GENERATOR_PREFIX = `${validatedConfig.STORAGE_LOCATION_GENERATOR_PREFIX}/`;
+    }
   }
   return validatedConfig;
 }

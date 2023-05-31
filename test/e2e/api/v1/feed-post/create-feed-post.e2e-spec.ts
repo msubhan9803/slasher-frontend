@@ -113,22 +113,22 @@ describe('Feed-Post / Post File (e2e)', () => {
           userId: activeUser._id.toString(),
           images: [
             {
-              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/feed\/feed_.+\.png|jpe?g/),
               description: 'this is create post description 1',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
-              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/feed\/feed_.+\.png|jpe?g/),
               description: 'this is create post description 2',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
-              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/feed\/feed_.+\.png|jpe?g/),
               description: 'this is create post description 3',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
-              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/feed\/feed_.+\.png|jpe?g/),
               description: 'this is create post description 4',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
@@ -483,7 +483,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           userId: activeUser._id.toString(),
           images: [
             {
-              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/feed\/feed_.+\.png|jpe?g/),
               description: null,
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },

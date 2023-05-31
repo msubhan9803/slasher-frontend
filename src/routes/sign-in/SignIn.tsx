@@ -76,10 +76,7 @@ function SignIn() {
 
     // Show <ServerUnavailable/> modal if signin request doesn't resove on expected time.
     const serverUnavailableTimeout = setTimeout(
-      () => {
-        dispatch(setServerAvailable(false));
-        abortControllerRef.current?.abort();
-      },
+      () => { abortControllerRef.current?.abort(); },
       SERVER_UNAVAILABLE_TIMEOUT,
     );
     const clearServerUnavailableTimeout = () => {
@@ -97,8 +94,9 @@ function SignIn() {
       });
     }).catch((error) => {
       setProgressButtonStatus('failure');
+      const isAborted = error.message === 'canceled';
       const isConnectionLost = error.message === 'Network Error';
-      if (isConnectionLost) {
+      if (isConnectionLost || isAborted) {
         dispatch(setServerAvailable(false));
       } else {
         setErrorMessage(error.response.data.message);

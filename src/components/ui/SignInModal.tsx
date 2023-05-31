@@ -33,9 +33,9 @@ function SignInModal({ show, setShow, isPublicProfile }: SignInProps) {
     password: '',
   });
   const { userName } = useParams();
-  const dispatch = useAppDispatch();
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const abortControllerRef = useRef<AbortController | null>(null);
+  const dispatch = useAppDispatch();
 
   const closeModal = () => {
     setShow(false);
@@ -49,10 +49,7 @@ function SignInModal({ show, setShow, isPublicProfile }: SignInProps) {
 
     // Show <ServerUnavailable/> modal if signin request doesn't resove on expected time.
     const serverUnavailableTimeout = setTimeout(
-      () => {
-        dispatch(setServerAvailable(false));
-        abortControllerRef.current?.abort();
-      },
+      () => { abortControllerRef.current?.abort(); },
       SERVER_UNAVAILABLE_TIMEOUT,
     );
     const clearServerUnavailableTimeout = () => {
@@ -68,7 +65,13 @@ function SignInModal({ show, setShow, isPublicProfile }: SignInProps) {
       navigate(`/${userName}/about`, { state: stateObj });
     }).catch((error) => {
       setProgressButtonStatus('failure');
-      setErrorMessage(error.response.data.message);
+      const isAborted = error.message === 'canceled';
+      const isConnectionLost = error.message === 'Network Error';
+      if (isConnectionLost || isAborted) {
+        dispatch(setServerAvailable(false));
+      } else {
+        setErrorMessage(error.response.data.message);
+      }
     }).finally(clearServerUnavailableTimeout);
   };
 

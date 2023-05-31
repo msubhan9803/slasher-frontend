@@ -17,7 +17,6 @@ import {
 import { defaultLinkifyOpts } from '../../../utils/linkify-utils';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
 import { User } from '../../../types';
-import ScrollToTop from '../../../components/ScrollToTop';
 
 interface Props {
   user: User

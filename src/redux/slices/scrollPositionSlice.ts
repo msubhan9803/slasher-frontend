@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 export const scrollPositionSlice = createSlice({
   name: 'scrollPosition',
@@ -7,8 +7,8 @@ export const scrollPositionSlice = createSlice({
   },
   reducers: {
     /* eslint-disable no-param-reassign */
-    setScrollToTabsPosition: (state, payload) => {
-      state.scrollToTab = payload.payload;
+    setScrollToTabsPosition: (state, action: PayloadAction<boolean>) => {
+      state.scrollToTab = action.payload;
     },
   },
 });

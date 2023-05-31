@@ -88,7 +88,6 @@ function ProfileAbout({ user }: Props) {
 
   return (
     <div>
-      <ScrollToTop />
       <ProfileHeader tabKey="about" user={user} />
       <ProfileTabContent>
         <div className="bg-dark rounded p-4 my-3">

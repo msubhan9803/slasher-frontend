@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Modal } from 'react-bootstrap';
 import styled from 'styled-components';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -6,6 +6,10 @@ import { UserCredentials } from '../../routes/sign-in/SignIn';
 import SigninComponent from './SigninComponent';
 import { signIn } from '../../api/users';
 import { setSignInCookies } from '../../utils/session-utils';
+import useProgressButton from './ProgressButton';
+import { SERVER_UNAVAILABLE_TIMEOUT } from '../../constants';
+import { setServerAvailable } from '../../redux/slices/serverAvailableSlice';
+import { useAppDispatch } from '../../redux/hooks';
 
 const StyledModal = styled(Modal)`
 .modal-content {
@@ -29,20 +33,43 @@ function SignInModal({ show, setShow, isPublicProfile }: SignInProps) {
     password: '',
   });
   const { userName } = useParams();
+  const dispatch = useAppDispatch();
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   const closeModal = () => {
     setShow(false);
   };
 
   const handleUserSignIn = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
-    signIn(credentials.emailOrUsername, credentials.password).then((res) => {
+    setProgressButtonStatus('loading');
+
+    abortControllerRef.current = new AbortController();
+
+    // Show <ServerUnavailable/> modal if signin request doesn't resove on expected time.
+    const serverUnavailableTimeout = setTimeout(
+      () => {
+        dispatch(setServerAvailable(false));
+        abortControllerRef.current?.abort();
+      },
+      SERVER_UNAVAILABLE_TIMEOUT,
+    );
+    const clearServerUnavailableTimeout = () => {
+      clearTimeout(serverUnavailableTimeout);
+    };
+
+    // eslint-disable-next-line max-len
+    signIn(credentials.emailOrUsername, credentials.password, abortControllerRef.current.signal).then((res) => {
+      setProgressButtonStatus('success');
       setErrorMessage([]);
       setSignInCookies(res.data.token, res.data.id, res.data.userName);
       const stateObj = { publicProfile: true };
       navigate(`/${userName}/about`, { state: stateObj });
     }).catch((error) => {
+      setProgressButtonStatus('failure');
       setErrorMessage(error.response.data.message);
-    });
+    }).finally(clearServerUnavailableTimeout);
   };
 
   return (
@@ -55,6 +82,7 @@ function SignInModal({ show, setShow, isPublicProfile }: SignInProps) {
       <Modal.Title className="text-primary text-center px-5 mx-4 h1">Please sign in or create an account.</Modal.Title>
       <Modal.Body>
         <SigninComponent
+          ProgressButton={ProgressButton}
           credential={credentials}
           setCredential={setCredentials}
           showPassword={showPassword}

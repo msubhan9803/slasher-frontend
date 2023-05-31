@@ -4,7 +4,7 @@ import { apiUrl } from '../constants';
 import { RegisterUser } from '../types';
 import { getSessionToken, getSessionUserId } from '../utils/session-utils';
 
-export async function signIn(emailOrUsername: string, password: string) {
+export async function signIn(emailOrUsername: string, password: string, signal?: AbortSignal) {
   return axios.post(
     `${apiUrl}/api/v1/users/sign-in`,
     {
@@ -16,6 +16,7 @@ export async function signIn(emailOrUsername: string, password: string) {
       app_version: `web-${process.env.REACT_APP_VERSION}`,
       device_version: window.navigator.userAgent,
     },
+    { signal },
   );
 }
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Col, Image, Row,
 } from 'react-bootstrap';
@@ -8,12 +8,13 @@ import { signIn } from '../../api/users';
 import { setSignInCookies } from '../../utils/session-utils';
 import slasherLogo from '../../images/slasher-beta-logo-medium.png';
 import signInImageMobile from '../../images/sign-in-background-beta-mobile.jpg';
-import { LG_MEDIA_BREAKPOINT } from '../../constants';
+import { LG_MEDIA_BREAKPOINT, SERVER_UNAVAILABLE_TIMEOUT } from '../../constants';
 import SigninComponent from '../../components/ui/SigninComponent';
 import useSessionToken from '../../hooks/useSessionToken';
 import { sleep } from '../../utils/timer-utils';
 import { setServerAvailable } from '../../redux/slices/serverAvailableSlice';
 import { useAppDispatch } from '../../redux/hooks';
+import useProgressButton from '../../components/ui/ProgressButton';
 
 export interface UserCredentials {
   emailOrUsername: string;
@@ -54,6 +55,8 @@ function SignIn() {
   const [searchParams] = useSearchParams();
   const token = useSessionToken();
   const dispatch = useAppDispatch();
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     if (!token.isLoading && token.value) {
@@ -67,7 +70,25 @@ function SignIn() {
 
   const handleUserSignIn = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
-    signIn(credentials.emailOrUsername, credentials.password).then(async (res) => {
+    setProgressButtonStatus('loading');
+
+    abortControllerRef.current = new AbortController();
+
+    // Show <ServerUnavailable/> modal if signin request doesn't resove on expected time.
+    const serverUnavailableTimeout = setTimeout(
+      () => {
+        dispatch(setServerAvailable(false));
+        abortControllerRef.current?.abort();
+      },
+      SERVER_UNAVAILABLE_TIMEOUT,
+    );
+    const clearServerUnavailableTimeout = () => {
+      clearTimeout(serverUnavailableTimeout);
+    };
+
+    // eslint-disable-next-line max-len
+    signIn(credentials.emailOrUsername, credentials.password, abortControllerRef.current.signal).then(async (res) => {
+      setProgressButtonStatus('success');
       await sleep(1000);
       setErrorMessage([]);
       setSignInCookies(res.data.token, res.data.id, res.data.userName).finally(() => {
@@ -75,13 +96,14 @@ function SignIn() {
         navigate(`${targetPath ?? '/app/home'}`);
       });
     }).catch((error) => {
+      setProgressButtonStatus('failure');
       const isConnectionLost = error.message === 'Network Error';
       if (isConnectionLost) {
         dispatch(setServerAvailable(false));
       } else {
         setErrorMessage(error.response.data.message);
       }
-    });
+    }).finally(clearServerUnavailableTimeout);
   };
 
   return (
@@ -97,6 +119,7 @@ function SignIn() {
       <Col sm={12} lg={6}>
         <LoginFormWrapper className="bg-secondary bg-mobile-transparent mx-auto">
           <SigninComponent
+            ProgressButton={ProgressButton}
             credential={credentials}
             setCredential={setCredentials}
             showPassword={showPassword}

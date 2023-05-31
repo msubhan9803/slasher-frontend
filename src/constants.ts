@@ -37,3 +37,4 @@ export const WORDPRESS_SITE_URL = 'https://pages.slasher.tv';
 export const topToDivHeight = 110;
 
 export const bottomMobileNavHeight = 80;
+export const SERVER_UNAVAILABLE_TIMEOUT = 10_000;

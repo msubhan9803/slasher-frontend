@@ -32,6 +32,7 @@ import { setSocketConnected } from '../../../../redux/slices/socketSlice';
 import socketStore from '../../../../socketStore';
 import useSessionTokenMonitorAsync from '../../../../hooks/useSessionTokenMonitorAsync';
 import useSessionToken from '../../../../hooks/useSessionToken';
+import { setServerAvailable } from '../../../../redux/slices/serverAvailableSlice';
 
 interface Props {
   children: React.ReactNode;
@@ -166,6 +167,14 @@ function AuthenticatedPageWrapper({ children }: Props) {
     });
     socketStore.socket.on('connect', () => {
       dispatch(setSocketConnected());
+    });
+    socketStore.socket.on('connect_error', (err: any) => {
+      const isConnectionFailure = err.message === 'websocket error';
+      if (isConnectionFailure) { dispatch(setServerAvailable(false)); }
+    });
+    socketStore.socket.on('disconnect', (err) => {
+      const isConnectionLost = err === 'transport close';
+      if (isConnectionLost) { dispatch(setServerAvailable(false)); }
     });
     // This is here to help with troubleshooting if there are ever any connection issues.
     // This will just prove whether or not authentication worked. If authentication fails,

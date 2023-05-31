@@ -17,7 +17,6 @@ import {
 import { defaultLinkifyOpts } from '../../../utils/linkify-utils';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
 import { User } from '../../../types';
-import ScrollToTop from '../../../components/ScrollToTop';
 
 interface Props {
   user: User
@@ -88,7 +87,6 @@ function ProfileAbout({ user }: Props) {
 
   return (
     <div>
-      <ScrollToTop />
       <ProfileHeader tabKey="about" user={user} />
       <ProfileTabContent>
         <div className="bg-dark rounded p-4 my-3">

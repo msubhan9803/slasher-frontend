@@ -123,7 +123,8 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
             : [
               ...prev,
               ...res.data.friends,
-            ]));
+            ]
+          ));
           setPage(page + 1);
           if (res.data.friends.length === 0) {
             setNoMoreData(true);

@@ -40,7 +40,7 @@ import Index from './routes/Index';
 import ChangeEmailConfirm from './routes/change-email/ChangeEmailConfirm';
 import ChangeEmailRevert from './routes/change-email/ChangeEmailRevert';
 import PublicProfile from './routes/public-home-page/public-profile-web/PublicProfile';
-import { initPushNotifications } from './utils/pushNotification-utils';
+import PushNotificationWrapper from './components/pushNotification';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -110,13 +110,10 @@ CapacitorApp.addListener('backButton', ({ canGoBack }) => {
 });
 
 function App() {
-  useEffect(() => {
-    initPushNotifications();
-  }, []);
   usePubWiseAdSlots(enableADs);
   const router = createBrowserRouter(
     createRoutesFromElements(
-      <Route>
+      <Route path="/" element={<PushNotificationWrapper />}>
         <Route path="/" element={<Index />} />
         {
           Object.entries(routes).map(

@@ -8,6 +8,9 @@ export const templateForEmailChangeNewAddressRecipient = `
 
     <p>
       To confirm the email address change on your Slasher account to [[NEW_EMAIL_ADDRESS]], please click the following button:
+    </p>
+
+    <p>
       ${renderEmailHtmlButtonLink('click here', '[[VERIFY_NEW_EMAIL_LINK]]')}
     </p>
 

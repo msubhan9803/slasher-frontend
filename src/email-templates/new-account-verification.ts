@@ -9,6 +9,9 @@ export const templateForNewAccountVerification = `
 
     <p>
       Click the button to activate your Slasher account:
+    </p>
+
+    <p>
       ${renderEmailHtmlButtonLink('click here', '[[EMAIL_VERIFICATION_LINK]]')}
     </p>
 

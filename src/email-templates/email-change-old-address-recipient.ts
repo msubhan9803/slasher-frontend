@@ -14,6 +14,8 @@ export const templateForEmailChangeOldAddressRecipient = `
 
     <p>
       ${renderEmailHtmlButtonLink('cancel email change', '[[CANCEL_EMAIL_ADDRESS_CHANGE_LINK]]')}
+      <br />
+      <br />
     </p>
 
     <p>If you did not make this request:</p>

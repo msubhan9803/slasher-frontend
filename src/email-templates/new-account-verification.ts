@@ -13,6 +13,8 @@ export const templateForNewAccountVerification = `
 
     <p>
       ${renderEmailHtmlButtonLink('click here', '[[EMAIL_VERIFICATION_LINK]]')}
+      <br />
+      <br />
     </p>
 
     <p>We look forward to you being a part of our community. We've got such sights to show you!</p>

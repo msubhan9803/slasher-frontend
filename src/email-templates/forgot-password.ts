@@ -12,6 +12,8 @@ export const templateForForgotPassword = `
 
     <p>
       ${renderEmailHtmlButtonLink('click here', '[[RESET_PASSWORD_LINK]]')}
+      <br />
+      <br />
     </p>
 
     <p>

@@ -12,6 +12,8 @@ export const templateForEmailChangeNewAddressRecipient = `
 
     <p>
       ${renderEmailHtmlButtonLink('click here', '[[VERIFY_NEW_EMAIL_LINK]]')}
+      <br />
+      <br />
     </p>
 
     <p>Your email address will not be changed if you do not click the link.</p>

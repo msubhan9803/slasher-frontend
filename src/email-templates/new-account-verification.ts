@@ -1,4 +1,6 @@
-import { sharedEmailHeader, sharedEmailFooter } from './shared';
+import {
+  sharedEmailHeader, sharedEmailFooter, renderEmailHtmlButtonLink,
+} from './shared';
 
 /* eslint-disable max-len */
 export const templateForNewAccountVerification = `
@@ -7,10 +9,12 @@ export const templateForNewAccountVerification = `
 
     <p>
       Click the button to activate your Slasher account:
-      <a
-        style="color:#000000;background:#ff1800;border-radius:50px;text-decoration:none;padding:0.375rem .75rem;font-size:14px;font-weight:bold;"
-        href="[[EMAIL_VERIFICATION_LINK]]"
-      >Click here</a>
+    </p>
+
+    <p>
+      ${renderEmailHtmlButtonLink('click here', '[[EMAIL_VERIFICATION_LINK]]')}
+      <br />
+      <br />
     </p>
 
     <p>We look forward to you being a part of our community. We've got such sights to show you!</p>

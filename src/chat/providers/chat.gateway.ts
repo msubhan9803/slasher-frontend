@@ -19,10 +19,6 @@ import { pick } from '../../utils/object-utils';
 import { FriendsService } from '../../friends/providers/friends.service';
 import { relativeToFullImagePath } from '../../utils/image-utils';
 
-const RECENT_MESSAGES_LIMIT = 10;
-
-type MessageReturnType = Partial<{ success: boolean, message: Message, errorMessage: string }>;
-
 @WebSocketGateway(SHARED_GATEWAY_OPTS)
 export class ChatGateway {
   constructor(
@@ -42,7 +38,7 @@ export class ChatGateway {
   }
 
   @SubscribeMessage('chatMessage')
-  async chatMessage(@MessageBody() data: any, @ConnectedSocket() client: Socket): Promise<MessageReturnType> {
+  async chatMessage(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
     const inValidMessage = typeof data.message === 'undefined' || data.message === null || data.message === '';
     const inValidUserId = typeof data.toUserId === 'undefined' || data.toUserId === null;
 
@@ -65,28 +61,54 @@ export class ChatGateway {
 
     const messageObject = await this.chatService.sendPrivateDirectMessage(fromUserId, toUserId, urlEncodedMessage);
     const targetUserSocketIds = await this.usersService.findSocketIdsForUser(toUserId);
+
+    // Convert messageObject image and urls to full paths before sending to the user
+    if (messageObject.image) {
+      messageObject.image = relativeToFullImagePath(this.config, messageObject.image);
+    }
+    messageObject.urls = messageObject.urls.map((url) => relativeToFullImagePath(this.config, url));
+
+    // TODO: Remove messageObjectReformattedForOldApi as soon as the old Android and iOS apps
+    // are retired.  These lines are only here for temporary compatibility.
+    const messageObjectReformattedForOldApi = {
+      ...messageObject.toObject(),
+      fromUser: {
+        _id: user.id,
+        userName: user.userName,
+        profilePic: user.profilePic,
+        matchId: messageObject.matchId,
+      },
+    };
+
     targetUserSocketIds.forEach((socketId) => {
       client.to(socketId).emit('chatMessageReceived', {
-        message: pick(messageObject, ['_id', 'image', 'message', 'fromId', 'matchId']),
+        message: pick(messageObject, ['_id', 'image', 'urls', 'message', 'fromId', 'matchId', 'createdAt']),
       });
+      // TODO: Remove messageV2, and messageV3 lines below as soon as the old Android and iOS apps
+      // are retired.  These lines are only here for temporary compatibility.
+      client.to(socketId).emit('messageV2', messageObjectReformattedForOldApi);
+      client.to(socketId).emit('messageV3', messageObjectReformattedForOldApi);
     });
     await this.messageCountUpdateQueue.add(
       'send-update-if-message-unread',
       { messageId: messageObject.id },
       { delay: UNREAD_MESSAGE_NOTIFICATION_DELAY }, // 15 second delay
     );
-    const newMessageObject: any = {
-      _id: messageObject._id,
-      message: messageObject.message,
-      createdAt: messageObject.createdAt,
-      image: messageObject.image,
-      matchId: messageObject.matchId,
-      created: messageObject.created,
-      imageDescription: messageObject.imageDescription,
+
+    return {
+      success: true,
+      message: pick(messageObject, [
+        '_id', 'fromId', 'message', 'createdAt', 'image', 'urls', 'matchId', 'imageDescription',
+        // NOTE: created is not actually used by the website, but it may be significant
+        // in the old iOS and android apps, so we're returning it here just so we can
+        // make sure that one of our e2e tests verifies the value.
+        // TODO: Remove this from the socket event response once the old iOS and Android apps are retired.
+        'created',
+      ]),
     };
-    return { success: true, message: newMessageObject };
   }
 
+  // TODO: Delete this.  No longer used.  And verify tests have been ported properly to new replacement route handler.
   @SubscribeMessage('getMessages')
   async getMessages(@MessageBody() data: any, @ConnectedSocket() client: Socket): Promise<any> {
     const inValidData = typeof data.matchListId === 'undefined' || data.matchListId === null;
@@ -112,15 +134,19 @@ export class ChatGateway {
       await this.emitConversationCountUpdateEvent(user.id);
     }
 
-    const messages = await this.chatService.getMessages(matchListId, userId, RECENT_MESSAGES_LIMIT, before);
+    const messages = await this.chatService.getMessages(matchListId, userId, 30, before);
     messages.forEach((messageObject) => {
       if (messageObject.image) {
         // eslint-disable-next-line no-param-reassign
         messageObject.image = relativeToFullImagePath(this.config, messageObject.image);
       }
+      if (messageObject.urls.length > 0) {
+        // eslint-disable-next-line no-param-reassign
+        messageObject.urls = messageObject.urls.map((url) => relativeToFullImagePath(this.config, url));
+      }
     });
     return messages.map(
-      (message) => pick(message, ['_id', 'message', 'isRead', 'imageDescription', 'createdAt', 'image', 'fromId', 'senderId']),
+      (message) => pick(message, ['_id', 'message', 'isRead', 'imageDescription', 'createdAt', 'image', 'urls', 'fromId', 'senderId']),
     );
   }
 
@@ -154,16 +180,37 @@ export class ChatGateway {
 
   async emitMessageForConversation(newMessagesArray, toUserId: string) {
     const targetUserSocketIds = await this.usersService.findSocketIdsForUser(toUserId);
-    (newMessagesArray as any).forEach((messageObject) => {
+    for (const messageObject of newMessagesArray as any) {
       const cloneMessage = messageObject.toObject();
       cloneMessage.image = relativeToFullImagePath(this.config, cloneMessage.image);
+      cloneMessage.urls = cloneMessage.urls.map((url) => relativeToFullImagePath(this.config, url));
+
+      // TODO: Remove fromUser and messageObjectReformattedForOldApi as soon as the old Android and
+      // iOS apps are retired.  These lines are only here for temporary compatibility.
+      const fromUser = await this.usersService.findById(cloneMessage.fromId, false);
+      // NOTE: We are NOT transforming the image and urls fields to full https URLs because the
+      // iOS and Android apps expect relative URLs.
+      const messageObjectReformattedForOldApi = {
+        ...messageObject.toObject(),
+        fromUser: {
+          _id: fromUser.id,
+          userName: fromUser.userName,
+          profilePic: fromUser.profilePic,
+          matchId: messageObject.matchId,
+        },
+      };
+
       // Emit message to receiver
       targetUserSocketIds.forEach((socketId) => {
         this.server.to(socketId).emit('chatMessageReceived', {
-          message: pick(cloneMessage, ['_id', 'image', 'message', 'fromId', 'matchId']),
+          message: pick(cloneMessage, ['_id', 'image', 'urls', 'message', 'fromId', 'matchId', 'createdAt']),
         });
+        // TODO: Remove messageV2, and messageV3 lines below as soon as the old Android and iOS apps
+        // are retired.  These lines are only here for temporary compatibility.
+        this.server.to(socketId).emit('messageV2', messageObjectReformattedForOldApi);
+        this.server.to(socketId).emit('messageV3', messageObjectReformattedForOldApi);
       });
-    });
+    }
   }
 
   @SubscribeMessage('clearNewConversationIds')

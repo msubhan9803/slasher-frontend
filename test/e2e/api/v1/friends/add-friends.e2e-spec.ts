@@ -86,8 +86,25 @@ describe('Add Friends (e2e)', () => {
       expect(notificationsService.create).toHaveBeenCalledWith({
         userId: user1.id,
         senderId: activeUser._id,
+        allUsers: [activeUser._id as any], // senderId must be in allUsers for old API compatibility
         notifyType: NotificationType.UserSentYouAFriendRequest,
         notificationMsg: 'sent you a friend request',
+        // NOTE: This data field is temporary.  Once the old iOS/Android apps are retired, we can remove it.
+        data: {
+          badgeCount: 0,
+          fromUser: {
+            _id: activeUser._id,
+            image: activeUser.profilePic,
+            userName: 'Username1',
+          },
+          notificationType: 11,
+          relationId: '',
+          toUser: {
+            _id: user1._id,
+            image: user1.profilePic,
+            userName: 'Username2',
+          },
+        },
       });
     });
 

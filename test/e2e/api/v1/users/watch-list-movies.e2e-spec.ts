@@ -268,12 +268,12 @@ describe('Watch List Movies (e2e)', () => {
       });
 
       it('returns an error if the limit is higher than allowed', async () => {
-        const limit = 41;
+        const limit = 61;
         const response = await request(app.getHttpServer())
           .get(`/api/v1/users/${activeUser.id}/watch-list?limit=${limit}&sortBy=${'releasedate'}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain('limit must not be greater than 40');
+        expect(response.body.message).toContain('limit must not be greater than 60');
       });
 
       it('sortBy should not be empty', async () => {

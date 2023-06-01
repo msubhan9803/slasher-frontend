@@ -8,6 +8,7 @@ import { UserDocument } from '../schemas/user/user.schema';
 import { SIMPLE_MONGODB_ID_REGEX } from '../constants';
 import { pick } from '../utils/object-utils';
 import { ProfileVisibility } from '../schemas/user/user.enums';
+import { Public } from '../app/guards/auth.guard';
 
 @Controller({ path: 'users/public', version: ['1'] })
 export class UsersPublicController {
@@ -17,6 +18,7 @@ export class UsersPublicController {
 
   @TransformImageUrls('$.profilePic', '$.coverPhoto')
   @Get(':userNameOrId')
+  @Public()
   async findOne(@Param('userNameOrId') userNameOrId: string) {
     let user: UserDocument;
     if (SIMPLE_MONGODB_ID_REGEX.test(userNameOrId)) {

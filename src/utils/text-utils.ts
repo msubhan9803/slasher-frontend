@@ -6,3 +6,11 @@ export function extractUserMentionIdsFromMessage(text: string) {
   // Return deduplicated list
   return [...new Set(userMentionIds)];
 }
+
+export function escapeHtmlSpecialCharacters(str: string) {
+  return str.replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}

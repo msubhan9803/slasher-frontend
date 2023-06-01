@@ -56,5 +56,28 @@ describe('Env validation for ConfigService', () => {
         expect(() => { validateEnv({ ...baseConfig, UPLOAD_DIR: undefined }); }).toThrow(Error);
       });
     });
+
+    describe('STORAGE_LOCATION_GENERATOR_PREFIX', () => {
+      it('reformats with leading and trailing slashes as expected', () => {
+        expect(validateEnv(
+          { ...baseConfig, STORAGE_LOCATION_GENERATOR_PREFIX: undefined },
+        ).STORAGE_LOCATION_GENERATOR_PREFIX).toBe('/');
+        expect(validateEnv(
+          { ...baseConfig, STORAGE_LOCATION_GENERATOR_PREFIX: '' },
+        ).STORAGE_LOCATION_GENERATOR_PREFIX).toBe('/');
+        expect(validateEnv(
+          { ...baseConfig, STORAGE_LOCATION_GENERATOR_PREFIX: 'custom-prefix' },
+        ).STORAGE_LOCATION_GENERATOR_PREFIX).toBe('/custom-prefix/');
+        expect(validateEnv(
+          { ...baseConfig, STORAGE_LOCATION_GENERATOR_PREFIX: '/custom-prefix' },
+        ).STORAGE_LOCATION_GENERATOR_PREFIX).toBe('/custom-prefix/');
+        expect(validateEnv(
+          { ...baseConfig, STORAGE_LOCATION_GENERATOR_PREFIX: 'custom-prefix/' },
+        ).STORAGE_LOCATION_GENERATOR_PREFIX).toBe('/custom-prefix/');
+        expect(validateEnv(
+          { ...baseConfig, STORAGE_LOCATION_GENERATOR_PREFIX: '/custom-prefix/' },
+        ).STORAGE_LOCATION_GENERATOR_PREFIX).toBe('/custom-prefix/');
+      });
+    });
   });
 });

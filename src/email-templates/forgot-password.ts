@@ -1,4 +1,4 @@
-import { sharedEmailHeader, sharedEmailFooter } from './shared';
+import { sharedEmailHeader, sharedEmailFooter, renderEmailHtmlButtonLink } from './shared';
 
 /* eslint-disable max-len */
 export const templateForForgotPassword = `
@@ -7,8 +7,13 @@ export const templateForForgotPassword = `
 
     <p>
       We received a password reset request from your account.
-      Please click the following link to reset your password on Slasher:
-      <a style="color:#ffffff;" href="[[RESET_PASSWORD_LINK]]">click here</a>
+      Please click the following button to reset your password on Slasher:
+    </p>
+
+    <p>
+      ${renderEmailHtmlButtonLink('click here', '[[RESET_PASSWORD_LINK]]')}
+      <br />
+      <br />
     </p>
 
     <p>

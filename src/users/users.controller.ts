@@ -75,6 +75,7 @@ import { HashtagQueryDto } from './dto/hashtag-query.dto';
 import { BetaTestersService } from '../beta-tester/providers/beta-testers.service';
 import { EmailRevertTokensService } from '../email-revert-tokens/providers/email-revert-tokens.service';
 import { FriendRequestReaction } from '../schemas/friend/friend.enums';
+import { Public } from '../app/guards/auth.guard';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -103,6 +104,7 @@ export class UsersController {
   ) { }
 
   @Post('sign-in')
+  @Public()
   async signIn(@Body() userSignInDto: UserSignInDto, @IpOrForwardedIp() ip) {
     let user = await this.usersService.findNonDeletedUserByEmailOrUsername(userSignInDto.emailOrUsername);
 
@@ -188,19 +190,18 @@ export class UsersController {
 
     // Only return the subset of useful fields
     return {
-
       ...pick(user, [
         'id',
         'userName',
         'email',
         'firstName',
-        // 'token',
       ]),
       token,
     };
   }
 
   @Get('validate-registration-fields')
+  @Public()
   async validateRegistrationFields(@Query() inputQuery) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
     if (Object.keys(inputQuery).length === 0) {
@@ -242,6 +243,7 @@ export class UsersController {
   }
 
   @Post('register')
+  @Public()
   async register(@Body() userRegisterDto: UserRegisterDto, @IpOrForwardedIp() ip) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
 
@@ -304,6 +306,7 @@ export class UsersController {
   }
 
   @Get('validate-password-reset-token')
+  @Public()
   async validatePasswordResetToken(
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     query: ValidatePasswordResetTokenDto,
@@ -316,6 +319,7 @@ export class UsersController {
   }
 
   @Post('reset-password')
+  @Public()
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     const isValid = await this.usersService.resetPasswordTokenIsValid(
       resetPasswordDto.email,
@@ -335,6 +339,7 @@ export class UsersController {
   }
 
   @Post('activate-account')
+  @Public()
   async activateAccount(@Body() activateAccountDto: ActivateAccountDto) {
     let user = await this.usersService.findById(activateAccountDto.userId, false);
     if (user && !user.deleted) {
@@ -365,6 +370,7 @@ export class UsersController {
   }
 
   @Post('forgot-password')
+  @Public()
   @HttpCode(200)
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
@@ -390,6 +396,7 @@ export class UsersController {
   }
 
   @Post('verification-email-not-received')
+  @Public()
   @HttpCode(200)
   async verificationEmailNotReceived(@Body() verificationEmailNotReceivedDto: VerificationEmailNotReceivedDto) {
     await sleep(500); // throttle so this endpoint is less likely to be abused

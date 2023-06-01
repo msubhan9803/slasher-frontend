@@ -8,12 +8,14 @@ import { fileNameToMimeType } from '../utils/mime-utils';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { GetFileDto } from './dto/getFile.dto';
 import { LocalStorageService } from './providers/local-storage.service';
+import { Public } from '../app/guards/auth.guard';
 
 @Controller({ path: 'local-storage', version: ['1'] })
 export class LocalStorageController {
   constructor(private readonly localStorageService: LocalStorageService) { }
 
   @Get(':location(*)')
+  @Public()
   async getFile(
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     params: GetFileDto,

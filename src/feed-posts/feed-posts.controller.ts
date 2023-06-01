@@ -170,6 +170,7 @@ export class FeedPostsController {
         userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
         feedPostId: createFeedPost.id,
         senderId: user._id,
+        allUsers: [user._id as any], // senderId must be in allUsers for old API compatibility
         notifyType: NotificationType.UserMentionedYouInPost,
         notificationMsg: 'mentioned you in a post',
       });
@@ -432,6 +433,7 @@ export class FeedPostsController {
         userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
         feedPostId: updatedFeedPost.id,
         senderId: user._id,
+        allUsers: [user._id as any], // senderId must be in allUsers for old API compatibility
         notifyType: NotificationType.UserMentionedYouInPost,
         notificationMsg: 'mentioned you in a post',
       });

@@ -9,6 +9,7 @@ import { EmailChangeConfirmDto } from './dto/email-change/email-change-confirm.d
 import { EmailChangeRevertDto } from './dto/email-change/email-change-revert.dto';
 import { UsersService } from './providers/users.service';
 import { EmailRevertTokensService } from '../email-revert-tokens/providers/email-revert-tokens.service';
+import { Public } from '../app/guards/auth.guard';
 
 @Controller({ path: 'users/email-change', version: ['1'] })
 export class UsersEmailChangeController {
@@ -19,6 +20,7 @@ export class UsersEmailChangeController {
   ) { }
 
   @Post('confirm')
+  @Public()
   async confirm(@Body() emailChangeConfirmDto: EmailChangeConfirmDto) {
     let user = await this.usersService.findById(emailChangeConfirmDto.userId, true);
 
@@ -42,6 +44,7 @@ export class UsersEmailChangeController {
   }
 
   @Post('revert')
+  @Public()
   async revert(@Body() emailChangeRevertDto: EmailChangeRevertDto) {
     // Any EmailRevertTokens older than 30 days should be considered expired
     const numberOfDaysRevertTokenIsValid = 30;

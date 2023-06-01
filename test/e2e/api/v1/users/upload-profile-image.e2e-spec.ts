@@ -1,4 +1,5 @@
 import * as request from 'supertest';
+import * as path from 'path';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
@@ -97,7 +98,7 @@ describe('Users / Upload Profile image (e2e)', () => {
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)
           .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('Invalid file type');
+        expect(response.body.message).toContain(`Unsupported file type: ${path.basename(tempPath)}`);
       }, { extension: 'zpng' });
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)

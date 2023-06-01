@@ -262,6 +262,12 @@ describe('UsersService', () => {
       expect(available).toBeFalsy();
     });
 
+    it('when user is inactive than expected response', async () => {
+      const updateStatus = await usersService.update(user._id.toString(), { status: ActiveStatus.Inactive });
+      const available = await usersService.userNameAvailable(updateStatus.userName);
+      expect(available).toBeFalsy();
+    });
+
     it('when user is deleted than expected response', async () => {
       const updateStatus = await usersService.update(user._id.toString(), { deleted: true });
       const available = await usersService.userNameAvailable(updateStatus.userName);
@@ -291,6 +297,12 @@ describe('UsersService', () => {
 
     it('finds the expected user using the email', async () => {
       const available = await usersService.emailAvailable(user.email);
+      expect(available).toBeFalsy();
+    });
+
+    it('when user is inactive than expected response', async () => {
+      const updateStatus = await usersService.update(user._id.toString(), { status: ActiveStatus.Inactive });
+      const available = await usersService.emailAvailable(updateStatus.email);
       expect(available).toBeFalsy();
     });
 

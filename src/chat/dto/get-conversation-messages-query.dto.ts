@@ -3,7 +3,7 @@ import {
   IsNotEmpty, IsNumber, IsString, IsMongoId, IsOptional, Max,
 } from 'class-validator';
 
-export class GetConversationsQueryDto {
+export class GetConversationMessagesQueryDto {
   @IsNotEmpty()
   @Type(() => Number)
   @IsNumber()

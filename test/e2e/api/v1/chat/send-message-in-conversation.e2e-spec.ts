@@ -16,6 +16,7 @@ import { createTempFiles } from '../../../../helpers/tempfile-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { MessageType } from '../../../../../src/schemas/message/message.enums';
 
 describe('Send Message In Conversation / (e2e)', () => {
   let app: INestApplication;
@@ -98,13 +99,14 @@ describe('Send Message In Conversation / (e2e)', () => {
                 {
                   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                   image: expectedImageValueMatcher,
+                  urls: [expectedImageValueMatcher],
                   imageDescription: 'this is chat description 1',
                   message: 'Image',
                   fromId: activeUser._id.toString(),
                   senderId: user1._id.toString(),
                   matchId: message1.matchId._id.toString(),
                   createdAt: expect.any(String),
-                  messageType: 0,
+                  messageType: MessageType.Image,
                   isRead: false,
                   status: 1,
                   deleted: false,
@@ -112,13 +114,14 @@ describe('Send Message In Conversation / (e2e)', () => {
                 {
                   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                   image: expectedImageValueMatcher,
+                  urls: [expectedImageValueMatcher],
                   imageDescription: 'this is chat description 2',
                   message: 'Image',
                   fromId: activeUser._id.toString(),
                   senderId: user1._id.toString(),
                   matchId: message1.matchId._id.toString(),
                   createdAt: expect.any(String),
-                  messageType: 0,
+                  messageType: MessageType.Image,
                   isRead: false,
                   status: 1,
                   deleted: false,
@@ -126,13 +129,14 @@ describe('Send Message In Conversation / (e2e)', () => {
                 {
                   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                   image: expectedImageValueMatcher,
+                  urls: [expectedImageValueMatcher],
                   imageDescription: 'this is chat description 3',
                   message: 'Image',
                   fromId: activeUser._id.toString(),
                   senderId: user1._id.toString(),
                   matchId: message1.matchId._id.toString(),
                   createdAt: expect.any(String),
-                  messageType: 0,
+                  messageType: MessageType.Image,
                   isRead: false,
                   status: 1,
                   deleted: false,
@@ -240,6 +244,7 @@ describe('Send Message In Conversation / (e2e)', () => {
             {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               image: null,
+              urls: [],
               imageDescription: null,
               message: encodeURIComponent('test chat message'),
               fromId: activeUser._id.toString(),
@@ -289,13 +294,14 @@ describe('Send Message In Conversation / (e2e)', () => {
                 {
                   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                   image: expectedImageValueMatcher,
+                  urls: [expectedImageValueMatcher],
                   imageDescription: null,
                   message: 'Image',
                   fromId: activeUser._id.toString(),
                   senderId: user1._id.toString(),
                   matchId: message1.matchId._id.toString(),
                   createdAt: expect.any(String),
-                  messageType: 0,
+                  messageType: MessageType.Image,
                   isRead: false,
                   status: 1,
                   deleted: false,

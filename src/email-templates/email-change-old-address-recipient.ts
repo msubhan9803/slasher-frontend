@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 
-import { sharedEmailHeader, sharedEmailFooter } from './shared';
+import { sharedEmailHeader, sharedEmailFooter, renderEmailHtmlButtonLink } from './shared';
 
 export const templateForEmailChangeOldAddressRecipient = `
   ${sharedEmailHeader}
@@ -9,8 +9,13 @@ export const templateForEmailChangeOldAddressRecipient = `
     <p>An email address change request has been made on your Slasher account. Your Slasher account will no longer be associated with this email address.</p>
 
     <p>
-      To cancel the email change and keep this email associated with your Slasher account, please click the following link:
-      <a style="color:#ffffff;" href="[[CANCEL_EMAIL_ADDRESS_CHANGE_LINK]]">cancel email change</a>
+      To cancel the email change and keep this email associated with your Slasher account, please click the following button:
+    </p>
+
+    <p>
+      ${renderEmailHtmlButtonLink('cancel email change', '[[CANCEL_EMAIL_ADDRESS_CHANGE_LINK]]')}
+      <br />
+      <br />
     </p>
 
     <p>If you did not make this request:</p>

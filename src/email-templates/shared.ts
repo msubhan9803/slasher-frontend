@@ -1,3 +1,5 @@
+import { escapeHtmlSpecialCharacters } from '../utils/text-utils';
+
 /* eslint-disable max-len */
 export const sharedEmailHeader = `
   <!DOCTYPE html>
@@ -19,7 +21,7 @@ export const sharedEmailHeader = `
     <style>
       table, td, div, h1, p {font-family: Arial, sans-serif;}
       p, ul, ol { margin:0 0 12px 0; }
-      a { color: #fff; }
+      body, a { color: #fff; }
       #central-content { font-size:15px;line-height:24px;font-family:Arial,sans-serif; }
     </style>
   </head>
@@ -27,40 +29,21 @@ export const sharedEmailHeader = `
     <table role="presentation" style="width:100%;border-collapse:collapse;border:0;border-spacing:0;background:#000;">
       <tr>
         <td align="center" style="padding:0;">
-          <table role="presentation" style="width:602px;border-collapse:collapse;background:#141414;border-spacing:0;text-align:left;">
+          <table role="presentation" style="width:570px;border-collapse:collapse;background:#141414;border-spacing:0;text-align:left;">
             <tr>
               <td align="center">
-                <img src="https://imageslasher.s3.amazonaws.com/email/slasher-email-header-image-2023-05.png" alt="Slasher logo" style="width:100%;height:auto;display:block;" />
+                <img src="https://imageslasher.s3.amazonaws.com/email/slasher-email-header-image-2023-05-18.png" alt="Slasher logo" style="width:100%;height:auto;display:block;" />
               </td>
             </tr>
 
             <tr>
-              <td style="padding:36px 30px 36px 30px;">
+              <td style="padding:36px 30px 24px 30px;">
                 <table role="presentation" style="width:100%;border-collapse:collapse;border:0;border-spacing:0;">
                   <tr>
                     <td id="central-content">
 `;
 
 export const sharedEmailFooter = `
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-
-            <tr>
-              <td style="padding:0 30px 30px 30px;">
-                <table role="presentation" style="width:100%;border-collapse:collapse;border:0;border-spacing:0;font-size:9px;font-family:Arial,sans-serif;">
-                  <tr>
-                    <td style="padding:0;width:50%;" align="left">
-                      <p style="margin:0;font-size:14px;line-height:16px;font-family:Arial,sans-serif;color:#ffffff;">
-                        &copy; 2023 Slasher Corp
-                      </p>
-                    </td>
-                    <td style="padding:0;width:50%;" align="right">
-                      <p style="margin:0;font-size:14px;line-height:16px;font-family:Arial,sans-serif;color:#ffffff;">
-                        <a href="https://www.slasher.tv" style="color:#ffffff;">www.slasher.tv</a>
-                      </p>
                     </td>
                   </tr>
                 </table>
@@ -74,21 +57,50 @@ export const sharedEmailFooter = `
   </html>
 `;
 
-// export const sharedEmailHeader = `
-//   <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width: 600px; min-height: 800px; font-size: 13px; background: #1D1A1A; color: #FFFFFF;">
-//       <tbody>
-//         <tr>
-//           <td style="vertical-align: top; height: 300px;">
-//             <table border="0" width="100%">
-//               <tr>
-//                 <td align="center" style="padding: 0px; background-color:#000000;"> <img align="center" alt="Slasher header" src="https://d13qdlbrji2lqg.cloudfront.net/email/slasher-email-header-image.png" style="padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage"> </td>
-//               </tr >
-//             </table>
-//           </td >
-//         </tr>
-// `;
+/* This renders an inline html button that works in most email clients, but NOT in outlook */
+// export function renderEmailHtmlButtonLink(linkText: string, href: string) {
+//   const linkTextEscapedForHtml = escapeHtmlSpecialCharacters(linkText);
+//   return `
+//     <a
+//       style="color:#000000;background:#ff1800;border-radius:50px;text-decoration:none;padding:0.375rem 1rem;font-size:14px;font-weight:bold;"
+//       href="${href}"
+//     >${linkTextEscapedForHtml}</a>
+//   `;
+// }
 
-// export const sharedEmailFooter = `
-//     </tbody >
+/*
+  This renders an inline html button that should work in most email clients, including Outlook,
+  but the button must be on its own line.
+*/
+export function renderEmailHtmlButtonLink(linkText: string, href: string) {
+  const linkTextEscapedForHtml = escapeHtmlSpecialCharacters(linkText);
+  return `
+  <!--[if mso]>
+    <v:roundrect href="${href}" style="width:90px;height:26px;v-text-anchor:middle;" arcsize="50%" stroke="f" fillcolor="#FF1800" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word">
+      <w:anchorlock/>
+      <v:textbox inset="0,0,0,0">
+        <center style="color:#ffffff;font-family:sans-serif;font-size:14px;font-weight:bold;color:#000000;">${linkTextEscapedForHtml}</center>
+      </v:textbox>
+    </v:roundrect>
+  <![endif]-->
+  <a
+    style="mso-hide:all;color:#000000;background:#ff1800;border-radius:50px;text-decoration:none;padding:0.375rem .75rem;font-size:14px;font-weight:bold;"
+    href="${href}"
+  >${linkTextEscapedForHtml}</a>
+  `;
+}
+
+// export function renderEmailHtmlButtonLinkAsTable(text: string, buttonLinkText: string, buttonLinkHref: string) {
+//   return `
+//   <table role="presentation" style="border-collapse:collapse;border:0;border-spacing:0;margin-bottom:12px;">
+//     <tr>
+//       <td style="padding:0;">
+//         ${escapeHtmlSpecialCharacters(text)}&nbsp;
+//       </td>
+//       <td style="padding:0 auto;">
+//         ${renderEmailHtmlButtonLink(buttonLinkText, buttonLinkHref)}
+//       </td>
+//     </tr>
 //   </table>
-// `;
+//   `;
+// }

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
@@ -322,13 +323,31 @@ describe('Users / Register (e2e)', () => {
         expect(response.body).toEqual(['You must be at least 18 to register']);
       });
 
-      it('dob must be a valid-format iso date', async () => {
+      it('dob must be a valid', async () => {
         postBody.dob = '1970-1';
         const response = await request(app.getHttpServer())
           .get('/api/v1/users/validate-registration-fields')
           .query(postBody);
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual(['Invalid date of birth']);
+      });
+
+      it('dob must be a valid-format iso date', async () => {
+        postBody.dob = '03-03-1981';
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/users/register')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toEqual(['Invalid date of birth']);
+      });
+
+      it('dob must not be invalid', async () => {
+        postBody.dob = '1981-02-31';
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/users/register')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toEqual(['Invalid date of birth']);
       });
     });
 

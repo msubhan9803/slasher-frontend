@@ -1,15 +1,14 @@
 import {
-  BadRequestException, MiddlewareConsumer, Module, ValidationError, ValidationPipe,
+  BadRequestException, Module, ValidationError, ValidationPipe,
 } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ScheduleModule } from '@nestjs/schedule';
 import { HttpModule } from '@nestjs/axios';
 import { join } from 'path';
 import { UsersModule } from './users/users.module';
-import { JwtAuthenticationMiddleware } from './app/middleware/jwt-authentication.middleware';
 import { NotificationsModule } from './notifications/notifications.module';
 import { UploadsModule } from './global/uploads.module';
 import { LocalStorageModule } from './local-storage/local-storage.module';
@@ -43,6 +42,7 @@ import { HashtagModule } from './hashtag/hashtag.module';
 import { HashtagFollowsModule } from './hashtag-follows/hashtag-follows.module';
 import { BetaTesterModule } from './beta-tester/beta-tester.module';
 import { TimeoutInterceptor } from './app/interceptors/timeout.interceptor';
+import { AuthGuard } from './app/guards/auth.guard';
 
 @Module({
   imports: [
@@ -106,6 +106,12 @@ import { TimeoutInterceptor } from './app/interceptors/timeout.interceptor';
   ],
   controllers: [AppController],
   providers: [
+    // Require authentication by default for all route handlers,
+    // except when @Public decorator is used.
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({
@@ -145,37 +151,4 @@ import { TimeoutInterceptor } from './app/interceptors/timeout.interceptor';
     TasksService,
   ],
 })
-export class AppModule {
-  // eslint-disable-next-line class-methods-use-this
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(JwtAuthenticationMiddleware)
-      .exclude(
-        // Reminder: Paths below are exact matches (not "starts with")
-        '/',
-        '/api',
-        '/api/v1',
-        '/api/v1/remote-constants',
-        '/api/v1/ip-check',
-        '/api/v1/sleep-test',
-        '/api/v1/cpu-test',
-        '/health-check',
-        '/placeholders/(.*)', // the placeholders endpoint is only used in development and test environments
-        '/api/v1/local-storage/(.*)', // the local-storage endpoint is only used in development and test environments
-        '/api/v1/users/activate-account',
-        '/api/v1/users/check-user-name',
-        '/api/v1/users/validate-registration-fields',
-        '/api/v1/users/forgot-password',
-        '/api/v1/users/register',
-        '/api/v1/users/reset-password',
-        '/api/v1/users/sign-in',
-        '/api/v1/users/validate-password-reset-token',
-        '/api/v1/users/check-email',
-        '/api/v1/users/verification-email-not-received',
-        '/api/v1/users/email-change/confirm',
-        '/api/v1/users/email-change/revert',
-        '/api/v1/users/public/:userNameOrId',
-      )
-      .forRoutes('*');
-  }
-}
+export class AppModule { }

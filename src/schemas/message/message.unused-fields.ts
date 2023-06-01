@@ -8,11 +8,6 @@ export class MessageUnusedFields {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
   movieId: User;
 
-  // Currently not clear if this is used or how often it is used
-  // Comment in old code describes this as "Movie List"
-  @Prop({ type: Array, default: [] })
-  urls: any[];
-
   @Prop({ default: null })
   message: string;
 

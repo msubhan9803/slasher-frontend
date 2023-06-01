@@ -75,7 +75,7 @@ export const StyledMediaIcon = styled.div <SocialMediaIcon>`
 `;
 
 const footerNavList = [
-  { value: 'home', label: 'HOME' },
+  { value: '', label: 'HOME' },
   { value: 'shop', label: 'SHOP' },
   { value: 'about', label: 'ABOUT' },
   { value: 'news', label: 'NEWS' },

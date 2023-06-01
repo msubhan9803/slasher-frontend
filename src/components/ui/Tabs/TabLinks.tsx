@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setScrollToTabsPosition } from '../../../redux/slices/scrollPositionSlice';
+import useSessionToken from '../../../hooks/useSessionToken';
 
 interface TabLinksProps {
   tabLink: TabProps[];
@@ -15,6 +16,7 @@ interface TabLinksProps {
   display?: string;
   tabsClass?: string;
   tabsClassSmall?: string;
+  overrideOnClick?: (val: any) => void;
 }
 interface TabProps {
   value: string;
@@ -35,9 +37,12 @@ const StyledBadge = styled.div`
   height: 24px;
 `;
 function TabLinks({
-  tabLink, selectedTab, toLink, params, display, tabsClass, tabsClassSmall,
+  tabLink, selectedTab, toLink, params, display, tabsClass, tabsClassSmall, overrideOnClick,
 }: TabLinksProps) {
   const color = 'var(--bs-link-color)';
+  const token = useSessionToken();
+  const userIsLoggedIn = !token.isLoading && token.value;
+
   const theme = createTheme({
     components: {
       MuiTabs: {
@@ -75,6 +80,7 @@ function TabLinks({
   const handleTabsScroll = () => {
     dispatch(setScrollToTabsPosition(true));
   };
+  if (token.isLoading) { return null; }
   return (
     <ThemeProvider theme={theme}>
       <StyleTabs className={`${display === 'underline' ? '' : 'bg-dark bg-mobile-transparent rounded-3'}`}>
@@ -101,9 +107,15 @@ function TabLinks({
                 )
                 : label}
               component={Link}
-              to={params ? `${toLink}/${value}${params}` : `${toLink}/${value}`}
+              /* eslint-disable no-nested-ternary */
+              to={!userIsLoggedIn ? '' : params ? `${toLink}/${value}${params}` : `${toLink}/${value}`}
               className="text-decoration-none shadow-none"
-              onClick={handleTabsScroll}
+              onClick={(e: any) => {
+                handleTabsScroll();
+                if (overrideOnClick) {
+                  overrideOnClick(e);
+                }
+              }}
             />
           ))}
         </Tabs>
@@ -119,6 +131,7 @@ TabLinks.defaultProps = {
   display: 'default',
   tabsClass: 'space-between',
   tabsClassSmall: 'space-between',
+  overrideOnClick: undefined,
 };
 
 export default TabLinks;

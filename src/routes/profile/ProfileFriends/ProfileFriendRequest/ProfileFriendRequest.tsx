@@ -1,5 +1,4 @@
 /* eslint-disable max-lines */
-import Cookies from 'js-cookie';
 import React, {
   useCallback, useEffect, useRef, useState,
 } from 'react';
@@ -16,9 +15,11 @@ import { User } from '../../../../types';
 import ProfileHeader from '../../ProfileHeader';
 import FriendsProfileCard from '../FriendsProfileCard';
 import { forceReloadSuggestedFriends } from '../../../../redux/slices/suggestedFriendsSlice';
-import { setScrollPosition } from '../../../../redux/slices/scrollPositionSlice';
 import ProfileTabContent from '../../../../components/ui/profile/ProfileTabContent';
 import socketStore from '../../../../socketStore';
+import {
+  deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
+} from '../../../../pageStateCache';
 
 interface FriendProps {
   _id?: string;
@@ -30,29 +31,29 @@ interface FriendProps {
 
 interface Props {
   user: User
-  loadUser: Function
 }
-function ProfileFriendRequest({ user, loadUser }: Props) {
+function ProfileFriendRequest({ user }: Props) {
   const dispatch = useAppDispatch();
   const params = useParams();
   const isFriendReLoad = useAppSelector((state) => state.user.forceFriendListReload);
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
-  const loginUserName = Cookies.get('userName');
+  const loginUserName = useAppSelector((state) => state.user.user.userName);
   const friendsReqCount = useAppSelector((state) => state.user.user.newFriendRequestCount);
   const friendRequestContainerElementRef = useRef<any>(null);
   const [loadingFriendRequests, setLoadingFriendRequests] = useState<boolean>(false);
   const [additionalFriendRequest, setAdditionalFriendRequest] = useState<boolean>(false);
   const location = useLocation();
-  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const { socket } = socketStore;
+  type CacheType = { page: number, data: any[] };
+  const pageStateCache: CacheType = getPageStateCache(location) ?? { page: 0, data: [] };
   const [friendsReqList, setFriendsReqList] = useState<FriendProps[]>(
-    scrollPosition.pathname === location.pathname
-      ? scrollPosition?.data : [],
+    hasPageStateCache(location)
+      ? pageStateCache?.data : [],
   );
   const [friendRequestPage, setFriendRequestPage] = useState<number>(
-    scrollPosition.pathname === location.pathname
-      ? scrollPosition?.page : 0,
+    hasPageStateCache(location)
+      ? pageStateCache?.page : 0,
   );
 
   const friendsTabs = [
@@ -96,31 +97,21 @@ function ProfileFriendRequest({ user, loadUser }: Props) {
           setNoMoreData(true);
         }
         setLoadingFriendRequests(false);
-        if (scrollPosition.pathname === location.pathname
-          && friendsReqList.length >= scrollPosition.data.length + 10) {
-          const positionData = {
-            pathname: '',
-            position: 0,
-            data: [],
-            positionElementId: '',
-          };
-          dispatch(setScrollPosition(positionData));
+        if (hasPageStateCache(location)
+          && friendsReqList.length >= pageStateCache.data.length + 10) {
+          deletePageStateCache(location);
         }
       })
       .catch((error) => setErrorMessage(error.response.data.message))
       .finally(
         () => { setAdditionalFriendRequest(false); setLoadingFriendRequests(false); },
       );
-  }, [friendRequestPage, dispatch, friendsReqList.length,
-    location.pathname, scrollPosition,
-  ]);
+  }, [friendRequestPage, location, friendsReqList.length, pageStateCache.data.length]);
   useEffect(() => {
     if (additionalFriendRequest && !loadingFriendRequests) {
-      if (scrollPosition === null
-        || scrollPosition?.position === 0
-        || friendsReqList.length >= scrollPosition?.data?.length
+      if (!hasPageStateCache(location)
+        || friendsReqList.length >= pageStateCache?.data?.length
         || friendsReqList.length === 0
-        || scrollPosition.pathname !== location.pathname
       ) {
         setTimeout(() => {
           setLoadingFriendRequests(true);
@@ -129,8 +120,7 @@ function ProfileFriendRequest({ user, loadUser }: Props) {
       }
     }
   }, [additionalFriendRequest, loadingFriendRequests, fetchMoreFriendReqList,
-    friendsReqList.length, location.pathname, scrollPosition,
-  ]);
+    friendsReqList.length, location.pathname, location, pageStateCache?.data?.length]);
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -156,19 +146,12 @@ function ProfileFriendRequest({ user, loadUser }: Props) {
         dispatch(forceReloadSuggestedFriends());
       });
   };
-  const persistScrollPosition = (id: string) => {
-    const positionData = {
-      pathname: location.pathname,
-      position: window.pageYOffset === 0 ? 1 : window.pageYOffset,
-      data: friendsReqList,
-      positionElementId: id,
-      page: friendRequestPage,
-    };
-    dispatch(setScrollPosition(positionData));
+  const persistScrollPosition = () => {
+    setPageStateCache<CacheType>(location, { data: friendsReqList, page: friendRequestPage });
   };
   return (
     <div>
-      <ProfileHeader tabKey="friends" user={user} loadUser={loadUser} />
+      <ProfileHeader tabKey="friends" user={user} />
       <ProfileTabContent>
         <div className="mt-3">
           <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">

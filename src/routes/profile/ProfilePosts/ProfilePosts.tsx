@@ -1,14 +1,13 @@
 /* eslint-disable max-lines */
 import React, { useCallback, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
-import Cookies from 'js-cookie';
 import { useLocation, useParams } from 'react-router-dom';
 import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import ProfileHeader from '../ProfileHeader';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import ReportModal from '../../../components/ui/ReportModal';
 import { getProfilePosts } from '../../../api/users';
-import { User, Post } from '../../../types';
+import { User, Post, ContentDescription } from '../../../types';
 import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
@@ -17,21 +16,23 @@ import { reportData } from '../../../api/report';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
-import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import EditPostModal from '../../../components/ui/post/EditPostModal';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
+import {
+  deletePageStateCache, deletedPostsCache, getPageStateCache, hasPageStateCache, setPageStateCache,
+} from '../../../pageStateCache';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
 
 interface Props {
   user: User
-  loadUser: Function
 }
+const removeDeletedPost = (post: any) => !deletedPostsCache.has(post._id);
 
 const staticHashTags = ['horrorday', 'horrorcommunity', 'slasher', 'horror'];
 
-function ProfilePosts({ user, loadUser }: Props) {
+function ProfilePosts({ user }: Props) {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -45,13 +46,13 @@ function ProfilePosts({ user, loadUser }: Props) {
   const [postId, setPostId] = useState<string>('');
   const loginUserData = useAppSelector((state) => state.user.user);
   const [postUserId, setPostUserId] = useState<string>('');
-  const loginUserId = Cookies.get('userId');
-  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  const userId = useAppSelector((state) => state.user.user.id);
   const dispatch = useAppDispatch();
   const location = useLocation();
+  const pageStateCache = (getPageStateCache(location) ?? []).filter(removeDeletedPost);
   const [posts, setPosts] = useState<Post[]>(
-    scrollPosition.pathname === location.pathname
-      ? scrollPosition?.data : [],
+    hasPageStateCache(location)
+      ? pageStateCache : [],
   );
   const { userName: userNameOrId } = useParams<string>();
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
@@ -73,11 +74,9 @@ function ProfilePosts({ user, loadUser }: Props) {
   };
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts && userNameOrId === user.userName) {
-      if (scrollPosition === null
-        || scrollPosition?.position === 0
-        || posts.length >= scrollPosition?.data?.length
+      if (hasPageStateCache(location)
+        || posts.length >= pageStateCache?.length
         || posts.length === 0
-        || scrollPosition.pathname !== location.pathname
       ) {
         setLoadingPosts(true);
         getProfilePosts(
@@ -105,15 +104,9 @@ function ProfilePosts({ user, loadUser }: Props) {
             ...newPosts,
           ]);
           if (res.data.length === 0) { setNoMoreData(true); }
-          if (scrollPosition.pathname === location.pathname
-            && posts.length >= scrollPosition.data.length + 10) {
-            const positionData = {
-              pathname: '',
-              position: 0,
-              data: [],
-              positionElementId: '',
-            };
-            dispatch(setScrollPosition(positionData));
+          if (hasPageStateCache(location)
+            && posts.length >= pageStateCache.length + 10) {
+            deletePageStateCache(location);
           }
         }).catch(
           (error) => {
@@ -125,9 +118,8 @@ function ProfilePosts({ user, loadUser }: Props) {
         );
       }
     }
-  }, [
-    requestAdditionalPosts, loadingPosts, loginUserId, userNameOrId, user._id, user.userName,
-    posts, scrollPosition, location, dispatch,
+  }, [requestAdditionalPosts, loadingPosts, userId, userNameOrId, user._id,
+    user.userName, posts, location, dispatch, pageStateCache.length,
   ]);
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
@@ -160,8 +152,13 @@ function ProfilePosts({ user, loadUser }: Props) {
       });
     }
   }, [user]);
-  const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
-    updateFeedPost(postId, message, images, imageDelete).then(() => {
+  const onUpdatePost = (
+    message: string,
+    images: string[],
+    imageDelete: string[] | undefined,
+    descriptionArray?: ContentDescription[],
+  ) => {
+    updateFeedPost(postId, message, images, imageDelete, null, descriptionArray).then(() => {
       setShowReportModal(false);
       const updatePost = posts.map((post: any) => {
         if (post._id === postId) {
@@ -258,19 +255,11 @@ function ProfilePosts({ user, loadUser }: Props) {
       .catch((error) => console.error(error));
   };
 
-  const persistScrollPosition = (id: string) => {
-    const positionData = {
-      pathname: location.pathname,
-      position: window.pageYOffset,
-      data: posts,
-      positionElementId: id,
-    };
-    dispatch(setScrollPosition(positionData));
-  };
+  const persistScrollPosition = () => { setPageStateCache(location, posts); };
 
   return (
     <div>
-      <ProfileHeader tabKey="posts" user={user} loadUser={loadUser} />
+      <ProfileHeader tabKey="posts" user={user} />
       <ProfileTabContent>
         {loginUserData.userName === user.userName
           && (

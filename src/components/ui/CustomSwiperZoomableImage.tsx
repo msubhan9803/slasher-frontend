@@ -8,7 +8,7 @@ interface Props {
   alt: string;
   className?: string;
   onImgError: (e: any) => void;
-  onImgLoad: () => void;
+  onImgLoad?: () => void;
 }
 
 function CustomSwiperZoomableImage({
@@ -38,6 +38,7 @@ function CustomSwiperZoomableImage({
 
 CustomSwiperZoomableImage.defaultProps = {
   className: '',
+  onImgLoad: undefined,
 };
 
 export default CustomSwiperZoomableImage;

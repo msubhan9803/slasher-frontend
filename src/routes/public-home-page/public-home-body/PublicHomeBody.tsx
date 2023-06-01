@@ -5,15 +5,20 @@ import HeroSection from './HeroSection';
 import PublicSignIn from './PublicSignIn';
 import UserReview from './UserReview';
 
-function PublicHomeBody() {
+function PublicHomeBody({ children }: any) {
   return (
-    <div className="bg-black">
-      <HeroSection />
-      <AboutApp />
-      <DownloadAppSection />
-      <UserReview />
-      <PublicSignIn />
+    <div>
+      {children || (
+      <div className="bg-black">
+        <HeroSection />
+        <AboutApp />
+        <DownloadAppSection />
+        <UserReview />
+        <PublicSignIn />
+      </div>
+      )}
     </div>
+
   );
 }
 

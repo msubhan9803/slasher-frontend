@@ -26,9 +26,8 @@ interface ImageList {
 }
 interface Props {
   user: User
-  loadUser: Function
 }
-function ProfilePhotos({ user, loadUser }: Props) {
+function ProfilePhotos({ user }: Props) {
   const [requestAdditionalPhotos, setRequestAdditionalPhotos] = useState<boolean>(false);
   const [userPhotosList, setUserPhotosList] = useState<UserPhotos[]>([]);
   const [errorMessage, setErrorMessage] = useState<string[]>();
@@ -79,7 +78,7 @@ function ProfilePhotos({ user, loadUser }: Props) {
   );
   return (
     <div>
-      <ProfileHeader tabKey="photos" user={user} loadUser={loadUser} />
+      <ProfileHeader tabKey="photos" user={user} />
       <ProfileTabContent>
         <div className="bg-dark rounded px-md-4 py-3 bg-mobile-transparent mt-3">
           <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />

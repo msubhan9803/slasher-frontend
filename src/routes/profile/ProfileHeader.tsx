@@ -5,8 +5,7 @@ import React, {
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Col, Row } from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom';
-import Cookies from 'js-cookie';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import RoundButton from '../../components/ui/RoundButton';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
@@ -22,15 +21,17 @@ import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { StyledBorder } from '../../components/ui/StyledBorder';
 import { enableDevFeatures } from '../../utils/configEnvironment';
 import FriendActionButtons from '../../components/ui/Friend/FriendActionButtons';
-import { LG_MEDIA_BREAKPOINT, topToDivHeight } from '../../constants';
+import { BREAK_POINTS, topToDivHeight } from '../../constants';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { setScrollToTabsPosition } from '../../redux/slices/scrollPositionSlice';
+import SignInModal from '../../components/ui/SignInModal';
+import { getLastNonProfilePathname } from '../../utils/url-utils';
+import useSessionToken from '../../hooks/useSessionToken';
 
 interface Props {
   tabKey?: string;
   user: User | undefined;
   showTabs?: boolean;
-  loadUser?: Function;
 }
 const AboutProfileImage = styled(UserCircleImage)`
   border: 0.25rem solid #1B1B1B;
@@ -59,25 +60,30 @@ const StyledPopoverContainer = styled.div`
 type FriendType = { from: string, to: string, reaction: FriendRequestReaction } | null;
 
 function ProfileHeader({
-  tabKey, user, showTabs, loadUser,
+  tabKey, user, showTabs,
 }: Props) {
+  const [showSignIn, setShowSignIn] = useState<boolean>(false);
   const [show, setShow] = useState<boolean>(false);
   const [friendshipStatus, setFriendshipStatus] = useState<any>();
   const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
   const [dropDownValue, setDropDownValue] = useState<string>('');
   const popoverOption = ['Report', 'Block user'];
-  const loginUserName = Cookies.get('userName');
-  const loginUserId = Cookies.get('userId');
+  const loginUserName = useAppSelector((state) => state.user.user.userName);
+  const userId = useAppSelector((state) => state.user.user.id);
   const { userName } = useParams();
   const navigate = useNavigate();
   const param = useParams();
+  const location = useLocation();
   const [clickedUserId, setClickedUserId] = useState<string>('');
   const [friendData, setFriendData] = useState<FriendType>(null);
   const positionRef = useRef<HTMLDivElement>(null);
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
+  const pathnameHistory = useAppSelector((state) => state.user.pathnameHistory);
+  const token = useSessionToken();
 
   const isSelfUserProfile = userName === loginUserName;
+  const userIsLoggedIn = !token.isLoading && token.value;
   const customTabs = isSelfUserProfile ? allTabs : allTabs.filter((t) => t.user !== 'self');
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
@@ -90,39 +96,47 @@ function ProfileHeader({
   };
 
   useEffect(() => {
-    if (user && !isSelfUserProfile) {
+    if (token.isLoading) { return; }
+    if (user && !isSelfUserProfile && token.value) {
       friendship(user._id).then((res) => {
         setFriendData(res.data);
         setFriendStatus(res.data.reaction);
       });
     }
-  }, [user, friendshipStatus, isSelfUserProfile, loginUserId]);
+  }, [user, friendshipStatus, isSelfUserProfile, userId, token]);
 
   useLayoutEffect(() => {
+    if (token.isLoading) { return; }
+    if (!userIsLoggedIn) { return; }
+
     const element = positionRef.current;
     if (!element) { return; }
-    if ((scrollPosition.scrollToTab && (friendStatus || element)) || param['*'] === 'friends') {
+
+    const isPublicProfile = location?.state?.publicProfile;
+    if (isPublicProfile) { return; }
+
+    // Scroll so that "About-Posts-Friends-Photos-Watched_list" nav-bar sticks to top of the
+    // viewport.
+    if (scrollPosition.scrollToTab) {
+      dispatch(setScrollToTabsPosition(false));
       window.scrollTo({
-        top: element.offsetTop - (
-          window.innerWidth >= parseInt(LG_MEDIA_BREAKPOINT.replace('px', ''), 10)
-            ? (topToDivHeight - 18)
-            : 0
-        ),
+        top: element.offsetTop - (window.innerWidth >= BREAK_POINTS.lg ? (topToDivHeight - 18) : 0),
         behavior: 'instant' as any,
       });
-      dispatch(setScrollToTabsPosition(false));
     }
-  }, [positionRef, friendStatus, dispatch, scrollPosition.scrollToTab, param]);
+  }, [positionRef, friendStatus, dispatch, scrollPosition.scrollToTab,
+    param, location, token, userIsLoggedIn]);
 
   const onBlockYesClick = () => {
     createBlockUser(clickedUserId)
-      .then(() => {
-        setShow(false);
-        // Refetch user from the api into application state
-        loadUser?.();
-      })
+      .then(() => setDropDownValue('BlockUserSuccess'))
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
+  };
+
+  const afterBlockUser = () => {
+    const lastNonProfilePathname = getLastNonProfilePathname(pathnameHistory!, userName!);
+    navigate(lastNonProfilePathname);
   };
 
   const reportUserProfile = (reason: string) => {
@@ -141,15 +155,22 @@ function ProfileHeader({
   if (!user || (!isSelfUserProfile && typeof friendStatus === null)) {
     return <LoadingIndicator />;
   }
+  const handleSignInDialog = (e: any) => {
+    if (userIsLoggedIn) {
+      e.preventDefault();
+    } else {
+      setShowSignIn(!showSignIn);
+    }
+  };
   return (
     <div className="bg-dark bg-mobile-transparent rounded mb-4">
       <div className="p-md-4 g-0">
         <div>
-          <ProfileCoverImage src={user.coverPhoto || defaultCoverImage} alt="Cover picture" className="mt-3 mt-md-0 w-100 rounded" />
+          <ProfileCoverImage src={user.coverPhoto || defaultCoverImage} alt="Cover picture" className="mt-3 mt-md-0 w-100 rounded" onClick={handleSignInDialog} />
         </div>
         <Row className="d-flex ps-md-4">
           <CustomCol md={3} lg={12} xl="auto" className="text-center text-lg-center text-xl-start  position-relative">
-            <AboutProfileImage size="11.25rem" src={user?.profilePic} alt="user picture" />
+            <AboutProfileImage size="11.25rem" src={user?.profilePic} alt="user picture" onClick={handleSignInDialog} />
             {!isSelfUserProfile
               && (
                 <StyledPopoverContainer className="d-block d-md-none d-lg-block d-xl-none position-absolute">
@@ -164,7 +185,7 @@ function ProfileHeader({
           <Col className="w-100 mt-md-4">
             <Row className="d-flex justify-content-between">
               <Col xs={12} md={4} lg={12} xl={4} className="text-center text-capitalize text-md-start text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
-                <h1 className="mb-md-0">
+                <h1 className="mb-md-0 text-nowrap">
                   {user?.firstName}
                 </h1>
                 <p className="fs-5 text-light">
@@ -182,7 +203,7 @@ function ProfileHeader({
                       </RoundButton>
                     </div>
                   )}
-                {!isSelfUserProfile
+                {!isSelfUserProfile && userIsLoggedIn
                   && (
                     <div className="d-flex align-items-center justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
                       <FriendActionButtons
@@ -210,8 +231,13 @@ function ProfileHeader({
         showTabs && (
           <>
             <StyledBorder className="d-md-block d-none" />
-            <div ref={positionRef}>
-              <TabLinks tabLink={customTabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
+            <div ref={positionRef} aria-hidden="true">
+              <TabLinks
+                tabLink={customTabs}
+                toLink={`/${user?.userName}`}
+                selectedTab={tabKey}
+                overrideOnClick={userIsLoggedIn ? () => { } : handleSignInDialog}
+              />
             </div>
           </>
         )
@@ -221,8 +247,13 @@ function ProfileHeader({
         setShow={setShow}
         slectedDropdownValue={dropDownValue}
         onBlockYesClick={onBlockYesClick}
+        afterBlockUser={afterBlockUser}
         handleReport={reportUserProfile}
       />
+      {
+        showSignIn
+        && <SignInModal show={showSignIn} setShow={setShowSignIn} isPublicProfile />
+      }
     </div>
   );
 }
@@ -230,7 +261,6 @@ function ProfileHeader({
 ProfileHeader.defaultProps = {
   showTabs: true,
   tabKey: tabs[0].value,
-  loadUser: () => { },
 };
 
 export default ProfileHeader;

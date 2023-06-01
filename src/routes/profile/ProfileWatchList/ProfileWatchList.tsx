@@ -13,17 +13,18 @@ import { getUserMoviesList } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import RoundButton from '../../../components/ui/RoundButton';
-import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
-import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
+import { useAppDispatch } from '../../../redux/hooks';
 import { MoviesProps } from '../../movies/components/MovieProps';
 import { UIRouteURL } from '../../movies/RouteURL';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
+import {
+  deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
+} from '../../../pageStateCache';
 
 interface Props {
   user: User
-  loadUser: Function
 }
-function ProfileWatchList({ user, loadUser }: Props) {
+function ProfileWatchList({ user }: Props) {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [requestAdditionalMovies, setRequestAdditionalMovies] = useState<boolean>(false);
@@ -34,24 +35,22 @@ function ProfileWatchList({ user, loadUser }: Props) {
   const [loadingMovies, setLoadingMovies] = useState<boolean>(false);
   const [sortVal, setSortVal] = useState(searchParams.get('sort') || 'name');
   const [errorMessage, setErrorMessage] = useState<string[]>();
-  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const location = useLocation();
+  const pageStateCache = getPageStateCache(location) ?? [];
   const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>(
-    scrollPosition.pathname === location.pathname ? scrollPosition?.data : [],
+    hasPageStateCache(location) ? pageStateCache : [],
   );
   const [callNavigate, setCallNavigate] = useState<boolean>(false);
   const [search, setSearch] = useState<string>(searchParams.get('q') || '');
   const [lastMovieId, setLastMovieId] = useState(
-    ((scrollPosition.pathname === location.pathname) && (scrollPosition.data.length > 0))
-      /* eslint-disable no-unsafe-optional-chaining */
-      ? (scrollPosition?.data[scrollPosition?.data.length - 1]?._id)
+    hasPageStateCache(location)
+      ? (pageStateCache[pageStateCache.length - 1]?._id)
       : '',
   );
   const prevSearchRef = useRef(search);
   const prevKeyRef = useRef(key);
   const prevSortValRef = useRef(sortVal);
-  const isLoadingRef = useRef(true);
 
   useEffect(() => {
     setSearch(searchParams.get('q') || '');
@@ -80,9 +79,8 @@ function ProfileWatchList({ user, loadUser }: Props) {
 
   useEffect(() => {
     if (requestAdditionalMovies && !loadingMovies && user._id) {
-      if (scrollPosition === null
-        || scrollPosition?.position === 0
-        || filteredMovies.length >= scrollPosition?.data?.length
+      if (hasPageStateCache(location)
+        || filteredMovies.length >= pageStateCache.length
         || filteredMovies.length === 0
       ) {
         setNoMoreData(false);
@@ -108,16 +106,7 @@ function ProfileWatchList({ user, loadUser }: Props) {
             } else {
               setLastMovieId(res.data[res.data.length - 1]._id);
             }
-            const positionData = {
-              pathname: '',
-              position: 0,
-              data: [],
-              id: '',
-              sortValue: '',
-              searchValue: '',
-              keyValue: '',
-            };
-            dispatch(setScrollPosition(positionData));
+            deletePageStateCache(location);
           }).catch(
             (error) => {
               setNoMoreData(true);
@@ -125,14 +114,12 @@ function ProfileWatchList({ user, loadUser }: Props) {
             },
           ).finally(
             // eslint-disable-next-line max-len
-            () => { setRequestAdditionalMovies(false); setLoadingMovies(false); isLoadingRef.current = false; },
+            () => { setRequestAdditionalMovies(false); setLoadingMovies(false); },
           );
       }
     }
-  }, [
-    requestAdditionalMovies, loadingMovies, search, sortVal, lastMovieId,
-    filteredMovies, scrollPosition, dispatch, user._id, isKeyMoviesReady, key,
-  ]);
+  }, [requestAdditionalMovies, loadingMovies, search, sortVal, lastMovieId, filteredMovies,
+    dispatch, user._id, isKeyMoviesReady, key, location, pageStateCache.length]);
   const applyFilter = (keyValue: string, sortValue?: string) => {
     setCallNavigate(true);
     setKey(keyValue.toLowerCase());
@@ -162,22 +149,11 @@ function ProfileWatchList({ user, loadUser }: Props) {
     }
   };
 
-  const persistScrollPosition = (id?: string) => {
-    const positionData = {
-      pathname: location.pathname,
-      position: window.pageYOffset === 0 ? 1 : window.pageYOffset,
-      data: filteredMovies,
-      positionElementId: id,
-      sortValue: sortVal,
-      searchValue: search,
-      keyValue: key,
-    };
-    dispatch(setScrollPosition(positionData));
-  };
+  const persistScrollPosition = () => { setPageStateCache(location, filteredMovies); };
 
   return (
     <div>
-      <ProfileHeader tabKey="watched-list" user={user} loadUser={loadUser} />
+      <ProfileHeader tabKey="watched-list" user={user} />
       <ProfileTabContent>
         <MoviesHeader
           tabKey="watched-list"
@@ -194,7 +170,7 @@ function ProfileWatchList({ user, loadUser }: Props) {
           applyFilter={applyFilter}
           sortVal={sortVal}
         />
-        {key !== '' && (isKeyMoviesReady || scrollPosition.data.length <= filteredMovies.length)
+        {key !== '' && (isKeyMoviesReady || pageStateCache.length <= filteredMovies.length)
           && (
             <div className="w-100 d-flex justify-content-center mb-3">
               <RoundButton size="sm" variant="filter" className="px-3" onClick={clearKeyHandler}>
@@ -223,7 +199,7 @@ function ProfileWatchList({ user, loadUser }: Props) {
               />
             </InfiniteScroll>
             {loadingMovies && <LoadingIndicator />}
-            {(isLoadingRef.current || noMoreData) && renderNoMoreDataMessage()}
+            {noMoreData && renderNoMoreDataMessage()}
           </div>
         </div>
       </ProfileTabContent>

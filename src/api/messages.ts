@@ -1,21 +1,22 @@
 import axios from 'axios';
-import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
+import { getSessionToken } from '../utils/session-utils';
+import { ContentDescription } from '../types';
 
-export async function getMessagesList(lastRetrievedMessageId?: string) {
-  const token = Cookies.get('sessionToken');
+export async function getConversations(lastRetrievedConversationId?: string) {
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  let queryParameter = '?limit=15';
-  if (lastRetrievedMessageId) {
-    queryParameter += `&before=${lastRetrievedMessageId}`;
+  let queryParameter = '?limit=30';
+  if (lastRetrievedConversationId) {
+    queryParameter += `&before=${lastRetrievedConversationId}`;
   }
   return axios.get(`${apiUrl}/api/v1/chat/conversations${queryParameter}`, { headers });
 }
 
 export async function getConversation(matchListId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -24,7 +25,7 @@ export async function getConversation(matchListId: string) {
 }
 
 export async function createOrFindConversation(userId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -33,7 +34,7 @@ export async function createOrFindConversation(userId: string) {
 }
 
 export async function markAllReadForSingleConversation(matchListId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -41,11 +42,24 @@ export async function markAllReadForSingleConversation(matchListId: string) {
   return axios.patch(`${apiUrl}/api/v1/chat/conversations/mark-all-received-messages-read-for-chat/${matchListId}`, {}, { headers });
 }
 
-export async function attachFile(message: string, file: any, conversationId: string) {
-  const token = Cookies.get('sessionToken');
+export async function sendMessageWithFiles(
+  message: string,
+  files: any,
+  conversationId: string,
+  fileDescriptions?: ContentDescription[] | any,
+) {
+  if (files.length !== fileDescriptions.length) {
+    throw new Error('Number of uploaded files does not match number of descriptions.');
+  }
+  const token = await getSessionToken();
   const formData = new FormData();
-  for (let i = 0; i < file.length; i += 1) {
-    formData.append('files', file[i]);
+  for (let i = 0; i < fileDescriptions.length; i += 1) {
+    if (files && files.length && files !== undefined) {
+      if (files[i] !== undefined) {
+        formData.append('files', files[i]);
+      }
+    }
+    formData.append(`imageDescriptions[${[i]}][description]`, fileDescriptions![i]);
   }
   formData.append('message', message);
   const headers = {
@@ -56,7 +70,7 @@ export async function attachFile(message: string, file: any, conversationId: str
 }
 
 export async function deleteConversationMessages(matchListId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };

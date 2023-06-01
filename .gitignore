@@ -62,6 +62,12 @@ android-template/app/app.iml
 .project
 .env
 
+# Capacitor user config files directory
+capacitor-configs
+
+# capacitor config file
+capacitor.config.ts
+
 # Carthage and Carthage-built binaries
 Carthage
 *.xcframework.zip

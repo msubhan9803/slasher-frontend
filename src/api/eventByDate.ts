@@ -1,9 +1,9 @@
 import axios from 'axios';
-import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
+import { getSessionToken } from '../utils/session-utils';
 
 export async function getEvents(startDate: string, endDate: string, lastRetrievedEventId = null) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -15,7 +15,7 @@ export async function getEvents(startDate: string, endDate: string, lastRetrieve
 }
 
 export async function getEventsDateCount(startDate: string, endDate: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };

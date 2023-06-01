@@ -7,8 +7,10 @@ import { StyledHastagsCircle } from '../component/Hashtags';
 import SearchHeader from '../SearchHeader';
 import { getSearchHashtag } from '../../../api/searchHashtag';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
-import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import { useAppSelector } from '../../../redux/hooks';
+import {
+  deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
+} from '../../../pageStateCache';
 
 interface SearchPeopleProps {
   _id: string;
@@ -19,16 +21,16 @@ function SearchHashtags() {
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const location = useLocation();
   const [search, setSearch] = useState<string>(scrollPosition?.searchValue);
+  const pageStateCache = (getPageStateCache(location) ?? []);
   const [searchHashtag, setSearchHashtag] = useState<SearchPeopleProps[]>(
-    scrollPosition.pathname === location.pathname
-      ? scrollPosition?.data : [],
+    hasPageStateCache(location)
+      ? pageStateCache : [],
   );
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [page, setPage] = useState<number>(scrollPosition?.page);
   const [loadUser, setLoadUser] = useState<boolean>(false);
   const [additionalSearchHashtag, setAdditionalSearchHashtag] = useState<boolean>(false);
   const [moreCharacters, setMoreCharacters] = useState<boolean>(false);
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (scrollPosition.position > 0
@@ -41,16 +43,11 @@ function SearchHashtags() {
   }, [scrollPosition, location.pathname]);
 
   const emptyScrollPosition = useCallback(() => {
-    if (scrollPosition.pathname === location.pathname
-    ) {
-      const positionData = {
-        pathname: '',
-        position: 0,
-        positionElementId: '',
-      };
-      dispatch(setScrollPosition(positionData));
+    if (hasPageStateCache(location)
+      && searchHashtag.length >= pageStateCache.length + 10) {
+      deletePageStateCache(location);
     }
-  }, [scrollPosition.pathname, location.pathname, dispatch]);
+  }, [location, pageStateCache.length, searchHashtag.length]);
 
   const removeHashtag = (value: string) => {
     if (value.charAt(0) === '#') {
@@ -125,7 +122,7 @@ function SearchHashtags() {
   }, [emptyScrollPosition, page, search]);
 
   useEffect(() => {
-    if (additionalSearchHashtag && !loadUser && search.length > 0) {
+    if (additionalSearchHashtag && !loadUser && search && search.length > 0) {
       if (scrollPosition === null
         || scrollPosition?.position === 0
         || searchHashtag.length >= scrollPosition?.data?.length
@@ -138,7 +135,7 @@ function SearchHashtags() {
       }
     }
   }, [additionalSearchHashtag, fetchMoreUsers, loadUser, location.pathname, page, scrollPosition,
-    search.length, searchHashtag.length]);
+    search, searchHashtag]);
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
@@ -150,17 +147,7 @@ function SearchHashtags() {
     </p>
   );
 
-  const persistScrollPosition = (id: string) => {
-    const positionData = {
-      pathname: location.pathname,
-      position: window.pageYOffset === 0 ? 1 : window.pageYOffset,
-      data: searchHashtag,
-      positionElementId: id,
-      page,
-      searchValue: search,
-    };
-    dispatch(setScrollPosition(positionData));
-  };
+  const persistScrollPosition = () => { setPageStateCache(location, searchHashtag); };
 
   return (
     <div>
@@ -195,7 +182,7 @@ function SearchHashtags() {
                 <Col md={6} key={hashtagDetail._id}>
                   <Link
                     to={`/app/search/posts?hashtag=${hashtagDetail.name}`}
-                    onClick={() => persistScrollPosition(hashtagDetail._id)}
+                    onClick={() => persistScrollPosition()}
                     className="text-decoration-none py-4 d-flex align-items-center"
                   >
                     <StyledHastagsCircle

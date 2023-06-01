@@ -6,6 +6,7 @@ import ModalContainer from '../ui/CustomModal';
 import ModalBodyForDeleteConversation from '../ui/ModalBodyForDeleteConversation';
 import ModalBodyForReport from '../ui/ModalBodyForReport';
 import ModalBodyForBlockUser from '../ui/ModalBodyForBlockUser';
+import ModalBodyForReportSuccess from '../ui/ModalBodyForReportSuccess';
 
 interface Props {
   show: boolean;
@@ -22,6 +23,7 @@ function ChatOptionDialog({
   const [otherReport, setOtherReport] = useState('');
   const navigate = useNavigate();
   const [buttonDisabled, setButtonDisabled] = useState(true);
+  const [checked, setChecked] = useState(false);
   const closeModal = () => {
     setShow(false);
     setReports('');
@@ -37,7 +39,6 @@ function ChatOptionDialog({
     const reason = reports === 'Other' ? otherReport : reports;
     if (reason) {
       if (handleReport) { handleReport(reason); }
-      closeModal();
     }
   };
   const handleClickModal = () => {
@@ -47,6 +48,11 @@ function ChatOptionDialog({
   const handleDeleteConversationMessages = () => {
     if (!conversationId) { return; }
     deleteConversationMessages(conversationId).then(() => { setShow(false); navigate('/app/messages'); });
+  };
+  const handleBlockUser = () => {
+    if (onBlockYesClick) { onBlockYesClick(); }
+    setChecked(false);
+    closeModal();
   };
   return (
     <ModalContainer
@@ -78,6 +84,17 @@ function ChatOptionDialog({
           />
         )
       }
+      {
+        slectedDropdownValue === 'PostReportSuccessDialog' && (
+          <ModalBodyForReportSuccess
+            checked={checked}
+            setChecked={setChecked}
+            closeModal={closeModal}
+            handleBlockUser={handleBlockUser}
+          />
+        )
+      }
+
     </ModalContainer>
   );
 }

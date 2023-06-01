@@ -1,7 +1,8 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
-import Cookies from 'js-cookie';
 import { useLocation } from 'react-router-dom';
 import CustomCreatePost from '../../components/ui/CustomCreatePost';
 import PostFeed from '../../components/ui/post/PostFeed/PostFeed';
@@ -10,7 +11,7 @@ import ReportModal from '../../components/ui/ReportModal';
 import {
   deleteFeedPost, getHomeFeedPosts, hideFeedPost, updateFeedPost,
 } from '../../api/feed-posts';
-import { Post } from '../../types';
+import { ContentDescription, Post } from '../../types';
 import { PopoverClickProps } from '../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../api/feed-likes';
 import { createBlockUser } from '../../api/blocks';
@@ -19,13 +20,18 @@ import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import { useAppSelector, useAppDispatch } from '../../redux/hooks';
-import { setScrollPosition } from '../../redux/slices/scrollPositionSlice';
 import EditPostModal from '../../components/ui/post/EditPostModal';
+import {
+  blockedUsersCache,
+  deletePageStateCache, deletedPostsCache, getPageStateCache, hasPageStateCache, setPageStateCache,
+} from '../../pageStateCache';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
 const newsPostPopoverOptions = ['Report', 'Hide'];
+
+const removeDeletedPost = (post: any) => !deletedPostsCache.has(post._id);
+const removeBlockedUserPosts = (post: any) => !blockedUsersCache.has(post.userId);
 
 function Home() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -40,16 +46,20 @@ function Home() {
   const [postId, setPostId] = useState<string>('');
   const [postUserId, setPostUserId] = useState<string>('');
   const [rssfeedProviderId, setRssfeedProviderId] = useState<string>('');
-  const loginUserId = Cookies.get('userId');
-  const scrollPosition = useAppSelector((state) => state.scrollPosition);
-  const dispatch = useAppDispatch();
   const location = useLocation();
-  const shouldRestoreScrollPositionWithData = scrollPosition.pathname === location.pathname;
+  const pageStateCache = (getPageStateCache(location) ?? [])
+    .filter(removeDeletedPost)
+    .filter(removeBlockedUserPosts);
   const [posts, setPosts] = useState<Post[]>(
-    shouldRestoreScrollPositionWithData
-      ? scrollPosition?.data : [],
+    hasPageStateCache(location)
+      ? pageStateCache : [],
   );
+  const lastLocationKeyRef = useRef(location.key);
+
+  const persistScrollPosition = () => { setPageStateCache(location, posts); };
+
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
+    persistScrollPosition();
     if (value === 'Hide') {
       const postIdToHide = popoverClickProps.id;
       if (!postIdToHide) { return; }
@@ -78,90 +88,106 @@ function Home() {
     setDropDownValue(value);
   };
 
+  const fetchFeedPosts = useCallback((forceReload = false) => {
+    if (forceReload) { setPosts([]); }
+    setLoadingPosts(true);
+    const lastPostId = posts.length > 0 ? posts[posts.length - 1]._id : undefined;
+    getHomeFeedPosts(
+      forceReload ? undefined : lastPostId,
+    ).then((res) => {
+      const newPosts = res.data.map((data: any) => {
+        if (data.userId) {
+          // Regular post
+          return {
+            _id: data._id,
+            id: data._id,
+            postDate: data.createdAt,
+            message: data.message,
+            images: data.images,
+            userName: data.userId.userName,
+            profileImage: data.userId.profilePic,
+            userId: data.userId._id,
+            likeIcon: data.likedByUser,
+            likeCount: data.likeCount,
+            commentCount: data.commentCount,
+            movieId: data?.movieId,
+          };
+        }
+        // RSS feed post
+        return {
+          _id: data._id,
+          id: data._id,
+          postDate: data.createdAt,
+          message: data.message,
+          images: data.images,
+          userName: data.rssfeedProviderId?.title,
+          profileImage: data.rssfeedProviderId?.logo,
+          likeIcon: data.likedByUser,
+          likeCount: data.likeCount,
+          commentCount: data.commentCount,
+          rssfeedProviderId: data.rssfeedProviderId._id,
+        };
+      });
+      setPosts((prev: Post[]) => [
+        ...(forceReload ? [] : prev),
+        ...newPosts,
+      ]);
+      if (res.data.length === 0) { setNoMoreData(true); }
+      if (hasPageStateCache(location)
+        && posts.length >= pageStateCache.length + 10) {
+        deletePageStateCache(location);
+      }
+    }).catch(
+      (error) => {
+        setNoMoreData(true);
+        setErrorMessage(error.response.data.message);
+      },
+    ).finally(
+      () => {
+        setRequestAdditionalPosts(false);
+        setLoadingPosts(false);
+        // Fixed edge case bug when `noMoreData` is already set to `true` when user has reached the
+        // end of the page and clicks on the `notification-icon` in top navbar to reload the page
+        // otherwise pagination doesn't work.
+        if (forceReload && (noMoreData === true)) { setNoMoreData(false); }
+      },
+    );
+  }, [location, noMoreData, pageStateCache.length, posts]);
+
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
-      if (scrollPosition === null
-        || scrollPosition?.position === 0
-        || posts.length >= scrollPosition?.data?.length
+      if (
+        !hasPageStateCache(location)
+        || posts.length >= pageStateCache.length
         || posts.length === 0
-        || scrollPosition.pathname !== location.pathname
       ) {
-        setLoadingPosts(true);
-        getHomeFeedPosts(
-          posts.length > 0 ? posts[posts.length - 1]._id : undefined,
-        ).then((res) => {
-          const newPosts = res.data.map((data: any) => {
-            if (data.userId) {
-              // Regular post
-              return {
-                _id: data._id,
-                id: data._id,
-                postDate: data.createdAt,
-                message: data.message,
-                images: data.images,
-                userName: data.userId.userName,
-                profileImage: data.userId.profilePic,
-                userId: data.userId._id,
-                likeIcon: data.likedByUser,
-                likeCount: data.likeCount,
-                commentCount: data.commentCount,
-                movieId: data?.movieId,
-              };
-            }
-            // RSS feed post
-            return {
-              _id: data._id,
-              id: data._id,
-              postDate: data.createdAt,
-              message: data.message,
-              images: data.images,
-              userName: data.rssfeedProviderId?.title,
-              profileImage: data.rssfeedProviderId?.logo,
-              likeIcon: data.likedByUser,
-              likeCount: data.likeCount,
-              commentCount: data.commentCount,
-              rssfeedProviderId: data.rssfeedProviderId._id,
-            };
-          });
-          setPosts((prev: Post[]) => [
-            ...prev,
-            ...newPosts,
-          ]);
-          if (res.data.length === 0) { setNoMoreData(true); }
-          if (scrollPosition.pathname === location.pathname
-            && posts.length >= scrollPosition.data.length + 10) {
-            const positionData = {
-              pathname: '',
-              position: 0,
-              data: [],
-              positionElementId: '',
-            };
-            dispatch(setScrollPosition(positionData));
-          }
-        }).catch(
-          (error) => {
-            setNoMoreData(true);
-            setErrorMessage(error.response.data.message);
-          },
-        ).finally(
-          () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
-        );
+        fetchFeedPosts();
       }
     }
   }, [
-    requestAdditionalPosts, loadingPosts, loginUserId, posts, scrollPosition,
-    dispatch, location.pathname,
+    fetchFeedPosts, loadingPosts, location, pageStateCache.length,
+    posts.length, requestAdditionalPosts, location.pathname,
   ]);
 
-  const renderNoMoreDataMessage = () => (
-    <p className="text-center">
-      {
-        posts.length === 0
+  useEffect(() => {
+    const isSameKey = lastLocationKeyRef.current === location.key;
+    if (isSameKey) { return; }
+    // Fetch feedPosts when we click the `home-icon` in navbar
+    fetchFeedPosts(true);
+    // Update lastLocation
+    lastLocationKeyRef.current = location.key;
+  }, [fetchFeedPosts, location.key]);
+
+  const renderNoMoreDataMessage = () => {
+    if (loadingPosts) { return null; }
+    return (
+      <p className="text-center">
+        {posts.length === 0
           ? 'No posts available'
-          : 'No more posts'
-      }
-    </p>
-  );
+          : 'No more posts'}
+      </p>
+    );
+  };
   const callLatestFeedPost = () => {
     getHomeFeedPosts().then((res) => {
       const newPosts = res.data.map((data: any) => {
@@ -201,19 +227,25 @@ function Home() {
     });
   };
 
-  const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
-    updateFeedPost(postId, message, images, imageDelete).then((res) => {
-      setShow(false);
-      const updatePost = posts.map((post: any) => {
-        if (post._id === postId) {
-          return {
-            ...post, message: res.data.message, images: res.data.images,
-          };
-        }
-        return post;
-      });
-      setPosts(updatePost);
-    })
+  const onUpdatePost = (
+    message: string,
+    images: string[],
+    imageDelete: string[] | undefined,
+    descriptionArray?: ContentDescription[],
+  ) => {
+    updateFeedPost(postId, message, images, imageDelete, null, descriptionArray)
+      .then((res) => {
+        setShow(false);
+        const updatePost = posts.map((post: any) => {
+          if (post._id === postId) {
+            return {
+              ...post, message: res.data.message, images: res.data.images,
+            };
+          }
+          return post;
+        });
+        setPosts(updatePost);
+      })
       .catch((error) => {
         const msg = error.response.status === 0 && !error.response.data
           ? 'Combined size of files is too large.'
@@ -276,11 +308,16 @@ function Home() {
   const onBlockYesClick = () => {
     createBlockUser(postUserId)
       .then(() => {
-        setShow(false);
-        callLatestFeedPost();
+        setDropDownValue('BlockUserSuccess');
+        setPosts((prev) => prev.filter(
+          (scrollData: any) => scrollData.userId !== postUserId,
+        ));
       })
       // eslint-disable-next-line no-console
       .catch((error) => console.error(error));
+  };
+  const afterBlockUser = () => {
+    setShow(false);
   };
 
   const reportHomePost = (reason: string) => {
@@ -298,16 +335,6 @@ function Home() {
     setDropDownValue('PostReportSuccessDialog');
   };
 
-  const persistScrollPosition = (id: string) => {
-    const positionData = {
-      pathname: location.pathname,
-      position: window.pageYOffset,
-      data: posts,
-      positionElementId: id,
-    };
-    dispatch(setScrollPosition(positionData));
-  };
-
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
@@ -321,6 +348,7 @@ function Home() {
             </div>
           )
         }
+        <h1 className="h2 my-3 ms-3 ms-md-0">Latest posts</h1>
         <InfiniteScroll
           threshold={3000}
           pageStart={0}
@@ -348,7 +376,7 @@ function Home() {
         {loadingPosts && <LoadingIndicator />}
         {noMoreData && renderNoMoreDataMessage()}
         {
-          (dropDownValue === 'Block user' || dropDownValue === 'Report' || dropDownValue === 'Delete' || dropDownValue === 'PostReportSuccessDialog')
+          ['Block user', 'Report', 'Delete', 'PostReportSuccessDialog', 'BlockUserSuccess'].includes(dropDownValue)
           && (
             <ReportModal
               onConfirmClick={deletePostClick}
@@ -356,6 +384,7 @@ function Home() {
               setShow={setShow}
               slectedDropdownValue={dropDownValue}
               onBlockYesClick={onBlockYesClick}
+              afterBlockUser={afterBlockUser}
               handleReport={reportHomePost}
               rssfeedProviderId={rssfeedProviderId}
             />
@@ -375,6 +404,7 @@ function Home() {
               setPostImages={setPostImages}
               deleteImageIds={deleteImageIds}
               setDeleteImageIds={setDeleteImageIds}
+              editPost
             />
           )
         }

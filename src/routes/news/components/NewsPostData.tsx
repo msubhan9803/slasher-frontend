@@ -1,10 +1,9 @@
 /* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
-import Cookies from 'js-cookie';
 import { useLocation } from 'react-router-dom';
 import { getRssFeedProviderPosts } from '../../../api/rss-feed-providers';
-import { NewsPartnerPostProps } from '../../../types';
+import { NewsPartnerAndPostsCache, NewsPartnerPostProps } from '../../../types';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
 import ReportModal from '../../../components/ui/ReportModal';
 import { reportData } from '../../../api/report';
@@ -12,7 +11,9 @@ import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
-import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
+import {
+  deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
+} from '../../../pageStateCache';
 
 interface Props {
   partnerId: string;
@@ -22,26 +23,24 @@ function NewsPostData({ partnerId }: Props) {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
-  const loginUserId = Cookies.get('userId');
+  const userId = useAppSelector((state) => state.user.user.id);
   const popoverOption = ['Report'];
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
-  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const location = useLocation();
+  const newsPostsCache = getPageStateCache<NewsPartnerAndPostsCache>(location)?.newsPosts ?? [];
   const [postData, setPostData] = useState<NewsPartnerPostProps[]>(
-    scrollPosition.pathname === location.pathname
-      ? scrollPosition?.data : [],
+    hasPageStateCache(location)
+      ? newsPostsCache : [],
   );
 
   useEffect(() => {
     if (partnerId && requestAdditionalPosts && !loadingPosts) {
-      if (scrollPosition === null
-        || scrollPosition?.position === 0
-        || postData.length >= scrollPosition?.data?.length
+      if (!hasPageStateCache(location)
+        || postData.length >= newsPostsCache.length
         || postData.length === 0
-        || scrollPosition.pathname !== location.pathname
       ) {
         setLoadingPosts(true);
         getRssFeedProviderPosts(
@@ -66,15 +65,9 @@ function NewsPostData({ partnerId }: Props) {
             ...newPosts,
           ]);
           if (res.data.length === 0) { setNoMoreData(true); }
-          if (scrollPosition.pathname === location.pathname
-            && postData.length >= scrollPosition.data.length + 10) {
-            const positionData = {
-              pathname: '',
-              position: 0,
-              data: [],
-              positionElementId: '',
-            };
-            dispatch(setScrollPosition(positionData));
+          if (hasPageStateCache(location)
+            && postData.length >= newsPostsCache.length + 10) {
+            deletePageStateCache(location);
           }
         }).catch(
           () => {
@@ -85,10 +78,8 @@ function NewsPostData({ partnerId }: Props) {
         );
       }
     }
-  }, [
-    partnerId, requestAdditionalPosts, loadingPosts, loginUserId,
-    scrollPosition, postData, dispatch, location.pathname,
-  ]);
+  }, [partnerId, requestAdditionalPosts, loadingPosts, userId, postData, dispatch,
+    location.pathname, location, newsPostsCache.length]);
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
@@ -181,16 +172,12 @@ function NewsPostData({ partnerId }: Props) {
       .catch((error) => console.error(error));
   };
 
-  const persistScrollPosition = (id: string) => {
-    const positionData = {
-      pathname: location.pathname,
-      position: window.pageYOffset,
-      data: postData,
-      positionElementId: id,
-    };
-    dispatch(setScrollPosition(positionData));
+  const persistScrollPosition = () => {
+    setPageStateCache<NewsPartnerAndPostsCache>(location, {
+      ...getPageStateCache<NewsPartnerAndPostsCache>(location),
+      newsPosts: postData,
+    });
   };
-
   return (
     <>
       <InfiniteScroll

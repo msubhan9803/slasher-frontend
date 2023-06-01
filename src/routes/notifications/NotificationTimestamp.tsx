@@ -8,7 +8,7 @@ function NotificationTimestamp({
   show,
   onMarkAllReadClick,
   popoverOption,
-  handleLikesOption,
+  onPopoverClick,
 }: any) {
   const labelForIsoDateString = (value: string) => {
     const dateTime = DateTime.fromISO(value);
@@ -38,7 +38,7 @@ function NotificationTimestamp({
           <span className="d-lg-none">
             <CustomPopover
               popoverOptions={popoverOption}
-              onPopoverClick={handleLikesOption}
+              onPopoverClick={onPopoverClick}
             />
           </span>
         </div>

@@ -3,7 +3,7 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Nav } from 'react-bootstrap';
 import SidebarNavItem from './SidebarNavItem';
 import { enableDevFeatures } from '../../../utils/configEnvironment';
-import { GOOGLE_PLAY_DOWNLOAD_URL, APP_STORE_DOWNLOAD_URL } from '../../../constants';
+import { GOOGLE_PLAY_DOWNLOAD_URL, APP_STORE_DOWNLOAD_URL, WORDPRESS_SITE_URL } from '../../../constants';
 import RoundButtonLink from '../../ui/RoundButtonLink';
 
 const MAX_ALLOWED_COMING_SOON_ITEMS_IN_MENU = 1;
@@ -12,7 +12,7 @@ interface Props {
   onToggleCanvas?: () => void;
 }
 
-type MenuType = {
+type MenuListItem = {
   label: string,
   icon: any,
   iconColor: string,
@@ -22,7 +22,7 @@ type MenuType = {
   comingSoon?: boolean
 };
 
-const sidebarMenuList: MenuType[] = [
+const topMenuListItems: MenuListItem[] = [
   {
     label: 'News & Reviews', icon: solid('newspaper'), iconColor: '#0094FF', to: '/app/news', id: 1,
   },
@@ -30,7 +30,7 @@ const sidebarMenuList: MenuType[] = [
     label: 'Events', icon: solid('calendar-day'), iconColor: '#05FF00', to: '/app/events', id: 2,
   },
   {
-    label: 'Movies', icon: solid('film'), iconColor: '#FF343E', to: '/app/movies', id: 3,
+    label: 'Movies', icon: solid('film'), iconColor: '#FF343E', to: '/app/movies/all', id: 3,
   },
   {
     label: 'Books', icon: solid('book-skull'), iconColor: '#D88100', to: '/app/books', id: 4,
@@ -61,7 +61,7 @@ const sidebarMenuList: MenuType[] = [
   },
 ];
 
-const additionalMenuListItemsAfterComingSoon: MenuType[] = [
+const bottomMenuListItems: MenuListItem[] = [
   {
     label: 'Settings', icon: solid('gear'), iconColor: '#888888', to: '/app/account', id: 8, desktopOnly: true,
   },
@@ -70,21 +70,21 @@ const additionalMenuListItemsAfterComingSoon: MenuType[] = [
   },
 ];
 
-let customSidebarMenuList = sidebarMenuList.filter(
+let menuListItems = topMenuListItems.filter(
   (item) => enableDevFeatures || !item.comingSoon,
 );
 const numberOfComingSoonItemsToShow = Math.min(
   MAX_ALLOWED_COMING_SOON_ITEMS_IN_MENU,
-  sidebarMenuList.length - customSidebarMenuList.length,
+  topMenuListItems.length - menuListItems.length,
 );
 
 for (let i = 0; i < numberOfComingSoonItemsToShow; i += 1) {
-  customSidebarMenuList.push({
-    label: 'Coming Soon', icon: solid('question'), iconColor: '#FF1700', to: '#', id: `comingSoon-${i}`,
+  menuListItems.push({
+    label: 'Coming Soon', icon: solid('question'), iconColor: '#FF1700', to: '#', id: `comingSoon-${i}`, comingSoon: true,
   });
 }
 
-customSidebarMenuList = customSidebarMenuList.concat(additionalMenuListItemsAfterComingSoon);
+menuListItems = menuListItems.concat(bottomMenuListItems);
 
 function SidebarNavContent({ onToggleCanvas }: Props) {
   return (
@@ -97,19 +97,19 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
         style={{ marginBottom: '0.75rem' }}
       >
         Report a bug
-
       </RoundButtonLink>
       <Nav>
-        {customSidebarMenuList.map((menu) => (
+        {menuListItems.map((menuItem) => (
           <SidebarNavItem
-            id={menu.id}
-            key={menu.id}
-            label={menu.label}
-            icon={menu.icon}
-            iconColor={menu.iconColor}
-            to={menu.to}
-            className={menu.desktopOnly ? 'd-none d-md-flex' : ''}
-            onToggleCanvas={onToggleCanvas}
+            id={menuItem.id}
+            key={menuItem.id}
+            label={menuItem.label}
+            icon={menuItem.icon}
+            iconColor={menuItem.iconColor}
+            to={menuItem.to}
+            className={menuItem.desktopOnly ? 'd-none d-lg-flex' : ''}
+            comingSoon={menuItem.comingSoon || false}
+            onToggleCanvas={menuItem.comingSoon ? undefined : onToggleCanvas}
           />
         ))}
         <ul className="list-inline mt-4 link-hover-underline fs-6">
@@ -117,14 +117,14 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
             enableDevFeatures
             && (
               <>
-                <li><a className="text-light text-decoration-none" href={GOOGLE_PLAY_DOWNLOAD_URL} target="_blank" rel="noreferrer">Download for Android</a></li>
-                <li><a className="text-light text-decoration-none" href={APP_STORE_DOWNLOAD_URL} target="_blank" rel="noreferrer">Download for iOS</a></li>
+                <li className="mb-4"><a className="text-light text-decoration-none" href={GOOGLE_PLAY_DOWNLOAD_URL} target="_blank" rel="noreferrer">Download for Android</a></li>
+                <li className="mb-4"><a className="text-light text-decoration-none" href={APP_STORE_DOWNLOAD_URL} target="_blank" rel="noreferrer">Download for iOS</a></li>
               </>
             )
           }
-          <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/advertise" target="_blank" rel="noreferrer">Advertise on Slasher</a></li>
-          <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/terms" target="_blank" rel="noreferrer">Terms &amp; Policies</a></li>
-          <li><a className="text-light text-decoration-none" href="https://pages.slasher.tv/about" target="_blank" rel="noreferrer">About</a></li>
+          <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/advertise`} target="_blank" rel="noreferrer">Advertise on Slasher</a></li>
+          <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/policies`} target="_blank" rel="noreferrer">Terms &amp; Policies</a></li>
+          <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/about`} target="_blank" rel="noreferrer">About</a></li>
           <li className="text-light text-decoration-none">
             &copy;
             {' '}

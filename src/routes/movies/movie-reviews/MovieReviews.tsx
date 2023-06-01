@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  useCallback, useEffect, useLayoutEffect, useState,
+  useCallback, useEffect, useLayoutEffect, useMemo, useState,
 } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -14,24 +14,24 @@ import {
   createPost, deleteFeedPost, feedPostDetail, getMovieReview, updateFeedPost,
 } from '../../../api/feed-posts';
 import {
-  MovieData, Post, PostType,
+  MovieData, MoviePageCache, Post, PostType,
 } from '../../../types';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
-import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
-import { useAppDispatch } from '../../../redux/hooks';
 import ReportModal from '../../../components/ui/ReportModal';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-utils';
 import { getMoviesById } from '../../../api/movies';
 import { createBlockUser } from '../../../api/blocks';
 import { reportData } from '../../../api/report';
+import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../../pageStateCache';
 
 type Props = {
   movieData: MovieData;
   setMovieData: React.Dispatch<React.SetStateAction<MovieData | undefined>>;
   reviewForm: boolean;
   setReviewForm: (value: boolean) => void;
+  handleScroll: () => void;
 };
 
 export const StyledReviewContainer = styled.div`
@@ -47,7 +47,7 @@ type PopOverValueType = typeof validPopOverOptions[number];
 const isValidPopOverValue = (v: string): v is PopOverValueType => validPopOverOptions.includes(v as any);
 
 function MovieReviews({
-  movieData, setMovieData, reviewForm, setReviewForm,
+  movieData, setMovieData, reviewForm, setReviewForm, handleScroll,
 }: Props) {
   const { id } = useParams();
   const location = useLocation();
@@ -62,7 +62,6 @@ function MovieReviews({
   const [containSpoiler, setContainSpoiler] = useState<boolean>(false);
   const [rating, setRating] = useState(0);
   const [goreFactor, setGoreFactor] = useState(0);
-  const [reviewPostData, setReviewPostData] = useState<any>([]);
   const [deletePostId, setDeletePostId] = useState<any>([]);
   const [requestAdditionalReviewPosts, setRequestAdditionalReviewPosts] = useState<boolean>(false);
   const [loadingReviewPosts, setLoadingReviewPosts] = useState<boolean>(false);
@@ -71,11 +70,21 @@ function MovieReviews({
   const [isWorthIt, setWorthIt] = useState<any>(0);
   const [liked, setLike] = useState<boolean>(false);
   const [disLiked, setDisLike] = useState<boolean>(false);
-  const dispatch = useAppDispatch();
+  // eslint-disable-next-line max-len
+  const ReviewsCache: MoviePageCache['reviews'] = useMemo(() => getPageStateCache<MoviePageCache>(location)?.reviews ?? [], [location]);
+  const [reviewPostData, setReviewPostData] = useState<any>(
+    hasPageStateCache(location)
+      ? ReviewsCache : [],
+  );
   const navigate = useNavigate();
   const handleCreateInput = () => {
     setShowReviewForm(true);
   };
+  useEffect(() => {
+    if (hasPageStateCache(location)) {
+      setReviewPostData(ReviewsCache);
+    }
+  }, [location, ReviewsCache]);
 
   const getUserMovieReviewData = (reviewPostId: string) => {
     feedPostDetail(reviewPostId).then((res) => {
@@ -129,7 +138,15 @@ function MovieReviews({
     }
   }, [movieData, callLatestFeedPost]);
 
+  const persistScrollPosition = () => {
+    setPageStateCache<MoviePageCache>(location, {
+      ...getPageStateCache(location),
+      reviews: reviewPostData,
+    });
+  };
+
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
+    persistScrollPosition();
     if (!isValidPopOverValue(value)) {
       throw new Error(`Please call 'onPopoverClick()' with correct value! Called value: ${value}, Expected value is one of:`, validPopOverOptions as any);
     }
@@ -301,7 +318,7 @@ function MovieReviews({
     createBlockUser(postUserId)
       .then(() => {
         setShow(false);
-        callLatestFeedPost();
+        setDropDownValue('BlockUserSuccess');
       })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
@@ -321,15 +338,6 @@ function MovieReviews({
     setDropDownValue('PostReportSuccessDialog');
   };
 
-  const persistScrollPosition = (movieId: string) => {
-    const positionData = {
-      pathname: location.pathname,
-      position: window.pageYOffset,
-      data: reviewPostData,
-      positionElementId: movieId,
-    };
-    dispatch(setScrollPosition(positionData));
-  };
   const deletePostClick = () => {
     if (deletePostId) {
       deleteFeedPost(deletePostId)
@@ -424,6 +432,9 @@ function MovieReviews({
               placeHolder="Write your review here"
               reviewForm={reviewForm}
               setReviewForm={setReviewForm}
+              setShowReviewForm={setShowReviewForm}
+              handleScroll={handleScroll}
+              createEditPost
             />
           ) : (
             <CustomCreatePost

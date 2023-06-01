@@ -4,6 +4,7 @@ import CustomModal from '../../components/ui/CustomModal';
 import { deleteConversationMessages } from '../../api/messages';
 import ModalBodyForDeleteConversation from '../../components/ui/ModalBodyForDeleteConversation';
 import ModalBodyForBlockUser from '../../components/ui/ModalBodyForBlockUser';
+import { ConversationListItem } from '../../types';
 
 interface Props {
   show: boolean;
@@ -11,10 +12,11 @@ interface Props {
   slectedMessageDropdownValue: string
   selectedMatchListId: string
   setMessages: any;
+  onBlockYesClick: Function,
 }
 
 function MessagesOptionDialog({
-  show, setShow, slectedMessageDropdownValue, selectedMatchListId, setMessages,
+  show, setShow, slectedMessageDropdownValue, selectedMatchListId, setMessages, onBlockYesClick,
 }: Props) {
   const closeModal = () => {
     setShow(false);
@@ -24,10 +26,14 @@ function MessagesOptionDialog({
     deleteConversationMessages(selectedMatchListId).then(() => {
       setShow(false);
       // Remove message of associated `matchList` without refetching converstaions
-      setMessages((messages: any[]) => messages.filter(
+      setMessages((messages: ConversationListItem[]) => messages.filter(
         (message) => message._id !== selectedMatchListId,
       ));
     });
+  };
+  const handleBlockUser = () => {
+    if (onBlockYesClick) { onBlockYesClick(); }
+    closeModal();
   };
   return (
     <CustomModal
@@ -45,7 +51,7 @@ function MessagesOptionDialog({
       )}
       {slectedMessageDropdownValue === 'Block user' && (
         <ModalBodyForBlockUser
-          onConfirm={() => { }}
+          onConfirm={handleBlockUser}
           onCancel={closeModal}
         />
       )}

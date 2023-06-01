@@ -9,7 +9,6 @@ import {
 import styled, { css } from 'styled-components';
 import linkifyHtml from 'linkify-html';
 import 'swiper/swiper-bundle.css';
-import Cookies from 'js-cookie';
 import InfiniteScroll from 'react-infinite-scroller';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import * as stringSimilarity from 'string-similarity';
@@ -37,16 +36,16 @@ import { MD_MEDIA_BREAKPOINT } from '../../../../constants';
 import RoundButton from '../../RoundButton';
 import CustomRatingText from '../../CustomRatingText';
 import CustomWortItText from '../../CustomWortItText';
-import { useAppSelector } from '../../../../redux/hooks';
 import { HOME_WEB_DIV_ID, NEWS_PARTNER_DETAILS_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
 import LoadingIndicator from '../../LoadingIndicator';
-import { customlinkifyOpts } from '../../../../utils/linkify-utils';
+import { defaultLinkifyOpts } from '../../../../utils/linkify-utils';
 import { getLocalStorage } from '../../../../utils/localstorage-utils';
 import FormatImageVideoList from '../../../../utils/video-utils';
 import useOnScreen from '../../../../hooks/useOnScreen';
 import { isHomePage, isNewsPartnerPage, isPostDetailsPage } from '../../../../utils/url-utils';
 import ScrollToTop from '../../../ScrollToTop';
 import { postMovieDataToMovieDBformat, showMoviePoster } from '../../../../routes/movies/movie-utils';
+import { useAppSelector } from '../../../../redux/hooks';
 
 interface Props {
   popoverOptions: string[];
@@ -90,6 +89,8 @@ interface Props {
   setCommentReplyErrorMessage?: (value: string[]) => void;
   setCommentErrorMessage?: (value: string[]) => void;
   showPubWiseAdAtPageBottom?: boolean;
+  setSelectedBlockedUserId?: (value: string) => void;
+  setDropDownValue?: (value: string) => void;
 }
 
 interface StyledProps {
@@ -256,7 +257,7 @@ function PostContent({
                 {
                   __html: escapeHtml && !post?.spoiler
                     // eslint-disable-next-line max-len
-                    ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(message, `#${selectedHashtag}`!)), customlinkifyOpts))
+                    ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(message, `#${selectedHashtag}`!)), defaultLinkifyOpts))
                     : cleanExternalHtmlContent(message),
                 }
               }
@@ -309,16 +310,15 @@ function PostFeed({
   handleSearch, mentionList, commentImages, setCommentImages, commentError,
   commentReplyError, postType, onSpoilerClick,
   commentSent, setCommentReplyErrorMessage, setCommentErrorMessage,
-  showPubWiseAdAtPageBottom,
+  showPubWiseAdAtPageBottom, setSelectedBlockedUserId, setDropDownValue,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [isCommentClick, setCommentClick] = useState<boolean>(false);
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
-  const loginUserId = Cookies.get('userId');
+  const loginUserId = useAppSelector((state) => state.user.user.id);
   const location = useLocation();
   const navigate = useNavigate();
-  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const spoilerId = getLocalStorage('spoilersIds');
   // Below states (prefixed by `modal`) are useful for `LikeShareModal` component
   const [showLikeShareModal, setShowLikeShareModal] = useState<boolean>(false);
@@ -405,15 +405,6 @@ function PostFeed({
     pubWiseAdDivId = NEWS_PARTNER_POSTS_DIV_ID;
   }
 
-  useEffect(() => {
-    if (scrollPosition.position > 0
-      && scrollPosition?.pathname === location.pathname) {
-      window.scrollTo({
-        top: scrollPosition?.position,
-        behavior: 'instant' as any,
-      });
-    }
-  }, [scrollPosition, location.pathname]);
   const renderGroupPostContent = (posts: any) => (
     <>
       <p>
@@ -439,6 +430,7 @@ function PostFeed({
     return imageVideoList.map((imageData: any) => {
       if (imageData.movieData) { return imageData; }
       return ({
+        imageDescription: imageData.description,
         videoKey: imageData.videoKey,
         imageUrl: imageData.image_path,
         linkUrl: isSinglePost ? undefined : imageLinkUrl(post, imageData._id),
@@ -457,8 +449,8 @@ function PostFeed({
       {postData.map((post: any, i) => (
         <div key={post.id}>
           <div className="post">
-            <Card className="bg-transparent border-0 rounded-3 mb-md-4 mb-0 pt-md-3 px-sm-0">
-              <Card.Header className="border-0 px-0 bg-transparent">
+            <Card className="bg-transparent border-0 rounded-3 px-sm-0">
+              <Card.Header className="border-0 px-0 bg-transparent" style={{ paddingTop: 6 }}>
                 <PostHeader
                   isSinglePost={isSinglePost}
                   id={post.id}
@@ -475,7 +467,7 @@ function PostFeed({
                   postType={postType}
                 />
               </Card.Header>
-              <Card.Body className="px-0 pt-3">
+              <Card.Body className="px-0 pt-3 pb-0">
                 {postType === 'group-post' && renderGroupPostContent(post)}
                 {post?.rssFeedTitle && <h1 className="h2">{post.rssFeedTitle}</h1>}
                 <PostContent
@@ -568,6 +560,8 @@ function PostFeed({
                       setCommentErrorMessage={setCommentErrorMessage}
                       handleLikeModal={handleLikeModal}
                       isMainPostCommentClick={isCommentClick}
+                      setSelectedBlockedUserId={setSelectedBlockedUserId}
+                      setCommentDropDownValue={setDropDownValue}
                     />
                   </InfiniteScroll>
                   {loadingPosts && <LoadingIndicator />}
@@ -648,5 +642,7 @@ PostFeed.defaultProps = {
   setCommentReplyErrorMessage: undefined,
   setCommentErrorMessage: undefined,
   showPubWiseAdAtPageBottom: undefined,
+  setSelectedBlockedUserId: undefined,
+  setDropDownValue: undefined,
 };
 export default PostFeed;

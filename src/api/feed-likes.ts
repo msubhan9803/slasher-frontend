@@ -1,9 +1,9 @@
 import axios from 'axios';
-import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
+import { getSessionToken } from '../utils/session-utils';
 
 export async function likeFeedPost(feedPostId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -11,7 +11,7 @@ export async function likeFeedPost(feedPostId: string) {
 }
 
 export async function unlikeFeedPost(feedPostId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -19,7 +19,7 @@ export async function unlikeFeedPost(feedPostId: string) {
 }
 
 export async function likeFeedComment(feedCommentId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -27,7 +27,7 @@ export async function likeFeedComment(feedCommentId: string) {
 }
 
 export async function unlikeFeedComment(feedCommentId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -35,7 +35,7 @@ export async function unlikeFeedComment(feedCommentId: string) {
 }
 
 export async function likeFeedReply(feedCommentId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -43,7 +43,7 @@ export async function likeFeedReply(feedCommentId: string) {
 }
 
 export async function unlikeFeedReply(feedCommentId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -51,7 +51,7 @@ export async function unlikeFeedReply(feedCommentId: string) {
 }
 
 export async function getLikeUsersForReply(replyId: string, page: number) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -61,7 +61,7 @@ export async function getLikeUsersForReply(replyId: string, page: number) {
 }
 
 export async function getLikeUsersForComment(commentId: string, page: number) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };

@@ -1,9 +1,9 @@
 import axios from 'axios';
-import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
+import { getSessionToken } from '../utils/session-utils';
 
 export async function userProfileFriendsRequest(page: number) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -13,7 +13,7 @@ export async function userProfileFriendsRequest(page: number) {
 }
 
 export async function acceptFriendsRequest(userId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -21,7 +21,7 @@ export async function acceptFriendsRequest(userId: string) {
 }
 
 export async function addFriend(userId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -29,7 +29,7 @@ export async function addFriend(userId: string) {
 }
 
 export async function rejectFriendsRequest(userId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -37,7 +37,7 @@ export async function rejectFriendsRequest(userId: string) {
 }
 
 export async function removeSuggestedFriend(userId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -45,7 +45,7 @@ export async function removeSuggestedFriend(userId: string) {
 }
 
 export async function friendship(userId: string) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };

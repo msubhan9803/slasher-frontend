@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { DateTime } from 'luxon';
 import RoundButton from '../../components/ui/RoundButton';
 import { getSuggestFriends } from '../../api/users';
-import { addFriend, rejectFriendsRequest, removeSuggestedFriend } from '../../api/friends';
+import { addFriend, removeSuggestedFriend } from '../../api/friends';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import UserCircleImage from '../../components/ui/UserCircleImage';
 import { setSuggestedFriendsState } from '../../redux/slices/suggestedFriendsSlice';
@@ -48,7 +48,6 @@ function SuggestedFriend() {
   const {
     forceReload, lastRetrievalTime, suggestedFriends,
   } = useAppSelector((state) => state.suggestedFriendList);
-
   const reloadSuggestedFriends = useCallback(() => {
     setLoading(true);
     getSuggestFriends()
@@ -81,35 +80,16 @@ function SuggestedFriend() {
 
   const addFriendClick = (userId: string) => {
     addFriend(userId).then(() => {
-      const newSuggestedFriends = suggestedFriends.map((friend: any) => {
-        if (friend._id === userId) {
-          return { ...friend, addFriend: true };
-        }
-        return friend;
-      });
+      const newSuggestedFriends = suggestedFriends.filter((friend: any) => friend._id !== userId);
       const friendPayload = {
         forceReload: true,
         suggestedFriends: newSuggestedFriends,
         lastRetrievalTime,
       };
       dispatch(setSuggestedFriendsState(friendPayload));
-    });
-  };
-
-  const cancelFriendClick = (userId: string) => {
-    rejectFriendsRequest(userId).then(() => {
-      const newSuggestedFriends = suggestedFriends.map((friend: any) => {
-        if (friend._id === userId) {
-          return { ...friend, addFriend: false };
-        }
-        return friend;
-      });
-      const friendPayload = {
-        forceReload: true,
-        suggestedFriends: newSuggestedFriends,
-        lastRetrievalTime,
-      };
-      dispatch(setSuggestedFriendsState(friendPayload));
+      if (newSuggestedFriends.length === 0) {
+        setAllowReload(true);
+      }
     });
   };
 
@@ -130,7 +110,7 @@ function SuggestedFriend() {
   };
 
   const renderNoSuggestionsAvailable = () => (
-    <div className="mb-3">
+    <div className="ms-3 ms-md-0" style={{ marginBottom: 50 }}>
       No friend suggestions available right now, but check back later for more!
     </div>
   );
@@ -174,17 +154,9 @@ function SuggestedFriend() {
                       </div>
                       <p className="text-center my-2 text-truncate">{user.userName}</p>
                     </Link>
-                    {user.addFriend
-                      ? (
-                        <RoundButton variant="black" className="w-100" onClick={() => cancelFriendClick(user._id)}>
-                          Cancel
-                        </RoundButton>
-                      )
-                      : (
-                        <RoundButton className="w-100" onClick={() => addFriendClick(user._id)}>
-                          Add friend
-                        </RoundButton>
-                      )}
+                    <RoundButton className="w-100" onClick={() => addFriendClick(user._id)}>
+                      Add friend
+                    </RoundButton>
                   </div>
                 </Card>
               ))}

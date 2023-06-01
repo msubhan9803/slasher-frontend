@@ -1,13 +1,11 @@
 /* eslint-disable react/require-default-props */
 import React from 'react';
-import {
-  Dropdown,
-} from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import UserCircleImage from '../UserCircleImage';
 import { markAllReadForSingleConversation } from '../../../api/messages';
 import CustomPopover from '../CustomPopover';
+import ChatMessageText from '../../chat/ChatMessageText';
 
 interface Props {
   userName: string;
@@ -59,30 +57,6 @@ const StyledLink = styled(Link)`
   min-width: 0; // To fix text wrapping in flex
 `;
 
-export const CustomDropDown = styled(Dropdown)`
-  .dropdown-toggle {
-    border: none;
-    &:after {
-      display: none;
-    }
-  }
-  .dropdown-toggle[aria-expanded="true"] {
-    svg {
-      color: var(--bs-primary);
-    }
-  }
-  .dropdown-menu {
-    inset: -1.875rem 2.5rem auto auto !important;
-  }
-  .dropdown-item {
-    &:hover {
-      background-color: var(--bs-primary) !important;
-    }
-    &:active {
-      background-color: var(--bs-primary) !important;
-    }
-  }
-`;
 const popoverOption = ['Mark as read', 'Delete', 'Block user'];
 function UserMessageListItem({
   userName, message, image, count = 0, timeStamp = null,
@@ -118,7 +92,7 @@ function UserMessageListItem({
             </div>
             <div className="d-flex justify-content-between align-items-center">
               <TrucatedText className="mb-0">
-                {decodeURIComponent(message)}
+                <ChatMessageText message={message} firstLineOnly />
               </TrucatedText>
               {
                 count !== 0

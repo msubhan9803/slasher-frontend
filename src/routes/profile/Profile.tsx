@@ -23,23 +23,24 @@ import ProfileLimitedView from './ProfileLimitedView/ProfileLimitedView';
 import RightSidebarAdOnly from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarAdOnly';
 import ContentNotAvailable from '../../components/ContentNotAvailable';
 import ProfileFollowing from './ProfileFollowing/ProfileFollowing';
+import useBootstrapBreakpointName from '../../hooks/useBootstrapBreakpoint';
 
 interface SharedHeaderProfilePagesProps {
   user: User;
-  loadUser: Function
+  isSelfProfile: boolean;
 }
 
-function SharedHeaderProfilePages({ user, loadUser }: SharedHeaderProfilePagesProps) {
+function SharedHeaderProfilePages({ user, isSelfProfile }: SharedHeaderProfilePagesProps) {
   return (
     <Routes>
       <Route path="/" element={(<Navigate to="about" replace />)} />
-      <Route path="/about" element={<ProfileAbout user={user} loadUser={loadUser} />} />
-      <Route path="/posts" element={<ProfilePosts user={user} loadUser={loadUser} />} />
+      <Route path="/about" element={<ProfileAbout user={user} />} />
+      <Route path="/posts" element={<ProfilePosts user={user} />} />
       <Route path="/posts/:postId" element={<PostDetail user={user} />} />
-      <Route path="/friends" element={<ProfileFriends user={user} loadUser={loadUser} />} />
-      <Route path="/friends/request" element={<ProfileFriendRequest user={user} loadUser={loadUser} />} />
-      <Route path="/photos" element={<ProfilePhotos user={user} loadUser={loadUser} />} />
-      <Route path="/watched-list" element={<ProfileWatchList user={user} loadUser={loadUser} />} />
+      <Route path="/friends" element={<ProfileFriends user={user} isSelfProfile={isSelfProfile} />} />
+      <Route path="/friends/request" element={<ProfileFriendRequest user={user} />} />
+      <Route path="/photos" element={<ProfilePhotos user={user} />} />
+      <Route path="/watched-list" element={<ProfileWatchList user={user} />} />
       <Route path="/following/*" element={<ProfileFollowing user={user} />} />
       <Route path="/edit" element={<ProfileEdit user={user} />} />
     </Routes>
@@ -57,6 +58,7 @@ function Profile() {
 
   const loginUserData = useAppSelector((state) => state.user.user);
   const isSelfProfile = loginUserData.id === user?._id;
+  const bp = useBootstrapBreakpointName();
 
   /**
    * 1. This function fetch userInfo from api and set in component state.
@@ -85,7 +87,12 @@ function Profile() {
   }, [location.pathname, location.search, navigate, userNameOrId]);
 
   useEffect(() => {
-    if (!userNameOrId || user) { return; }
+    if (!userNameOrId) { return; }
+
+    // Fix bug: Go to Profile > AllFriends > OpenAnyProfile > Click back arrow browser button
+    // (the profile details remained same which is unintentional).
+    const isSameUser = user ? userNameOrId === user.userName : true;
+    if (user && isSameUser) { return; }
 
     loadUser();
   }, [loadUser, user, userNameOrId]);
@@ -94,11 +101,7 @@ function Profile() {
 
   if (userIsBlocked) { return (<ContentNotAvailable />); }
 
-  if (!user) { return <LoadingIndicator />; }
-
-  if (userNameOrId !== user.userName) {
-    setUser(undefined);
-  }
+  if (!user) { return <LoadingIndicator style={{ marginTop: `${['lg', 'xl', 'xxl'].includes(bp) ? '35vh' : '43vh'}` }} />; }
 
   if (!isSelfProfile
     && user.profile_status !== ProfileVisibility.Public
@@ -121,7 +124,7 @@ function Profile() {
       <ContentPageWrapper>
         <h1 className="sr-only">{user.userName}</h1>
         <Routes>
-          <Route path="*" element={<SharedHeaderProfilePages user={user} loadUser={loadUser} />} />
+          <Route path="*" element={<SharedHeaderProfilePages user={user} isSelfProfile={isSelfProfile} />} />
         </Routes>
       </ContentPageWrapper>
 

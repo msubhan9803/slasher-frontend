@@ -45,6 +45,7 @@ export interface User {
   aboutMe: string;
   profile_status: number;
   friendshipStatus: FriendshipStatus;
+  unverifiedNewEmail: string;
 }
 
 export interface NewsPartnerPostProps {
@@ -116,6 +117,18 @@ export interface MessagesList {
   latestMessage: string;
   updatedAt: string;
   participants: UserMesssage[]
+}
+
+export interface Message {
+  _id: string;
+  message: string;
+  isRead: boolean;
+  imageDescription: string;
+  createdAt: string;
+  image: string;
+  urls: string[];
+  fromId: string;
+  senderId: string; // this means toId
 }
 
 export interface UserMesssage {
@@ -254,12 +267,17 @@ export type RegisterUser = Partial<{
   dob: string,
 }>;
 
+export interface ContentDescription {
+  description: string;
+  id?: string;
+}
 export interface CommentValue {
   commentMessage: string,
   imageArr?: string[],
   commentId?: string,
   images?: any,
   deleteImage?: string[],
+  descriptionArr?: ContentDescription[]
 }
 export interface ReplyValue {
   replyMessage: string,
@@ -268,6 +286,7 @@ export interface ReplyValue {
   replyId?: string,
   images?: any,
   deleteImage?: string[],
+  descriptionArr?: ContentDescription[]
 }
 export enum WorthWatchingStatus {
   NoRating = 0,
@@ -319,4 +338,23 @@ export interface FriendshipStatus {
   reaction: number;
   from: string;
   to: string;
+}
+
+// Cache for NewsPartner and NewsPartnerPosts cache (page = http://local.slasher.tv:3000/app/news/partner/:id)
+export type NewsPartnerAndPostsCache = { newsPartner: any, newsPosts: any };
+
+// Cache for Movie related data (page = http://localhost:3000/app/movies/64477b42b12f5efbb3468ff4/reviews)
+export type MoviePageCache = {
+  movieData: MovieData,
+  additionalMovieData: AdditionalMovieData,
+  reviews: any
+};
+export interface ConversationListItem {
+  unreadCount: number;
+  latestMessage: string;
+  _id: string; // matchListId
+  userId: string;
+  userName: string;
+  profilePic: string;
+  updatedAt: string;
 }

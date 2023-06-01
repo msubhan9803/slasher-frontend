@@ -7,7 +7,6 @@ import {
 import linkifyHtml from 'linkify-html';
 import ProfileHeader from '../ProfileHeader';
 import RoundButton from '../../../components/ui/RoundButton';
-import { User } from '../../../types';
 import { useAppSelector } from '../../../redux/hooks';
 import CharactersCounter from '../../../components/ui/CharactersCounter';
 import { updateUserAbout } from '../../../api/users';
@@ -15,14 +14,14 @@ import useProgressButton from '../../../components/ui/ProgressButton';
 import {
   decryptMessage, escapeHtmlSpecialCharacters, newLineToBr,
 } from '../../../utils/text-utils';
-import { customlinkifyOpts } from '../../../utils/linkify-utils';
+import { defaultLinkifyOpts } from '../../../utils/linkify-utils';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
+import { User } from '../../../types';
 
 interface Props {
   user: User
-  loadUser: Function
 }
-function ProfileAbout({ user, loadUser }: Props) {
+function ProfileAbout({ user }: Props) {
   const [isEdit, setEdit] = useState<boolean>(false);
   const [aboutMeText, setAboutMeText] = useState<string>(user?.aboutMe || '');
   const [updatedAboutMeText, setUpdatedAboutMeText] = useState('');
@@ -64,12 +63,12 @@ function ProfileAbout({ user, loadUser }: Props) {
   const renderAboutMeText = (text: string) => {
     if (text && text.length > 0) {
       const safeAboutMeText = newLineToBr(
-        linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(text)), customlinkifyOpts),
+        linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(text)), defaultLinkifyOpts),
       );
 
       return (
         // eslint-disable-next-line react/no-danger
-        <div className="text-break" dangerouslySetInnerHTML={{ __html: safeAboutMeText }} />
+        <div className="text-break text-start" dangerouslySetInnerHTML={{ __html: safeAboutMeText }} />
       );
     }
     if (loginUserId === user?._id) {
@@ -88,7 +87,7 @@ function ProfileAbout({ user, loadUser }: Props) {
 
   return (
     <div>
-      <ProfileHeader tabKey="about" user={user} loadUser={loadUser} />
+      <ProfileHeader tabKey="about" user={user} />
       <ProfileTabContent>
         <div className="bg-dark rounded p-4 my-3">
           <div className="d-flex justify-content-between">

@@ -1,11 +1,12 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
+import { getSessionToken, getSessionUserId } from '../utils/session-utils';
 
 export async function onboardingPhoto(
   file: any,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
 
   const formData = new FormData();
   formData.append('file', file);
@@ -18,8 +19,8 @@ export async function onboardingPhoto(
 }
 
 export async function onboardingAboutMe(message: string) {
-  const userId = Cookies.get('userId');
-  const token = Cookies.get('sessionToken');
+  const userId = await getSessionUserId();
+  const token = await getSessionToken();
   return axios.patch(
     `${apiUrl}/api/v1/users/${userId}`,
     {

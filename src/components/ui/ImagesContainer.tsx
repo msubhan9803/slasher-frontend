@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -11,14 +11,16 @@ import RoundButton from './RoundButton';
 interface ImageContainerProps {
   image: any;
   alt: string;
-  handleRemoveImage: (image: File, id?: string) => void;
+  handleRemoveImage: (image: File, index?: number, id?: string) => void;
   containerClass: string;
   removeIconStyle: any;
+  mainContainerWidth?: string;
   containerWidth: string;
   containerHeight: string;
   containerBorder: string;
   dataId?: string;
   onAltTextChange?: (newValue: string) => void;
+  index?: number;
 }
 interface StyledImageContainerProps {
   width: string;
@@ -29,28 +31,35 @@ const StyledImageContainer = styled.div<StyledImageContainerProps>`
   width: ${(props) => props.width};
   height: ${(props) => props.height};
   border: ${(props) => props.border};
+  img {
+    object-fit: cover;
+  }
 `;
 
 function ImagesContainer({
-  image, alt, handleRemoveImage, containerClass, removeIconStyle,
-  containerWidth, containerHeight, containerBorder, dataId, onAltTextChange,
+  image, alt, handleRemoveImage, containerClass, removeIconStyle, mainContainerWidth,
+  containerWidth, containerHeight, containerBorder, dataId, onAltTextChange, index,
 }: ImageContainerProps) {
-  const [altText, setAltText] = useState(alt);
+  const [altText, setAltText] = useState<string>();
   const [showAltTextEditModal, setShowAltTextEditModal] = useState(false);
 
+  useEffect(() => {
+    setAltText(alt);
+  }, [alt]);
+
   const onSave = () => {
-    onAltTextChange?.(altText);
+    onAltTextChange?.(altText!);
     setShowAltTextEditModal(false);
   };
 
   const handleKeydown = (e: any) => {
     if (e.key === 'Enter') {
-      return dataId ? handleRemoveImage(image, dataId) : handleRemoveImage(image);
+      return dataId ? handleRemoveImage(image, index, dataId) : handleRemoveImage(image, index);
     }
     return null;
   };
   return (
-    <div style={{ width: containerWidth }}>
+    <div style={{ width: mainContainerWidth || containerWidth }}>
       <StyledImageContainer
         width={containerWidth}
         height={containerHeight}
@@ -71,7 +80,9 @@ function ImagesContainer({
           role="button"
           className="position-absolute bg-primary text-black rounded-circle"
           style={removeIconStyle}
-          onClick={() => (dataId ? handleRemoveImage(image, dataId) : handleRemoveImage(image))}
+          onClick={() => (dataId
+            ? handleRemoveImage(image, index && index, dataId)
+            : handleRemoveImage(image, index && index))}
           onKeyDown={handleKeydown}
         />
       </StyledImageContainer>
@@ -99,7 +110,7 @@ function ImagesContainer({
             aria-label="Alt text description for this image"
             rows={3}
             className="alt-text-editor-input"
-            defaultValue={alt}
+            defaultValue={altText}
             onChange={(e) => { setAltText(e.target.value); }}
           />
           <RoundButton variant="primary" className="w-100 mt-4 mb-3" onClick={() => { onSave(); }}>Save changes</RoundButton>
@@ -112,6 +123,8 @@ function ImagesContainer({
 ImagesContainer.defaultProps = {
   dataId: undefined,
   onAltTextChange: undefined,
+  index: undefined,
+  mainContainerWidth: undefined,
 };
 
 export default ImagesContainer;

@@ -10,14 +10,16 @@ import {
   deleteFeedPost, getHashtagPostList, hideFeedPost, updateFeedPost,
 } from '../../../api/feed-posts';
 import { unlikeFeedPost, likeFeedPost } from '../../../api/feed-likes';
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
+import { useAppSelector } from '../../../redux/hooks';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { followHashtag, getSingleHashtagDetail, unfollowHashtag } from '../../../api/users';
 import EditPostModal from '../../../components/ui/post/EditPostModal';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { createBlockUser } from '../../../api/blocks';
 import { reportData } from '../../../api/report';
+import {
+  deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
+} from '../../../pageStateCache';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
@@ -33,12 +35,11 @@ function SearchPosts() {
   const [query, setQueryParam] = useState<any>(searchParams.get('hashtag') || '');
   const [dropDownValue, setDropDownValue] = useState('');
   const [errorMessage, setErrorMessage] = useState<string[]>([]);
-  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  const pageStateCache = (getPageStateCache(location) ?? []);
   const [searchPosts, setSearchPosts] = useState<Post[]>(
-    scrollPosition.pathname === location.pathname
-      ? scrollPosition?.data : [],
+    hasPageStateCache(location)
+      ? pageStateCache : [],
   );
-  const dispatch = useAppDispatch();
   const [followingHashtag, setFollowingHashtag] = useState<boolean>(false);
   const [notificationToggle, setNotificationToggle] = useState<boolean>(false);
   const userData = useAppSelector((state) => state.user);
@@ -48,7 +49,7 @@ function SearchPosts() {
   const [postId, setPostId] = useState<string>('');
   const [postUserId, setPostUserId] = useState<string>('');
   const [lastHashtagId, setLastHashtagId] = useState<string>('');
-
+  const persistScrollPosition = () => { setPageStateCache(location, searchPosts); };
   useEffect(() => {
     setQueryParam(searchParams.get('hashtag'));
   }, [searchParams]);
@@ -67,16 +68,17 @@ function SearchPosts() {
   useEffect(() => {
     getHashtagDetail();
     setSearchPosts([]);
-    setRequestAdditionalPosts(true);
+    setRequestAdditionalPosts(false);
     setLastHashtagId('');
   }, [query, getHashtagDetail]);
 
-  const getSearchPost = useCallback(() => {
+  const getSearchPost = useCallback((forceReload = false) => {
+    if (forceReload) { setSearchPosts([]); }
     if (query) {
       setLoadingPosts(true);
       getHashtagPostList(
         query.toLowerCase(),
-        lastHashtagId.length > 0 ? lastHashtagId : undefined,
+        forceReload ? undefined : lastHashtagId,
       ).then((res) => {
         const newPosts: any = res.data.map((data: any) => {
           const setPost = {
@@ -101,14 +103,9 @@ function SearchPosts() {
         } else {
           setLastHashtagId(res.data[res.data.length - 1]._id);
         }
-        if (scrollPosition.pathname === location.pathname) {
-          const positionData = {
-            pathname: '',
-            position: 0,
-            data: [],
-            positionElementId: '',
-          };
-          dispatch(setScrollPosition(positionData));
+        if (hasPageStateCache(location)
+          && searchPosts.length >= pageStateCache.length + 10) {
+          deletePageStateCache(location);
         }
       }).catch(
         (error) => {
@@ -116,25 +113,27 @@ function SearchPosts() {
           setErrorMessage(error.response.data.message);
         },
       ).finally(
-        () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
+        () => {
+          setRequestAdditionalPosts(false); setLoadingPosts(false);
+          if (forceReload && (noMoreData === true)) { setNoMoreData(false); }
+        },
       );
     }
-  }, [dispatch, location.pathname, query, scrollPosition.pathname, lastHashtagId]);
+  }, [location, query, pageStateCache.length,
+    lastHashtagId, noMoreData, searchPosts]);
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts && query) {
       if (
-        scrollPosition === null
-        || scrollPosition?.position === 0
-        || searchPosts.length >= scrollPosition?.data?.length
+        !hasPageStateCache(location)
+        || searchPosts.length >= pageStateCache.length
         || searchPosts.length === 0
-        || scrollPosition.pathname !== location.pathname
       ) {
         getSearchPost();
       }
     }
-  }, [getSearchPost, loadingPosts, location.pathname, requestAdditionalPosts, query,
-    scrollPosition, searchPosts]);
+  }, [getSearchPost, loadingPosts, requestAdditionalPosts, query, pageStateCache.length,
+    searchPosts, location]);
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (value === 'Hide') {
@@ -206,24 +205,15 @@ function SearchPosts() {
     }
   };
 
-  const renderNoMoreDataMessage = () => (
-    <p className="text-center">
-      {
-        searchPosts.length === 0
+  const renderNoMoreDataMessage = () => {
+    if (loadingPosts) { return null; }
+    return (
+      <p className="text-center">
+        {searchPosts.length === 0
           ? 'No posts available'
-          : 'No more posts'
-      }
-    </p>
-  );
-
-  const persistScrollPosition = (id: string) => {
-    const positionData = {
-      pathname: location.pathname,
-      position: window.pageYOffset === 0 ? 1 : window.pageYOffset,
-      data: searchPosts,
-      positionElementId: id,
-    };
-    dispatch(setScrollPosition(positionData));
+          : 'No more posts'}
+      </p>
+    );
   };
 
   const followUnfollowClick = () => {
@@ -344,15 +334,6 @@ function SearchPosts() {
               onSelect={persistScrollPosition}
               isSinglePost={false}
             />
-            // postFeedData={posts}
-            // popoverOptions={loginUserPopoverOptions}
-            // isCommentSection={false}
-            // onPopoverClick={handlePopoverOption}
-            // otherUserPopoverOptions={otherUserPopoverOptions}
-            // newsPostPopoverOptions={newsPostPopoverOptions}
-            // onLikeClick={onLikeClick}
-            // onSelect={persistScrollPosition}
-            // isSinglePost={false}
           )
         }
       </InfiniteScroll>

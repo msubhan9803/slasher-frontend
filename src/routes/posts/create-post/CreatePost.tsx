@@ -1,9 +1,11 @@
 /* eslint-disable max-lines */
 import React, { useState } from 'react';
 import {
-  Alert, Form,
+  Alert, Button, Form,
 } from 'react-bootstrap';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
 import { createPost } from '../../../api/feed-posts';
 import { useAppSelector } from '../../../redux/hooks';
@@ -11,7 +13,7 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/la
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import CreatePostComponent from '../../../components/ui/CreatePostComponent';
-import { PostType } from '../../../types';
+import { ContentDescription, PostType } from '../../../types';
 
 export interface MentionProps {
   id: string;
@@ -29,6 +31,7 @@ export interface FormatMentionProps {
 function CreatePost() {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [imageArray, setImageArray] = useState<any>([]);
+  const [descriptionArray, setDescriptionArray] = useState<ContentDescription[]>([]);
   const [postContent, setPostContent] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const loggedInUser = useAppSelector((state) => state.user.user);
@@ -75,7 +78,7 @@ function CreatePost() {
       postType: PostType.User,
       movieId: paramsMovieId,
     };
-    return createPost(createPostData, imageArray)
+    return createPost(createPostData, imageArray, descriptionArray!)
       .then(() => {
         setErrorMessage([]);
         navigate(location.state);
@@ -87,18 +90,38 @@ function CreatePost() {
         setErrorMessage(msg);
       });
   };
+  const onCloseButton = () => {
+    navigate(location.state);
+  };
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
         {(paramsType === 'group-post' && !paramsGroupId) && <Alert variant="danger">Group id missing from URL</Alert>}
-        <Form className="bg-dark px-4 py-4 rounded-2">
-          <Form.Group controlId="about-me">
+        <Form className="bg-dark px-4 py-4 rounded-2 position-relative">
+          <Form.Group controlId="about-me" className="d-flex justify-content-between">
             <div className="align-items-center d-flex form-label mb-4 w-100 mb-4">
               <UserCircleImage src={loggedInUser.profilePic} alt="user picture" className="me-3" />
               <h2 className="h3 mb-0 align-self-center">
                 {loggedInUser.userName}
               </h2>
             </div>
+            <Button
+              variant="link"
+              className="align-self-start py-0 px-0"
+              onKeyDown={(e: any) => {
+                if (e.key === 'Enter') {
+                  onCloseButton();
+                }
+              }}
+              onClick={onCloseButton}
+            >
+              <FontAwesomeIcon
+                icon={solid('xmark')}
+                size="lg"
+                style={{ cursor: 'pointer' }}
+                aria-label="Close button"
+              />
+            </Button>
           </Form.Group>
           <CreatePostComponent
             setPostMessageContent={setPostContent}
@@ -116,6 +139,9 @@ function CreatePost() {
             selectedPostType={selectedPostType}
             setSelectedPostType={setSelectedPostType}
             placeHolder="Create a post"
+            descriptionArray={descriptionArray}
+            setDescriptionArray={setDescriptionArray}
+            createEditPost
           />
         </Form>
       </ContentPageWrapper>

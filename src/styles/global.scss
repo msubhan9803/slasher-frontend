@@ -176,6 +176,7 @@ a:not(.btn) {
 
 html {
   height: 100%;
+  scroll-behavior: auto !important;
 }
 
 body {
@@ -293,8 +294,12 @@ body {
   padding: 7px !important;
 }
 
-.pointer {
+.cursor-pointer {
   cursor: pointer;
+}
+
+.cursor-default {
+  cursor: default;
 }
 
 textarea {

@@ -11,7 +11,7 @@ import linkifyHtml from 'linkify-html';
 import styled from 'styled-components';
 import UserCircleImage from '../../UserCircleImage';
 import CustomPopover, { PopoverClickProps } from '../../CustomPopover';
-import { customlinkifyOpts } from '../../../../utils/linkify-utils';
+import { defaultLinkifyOpts } from '../../../../utils/linkify-utils';
 import { decryptMessage, escapeHtmlSpecialCharacters, newLineToBr } from '../../../../utils/text-utils';
 import CustomSwiper from '../../CustomSwiper';
 import { LikeShareModalResourceName, LikeShareModalTabName } from '../../../../types';
@@ -105,7 +105,7 @@ function CommentSection({
 
   useEffect(() => {
     if (highlightRef.current) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         window.scrollTo({
           top: highlightRef.current.offsetTop - (
             window.innerWidth >= parseInt(LG_MEDIA_BREAKPOINT.replace('px', ''), 10)
@@ -115,7 +115,9 @@ function CommentSection({
           behavior: 'instant' as any,
         });
       }, 0);
+      return () => clearTimeout(timer);
     }
+    return undefined;
   }, []);
 
   const handleReply = () => {
@@ -174,7 +176,7 @@ function CommentSection({
               {
                 __html: newLineToBr(
                   // eslint-disable-next-line max-len
-                  linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(commentMsg, '', true)), customlinkifyOpts),
+                  linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(commentMsg, '', true)), defaultLinkifyOpts),
                 ),
               }
             }
@@ -187,6 +189,7 @@ function CommentSection({
                   images.map((imageData: any) => ({
                     imageUrl: imageData.image_path,
                     imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
+                    imageDescription: imageData.description,
                   }))
                 }
               />

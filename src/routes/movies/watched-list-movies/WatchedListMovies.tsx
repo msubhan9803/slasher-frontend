@@ -1,6 +1,5 @@
 /* eslint-disable max-lines */
 import React, { useEffect, useRef, useState } from 'react';
-import Cookies from 'js-cookie';
 import InfiniteScroll from 'react-infinite-scroller';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
@@ -14,8 +13,10 @@ import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
-import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import { UIRouteURL } from '../RouteURL';
+import {
+  deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
+} from '../../../pageStateCache';
 
 function WatchedListMovies() {
   const [searchParams] = useSearchParams();
@@ -28,21 +29,21 @@ function WatchedListMovies() {
   const [loadingMovies, setLoadingMovies] = useState<boolean>(false);
   const [sortVal, setSortVal] = useState(searchParams.get('sort') || 'name');
   const [errorMessage, setErrorMessage] = useState<string[]>();
-  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const location = useLocation();
+  const pageStateCache = getPageStateCache(location) ?? [];
   const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>(
-    scrollPosition.pathname === location.pathname ? scrollPosition?.data : [],
+    hasPageStateCache(location) ? pageStateCache : [],
   );
   const [search, setSearch] = useState<string>(searchParams.get('q') || '');
   const [lastMovieId, setLastMovieId] = useState(
-    ((scrollPosition.pathname === location.pathname) && (scrollPosition.data.length > 0))
+    ((hasPageStateCache(location)) && (pageStateCache.length > 0))
       /* eslint-disable no-unsafe-optional-chaining */
-      ? (scrollPosition?.data[scrollPosition?.data.length - 1]?._id)
+      ? (pageStateCache[pageStateCache.length - 1]?._id)
       : '',
   );
   const [callNavigate, setCallNavigate] = useState<boolean>(false);
-  const userId = Cookies.get('userId');
+  const userId = useAppSelector((state) => state.user.user.id);
   const prevSearchRef = useRef(search);
   const prevKeyRef = useRef(key);
   const prevSortValRef = useRef(sortVal);
@@ -74,9 +75,8 @@ function WatchedListMovies() {
 
   useEffect(() => {
     if (requestAdditionalMovies && !loadingMovies && userId) {
-      if (scrollPosition === null
-        || scrollPosition?.position === 0
-        || filteredMovies.length >= scrollPosition?.data?.length
+      if (!hasPageStateCache(location)
+        || filteredMovies.length >= pageStateCache?.length
         || filteredMovies.length === 0
       ) {
         setNoMoreData(false);
@@ -105,16 +105,7 @@ function WatchedListMovies() {
               setLastMovieId(res.data[res.data.length - 1]._id);
             }
             if (res.data.length === 0) { setNoMoreData(true); }
-            const positionData = {
-              pathname: '',
-              position: 0,
-              data: [],
-              id: '',
-              sortValue: '',
-              searchValue: '',
-              keyValue: '',
-            };
-            dispatch(setScrollPosition(positionData));
+            deletePageStateCache(location);
           }).catch(
             (error) => {
               setNoMoreData(true);
@@ -125,9 +116,8 @@ function WatchedListMovies() {
           );
       }
     }
-  }, [
-    requestAdditionalMovies, loadingMovies, search, sortVal, lastMovieId,
-    filteredMovies, scrollPosition, dispatch, userId, isKeyMoviesReady, key,
+  }, [requestAdditionalMovies, loadingMovies, search, sortVal, lastMovieId, filteredMovies,
+    dispatch, userId, isKeyMoviesReady, key, location, pageStateCache?.length,
   ]);
 
   const applyFilter = (keyValue: string, sortValue?: string) => {
@@ -159,18 +149,8 @@ function WatchedListMovies() {
     }
   };
 
-  const persistScrollPosition = (id?: string) => {
-    const positionData = {
-      pathname: location.pathname,
-      position: window.pageYOffset === 0 ? 1 : window.pageYOffset,
-      data: filteredMovies,
-      positionElementId: id,
-      sortValue: sortVal,
-      searchValue: search,
-      keyValue: key,
-    };
-    dispatch(setScrollPosition(positionData));
-  };
+  const persistScrollPosition = () => { setPageStateCache(location, filteredMovies); };
+
   return (
     <div>
       <MoviesHeader
@@ -187,7 +167,7 @@ function WatchedListMovies() {
         applyFilter={applyFilter}
         sortVal={sortVal}
       />
-      {key !== '' && (isKeyMoviesReady || scrollPosition.data.length <= filteredMovies.length)
+      {key !== '' && (isKeyMoviesReady || pageStateCache.length <= filteredMovies.length)
         && (
           <div className="w-100 d-flex justify-content-center mb-3">
             <RoundButton size="sm" variant="filter" className="px-3" onClick={clearKeyHandler}>

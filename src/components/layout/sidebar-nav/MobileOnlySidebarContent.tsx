@@ -47,7 +47,7 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
             </SpecificHeightLink>
           </Col>
           <Col xs={3}>
-            <SpecificHeightLink to="/" className="btn btn-dark btn-sidebar w-100 pt-2" onClick={onToggleCanvas}>
+            <SpecificHeightLink to="/app/help" className="btn btn-dark btn-sidebar w-100 pt-2" onClick={onToggleCanvas}>
               <FontAwesomeIcon icon={solid('circle-question')} size="lg" className="mb-1" />
               Help
             </SpecificHeightLink>

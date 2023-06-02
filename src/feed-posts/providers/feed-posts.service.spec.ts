@@ -14,7 +14,9 @@ import { RssFeedProviderFollowsService } from '../../rss-feed-provider-follows/p
 import { feedPostFactory } from '../../../test/factories/feed-post.factory';
 import { User, UserDocument } from '../../schemas/user/user.schema';
 import { FeedPost, FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
-import { FeedPostDeletionState, FeedPostStatus, PostType } from '../../schemas/feedPost/feedPost.enums';
+import {
+  FeedPostDeletionState, FeedPostPrivacyType, FeedPostStatus, PostType,
+} from '../../schemas/feedPost/feedPost.enums';
 import { RssFeedProvider } from '../../schemas/rssFeedProvider/rssFeedProvider.schema';
 import { FriendsService } from '../../friends/providers/friends.service';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
@@ -127,6 +129,17 @@ describe('FeedPostsService', () => {
         expect(reloadedFeedPost.rssfeedProviderId).toEqual(rssFeedProvider._id);
         expect(reloadedFeedPost.userId).toEqual(rssFeedProvider._id);
       });
+
+    // TODO: Probably delete this test after the old iOS/Android apps are retired, since the
+    // privacyType field won't be used anymore.
+    it('sets the post privacyType value to private by default', async () => {
+      const feedPostData = feedPostFactory.build({
+        userId: activeUser.id,
+      });
+      const feedPost = await feedPostsService.create(feedPostData);
+      const reloadedFeedPost = await feedPostsService.findById(feedPost.id, false);
+      expect(reloadedFeedPost.privacyType).toEqual(FeedPostPrivacyType.Private);
+    });
   });
 
   describe('#findById', () => {

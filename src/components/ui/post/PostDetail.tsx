@@ -3,6 +3,7 @@ import React, {
   useCallback, useEffect, useState,
 } from 'react';
 import {
+  useLocation,
   useNavigate, useParams, useSearchParams,
 } from 'react-router-dom';
 import { createBlockUser } from '../../../api/blocks';
@@ -33,6 +34,7 @@ import ReportModal from '../ReportModal';
 import EditPostModal from './EditPostModal';
 import PostFeed from './PostFeed/PostFeed';
 import { deletedPostsCache } from '../../../pageStateCache';
+import { isPostDetailsPage } from '../../../utils/url-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -81,6 +83,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   const [updateState, setUpdateState] = useState(false);
   const [commentSent, setCommentSent] = useState<boolean>(false);
   const [selectedBlockedUserId, setSelectedBlockedUserId] = useState<string>('');
+  const location = useLocation();
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     setSelectedBlockedUserId(popoverClickProps.userId!);
@@ -385,7 +388,10 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             navigate(`/app/movies/${res.data.movieId}/reviews/${postId}?commentId=${queryCommentId}`);
           }
         } else if (res.data.userId.userName !== user?.userName) {
-          navigate(`/${res.data.userId.userName}/posts/${feedPostId}`);
+          // Only navigate to post-details page if necessary
+          if (!isPostDetailsPage(location.pathname)) {
+            navigate(`/${res.data.userId.userName}/posts/${feedPostId}`);
+          }
           return;
         }
         let post: any = {};
@@ -451,7 +457,8 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       .catch((error) => {
         setErrorMessage(error.response.data.message);
       });
-  }, [navigate, partnerId, postId, postType, queryCommentId, user, queryReplyId]);
+  }, [navigate, partnerId, postId, postType, queryCommentId, user, queryReplyId,
+    location.pathname]);
 
   useEffect(() => {
     if (postId) {

@@ -123,7 +123,7 @@ export async function userProfileFriends(signal: AbortSignal, userId: string, pa
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  const limit = 18;
+  const limit = 36;
   let queryParameter = `?limit=${limit}&offset=${page * limit}`;
   if (search) {
     queryParameter += `&userNameContains=${search}`;

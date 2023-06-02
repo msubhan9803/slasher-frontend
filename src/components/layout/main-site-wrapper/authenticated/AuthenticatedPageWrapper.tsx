@@ -156,6 +156,16 @@ function AuthenticatedPageWrapper({ children }: Props) {
     dispatch(handleUpdatedUnreadConversationCount(count.unreadConversationCount));
   }, [dispatch]);
 
+  const handleSocketConnect = useCallback(() => {
+    dispatch(setSocketConnected(true));
+    dispatch(setServerAvailable(true));
+  }, [dispatch]);
+
+  const handleSocketDisconnect = useCallback(() => {
+    dispatch(setSocketConnected(false));
+    dispatch(setServerAvailable(false));
+  }, [dispatch]);
+
   useEffect(() => {
     if (isSocketConnected || isConnectingSocketRef.current
       || token.isLoading || tokenNotFound) { return; }
@@ -165,18 +175,14 @@ function AuthenticatedPageWrapper({ children }: Props) {
       transports: ['websocket'],
       auth: { token: token.value },
     });
-    socketStore.socket.on('connect', () => {
-      dispatch(setSocketConnected());
-      // Auto close the <ServerUnavailable/> when socket reconnect event happens.
-      dispatch(setServerAvailable(true));
-    });
+    socketStore.socket.on('connect', handleSocketConnect);
     socketStore.socket.on('connect_error', (err: any) => {
       const isConnectionFailure = err.message === 'websocket error';
-      if (isConnectionFailure) { dispatch(setServerAvailable(false)); }
+      if (isConnectionFailure) { handleSocketDisconnect(); }
     });
     socketStore.socket.on('disconnect', (err) => {
       const isConnectionLost = err === 'transport close';
-      if (isConnectionLost) { dispatch(setServerAvailable(false)); }
+      if (isConnectionLost) { handleSocketDisconnect(); }
     });
     // This is here to help with troubleshooting if there are ever any connection issues.
     // This will just prove whether or not authentication worked. If authentication fails,
@@ -186,7 +192,8 @@ function AuthenticatedPageWrapper({ children }: Props) {
         (socketStore.socket as any).slasherAuthSuccess = true;
       }
     });
-  }, [dispatch, isSocketConnected, tokenNotFound, token]);
+  }, [dispatch, isSocketConnected, tokenNotFound, token, handleSocketConnect,
+    handleSocketDisconnect]);
 
   useEffect(() => {
     if (!socket) { return () => { }; }

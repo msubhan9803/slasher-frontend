@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import useLoadScriptsInOrder from './useLoadScriptsInOrder';
-import { setIsAdBlockerDetected, setPubWiseSlots } from '../redux/slices/pubWiseSlice';
+import { setAdBlockerDetected, setPubWiseSlots } from '../redux/slices/pubWiseSlice';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import {
   ALL_MOVIES,
@@ -67,7 +67,7 @@ const usePubWiseAdSlots = (enableADs: boolean) => {
       // Fix: Don't set ad-blocker detected when there is no connection at all
       if (!isServerAvailable) { return; }
 
-      dispatch(setIsAdBlockerDetected());
+      dispatch(setAdBlockerDetected(true));
     }
   }, [dispatch, error, isServerAvailable]);
 

@@ -162,6 +162,8 @@ pipelines:
   branches:
     main:
       - step: *lint-test-build
+    develop:
+      - step: *lint-test-build
     deploy/staging:
     - step: *set-environment
     - step: *terraform-deploy

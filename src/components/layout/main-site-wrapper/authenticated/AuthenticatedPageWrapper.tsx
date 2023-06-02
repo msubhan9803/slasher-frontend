@@ -167,6 +167,8 @@ function AuthenticatedPageWrapper({ children }: Props) {
     });
     socketStore.socket.on('connect', () => {
       dispatch(setSocketConnected());
+      // Auto close the <ServerUnavailable/> when socket reconnect event happens.
+      dispatch(setServerAvailable(true));
     });
     socketStore.socket.on('connect_error', (err: any) => {
       const isConnectionFailure = err.message === 'websocket error';

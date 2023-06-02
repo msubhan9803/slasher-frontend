@@ -10,12 +10,6 @@ import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 import { addHashtags } from '../../../api/users';
 import { getOnboardingSuggestedHashtag } from '../../../api/onboarding';
 
-// const hashtagList: string[] = [
-//   'horrorfilm', 'monsters', 'vintagehorror', 'horror', 'art', 'scary',
-//   'ghost', 'horrorfan', 'onlinedating', 'thriller', 'horrorlover',
-//   'story', 'darkart', 'datenight',
-// ];
-
 export const HashtagButton = styled(Button)`
   border : 0.125rem solid #383838
 `;

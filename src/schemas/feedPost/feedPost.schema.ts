@@ -5,7 +5,9 @@ import { RssFeed } from '../rssFeed/rssFeed.schema';
 import { RssFeedProvider } from '../rssFeedProvider/rssFeedProvider.schema';
 import { Image, ImageSchema } from '../shared/image.schema';
 import { User } from '../user/user.schema';
-import { FeedPostDeletionState, FeedPostStatus, PostType } from './feedPost.enums';
+import {
+  FeedPostDeletionState, FeedPostPrivacyType, FeedPostStatus, PostType,
+} from './feedPost.enums';
 import { FeedPostUnusedFields } from './feedPost.unused-fields';
 
 @Schema({ timestamps: true })
@@ -76,6 +78,21 @@ export class FeedPost extends FeedPostUnusedFields {
 
   @Prop({ default: null, ref: RssFeed.name })
   rssFeedId: mongoose.Schema.Types.ObjectId;
+
+  // This field is used by the old iOS and Android apps to determine whether a post should be
+  // considered "public" in a way.  We should always default to Private.  There isn't a currently
+  // existing use case for wanting any posts to be "public" in the old app.
+  // NOTE: This field is NOT currently used in the new API, so we can get rid of it as soon as
+  // the old Android/iOS apps are retired.
+  @Prop({
+    required: true,
+    enum: [
+      FeedPostPrivacyType.Public,
+      FeedPostPrivacyType.Private,
+    ],
+    default: FeedPostPrivacyType.Private,
+  })
+  privacyType: FeedPostPrivacyType;
 
   @Prop({ default: [] })
   hashtags: string[];

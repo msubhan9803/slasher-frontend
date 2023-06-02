@@ -2,7 +2,7 @@ import { Prop } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { ReportUserSchema, ReportUser } from '../shared/reportUser.schema';
 import {
-  FeedPostMatureRating, FeedPostPrivacyType, FeedPostShareListType, FeedPostType,
+  FeedPostMatureRating, FeedPostShareListType, FeedPostType,
 } from './feedPost.enums';
 
 export class FeedPostUnusedFields {
@@ -31,17 +31,6 @@ export class FeedPostUnusedFields {
     default: FeedPostType.Text,
   })
   type: FeedPostType;
-
-  // NOT USED
-  @Prop({
-    required: true,
-    enum: [
-      FeedPostPrivacyType.Public,
-      FeedPostPrivacyType.Private,
-    ],
-    default: FeedPostPrivacyType.Public,
-  })
-  privacyType: FeedPostPrivacyType;
 
   // NOT USED
   @Prop({ default: null })

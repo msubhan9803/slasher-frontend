@@ -387,8 +387,8 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           } else if (queryCommentId) {
             navigate(`/app/movies/${res.data.movieId}/reviews/${postId}?commentId=${queryCommentId}`);
           }
-        } else if (res.data.userId.userName !== user?.userName) {
-          // Only navigate to post-details page if necessary
+          // Only navigate to post-details page if necessary (fix bug of forward-browser history
+          // lost when we click on user-profile link followed by click browser-back arrow)
           if (!isPostDetailsPage(location.pathname)) {
             navigate(`/${res.data.userId.userName}/posts/${feedPostId}`);
           }
@@ -457,7 +457,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       .catch((error) => {
         setErrorMessage(error.response.data.message);
       });
-  }, [navigate, partnerId, postId, postType, queryCommentId, user, queryReplyId,
+  }, [navigate, partnerId, postId, postType, queryCommentId, queryReplyId,
     location.pathname]);
 
   useEffect(() => {

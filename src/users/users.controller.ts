@@ -226,6 +226,8 @@ export class UsersController {
       if (disallowedUsername) { requestedErrorsList.unshift('Username is not available.'); }
     }
     if (requestedFields.includes('email') && !invalidFields.includes('email')) {
+      const betaTester = await this.betaTestersService.findByEmail(userRegisterDto.email);
+      if (!betaTester) { requestedErrorsList.unshift('Only beta testers are able to register at this time, sorry!'); }
       const available = await this.usersService.emailAvailable(query.email);
       if (!available) { requestedErrorsList.unshift('Email address is already associated with an existing user.'); }
     }

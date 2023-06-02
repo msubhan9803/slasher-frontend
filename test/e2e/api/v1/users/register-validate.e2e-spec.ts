@@ -80,6 +80,17 @@ describe('Users / Register (e2e)', () => {
           .query(postBody);
         expect(response.body).toHaveLength(0);
       });
+
+      // TODO: Remove this check once the beta period is over
+      it('can successfully allow an approved beta tester with case-insensitive beta tester email check', async () => {
+        const response = await request(app.getHttpServer())
+          .get('/api/v1/users/validate-registration-fields')
+          .query({
+            ...postBody,
+            email: postBody.email.toUpperCase(),
+          });
+        expect(response.body).toHaveLength(0);
+      });
     });
 
     describe('Validation', () => {
@@ -379,6 +390,24 @@ describe('Users / Register (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual([
           'Email address is already associated with an existing user.',
+        ]);
+      });
+
+      // TODO: Remove this check once the beta period is over
+      it('returns an error when email is not on the beta tester list', async () => {
+        let response = await request(app.getHttpServer())
+          .post('/api/v1/users/register')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.CREATED);
+
+        postBody.userName = `Different${postBody.userName}`;
+        postBody.email = `not-a-beta-tester-${postBody.email}`;
+        response = await request(app.getHttpServer())
+          .get('/api/v1/users/validate-registration-fields')
+          .query(postBody);
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toEqual([
+          'Only beta testers are able to register at this time, sorry!',
         ]);
       });
 

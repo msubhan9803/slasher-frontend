@@ -11,7 +11,7 @@ export function escapeHtmlSpecialCharacters(
   isComment?: boolean,
 ) {
   const hashtagRegex = /(^|\s)(#[\w-]+)/g;
-  const mentionRegex = /@(\w+)/g;
+  const mentionRegex = /@(\w+(?:-\w+)*)/g;
 
   let result = str
     .replaceAll('&', '&amp;')

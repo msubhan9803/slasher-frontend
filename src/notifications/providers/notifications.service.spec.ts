@@ -22,6 +22,7 @@ import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 import { UserSettingsService } from '../../settings/providers/user-settings.service';
 import { userSettingFactory } from '../../../test/factories/user-setting.factory';
+import { PushNotificationsService } from './push-notifications.service';
 
 describe('NotificationsService', () => {
   let app: INestApplication;
@@ -29,11 +30,21 @@ describe('NotificationsService', () => {
   let notificationsService: NotificationsService;
   let feedPostsService: FeedPostsService;
   let usersService: UsersService;
+  let userSettingsService: UserSettingsService;
   let activeUser: UserDocument;
   let user1: UserDocument;
+  let user2: UserDocument;
   let feedPostData: FeedPostDocument;
+  let pushNotificationsService:PushNotificationsService;
   let notificationModel: Model<NotificationDocument>;
-  let userSettingsService: UserSettingsService;
+  const deviceAndAppVersionPlaceholderSignInFields = {
+    device_id: 'sample-device-id-1',
+    device_token: 'sample',
+    device_type: 'sample-device-type',
+    device_version: 'sample-device-version',
+    app_version: 'sample-app-version',
+    login_date: Date.now(),
+  };
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -42,10 +53,10 @@ describe('NotificationsService', () => {
     connection = moduleRef.get<Connection>(getConnectionToken());
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     usersService = moduleRef.get<UsersService>(UsersService);
-    feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
+    pushNotificationsService = moduleRef.get<PushNotificationsService>(PushNotificationsService);
+    feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     notificationModel = moduleRef.get<Model<NotificationDocument>>(getModelToken(Notification.name));
-
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
     await app.init();
@@ -61,7 +72,6 @@ describe('NotificationsService', () => {
 
     // Reset sequences so we start fresh before each test
     rewindAllFactories();
-
     activeUser = await usersService.create(userFactory.build());
     await userSettingsService.create(
       userSettingFactory.build(
@@ -334,6 +344,35 @@ describe('NotificationsService', () => {
       await notificationsService.processNotification(notification.id);
       const notificationDetails = await notificationsService.findById(notification.id);
       expect(notificationDetails.isProcessed).toBe(true);
+    });
+
+    it('send push notification', async () => {
+      const userDevices = [];
+      const weekAgo = DateTime.now().minus({ days: 8 }).toISODate();
+      userDevices.push(
+        {
+          ...deviceAndAppVersionPlaceholderSignInFields,
+          login_date: weekAgo,
+        },
+      );
+      const userData = userFactory.build();
+      userData.userDevices = userDevices;
+      user2 = await usersService.create(userData);
+      await userSettingsService.create(userSettingFactory.build({
+        userId: user2.id,
+      }));
+      const notificationObj = {
+        userId: user2.id,
+        feedPostId: feedPostData.id,
+        senderId: user1.id,
+        notifyType: NotificationType.UserMentionedYouInPost,
+        notificationMsg: 'had mentioned you in a post',
+      };
+      const notificationData = await notificationsService.create(notificationObj);
+      await notificationsService.processNotification(notificationData.id);
+      expect(pushNotificationsService.sendPushNotification).toHaveBeenCalledWith(
+        expect.any(Object),
+      );
     });
   });
 });

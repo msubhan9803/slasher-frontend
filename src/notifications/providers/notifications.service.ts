@@ -42,34 +42,28 @@ export class NotificationsService {
     // In SD-661, confirmed that all notifications should be emitted over socket.
     this.notificationsGateway.emitMessageForNotification(notification);
 
-    // UserSettings determine whether push notifications should ALSO be sent.  The new API
-    // app doesn't currently support push notifications because it's only supporting a web app
-    // at this time, so the lines below are just placeholder code for later:
+    if (this.configService.get<boolean>('SEND_PUSH_NOTIFICATION')) {
+      this.sendPushNotification(notification);
+    }
+    // Mark notification as processed
+    await notification.updateOne({ isProcessed: true });
+  }
 
-    // const userSettings = await this.userSettingsService.findByUserId((notification.userId as mongoose.Types.ObjectId).toString());
-    // if (userSettings.notificationTypeEnabled(notification.notifyType)) {
-    //   // Emit notification if user has this notification type enabled
-    //   // TODO: Send push notification
-    // }
-
+  async sendPushNotification(notification) {
     const [user, userSetting] = await Promise.all([this.usersService.findById(notification.userId.toString(), true),
     this.userSettingsService.findByUserId(notification.userId.toString())]);
     const isNotificationEnabled = userSetting[`${NOTIFICATION_TYPES_TO_CATEGORIES.get(notification.notifyType)}`];
     if (isNotificationEnabled && user.userDevices.length) {
       let deviceToken = user.userDevices.map(
         (device) => {// eslint-disable-line
-          if (device.device_id !== 'browser' && device.device_id !== 'sample-device-id') {
+          if (device.device_id !== 'browser') {
             return device.device_token;
           }
         },
       );
       deviceToken = deviceToken.filter(Boolean);
-      if (this.configService.get<boolean>('SEND_PUSH_NOTIFICATION')) {
-        await this.pushNotificationsService.sendPushNotification(notification, deviceToken);
-      }
+      await this.pushNotificationsService.sendPushNotification(notification, deviceToken);
     }
-    // Mark notification as processed
-    await notification.updateOne({ isProcessed: true });
   }
 
   async findAllByUser(userId: string, limit: number, before?: string): Promise<NotificationDocument[]> {

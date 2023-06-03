@@ -1,4 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit';
+/* eslint-disable no-param-reassign */
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 export const socketSlice = createSlice({
   name: 'socket',
@@ -6,9 +7,9 @@ export const socketSlice = createSlice({
     isConnected: false,
   },
   reducers: {
-    setSocketConnected: () => ({
-      isConnected: true,
-    }),
+    setSocketConnected: (state, action: PayloadAction<boolean>) => {
+      state.isConnected = action.payload;
+    },
   },
 });
 

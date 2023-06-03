@@ -29,8 +29,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <!-- Necessary domain name -->
-                <!-- <data android:scheme="https" android:host="preview.slasher.tv" /> -->
-                <data android:scheme="https" android:host="slasher-web-frontend.vercel.app" />
+                <data android:scheme="https" android:host="preview.slasher.tv" />
             </intent-filter>
 
         </activity>

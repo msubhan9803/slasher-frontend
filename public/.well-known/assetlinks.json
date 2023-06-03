@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "tv.slasher.app",
+      "sha256_cert_fingerprints": [
+        "B0:01:D7:CE:4C:FE:91:FF:B9:DE:96:36:22:01:44:49:A2:D3:78:F9:C7:0D:DC:BA:56:1E:8A:B7:AF:A2:78:27"
+      ]
+    }
+  }
+]

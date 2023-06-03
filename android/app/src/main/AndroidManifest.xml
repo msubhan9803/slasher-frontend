@@ -23,6 +23,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- Deep Links Support -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Necessary domain name -->
+                <!-- <data android:scheme="https" android:host="preview.slasher.tv" /> -->
+                <data android:scheme="https" android:host="slasher-web-frontend.vercel.app" />
+            </intent-filter>
+
         </activity>
 
         <provider

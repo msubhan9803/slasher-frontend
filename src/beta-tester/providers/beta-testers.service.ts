@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { BetaTester, BetaTesterDocument } from '../../schemas/betaTester/betaTester.schema';
+import { escapeStringForRegex } from '../../utils/escape-utils';
 
 @Injectable()
 export class BetaTestersService {
@@ -15,7 +16,7 @@ export class BetaTestersService {
 
   async findByEmail(email: string): Promise<BetaTesterDocument> {
     return this.betaTesterModel
-      .findOne({ email })
+      .findOne({ email: new RegExp(`^${escapeStringForRegex(email)}$`, 'i') })
       .exec();
   }
 }

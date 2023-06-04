@@ -7,7 +7,7 @@ const config: CapacitorConfig = {
   bundledWebRuntime: false,
   server: {
     // We must give a hostname having domain `slasher.tv` so that pubwise ads properly. 
-    hostname: 'cap.android.slasher.tv',
+    hostname: 'cap.app.slasher.tv',
     cleartext: true,
   }
 };

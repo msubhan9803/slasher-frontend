@@ -86,10 +86,10 @@
     "build-storybook": "build-storybook -s public",
     "cap-android": "npx cap sync android && npx cap run android",
     "cap-ios": "npx cap sync ios && npx cap run ios",
-    "cap-live-reload-android": "cp ./capacitor-configs/live-reload.capacitor.config.ts capacitor.config.ts && npm run cap-android",
-    "cap-static-build-android": "cp ./capacitor-configs/static-build.capacitor.config.ts capacitor.config.ts && npm run build && npm run cap-android",
-    "cap-live-reload-ios": "cp ./capacitor-configs/live-reload.capacitor.config.ts capacitor.config.ts && npm run cap-ios",
-    "cap-static-build-ios": "cp ./capacitor-configs/static-build.capacitor.config.ts capacitor.config.ts && npm run build && npm run cap-ios"
+    "cap-static-build-android": "npm run build && npm run cap-android",
+    "cap-static-build-ios": "npm run build && npm run cap-ios",
+    "cap-live-reload-android": "LIVE_RELOAD=true npm run cap-android",
+    "cap-live-reload-ios": "LIVE_RELOAD=true npm run cap-ios"
   },
   "eslintConfig": {
     "extends": [

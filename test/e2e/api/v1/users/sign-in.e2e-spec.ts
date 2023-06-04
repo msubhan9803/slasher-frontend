@@ -134,7 +134,7 @@ describe('Users sign-in (e2e)', () => {
           .expect(HttpStatus.UNAUTHORIZED)
           .expect({
             statusCode: 401,
-            message: 'Only beta testers are able to sign in at this time, sorry!',
+            message: 'Only people who requested an invitation are able to sign in during the sneak preview.',
           });
       });
 

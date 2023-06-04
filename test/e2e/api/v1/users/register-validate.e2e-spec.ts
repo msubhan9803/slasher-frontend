@@ -407,7 +407,7 @@ describe('Users / Register (e2e)', () => {
           .query(postBody);
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual([
-          'Only beta testers are able to register at this time, sorry!',
+          'Only people who requested an invitation are able to register during the sneak preview.',
         ]);
       });
 

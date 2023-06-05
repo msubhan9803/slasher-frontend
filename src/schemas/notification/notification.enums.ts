@@ -47,6 +47,7 @@ export const NOTIFICATION_TYPES_TO_CATEGORIES = new Map([
   [NotificationType.UserMentionedYouInPost, 'feed_mention_on_post_comment_reply'],
   [NotificationType.UserCommentedOnYourPost, 'feed_comment_on_post'],
   [NotificationType.UserLikedYourPost, 'feed_post_like'],
+  [NotificationType.UserLikedYourComment, 'feed_post_like'],
   [
     NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
     'feed_mention_on_post_comment_reply',

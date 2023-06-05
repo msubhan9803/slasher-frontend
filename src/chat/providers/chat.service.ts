@@ -16,6 +16,7 @@ import { Message, MessageDocument } from '../../schemas/message/message.schema';
 import { NotificationReadStatus } from '../../schemas/notification/notification.enums';
 import { UsersService } from '../../users/providers/users.service';
 import { BlocksService } from '../../blocks/providers/blocks.service';
+import { MessageType } from '../../schemas/message/message.enums';
 
 export interface Conversation extends MatchList {
   latestMessage: Message;
@@ -106,7 +107,9 @@ export class ChatService {
         fromId: new mongoose.Types.ObjectId(fromUser),
         senderId: new mongoose.Types.ObjectId(toUser), // due to bad old-API field naming, this is the "to" field
         message: image ? 'Image' : message,
+        messageType: image ? MessageType.Image : MessageType.Text, // NOTE: This ONLY matters for the iOS and Android apps, not the website
         image,
+        urls: image ? [image] : [],
         imageDescription,
         created: currentTime.toString(),
         createdAt: currentTime, // overwrite `createdAt`
@@ -346,5 +349,27 @@ export class ChatService {
       },
       { $addToSet: { deletefor: new mongoose.Types.ObjectId(userId) } },
     );
+  }
+
+  async deletePrivateDirectMessageConversation(participants: mongoose.Types.ObjectId[]) {
+    if (participants.find((participantId) => typeof (participantId) === 'string')) {
+      throw new Error('Participant ids must be ObjectIds');
+    }
+
+    const matchList = await this.matchListModel.findOneAndUpdate(
+      {
+        participants: { $all: participants },
+        relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
+        roomType: MatchListRoomType.Match,
+        roomCategory: MatchListRoomCategory.DirectMessage,
+        deleted: false,
+      },
+      {
+        deleted: true,
+      },
+      { upsert: false, new: true },
+    );
+
+    return matchList;
   }
 }

@@ -1,5 +1,6 @@
 /* eslint-disable max-lines */
 import * as request from 'supertest';
+import * as path from 'path';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
@@ -115,22 +116,22 @@ describe('Feed-Post / Post File (e2e)', () => {
           userId: activeUser._id.toString(),
           images: [
             {
-              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/feed\/feed_.+\.png|jpe?g/),
               description: 'this is create post description 1',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
-              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/feed\/feed_.+\.png|jpe?g/),
               description: 'this is create post description 2',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
-              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/feed\/feed_.+\.png|jpe?g/),
               description: 'this is create post description 3',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
-              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/feed\/feed_.+\.png|jpe?g/),
               description: 'this is create post description 4',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
@@ -156,7 +157,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           .attach('files', tempPaths[2])
           .attach('files', tempPaths[3])
           .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toBe('Invalid file type');
+        expect(response.body.message).toBe(`Unsupported file type: ${path.basename(tempPaths[1])}`);
       }, [{ extension: 'png' }, { extension: 'tjpg' }, { extension: 'tjpg' }, { extension: 'zpng' }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
@@ -485,7 +486,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           userId: activeUser._id.toString(),
           images: [
             {
-              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/feed\/feed_.+\.png|jpe?g/),
               description: null,
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },

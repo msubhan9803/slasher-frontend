@@ -105,6 +105,7 @@ describe('NotificationsService', () => {
         userId: activeUser.id,
         feedPostId: feedPostData.id,
         senderId: user1.id,
+        allUsers: [user1._id as any], // senderId must be in allUsers for old API compatibility
         notifyType: NotificationType.UserMentionedYouInPost,
         notificationMsg: 'had mentioned you in a post',
       };
@@ -121,6 +122,7 @@ describe('NotificationsService', () => {
             userId: activeUser.id,
             is_deleted: NotificationDeletionStatus.NotDeleted,
             senderId: user1.id,
+            allUsers: [user1._id as any], // senderId must be in allUsers for old API compatibility
           }),
         );
       }
@@ -238,6 +240,7 @@ describe('NotificationsService', () => {
           userId: activeUser.id,
           feedPostId: feedPostData.id,
           senderId: user1.id,
+          allUsers: [user1._id as any], // senderId must be in allUsers for old API compatibility
           notifyType: NotificationType.UserSentYouAFriendRequest,
           notificationMsg: 'sent you a friend request',
           createdAt: new Date(),
@@ -266,6 +269,7 @@ describe('NotificationsService', () => {
           userId: activeUser.id,
           feedPostId: feedPostData.id,
           senderId: user1.id,
+          allUsers: [user1._id as any], // senderId must be in allUsers for old API compatibility
           notifyType: NotificationType.UserSentYouAFriendRequest,
           notificationMsg: 'sent you a friend request',
           createdAt: DateTime.now().minus({ days: 10 }).toJSDate(),
@@ -296,6 +300,7 @@ describe('NotificationsService', () => {
         await notificationsService.create(notificationFactory.build({
           userId: activeUser.id,
           senderId: user1.id,
+          allUsers: [user1._id as any], // senderId must be in allUsers for old API compatibility
           createdAt: day,
         }));
       }
@@ -325,6 +330,7 @@ describe('NotificationsService', () => {
           userId: activeUser.id,
           is_deleted: NotificationDeletionStatus.NotDeleted,
           senderId: user1.id,
+          allUsers: [user1._id as any], // senderId must be in allUsers for old API compatibility
         }),
       );
       await notificationsService.processNotification(notification.id);
@@ -338,6 +344,7 @@ describe('NotificationsService', () => {
           userId: activeUser.id,
           is_deleted: NotificationDeletionStatus.NotDeleted,
           senderId: user1.id,
+          allUsers: [user1._id as any], // senderId must be in allUsers for old API compatibility
           isProcessed: true,
         }),
       );

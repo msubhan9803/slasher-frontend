@@ -439,7 +439,7 @@ describe('Users / Register (e2e)', () => {
           .expect(HttpStatus.BAD_REQUEST);
         expect(response.body).toEqual({
           statusCode: 400,
-          message: 'Only beta testers are able to register at this time, sorry!',
+          message: 'Only people who requested an invitation are able to register during the sneak preview.',
         });
       });
 

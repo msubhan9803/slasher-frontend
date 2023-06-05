@@ -3,6 +3,7 @@ import {
   Delete, ValidationPipe, Query, HttpException, HttpStatus,
 } from '@nestjs/common';
 import { Request } from 'express';
+import mongoose from 'mongoose';
 import { pick } from '../utils/object-utils';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { getUserFromRequest } from '../utils/request-utils';
@@ -19,6 +20,7 @@ import { NotificationType } from '../schemas/notification/notification.enums';
 import { NotificationsService } from '../notifications/providers/notifications.service';
 import { UsersService } from '../users/providers/users.service';
 import { FriendsGateway } from './providers/friends.gateway';
+import { ChatService } from '../chat/providers/chat.service';
 
 @Controller({ path: 'friends', version: ['1'] })
 export class FriendsController {
@@ -28,6 +30,7 @@ export class FriendsController {
     private readonly notificationsService: NotificationsService,
     private readonly usersService: UsersService,
     private readonly friendsGateway: FriendsGateway,
+    private readonly chatService: ChatService,
   ) { }
 
   @Post()
@@ -36,6 +39,11 @@ export class FriendsController {
     if (user.id === createFriendRequestDto.userId) {
       throw new HttpException('You cannot send a friend request to yourself', HttpStatus.BAD_REQUEST);
     }
+    const toUser = await this.usersService.findById(createFriendRequestDto.userId, true);
+    if (!toUser) {
+      throw new HttpException('Target friend not found.', HttpStatus.BAD_REQUEST);
+    }
+
     const block = await this.blocksService.blockExistsBetweenUsers(user.id, createFriendRequestDto.userId);
     if (block) {
       throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
@@ -52,16 +60,35 @@ export class FriendsController {
     // rapid friend-unfriend-friend-unfriend actions.
     if (!recentNotificationExists) {
       // Create notification for post creator, informing them that a comment was added to their post
-      await Promise.all([this.notificationsService.create({
-        userId: createFriendRequestDto.userId as any,
-        senderId: user._id,
-        notifyType: NotificationType.UserSentYouAFriendRequest,
-        notificationMsg: 'sent you a friend request',
-      }),
-      ]);
+      await Promise.all(
+        [
+          this.notificationsService.create({
+            userId: createFriendRequestDto.userId as any,
+            senderId: user._id,
+            allUsers: [user._id as any], // senderId must be in allUsers for old API compatibility
+            notifyType: NotificationType.UserSentYouAFriendRequest,
+            notificationMsg: 'sent you a friend request',
+            // "data" field must have exact value below for old iOS/Android app compatibility
+            // TODO: Remove this "data" field once the old iOS/Android apps are retired
+            data: {
+              relationId: '',
+              fromUser: {
+                ...pick(user, ['userName', '_id']),
+                image: user.profilePic,
+              },
+              toUser: {
+                ...pick(toUser, ['userName', '_id']),
+                image: toUser.profilePic,
+              },
+              notificationType: NotificationType.UserSentYouAFriendRequest,
+              badgeCount: user.newNotificationCount,
+            },
+          }),
+        ],
+      );
     }
     await Promise.all([this.usersService.updateNewFriendRequestCount(createFriendRequestDto.userId),
-      this.friendsGateway.emitFriendRequestReceivedEvent(friend)]);
+    this.friendsGateway.emitFriendRequestReceivedEvent(friend)]);
     return { success: true };
   }
 
@@ -95,6 +122,10 @@ export class FriendsController {
   ) {
     const user = getUserFromRequest(request);
     await this.friendsService.cancelFriendshipOrDeclineRequest(user.id, cancelFriendshipOrDeclineRequestDto.userId);
+    await this.chatService.deletePrivateDirectMessageConversation([
+      new mongoose.Types.ObjectId(user.id),
+      new mongoose.Types.ObjectId(cancelFriendshipOrDeclineRequestDto.userId),
+    ]);
     return { success: true };
   }
 

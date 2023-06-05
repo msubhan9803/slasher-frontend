@@ -1,8 +1,8 @@
 export enum NotificationType {
   // These are the only ones that are currently in use in the database:
   // (we need to determine what they are, by looking at the notification content)
-  Type1 = 1,
-  Type2 = 2,
+  Type1 = 1, // related to dating match
+  Type2 = 2, // related to mention in groups
   UserSentYouAFriendRequest = 11,
   UserAcceptedYourFriendRequest = 12,
   UserLikedYourPost = 13,

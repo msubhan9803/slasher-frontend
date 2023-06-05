@@ -2,7 +2,7 @@
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { AppModule } from '../../app.module';
 import { ChatService } from './chat.service';
 import { UsersService } from '../../users/providers/users.service';
@@ -481,6 +481,26 @@ describe('ChatService', () => {
       const messageData1 = await messageModel.findById(message1._id);
       expect(messageData1.deletefor.map((u) => u.toString())).toContain(user1._id.toString());
       expect(messageData1.deletefor).toHaveLength(1);
+    });
+  });
+
+  describe('#deletePrivateDirectMessageConversation', () => {
+    beforeEach(async () => {
+      await chatService.sendPrivateDirectMessage(user0.id, user1.id, 'Hi, test message.');
+      await chatService.sendPrivateDirectMessage(user1.id, user0.id, 'Hi, there!');
+    });
+
+    it('mark `matchList` as delete', async () => {
+      // Perform delete conversation action by `user1`
+      await chatService.deletePrivateDirectMessageConversation([
+        user0._id as unknown as mongoose.Types.ObjectId,
+        user1._id as unknown as mongoose.Types.ObjectId,
+      ]);
+
+      const updatedMatchList = await matchListModel.findOne({
+        participants: user1._id,
+      });
+      expect(updatedMatchList.deleted).toBeTruthy();
     });
   });
 });

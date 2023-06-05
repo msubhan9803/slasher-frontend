@@ -8,12 +8,29 @@ definitions:
       # to the main process. 4096 MB is the total available amount for a default "1x" pipeline instance.
       memory: 2048
   steps:
-    - step: &lint-test-build
+    - step: &lint-and-build
         # If our test runs for more than the number of minutes specified below, something is
         # probably wrong. We'll limit test run time so we don't waste CI build minutes.
-        max-time: 30
-        name: Lint, test, and build
-        image: node:16.13.1
+        max-time: 10
+        name: Lint and build
+        image: node:16.13.1-alpine3.15
+        caches:
+          - node
+        script:
+          # Install NPM dependencies
+          - npm ci
+          # Run linter
+          - npm run lint
+          # Copy template env file to .env.test (for build)
+          - cp .env.test.template .env.test
+          # Run build (to ensure that build succeeds)
+          - npm run build
+    - step: &test
+        # If our test runs for more than the number of minutes specified below, something is
+        # probably wrong. We'll limit test run time so we don't waste CI build minutes.
+        max-time: 15
+        name: Run tests (non-e2e)
+        image: node:16.13.1-alpine3.15
         services:
           - docker
         caches:
@@ -22,8 +39,41 @@ definitions:
         script:
           # Install NPM dependencies
           - npm ci
-          # Run linter
-          - npm run lint
+          # Start docker mongo
+          -
+            DOCKER_MONGO_CONTAINER_ID=$(
+            docker run --detach -p 27017:27017
+            --env MONGO_INITDB_ROOT_USERNAME=root --env MONGO_INITDB_ROOT_PASSWORD=rootpassword
+            $(docker build -q ./docker/mongo)
+            )
+          # Start redis mongo
+          - >
+            DOCKER_REDIS_CONTAINER_ID=$(
+            docker run --detach -p 6389:6379
+            $(docker build -q ./docker/redis)
+            )
+          # Copy template env file to .env.test (to support testing)
+          - cp .env.test.template .env.test
+          # Run tests
+          - npm run test
+          # Stop docker mongo (kill for speed, since this is CI and clean shutdown doesn't matter)
+          - docker container kill $DOCKER_MONGO_CONTAINER_ID
+          # Stop docker redis (kill for speed, since this is CI and clean shutdown doesn't matter)
+          - docker container kill $DOCKER_REDIS_CONTAINER_ID
+    - step: &test-e2e
+        # If our test runs for more than the number of minutes specified below, something is
+        # probably wrong. We'll limit test run time so we don't waste CI build minutes.
+        max-time: 30
+        name: Run e2e tests
+        image: node:16.13.1-alpine3.15
+        services:
+          - docker
+        caches:
+          - node
+          - docker
+        script:
+          # Install NPM dependencies
+          - npm ci
           # Start docker mongo
           - >
             DOCKER_MONGO_CONTAINER_ID=$(
@@ -40,15 +90,12 @@ definitions:
           # Copy template env file to .env.test (to support testing)
           - cp .env.test.template .env.test
           # Run tests
-          - npm run test
           - npm run test:e2e-core
           - npm run test:e2e-gateway
           # Stop docker mongo (kill for speed, since this is CI and clean shutdown doesn't matter)
           - docker container kill $DOCKER_MONGO_CONTAINER_ID
           # Stop docker redis (kill for speed, since this is CI and clean shutdown doesn't matter)
           - docker container kill $DOCKER_REDIS_CONTAINER_ID
-          # Run build (to ensure that build succeeds)
-          - npm run build
 
     - step: &set-environment
         name: 'Set Environment'
@@ -161,7 +208,17 @@ definitions:
 pipelines:
   branches:
     main:
-      - step: *lint-test-build
+      - parallel:
+          steps:
+            - step: *lint-and-build
+            - step: *test
+            - step: *test-e2e
+    develop:
+      - parallel:
+          steps:
+            - step: *lint-and-build
+            - step: *test
+            - step: *test-e2e
     deploy/staging:
     - step: *set-environment
     - step: *terraform-deploy
@@ -179,4 +236,8 @@ pipelines:
   pull-requests:
     # Run for any branch that has an open pull request
     '**':
-      - step: *lint-test-build
+      - parallel:
+          steps:
+            - step: *lint-and-build
+            - step: *test
+            - step: *test-e2e

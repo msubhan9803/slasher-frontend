@@ -136,6 +136,7 @@ describe('Create Feed Comment Like (e2e)', () => {
         feedPostId: { _id: reloadedFeedComment.feedPostId } as unknown as FeedPost,
         feedCommentId: { _id: reloadedFeedComment._id } as unknown as FeedComment,
         senderId: activeUser._id,
+        allUsers: [activeUser._id as any], // senderId must be in allUsers for old API compatibility
         notifyType: NotificationType.UserLikedYourComment,
         notificationMsg: 'liked your comment',
       });
@@ -283,10 +284,10 @@ describe('Create Feed Comment Like (e2e)', () => {
           ),
         );
         await request(app.getHttpServer())
-        .post(`/api/v1/feed-likes/comment/${comment._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .send()
-        .expect(HttpStatus.CREATED);
+          .post(`/api/v1/feed-likes/comment/${comment._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send()
+          .expect(HttpStatus.CREATED);
 
         const commentCreatorUserNewNotificationCount = await usersService.findById(commentCreatorUser.id, true);
         expect(commentCreatorUserNewNotificationCount.newNotificationCount).toBe(1);

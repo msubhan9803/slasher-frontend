@@ -115,7 +115,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
       const feedCommentId = new mongoose.Types.ObjectId();
       await request(app.getHttpServer()).patch(`/api/v1/feed-comments/${feedCommentId}`).expect(HttpStatus.UNAUTHORIZED);
     });
-    describe('with mocked notificationService.create', () => {
+    describe('with mocked notificationsService.create', () => {
       beforeEach(async () => {
         jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
       });

@@ -112,6 +112,7 @@ describe('Create Feed Post Like (e2e)', () => {
       expect(notificationsService.create).toHaveBeenCalledWith({
         feedPostId: { _id: reloadedFeedPost._id.toString() },
         senderId: activeUser._id,
+        allUsers: [activeUser._id as any], // senderId must be in allUsers for old API compatibility
         notifyType: NotificationType.UserLikedYourPost,
         notificationMsg: 'liked your post',
         userId: feedPostDataObject._id.toString(),
@@ -207,10 +208,10 @@ describe('Create Feed Post Like (e2e)', () => {
         const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
 
         await request(app.getHttpServer())
-        .post(`/api/v1/feed-likes/post/${post._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .send()
-        .expect(HttpStatus.CREATED);
+          .post(`/api/v1/feed-likes/post/${post._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send()
+          .expect(HttpStatus.CREATED);
 
         const postCreatorUserNewNotificationCount = await usersService.findById(postCreatorUser.id, true);
         expect(postCreatorUserNewNotificationCount.newNotificationCount).toBe(1);

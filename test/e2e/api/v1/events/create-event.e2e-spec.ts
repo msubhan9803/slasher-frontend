@@ -1,5 +1,6 @@
 /* eslint-disable max-lines */
 import * as request from 'supertest';
+import * as path from 'path';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
@@ -675,7 +676,7 @@ describe('Events create / (e2e)', () => {
       });
 
       it('when one of the files is not jpg, jpeg, png, or gif then it will give expected response', async () => {
-        await createTempFiles(async (tempPath) => {
+        await createTempFiles(async (tempPaths) => {
           const response = await request(app.getHttpServer())
             .post('/api/v1/events')
             .auth(activeUserAuthToken, { type: 'bearer' })
@@ -692,13 +693,13 @@ describe('Events create / (e2e)', () => {
             .field('event_info', postBody.event_info)
             .field('url', postBody.url)
             .field('author', postBody.author)
-            .attach('files', tempPath[0])
-            .attach('files', tempPath[1])
-            .attach('files', tempPath[2])
-            .attach('files', tempPath[3])
+            .attach('files', tempPaths[0])
+            .attach('files', tempPaths[1])
+            .attach('files', tempPaths[2])
+            .attach('files', tempPaths[3])
             .expect(HttpStatus.BAD_REQUEST);
 
-          expect(response.body.message).toContain('Invalid file type');
+          expect(response.body.message).toContain(`Unsupported file type: ${path.basename(tempPaths[1])}`);
         }, [{ extension: 'png' }, { extension: 'zip' }, { extension: 'png' }, { extension: 'png' }]);
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)

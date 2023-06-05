@@ -8,7 +8,12 @@ export const templateForForgotPassword = `
     <p>
       We received a password reset request from your account.
       Please click the following button to reset your password on Slasher:
+    </p>
+
+    <p>
       ${renderEmailHtmlButtonLink('click here', '[[RESET_PASSWORD_LINK]]')}
+      <br />
+      <br />
     </p>
 
     <p>

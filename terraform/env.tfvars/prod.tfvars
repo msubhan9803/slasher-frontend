@@ -1,16 +1,16 @@
 AWSRegion = "us-east-1"
 
 #ecs-fargate
+web_new_min_capacity        = 2
+web_new_max_capacity        = 3
 web_new_desired_count       = 2
-web_new_cpu_unit            = 256
-web_new_memory_unit         = 512
-web_new_min_capacity        = 1
-web_new_max_capacity        = 2
+web_new_cpu_unit            = 2048
+web_new_memory_unit         = 4096
 cron_desired_count          = 1
 cron_cpu_unit               = 256
 cron_memory_unit            = 512
 api_url                     = "https://api.slasher.tv"
-frontend_url                = "https://prod.slasher.tv"
+frontend_url                = "https://preview.slasher.tv"
 log_group_retention_in_days = 60
 slasher_web_new_host_header = "api.slasher.tv"
 slasher_cron_host_header    = "cron.slasher.tv"

@@ -49,7 +49,7 @@ function PostFooter({
   const { pathname } = useLocation();
   return (
     <Card.Footer className="p-0">
-      <Row className="justify-content-start py-3">
+      <Row className="justify-content-start pt-3">
         <Col
           xs={4}
         >

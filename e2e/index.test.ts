@@ -10,10 +10,16 @@ test.describe(pagePath, () => {
   test.describe('unauthenticated user', () => {
     test.use({ storageState: 'e2e/.storage-states/unauthenticatedUser.json' });
 
-    test('should render the public home page for a non-logged-in user', async ({ page, baseURL }) => {
-      await expect(page.url()).toBe(`${baseURL}/`);
-      await expect(page.locator('body')).toHaveText(/SLASHER IS THE ULTIMATE APP FOR HORROR FANS/);
-    });
+    // TODO: Uncomment this test when we go from beta/preview to production
+    // test(
+    //   'should render the public home page for a non-logged-in user',
+    //   async ({ page, baseURL }) => {
+    //     await expect(page.url()).toBe(`${baseURL}/`);
+    //     await expect(page.locator('body')).toHaveText(
+    //       /SLASHER IS THE ULTIMATE APP FOR HORROR FANS/,
+    //     );
+    //   },
+    // );
   });
 
   test.describe('authenticated user', () => {

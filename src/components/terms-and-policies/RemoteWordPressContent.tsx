@@ -7,12 +7,19 @@ interface Props {
   className?: string;
   url: string,
   fallbackContent: JSX.Element;
+  forceShowFallbackContent?: boolean;
 }
 
-function RemoteWordPressContent({ className, url, fallbackContent }: Props) {
+function RemoteWordPressContent({
+  className, url, fallbackContent, forceShowFallbackContent,
+}: Props) {
   const [content, setContent] = useState<string>();
   const [showFallbackContent, setShowFallbackContent] = useState<boolean>(false);
   useEffect(() => {
+    if (forceShowFallbackContent) {
+      setShowFallbackContent(true);
+      return;
+    }
     axios.get(url)
       .then((response) => {
         const remoteContent = response.data?.[0]?.content?.rendered;
@@ -23,7 +30,7 @@ function RemoteWordPressContent({ className, url, fallbackContent }: Props) {
         }
       })
       .catch(() => { setShowFallbackContent(true); });
-  }, [url]);
+  }, [url, forceShowFallbackContent]);
 
   const renderContent = () => {
     if (showFallbackContent) { return fallbackContent; }
@@ -41,6 +48,7 @@ function RemoteWordPressContent({ className, url, fallbackContent }: Props) {
 
 RemoteWordPressContent.defaultProps = {
   className: '',
+  forceShowFallbackContent: false,
 };
 
 export default RemoteWordPressContent;

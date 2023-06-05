@@ -3,8 +3,8 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Form, Link } from 'react-router-dom';
 import CustomInputGroup from './CustomInputGroup';
 import ErrorMessageList from './ErrorMessageList';
-import RoundButton from './RoundButton';
 import RoundButtonLink from './RoundButtonLink';
+import { ProgressButtonComponentType } from './ProgressButton';
 
 interface UserCredentials {
   emailOrUsername: string;
@@ -17,11 +17,12 @@ interface SignInProps {
   setShowPassword: (val: boolean) => void,
   handleUserSignIn: (val: any) => void,
   errorMessage: string[] | undefined,
+  ProgressButton: ProgressButtonComponentType,
   isPublicProfile?: boolean,
 }
 function SigninComponent({
-  credential, setCredential,
-  showPassword, setShowPassword, handleUserSignIn, errorMessage, isPublicProfile,
+  credential, setCredential, showPassword, setShowPassword, handleUserSignIn, errorMessage,
+  isPublicProfile, ProgressButton,
 }: SignInProps) {
   const handleSignIn = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCredential({ ...credential, [event.target.name]: event.target.value });
@@ -66,9 +67,7 @@ function SigninComponent({
           </Link>
         </p>
         <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-        <RoundButton id="sign-in-button" type="submit" onClick={handleUserSignIn} className="w-100 my-3" variant="primary">
-          Sign in
-        </RoundButton>
+        <ProgressButton id="sign-in-button" type="submit" onClick={handleUserSignIn} className="w-100 my-3" label="Sign in" />
         <p className="text-center">OR</p>
         <RoundButtonLink to="/app/registration" className="w-100" variant="primary">
           Create an account

@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { MessagesList } from '../../types';
 
 export const userSlice = createSlice({
   name: 'user',
@@ -6,7 +7,7 @@ export const userSlice = createSlice({
     recentFriendRequests: [],
     unreadNotificationCount: 0,
     unreadMessageCount: 0,
-    recentMessages: [],
+    recentMessages: [] as Array<MessagesList>,
     newConversationIdsCount: 0,
     user: {
       userName: '',
@@ -58,11 +59,22 @@ export const userSlice = createSlice({
       state.forceFriendListReload = payload.payload;
     },
     appendToPathnameHistory: (state, action: PayloadAction<string>) => {
-      const last = state.pathnameHistory[state.pathnameHistory.length - 1];
+      const lastPagePathname = state.pathnameHistory[state.pathnameHistory.length - 1];
       // We prevent appending duplicate pathname in a row
-      if (last !== action.payload) {
+      if (lastPagePathname !== action.payload) {
         state.pathnameHistory.push(action.payload);
       }
+    },
+    // eslint-disable-next-line max-len
+    removeBlockedUserFromRecentMessages: (state, action: PayloadAction<{ blockUserId: string }>) => {
+      state.recentMessages = [...state.recentMessages.filter(
+        (m) => {
+          // eslint-disable-next-line max-len
+          const isMessageFromBlockedUser = m.participants.find((u) => u._id === action.payload.blockUserId);
+          return !isMessageFromBlockedUser;
+        },
+      ),
+      ];
     },
   },
 });
@@ -79,6 +91,7 @@ export const {
   setUserRecentFriendRequests,
   setFriendListReload,
   appendToPathnameHistory,
+  removeBlockedUserFromRecentMessages,
 } = userSlice.actions;
 
 export default userSlice.reducer;

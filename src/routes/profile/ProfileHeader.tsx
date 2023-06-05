@@ -21,7 +21,7 @@ import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { StyledBorder } from '../../components/ui/StyledBorder';
 import { enableDevFeatures } from '../../utils/configEnvironment';
 import FriendActionButtons from '../../components/ui/Friend/FriendActionButtons';
-import { LG_MEDIA_BREAKPOINT, topToDivHeight } from '../../constants';
+import { BREAK_POINTS, topToDivHeight } from '../../constants';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { setScrollToTabsPosition } from '../../redux/slices/scrollPositionSlice';
 import SignInModal from '../../components/ui/SignInModal';
@@ -105,21 +105,22 @@ function ProfileHeader({
 
   useLayoutEffect(() => {
     if (token.isLoading) { return; }
+    if (!userIsLoggedIn) { return; }
 
-    if (userIsLoggedIn) {
-      const element = positionRef.current;
-      if (!element) { return; }
-      if (((scrollPosition.scrollToTab && (friendStatus || element)) || param['*'] === 'friends') && location?.state?.publicProfile !== true) {
-        window.scrollTo({
-          top: element.offsetTop - (
-            window.innerWidth >= parseInt(LG_MEDIA_BREAKPOINT.replace('px', ''), 10)
-              ? (topToDivHeight - 18)
-              : 0
-          ),
-          behavior: 'instant' as any,
-        });
-        dispatch(setScrollToTabsPosition(false));
-      }
+    const element = positionRef.current;
+    if (!element) { return; }
+
+    const isPublicProfile = location?.state?.publicProfile;
+    if (isPublicProfile) { return; }
+
+    // Scroll so that "About-Posts-Friends-Photos-Watched_list" nav-bar sticks to top of the
+    // viewport.
+    if (scrollPosition.scrollToTab) {
+      dispatch(setScrollToTabsPosition(false));
+      window.scrollTo({
+        top: element.offsetTop - (window.innerWidth >= BREAK_POINTS.lg ? (topToDivHeight - 18) : 0),
+        behavior: 'instant' as any,
+      });
     }
   }, [positionRef, friendStatus, dispatch, scrollPosition.scrollToTab,
     param, location, token, userIsLoggedIn]);
@@ -182,7 +183,7 @@ function ProfileHeader({
           <Col className="w-100 mt-md-4">
             <Row className="d-flex justify-content-between">
               <Col xs={12} md={4} lg={12} xl={4} className="text-center text-capitalize text-md-start text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
-                <h1 className="mb-md-0">
+                <h1 className="mb-md-0 text-nowrap">
                   {user?.firstName}
                 </h1>
                 <p className="fs-5 text-light">

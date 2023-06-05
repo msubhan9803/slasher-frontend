@@ -77,11 +77,23 @@ Note: You need to get your local ip address of your machine, usually it looks li
 
 Now you can start run frontend via `npm start`, run backend via `npm run start:dev` followed by running capacitor app via `npm run cap-live-reload-android` or `npm run cap-live-reload-ios` for appropriate device you want to run the app on with live reload.
 
-**Update capacitor app icon and splash screen:**
+**Updating capacitor app icon and splash screen:**
 
 Docs: [Click here](https://capacitorjs.com/docs/guides/splash-screens-and-icons)
 
-You can add/update icons and splash screen in `resources` directory by running `npx capacitor-assets generate` script and the regenerating the apk.
+You can add/update icons and splash screen in `resources` directory by running `npx capacitor-assets generate` script and then regenerating the apk would get new/updated app-icon and splash screen.
+
+**Passing environement variables to capacitor native builds:**
+
+- `.env` file is used when `npm run cap-static-build-android` or `npm run cap-static-build-ios` is used.
+- `.env.development`/`.env.development.local` is used when we use `npm run cap-live-reload-android` or `npm run cap-live-reload-ios`.
+
+**Viewing console logs in capacitor live-reload build and static builds:**
+
+When you need to see console logs of a native capacitor app running on a real device (or Android Emulator) you can use below url in *Google Chrome Browser* to get access the debugging-console:
+
+`chrome://inspect/#devices` (bookmark the url for reliability)
+
 
 ## App Structure
 

@@ -16,6 +16,7 @@ import {
 import slasherLogo from '../../../images/slasher-logo-medium.png';
 import RoundButton from '../../../components/ui/RoundButton';
 import { StyledMediaIcon, socialMediaSites } from '../public-home-footer/PublicHomeFooter';
+import { enableDevFeatures } from '../../../utils/configEnvironment';
 
 interface HeaderStyleProps {
   isOpen: boolean;
@@ -56,7 +57,7 @@ const StyledHeader = styled.header<HeaderStyleProps>`
   padding-right: 0px !important;
   &.header-scrolled {
     background: var(--bs-secondary) !important;
-    height: 82px;
+    height: 140px;
   }
   .login-btn{
     top: 48px;
@@ -78,16 +79,13 @@ const StyledHeader = styled.header<HeaderStyleProps>`
     height: auto !important;
     &.header-scrolled {
       background: var(--bs-secondary) !important;
-      height: ${({ isOpen }) => (isOpen ? 'auto' : '70px')} !important;
+      height: ${({ isOpen }) => (isOpen ? 'auto' : '138px')} !important;
     }
   }
   .header__wrapper{
     width: 100%;
     max-width: 1263px;
     margin: auto;
-    @media (min-width: ${MD_MEDIA_BREAKPOINT}){
-      margin-top: -23px;
-    }
   }
   .nav__items__container {
     padding-top: 0px;
@@ -115,7 +113,7 @@ const StyledOffcanvas = styled(Offcanvas)`
   background-color: #171718;
   .btn-close {
     background: #3A3B46;
-    border-radius: 0.625rem;  
+    border-radius: 0.625rem;
   }
   .offcanvas-header button{
     background: rgb(58, 59, 70);
@@ -134,7 +132,7 @@ const navList: NavItem[] = [
   { value: `${WORDPRESS_SITE_URL}/shop`, label: 'Shop' },
   { value: `${WORDPRESS_SITE_URL}/advertise`, label: 'Advertise' },
   { value: `${WORDPRESS_SITE_URL}/help`, label: 'Help' },
-  { value: `${WORDPRESS_SITE_URL}/contact-new`, label: 'Contact Us' },
+  { value: `${WORDPRESS_SITE_URL}/contact-us`, label: 'Contact Us' },
 ];
 const signInNavItem: NavItem = { value: '/app/sign-in', label: 'Sign in' };
 
@@ -147,7 +145,7 @@ function PublicHomeHeader() {
     const selectLoginButton = document.querySelector('.login-btn');
 
     const headerScrolled = () => {
-      if (window.pageYOffset > 120) {
+      if (window.pageYOffset > 50) {
         selectHeader?.classList.add('header-scrolled');
         selectLoginButton?.classList.add('mt-3');
       } else {
@@ -182,9 +180,9 @@ function PublicHomeHeader() {
           <NavbarToggle onClick={() => setIsOpen(!isOpen)} aria-controls="responsive-navbar-nav" className="toggle border-0" />
           <Navbar.Brand as={Link} to="/" className="mobile__logo d-lg-none me-0">
             {/* This header is only shown on mobile screens */}
-            <HeaderLogo logo={slasherLogo} height="8rem" style={{ marginTop: -18, marginLeft: 5 }} />
+            <HeaderLogo logo={slasherLogo} height="8rem" style={{ marginLeft: 5 }} />
           </Navbar.Brand>
-          <div className="d-lg-none mobile__signin">
+          <div className={`${enableDevFeatures ? '' : 'invisible'} d-lg-none mobile__signin`}>
             <RoundButton onClick={() => navigate('/app/sign-in')}>SIGN IN</RoundButton>
           </div>
           <StyledNavbarCollapse id="responsive-navbar-nav" className="bg-black mt-2 mt-lg-0 d-none">
@@ -213,7 +211,7 @@ function PublicHomeHeader() {
                     ))}
                     <Link
                       to="/app/sign-in"
-                      className="btn btn-primary d-flex justify-content-center rounded-pill fs-3 text-nowrap mx-4 px-4 py-2"
+                      className={`${enableDevFeatures ? '' : 'd-none'} btn btn-primary d-flex justify-content-center rounded-pill fs-3 text-nowrap mx-4 px-4 py-2`}
                     >
                       SIGN IN
                     </Link>
@@ -237,7 +235,7 @@ function PublicHomeHeader() {
               </Button>
             </Offcanvas.Header>
             <Offcanvas.Body className="pt-0">
-              {[...navList, signInNavItem].map((nav) => (
+              {[...navList, ...(enableDevFeatures ? [signInNavItem] : [])].map((nav) => (
                 <StyledNavLink
                   key={nav.value.slice(25)} // remove `url` from key
                   href={nav.value}

@@ -7,7 +7,7 @@ import { apiUrl } from '../constants';
 import { DeviceFields, RegisterUser } from '../types';
 import { getSessionToken, getSessionUserId } from '../utils/session-utils';
 
-export async function signIn(emailOrUsername: string, password: string) {
+export async function signIn(emailOrUsername: string, password: string, signal?: AbortSignal) {
   let deviceFields: DeviceFields;
   if (Capacitor.isNativePlatform()) {
     const deviceId = await Device.getId();
@@ -35,6 +35,7 @@ export async function signIn(emailOrUsername: string, password: string) {
       password,
       ...deviceFields,
     },
+    { signal },
   );
 }
 

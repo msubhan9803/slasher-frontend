@@ -11,6 +11,7 @@ function EndUserLicenseAgreement({ className }: Props) {
   return (
     <div className={className}>
       <RemoteWordPressContent
+        forceShowFallbackContent
         url={`${WORDPRESS_SITE_URL}/wp-json/wp/v2/pages/?slug=eula`}
         fallbackContent={(
           <a href={`${WORDPRESS_SITE_URL}/eula`} target="_blank" rel="noreferrer">End User License Agreement (click to view)</a>

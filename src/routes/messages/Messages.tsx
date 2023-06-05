@@ -4,9 +4,9 @@ import React, {
 } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { DateTime } from 'luxon';
-import { getMessagesList } from '../../api/messages';
+import { getConversations } from '../../api/messages';
 import UserMessageListItem from '../../components/ui/UserMessageList/UserMessageListItem';
-import { MessagesList } from '../../types';
+import { MessagesList, ConversationListItem } from '../../types';
 import MessagesOptionDialog from './MessagesOptionDialog';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
@@ -18,65 +18,59 @@ import { resetUnreadConversationCount } from '../../redux/slices/userSlice';
 import socketStore from '../../socketStore';
 import { createBlockUser } from '../../api/blocks';
 
-export interface NewMessagesList {
-  unreadCount: number;
-  latestMessage: string;
-  _id: string; // matchListId
-  id: string; // userId
-  userName: string;
-  profilePic: string;
-  updatedAt: string;
-}
-
 function Messages() {
-  const [requestAdditionalMessages, setRequestAdditionalMessages] = useState<boolean>(false);
-  const [loadingChats, setLoadingChats] = useState<boolean>(false);
+  const [
+    requestAdditionalConversations, setRequestAdditionalConversations,
+  ] = useState<boolean>(false);
+  const [loadingConversations, setLoadingConversations] = useState<boolean>(false);
   const [show, setShow] = useState(false);
-  const [messages, setMessages] = useState<NewMessagesList[]>([]);
+  const [conversations, setConversations] = useState<ConversationListItem[]>([]);
   const [messageOptionValue, setMessageOptionValue] = useState('');
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const userId = useAppSelector((state) => state.user.user.id);
-  const messageContainerElementRef = useRef<any>(null);
-  const [yPositionOfLastMessageElement, setYPositionOfLastMessageElement] = useState<number>(0);
+  const conversationsContainerElementRef = useRef<any>(null);
+  const [
+    yPositionOfLastConversationElement, setYPositionOfLastConversationElement,
+  ] = useState<number>(0);
   const [selectedMatchListId, setSelectedMatchListId] = useState('');
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const dispatch = useAppDispatch();
   const { socket } = socketStore;
 
-  const handleMessagesOption = (message: NewMessagesList) => (messageOption: string) => {
+  const handleMessagesOption = (message: ConversationListItem) => (messageOption: string) => {
     if (messageOption !== 'markAsRead') {
       setShow(true);
     }
     setMessageOptionValue(messageOption);
     setSelectedMatchListId(message._id);
-    setSelectedUserId(message.id);
+    setSelectedUserId(message.userId);
   };
 
   useEffect(() => {
-    if (requestAdditionalMessages && !loadingChats) {
-      setLoadingChats(true);
-      getMessagesList(
-        messages.length > 0 ? messages[messages.length - 1]._id : undefined,
+    if (requestAdditionalConversations && !loadingConversations) {
+      setLoadingConversations(true);
+      getConversations(
+        conversations.length > 0 ? conversations[conversations.length - 1]._id : undefined,
       ).then((res) => {
-        const newMessages = res.data.map((data: MessagesList) => {
+        const newConversations = res.data.map((data: any) => {
           const userDetail = data.participants.find(
             (participant: any) => participant._id !== userId,
           );
-          const message = {
+          const conversation: ConversationListItem = {
             _id: data._id,
-            id: userDetail!._id,
+            userId: userDetail!._id,
             unreadCount: data.unreadCount,
             latestMessage: data.latestMessage,
             userName: userDetail!.userName,
             profilePic: userDetail!.profilePic,
             updatedAt: data.updatedAt,
           };
-          return message;
+          return conversation;
         });
-        setMessages((prev: NewMessagesList[]) => [
+        setConversations((prev) => [
           ...prev,
-          ...newMessages,
+          ...newConversations,
         ]);
         if (res.data.length === 0) { setNoMoreData(true); }
       }).catch(
@@ -85,59 +79,59 @@ function Messages() {
           setErrorMessage(error.response.data.message);
         },
       ).finally(
-        () => { setRequestAdditionalMessages(false); setLoadingChats(false); },
+        () => { setRequestAdditionalConversations(false); setLoadingConversations(false); },
       );
     }
-  }, [requestAdditionalMessages, loadingChats, messages, userId]);
+  }, [requestAdditionalConversations, loadingConversations, conversations, userId]);
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
-        messages.length === 0
+        conversations.length === 0
           ? 'No messages'
           : 'No more messages'
       }
     </p>
   );
 
-  const fetchMoreMessages = useCallback(() => {
-    getMessagesList()
+  const fetchMoreConversations = useCallback(() => {
+    getConversations()
       .then((res) => {
-        const newMessages = res.data.map((data: MessagesList) => {
+        const newConversations = res.data.map((data: MessagesList) => {
           const userDetail = data.participants.find(
             (participant: any) => participant._id !== userId,
           );
-          const message = {
+          const conversation: ConversationListItem = {
             _id: data._id,
-            id: userDetail!._id,
+            userId: userDetail!._id,
             unreadCount: data.unreadCount,
             latestMessage: data.latestMessage,
             userName: userDetail!.userName,
             profilePic: userDetail!.profilePic,
             updatedAt: data.updatedAt,
           };
-          return message;
+          return conversation;
         });
-        setMessages(newMessages);
+        setConversations(newConversations);
       })
       .catch((error) => setErrorMessage(error.response.data.message));
   }, [userId]);
   const getYPosition = () => {
-    const yPosition = messageContainerElementRef.current?.lastElementChild?.offsetTop;
-    setYPositionOfLastMessageElement(yPosition);
+    const yPosition = conversationsContainerElementRef.current?.lastElementChild?.offsetTop;
+    setYPositionOfLastConversationElement(yPosition);
   };
   useEffect(() => {
     getYPosition();
-  }, [messages]);
+  }, [conversations]);
 
   useEffect(() => {
-    if (yPositionOfLastMessageElement) {
-      const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastMessageElement;
+    if (yPositionOfLastConversationElement) {
+      const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastConversationElement;
       if (bottomLine) {
-        fetchMoreMessages();
+        fetchMoreConversations();
       }
     }
-  }, [yPositionOfLastMessageElement, fetchMoreMessages]);
+  }, [yPositionOfLastConversationElement, fetchMoreConversations]);
 
   useEffect(() => {
     socket?.emit('clearNewConversationIds', {});
@@ -147,6 +141,8 @@ function Messages() {
     createBlockUser(selectedUserId!)
       .then(() => {
         setShow(false);
+        // remove blocked user conversation
+        setConversations((prev) => prev.filter((m) => m.userId !== selectedUserId));
       })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
@@ -160,35 +156,35 @@ function Messages() {
             threshold={500}
             pageStart={0}
             initialLoad
-            loadMore={() => { setRequestAdditionalMessages(true); }}
+            loadMore={() => { setRequestAdditionalConversations(true); }}
             hasMore={!noMoreData}
           >
             {
-              messages.length > 0
-              && messages.map((message) => (
+              conversations.length > 0
+              && conversations.map((conversation) => (
                 <UserMessageListItem
-                  key={message._id}
-                  ref={messageContainerElementRef}
-                  image={message.profilePic}
-                  userName={message.userName}
-                  message={message.latestMessage}
-                  count={message.unreadCount}
-                  timeStamp={DateTime.fromISO(message.updatedAt).toFormat('MM/dd/yyyy t')}
-                  handleDropdownOption={handleMessagesOption(message)}
-                  matchListId={message._id}
+                  key={conversation._id}
+                  ref={conversationsContainerElementRef}
+                  image={conversation.profilePic}
+                  userName={conversation.userName}
+                  message={conversation.latestMessage}
+                  count={conversation.unreadCount}
+                  timeStamp={DateTime.fromISO(conversation.updatedAt).toFormat('MM/dd/yyyy t')}
+                  handleDropdownOption={handleMessagesOption(conversation)}
+                  matchListId={conversation._id}
                 />
               ))
             }
           </InfiniteScroll>
         </div>
-        {loadingChats && <LoadingIndicator />}
+        {loadingConversations && <LoadingIndicator />}
         {noMoreData && renderNoMoreDataMessage()}
         <MessagesOptionDialog
           show={show}
           setShow={setShow}
           slectedMessageDropdownValue={messageOptionValue}
           selectedMatchListId={selectedMatchListId}
-          setMessages={setMessages}
+          setMessages={setConversations}
           onBlockYesClick={onBlockYesClick}
         />
       </ContentPageWrapper>

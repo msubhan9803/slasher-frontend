@@ -31,6 +31,9 @@ const StyledImageContainer = styled.div<StyledImageContainerProps>`
   width: ${(props) => props.width};
   height: ${(props) => props.height};
   border: ${(props) => props.border};
+  img {
+    object-fit: cover;
+  }
 `;
 
 function ImagesContainer({

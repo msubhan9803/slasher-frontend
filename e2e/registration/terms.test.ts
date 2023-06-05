@@ -10,6 +10,6 @@ test.describe(pagePath, () => {
   });
 
   test('should display the expected content', async ({ page }) => {
-    await expect(page.locator('main')).toHaveText(/You can accept our terms at the bottom of this screen./);
+    await expect(page.locator('main')).toHaveText(/you agree that you are at least 18 years of age/);
   });
 });

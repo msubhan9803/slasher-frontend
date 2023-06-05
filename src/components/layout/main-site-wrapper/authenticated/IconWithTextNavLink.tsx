@@ -2,9 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { IconDefinition, SizeProp } from '@fortawesome/fontawesome-svg-core';
 import { Link, useLocation } from 'react-router-dom';
 import IconWithTextNavItemInnerElement from './IconWithTextNavItemInnerElement';
-import { useAppDispatch } from '../../../../redux/hooks';
-import { setScrollPosition } from '../../../../redux/slices/scrollPositionSlice';
-import { scrollToTop } from '../../../../utils/scrollFunctions';
+import { deletePageStateCache } from '../../../../pageStateCache';
 
 interface Props {
   label: string;
@@ -39,16 +37,8 @@ function IconWithTextNavLink({
       window.removeEventListener('popstate', handlePopstate);
     };
   }, []);
-  const dispatch = useAppDispatch();
   const handleRefresh = () => {
-    const positionData = {
-      pathname: '',
-      position: 0,
-      data: [],
-      positionElementId: '',
-    };
-    dispatch(setScrollPosition(positionData));
-    scrollToTop('instant');
+    deletePageStateCache(to);
   };
   return (
     <Link to={to} onClick={handleRefresh} ref={linkRef} className={`text-decoration-none pb-1 mb-1 ${className}`}>

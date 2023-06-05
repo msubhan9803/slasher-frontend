@@ -105,7 +105,7 @@ function CommentSection({
 
   useEffect(() => {
     if (highlightRef.current) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         window.scrollTo({
           top: highlightRef.current.offsetTop - (
             window.innerWidth >= parseInt(LG_MEDIA_BREAKPOINT.replace('px', ''), 10)
@@ -115,7 +115,9 @@ function CommentSection({
           behavior: 'instant' as any,
         });
       }, 0);
+      return () => clearTimeout(timer);
     }
+    return undefined;
   }, []);
 
   const handleReply = () => {

@@ -3,7 +3,7 @@ import { Modal } from 'react-bootstrap';
 import { FormatMentionProps } from '../../../routes/posts/create-post/CreatePost';
 import CreatePostComponent from '../CreatePostComponent';
 import ModalContainer from '../CustomModal';
-import { decryptMessage } from '../../../utils/text-utils';
+import { allAtMentionsRegex, decryptMessage } from '../../../utils/text-utils';
 import { ContentDescription } from '../../../types';
 
 interface Props {
@@ -70,7 +70,8 @@ function EditPostModal({
     return undefined;
   };
   const updatePost = () => {
-    const postContentWithMentionReplacements = (postContent.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    // eslint-disable-next-line max-len
+    const postContentWithMentionReplacements = (postContent.replace(allAtMentionsRegex, mentionReplacementMatchFunc));
     const files = postImages.filter((images: any) => images instanceof File);
     onUpdatePost(postContentWithMentionReplacements, files, deleteImageIds, descriptionArray);
   };

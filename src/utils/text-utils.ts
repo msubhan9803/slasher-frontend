@@ -80,3 +80,5 @@ export function decryptMessage(message: any) {
 export function sortInPlace(array: string[]) {
   return array.sort((a, b) => a.localeCompare(b));
 }
+
+export const allAtMentionsRegex = /(\s|^)@[a-zA-Z0-9_.-]+/g;

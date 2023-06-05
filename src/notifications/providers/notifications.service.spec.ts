@@ -35,7 +35,7 @@ describe('NotificationsService', () => {
   let user1: UserDocument;
   let user2: UserDocument;
   let feedPostData: FeedPostDocument;
-  let pushNotificationsService:PushNotificationsService;
+  let pushNotificationsService: PushNotificationsService;
   let notificationModel: Model<NotificationDocument>;
   const deviceAndAppVersionPlaceholderSignInFields = {
     device_id: 'sample-device-id-1',
@@ -347,6 +347,7 @@ describe('NotificationsService', () => {
     });
 
     it('send push notification', async () => {
+      jest.spyOn(pushNotificationsService, 'sendPushNotification').mockImplementation(() => Promise.resolve());
       const userDevices = [];
       const weekAgo = DateTime.now().minus({ days: 8 }).toISODate();
       userDevices.push(
@@ -371,7 +372,8 @@ describe('NotificationsService', () => {
       const notificationData = await notificationsService.create(notificationObj);
       await notificationsService.processNotification(notificationData.id);
       expect(pushNotificationsService.sendPushNotification).toHaveBeenCalledWith(
-        expect.any(Object),
+        expect.objectContaining({ _id: notificationData._id }),
+        [deviceAndAppVersionPlaceholderSignInFields.device_token],
       );
     });
   });

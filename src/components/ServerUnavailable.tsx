@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Modal } from 'react-bootstrap';
 import { healthCheck } from '../api/health-check';
 import { useAppSelector, useAppDispatch } from '../redux/hooks';
@@ -12,6 +12,15 @@ export default function ServerUnavailable() {
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
 
   const show = !isServerAvailable;
+
+  const handleWindowFocus = useCallback(() => {
+    dispatch(setServerAvailable(true));
+  }, [dispatch]);
+
+  useEffect(() => {
+    window.addEventListener('focus', handleWindowFocus);
+    return () => window.removeEventListener('focus', handleWindowFocus);
+  });
 
   const handleTryAgain = () => {
     setProgressButtonStatus('loading');

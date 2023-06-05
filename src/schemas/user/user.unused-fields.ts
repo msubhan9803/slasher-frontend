@@ -13,8 +13,9 @@ export class UserUnusedFields {
   @Prop({ default: null, trim: true })
   gender: string;
 
-  // NOT USED
-  @Prop({ default: null, trim: true })
+  // NOTE: Old app login requires facebook value to be '' for user to log in.
+  // NOTE: This field is ONLY used by the old app, and can be deleted when the old api is retired.
+  @Prop({ default: '', trim: true })
   facebook: string;
 
   // NOT USED

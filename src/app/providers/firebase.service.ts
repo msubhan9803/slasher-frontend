@@ -1,7 +1,7 @@
 import * as admin from 'firebase-admin';
 
 // Initialize Firebase app
-import * as serviceAccount from '../../../slasher-cap.json';
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVER_KEY);
 
 if (!admin.apps.length) {
   admin.initializeApp({

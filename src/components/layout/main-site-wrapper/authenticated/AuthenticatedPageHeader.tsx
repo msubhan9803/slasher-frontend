@@ -112,7 +112,7 @@ function AuthenticatedPageHeader(
         </StyledNavbar>
 
         {/* nav-bar for small screen */}
-        <MobileNavbar bg="dark" variant="dark" className={`d-${offcanvasSidebarExpandBreakPoint}-none fixed-bottom pt-3`}>
+        <MobileNavbar bg="dark" variant="dark" className={`mobile__bottom__navbar d-${offcanvasSidebarExpandBreakPoint}-none fixed-bottom pt-3`}>
           <div className="w-100 d-flex">
             {
               mobileNavLinkElements.map((el, index) => {

@@ -33,6 +33,8 @@ import socketStore from '../../../../socketStore';
 import useSessionTokenMonitorAsync from '../../../../hooks/useSessionTokenMonitorAsync';
 import useSessionToken from '../../../../hooks/useSessionToken';
 import { setServerAvailable } from '../../../../redux/slices/serverAvailableSlice';
+import SafeAreaIosTop from '../../../ui/SafeAreaIosTop';
+import SafeAreaIosBottom from '../../../ui/SafeAreaIosBottom';
 
 interface Props {
   children: React.ReactNode;
@@ -63,7 +65,7 @@ const LeftSidebarWrapper = styled.div`
 `;
 
 // This id links the offcanvas to the top navar toggle for accessibility.
-const offcanvasId = 'offcanvas-sidebar-nav';
+const offcanvasId = 'offcanvas-sidebar-nav'; // *Do not chagne this as global.scss also consume this value.
 const desktopBreakPoint = 'lg';
 
 function AuthenticatedPageWrapper({ children }: Props) {
@@ -225,45 +227,49 @@ function AuthenticatedPageWrapper({ children }: Props) {
     );
   }
   return (
-    <div className="page-wrapper full">
-      <SkipToMainContent />
-      <AuthenticatedPageHeader
-        userName={userData.user?.userName}
-        onToggleClick={showOffcanvasSidebar}
-        offcanvasSidebarExpandBreakPoint={desktopBreakPoint}
-        ariaToggleTargetId={offcanvasId}
-      />
-      <div className="w-100 px-lg-4 pt-2 pt-lg-0 container-xxl">
-        <div className="d-flex">
-          {isDesktopResponsiveSize
-            && (
-              <div className={`d-${desktopBreakPoint}-block d-none`}>
-                <LeftSidebarWrapper>
-                  <SidebarNavContent />
-                </LeftSidebarWrapper>
-              </div>
-            )}
-          <main id={MAIN_CONTENT_ID} className="px-lg-2 flex-grow-1 min-width-0">
-            {children}
-          </main>
+    <>
+      <SafeAreaIosTop />
+      <div className="page-wrapper full">
+        <SkipToMainContent />
+        <AuthenticatedPageHeader
+          userName={userData.user?.userName}
+          onToggleClick={showOffcanvasSidebar}
+          offcanvasSidebarExpandBreakPoint={desktopBreakPoint}
+          ariaToggleTargetId={offcanvasId}
+        />
+        <div className="w-100 px-lg-4 pt-2 pt-lg-0 container-xxl">
+          <div className="d-flex">
+            {isDesktopResponsiveSize
+              && (
+                <div className={`d-${desktopBreakPoint}-block d-none`}>
+                  <LeftSidebarWrapper>
+                    <SidebarNavContent />
+                  </LeftSidebarWrapper>
+                </div>
+              )}
+            <main id={MAIN_CONTENT_ID} className="px-lg-2 flex-grow-1 min-width-0">
+              {children}
+            </main>
+          </div>
         </div>
+        {show && (
+          <StyledOffcanvas
+            id={offcanvasId}
+            show={show && !isDesktopResponsiveSize}
+            onHide={toggleOffCanvas}
+          >
+            <Offcanvas.Header closeButton>
+              <Offcanvas.Title>Menu</Offcanvas.Title>
+            </Offcanvas.Header>
+            <Offcanvas.Body>
+              <MobileOnlySidebarContent className="mb-3" onToggleCanvas={toggleOffCanvas} />
+              <SidebarNavContent onToggleCanvas={toggleOffCanvas} />
+            </Offcanvas.Body>
+          </StyledOffcanvas>
+        )}
       </div>
-      {show && (
-        <StyledOffcanvas
-          id={offcanvasId}
-          show={show && !isDesktopResponsiveSize}
-          onHide={toggleOffCanvas}
-        >
-          <Offcanvas.Header closeButton>
-            <Offcanvas.Title>Menu</Offcanvas.Title>
-          </Offcanvas.Header>
-          <Offcanvas.Body>
-            <MobileOnlySidebarContent className="mb-3" onToggleCanvas={toggleOffCanvas} />
-            <SidebarNavContent onToggleCanvas={toggleOffCanvas} />
-          </Offcanvas.Body>
-        </StyledOffcanvas>
-      )}
-    </div>
+      <SafeAreaIosBottom />
+    </>
   );
 }
 

@@ -46,10 +46,42 @@ html {
   // Everything else will be in rems (relative to this base size)
   // or ems (relative to parent element font size).
   font-size: 15px;
+  // margin-top: var(--safe-area-2);
 
   @media(min-width: 980px) {
     scroll-padding-top: 95px; // NOTE: This needs to change if we change our desktop header height
   }
+  // --ion-safe-area-top: env(safe-area-inset-top);
+  // --ion-safe-area-bottom: env(safe-area-inset-bottom);
+  // --ion-safe-area-left: env(safe-area-inset-left);
+  // --ion-safe-area-right: env(safe-area-inset-right);
+}
+
+// Ios top safe area styles
+.safe-area-ios-top {
+  position: fixed;
+  width: 100%;
+  background: black;
+  z-index: 5000;
+  height: var(--safe-area-ios-top-height);  
+}
+.page-wrapper{
+  padding-top: var(--safe-area-ios-top-height);
+}
+#offcanvas-sidebar-nav{
+  padding-top: var(--safe-area-ios-top-height);
+}
+// Ios bottom safe area styles
+.safe-area-ios-bottom {
+  position: fixed;
+  background: black;
+  z-index: 999999;
+  bottom: 0;
+  width: 100%;
+  height: var(--safe-area-ios-bottom-height);
+}
+.mobile__bottom__navbar{
+  padding-bottom: var(--safe-area-ios-bottom-height);
 }
 
 body {
@@ -58,7 +90,10 @@ body {
     /* Mostly for vertical scrollbars */
     height: 10px;
     /* Mostly for horizontal scrollbars */
-  }
+}
+  --safe-area-inset-top: constant(safe-area-inset-top);
+  --safe-area-inset-bottom: constant(safe-area-inset-bottom);
+  height: calc(100% + (var(--safe-area-inset-top) + var(--safe-area-inset-bottom)));
 }
 
 abbr[title] {

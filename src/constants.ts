@@ -9,7 +9,7 @@ export const MAX_ALLOWED_UPLOAD_FILES_FOR_CHAT = 10;
 export const MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT = 4;
 export const MAX_ALLOWED_UPLOAD_FILES_FOR_EVENT = 4;
 export const FRIEND_RELATION_ID = '5c9cb7138a874f1dcd0d8dcc';
-export const UNREAD_MESSAGE_NOTIFICATION_DELAY = 15_000;
+export const UNREAD_MESSAGE_NOTIFICATION_DELAY = 3_000;
 export const NON_ALPHANUMERIC_REGEX = /^[!-/:-@[-`{-~]/;
 export const DEFAULT_REQUEST_TIMEOUT = 130; // a default value that can be overridden via env config
 

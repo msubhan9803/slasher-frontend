@@ -44,7 +44,7 @@ import { Device, User, UserDocument } from '../schemas/user/user.schema';
 import { AllFeedPostQueryDto } from '../feed-posts/dto/all-feed-posts-query.dto';
 import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 import { ParamUserIdDto } from './dto/param-user-id.dto';
-import { MAXIMUM_IMAGE_UPLOAD_SIZE, SIMPLE_MONGODB_ID_REGEX } from '../constants';
+import { MAXIMUM_IMAGE_UPLOAD_SIZE, SIMPLE_MONGODB_ID_REGEX, WELCOME_MSG } from '../constants';
 import { SuggestUserNameQueryDto } from './dto/suggest-user-name-query.dto';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 import { GetFriendsDto } from './dto/get-friends.dto';
@@ -348,6 +348,15 @@ export class UsersController {
           status: ActiveStatus.Active,
           verification_token: null,
         });
+
+        const userConversationData = await this.chatService.sendPrivateDirectMessage(
+          this.config.get<string>('OWNER_ID'),
+          user.id,
+          WELCOME_MSG,
+        );
+
+        await this.usersService.addAndUpdateNewConversationId(user.id, userConversationData.matchId.toString());
+
         const autoFollowRssFeedProviders = await this.rssFeedProvidersService.findAllAutoFollowRssFeedProviders();
         autoFollowRssFeedProviders.forEach((rssFeedProvider) => {
           this.rssFeedProviderFollowsService.create({

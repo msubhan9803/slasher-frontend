@@ -33,6 +33,8 @@ import ReportModal from '../ReportModal';
 import EditPostModal from './EditPostModal';
 import PostFeed from './PostFeed/PostFeed';
 import { deletedPostsCache } from '../../../pageStateCache';
+import useProgressButton from '../ProgressButton';
+import { sleep } from '../../../utils/timer-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -81,6 +83,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   const [updateState, setUpdateState] = useState(false);
   const [commentSent, setCommentSent] = useState<boolean>(false);
   const [selectedBlockedUserId, setSelectedBlockedUserId] = useState<string>('');
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     setSelectedBlockedUserId(popoverClickProps.userId!);
@@ -155,6 +158,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   };
 
   const addUpdateComment = (comment: CommentValue) => {
+    setProgressButtonStatus('loading');
     setCommentSent(true);
     let commentValueData: any = {
       feedPostId: '',
@@ -173,7 +177,9 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         comment?.deleteImage,
         comment?.descriptionArr,
       )
-        .then((res) => {
+        .then(async (res) => {
+          setProgressButtonStatus('success');
+          await sleep(1000);
           const updateCommentArray: any = commentData;
           const index = updateCommentArray.findIndex(
             (commentId: any) => commentId._id === res.data._id,
@@ -202,6 +208,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           setIsEdit(false);
         })
         .catch((error) => {
+          setProgressButtonStatus('failure');
           const msg = error.response.status === 0 && !error.response.data
             ? 'Combined size of files is too large.'
             : error.response.data.message;
@@ -215,7 +222,9 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         comment.imageArr,
         comment.descriptionArr,
       )
-        .then((res) => {
+        .then(async (res) => {
+          setProgressButtonStatus('success');
+          await sleep(1000);
           let newCommentArray: any = commentData;
           commentValueData = {
             _id: res.data._id,
@@ -238,6 +247,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           setCommentErrorMessage([]);
         })
         .catch((error) => {
+          setProgressButtonStatus('failure');
           const msg = error.response.status === 0 && !error.response.data
             ? 'Combined size of files is too large.'
             : error.response.data.message;
@@ -249,6 +259,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
 
   const addUpdateReply = (reply: any) => {
     setCommentSent(true);
+    setProgressButtonStatus('loading');
 
     let replyValueData: any = {
       feedPostId: '',
@@ -270,8 +281,10 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         reply.deleteImage,
         reply.descriptionArr,
       )
-        .then((res) => {
+        .then(async (res) => {
           const updateReplyArray: any = commentData;
+          setProgressButtonStatus('success');
+          await sleep(1000);
           updateReplyArray.map((comment: any) => {
             const staticReplies = comment.replies;
             if (comment._id === res.data.feedCommentId) {
@@ -297,6 +310,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           setIsEdit(false);
           setCommentSent(false);
         }).catch((error) => {
+          setProgressButtonStatus('failure');
           const msg = error.response.status === 0 && !error.response.data
             ? 'Combined size of files is too large.'
             : error.response.data.message;
@@ -310,8 +324,10 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         reply?.imageArr,
         reply.commentId!,
         reply.descriptionArr,
-      ).then((res) => {
+      ).then(async (res) => {
         const newReplyArray: any = commentData;
+        setProgressButtonStatus('success');
+        await sleep(1000);
         replyValueData = {
           feedPostId: postId,
           feedCommentId: res.data.feedCommentId,
@@ -336,6 +352,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         setCommentSent(false);
         setCommentID('');
       }).catch((error) => {
+        setProgressButtonStatus('failure');
         const msg = error.response.status === 0 && !error.response.data
           ? 'Combined size of files is too large.'
           : error.response.data.message;
@@ -466,10 +483,20 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     descriptionArray?: ContentDescription[],
   ) => {
     if (postId) {
-      updateFeedPost(postId, message, images, imageDelete, null, descriptionArray).then(() => {
+      updateFeedPost(
+        postId,
+        message,
+        images,
+        imageDelete,
+        null,
+        descriptionArray,
+      ).then(async () => {
+        setProgressButtonStatus('success');
+        await sleep(1000);
         setShow(false);
         getFeedPostDetail(postId);
       }).catch((error) => {
+        setProgressButtonStatus('failure');
         const msg = error.response.status === 0 && !error.response.data
           ? 'Combined size of files is too large.'
           : error.response.data.message;
@@ -781,6 +808,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                 showPubWiseAdAtPageBottom={showPubWiseAdAtPageBottom}
                 setSelectedBlockedUserId={setSelectedBlockedUserId}
                 setDropDownValue={setDropDownValue}
+                ProgressButton={ProgressButton}
               />
               {dropDownValue !== 'Edit'
                 && (
@@ -804,6 +832,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                     onUpdatePost={onUpdatePost}
                     postImages={postImages}
                     setPostImages={setPostImages}
+                    ProgressButton={ProgressButton}
                   />
                 )}
             </div>
@@ -853,6 +882,8 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
               setCommentErrorMessage={setCommentErrorMessage}
               setSelectedBlockedUserId={setSelectedBlockedUserId}
               setDropDownValue={setDropDownValue}
+              ProgressButton={ProgressButton}
+
             />
             {dropDownValue !== 'Edit'
               && (
@@ -879,6 +910,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                   setPostImages={setPostImages}
                   deleteImageIds={deleteImageIds}
                   setDeleteImageIds={setDeleteImageIds}
+                  ProgressButton={ProgressButton}
                   editPost
                 />
               )}

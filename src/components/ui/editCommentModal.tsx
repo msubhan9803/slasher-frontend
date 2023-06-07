@@ -7,6 +7,7 @@ import { CommentValue, ContentDescription, ReplyValue } from '../../types';
 import { decryptMessage } from '../../utils/text-utils';
 import CreatePostComponent from './CreatePostComponent';
 import ModalContainer from './CustomModal';
+import { ProgressButtonComponentType } from './ProgressButton';
 
 interface Props {
   showEdit: boolean;
@@ -24,16 +25,18 @@ interface Props {
   postImages: any;
   setPostImages: any;
   commentError: string[];
+  ProgressButton: ProgressButtonComponentType,
 }
 
 function EditCommentModal({
   showEdit, setShowEdit, commentID, commentReplyID, editContent, isReply,
   setCommentID, setCommentReplyID, addUpdateComment, addUpdateReply,
-  deleteImageIds, setDeleteImageIds, postImages, setPostImages, commentError,
+  deleteImageIds, setDeleteImageIds, postImages, setPostImages, commentError, ProgressButton,
 }: Props) {
   const [editMessage, setEditMessage] = useState<string>(editContent! || '');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const [descriptionArray, setDescriptionArray] = useState<ContentDescription[]>([]);
+
   useEffect(() => {
     if (editContent) {
       const mentionStringList = editContent.match(/##LINK_ID##[a-zA-Z0-9@_.-]+##LINK_END##/g);
@@ -122,6 +125,7 @@ function EditCommentModal({
           placeHolder={`${commentID ? 'Write a comment' : 'Reply to comment'}`}
           descriptionArray={descriptionArray}
           setDescriptionArray={setDescriptionArray}
+          ProgressButton={ProgressButton}
           showSaveButton
           createEditPost
         />

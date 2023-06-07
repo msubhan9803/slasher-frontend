@@ -26,6 +26,7 @@ import {
 import { getMoviesById, getMoviesDataById } from '../../api/movies';
 import { StyledMoviePoster } from '../../routes/movies/movie-details/StyledUtils';
 import { LG_MEDIA_BREAKPOINT, topToDivHeight } from '../../constants';
+import { ProgressButtonComponentType } from './ProgressButton';
 
 interface MentionProps {
   id: string;
@@ -42,6 +43,7 @@ interface Props {
   errorMessage?: string[] | undefined;
   createUpdatePost?: () => void;
   setPostMessageContent: (val: string) => void;
+  ProgressButton: ProgressButtonComponentType,
   imageArray?: any;
   setImageArray?: any;
   defaultValue?: string;
@@ -95,7 +97,7 @@ function CreatePostComponent({
   containSpoiler, setContainSpoiler, rating, setRating, goreFactor, setGoreFactor,
   selectedPostType, setSelectedPostType, setWorthIt, liked, setLike, reviewForm, setReviewForm,
   disLiked, setDisLike, isWorthIt, placeHolder, descriptionArray, setDescriptionArray,
-  showSaveButton, setShowReviewForm, handleScroll, createEditPost,
+  showSaveButton, setShowReviewForm, handleScroll, createEditPost, ProgressButton,
 }: Props) {
   const inputFile = useRef<HTMLInputElement>(null);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
@@ -445,9 +447,7 @@ function CreatePostComponent({
             </Col>
           )}
         <Col md="auto" className={postType === 'review' ? '' : 'order-2 ms-auto'}>
-          <RoundButton className="px-4 mt-4 w-100" size="md" onClick={createUpdatePost}>
-            <span className="h3">{actionText}</span>
-          </RoundButton>
+          <ProgressButton id="create-post-button" type="submit" onClick={createUpdatePost!} className="px-4 mt-4 w-100" label={actionText} />
         </Col>
       </Row>
     </div>

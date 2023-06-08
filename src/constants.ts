@@ -38,3 +38,5 @@ export const topToDivHeight = 110;
 
 export const bottomMobileNavHeight = 80;
 export const SERVER_UNAVAILABLE_TIMEOUT = 10_000;
+
+export const topStatuBarBackgroundColorAndroidOnly = '000000';

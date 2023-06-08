@@ -5,6 +5,7 @@ import {
   Route, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
 import { App as CapacitorApp } from '@capacitor/app';
+import { StatusBar } from '@capacitor/status-bar';
 import VerificationEmailNotReceived from './routes/verification-email-not-received/VerificationEmailNotReceived';
 import ForgotPassword from './routes/forgot-password/ForgotPassword';
 import Home from './routes/home/Home';
@@ -28,7 +29,7 @@ import Account from './routes/account/Account';
 import ResetPassword from './routes/reset-password/ResetPassword';
 import AccountActivated from './routes/account-activated/AccountActivated';
 import usePubWiseAdSlots from './hooks/usePubWiseAdSlots';
-import { enableADs } from './constants';
+import { enableADs, topStatuBarBackgroundColorAndroidOnly } from './constants';
 import Books from './routes/books/Books';
 import Artists from './routes/artists/Artists';
 import Podcasts from './routes/podcasts/Podcasts';
@@ -112,6 +113,10 @@ CapacitorApp.addListener('backButton', ({ canGoBack }) => {
     window.history.back();
   }
 });
+
+// Display content under transparent status bar (Android only)
+StatusBar.setOverlaysWebView({ overlay: true });
+StatusBar.setBackgroundColor({ color: topStatuBarBackgroundColorAndroidOnly });
 
 function App() {
   usePubWiseAdSlots(enableADs);

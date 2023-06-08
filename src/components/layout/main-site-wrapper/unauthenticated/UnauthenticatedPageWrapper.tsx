@@ -8,8 +8,6 @@ import HeaderLogo from '../../../ui/HeaderLogo';
 import { LG_MEDIA_BREAKPOINT, analyticsId, MAIN_CONTENT_ID } from '../../../../constants';
 import useGoogleAnalytics from '../../../../hooks/useGoogleAnalytics';
 import SkipToMainContent from '../../sidebar-nav/SkipToMainContent';
-import SafeAreaIosTop from '../../../ui/SafeAreaIosTop';
-import SafeAreaIosBottom from '../../../ui/SafeAreaIosBottom';
 
 interface Props {
   hideTopLogo?: boolean,
@@ -42,26 +40,22 @@ function UnauthenticatedPageWrapper({
   useGoogleAnalytics(analyticsId);
 
   return (
-    <>
-      <SafeAreaIosTop />
-      <div className="page-wrapper nonav">
-        <SkipToMainContent />
-        <header className="text-center text-md-start">
-          <Container fluid="lg" className={`${hideTopLogo ? 'd-none' : ''}`}>
-            <Link to="/">
-              <HeaderLogo />
-            </Link>
-          </Container>
-        </header>
-        <StyledMain id={MAIN_CONTENT_ID} className={`d-flex align-items-${valign}`} hideTopLogo={hideTopLogo} isSignIn={isSignIn}>
-          <Container fluid={`${hideTopLogo ? 'fluid' : 'lg'}`}>
-            {children}
-          </Container>
-        </StyledMain>
-        {hideFooter || <UnauthenticatedPageFooter />}
-      </div>
-      <SafeAreaIosBottom />
-    </>
+    <div className="page-wrapper nonav">
+      <SkipToMainContent />
+      <header className="text-center text-md-start">
+        <Container fluid="lg" className={`${hideTopLogo ? 'd-none' : ''}`}>
+          <Link to="/">
+            <HeaderLogo />
+          </Link>
+        </Container>
+      </header>
+      <StyledMain id={MAIN_CONTENT_ID} className={`d-flex align-items-${valign}`} hideTopLogo={hideTopLogo} isSignIn={isSignIn}>
+        <Container fluid={`${hideTopLogo ? 'fluid' : 'lg'}`}>
+          {children}
+        </Container>
+      </StyledMain>
+      {hideFooter || <UnauthenticatedPageFooter />}
+    </div>
   );
 }
 

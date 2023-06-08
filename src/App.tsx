@@ -4,7 +4,6 @@ import {
   Navigate,
   Route, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
-import { SafeArea } from 'capacitor-plugin-safe-area';
 import { App as CapacitorApp } from '@capacitor/app';
 import VerificationEmailNotReceived from './routes/verification-email-not-received/VerificationEmailNotReceived';
 import ForgotPassword from './routes/forgot-password/ForgotPassword';
@@ -112,12 +111,6 @@ CapacitorApp.addListener('backButton', ({ canGoBack }) => {
   } else {
     window.history.back();
   }
-});
-
-// Set top-notch area height (useful to set height for <SafeAreaIos />)
-SafeArea.getSafeAreaInsets().then(({ insets }) => {
-  document.documentElement.style.setProperty('--safe-area-ios-top-height', `${insets.top.toString()}px`);
-  document.documentElement.style.setProperty('--safe-area-ios-bottom-height', `${(insets.bottom - 20).toString()}px`);
 });
 
 function App() {

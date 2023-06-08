@@ -85,7 +85,16 @@ function SortData({
 
   return (
     <StyledSelect
-      defaultValue={sortoptions![0] || sortVal}
+      defaultValue={sortoptions![0] || sortVal} // ==>> current code in main branch
+      // defaultValue={sortoptions?.filter((sortoption) => sortoption.value === sortVal)}
+      // - 1. ABOVE two cases doesn't work when `sortVal` is updated in any parent component.
+      // - -. because `defaultValue` is usually used for uncontrolled component and `value` is used
+      // - -. in controlled component.
+      //
+      // Should we consider using `value` now on instead of `defaultValue`
+      // - 2. Using `value` works good as the menu is updated when `sortVal` is updated in parent
+      // - -. too.
+      // value={sortoptions?.filter((sortoption) => sortoption.value === sortVal)}
       onChange={(selectedOption: any) => onSelectSort!(selectedOption.value)}
       className="fs-5"
       options={sortoptions}

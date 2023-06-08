@@ -133,6 +133,8 @@ function EventSuggestion() {
   const [isEventSuggestionSuccessful, setIsEventSuggestionSuccessful] = useState(false);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const navigate = useNavigate();
+  console.log(`eventForm ==> country =${eventForm.country}, state=${eventForm.state}`);
+  Object.assign(window, { sef: setEventForm });
 
   const resetFormData = () => {
     setImageUpload(undefined);
@@ -170,9 +172,12 @@ function EventSuggestion() {
   }, []);
   const onSendEventData = () => {
     const {
-      name, eventType, country, state, eventInfo, url, city, file, address,
+      name, eventType, eventInfo, url, city, file, address,
       startDate, endDate,
     } = eventForm;
+
+    const country = (eventForm.country === 'disabled') ? '' : eventForm.country;
+    const state = (eventForm.state === 'disabled') ? '' : eventForm.state;
 
     setProgressButtonStatus('loading');
     setIsEventSuggestionSuccessful(false);

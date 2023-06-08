@@ -22,12 +22,12 @@ export function escapeHtmlSpecialCharacters(
 
   if (selectedHashtag) {
     result = result.replace(hashtagRegex, (match, p1, p2) => (p2 === selectedHashtag
-      ? `${p1}<span style="font-weight: 700; color: red;">${p2}</span>`
-      : `${p1}<span style="color: red;">${p2}</span>`));
+      ? `${p1}<a href="/app/search/posts?hashtag=${p2.slice(1)}" style="font-weight: 700; color: red; text-decoration:none;">${p2}</a>`
+      : `${p1}<a href="/app/search/posts?hashtag=${p2.slice(1)}" style="color: red; text-decoration:none;">${p2}</a>`));
   } else if (isComment) {
     result = result.replace(hashtagRegex, (match, p1, p2) => `${p1}<span>${p2}</span>`);
   } else {
-    result = result.replace(hashtagRegex, (match, p1, p2) => `${p1}<span style="color: red;">${p2}</span>`);
+    result = result.replace(hashtagRegex, (match, p1, p2) => `${p1}<a href="/app/search/posts?hashtag=${p2.slice(1)}" style="color: red; text-decoration:none;">${p2}</a>`);
   }
 
   result = result.replace(mentionRegex, '<a href="/$1">@$1</a>');

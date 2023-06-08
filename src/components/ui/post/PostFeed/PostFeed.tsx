@@ -149,8 +149,6 @@ function PostContent({
   const messageRef = useRef<any>(null);
   const visible = useOnScreen(messageRef);
   const [showReadMoreLink, setShowReadMoreLink] = useState(false);
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
   const [searchParams] = useSearchParams();
   const selectedHashtag = searchParams.get('hashtag');
   let { message } = post;
@@ -188,14 +186,14 @@ function PostContent({
     }
   }, [isSinglePost, visible]);
 
-  const handleHashtagClick = (content: string, postDetail: any) => {
-    const state = { pathname };
-    if (content.startsWith('#')) {
-      navigate(`/app/search/posts?hashtag=${content.slice(1)}`, { state });
-    } else {
-      navigate(`/${postDetail.userName}/posts/${postDetail.id}`, { state });
-    }
-  };
+  // const handleHashtagClick = (content: string, postDetail: any) => {
+  //   const state = { pathname };
+  //   if (content.startsWith('#')) {
+  //     navigate(`/app/search/posts?hashtag=${content.slice(1)}`, { state });
+  //   } else {
+  //     navigate(`/${postDetail.userName}/posts/${postDetail.id}`, { state });
+  //   }
+  // };
 
   return (
     <div>
@@ -262,9 +260,7 @@ function PostContent({
                 }
               }
               onClick={(e: any) => {
-                if (e.target.tagName === 'SPAN' && e.target.textContent.startsWith('#')) {
-                  handleHashtagClick(e.target.innerText, post);
-                } else if (!isSinglePost) {
+                if (e.target.tagName !== 'A' && !isSinglePost) {
                   onPostContentClick(post);
                 }
               }}

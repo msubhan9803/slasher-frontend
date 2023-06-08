@@ -92,7 +92,7 @@ describe('Users activate account (e2e)', () => {
 
     describe('userId and token existence cases', () => {
       it('when userId and token both exist, it successfully activates, creates '
-        + 'the expected RssFeedProviderFollow records, and returns the expected response', async () => {
+        + 'the expected RssFeedProviderFollow records, sends welcome message, returns the expected response', async () => {
           jest.spyOn(chatService, 'sendPrivateDirectMessage');
 
           // Spy on the sendPrivateDirectMessage method
@@ -107,7 +107,7 @@ describe('Users activate account (e2e)', () => {
           const updatedConversationData = await usersService.addAndUpdateNewConversationId(
             user1._id,
             userConversationData.matchId.toString(),
-            );
+          );
 
           expect(updatedConversationData.newConversationIds).toHaveLength(1);
           expect(response.body).toEqual({ success: true });

@@ -350,7 +350,7 @@ export class UsersController {
         });
 
         const userConversationData = await this.chatService.sendPrivateDirectMessage(
-          this.config.get<string>('OWNER_ID'),
+          this.config.get<string>('WELCOME_MESSAGE_SENDER_USER_ID'),
           user.id,
           WELCOME_MSG,
         );

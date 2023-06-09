@@ -4,7 +4,9 @@ import React, {
 } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import {
+  useLocation, useNavigate, useParams,
+} from 'react-router-dom';
 import { userProfileFriends } from '../../../api/users';
 import CustomSearchInput from '../../../components/ui/CustomSearchInput';
 import ReportModal from '../../../components/ui/ReportModal';
@@ -13,14 +15,16 @@ import { User } from '../../../types';
 import ProfileHeader from '../ProfileHeader';
 import FriendsProfileCard from './FriendsProfileCard';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import { useAppSelector } from '../../../redux/hooks';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { reportData } from '../../../api/report';
 import { createBlockUser } from '../../../api/blocks';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
-import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import { rejectFriendsRequest } from '../../../api/friends';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
+import {
+  deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
+} from '../../../pageStateCache';
 
 interface FriendProps {
   _id?: string;
@@ -50,21 +54,21 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
   const loginUserData = useAppSelector((state) => state.user.user);
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
   const [additionalFriend, setAdditionalFriend] = useState<boolean>(false);
-  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const location = useLocation();
-  const dispatch = useAppDispatch();
   const [userId, setUserId] = useState('');
+  type CacheType = { page: number, data: any[], searchValue: string };
+  const pageStateCache: CacheType = getPageStateCache(location) ?? { page: 0, data: [], searchValue: '' };
   const [friendsList, setFriendsList] = useState<FriendProps[]>(
-    scrollPosition.pathname === location.pathname
-      ? scrollPosition?.data : [],
+    hasPageStateCache(location)
+      ? pageStateCache?.data : [],
   );
   const [page, setPage] = useState<number>(
-    scrollPosition.pathname === location.pathname
-      ? scrollPosition?.page : 0,
+    hasPageStateCache(location)
+      ? pageStateCache?.page : 0,
   );
   const [search, setSearch] = useState<string>(
-    scrollPosition.pathname === location.pathname
-      ? scrollPosition?.searchValue : '',
+    hasPageStateCache(location)
+      ? pageStateCache?.searchValue : '',
   );
   const isLoadingRef = useRef(true);
   const controllerRef = useRef<AbortController | null>();
@@ -100,7 +104,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
       setNoMoreData(false);
       setAdditionalFriend(true);
     }
-  }, [params.userName, user.userName, user._id, scrollPosition, location.pathname]);
+  }, [params.userName, user.userName, user._id, location.pathname]);
 
   const fetchMoreFriendList = useCallback(() => {
     if (controllerRef.current) {
@@ -119,21 +123,13 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
             : [
               ...prev,
               ...res.data.friends,
-            ]));
+            ]
+          ));
           setPage(page + 1);
           if (res.data.friends.length === 0) {
             setNoMoreData(true);
           }
-          if (scrollPosition.pathname === location.pathname
-          ) {
-            const positionData = {
-              pathname: '',
-              position: 0,
-              data: [],
-              positionElementId: '',
-            };
-            dispatch(setScrollPosition(positionData));
-          }
+          if (hasPageStateCache(location)) { deletePageStateCache(location); }
         })
         .catch((error) => setErrorMessage(error.response.data.message))
         .finally(
@@ -141,15 +137,13 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
           () => { setAdditionalFriend(false); setLoadingFriends(false); isLoadingRef.current = false; controllerRef.current = null; },
         );
     }
-  }, [search, userId, page, scrollPosition, dispatch, location]);
+  }, [search, userId, page, location]);
 
   useEffect(() => {
     if (additionalFriend && !loadingFriends && userId && user.userName === params.userName) {
-      if (scrollPosition === null
-        || scrollPosition?.position === 0
-        || friendsList.length >= scrollPosition?.data?.length
+      if (!hasPageStateCache(location)
+        || friendsList.length >= pageStateCache.data.length
         || friendsList.length === 0
-        || scrollPosition.pathname !== location.pathname
         || page > 0
       ) {
         setTimeout(() => {
@@ -159,7 +153,8 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
       }
     }
   }, [additionalFriend, loadingFriends, search, friendsList, userId, location.pathname,
-    page, fetchMoreFriendList, scrollPosition, user.userName, params.userName]);
+    page, fetchMoreFriendList, user.userName, params.userName, location,
+    pageStateCache.data.length]);
 
   const renderNoMoreDataMessage = () => {
     const message = friendsList.length === 0 && search
@@ -213,16 +208,8 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
   };
-  const persistScrollPosition = (id: string) => {
-    const positionData = {
-      pathname: location.pathname,
-      position: window.pageYOffset === 0 ? 1 : window.pageYOffset,
-      data: friendsList,
-      positionElementId: id,
-      page,
-      searchValue: search,
-    };
-    dispatch(setScrollPosition(positionData));
+  const persistScrollPosition = () => {
+    setPageStateCache<CacheType>(location, { data: friendsList, page, searchValue: search });
   };
   return (
     <div>

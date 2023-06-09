@@ -409,8 +409,9 @@ function PostCommentSection({
   const onBlockYesClick = () => {
     createBlockUser(commentReplyUserId)
       .then(() => {
-        setSelectedBlockedUserId(commentReplyUserId);
         setShow(false);
+        // Set dropDownValue for parent `<ReportModal/>`
+        setSelectedBlockedUserId(commentReplyUserId);
         setCommentDropDownValue('BlockUserSuccess');
       })
       /* eslint-disable no-console */

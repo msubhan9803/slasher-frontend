@@ -1,5 +1,7 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { useLocation } from 'react-router-dom';
 import CustomCreatePost from '../../components/ui/CustomCreatePost';
@@ -18,13 +20,18 @@ import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import { useAppSelector, useAppDispatch } from '../../redux/hooks';
-import { setScrollPosition } from '../../redux/slices/scrollPositionSlice';
 import EditPostModal from '../../components/ui/post/EditPostModal';
+import {
+  blockedUsersCache,
+  deletePageStateCache, deletedPostsCache, getPageStateCache, hasPageStateCache, setPageStateCache,
+} from '../../pageStateCache';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
 const newsPostPopoverOptions = ['Report', 'Hide'];
+
+const removeDeletedPost = (post: any) => !deletedPostsCache.has(post._id);
+const removeBlockedUserPosts = (post: any) => !blockedUsersCache.has(post.userId);
 
 function Home() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -39,32 +46,20 @@ function Home() {
   const [postId, setPostId] = useState<string>('');
   const [postUserId, setPostUserId] = useState<string>('');
   const [rssfeedProviderId, setRssfeedProviderId] = useState<string>('');
-  const userId = useAppSelector((state) => state.user.user.id);
-  const scrollPosition = useAppSelector((state) => state.scrollPosition);
-  const dispatch = useAppDispatch();
   const location = useLocation();
-  const shouldRestoreScrollPositionWithData = scrollPosition.pathname === location.pathname;
+  const pageStateCache = (getPageStateCache(location) ?? [])
+    .filter(removeDeletedPost)
+    .filter(removeBlockedUserPosts);
   const [posts, setPosts] = useState<Post[]>(
-    shouldRestoreScrollPositionWithData
-      ? scrollPosition?.data : [],
+    hasPageStateCache(location)
+      ? pageStateCache : [],
   );
-  useEffect(() => {
-    if (scrollPosition.pathname === location.pathname) {
-      setPosts(scrollPosition.data);
-    }
-  }, [scrollPosition.pathname, location.pathname, scrollPosition.data]);
+  const lastLocationKeyRef = useRef(location.key);
 
-  const persistScrollPosition = (id: string) => {
-    const positionData = {
-      pathname: location.pathname,
-      position: window.pageYOffset,
-      data: posts,
-      positionElementId: id,
-    };
-    dispatch(setScrollPosition(positionData));
-  };
+  const persistScrollPosition = () => { setPageStateCache(location, posts); };
+
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
-    persistScrollPosition(popoverClickProps.id!);
+    persistScrollPosition();
     if (value === 'Hide') {
       const postIdToHide = popoverClickProps.id;
       if (!postIdToHide) { return; }
@@ -93,90 +88,106 @@ function Home() {
     setDropDownValue(value);
   };
 
+  const fetchFeedPosts = useCallback((forceReload = false) => {
+    if (forceReload) { setPosts([]); }
+    setLoadingPosts(true);
+    const lastPostId = posts.length > 0 ? posts[posts.length - 1]._id : undefined;
+    getHomeFeedPosts(
+      forceReload ? undefined : lastPostId,
+    ).then((res) => {
+      const newPosts = res.data.map((data: any) => {
+        if (data.userId) {
+          // Regular post
+          return {
+            _id: data._id,
+            id: data._id,
+            postDate: data.createdAt,
+            message: data.message,
+            images: data.images,
+            userName: data.userId.userName,
+            profileImage: data.userId.profilePic,
+            userId: data.userId._id,
+            likeIcon: data.likedByUser,
+            likeCount: data.likeCount,
+            commentCount: data.commentCount,
+            movieId: data?.movieId,
+          };
+        }
+        // RSS feed post
+        return {
+          _id: data._id,
+          id: data._id,
+          postDate: data.createdAt,
+          message: data.message,
+          images: data.images,
+          userName: data.rssfeedProviderId?.title,
+          profileImage: data.rssfeedProviderId?.logo,
+          likeIcon: data.likedByUser,
+          likeCount: data.likeCount,
+          commentCount: data.commentCount,
+          rssfeedProviderId: data.rssfeedProviderId._id,
+        };
+      });
+      setPosts((prev: Post[]) => [
+        ...(forceReload ? [] : prev),
+        ...newPosts,
+      ]);
+      if (res.data.length === 0) { setNoMoreData(true); }
+      if (hasPageStateCache(location)
+        && posts.length >= pageStateCache.length + 10) {
+        deletePageStateCache(location);
+      }
+    }).catch(
+      (error) => {
+        setNoMoreData(true);
+        setErrorMessage(error.response.data.message);
+      },
+    ).finally(
+      () => {
+        setRequestAdditionalPosts(false);
+        setLoadingPosts(false);
+        // Fixed edge case bug when `noMoreData` is already set to `true` when user has reached the
+        // end of the page and clicks on the `notification-icon` in top navbar to reload the page
+        // otherwise pagination doesn't work.
+        if (forceReload && (noMoreData === true)) { setNoMoreData(false); }
+      },
+    );
+  }, [location, noMoreData, pageStateCache.length, posts]);
+
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
-      if (scrollPosition === null
-        || scrollPosition?.position === 0
-        || posts.length >= scrollPosition?.data?.length
+      if (
+        !hasPageStateCache(location)
+        || posts.length >= pageStateCache.length
         || posts.length === 0
-        || scrollPosition.pathname !== location.pathname
       ) {
-        setLoadingPosts(true);
-        getHomeFeedPosts(
-          posts.length > 0 ? posts[posts.length - 1]._id : undefined,
-        ).then((res) => {
-          const newPosts = res.data.map((data: any) => {
-            if (data.userId) {
-              // Regular post
-              return {
-                _id: data._id,
-                id: data._id,
-                postDate: data.createdAt,
-                message: data.message,
-                images: data.images,
-                userName: data.userId.userName,
-                profileImage: data.userId.profilePic,
-                userId: data.userId._id,
-                likeIcon: data.likedByUser,
-                likeCount: data.likeCount,
-                commentCount: data.commentCount,
-                movieId: data?.movieId,
-              };
-            }
-            // RSS feed post
-            return {
-              _id: data._id,
-              id: data._id,
-              postDate: data.createdAt,
-              message: data.message,
-              images: data.images,
-              userName: data.rssfeedProviderId?.title,
-              profileImage: data.rssfeedProviderId?.logo,
-              likeIcon: data.likedByUser,
-              likeCount: data.likeCount,
-              commentCount: data.commentCount,
-              rssfeedProviderId: data.rssfeedProviderId._id,
-            };
-          });
-          setPosts((prev: Post[]) => [
-            ...prev,
-            ...newPosts,
-          ]);
-          if (res.data.length === 0) { setNoMoreData(true); }
-          if (scrollPosition.pathname === location.pathname
-            && posts.length >= scrollPosition.data.length + 10) {
-            const positionData = {
-              pathname: '',
-              position: 0,
-              data: [],
-              positionElementId: '',
-            };
-            dispatch(setScrollPosition(positionData));
-          }
-        }).catch(
-          (error) => {
-            setNoMoreData(true);
-            setErrorMessage(error.response.data.message);
-          },
-        ).finally(
-          () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
-        );
+        fetchFeedPosts();
       }
     }
   }, [
-    requestAdditionalPosts, loadingPosts, userId, posts, scrollPosition,
-    dispatch, location.pathname,
+    fetchFeedPosts, loadingPosts, location, pageStateCache.length,
+    posts.length, requestAdditionalPosts, location.pathname,
   ]);
 
-  const renderNoMoreDataMessage = () => (
-    <p className="text-center">
-      {
-        posts.length === 0
+  useEffect(() => {
+    const isSameKey = lastLocationKeyRef.current === location.key;
+    if (isSameKey) { return; }
+    // Fetch feedPosts when we click the `home-icon` in navbar
+    fetchFeedPosts(true);
+    // Update lastLocation
+    lastLocationKeyRef.current = location.key;
+  }, [fetchFeedPosts, location.key]);
+
+  const renderNoMoreDataMessage = () => {
+    if (loadingPosts) { return null; }
+    return (
+      <p className="text-center">
+        {posts.length === 0
           ? 'No posts available'
-          : 'No more posts'
-      }
-    </p>
-  );
+          : 'No more posts'}
+      </p>
+    );
+  };
   const callLatestFeedPost = () => {
     getHomeFeedPosts().then((res) => {
       const newPosts = res.data.map((data: any) => {
@@ -298,14 +309,9 @@ function Home() {
     createBlockUser(postUserId)
       .then(() => {
         setDropDownValue('BlockUserSuccess');
-        const updatedScrollData = posts.filter(
+        setPosts((prev) => prev.filter(
           (scrollData: any) => scrollData.userId !== postUserId,
-        );
-        const positionData = {
-          ...scrollPosition,
-          data: updatedScrollData,
-        };
-        dispatch(setScrollPosition(positionData));
+        ));
       })
       // eslint-disable-next-line no-console
       .catch((error) => console.error(error));

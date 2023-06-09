@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Navigate,
   Route, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
 import { App as CapacitorApp } from '@capacitor/app';
@@ -35,7 +36,7 @@ import SocialGroups from './routes/social-group/SocialGroups';
 import { enableDevFeatures } from './utils/configEnvironment';
 import ActivateAccount from './routes/activate-account/ActivateAccount';
 import PasswordResetSuccess from './routes/password-reset-success/PasswordResetSuccess';
-import Index from './routes/Index';
+// import Index from './routes/Index';
 import ChangeEmailConfirm from './routes/change-email/ChangeEmailConfirm';
 import ChangeEmailRevert from './routes/change-email/ChangeEmailRevert';
 import PublicProfile from './routes/public-home-page/public-profile-web/PublicProfile';
@@ -117,7 +118,10 @@ function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route>
-        <Route path="/" element={<Index />} />
+        {/* TODO: Uncomment line below when switching from beta to prod */}
+        {/* <Route path="/" element={<Index />} /> */}
+        {/* TODO: REMOVE line below when switching from beta to prod */}
+        <Route path="/" element={<Navigate to="/app/home" replace />} />
         {
           Object.entries(routes).map(
             ([routePath, opts]) => (

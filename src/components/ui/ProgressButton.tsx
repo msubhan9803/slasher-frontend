@@ -35,7 +35,7 @@ const useProgressButton = (): [ProgressButtonComponentType, SetProgressFunction]
     function ProgessButton({
       label, className = '', onClick = () => { }, id, type,
     }: Props) {
-      const disabled = progress === 'loading';
+      const disabled = progress !== 'default';
       return (
         <RoundButton
           id={id}

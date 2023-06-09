@@ -2,7 +2,7 @@ import React from 'react';
 import { Modal } from 'react-bootstrap';
 import { healthCheck } from '../api/health-check';
 import { useAppSelector, useAppDispatch } from '../redux/hooks';
-import { setServerAvailable } from '../redux/slices/serverAvailableSlice';
+import { setIsServerAvailable } from '../redux/slices/serverAvailableSlice';
 import CustomModal from './ui/CustomModal';
 import useProgressButton from './ui/ProgressButton';
 
@@ -16,7 +16,7 @@ export default function ServerUnavailable() {
     healthCheck().then((res) => {
       if (res.data.status === 'ok') {
         setProgressButtonStatus('success');
-        setTimeout(() => dispatch(setServerAvailable(true)), 500);
+        setTimeout(() => dispatch(setIsServerAvailable(true)), 500);
       }
     }).catch(() => setProgressButtonStatus('failure'));
   };

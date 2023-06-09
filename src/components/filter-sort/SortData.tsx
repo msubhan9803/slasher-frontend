@@ -87,13 +87,6 @@ function SortData({
   useEffect(() => {
     setSelectedSortVal(sortVal!);
   }, [sortVal]);
-  // useEffect(() => {
-  //   if (sortoptions![0]?.label === 'Day') {
-  //     debugger
-  //     const updateValue = typeof sortVal! === 'number' && sortVal! > sortoptions!.length - 1 ? sortoptions!.length - 1 : sortVal;
-  //     setSelectedSortVal(updateValue);
-  //   }
-  // }, [sortoptions, sortVal]);
   return (
     <StyledSelect
       value={sortoptions!.find((option) => option.value === selectedSortVal)}

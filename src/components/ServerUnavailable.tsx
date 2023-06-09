@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React from 'react';
 import { Modal } from 'react-bootstrap';
 import { healthCheck } from '../api/health-check';
 import { useAppSelector, useAppDispatch } from '../redux/hooks';

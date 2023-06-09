@@ -25,6 +25,7 @@ import { getMoviesById } from '../../../api/movies';
 import { createBlockUser } from '../../../api/blocks';
 import { reportData } from '../../../api/report';
 import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../../pageStateCache';
+import { allAtMentionsRegex } from '../../../utils/text-utils';
 
 type Props = {
   movieData: MovieData;
@@ -236,8 +237,8 @@ function MovieReviews({
   };
 
   const addPost = () => {
-    /* eslint no-useless-escape: 0 */
-    const postContentWithMentionReplacements = (postContent.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    // eslint-disable-next-line max-len
+    const postContentWithMentionReplacements = (postContent.replace(allAtMentionsRegex, mentionReplacementMatchFunc));
     const movieReviewPostData = {
       message: postContentWithMentionReplacements,
       spoiler: containSpoiler,

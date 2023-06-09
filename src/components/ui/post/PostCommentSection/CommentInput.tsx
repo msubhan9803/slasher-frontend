@@ -11,7 +11,7 @@ import {
 import styled from 'styled-components';
 import UserCircleImage from '../../UserCircleImage';
 import ImagesContainer from '../../ImagesContainer';
-import { decryptMessage } from '../../../../utils/text-utils';
+import { allAtMentionsRegex, decryptMessage } from '../../../../utils/text-utils';
 import MessageTextarea from '../../MessageTextarea';
 import { FormatMentionProps } from '../../../../routes/posts/create-post/CreatePost';
 import ErrorMessageList from '../../ErrorMessageList';
@@ -191,7 +191,8 @@ function CommentInput({
     return undefined;
   };
   const handleMessage = () => {
-    const postContentWithMentionReplacements = (editMessage!.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    // eslint-disable-next-line max-len
+    const postContentWithMentionReplacements = (editMessage!.replace(allAtMentionsRegex, mentionReplacementMatchFunc));
     onUpdatePost(postContentWithMentionReplacements);
     setShowPicker(false);
   };

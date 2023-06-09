@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="tv.slasher.app">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.sdei.slasher">
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -9,7 +9,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode"
-            android:name="tv.slasher.app.MainActivity"
+            android:name="com.sdei.slasher.MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBarLaunch"
             android:launchMode="singleTask"
@@ -25,7 +25,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <!-- Necessary domain name for deeplinking to work -->
-                <data android:scheme="https" android:host="slasher-web-frontend.vercel.app" />
+                <data android:scheme="https" android:host="www.slasher.tv" />
             </intent-filter>
 
         </activity>

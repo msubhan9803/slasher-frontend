@@ -81,13 +81,9 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const isSocketConnected = useAppSelector((state) => state.socket.isConnected);
   const { socket } = socketStore;
 
-  const showUnreachableServerModalIfDisconnected = useCallback((e: MouseEvent) => {
+  const showUnreachableServerModalIfDisconnected = useCallback(() => {
     // If socket state is disconnected then show server-unavailable dialog.
-    if (!isSocketConnected) {
-      // Disable the target `onClick` handler for any clcked button
-      e.stopPropagation();
-      dispatch(setIsServerAvailable(false));
-    }
+    if (!isSocketConnected) { dispatch(setIsServerAvailable(false)); }
   }, [dispatch, isSocketConnected]);
 
   useEffect(() => {
@@ -178,8 +174,10 @@ function AuthenticatedPageWrapper({ children }: Props) {
       transports: ['websocket'],
       auth: { token: token.value },
     });
+
     socketStore.socket.on('connect', () => {
       dispatch(setIsSocketConnected(true));
+      dispatch(setIsServerAvailable(true));
     });
     socketStore.socket.on('connect_error', (err: any) => {
       const isConnectionFailure = err.message === 'websocket error';

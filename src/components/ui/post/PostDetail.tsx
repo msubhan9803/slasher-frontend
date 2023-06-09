@@ -1,9 +1,9 @@
 /* eslint-disable max-lines */
 import React, {
-  useCallback, useEffect, useState, useRef,
+  useCallback, useEffect, useState,
 } from 'react';
 import {
-  useLocation, useNavigate, useParams, useSearchParams,
+  useNavigate, useParams, useSearchParams,
 } from 'react-router-dom';
 import { createBlockUser } from '../../../api/blocks';
 import {
@@ -17,8 +17,7 @@ import {
 import { deleteFeedPost, feedPostDetail, updateFeedPost } from '../../../api/feed-posts';
 import { reportData } from '../../../api/report';
 import { getSuggestUserName } from '../../../api/users';
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
+import { useAppSelector } from '../../../redux/hooks';
 import { MentionProps } from '../../../routes/posts/create-post/CreatePost';
 import {
   CommentValue, ContentDescription, FeedComments, Post, User,
@@ -33,7 +32,7 @@ import ErrorMessageList from '../ErrorMessageList';
 import ReportModal from '../ReportModal';
 import EditPostModal from './EditPostModal';
 import PostFeed from './PostFeed/PostFeed';
-import { getLastNonProfilePathname } from '../../../utils/url-utils';
+import { deletedPostsCache } from '../../../pageStateCache';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -56,7 +55,6 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   } = useParams<string>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const location = useLocation();
   const [errorMessage, setErrorMessage] = useState<string[]>([]);
   const [commentErrorMessage, setCommentErrorMessage] = useState<string[]>([]);
   const [commentReplyErrorMessage, setCommentReplyErrorMessage] = useState<string[]>([]);
@@ -81,46 +79,8 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   const [previousCommentsAvailable, setPreviousCommentsAvailable] = useState(false);
   const userData = useAppSelector((state: any) => state.user);
   const [updateState, setUpdateState] = useState(false);
-  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
-  const dispatch = useAppDispatch();
-  const [checkPostUpdate, setCheckPostUpdate] = useState<boolean>(false);
   const [commentSent, setCommentSent] = useState<boolean>(false);
-  const scrollPositionRef = useRef(scrollPosition);
-  const pathnameHistory = useAppSelector((state) => state.user.pathnameHistory);
-  const { userName } = useParams();
   const [selectedBlockedUserId, setSelectedBlockedUserId] = useState<string>('');
-
-  useEffect(() => {
-    scrollPositionRef.current = scrollPosition;
-  });
-
-  useEffect(() => {
-    if (checkPostUpdate && scrollPositionRef.current.data.length > 0) {
-      const updatedScrollData = scrollPositionRef.current?.data.map((scrollData: any) => {
-        if (scrollData._id === postData[0].id) {
-          return { ...scrollData, ...postData[0] };
-        }
-        return scrollData;
-      });
-      const positionData = {
-        ...scrollPositionRef.current,
-        data: updatedScrollData,
-      };
-      dispatch(setScrollPosition(positionData));
-    } else {
-      setCheckPostUpdate(false);
-    }
-  }, [checkPostUpdate, postData, dispatch]);
-
-  const deletePost = () => {
-    // eslint-disable-next-line max-len
-    const updatedScrollData = scrollPositionRef.current?.data.filter((scrollData: any) => scrollData._id !== postData[0].id);
-    const positionData = {
-      ...scrollPositionRef.current,
-      data: updatedScrollData,
-    };
-    dispatch(setScrollPosition(positionData));
-  };
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     setSelectedBlockedUserId(popoverClickProps.userId!);
@@ -269,7 +229,6 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           };
           newCommentArray = [commentValueData].concat(newCommentArray);
           setCommentData(newCommentArray);
-          setCheckPostUpdate(true);
           setPostData([{
             ...postData[0],
             commentCount: postData[0].commentCount + 1,
@@ -391,7 +350,6 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       removeFeedComments(commentID).then(() => {
         setCommentID('');
         callLatestFeedComments();
-        setCheckPostUpdate(true);
         setPostData([{
           ...postData[0],
           commentCount: postData[0].commentCount - 1,
@@ -511,7 +469,6 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       updateFeedPost(postId, message, images, imageDelete, null, descriptionArray).then(() => {
         setShow(false);
         getFeedPostDetail(postId);
-        setCheckPostUpdate(true);
       }).catch((error) => {
         const msg = error.response.status === 0 && !error.response.data
           ? 'Combined size of files is too large.'
@@ -527,8 +484,8 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       deleteFeedPost(postId)
         .then(() => {
           setShow(false);
-          navigate(location.state);
-          deletePost();
+          deletedPostsCache.add(postId);
+          navigate(-1); // act as if browser back icon is pressed
         })
         /* eslint-disable no-console */
         .catch((error) => console.error(error));
@@ -556,7 +513,6 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             },
           );
           setPostData(unLikePostData);
-          setCheckPostUpdate(true);
         }
       });
     } else {
@@ -574,7 +530,6 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             return likePost;
           });
           setPostData(likePostData);
-          setCheckPostUpdate(true);
         }
       });
     }
@@ -743,23 +698,15 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
   };
-  useEffect(() => {
-    if (dropDownValue === 'BlockUserSuccess') {
-      const updatedScrollData = postData.filter(
-        (scrollData: any) => scrollData.userId !== selectedBlockedUserId,
-      );
-      const positionData = {
-        ...scrollPositionRef.current,
-        data: updatedScrollData,
-      };
-      dispatch(setScrollPosition(positionData));
-    }
-  }, [dropDownValue, dispatch, selectedBlockedUserId, postData]);
 
   const afterBlockUser = useCallback(() => {
-    const lastNonProfilePathname = getLastNonProfilePathname(pathnameHistory!, userName!);
-    navigate(lastNonProfilePathname);
-  }, [pathnameHistory, userName, navigate]);
+    // Send user to last page if the current `post-details-page` belong to the blocked user
+    if (postData && postData.length > 0
+      && postData[0].userId === selectedBlockedUserId
+      && (dropDownValue === 'BlockUserSuccess')) {
+      navigate(-1); // act as if browser back icon is pressed
+    }
+  }, [dropDownValue, navigate, postData, selectedBlockedUserId]);
 
   const updateCommentDataAfterBlockUser = useCallback(() => {
     const filterUnblockUserComments = commentData.filter((comment) => {
@@ -773,25 +720,18 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       }
       return true;
     });
-    const updatedScrollData = scrollPositionRef.current.data.filter(
-      (scrollData: any) => scrollData.userId !== selectedBlockedUserId,
-    );
-    const positionData = {
-      ...scrollPositionRef.current,
-      data: updatedScrollData,
-    };
-    dispatch(setScrollPosition(positionData));
+
     setCommentData(filterUnblockUserComments);
-    if (postData && postData.length > 0
-      && postData[0].userId === selectedBlockedUserId
-      && (dropDownValue === 'BlockUserSuccess')) {
-      afterBlockUser();
-    }
-  }, [afterBlockUser, commentData, dispatch, postData,
-    scrollPositionRef, selectedBlockedUserId, dropDownValue]);
+    // Show report modal
+    setShow(true);
+  }, [commentData, selectedBlockedUserId]);
 
   useEffect(() => {
-    if (dropDownValue === 'BlockUserSuccess') { updateCommentDataAfterBlockUser(); }
+    if (dropDownValue === 'BlockUserSuccess') {
+      const timer = setTimeout(updateCommentDataAfterBlockUser, 200);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
   }, [selectedBlockedUserId, dropDownValue, updateCommentDataAfterBlockUser]);
 
   return (

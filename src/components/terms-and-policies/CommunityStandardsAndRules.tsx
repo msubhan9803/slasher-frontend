@@ -11,6 +11,7 @@ function CommunityStandardsAndRules({ className }: Props) {
   return (
     <div className={className}>
       <RemoteWordPressContent
+        forceShowFallbackContent
         url={`${WORDPRESS_SITE_URL}/wp-json/wp/v2/pages/?slug=rules`}
         fallbackContent={(
           <a href={`${WORDPRESS_SITE_URL}/rules`} target="_blank" rel="noreferrer">Community Standards and Rules (click to view)</a>

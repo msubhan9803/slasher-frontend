@@ -53,10 +53,12 @@ const preloadImagesFromMessageResponse = async (messagesToPreload: Message[]) =>
       imageUrlsToPreload.push(url);
     });
   });
-  const imagePromises = imageUrlsToPreload.map((url) => new Promise((resolve, reject) => {
+  const imagePromises = imageUrlsToPreload.map((url) => new Promise((resolve) => {
     const image = new Image();
     image.onload = resolve;
-    image.onerror = reject;
+    // NOTE: We also call resolve() for onerror because this is just a preload attempt.
+    // If we called reject instead, that would throw an error and could block other operations.
+    image.onerror = resolve;
     image.src = url;
   }));
   await Promise.all(imagePromises);

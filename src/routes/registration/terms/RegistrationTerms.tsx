@@ -6,15 +6,12 @@ import {
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { register } from '../../../api/users';
-import CommunityStandardsAndRules from '../../../components/terms-and-policies/CommunityStandardsAndRules';
-import EndUserLicenseAgreement from '../../../components/terms-and-policies/EndUserLicenseAgreement';
-import PrivacyPolicy from '../../../components/terms-and-policies/PrivacyPolicy';
-import TermsAndConditions from '../../../components/terms-and-policies/TermsAndConditions';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import useProgressButton from '../../../components/ui/ProgressButton';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 import { useAppSelector } from '../../../redux/hooks';
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
+import { WORDPRESS_SITE_URL } from '../../../constants';
 
 interface Props {
   activeStep: number;
@@ -70,37 +67,43 @@ function RegistrationTerms({ activeStep }: Props) {
   };
   return (
     <RegistrationPageWrapper activeStep={activeStep}>
-      <p className="fs-3 mb-5">
-        You can accept our terms at the bottom of this screen.
-      </p>
-
-      <TermsAndConditions className="my-5" />
-      <PrivacyPolicy className="my-5" />
-      <EndUserLicenseAgreement className="my-5" />
-      <CommunityStandardsAndRules className="my-5" />
-
-      <p className="border-top pt-5">
-        By signing up, you agree that you are at least 18 years of age, and that you agree
-        to our Terms and Conditions, Privacy Policy, End User License Agreement, and Community
-        Standards.
-      </p>
-      <ErrorMessageList errorMessages={errorMessages} />
-      <div className="mt-1">
-        <label htmlFor="term-agreement-checkbox" className="h2">
-          <input
-            id="term-agreement-checkbox"
-            type="checkbox"
-            checked={isAgreedToTerms}
-            onChange={handleCheckbox}
-            onKeyDown={(e) => { if (e.key === 'Enter') { handleCheckbox(); } }}
-            className="me-2"
-          />
-          I agree to these terms
-        </label>
-      </div>
-      <div className="mt-2">
-        {showAgreeToTermsError && <Alert variant="danger">You must check the checkbox above and agree to these terms if you want to sign up.</Alert>}
-      </div>
+      <Row className="justify-content-center mt-2">
+        <Col sm={12} md={8} lg={6}>
+          <p className="pt-5">
+            By signing up, you agree that you are at least 18 years of age,
+            and that you agree to our
+            {' '}
+            <a target="_blank" rel="noreferrer" href={`${WORDPRESS_SITE_URL}/terms-and-conditions`}>Terms and Conditions</a>
+            ,
+            {' '}
+            <a target="_blank" rel="noreferrer" href={`${WORDPRESS_SITE_URL}/privacy-policy`}>Privacy Policy</a>
+            ,
+            {' '}
+            <a target="_blank" rel="noreferrer" href={`${WORDPRESS_SITE_URL}/eula`}>End User License Agreement</a>
+            , and
+            {' '}
+            <a target="_blank" rel="noreferrer" href={`${WORDPRESS_SITE_URL}/rules`}>Community Standards</a>
+            .
+          </p>
+          <ErrorMessageList errorMessages={errorMessages} />
+          <div className="mt-1">
+            <label htmlFor="term-agreement-checkbox" className="h2">
+              <input
+                id="term-agreement-checkbox"
+                type="checkbox"
+                checked={isAgreedToTerms}
+                onChange={handleCheckbox}
+                onKeyDown={(e) => { if (e.key === 'Enter') { handleCheckbox(); } }}
+                className="me-2"
+              />
+              I agree to these terms and policies
+            </label>
+          </div>
+          <div className="mt-2">
+            {showAgreeToTermsError && <Alert variant="danger">You must check the checkbox above and agree to these terms if you want to sign up.</Alert>}
+          </div>
+        </Col>
+      </Row>
       <Row className="justify-content-center my-5">
         <Col sm={4} md={3} className="mb-sm-0 mb-3 order-2 order-sm-1">
           <RoundButtonLink

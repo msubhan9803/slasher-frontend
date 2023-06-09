@@ -25,7 +25,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <!-- Necessary domain name for deeplinking to work -->
-                <data android:scheme="https" android:host="www.slasher.tv" />
+                <data android:scheme="https" android:host="slasher-web-frontend.vercel.app" />
             </intent-filter>
 
         </activity>

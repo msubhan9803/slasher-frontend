@@ -88,6 +88,14 @@ resource "aws_ecs_task_definition" "slasher-web-task-new-defination" {
         "value" : "${var.storage_location_generator_prefix}"
       },
       {
+        "name" : "WELCOME_MESSAGE_SENDER_USER_ID",
+        "value" : "${var.welcome_message_sender_user_id}"
+      },
+      {
+        "name" : "SEND_PUSH_NOTIFICATION",
+        "value" : "${var.send_push_notification}"
+      },
+      {
         "name" : "FILE_STORAGE",
         "value" : "${var.file_storage}"
       },
@@ -144,6 +152,10 @@ resource "aws_ecs_task_definition" "slasher-web-task-new-defination" {
       {
         "name" : "REDIS_PORT",
         "valueFrom" : "/ECS-CLUSTER/slasher-${terraform.workspace}/REDIS_PORT"
+      },
+      {
+        "name" : "FIREBASE_SERVER_KEY",
+        "valueFrom" : "/ECS-CLUSTER/slasher-${terraform.workspace}/FIREBASE_SERVER_KEY"
       }
     ],
     "essential": true,

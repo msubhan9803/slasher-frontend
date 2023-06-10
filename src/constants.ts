@@ -9,9 +9,30 @@ export const MAX_ALLOWED_UPLOAD_FILES_FOR_CHAT = 10;
 export const MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT = 4;
 export const MAX_ALLOWED_UPLOAD_FILES_FOR_EVENT = 4;
 export const FRIEND_RELATION_ID = '5c9cb7138a874f1dcd0d8dcc';
-export const UNREAD_MESSAGE_NOTIFICATION_DELAY = 15_000;
+export const UNREAD_MESSAGE_NOTIFICATION_DELAY = 3_000;
 export const NON_ALPHANUMERIC_REGEX = /^[!-/:-@[-`{-~]/;
 export const DEFAULT_REQUEST_TIMEOUT = 130; // a default value that can be overridden via env config
+export const WELCOME_MSG = `Welcome to Slasher! 🔪🔪🔪 It's nice to have you with us!
+
+Here's some helpful info I share with everyone new. Hopefully you find it useful and it helps you enjoy your time with us!
+
+If you have something to promote, that's cool! 
+You're absolutely welcome to do that on the feed or in the relevant groups.
+*** Please don't promote in messages (see rules below) ***. 💯
+
+You can learn about the features here: slasher.tv/help
+
+IMPORTANT: for the few rules we have: slasher.tv/rules - please be sure to read them.
+
+TIP: the more friends you add, the more stuff you'll see on your feed and the more people there are to see yours.
+
+BONUS TIP: explore all the areas of Slasher - you may find some cool features!
+
+Popular features include: * Movie info * Events * News *
+
+If you have any questions or suggestions to improve Slasher, I'm here to help and love feedback! 🤘😊
+
+Enjoy!`;
 
 export const SHARED_GATEWAY_OPTS = {
   cors: {

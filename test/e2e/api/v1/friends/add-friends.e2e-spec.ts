@@ -18,6 +18,8 @@ import { NotificationsService } from '../../../../../src/notifications/providers
 import { NotificationType } from '../../../../../src/schemas/notification/notification.enums';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { UserSettingsService } from '../../../../../src/settings/providers/user-settings.service';
+import { userSettingFactory } from '../../../../factories/user-setting.factory';
 
 describe('Add Friends (e2e)', () => {
   let app: INestApplication;
@@ -31,6 +33,7 @@ describe('Add Friends (e2e)', () => {
   let friendsModel: Model<FriendDocument>;
   let blocksModel: Model<BlockAndUnblockDocument>;
   let notificationsService: NotificationsService;
+  let userSettingsService: UserSettingsService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -43,6 +46,7 @@ describe('Add Friends (e2e)', () => {
     friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
+    userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -61,6 +65,13 @@ describe('Add Friends (e2e)', () => {
     rewindAllFactories();
     activeUser = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build());
+    await userSettingsService.create(
+      userSettingFactory.build(
+        {
+          userId: user1._id,
+        },
+      ),
+    );
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
@@ -175,6 +186,13 @@ describe('Add Friends (e2e)', () => {
         + 'and newFriendRequestCount is increment in user', async () => {
           const otherUser1 = await usersService.create(
             userFactory.build({ userName: 'Denial' }),
+          );
+          await userSettingsService.create(
+            userSettingFactory.build(
+              {
+                userId: otherUser1._id,
+              },
+            ),
           );
           await request(app.getHttpServer())
             .post('/api/v1/friends')

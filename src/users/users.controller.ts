@@ -69,6 +69,7 @@ import { BetaTestersService } from '../beta-tester/providers/beta-testers.servic
 import { EmailRevertTokensService } from '../email-revert-tokens/providers/email-revert-tokens.service';
 import { FriendRequestReaction } from '../schemas/friend/friend.enums';
 import { Public } from '../app/guards/auth.guard';
+import { UpdateDeviceTokenDto } from './dto/update-device-token.dto';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -977,5 +978,22 @@ export class UsersController {
     return movies.map(
       (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating']),
     );
+  }
+
+  @Post('update-device-token')
+  async updateDeviceToken(
+    @Req() request: Request,
+    @Body() updateDeviceTokenDto: UpdateDeviceTokenDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const updatedDeviceToken = await this.usersService.findOneAndUpdateDeviceToken(
+      user.id,
+      updateDeviceTokenDto.device_id,
+      updateDeviceTokenDto.device_token,
+    );
+    if (!updatedDeviceToken) {
+      throw new HttpException('Device id not found', HttpStatus.BAD_REQUEST);
+    }
+    return { success: true };
   }
 }

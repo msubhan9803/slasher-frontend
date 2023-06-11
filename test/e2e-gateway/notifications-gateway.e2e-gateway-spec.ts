@@ -22,6 +22,8 @@ import { RssFeedProvider } from '../../src/schemas/rssFeedProvider/rssFeedProvid
 import { RssFeedProviderActiveStatus } from '../../src/schemas/rssFeedProvider/rssFeedProvider.enums';
 import { rssFeedProviderFactory } from '../factories/rss-feed-providers.factory';
 import { PostType } from '../../src/schemas/feedPost/feedPost.enums';
+import { UserSettingsService } from '../../src/settings/providers/user-settings.service';
+import { userSettingFactory } from '../factories/user-setting.factory';
 
 describe('Notifications Gateway (e2e)', () => {
   let app: INestApplication;
@@ -37,6 +39,7 @@ describe('Notifications Gateway (e2e)', () => {
   let feedPostData: FeedPostDocument;
   let rssFeedProvidersService: RssFeedProvidersService;
   let rssFeedProviderData: RssFeedProvider;
+  let userSettingsService: UserSettingsService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -48,6 +51,7 @@ describe('Notifications Gateway (e2e)', () => {
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
+    userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
 
     app = moduleRef.createNestApplication();
 
@@ -77,7 +81,13 @@ describe('Notifications Gateway (e2e)', () => {
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
-
+    await userSettingsService.create(
+      userSettingFactory.build(
+        {
+          userId: activeUser._id,
+        },
+      ),
+    );
     feedPostData = await feedPostsService.create(feedPostFactory.build({
       userId: activeUser.id,
     }));

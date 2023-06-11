@@ -28,6 +28,8 @@ import { RssFeedProvidersService } from '../../../../../src/rss-feed-providers/p
 import { rssFeedProviderFactory } from '../../../../factories/rss-feed-providers.factory';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { UserSettingsService } from '../../../../../src/settings/providers/user-settings.service';
+import { userSettingFactory } from '../../../../factories/user-setting.factory';
 
 describe('Feed-Comments/Replies File (e2e)', () => {
   let app: INestApplication;
@@ -43,6 +45,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
   let feedPost: FeedPostDocument;
   let feedComment: FeedComment;
   let rssFeedProvidersService: RssFeedProvidersService;
+  let userSettingsService: UserSettingsService;
 
   const sampleFeedReplyObject = {
     images: [
@@ -70,6 +73,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
+    userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
@@ -792,13 +796,34 @@ describe('Feed-Comments/Replies File (e2e)', () => {
       let otherUser2;
       beforeEach(async () => {
         commentCreatorUser = await usersService.create(userFactory.build());
+        await userSettingsService.create(
+          userSettingFactory.build(
+            {
+              userId: commentCreatorUser._id,
+            },
+          ),
+        );
         otherUser1 = await usersService.create(userFactory.build());
         otherUser1AuthToken = otherUser1.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
         otherUser2 = await usersService.create(userFactory.build());
+        await userSettingsService.create(
+          userSettingFactory.build(
+            {
+              userId: otherUser2._id,
+            },
+          ),
+        );
       });
 
       it('when notification is create for createFeedReply than check newNotificationCount is increment in user', async () => {
         const user0 = await usersService.create(userFactory.build({ userName: 'Divine' }));
+        await userSettingsService.create(
+          userSettingFactory.build(
+            {
+              userId: user0._id,
+            },
+          ),
+        );
         const post = await feedPostsService.create(feedPostFactory.build({ userId: user0._id }));
         const comment = await feedCommentsService.createFeedComment(
           feedCommentsFactory.build(

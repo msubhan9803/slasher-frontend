@@ -45,6 +45,7 @@
     "class-validator": "^0.13.2",
     "email-validator": "^2.0.4",
     "express": "^4.18.2",
+    "firebase-admin": "^11.8.0",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
     "luxon": "^3.2.1",

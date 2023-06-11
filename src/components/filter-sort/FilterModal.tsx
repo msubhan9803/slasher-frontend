@@ -3,7 +3,7 @@ import { Button, Modal } from 'react-bootstrap';
 import styled from 'styled-components';
 import CustomModal from '../ui/CustomModal';
 import RoundButton from '../ui/RoundButton';
-import SortData from './SortData';
+import CustomSelect from './CustomSelect';
 
 interface FilterDialogProps {
   showKeys: boolean;
@@ -80,7 +80,7 @@ function FilterModal({
         {postType !== 'group-post' && (
           <div className="d-lg-none mb-4">
             <Modal.Title className="fs-3 mb-2">Sort</Modal.Title>
-            <SortData sortVal={selectedSortValue} onSelectSort={seSelectedSortValue} sortoptions={sortoptions} type="sort" />
+            <CustomSelect value={selectedSortValue} onChange={seSelectedSortValue} options={sortoptions} type="sort" />
           </div>
         )}
         <h2 className={`fs-3 mb-3 ${postType === 'group-post' ? 'text-primary' : ''} text-center `}>{postType === 'group-post' ? 'Filters' : 'Title starts with:'}</h2>

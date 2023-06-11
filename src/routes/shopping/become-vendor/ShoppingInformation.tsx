@@ -1,7 +1,7 @@
 import React, { ChangeEvent } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
 import CharactersCounter from '../../../components/ui/CharactersCounter';
-import SortData from '../../../components/filter-sort/SortData';
+import CustomSelect from '../../../components/filter-sort/CustomSelect';
 
 interface InformationProps {
   description: string;
@@ -42,18 +42,18 @@ function ShoppingInformation({
       </Row>
       <Row>
         <Col md={6} lg={12} xl={6} className="mt-3">
-          <SortData
-            sortVal="State/Province"
-            onSelectSort={() => { }}
-            sortoptions={[{ value: 'disabled', label: 'State/Province' }]}
+          <CustomSelect
+            value="State/Province"
+            onChange={() => { }}
+            options={[{ value: 'disabled', label: 'State/Province' }]}
             type="form"
           />
         </Col>
         <Col md={6} lg={12} xl={6} className="mt-3">
-          <SortData
-            sortVal="Country"
-            onSelectSort={() => { }}
-            sortoptions={[{ value: 'disabled', label: 'Country' }]}
+          <CustomSelect
+            value="Country"
+            onChange={() => { }}
+            options={[{ value: 'disabled', label: 'Country' }]}
             type="form"
           />
         </Col>

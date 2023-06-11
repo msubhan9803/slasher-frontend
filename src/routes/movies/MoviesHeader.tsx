@@ -2,7 +2,7 @@ import React from 'react';
 import { Col, Row } from 'react-bootstrap';
 import FilterModal from '../../components/filter-sort/FilterModal';
 import FilterOptions from '../../components/filter-sort/FilterOptions';
-import SortData from '../../components/filter-sort/SortData';
+import CustomSelect from '../../components/filter-sort/CustomSelect';
 import CustomSearchInput from '../../components/ui/CustomSearchInput';
 import RoundButton from '../../components/ui/RoundButton';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
@@ -57,7 +57,7 @@ function MoviesHeader({
           />
         </Col>
         <Col md={4} className="d-none d-lg-block">
-          <SortData sortVal={sortVal} onSelectSort={sort} sortoptions={sortoptions} placeholder="Sort..." type="sort" />
+          <CustomSelect value={sortVal} onChange={sort} options={sortoptions} placeholder="Sort..." type="sort" />
         </Col>
         {enableDevFeatures && (
         <Col md={4} className="order-first order-md-last">

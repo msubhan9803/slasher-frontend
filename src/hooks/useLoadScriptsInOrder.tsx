@@ -1,5 +1,5 @@
 /* eslint-disable no-console,no-restricted-syntax,no-await-in-loop */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 /**
  * This hook loads a array of script urls in order. You can pass first argument as array of
@@ -8,9 +8,14 @@ import { useEffect, useState } from 'react';
 const useLoadScriptsInOrder = (URLs: string[], disableHook?: boolean) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState<any>(null);
+  const isMounted = useRef(false);
 
   useEffect(() => {
     if (disableHook) { return; }
+    // Run this hook only once for this component's lifecycle
+    if (isMounted.current) { return; }
+    isMounted.current = true;
+
     async function main() {
       try {
         // SEQUENTIAL LOADING OF SCRIPTS

@@ -70,8 +70,10 @@ function EditPostModal({
     return undefined;
   };
   const updatePost = () => {
-    // eslint-disable-next-line max-len
-    const postContentWithMentionReplacements = (postContent.replace(allAtMentionsRegex, mentionReplacementMatchFunc));
+    const postContentWithMentionReplacements = (postContent.replace(
+      allAtMentionsRegex,
+      mentionReplacementMatchFunc,
+    ));
     const files = postImages.filter((images: any) => images instanceof File);
     onUpdatePost(postContentWithMentionReplacements, files, deleteImageIds, descriptionArray);
   };

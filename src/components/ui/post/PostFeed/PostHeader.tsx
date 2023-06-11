@@ -5,8 +5,8 @@ import { HashLink } from 'react-router-hash-link';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 import CustomPopover, { PopoverClickProps } from '../../CustomPopover';
-import { scrollToTop } from '../../../../utils/scrollFunctions';
 import UserCircleImage from '../../UserCircleImage';
 import BorderButton from '../../BorderButton';
 
@@ -47,41 +47,29 @@ function PostHeader({
       <Col xs="auto">
         <Row className="d-flex">
           <Col className="my-auto rounded-circle" xs="auto">
-            {
-              // Do *not* remove the trailing # in below `to` path
-              // else the `scrollToTop/scrollWithOffset` won't work.
-            }
-            <HashLink
+            <Link
               onClick={() => onSelect!(rssfeedProviderId || id)}
               to={rssfeedProviderId
-                ? `/app/news/partner/${rssfeedProviderId}#`
-                : `/${userName}#`}
-              scroll={() => scrollToTop('smooth')}
+                ? `/app/news/partner/${rssfeedProviderId}`
+                : `/${userName}`}
               className="d-block text-decoration-none rounded-circle"
             >
               <div className="rounded-circle">
                 <UserCircleImage size="3.313rem" src={profileImage} alt={`${userName} profile picture`} className="bg-secondary d-flex" />
               </div>
-            </HashLink>
+            </Link>
           </Col>
           <Col xs="auto" className="ps-0 align-self-center">
-            {
-              // Do *not* remove the trailing # in below `to` path
-              // else the `scrollToTop/scrollWithOffset` won't work.
-            }
-            <HashLink
+            <Link
               onClick={() => onSelect!(rssfeedProviderId || id)}
               to={rssfeedProviderId
-                ? `/app/news/partner/${rssfeedProviderId}#`
-                : `/${userName}#`}
-              scroll={() => scrollToTop('smooth')}
+                ? `/app/news/partner/${rssfeedProviderId}`
+                : `/${userName}`}
               className="text-decoration-none d-block"
             >
               <h2 className="mb-0 h3 text-capitalize">{userName}</h2>
-            </HashLink>
+            </Link>
             {
-              // Do *not* remove the trailing # in below `to` path
-              // else the `scrollToTop/scrollWithOffset` won't work.
               isSinglePost ? (
                 <p className="mb-0 fs-6 text-light">
                   {DateTime.fromISO(postDate).toFormat('MM/dd/yyyy t')}
@@ -90,8 +78,8 @@ function PostHeader({
                 <HashLink
                   onClick={() => onSelect!(rssfeedProviderId || id)}
                   to={rssfeedProviderId
-                    ? `/app/news/partner/${rssfeedProviderId}/posts/${id}#`
-                    : `/${userName}/posts/${id}#`}
+                    ? `/app/news/partner/${rssfeedProviderId}/posts/${id}`
+                    : `/${userName}/posts/${id}`}
                   className="text-decoration-none d-block"
                 >
                   <p className="mb-0 fs-6 text-light">

@@ -10,7 +10,7 @@ import CustomSlider from '../../../components/ui/CustomSlider';
 import SliderThumbComponent from '../../../components/ui/SliderThumbComponent';
 import RangeSliderThumbComponent from '../../../components/ui/RangeSliderThumbComponent';
 import Switch from '../../../components/ui/Switch';
-import SortData from '../../../components/filter-sort/SortData';
+import CustomSelect from '../../../components/filter-sort/CustomSelect';
 
 const CustomButton = styled(Button)`
   &.active{
@@ -59,10 +59,10 @@ function DatingAdditionalPreferences() {
               <InputGroup.Text className="bg-transparent fw-bold border-0 pe-3 text-primary">
                 {distance}
               </InputGroup.Text>
-              <SortData
-                sortVal={distType}
-                onSelectSort={setDistType}
-                sortoptions={distanceOptions}
+              <CustomSelect
+                value={distType}
+                onChange={setDistType}
+                options={distanceOptions}
                 type="form"
               />
             </InputGroup>

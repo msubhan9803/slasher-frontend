@@ -3,10 +3,10 @@ import Select from 'react-select';
 import styled from 'styled-components';
 
 interface SortDataProps {
-  sortoptions?: OptionsProps[];
+  options?: OptionsProps[];
   type?: string;
-  onSelectSort?(value: string): void | null;
-  sortVal?: string;
+  onChange?(value: string): void | null;
+  value?: string;
   placeholder?: string;
 }
 interface OptionsProps {
@@ -20,8 +20,8 @@ const StyledSelect = styled(Select)`
   }
 `;
 
-function SortData({
-  sortoptions, type, onSelectSort, sortVal, placeholder,
+function CustomSelect({
+  options, type, onChange, value, placeholder,
 }: SortDataProps) {
   const customStyles = {
     control: (base: any, state: any) => ({
@@ -85,10 +85,10 @@ function SortData({
 
   return (
     <StyledSelect
-      defaultValue={sortoptions![0] || sortVal}
-      onChange={(selectedOption: any) => onSelectSort!(selectedOption.value)}
+      value={options?.filter((option) => option.value === value)}
+      onChange={(selectedOption: any) => onChange!(selectedOption.value)}
       className="fs-5"
-      options={sortoptions}
+      options={options}
       placeholder={placeholder || ''}
       styles={customStyles}
       isSearchable={false}
@@ -98,12 +98,12 @@ function SortData({
   );
 }
 
-SortData.defaultProps = {
-  sortoptions: [],
+CustomSelect.defaultProps = {
+  options: [],
   type: '',
-  onSelectSort: null,
-  sortVal: 'name',
+  onChange: null,
+  value: 'name',
   placeholder: undefined,
 };
 
-export default SortData;
+export default CustomSelect;

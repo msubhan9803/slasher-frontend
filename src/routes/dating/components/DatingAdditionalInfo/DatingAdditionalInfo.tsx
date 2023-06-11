@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Row, Col } from 'react-bootstrap';
-import CustomSelect from '../../../../components/ui/CustomSelect';
+import CustomSelectWithLabel from '../../../../components/ui/CustomSelectWithLabel';
 import CustomToggleButton from '../../../../components/ui/CustomToggleButton';
 import {
   bodyTypeOptions,
@@ -36,7 +36,7 @@ function DatingAdditionalInfo() {
           <Col xs={12}>
             <Row className="mb-4 align-items-center">
               <Col>
-                <CustomSelect
+                <CustomSelectWithLabel
                   options={heightOptions}
                   label="Height"
                 />
@@ -44,7 +44,7 @@ function DatingAdditionalInfo() {
             </Row>
             <Row className="mb-4">
               <Col>
-                <CustomSelect
+                <CustomSelectWithLabel
                   options={bodyTypeOptions}
                   label="Body Type"
                 />
@@ -52,7 +52,7 @@ function DatingAdditionalInfo() {
             </Row>
             <Row className="mb-4">
               <Col>
-                <CustomSelect
+                <CustomSelectWithLabel
                   options={tatoosOptions}
                   label="Tattoos"
                 />
@@ -67,7 +67,7 @@ function DatingAdditionalInfo() {
           <Col xs={12}>
             <Row className="mb-4">
               <Col>
-                <CustomSelect
+                <CustomSelectWithLabel
                   options={relationshipStatusOptions}
                   label="Relationship Status"
                 />
@@ -75,7 +75,7 @@ function DatingAdditionalInfo() {
             </Row>
             <Row className="mb-4">
               <Col>
-                <CustomSelect
+                <CustomSelectWithLabel
                   options={educationLevelOptions}
                   label="Education Level"
                 />
@@ -83,7 +83,7 @@ function DatingAdditionalInfo() {
             </Row>
             <Row className="mb-4">
               <Col>
-                <CustomSelect
+                <CustomSelectWithLabel
                   options={employmentOptions}
                   label="Employment"
                 />
@@ -91,7 +91,7 @@ function DatingAdditionalInfo() {
             </Row>
             <Row className="mb-4">
               <Col>
-                <CustomSelect
+                <CustomSelectWithLabel
                   options={drinkingOptions}
                   label="Drinking"
                 />
@@ -99,7 +99,7 @@ function DatingAdditionalInfo() {
             </Row>
             <Row className="mb-4">
               <Col>
-                <CustomSelect
+                <CustomSelectWithLabel
                   options={smokingOptions}
                   label="Smoking"
                 />
@@ -107,7 +107,7 @@ function DatingAdditionalInfo() {
             </Row>
             <Row className="mb-4">
               <Col>
-                <CustomSelect
+                <CustomSelectWithLabel
                   options={parentalStatusOptions}
                   label="Parental Status"
                 />
@@ -115,7 +115,7 @@ function DatingAdditionalInfo() {
             </Row>
             <Row className="mb-4">
               <Col>
-                <CustomSelect
+                <CustomSelectWithLabel
                   options={wantsChildrenOptions}
                   label="Wants (more) children"
                 />
@@ -123,7 +123,7 @@ function DatingAdditionalInfo() {
             </Row>
             <Row className="mb-4">
               <Col>
-                <CustomSelect
+                <CustomSelectWithLabel
                   options={religionOptions}
                   label="Religion"
                 />

@@ -16,6 +16,7 @@ import CreatePostComponent from '../../../components/ui/CreatePostComponent';
 import { ContentDescription, PostType } from '../../../types';
 import useProgressButton from '../../../components/ui/ProgressButton';
 import { sleep } from '../../../utils/timer-utils';
+import { allAtMentionsRegex } from '../../../utils/text-utils';
 
 export interface MentionProps {
   id: string;
@@ -63,7 +64,10 @@ function CreatePost() {
   const addPost = async () => {
     /* eslint no-useless-escape: 0 */
     setProgressButtonStatus('loading');
-    const postContentWithMentionReplacements = (postContent.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    const postContentWithMentionReplacements = (postContent.replace(
+      allAtMentionsRegex,
+      mentionReplacementMatchFunc,
+    ));
     if (paramsType === 'group-post') {
       const groupPostData = {
         title: titleContent,

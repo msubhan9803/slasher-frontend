@@ -7,7 +7,7 @@ import {
 import RoundButton from '../../../../components/ui/RoundButton';
 import { generate18OrOlderYearList, generateMonthOptions, generateDayOptions } from '../../../../utils/date-utils';
 import DatingPageWrapper from '../../components/DatingPageWrapper';
-import SortData from '../../../../components/filter-sort/SortData';
+import CustomSelect from '../../../../components/filter-sort/CustomSelect';
 
 const yearOptions = generate18OrOlderYearList();
 const monthOptions = generateMonthOptions();
@@ -52,26 +52,26 @@ function DatingSetupIdentity() {
           <Row>
             <p>Date of birth</p>
             <Col sm={12} md={4} className="mb-3">
-              <SortData
-                sortVal={selectedMonth}
-                onSelectSort={(val) => setSelectedMonth(val)}
-                sortoptions={[{ value: 'disabled', label: 'Month' }, ...monthOptions]}
+              <CustomSelect
+                value={selectedMonth}
+                onChange={(val) => setSelectedMonth(val)}
+                options={[{ value: 'disabled', label: 'Month' }, ...monthOptions]}
                 type="form"
               />
             </Col>
             <Col sm={12} md={4} className="mb-3">
-              <SortData
-                sortVal={selectedDay}
-                onSelectSort={(val) => setSelectedDay(val)}
-                sortoptions={[{ value: 'disabled', label: 'Day' }, ...convertedDayOptions]}
+              <CustomSelect
+                value={selectedDay}
+                onChange={(val) => setSelectedDay(val)}
+                options={[{ value: 'disabled', label: 'Day' }, ...convertedDayOptions]}
                 type="form"
               />
             </Col>
             <Col sm={12} md={4} className="mb-3">
-              <SortData
-                sortVal={selectedYear}
-                onSelectSort={(val) => setSelectedYear(val)}
-                sortoptions={[{ value: 'disabled', label: 'Year' }, ...convertedYearOptions]}
+              <CustomSelect
+                value={selectedYear}
+                onChange={(val) => setSelectedYear(val)}
+                options={[{ value: 'disabled', label: 'Year' }, ...convertedYearOptions]}
                 type="form"
               />
             </Col>
@@ -155,10 +155,10 @@ function DatingSetupIdentity() {
       <Row className="mt-3">
         <p>My sexual orientation is</p>
         <Col sm={12} md={4} className="">
-          <SortData
-            sortVal={selectedSexualOrentation}
-            onSelectSort={(val) => setSelectedSexualOrentation(val)}
-            sortoptions={[{ value: 'disabled', label: 'Selct one' }, ...sexualOrientationOptions]}
+          <CustomSelect
+            value={selectedSexualOrentation}
+            onChange={(val) => setSelectedSexualOrentation(val)}
+            options={[{ value: 'disabled', label: 'Selct one' }, ...sexualOrientationOptions]}
             type="form"
           />
           <p className="mt-2">

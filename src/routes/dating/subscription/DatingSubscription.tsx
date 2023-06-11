@@ -5,7 +5,7 @@ import {
 import DatingPageWrapper from '../components/DatingPageWrapper';
 import GreenTick from '../../../images/dating-green-tick.png';
 import HeartEmoji from '../../../images/dating-heart-icon.png';
-import CustomSelect from '../../../components/ui/CustomSelect';
+import CustomSelectWithLabel from '../../../components/ui/CustomSelectWithLabel';
 import FormOptions from './form-options';
 import RoundButton from '../../../components/ui/RoundButton';
 import BuyButton from './components/BuyButton';
@@ -78,7 +78,7 @@ function DatingSubscription() {
 
         <Row xs={1} md={2} className="mt-5 mb-4 align-items-start gx-2 gy-3">
           <Col>
-            <CustomSelect options={FormOptions.countryOptions} label="Select Country" />
+            <CustomSelectWithLabel options={FormOptions.countryOptions} label="Select Country" />
           </Col>
           <Col>
             <Form.Group className="mb-3" controlId="formBasicName">

@@ -12,7 +12,7 @@ import { sexualOrientationOptions } from '../../components/DatingAdditionalInfo/
 import DatingPageWrapper from '../../components/DatingPageWrapper';
 import ProfilePhotoGallery from '../../components/ProfilePhotoGallery';
 import { Heading, Section } from '../../components/styledUtils';
-import SortData from '../../../../components/filter-sort/SortData';
+import CustomSelect from '../../../../components/filter-sort/CustomSelect';
 
 interface Images {
   title: string;
@@ -118,10 +118,10 @@ function DatingProfileEdit() {
                   </Row>
                 </Col>
                 <Col sm={12} xl={6}>
-                  <SortData
-                    sortVal={selectedSexualOrentation}
-                    onSelectSort={(val) => setSelectedSexualOrentation(val)}
-                    sortoptions={[{ value: 'disabled', label: 'Selct one' }, ...sexualOrientationOptions]}
+                  <CustomSelect
+                    value={selectedSexualOrentation}
+                    onChange={(val) => setSelectedSexualOrentation(val)}
+                    options={[{ value: 'disabled', label: 'Selct one' }, ...sexualOrientationOptions]}
                     type="form"
                   />
                   <p className="mt-2">

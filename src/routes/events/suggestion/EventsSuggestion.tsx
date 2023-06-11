@@ -22,7 +22,7 @@ import CharactersCounter from '../../../components/ui/CharactersCounter';
 import CustomText from '../../../components/ui/CustomText';
 import { sortInPlace } from '../../../utils/text-utils';
 import useProgressButton from '../../../components/ui/ProgressButton';
-import SortData from '../../../components/filter-sort/SortData';
+import CustomSelect from '../../../components/filter-sort/CustomSelect';
 import { useAppSelector } from '../../../redux/hooks';
 
 // NOTE: From the state list of US, we get US states along with US territories.
@@ -119,7 +119,7 @@ function prettifyErrorMessages(errorMessageList: string[]) {
 }
 
 const INITIAL_EVENTFORM: EventForm = {
-  name: '', eventType: '', country: 'disabled', state: 'disabled', city: '', eventInfo: '', url: '', author: '', address: '', startDate: null, endDate: null,
+  name: '', eventType: '', country: '', state: '', city: '', eventInfo: '', url: '', author: '', address: '', startDate: null, endDate: null,
 };
 
 function EventSuggestion() {
@@ -133,8 +133,6 @@ function EventSuggestion() {
   const [isEventSuggestionSuccessful, setIsEventSuggestionSuccessful] = useState(false);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const navigate = useNavigate();
-  console.log(`eventForm ==> country =${eventForm.country}, state=${eventForm.state}`);
-  Object.assign(window, { sef: setEventForm });
 
   const resetFormData = () => {
     setImageUpload(undefined);
@@ -146,7 +144,7 @@ function EventSuggestion() {
     setIsEventSuggestionSuccessful(false);
 
     if (key === 'country') {
-      setEventForm({ ...eventForm, [key]: value, state: 'disabled' });
+      setEventForm({ ...eventForm, [key]: value, state: '' });
       return;
     }
     setEventForm({ ...eventForm, [key]: value });
@@ -173,11 +171,8 @@ function EventSuggestion() {
   const onSendEventData = () => {
     const {
       name, eventType, eventInfo, url, city, file, address,
-      startDate, endDate,
+      startDate, endDate, country, state,
     } = eventForm;
-
-    const country = (eventForm.country === 'disabled') ? '' : eventForm.country;
-    const state = (eventForm.state === 'disabled') ? '' : eventForm.state;
 
     setProgressButtonStatus('loading');
     setIsEventSuggestionSuccessful(false);
@@ -231,16 +226,16 @@ function EventSuggestion() {
         <Row>
           <Col md={6} className="mt-3">
 
-            <SortData
-              sortVal={eventForm.eventType}
-              onSelectSort={(val) => { handleChange(val, 'eventType'); }}
+            <CustomSelect
+              value={eventForm.eventType}
+              onChange={(val) => { handleChange(val, 'eventType'); }}
               placeholder={
                 loadingEventCategories ? 'Loading event categories...' : 'Event category'
               }
-              sortoptions={
+              options={
                 loadingEventCategories
                   ? [{ value: 'disabled', label: 'Loading event categories...' }]
-                  : [...options]
+                  : options
               }
               type="form"
             />
@@ -286,18 +281,20 @@ function EventSuggestion() {
         </Row>
         <Row>
           <Col md={6} className="mt-3">
-            <SortData
-              sortVal={eventForm.country}
-              onSelectSort={(val) => { handleChange(val, 'country'); }}
-              sortoptions={[{ value: 'disabled', label: 'Country' }, ...getCountries()]}
+            <CustomSelect
+              value={eventForm.country}
+              onChange={(val) => { handleChange(val, 'country'); }}
+              placeholder="Country"
+              options={getCountries()}
               type="form"
             />
           </Col>
           <Col md={6} className="mt-3">
-            <SortData
-              sortVal={eventForm.state}
-              onSelectSort={(val) => { handleChange(val, 'state'); }}
-              sortoptions={[{ value: 'disabled', label: 'State/Province' }, ...getStatesbyCountryName(eventForm.country)]}
+            <CustomSelect
+              value={eventForm.state}
+              onChange={(val) => { handleChange(val, 'state'); }}
+              placeholder="State/Province"
+              options={getStatesbyCountryName(eventForm.country)}
               type="form"
             />
           </Col>

@@ -992,7 +992,7 @@ export class UsersController {
       updateDeviceTokenDto.device_token,
     );
     if (!updatedDeviceToken) {
-      throw new HttpException('Device id not found', HttpStatus.NOT_FOUND);
+      throw new HttpException('Device id not found', HttpStatus.BAD_REQUEST);
     }
     return { success: true };
   }

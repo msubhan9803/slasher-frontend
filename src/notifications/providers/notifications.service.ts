@@ -54,15 +54,8 @@ export class NotificationsService {
     this.userSettingsService.findByUserId(notification.userId.toString())]);
     const isNotificationEnabled = userSetting[`${NOTIFICATION_TYPES_TO_CATEGORIES.get(notification.notifyType)}`];
     if (isNotificationEnabled && user.userDevices.length) {
-      let deviceToken = user.userDevices.map(
-        (device) => {// eslint-disable-line
-          if (device.device_id !== 'browser') {
-            return device.device_token;
-          }
-        },
-      );
-      deviceToken = deviceToken.filter(Boolean);
-      await this.pushNotificationsService.sendPushNotification(notification, deviceToken);
+      const deviceTokens = user.userDevices.filter((device) => device.device_id !== 'browser').map((device) => device.device_token);
+      await this.pushNotificationsService.sendPushNotification(notification, deviceTokens);
     }
   }
 

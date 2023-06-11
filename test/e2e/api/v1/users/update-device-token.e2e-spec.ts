@@ -102,7 +102,7 @@ describe('Users Update Device Token (e2e)', () => {
         .post('/api/v1/users/update-device-token')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(postBody);
-      expect(response.body).toEqual({ statusCode: 404, message: 'Device id not found' });
+      expect(response.body).toEqual({ statusCode: 400, message: 'Device id not found' });
     });
 
     describe('DTO validations', () => {

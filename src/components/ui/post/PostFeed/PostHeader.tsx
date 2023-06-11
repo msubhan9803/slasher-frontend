@@ -51,7 +51,7 @@ function PostHeader({
               onClick={() => onSelect!(rssfeedProviderId || id)}
               to={rssfeedProviderId
                 ? `/app/news/partner/${rssfeedProviderId}`
-                : `/${userName}/about`}
+                : `/${userName}`}
               className="d-block text-decoration-none rounded-circle"
             >
               <div className="rounded-circle">
@@ -64,7 +64,7 @@ function PostHeader({
               onClick={() => onSelect!(rssfeedProviderId || id)}
               to={rssfeedProviderId
                 ? `/app/news/partner/${rssfeedProviderId}`
-                : `/${userName}/about`}
+                : `/${userName}`}
               className="text-decoration-none d-block"
             >
               <h2 className="mb-0 h3 text-capitalize">{userName}</h2>

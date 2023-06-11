@@ -136,7 +136,7 @@ function CommentSection({
   return (
     <div key={id}>
       <div className={`position-absolute ps-1 ${!commentMention && 'mt-0 mt-md-3'} ${commentMention && 'ms-md-1'}`}>
-        <Link to={`/${name}/about`} className="d-block rounded-circle">
+        <Link to={`/${name}`} className="d-block rounded-circle">
           <UserCircleImage size={`${userCircleImageSizeInRems}rem`} src={image} alt="user picture" className="rounded-circle d-flex bg-secondary" />
         </Link>
       </div>
@@ -147,7 +147,7 @@ function CommentSection({
         >
           <div className="d-flex justify-content-between">
             <div className="ps-0 align-self-center mb-2">
-              <Link to={`/${name}/about`} className="d-block text-decoration-none">
+              <Link to={`/${name}`} className="d-block text-decoration-none">
                 <h1 className="mb-0 h3">{name}</h1>
               </Link>
               <p className="fs-6 text-light mb-0">

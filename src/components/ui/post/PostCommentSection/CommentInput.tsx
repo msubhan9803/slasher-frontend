@@ -354,16 +354,17 @@ function CommentInput({
             className="m-0"
           />
         )}
+      {/* This cooment/reply-to-comment success alert is only for mobile and tablets */}
       {commentOrReplySuccessAlertMessage
         && (
-          <Alert variant="success" className="d-flex align-items-center justify-content-between mb-1">
-            <div>
-              {commentOrReplySuccessAlertMessage}
-            </div>
-            <Button onClick={handleCloseCommentOrReplySuccessAlert} className="bg-transparent border-0">
-              <FontAwesomeIcon className="d-block" icon={solid('close')} size="lg" />
-            </Button>
-          </Alert>
+        <Alert variant="success" className="d-flex d-lg-none align-items-center justify-content-between mb-1">
+          <div>
+            {commentOrReplySuccessAlertMessage}
+          </div>
+          <Button onClick={handleCloseCommentOrReplySuccessAlert} className="bg-transparent border-0">
+            <FontAwesomeIcon className="d-block" icon={solid('close')} size="lg" />
+          </Button>
+        </Alert>
         )}
     </CommentForm>
   );

@@ -340,7 +340,11 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         setCommentReplyErrorMessage([]);
         setCommentSent(false);
         setCommentID('');
-        setCommentOrReplySuccessAlertMessage('Your reply has been added to the end of this comment thread.');
+        // eslint-disable-next-line max-len
+        // Fix showing of two success alert messages (i.e, inside two comment inputs for comment and reply-to-comment)
+        setTimeout(() => {
+          setCommentOrReplySuccessAlertMessage('Your reply has been added to the end of this comment thread.');
+        }, 500);
       }).catch((error) => {
         const msg = error.response.status === 0 && !error.response.data
           ? 'Combined size of files is too large.'

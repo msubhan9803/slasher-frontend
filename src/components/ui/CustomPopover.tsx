@@ -29,7 +29,6 @@ export interface PopoverClickProps {
 const StyledPopover = styled.div`
   position: relative;
   left: .755rem;
-  top: -.5rem;
 
   .btn.show:focus-visible, .btn:first-child:active:focus-visible {
     box-shadow: 0 0 0 2px var(--stroke-and-line-separator-color) !important;

@@ -4,7 +4,7 @@ import { Col, Row } from 'react-bootstrap';
 import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAppSelector } from '../../../redux/hooks';
-import RoundButton from '../../../components/ui/RoundButton';
+import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 
 function RegistrationFinal() {
   const emailAddress = useAppSelector((state) => state.registration.email);
@@ -29,9 +29,9 @@ function RegistrationFinal() {
       </p>
       <Row className="d-flex justify-content-center">
         <Col sm={6} md={2}>
-          <RoundButton id="sign-in-button" type="submit" className="w-100 my-3" variant="primary">
+          <RoundButtonLink to="/app/sign-in" className="w-100 my-3 fs-4" variant="primary">
             Sign in
-          </RoundButton>
+          </RoundButtonLink>
         </Col>
       </Row>
       <div className="d-flex flex-md-row justify-content-center flex-column mt-3">

@@ -59,7 +59,6 @@ function AuthenticatedPageHeader(
   }: Props,
 ) {
   const userData = useAppSelector((state) => state.user);
-  const isKeyboardOpen = useAppSelector((state) => state.user.isKeyboardOpen);
 
   const mobileNavLinkElements = [
     <IconWithTextNavButton
@@ -70,14 +69,14 @@ function AuthenticatedPageHeader(
       iconSize="lg"
       onClick={onToggleClick}
     />,
-    <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/" iconSize="lg" className="d-block" />,
+    <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/app/home" iconSize="lg" className="d-block" />,
     <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/app/notifications" iconSize="lg" badge={userData.user.newNotificationCount} className="d-block" />,
     <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/app/messages" iconSize="lg" badge={userData.newConversationIdsCount} className="d-block" />,
     <IconWithTextNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/app/search" iconSize="lg" className="d-block" />,
   ];
 
   const desktopNavLinkElements = [
-    <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/" className="nav-link" iconSize="2x" />,
+    <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/app/home" className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Friends" label="Friends" icon={solid('user-group')} to={`/${userName}/friends`} badge={userData.user.newFriendRequestCount} className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/app/notifications" badge={userData.user.newNotificationCount} className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/app/messages" badge={userData.newConversationIdsCount} className="nav-link" iconSize="2x" />,
@@ -91,7 +90,7 @@ function AuthenticatedPageHeader(
       <header>
         <StyledNavbar bg="black" variant="dark" expand={offcanvasSidebarExpandBreakPoint} className={`fixed-top py-1 mb-3 d-none d-${offcanvasSidebarExpandBreakPoint}-flex`}>
           <div className="w-100 d-flex px-4 container-xxl">
-            <Navbar.Brand as={Link} to="/" className="py-0">
+            <Navbar.Brand as={Link} to="/app/home" className="py-0">
               <HeaderLogo />
             </Navbar.Brand>
             <StyledNav className="ms-auto px-1">
@@ -113,7 +112,7 @@ function AuthenticatedPageHeader(
         </StyledNavbar>
 
         {/* nav-bar for small screen */}
-        <MobileNavbar bg="dark" variant="dark" className={`d-${offcanvasSidebarExpandBreakPoint}-none fixed-bottom pt-3`} style={{ display: isKeyboardOpen ? 'none' : 'block' }}>
+        <MobileNavbar bg="dark" variant="dark" className={`d-${offcanvasSidebarExpandBreakPoint}-none fixed-bottom pt-3`}>
           <div className="w-100 d-flex">
             {
               mobileNavLinkElements.map((el, index) => {

@@ -18,7 +18,7 @@ import RegistartionSecurityList from '../components/RegistrationSecurityList';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import { validateRegistrationFields } from '../../../api/users';
 import useProgressButton from '../../../components/ui/ProgressButton';
-import SortData from '../../../components/filter-sort/SortData';
+import CustomSelect from '../../../components/filter-sort/CustomSelect';
 
 const yearOptions = generate18OrOlderYearList();
 const dayOptions = generateDayOptions(1, 31);
@@ -41,7 +41,7 @@ function RegistrationSecurity({ activeStep }: Props) {
   const [selectedMonth, setSelectedMonth] = useState<number>(0);
   const [selectedDay, setSelectedDay] = useState<number>(0);
   const [selectedYear, setSelectedYear] = useState<number>(0);
-  const [selectedSecurityQuestion, setSelectedSecurityQuestion] = useState<number>(0);
+  const [selectedSecurityQuestion, setSelectedSecurityQuestion] = useState<string>();
   const RegistartionSecurityQuestions = RegistartionSecurityList.map(
     (list) => ({ value: list, label: list }),
   );
@@ -156,11 +156,12 @@ function RegistrationSecurity({ activeStep }: Props) {
             </Row>
           </Col>
           <Col sm={12} md={9} className="mt-4">
-            <SortData
-              sortVal={selectedSecurityQuestion}
-              onSelectSort={(val) => { handleChange(val, 'securityQuestion'); setSelectedSecurityQuestion(val); }}
-              sortoptions={[{ value: 0, label: 'Select a security question' }, ...RegistartionSecurityQuestions]}
+            <CustomSelect
+              value={selectedSecurityQuestion}
+              onChange={(val) => { handleChange(val, 'securityQuestion'); setSelectedSecurityQuestion(val); }}
+              options={[...RegistartionSecurityQuestions]}
               type="form"
+              placeholder="Select a security question"
             />
             <p className="mt-3 text-light">
               By selecting a security question, you will be able to verify that
@@ -191,29 +192,29 @@ function RegistrationSecurity({ activeStep }: Props) {
                 <p className="mb-4 text-light">Your age will not be shown in your profile.</p>
               </Col>
               <Col sm={12} md={4}>
-                <SortData
-                  sortVal={selectedMonth}
+                <CustomSelect
+                  value={selectedMonth}
                   placeholder="Month"
-                  onSelectSort={(val) => { handleChange(val, 'month'); setSelectedMonth(val); handleChangeDay(); }}
-                  sortoptions={[...monthOptions]}
+                  onChange={(val) => { handleChange(val, 'month'); setSelectedMonth(+val); handleChangeDay(); }}
+                  options={[...monthOptions]}
                   type="form"
                 />
               </Col>
               <Col sm={12} md={4} className="my-2 my-md-0">
-                <SortData
-                  sortVal={selectedDay}
+                <CustomSelect
+                  value={selectedDay}
                   placeholder="Day"
-                  onSelectSort={(val) => { handleChange(val, 'day'); setSelectedDay(val); }}
-                  sortoptions={[...convertedDayOptions]}
+                  onChange={(val) => { handleChange(val, 'day'); setSelectedDay(+val); }}
+                  options={[...convertedDayOptions]}
                   type="form"
                 />
               </Col>
               <Col sm={12} md={4}>
-                <SortData
-                  sortVal={selectedYear}
+                <CustomSelect
+                  value={selectedYear}
                   placeholder="Year"
-                  onSelectSort={(val) => { handleChange(val, 'year'); setSelectedYear(val); }}
-                  sortoptions={[...convertedYearOptions]}
+                  onChange={(val) => { handleChange(val, 'year'); setSelectedYear(+val); }}
+                  options={[...convertedYearOptions]}
                   type="form"
                 />
               </Col>

@@ -9,9 +9,8 @@ import styled from 'styled-components';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from 'react-bootstrap';
-import data from '@emoji-mart/data';
-import Picker from '@emoji-mart/react';
 import UserCircleImage from './UserCircleImage';
+import CustomEmojiPicker from './CustomEmojiPicker';
 
 interface SytledMentionProps {
   iscommentinput: string;
@@ -51,18 +50,18 @@ const StyledEmoji = styled(Button)`
   z-index:2;
   ${(props) => (props.createpost
     ? `
-    right: 0.625rem;
-    bottom: 9%; 
+    left: 0.75rem;
+    bottom: 7%; 
     `
     : `  
-    left: 0.688rem;
+    left: 0.438rem;
     bottom: 30%; 
     `)}
 `;
 
 const EmojiPicker = styled.div<PickerProp>`
     z-index:1;
-    ${(props) => (props.createpost ? 'right:1px;' : 'top:3.125rem;')}
+    ${(props) => (props.createpost ? 'left:1px;' : 'top:3.125rem;')}
 `;
 export interface MentionListProps {
   id: string;
@@ -152,12 +151,19 @@ function MessageTextarea({
       textareaRef.current.focus();
     }
   }, [isReply, isMainPostCommentClick]);
-  const handleShowPicker = () => {
+  const handleShowPicker = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
     setShowPicker!(!showPicker);
   };
   const handleEmojiSelect = (emoji: any) => {
     setSelectedEmoji([...selectedEmoji, emoji.native]);
     setMessageContent!((prevMessage: string) => prevMessage + emoji.native);
+  };
+  const closeEmojiPickerIfOpen = () => {
+    if (showPicker) {
+      setShowPicker!(false);
+    }
   };
   return (
     <>
@@ -190,7 +196,7 @@ function MessageTextarea({
       >
         {mentionLists && mentionLists?.map((mentionList: MentionListProps) => (
           <Option value={mentionList.userName} key={mentionList.id} style={{ zIndex: '100' }}>
-            <div ref={optionRef} className="list--hover soft-half pointer">
+            <div ref={optionRef} className="list--hover soft-half cursor-pointer">
               <div>
                 <UserCircleImage size="2rem" src={mentionList?.profilePic} className="ms-0 me-3 bg-secondary" />
                 <span>
@@ -208,7 +214,11 @@ function MessageTextarea({
           className="position-absolute me-4"
           createpost={createEditPost}
         >
-          <Picker data={data} onEmojiSelect={handleEmojiSelect} style={{ backgroundColor: 'red' }} />
+          <CustomEmojiPicker
+            handleEmojiSelect={handleEmojiSelect}
+            onClickOutside={closeEmojiPickerIfOpen}
+            isReply={isReply}
+          />
         </EmojiPicker>
       )}
     </>

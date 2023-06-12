@@ -85,7 +85,12 @@ function Profile() {
   }, [location.pathname, location.search, navigate, userNameOrId]);
 
   useEffect(() => {
-    if (!userNameOrId || user) { return; }
+    if (!userNameOrId) { return; }
+
+    // Fix bug: Go to Profile > AllFriends > OpenAnyProfile > Click back arrow browser button
+    // (the profile details remained same which is unintentional).
+    const isSameUser = user ? userNameOrId === user.userName : true;
+    if (user && isSameUser) { return; }
 
     loadUser();
   }, [loadUser, user, userNameOrId]);
@@ -95,10 +100,6 @@ function Profile() {
   if (userIsBlocked) { return (<ContentNotAvailable />); }
 
   if (!user) { return <LoadingIndicator style={{ marginTop: `${['lg', 'xl', 'xxl'].includes(bp) ? '35vh' : '43vh'}` }} />; }
-
-  if (userNameOrId !== user.userName) {
-    setUser(undefined);
-  }
 
   if (!isSelfProfile
     && user.profile_status !== ProfileVisibility.Public

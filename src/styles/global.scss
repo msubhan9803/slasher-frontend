@@ -176,7 +176,6 @@ a:not(.btn) {
 
 html {
   height: 100%;
-  // Scroll Behavior should be instant (SD-1187)
   scroll-behavior: auto !important;
 }
 
@@ -295,8 +294,12 @@ body {
   padding: 7px !important;
 }
 
-.pointer {
+.cursor-pointer {
   cursor: pointer;
+}
+
+.cursor-default {
+  cursor: default;
 }
 
 textarea {

@@ -36,7 +36,6 @@ import { MD_MEDIA_BREAKPOINT } from '../../../../constants';
 import RoundButton from '../../RoundButton';
 import CustomRatingText from '../../CustomRatingText';
 import CustomWortItText from '../../CustomWortItText';
-import { useAppSelector } from '../../../../redux/hooks';
 import { HOME_WEB_DIV_ID, NEWS_PARTNER_DETAILS_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
 import LoadingIndicator from '../../LoadingIndicator';
 import { defaultLinkifyOpts } from '../../../../utils/linkify-utils';
@@ -46,6 +45,7 @@ import useOnScreen from '../../../../hooks/useOnScreen';
 import { isHomePage, isNewsPartnerPage, isPostDetailsPage } from '../../../../utils/url-utils';
 import ScrollToTop from '../../../ScrollToTop';
 import { postMovieDataToMovieDBformat, showMoviePoster } from '../../../../routes/movies/movie-utils';
+import { useAppSelector } from '../../../../redux/hooks';
 
 interface Props {
   popoverOptions: string[];
@@ -297,7 +297,6 @@ function PostFeed({
   const loginUserId = useAppSelector((state) => state.user.user.id);
   const location = useLocation();
   const navigate = useNavigate();
-  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const spoilerId = getLocalStorage('spoilersIds');
   // Below states (prefixed by `modal`) are useful for `LikeShareModal` component
   const [showLikeShareModal, setShowLikeShareModal] = useState<boolean>(false);
@@ -384,18 +383,6 @@ function PostFeed({
     pubWiseAdDivId = NEWS_PARTNER_POSTS_DIV_ID;
   }
 
-  useEffect(() => {
-    if (scrollPosition.position > 0
-      && scrollPosition?.pathname === location.pathname) {
-      // We should only scroll-restore after 1 second else the scroll restoration doesn't work accurately on home page (SD-1187).
-      setTimeout(() => {
-        window.scrollTo({
-          top: scrollPosition?.position,
-        });
-      }, 1000);
-    }
-    return undefined;
-  }, [scrollPosition, location.pathname]);
   const renderGroupPostContent = (posts: any) => (
     <>
       <p>
@@ -441,8 +428,8 @@ function PostFeed({
       {postData.map((post: any, i) => (
         <div key={post.id}>
           <div className="post">
-            <Card className="bg-transparent border-0 rounded-3 mb-md-4 mb-0 pt-md-3 px-sm-0">
-              <Card.Header className="border-0 px-0 bg-transparent">
+            <Card className="bg-transparent border-0 rounded-3 px-sm-0">
+              <Card.Header className="border-0 px-0 bg-transparent" style={{ paddingTop: 6 }}>
                 <PostHeader
                   isSinglePost={isSinglePost}
                   id={post.id}
@@ -459,7 +446,7 @@ function PostFeed({
                   postType={postType}
                 />
               </Card.Header>
-              <Card.Body className="px-0 pt-3">
+              <Card.Body className="px-0 pt-3 pb-0">
                 {postType === 'group-post' && renderGroupPostContent(post)}
                 {post?.rssFeedTitle && <h1 className="h2">{post.rssFeedTitle}</h1>}
                 <PostContent

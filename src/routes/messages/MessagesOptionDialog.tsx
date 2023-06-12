@@ -4,6 +4,7 @@ import CustomModal from '../../components/ui/CustomModal';
 import { deleteConversationMessages } from '../../api/messages';
 import ModalBodyForDeleteConversation from '../../components/ui/ModalBodyForDeleteConversation';
 import ModalBodyForBlockUser from '../../components/ui/ModalBodyForBlockUser';
+import { ConversationListItem } from '../../types';
 
 interface Props {
   show: boolean;
@@ -25,7 +26,7 @@ function MessagesOptionDialog({
     deleteConversationMessages(selectedMatchListId).then(() => {
       setShow(false);
       // Remove message of associated `matchList` without refetching converstaions
-      setMessages((messages: any[]) => messages.filter(
+      setMessages((messages: ConversationListItem[]) => messages.filter(
         (message) => message._id !== selectedMatchListId,
       ));
     });

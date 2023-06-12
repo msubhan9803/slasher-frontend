@@ -128,7 +128,7 @@ function AboutDetails({
   const toHoursAndMinutes = (totalMinutes: number) => {
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
-    return `${hours}h ${minutes}m`;
+    return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
   };
   const getCertification = () => {
     const releaseDateForUS = aboutMovieDetail?.mainData?.release_dates?.results?.find((result: MovieReleaseResults) => result.iso_3166_1 === 'US');
@@ -169,9 +169,11 @@ function AboutDetails({
                   </StyledInitial>
                 </div>
               )}
+              {aboutMovieDetail && aboutMovieDetail?.mainData?.runtime !== 0 && (
               <p className="m-0 ms-1 fs-3 align-self-center">
                 {toHoursAndMinutes(aboutMovieDetail && aboutMovieDetail?.mainData?.runtime)}
               </p>
+              )}
             </div>
           </Col>
           <Col xs={6} md={3} className="p-0">

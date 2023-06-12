@@ -1,6 +1,6 @@
 {
   "name": "slasher-web-frontend",
-  "version": "0.1.0",
+  "version": "0.9.0",
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
@@ -63,6 +63,7 @@
     "react-router-hash-link": "^2.4.3",
     "react-scripts": "5.0.1",
     "react-select": "^5.7.1",
+    "react-textarea-autosize": "^8.4.1",
     "socket.io-client": "^4.5.2",
     "string-similarity": "^4.0.4",
     "styled-components": "^5.3.5",

@@ -11,9 +11,10 @@ function PrivacyPolicy({ className }: Props) {
   return (
     <div className={className}>
       <RemoteWordPressContent
-        url={`${WORDPRESS_SITE_URL}/wp-json/wp/v2/pages/?slug=privacy`}
+        forceShowFallbackContent
+        url={`${WORDPRESS_SITE_URL}/wp-json/wp/v2/pages/?slug=privacy-policy`}
         fallbackContent={(
-          <a href={`${WORDPRESS_SITE_URL}/privacy`} target="_blank" rel="noreferrer">Privacy Policy (click to view)</a>
+          <a href={`${WORDPRESS_SITE_URL}/privacy-policy`} target="_blank" rel="noreferrer">Privacy Policy (click to view)</a>
         )}
       />
     </div>

@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Select from 'react-select';
 import styled from 'styled-components';
 
 interface SortDataProps {
-  sortoptions?: OptionsProps[];
+  options?: OptionsProps[];
   type?: string;
-  onSelectSort?(value: any): void | null;
-  sortVal?: string | number;
+  onChange?(value: string): void | null;
+  value?: string | number;
   placeholder?: string;
 }
 interface OptionsProps {
-  value: number | string;
-  label: number | string;
+  value: any;
+  label: any;
 }
 
 const StyledSelect = styled(Select)`
@@ -20,11 +20,9 @@ const StyledSelect = styled(Select)`
   }
 `;
 
-function SortData({
-  sortoptions, type, onSelectSort, sortVal, placeholder,
+function CustomSelect({
+  options, type, onChange, value, placeholder,
 }: SortDataProps) {
-  const [selectedSortVal, setSelectedSortVal] = useState<any>();
-
   const customStyles = {
     control: (base: any, state: any) => ({
       ...base,
@@ -84,33 +82,28 @@ function SortData({
       };
     },
   };
-  useEffect(() => {
-    setSelectedSortVal(sortVal!);
-  }, [sortVal]);
+
   return (
     <StyledSelect
-      value={sortoptions!.find((option) => option.value === selectedSortVal)}
-      onChange={(selectedOption: any) => {
-        onSelectSort!(selectedOption.value);
-        setSelectedSortVal(selectedOption.value);
-      }}
+      value={options?.filter((option) => option.value === value)}
+      onChange={(selectedOption: any) => onChange!(selectedOption.value)}
       className="fs-5"
-      options={sortoptions}
+      options={options}
       placeholder={placeholder || ''}
       styles={customStyles}
       isSearchable={false}
-      isOptionDisabled={(option: any) => option.value === 0}
+      isOptionDisabled={(option: any) => option.value === 'disabled'}
       components={{ IndicatorSeparator: () => null }}
     />
   );
 }
 
-SortData.defaultProps = {
-  sortoptions: [],
+CustomSelect.defaultProps = {
+  options: [],
   type: '',
-  onSelectSort: null,
-  sortVal: 'name' || 0,
+  onChange: null,
+  value: undefined,
   placeholder: undefined,
 };
 
-export default SortData;
+export default CustomSelect;

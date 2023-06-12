@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  useCallback, useEffect, useLayoutEffect, useState,
+  useCallback, useEffect, useLayoutEffect, useMemo, useState,
 } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -14,18 +14,18 @@ import {
   createPost, deleteFeedPost, feedPostDetail, getMovieReview, updateFeedPost,
 } from '../../../api/feed-posts';
 import {
-  MovieData, Post, PostType,
+  MovieData, MoviePageCache, Post, PostType,
 } from '../../../types';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
-import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import ReportModal from '../../../components/ui/ReportModal';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-utils';
 import { getMoviesById } from '../../../api/movies';
 import { createBlockUser } from '../../../api/blocks';
 import { reportData } from '../../../api/report';
+import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../../pageStateCache';
+import { allAtMentionsRegex } from '../../../utils/text-utils';
 
 type Props = {
   movieData: MovieData;
@@ -71,21 +71,21 @@ function MovieReviews({
   const [isWorthIt, setWorthIt] = useState<any>(0);
   const [liked, setLike] = useState<boolean>(false);
   const [disLiked, setDisLike] = useState<boolean>(false);
-  const scrollPosition = useAppSelector((state) => state.scrollPosition);
+  // eslint-disable-next-line max-len
+  const ReviewsCache: MoviePageCache['reviews'] = useMemo(() => getPageStateCache<MoviePageCache>(location)?.reviews ?? [], [location]);
   const [reviewPostData, setReviewPostData] = useState<any>(
-    scrollPosition.pathname === location.pathname
-      ? scrollPosition.data : [],
+    hasPageStateCache(location)
+      ? ReviewsCache : [],
   );
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const handleCreateInput = () => {
     setShowReviewForm(true);
   };
   useEffect(() => {
-    if (scrollPosition.pathname === location.pathname) {
-      setReviewPostData(scrollPosition.data);
+    if (hasPageStateCache(location)) {
+      setReviewPostData(ReviewsCache);
     }
-  }, [scrollPosition.pathname, location.pathname, scrollPosition.data]);
+  }, [location, ReviewsCache]);
 
   const getUserMovieReviewData = (reviewPostId: string) => {
     feedPostDetail(reviewPostId).then((res) => {
@@ -138,17 +138,16 @@ function MovieReviews({
       callLatestFeedPost();
     }
   }, [movieData, callLatestFeedPost]);
-  const persistScrollPosition = (movieId: string) => {
-    const positionData = {
-      pathname: location.pathname,
-      position: window.pageYOffset,
-      data: reviewPostData,
-      positionElementId: movieId,
-    };
-    dispatch(setScrollPosition(positionData));
+
+  const persistScrollPosition = () => {
+    setPageStateCache<MoviePageCache>(location, {
+      ...getPageStateCache(location),
+      reviews: reviewPostData,
+    });
   };
+
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
-    persistScrollPosition(popoverClickProps.id!);
+    persistScrollPosition();
     if (!isValidPopOverValue(value)) {
       throw new Error(`Please call 'onPopoverClick()' with correct value! Called value: ${value}, Expected value is one of:`, validPopOverOptions as any);
     }
@@ -238,8 +237,10 @@ function MovieReviews({
   };
 
   const addPost = () => {
-    /* eslint no-useless-escape: 0 */
-    const postContentWithMentionReplacements = (postContent.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    const postContentWithMentionReplacements = (postContent.replace(
+      allAtMentionsRegex,
+      mentionReplacementMatchFunc,
+    ));
     const movieReviewPostData = {
       message: postContentWithMentionReplacements,
       spoiler: containSpoiler,
@@ -321,14 +322,6 @@ function MovieReviews({
       .then(() => {
         setShow(false);
         setDropDownValue('BlockUserSuccess');
-        const updatedScrollData = reviewPostData.filter(
-          (scrollData: any) => scrollData.userId !== postUserId,
-        );
-        const positionData = {
-          ...scrollPosition,
-          data: updatedScrollData,
-        };
-        dispatch(setScrollPosition(positionData));
       })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));

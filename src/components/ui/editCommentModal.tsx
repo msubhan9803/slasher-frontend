@@ -4,7 +4,7 @@ import React, {
 import { Modal } from 'react-bootstrap';
 import { FormatMentionProps } from '../../routes/posts/create-post/CreatePost';
 import { CommentValue, ContentDescription, ReplyValue } from '../../types';
-import { decryptMessage } from '../../utils/text-utils';
+import { allAtMentionsRegex, decryptMessage } from '../../utils/text-utils';
 import CreatePostComponent from './CreatePostComponent';
 import ModalContainer from './CustomModal';
 
@@ -90,7 +90,10 @@ function EditCommentModal({
     return undefined;
   };
   const handlePostComment = () => {
-    const postContentWithMentionReplacements = (editMessage!.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    const postContentWithMentionReplacements = (editMessage!.replace(
+      allAtMentionsRegex,
+      mentionReplacementMatchFunc,
+    ));
     const files = postImages.filter((images: any) => images instanceof File);
     onUpdatePost(postContentWithMentionReplacements, files, deleteImageIds);
   };

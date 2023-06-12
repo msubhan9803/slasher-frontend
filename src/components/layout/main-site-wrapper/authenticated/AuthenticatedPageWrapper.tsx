@@ -32,6 +32,7 @@ import { setSocketConnected } from '../../../../redux/slices/socketSlice';
 import socketStore from '../../../../socketStore';
 import useSessionTokenMonitorAsync from '../../../../hooks/useSessionTokenMonitorAsync';
 import useSessionToken from '../../../../hooks/useSessionToken';
+import { setServerAvailable } from '../../../../redux/slices/serverAvailableSlice';
 
 interface Props {
   children: React.ReactNode;
@@ -42,13 +43,13 @@ const StyledOffcanvas = styled(Offcanvas)`
 `;
 
 const LeftSidebarWrapper = styled.div`
-  width: 142px;
+  width: 147px;
+  padding: .25rem 1rem 0 .25rem;
   height: calc(100vh - 93.75px);
   padding-bottom: 50px;
   position: sticky;
   top: 93.75px;
   overflow-y: overlay;
-  padding: 0px 1rem 0 0px;
   overscroll-behavior: contain;
 
   &::-webkit-scrollbar { display: none; }
@@ -155,6 +156,16 @@ function AuthenticatedPageWrapper({ children }: Props) {
     dispatch(handleUpdatedUnreadConversationCount(count.unreadConversationCount));
   }, [dispatch]);
 
+  const handleSocketConnect = useCallback(() => {
+    dispatch(setSocketConnected(true));
+    dispatch(setServerAvailable(true));
+  }, [dispatch]);
+
+  const handleSocketDisconnect = useCallback(() => {
+    dispatch(setSocketConnected(false));
+    dispatch(setServerAvailable(false));
+  }, [dispatch]);
+
   useEffect(() => {
     if (isSocketConnected || isConnectingSocketRef.current
       || token.isLoading || tokenNotFound) { return; }
@@ -164,8 +175,14 @@ function AuthenticatedPageWrapper({ children }: Props) {
       transports: ['websocket'],
       auth: { token: token.value },
     });
-    socketStore.socket.on('connect', () => {
-      dispatch(setSocketConnected());
+    socketStore.socket.on('connect', handleSocketConnect);
+    socketStore.socket.on('connect_error', (err: any) => {
+      const isConnectionFailure = err.message === 'websocket error';
+      if (isConnectionFailure) { handleSocketDisconnect(); }
+    });
+    socketStore.socket.on('disconnect', (err) => {
+      const isConnectionLost = err === 'transport close';
+      if (isConnectionLost) { handleSocketDisconnect(); }
     });
     // This is here to help with troubleshooting if there are ever any connection issues.
     // This will just prove whether or not authentication worked. If authentication fails,
@@ -175,7 +192,8 @@ function AuthenticatedPageWrapper({ children }: Props) {
         (socketStore.socket as any).slasherAuthSuccess = true;
       }
     });
-  }, [dispatch, isSocketConnected, tokenNotFound, token]);
+  }, [dispatch, isSocketConnected, tokenNotFound, token, handleSocketConnect,
+    handleSocketDisconnect]);
 
   useEffect(() => {
     if (!socket) { return () => { }; }
@@ -215,7 +233,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
         offcanvasSidebarExpandBreakPoint={desktopBreakPoint}
         ariaToggleTargetId={offcanvasId}
       />
-      <div className="w-100 px-lg-4 pt-2 pt-md-0 container-xxl">
+      <div className="w-100 px-lg-4 pt-2 pt-lg-0 container-xxl">
         <div className="d-flex">
           {isDesktopResponsiveSize
             && (

@@ -8,10 +8,12 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Alert,
+  Button,
   Col, Container, Form, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { Country, State } from 'country-state-city';
+import { useNavigate } from 'react-router-dom';
 import CustomDatePicker from '../../../components/ui/CustomDatePicker';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import { suggestEvent, getEventCategoriesOption } from '../../../api/event';
@@ -20,7 +22,7 @@ import CharactersCounter from '../../../components/ui/CharactersCounter';
 import CustomText from '../../../components/ui/CustomText';
 import { sortInPlace } from '../../../utils/text-utils';
 import useProgressButton from '../../../components/ui/ProgressButton';
-import SortData from '../../../components/filter-sort/SortData';
+import CustomSelect from '../../../components/filter-sort/CustomSelect';
 import { useAppSelector } from '../../../redux/hooks';
 
 // NOTE: From the state list of US, we get US states along with US territories.
@@ -117,7 +119,7 @@ function prettifyErrorMessages(errorMessageList: string[]) {
 }
 
 const INITIAL_EVENTFORM: EventForm = {
-  name: '', eventType: '', country: 'disabled', state: 'disabled', city: '', eventInfo: '', url: '', author: '', address: '', startDate: null, endDate: null,
+  name: '', eventType: '', country: '', state: '', city: '', eventInfo: '', url: '', author: '', address: '', startDate: null, endDate: null,
 };
 
 function EventSuggestion() {
@@ -130,6 +132,7 @@ function EventSuggestion() {
   const [errors, setErrors] = useState<string[]>([]);
   const [isEventSuggestionSuccessful, setIsEventSuggestionSuccessful] = useState(false);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
+  const navigate = useNavigate();
 
   const resetFormData = () => {
     setImageUpload(undefined);
@@ -141,7 +144,7 @@ function EventSuggestion() {
     setIsEventSuggestionSuccessful(false);
 
     if (key === 'country') {
-      setEventForm({ ...eventForm, [key]: value, state: 'disabled' });
+      setEventForm({ ...eventForm, [key]: value, state: '' });
       return;
     }
     setEventForm({ ...eventForm, [key]: value });
@@ -167,8 +170,8 @@ function EventSuggestion() {
   }, []);
   const onSendEventData = () => {
     const {
-      name, eventType, country, state, eventInfo, url, city, file, address,
-      startDate, endDate,
+      name, eventType, eventInfo, url, city, file, address,
+      startDate, endDate, country, state,
     } = eventForm;
 
     setProgressButtonStatus('loading');
@@ -187,10 +190,15 @@ function EventSuggestion() {
 
   return (
     <div>
-      <CustomContainer className="rounded p-md-4 pb-0 pb-md-4">
-        <Row className="d-md-none bg-dark pt-2">
-          <Col xs="auto" className="ms-2"><FontAwesomeIcon role="button" icon={solid('arrow-left-long')} size="2x" /></Col>
-          <Col><h2 className="text-center">Event Suggest</h2></Col>
+      <CustomContainer className="rounded p-lg-4 pb-0 pb-lg-4">
+        <Row className="d-lg-none mb-2 bg-dark pt-2 justify-content-between">
+          <Col />
+          <Col xs="auto"><h2 className="text-center">Suggest event</h2></Col>
+          <Col className="ms-2 text-end">
+            <Button variant="link" className="p-0 px-1" onClick={() => navigate(-1)}>
+              <FontAwesomeIcon icon={solid('xmark')} size="lg" />
+            </Button>
+          </Col>
         </Row>
         <Row>
           <Col className="h-100">
@@ -218,16 +226,16 @@ function EventSuggestion() {
         <Row>
           <Col md={6} className="mt-3">
 
-            <SortData
-              sortVal={eventForm.eventType}
-              onSelectSort={(val) => { handleChange(val, 'eventType'); }}
+            <CustomSelect
+              value={eventForm.eventType}
+              onChange={(val) => { handleChange(val, 'eventType'); }}
               placeholder={
                 loadingEventCategories ? 'Loading event categories...' : 'Event category'
               }
-              sortoptions={
+              options={
                 loadingEventCategories
                   ? [{ value: 'disabled', label: 'Loading event categories...' }]
-                  : [...options]
+                  : options
               }
               type="form"
             />
@@ -273,18 +281,20 @@ function EventSuggestion() {
         </Row>
         <Row>
           <Col md={6} className="mt-3">
-            <SortData
-              sortVal={eventForm.country}
-              onSelectSort={(val) => { handleChange(val, 'country'); }}
-              sortoptions={[{ value: 'disabled', label: 'Country' }, ...getCountries()]}
+            <CustomSelect
+              value={eventForm.country}
+              onChange={(val) => { handleChange(val, 'country'); }}
+              placeholder="Country"
+              options={getCountries()}
               type="form"
             />
           </Col>
           <Col md={6} className="mt-3">
-            <SortData
-              sortVal={eventForm.state}
-              onSelectSort={(val) => { handleChange(val, 'state'); }}
-              sortoptions={[{ value: 'disabled', label: 'State/Province' }, ...getStatesbyCountryName(eventForm.country)]}
+            <CustomSelect
+              value={eventForm.state}
+              onChange={(val) => { handleChange(val, 'state'); }}
+              placeholder="State/Province"
+              options={getStatesbyCountryName(eventForm.country)}
               type="form"
             />
           </Col>

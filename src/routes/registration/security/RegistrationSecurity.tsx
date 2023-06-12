@@ -111,6 +111,26 @@ function RegistrationSecurity({ activeStep }: Props) {
     handleChangeDay();
   }, [updateDayOptions.length, selectedDay, handleChangeDay]);
 
+  useEffect(() => {
+    if (securityInfo) {
+      if (securityInfo.day) {
+        setSelectedDay(securityInfo.day);
+      }
+
+      if (securityInfo.month) {
+        setSelectedMonth(securityInfo.month);
+      }
+
+      if (securityInfo.year) {
+        setSelectedYear(securityInfo.year);
+      }
+
+      if (securityInfo.securityQuestion) {
+        setSelectedSecurityQuestion(securityInfo.securityQuestion);
+      }
+    }
+  }, [securityInfo]);
+
   return (
     <RegistrationPageWrapper activeStep={activeStep}>
       <form>

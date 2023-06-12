@@ -54,7 +54,7 @@ export class NotificationsService {
     const notificationData = notification;
     const senderName = notificationData.notifyType === NotificationType.NewPostFromFollowedRssFeedProvider
       || ((NotificationType.UserSentYouAFriendRequest || NotificationType.UserAcceptedYourFriendRequest)
-        && notificationData.senderId.userName === 'Slasher')
+        && notificationData?.senderId?.userName === 'Slasher')
       ? '' : `${notificationData.senderId?.userName} `;
     notificationData.notificationMsg = senderName + notificationData.notificationMsg;
     const [user, userSetting] = await Promise.all([this.usersService.findById(notificationData.userId.toString(), true),

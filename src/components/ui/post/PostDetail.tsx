@@ -3,6 +3,7 @@ import React, {
   useCallback, useEffect, useState,
 } from 'react';
 import {
+  useLocation,
   useNavigate, useParams, useSearchParams,
 } from 'react-router-dom';
 import { createBlockUser } from '../../../api/blocks';
@@ -35,6 +36,7 @@ import PostFeed from './PostFeed/PostFeed';
 import { deletedPostsCache } from '../../../pageStateCache';
 import useProgressButton from '../ProgressButton';
 import { sleep } from '../../../utils/timer-utils';
+import { isPostDetailsPage } from '../../../utils/url-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -84,6 +86,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   const [commentSent, setCommentSent] = useState<boolean>(false);
   const [selectedBlockedUserId, setSelectedBlockedUserId] = useState<string>('');
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
+  const location = useLocation();
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     setSelectedBlockedUserId(popoverClickProps.userId!);
@@ -401,8 +404,11 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           } else if (queryCommentId) {
             navigate(`/app/movies/${res.data.movieId}/reviews/${postId}?commentId=${queryCommentId}`);
           }
-        } else if (res.data.userId.userName !== user?.userName) {
-          navigate(`/${res.data.userId.userName}/posts/${feedPostId}`);
+          // Only navigate to post-details page if necessary (fix bug of forward-browser history
+          // lost when we click on user-profile link followed by click browser-back arrow)
+          if (!isPostDetailsPage(location.pathname)) {
+            navigate(`/${res.data.userId.userName}/posts/${feedPostId}`);
+          }
           return;
         }
         let post: any = {};
@@ -468,7 +474,8 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       .catch((error) => {
         setErrorMessage(error.response.data.message);
       });
-  }, [navigate, partnerId, postId, postType, queryCommentId, user, queryReplyId]);
+  }, [navigate, partnerId, postId, postType, queryCommentId, queryReplyId,
+    location.pathname]);
 
   useEffect(() => {
     if (postId) {

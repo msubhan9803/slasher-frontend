@@ -9,7 +9,7 @@ export const firebaseInstance = {
 
 export function initiateFirebase(firebaseServerKey: string) {
   const serviceAccount = firebaseServerKey && JSON.parse(firebaseServerKey);
-  if (serviceAccount && !admin.apps.length) {
+  if (serviceAccount) {
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
     });

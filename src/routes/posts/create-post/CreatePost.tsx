@@ -14,6 +14,8 @@ import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/au
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import CreatePostComponent from '../../../components/ui/CreatePostComponent';
 import { ContentDescription, PostType } from '../../../types';
+import useProgressButton from '../../../components/ui/ProgressButton';
+import { sleep } from '../../../utils/timer-utils';
 import { allAtMentionsRegex } from '../../../utils/text-utils';
 
 export interface MentionProps {
@@ -43,6 +45,7 @@ function CreatePost() {
   const [titleContent, setTitleContent] = useState<string>('');
   const [containSpoiler, setContainSpoiler] = useState<boolean>(false);
   const [selectedPostType, setSelectedPostType] = useState<string>('');
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const paramsMovieId = searchParams.get('movieId');
 
   const mentionReplacementMatchFunc = (match: string) => {
@@ -58,7 +61,9 @@ function CreatePost() {
     return undefined;
   };
 
-  const addPost = () => {
+  const addPost = async () => {
+    /* eslint no-useless-escape: 0 */
+    setProgressButtonStatus('loading');
     const postContentWithMentionReplacements = (postContent.replace(
       allAtMentionsRegex,
       mentionReplacementMatchFunc,
@@ -80,11 +85,14 @@ function CreatePost() {
       movieId: paramsMovieId,
     };
     return createPost(createPostData, imageArray, descriptionArray!)
-      .then(() => {
+      .then(async () => {
+        setProgressButtonStatus('success');
+        await sleep(1000);
         setErrorMessage([]);
         navigate(location.state);
       })
       .catch((error) => {
+        setProgressButtonStatus('failure');
         const msg = error.response.status === 0 && !error.response.data
           ? 'Combined size of files is too large.'
           : error.response.data.message;
@@ -142,6 +150,7 @@ function CreatePost() {
             placeHolder="Create a post"
             descriptionArray={descriptionArray}
             setDescriptionArray={setDescriptionArray}
+            ProgressButton={ProgressButton}
             createEditPost
           />
         </Form>

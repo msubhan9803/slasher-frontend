@@ -25,6 +25,8 @@ import {
   blockedUsersCache,
   deletePageStateCache, deletedPostsCache, getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../pageStateCache';
+import useProgressButton from '../../components/ui/ProgressButton';
+import { sleep } from '../../utils/timer-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
@@ -46,6 +48,7 @@ function Home() {
   const [postId, setPostId] = useState<string>('');
   const [postUserId, setPostUserId] = useState<string>('');
   const [rssfeedProviderId, setRssfeedProviderId] = useState<string>('');
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const location = useLocation();
   const pageStateCache = (getPageStateCache(location) ?? [])
     .filter(removeDeletedPost)
@@ -233,8 +236,11 @@ function Home() {
     imageDelete: string[] | undefined,
     descriptionArray?: ContentDescription[],
   ) => {
+    setProgressButtonStatus('loading');
     updateFeedPost(postId, message, images, imageDelete, null, descriptionArray)
-      .then((res) => {
+      .then(async (res) => {
+        setProgressButtonStatus('success');
+        await sleep(1000);
         setShow(false);
         const updatePost = posts.map((post: any) => {
           if (post._id === postId) {
@@ -247,6 +253,7 @@ function Home() {
         setPosts(updatePost);
       })
       .catch((error) => {
+        setProgressButtonStatus('failure');
         const msg = error.response.status === 0 && !error.response.data
           ? 'Combined size of files is too large.'
           : error.response.data.message;
@@ -404,6 +411,7 @@ function Home() {
               setPostImages={setPostImages}
               deleteImageIds={deleteImageIds}
               setDeleteImageIds={setDeleteImageIds}
+              ProgressButton={ProgressButton}
               editPost
             />
           )

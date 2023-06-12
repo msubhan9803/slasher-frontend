@@ -21,6 +21,8 @@ import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent'
 import {
   deletePageStateCache, deletedPostsCache, getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../../pageStateCache';
+import useProgressButton from '../../../components/ui/ProgressButton';
+import { sleep } from '../../../utils/timer-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -52,6 +54,7 @@ function ProfilePosts({ user }: Props) {
     hasPageStateCache(location)
       ? pageStateCache : [],
   );
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const { userName: userNameOrId } = useParams<string>();
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.message) {
@@ -154,7 +157,10 @@ function ProfilePosts({ user }: Props) {
     imageDelete: string[] | undefined,
     descriptionArray?: ContentDescription[],
   ) => {
-    updateFeedPost(postId, message, images, imageDelete, null, descriptionArray).then(() => {
+    setProgressButtonStatus('loading');
+    updateFeedPost(postId, message, images, imageDelete, null, descriptionArray).then(async () => {
+      setProgressButtonStatus('success');
+      await sleep(1000);
       setShowReportModal(false);
       const updatePost = posts.map((post: any) => {
         if (post._id === postId) {
@@ -168,6 +174,7 @@ function ProfilePosts({ user }: Props) {
       callLatestFeedPost();
     })
       .catch((error) => {
+        setProgressButtonStatus('failure');
         const msg = error.response.status === 0 && !error.response.data
           ? 'Combined size of files is too large.'
           : error.response.data.message;
@@ -316,6 +323,7 @@ function ProfilePosts({ user }: Props) {
               setPostImages={setPostImages}
               deleteImageIds={deleteImageIds}
               setDeleteImageIds={setDeleteImageIds}
+              ProgressButton={ProgressButton}
             />
           )}
       </ProfileTabContent>

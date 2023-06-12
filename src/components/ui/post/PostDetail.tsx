@@ -81,6 +81,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   const [updateState, setUpdateState] = useState(false);
   const [commentSent, setCommentSent] = useState<boolean>(false);
   const [selectedBlockedUserId, setSelectedBlockedUserId] = useState<string>('');
+  const [commentOrReplySuccessAlertMessage, setCommentOrReplySuccessAlertMessage] = useState('');
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     setSelectedBlockedUserId(popoverClickProps.userId!);
@@ -236,6 +237,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           setUpdateState(true);
           setCommentSent(false);
           setCommentErrorMessage([]);
+          setCommentOrReplySuccessAlertMessage('Your comment has been added.');
         })
         .catch((error) => {
           const msg = error.response.status === 0 && !error.response.data
@@ -335,6 +337,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         setCommentReplyErrorMessage([]);
         setCommentSent(false);
         setCommentID('');
+        setCommentOrReplySuccessAlertMessage('Your reply has been added to the end of this comment thread.');
       }).catch((error) => {
         const msg = error.response.status === 0 && !error.response.data
           ? 'Combined size of files is too large.'
@@ -781,6 +784,8 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                 showPubWiseAdAtPageBottom={showPubWiseAdAtPageBottom}
                 setSelectedBlockedUserId={setSelectedBlockedUserId}
                 setDropDownValue={setDropDownValue}
+                commentOrReplySuccessAlertMessage={commentOrReplySuccessAlertMessage}
+                setCommentOrReplySuccessAlertMessage={setCommentOrReplySuccessAlertMessage}
               />
               {dropDownValue !== 'Edit'
                 && (
@@ -810,7 +815,9 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           </ContentPageWrapper>
         )
         : (
-          <div>
+          // eslint-disable-next-line max-len
+          // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+          <div onClick={() => setCommentOrReplySuccessAlertMessage('')}>
             <PostFeed
               isSinglePost
               postFeedData={postData}
@@ -853,6 +860,8 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
               setCommentErrorMessage={setCommentErrorMessage}
               setSelectedBlockedUserId={setSelectedBlockedUserId}
               setDropDownValue={setDropDownValue}
+              commentOrReplySuccessAlertMessage={commentOrReplySuccessAlertMessage}
+              setCommentOrReplySuccessAlertMessage={setCommentOrReplySuccessAlertMessage}
             />
             {dropDownValue !== 'Edit'
               && (

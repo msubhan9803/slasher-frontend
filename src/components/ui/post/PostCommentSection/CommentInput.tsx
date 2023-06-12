@@ -5,19 +5,19 @@ import React, {
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  Alert,
   Button,
   Col, Form, InputGroup, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import UserCircleImage from '../../UserCircleImage';
 import ImagesContainer from '../../ImagesContainer';
 import { decryptMessage } from '../../../../utils/text-utils';
 import MessageTextarea from '../../MessageTextarea';
 import { FormatMentionProps } from '../../../../routes/posts/create-post/CreatePost';
 import ErrorMessageList from '../../ErrorMessageList';
+import { LG_MEDIA_BREAKPOINT } from '../../../../constants';
 
 interface CommentInputProps {
-  userData: any;
   message: string;
   setIsReply?: (value: boolean) => void;
   inputFile: any;
@@ -46,11 +46,26 @@ interface CommentInputProps {
   replyDescriptionArray?: string[];
   setReplyDescriptionArray?: (value: string[]) => void;
   isMainPostCommentClick?: boolean;
+  commentOrReplySuccessAlertMessage?: string;
+  setCommentOrReplySuccessAlertMessage?: React.Dispatch<React.SetStateAction<string>>;
 }
 
 interface InputProps {
   focus: boolean;
 }
+
+const CommentForm = styled(Form)`
+/* Make comment/reply input fixed on bottom of the screen on mobile and tabs */
+  @media (max-width: ${LG_MEDIA_BREAKPOINT}) {
+    position: fixed;
+    left: 0;
+    width: 100%;
+    background: black;
+    bottom: 78px;
+    z-index: 1;
+    padding: 0px 10px;
+  }
+`;
 
 const StyledCommentInputGroup = styled(InputGroup) <InputProps>`
   .form-control {
@@ -85,12 +100,13 @@ const StyledCommentInputGroup = styled(InputGroup) <InputProps>`
 
 `;
 function CommentInput({
-  userData, message, setIsReply, inputFile,
+  message, setIsReply, inputFile,
   handleFileChange, sendComment, imageArray, handleRemoveFile, dataId,
   handleSearch, mentionList, addUpdateComment, replyImageArray, isReply,
   addUpdateReply, commentID, commentReplyID, checkCommnt, commentError, commentReplyError,
   commentSent, setCommentReplyErrorMessage, setReplyImageArray, isEdit, descriptionArray,
   setDescriptionArray, replyDescriptionArray, setReplyDescriptionArray, isMainPostCommentClick,
+  commentOrReplySuccessAlertMessage, setCommentOrReplySuccessAlertMessage,
 }: CommentInputProps) {
   const [editMessage, setEditMessage] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
@@ -229,14 +245,14 @@ function CommentInput({
       setDescriptionArray!([...descriptionArrayList]);
     }
   };
+  const handleCloseCommentOrReplySuccessAlert = () => {
+    setCommentOrReplySuccessAlertMessage?.('');
+  };
   return (
-    <Form>
-      <Row className="pt-2 order-last order-sm-0">
-        <Col xs="auto">
-          <UserCircleImage src={userData.user.profilePic} tabIndex={0} alt="user picture" className="bg-secondary d-flex" />
-        </Col>
+    <CommentForm>
+      <Row className="pt-2 order-last order-sm-0 gx-0">
         <Col className="ps-0">
-          <div className="d-flex align-items-end mb-4">
+          <div className="d-flex align-items-end mb-2">
             <StyledCommentInputGroup focus={isFocosInput} className="mx-1">
               <div className="position-relative d-flex w-100">
                 <MessageTextarea
@@ -335,7 +351,18 @@ function CommentInput({
             className="m-0"
           />
         )}
-    </Form>
+      {commentOrReplySuccessAlertMessage
+        && (
+          <Alert variant="success" className="d-flex align-items-center justify-content-between mb-1">
+            <div>
+              {commentOrReplySuccessAlertMessage}
+            </div>
+            <Button onClick={handleCloseCommentOrReplySuccessAlert} className="bg-transparent border-0">
+              <FontAwesomeIcon className="d-block" icon={solid('close')} size="lg" />
+            </Button>
+          </Alert>
+        )}
+    </CommentForm>
   );
 }
 
@@ -359,6 +386,8 @@ CommentInput.defaultProps = {
   replyDescriptionArray: undefined,
   setReplyDescriptionArray: undefined,
   isMainPostCommentClick: undefined,
+  commentOrReplySuccessAlertMessage: '',
+  setCommentOrReplySuccessAlertMessage: undefined,
 };
 
 export default CommentInput;

@@ -91,6 +91,8 @@ interface Props {
   showPubWiseAdAtPageBottom?: boolean;
   setSelectedBlockedUserId?: (value: string) => void;
   setDropDownValue?: (value: string) => void;
+  commentOrReplySuccessAlertMessage?: string;
+  setCommentOrReplySuccessAlertMessage?: React.Dispatch<React.SetStateAction<string>>;
 }
 
 interface StyledProps {
@@ -289,6 +291,7 @@ function PostFeed({
   commentReplyError, postType, onSpoilerClick,
   commentSent, setCommentReplyErrorMessage, setCommentErrorMessage,
   showPubWiseAdAtPageBottom, setSelectedBlockedUserId, setDropDownValue,
+  commentOrReplySuccessAlertMessage, setCommentOrReplySuccessAlertMessage,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [isCommentClick, setCommentClick] = useState<boolean>(false);
@@ -541,6 +544,8 @@ function PostFeed({
                       isMainPostCommentClick={isCommentClick}
                       setSelectedBlockedUserId={setSelectedBlockedUserId}
                       setCommentDropDownValue={setDropDownValue}
+                      commentOrReplySuccessAlertMessage={commentOrReplySuccessAlertMessage}
+                      setCommentOrReplySuccessAlertMessage={setCommentOrReplySuccessAlertMessage}
                     />
                   </InfiniteScroll>
                   {loadingPosts && <LoadingIndicator />}
@@ -623,5 +628,7 @@ PostFeed.defaultProps = {
   showPubWiseAdAtPageBottom: undefined,
   setSelectedBlockedUserId: undefined,
   setDropDownValue: undefined,
+  commentOrReplySuccessAlertMessage: '',
+  setCommentOrReplySuccessAlertMessage: undefined,
 };
 export default PostFeed;

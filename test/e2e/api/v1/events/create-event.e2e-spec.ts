@@ -148,6 +148,7 @@ describe('Events create / (e2e)', () => {
             .field('endDate', postBody.endDate)
             .field('country', postBody.country)
             .field('state', postBody.state)
+            .field('city', postBody.city)
             .field('url', postBody.url)
             .field('author', postBody.author)
             .attach('files', tempPath[0])
@@ -165,7 +166,7 @@ describe('Events create / (e2e)', () => {
             startDate: `${postBody.startDate}T00:00:00.000Z`,
             endDate: `${postBody.endDate}T00:00:00.000Z`,
             event_type: activeEventCategory._id.toString(),
-            city: null,
+            city: 'San Francisco',
             state: 'CA',
             address: null,
             country: 'United States',
@@ -401,6 +402,39 @@ describe('Events create / (e2e)', () => {
             .expect(HttpStatus.BAD_REQUEST);
 
           expect(response.body.message).toContain('country should not be empty');
+        }, [{ extension: 'png' }, { extension: 'png' }, { extension: 'png' }, { extension: 'png' }]);
+
+        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+        expect(allFilesNames).toEqual(['.keep']);
+      });
+
+      it('city should not be empty', async () => {
+        postBody.city = '';
+        await createTempFiles(async (tempPath) => {
+          const response = await request(app.getHttpServer())
+            .post('/api/v1/events')
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('name', postBody.name)
+            .field('userId', postBody.userId)
+            .field('event_type', postBody.event_type)
+            .field('startDate', postBody.startDate)
+            .field('endDate', postBody.endDate)
+            .field('country', postBody.country)
+            .field('state', postBody.state)
+            .field('city', postBody.city)
+            .field('address', postBody.address)
+            .field('event_info', postBody.event_info)
+            .field('url', postBody.url)
+            .field('author', postBody.author)
+            .attach('files', tempPath[0])
+            .attach('files', tempPath[1])
+            .attach('files', tempPath[2])
+            .attach('files', tempPath[3])
+            .expect(HttpStatus.BAD_REQUEST);
+
+          expect(response.body.message).toContain('city should not be empty');
         }, [{ extension: 'png' }, { extension: 'png' }, { extension: 'png' }, { extension: 'png' }]);
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)

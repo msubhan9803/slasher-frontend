@@ -191,8 +191,10 @@ function CommentInput({
     return undefined;
   };
   const handleMessage = () => {
-    // eslint-disable-next-line max-len
-    const postContentWithMentionReplacements = (editMessage!.replace(allAtMentionsRegex, mentionReplacementMatchFunc));
+    const postContentWithMentionReplacements = (editMessage!.replace(
+      allAtMentionsRegex,
+      mentionReplacementMatchFunc,
+    ));
     onUpdatePost(postContentWithMentionReplacements);
     setShowPicker(false);
   };

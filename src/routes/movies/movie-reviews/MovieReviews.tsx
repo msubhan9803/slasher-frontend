@@ -237,8 +237,10 @@ function MovieReviews({
   };
 
   const addPost = () => {
-    // eslint-disable-next-line max-len
-    const postContentWithMentionReplacements = (postContent.replace(allAtMentionsRegex, mentionReplacementMatchFunc));
+    const postContentWithMentionReplacements = (postContent.replace(
+      allAtMentionsRegex,
+      mentionReplacementMatchFunc,
+    ));
     const movieReviewPostData = {
       message: postContentWithMentionReplacements,
       spoiler: containSpoiler,

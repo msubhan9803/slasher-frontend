@@ -90,8 +90,10 @@ function EditCommentModal({
     return undefined;
   };
   const handlePostComment = () => {
-    // eslint-disable-next-line max-len
-    const postContentWithMentionReplacements = (editMessage!.replace(allAtMentionsRegex, mentionReplacementMatchFunc));
+    const postContentWithMentionReplacements = (editMessage!.replace(
+      allAtMentionsRegex,
+      mentionReplacementMatchFunc,
+    ));
     const files = postImages.filter((images: any) => images instanceof File);
     onUpdatePost(postContentWithMentionReplacements, files, deleteImageIds);
   };

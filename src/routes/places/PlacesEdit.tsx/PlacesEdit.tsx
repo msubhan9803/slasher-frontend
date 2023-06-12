@@ -11,7 +11,7 @@ import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import CharactersCounter from '../../../components/ui/CharactersCounter';
 import { StyleButton } from '../../../components/ui/StyleButton';
 import CustomText from '../../../components/ui/CustomText';
-import SortData from '../../../components/filter-sort/SortData';
+import CustomSelect from '../../../components/filter-sort/CustomSelect';
 
 const CustomCol = styled(Col)`
   width: 13.125rem !important;
@@ -52,10 +52,10 @@ function PlacesEdit() {
       <h2 className="d-md-block mt-4">Place information</h2>
       <Row>
         <Col md={6} className="mt-3">
-          <SortData
-            sortVal="Category"
-            onSelectSort={() => { }}
-            sortoptions={[{ value: 'disabled', label: 'Category' }]}
+          <CustomSelect
+            value="Category"
+            onChange={() => { }}
+            options={[{ value: 'disabled', label: 'Category' }]}
             type="form"
           />
         </Col>
@@ -103,18 +103,18 @@ function PlacesEdit() {
       </Row>
       <Row>
         <Col md={6} className="mt-3">
-          <SortData
-            sortVal="State/Province"
-            onSelectSort={() => { }}
-            sortoptions={[{ value: 'disabled', label: 'State/Province' }]}
+          <CustomSelect
+            value="State/Province"
+            onChange={() => { }}
+            options={[{ value: 'disabled', label: 'State/Province' }]}
             type="form"
           />
         </Col>
         <Col md={6} className="mt-3">
-          <SortData
-            sortVal="Country"
-            onSelectSort={() => { }}
-            sortoptions={[{ value: 'disabled', label: 'Country' }]}
+          <CustomSelect
+            value="Country"
+            onChange={() => { }}
+            options={[{ value: 'disabled', label: 'Country' }]}
             type="form"
           />
         </Col>

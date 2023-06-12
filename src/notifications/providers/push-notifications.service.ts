@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import { Injectable } from '@nestjs/common';
-import { firebaseInstance } from 'src/app/providers/initFirebase';
+import { firebaseInstance } from './../../app/providers/initFirebase';
 
 @Injectable()
 export class PushNotificationsService {

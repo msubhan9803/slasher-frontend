@@ -6,6 +6,7 @@ import * as selfsigned from 'selfsigned';
 import { RedisIoAdapter } from './adapters/redis-io.adapter';
 import { AppModule } from './app.module';
 import { configureAppPrefixAndVersioning } from './utils/app-setup-utils';
+import { initiateFirebase } from './app/providers/initFirebase';
 
 async function bootstrap() {
   let httpsOptions;
@@ -28,6 +29,8 @@ async function bootstrap() {
 
   const config = app.get(ConfigService);
   const port = config.get<number>('PORT', 4000);
+  const FIREBASE_SERVER_KEY = config.get<string>('FIREBASE_SERVER_KEY');
+  initiateFirebase(FIREBASE_SERVER_KEY);
 
   // This timeout extension fixes some AWS ALB issues that we're encountering where high CPU
   // acitivity in a container causes 502 errors from the ALB.

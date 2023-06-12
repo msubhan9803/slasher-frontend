@@ -31,13 +31,15 @@ export const updateUserNameCookie = async (userName: string) => {
 };
 
 const clearSignInCookies = async () => {
+  if (isNativePlatform) { await Preferences.clear(); }
+  // SD-1247: Bug Fixed: Please make sure capacitor Shared-preferences are cleared first (i.e,
+  // before Cookies) otherwise sometimes there are race conditions which tend to reset cookies
+  // for `sessionToken` when some call for `getSessionToken` is also in queue for some active
+  // requests.
   Cookies.remove('sessionToken');
   Cookies.remove('userId');
   Cookies.remove('userName');
   clearLocalStorage('spoilersIds');
-  if (isNativePlatform) {
-    await Preferences.clear();
-  }
 };
 export const signOut = async () => {
   await clearSignInCookies();
@@ -76,7 +78,7 @@ export const getSessionUserName = async () => {
   if (sessionUserName) { return sessionUserName; }
   // Try to restore from native storage for capacitor app.
   if (isNativePlatform) {
-    const userName = (await Preferences.get({ key: 'sessionToken' })).value;
+    const userName = (await Preferences.get({ key: 'userName' })).value;
     if (userName) {
       Cookies.set('userName', userName);
       return userName;

@@ -4,7 +4,7 @@ import CharactersCounter from '../../../components/ui/CharactersCounter';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import RoundButton from '../../../components/ui/RoundButton';
 import { StyleButton } from '../../../components/ui/StyleButton';
-import SortData from '../../../components/filter-sort/SortData';
+import CustomSelect from '../../../components/filter-sort/CustomSelect';
 
 function ShoppingEdit() {
   const [description, setDescription] = useState<string>('');
@@ -91,18 +91,18 @@ function ShoppingEdit() {
       </Row>
       <Row>
         <Col md={6} className="mt-3">
-          <SortData
-            sortVal="State/Province"
-            onSelectSort={() => { }}
-            sortoptions={[{ value: 'disabled', label: 'State/Province' }]}
+          <CustomSelect
+            value="State/Province"
+            onChange={() => { }}
+            options={[{ value: 'disabled', label: 'State/Province' }]}
             type="form"
           />
         </Col>
         <Col md={6} className="mt-3">
-          <SortData
-            sortVal="Country"
-            onSelectSort={() => { }}
-            sortoptions={[{ value: 'disabled', label: 'Country' }]}
+          <CustomSelect
+            value="Country"
+            onChange={() => { }}
+            options={[{ value: 'disabled', label: 'Country' }]}
             type="form"
           />
         </Col>

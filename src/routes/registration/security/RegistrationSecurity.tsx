@@ -16,7 +16,7 @@ import RegistartionSecurityList from '../components/RegistrationSecurityList';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import { validateRegistrationFields } from '../../../api/users';
 import useProgressButton from '../../../components/ui/ProgressButton';
-import SortData from '../../../components/filter-sort/SortData';
+import CustomSelect from '../../../components/filter-sort/CustomSelect';
 
 const yearOptions = generate18OrOlderYearList();
 const monthOptions = generateMonthOptions();
@@ -133,10 +133,10 @@ function RegistrationSecurity({ activeStep }: Props) {
             </Row>
           </Col>
           <Col sm={12} md={9} className="mt-4">
-            <SortData
-              sortVal={selectedSecurityQuestion}
-              onSelectSort={(val) => { handleChange(val, 'securityQuestion'); setSelectedSecurityQuestion(val); }}
-              sortoptions={[{ value: 'disabled', label: 'Select a security question' }, ...RegistartionSecurityQuestions]}
+            <CustomSelect
+              value={selectedSecurityQuestion}
+              onChange={(val) => { handleChange(val, 'securityQuestion'); setSelectedSecurityQuestion(val); }}
+              options={[{ value: 'disabled', label: 'Select a security question' }, ...RegistartionSecurityQuestions]}
               type="form"
             />
             <p className="mt-3 text-light">
@@ -168,26 +168,26 @@ function RegistrationSecurity({ activeStep }: Props) {
                 <p className="mb-4 text-light">Your age will not be shown in your profile.</p>
               </Col>
               <Col sm={12} md={4}>
-                <SortData
-                  sortVal={selectedMonth}
-                  onSelectSort={(val) => { handleChange(val, 'month'); setSelectedMonth(val); }}
-                  sortoptions={[{ value: 'disabled', label: 'Month' }, ...monthOptions]}
+                <CustomSelect
+                  value={selectedMonth}
+                  onChange={(val) => { handleChange(val, 'month'); setSelectedMonth(val); }}
+                  options={[{ value: 'disabled', label: 'Month' }, ...monthOptions]}
                   type="form"
                 />
               </Col>
               <Col sm={12} md={4} className="my-2 my-md-0">
-                <SortData
-                  sortVal={selectedDay}
-                  onSelectSort={(val) => { handleChange(val, 'day'); setSelectedDay(val); }}
-                  sortoptions={[{ value: 'disabled', label: 'Day' }, ...convertedDayOptions]}
+                <CustomSelect
+                  value={selectedDay}
+                  onChange={(val) => { handleChange(val, 'day'); setSelectedDay(val); }}
+                  options={[{ value: 'disabled', label: 'Day' }, ...convertedDayOptions]}
                   type="form"
                 />
               </Col>
               <Col sm={12} md={4}>
-                <SortData
-                  sortVal={selectedYear}
-                  onSelectSort={(val) => { handleChange(val, 'year'); setSelectedYear(val); }}
-                  sortoptions={[{ value: 'disabled', label: 'Year' }, ...convertedYearOptions]}
+                <CustomSelect
+                  value={selectedYear}
+                  onChange={(val) => { handleChange(val, 'year'); setSelectedYear(val); }}
+                  options={[{ value: 'disabled', label: 'Year' }, ...convertedYearOptions]}
                   type="form"
                 />
               </Col>

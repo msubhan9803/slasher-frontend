@@ -68,7 +68,10 @@ describe('Users suggested friends (e2e)', () => {
       let user2: UserDocument;
       let user3: UserDocument;
       let user4: UserDocument;
+      let user5: UserDocument;
       let conversations;
+      let message1;
+      let message2;
 
       beforeEach(async () => {
         activeUser = await usersService.create(userFactory.build({
@@ -81,20 +84,19 @@ describe('Users suggested friends (e2e)', () => {
         user2 = await usersService.create(userFactory.build({ userName: 'Friend2' }));
         user3 = await usersService.create(userFactory.build({ userName: 'Friend3' }));
         user4 = await usersService.create(userFactory.build({ userName: 'Friend4' }));
+        user5 = await usersService.create(userFactory.build({ userName: 'Friend5' }));
 
         await friendsService.createFriendRequest(user4.id, activeUser.id);
         await friendsService.createFriendRequest(user3.id, activeUser.id);
         await friendsService.createFriendRequest(user1.id, activeUser.id);
         await friendsService.createFriendRequest(user2.id, activeUser.id);
+        await friendsService.createFriendRequest(user5.id, activeUser.id);
 
-        await chatService.sendPrivateDirectMessage(activeUser.id, user1.id, 'Hi, test message 1.');
-        await chatService.sendPrivateDirectMessage(activeUser.id, user2.id, 'Hi, test message 2.');
-        await chatService.sendPrivateDirectMessage(activeUser.id, user3.id, 'Hi, test message 3.');
-
-        await chatService.sendPrivateDirectMessage(user1.id, activeUser.id, 'Hi, test reply 1.');
+        message1 = await chatService.sendPrivateDirectMessage(user1.id, activeUser.id, 'Hi, test reply 1.');
+        message2 = await chatService.sendPrivateDirectMessage(user3.id, activeUser.id, 'Hi, test reply 3.');
         await chatService.sendPrivateDirectMessage(user2.id, activeUser.id, 'Hi, test reply 2.');
-        await chatService.sendPrivateDirectMessage(user2.id, activeUser.id, 'Hi, test reply 3.');
-        conversations = await chatService.getConversations(activeUser._id.toString(), 3);
+        await chatService.sendPrivateDirectMessage(user4.id, activeUser.id, 'Hi, test reply 4.');
+        await chatService.sendPrivateDirectMessage(user5.id, activeUser.id, 'Hi, test reply 5.');
 
         for (let index = 0; index < 5; index += 1) {
           await notificationsService.create(
@@ -114,10 +116,13 @@ describe('Users suggested friends (e2e)', () => {
         );
       });
       it('returns the expected user initial data', async () => {
+        await chatService.markMessageAsRead(message1._id.toString());
+        await chatService.markMessageAsRead(message2._id.toString());
+        conversations = await chatService.getUnreadConversations(activeUser._id.toString());
         expect(conversations).toHaveLength(3);
-        expect(conversations[0].latestMessage).toBe('Hi, test reply 3.'); // user2
-        expect(conversations[1].latestMessage).toBe('Hi, test reply 1.'); // user1
-        expect(conversations[2].latestMessage).toBe('Hi, test message 3.'); // user3
+        expect(conversations[0].latestMessage).toBe('Hi, test reply 5.');
+        expect(conversations[1].latestMessage).toBe('Hi, test reply 4.');
+        expect(conversations[2].latestMessage).toBe('Hi, test reply 2.');
 
         const recentMessages = [];
         for (const chat of conversations) {
@@ -136,41 +141,98 @@ describe('Users suggested friends (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body).toEqual({
-          user: {
-            id: activeUser.id,
-            userName: 'Username1',
-            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-            newNotificationCount: 6,
-            newFriendRequestCount: 0,
+        expect(response.body).toEqual(
+          {
+            user: {
+              id: expect.any(String),
+              userName: 'Username1',
+              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+              newNotificationCount: 6,
+              newFriendRequestCount: 0,
+            },
+            recentMessages: [
+              {
+                _id: expect.any(String),
+                participants: [
+                  {
+                    _id: expect.any(String),
+                    userName: 'Friend5',
+                    profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+                  },
+                  {
+                    _id: expect.any(String),
+                    userName: 'Username1',
+                    profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+                  },
+                ],
+                unreadCount: 1,
+                latestMessage: 'Hi, test reply 5.',
+                updatedAt: expect.any(String),
+              },
+              {
+                _id: expect.any(String),
+                participants: [
+                  {
+                    _id: expect.any(String),
+                    userName: 'Friend4',
+                    profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+                  },
+                  {
+                    _id: expect.any(String),
+                    userName: 'Username1',
+                    profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+                  },
+                ],
+                unreadCount: 1,
+                latestMessage: 'Hi, test reply 4.',
+                updatedAt: expect.any(String),
+              },
+              {
+                _id: expect.any(String),
+                participants: [
+                  {
+                    _id: expect.any(String),
+                    userName: 'Friend2',
+                    profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+                  },
+                  {
+                    _id: expect.any(String),
+                    userName: 'Username1',
+                    profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+                  },
+                ],
+                unreadCount: 1,
+                latestMessage: 'Hi, test reply 2.',
+                updatedAt: expect.any(String),
+              },
+            ],
+            recentFriendRequests: [
+              {
+                _id: expect.any(String),
+                userName: 'Friend5',
+                profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+                firstName: 'First name 6',
+                createdAt: expect.any(String),
+              },
+              {
+                _id: expect.any(String),
+                userName: 'Friend2',
+                profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+                firstName: 'First name 3',
+                createdAt: expect.any(String),
+              },
+              {
+                _id: expect.any(String),
+                userName: 'Friend1',
+                profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+                firstName: 'First name 2',
+                createdAt: expect.any(String),
+              },
+            ],
+            unreadNotificationCount: 5,
+            newConversationIdsCount: 0,
           },
-          recentMessages,
-          unreadNotificationCount: 5,
-          newConversationIdsCount: 0,
-          recentFriendRequests: [
-            {
-              _id: user2.id,
-              userName: 'Friend2',
-              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-              firstName: user2.firstName,
-              createdAt: expect.any(String),
-            },
-            {
-              _id: user1.id,
-              userName: 'Friend1',
-              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-              firstName: user1.firstName,
-              createdAt: expect.any(String),
-            },
-            {
-              _id: user3.id,
-              userName: 'Friend3',
-              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-              firstName: user3.firstName,
-              createdAt: expect.any(String),
-            },
-          ],
-        });
+        );
       });
     });
   });

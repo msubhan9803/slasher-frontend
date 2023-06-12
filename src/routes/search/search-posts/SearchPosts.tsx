@@ -20,6 +20,7 @@ import { reportData } from '../../../api/report';
 import {
   deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../../pageStateCache';
+import useProgressButton from '../../../components/ui/ProgressButton';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
@@ -50,6 +51,7 @@ function SearchPosts() {
   const [postUserId, setPostUserId] = useState<string>('');
   const [lastHashtagId, setLastHashtagId] = useState<string>('');
   const persistScrollPosition = () => { setPageStateCache(location, searchPosts); };
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   useEffect(() => {
     setQueryParam(searchParams.get('hashtag'));
   }, [searchParams]);
@@ -243,7 +245,9 @@ function SearchPosts() {
   };
 
   const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
+    setProgressButtonStatus('loading');
     updateFeedPost(postId, message, images, imageDelete).then((res) => {
+      setProgressButtonStatus('success');
       setShow(false);
       const updatePost = searchPosts.map((post: any) => {
         if (post._id === postId) {
@@ -257,6 +261,7 @@ function SearchPosts() {
       setSearchPosts(checkHahtag);
     })
       .catch((error) => {
+        setProgressButtonStatus('failure');
         const msg = error.response.status === 0 && !error.response.data
           ? 'Combined size of files is too large.'
           : error.response.data.message;
@@ -353,6 +358,7 @@ function SearchPosts() {
             setPostImages={setPostImages}
             deleteImageIds={deleteImageIds}
             setDeleteImageIds={setDeleteImageIds}
+            ProgressButton={ProgressButton}
           />
         )
       }

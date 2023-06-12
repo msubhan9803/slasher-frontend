@@ -188,14 +188,27 @@ function PostContent({
     }
   }, [isSinglePost, visible]);
 
-  // const handleHashtagClick = (content: string, postDetail: any) => {
-  //   const state = { pathname };
-  //   if (content.startsWith('#')) {
-  //     navigate(`/app/search/posts?hashtag=${content.slice(1)}`, { state });
-  //   } else {
-  //     navigate(`/${postDetail.userName}/posts/${postDetail.id}`, { state });
-  //   }
-  // };
+  const genratePostContent = (content: any) => {
+    const escapedString = newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content, `#${selectedHashtag}`!)), defaultLinkifyOpts));
+
+    const regex = /(#\w+)/g;
+
+    const result = escapedString.split(regex).filter(Boolean);
+
+    const arrayWithJsx = result.map((resultItem) => {
+      if (resultItem.startsWith('#')) {
+        (
+          <div>
+            <Link to={`/app/search/posts?hashtag=${resultItem.slice(1)}`}>{resultItem}</Link>
+          </div>
+        );
+      }
+
+      return resultItem;
+    });
+
+    return arrayWithJsx.join('').toString();
+  };
 
   return (
     <div>
@@ -257,7 +270,7 @@ function PostContent({
                 {
                   __html: escapeHtml && !post?.spoiler
                     // eslint-disable-next-line max-len
-                    ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(message, `#${selectedHashtag}`!)), defaultLinkifyOpts))
+                    ? genratePostContent(message)
                     : cleanExternalHtmlContent(message),
                 }
               }

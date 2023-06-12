@@ -154,12 +154,19 @@ function MessageTextarea({
       textareaRef.current.focus();
     }
   }, [isReply, isMainPostCommentClick]);
-  const handleShowPicker = () => {
+  const handleShowPicker = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
     setShowPicker!(!showPicker);
   };
   const handleEmojiSelect = (emoji: any) => {
     setSelectedEmoji([...selectedEmoji, emoji.native]);
     setMessageContent!((prevMessage: string) => prevMessage + emoji.native);
+  };
+  const closeEmojiPickerIfOpen = () => {
+    if (showPicker) {
+      setShowPicker!(false);
+    }
   };
   return (
     <>
@@ -222,7 +229,11 @@ function MessageTextarea({
           className="position-absolute me-4"
           createpost={createEditPost}
         >
-          <CustomEmojiPicker handleEmojiSelect={handleEmojiSelect} isReply={isReply} />
+          <CustomEmojiPicker
+            handleEmojiSelect={handleEmojiSelect}
+            onClickOutside={closeEmojiPickerIfOpen}
+            isReply={isReply}
+          />
         </EmojiPicker>
       )}
     </>

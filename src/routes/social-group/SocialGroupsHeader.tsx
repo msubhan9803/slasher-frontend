@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Row, Col } from 'react-bootstrap';
 import FilterModal from '../../components/filter-sort/FilterModal';
 import FilterOptions from '../../components/filter-sort/FilterOptions';
-import SortData from '../../components/filter-sort/SortData';
+import CustomSelect from '../../components/filter-sort/CustomSelect';
 import CustomSearchInput from '../../components/ui/CustomSearchInput';
 import RoundButton from '../../components/ui/RoundButton';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
@@ -62,7 +62,7 @@ function SocialGroupsHeader({
           </Col>
         )}
         <Col xs={noFilter || postType === 'group-post' ? 6 : 12} md={4} className={`${noFilter || postType === 'group-post' ? 'mt-3 mt-md-0 d-block order-second order-md-third' : 'd-none d-lg-block'}`}>
-          <SortData sortVal={sortVal} onSelectSort={sort} sortoptions={sortoptions} type="sort" />
+          <CustomSelect value={sortVal} onChange={sort} options={sortoptions} type="sort" />
         </Col>
         {!noFilter && postType === 'group-post' && (
           <Col className="text-center d-md-none my-3">

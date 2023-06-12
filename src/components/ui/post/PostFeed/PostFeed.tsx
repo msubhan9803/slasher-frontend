@@ -46,6 +46,7 @@ import { isHomePage, isNewsPartnerPage, isPostDetailsPage } from '../../../../ut
 import ScrollToTop from '../../../ScrollToTop';
 import { postMovieDataToMovieDBformat, showMoviePoster } from '../../../../routes/movies/movie-utils';
 import { useAppSelector } from '../../../../redux/hooks';
+import { ProgressButtonComponentType } from '../../ProgressButton';
 
 interface Props {
   popoverOptions: string[];
@@ -91,6 +92,7 @@ interface Props {
   showPubWiseAdAtPageBottom?: boolean;
   setSelectedBlockedUserId?: (value: string) => void;
   setDropDownValue?: (value: string) => void;
+  ProgressButton?: ProgressButtonComponentType,
 }
 
 interface StyledProps {
@@ -297,7 +299,7 @@ function PostFeed({
   handleSearch, mentionList, commentImages, setCommentImages, commentError,
   commentReplyError, postType, onSpoilerClick,
   commentSent, setCommentReplyErrorMessage, setCommentErrorMessage,
-  showPubWiseAdAtPageBottom, setSelectedBlockedUserId, setDropDownValue,
+  showPubWiseAdAtPageBottom, setSelectedBlockedUserId, setDropDownValue, ProgressButton,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [isCommentClick, setCommentClick] = useState<boolean>(false);
@@ -549,6 +551,7 @@ function PostFeed({
                       isMainPostCommentClick={isCommentClick}
                       setSelectedBlockedUserId={setSelectedBlockedUserId}
                       setCommentDropDownValue={setDropDownValue}
+                      ProgressButton={ProgressButton}
                     />
                   </InfiniteScroll>
                   {loadingPosts && <LoadingIndicator />}
@@ -631,5 +634,6 @@ PostFeed.defaultProps = {
   showPubWiseAdAtPageBottom: undefined,
   setSelectedBlockedUserId: undefined,
   setDropDownValue: undefined,
+  ProgressButton: undefined,
 };
 export default PostFeed;

@@ -56,6 +56,7 @@ function PostCommentSection({
   isMainPostCommentClick,
   setSelectedBlockedUserId,
   setCommentDropDownValue,
+  ProgressButton,
 }: any) {
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [show, setShow] = useState<boolean>(false);
@@ -96,7 +97,6 @@ function PostCommentSection({
       }
     }
   }, [queryCommentId, queryReplyId, checkLoadMoreId]);
-
   const checkPopover = (id: string) => {
     if (id === loginUserId) {
       return popoverOption;
@@ -716,6 +716,7 @@ function PostCommentSection({
             postImages={commentImages}
             setPostImages={setCommentImages}
             commentError={commentError.length > 0 ? commentError : commentReplyError}
+            ProgressButton={ProgressButton}
           />
         )
       }

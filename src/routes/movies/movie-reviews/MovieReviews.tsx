@@ -25,6 +25,9 @@ import { getMoviesById } from '../../../api/movies';
 import { createBlockUser } from '../../../api/blocks';
 import { reportData } from '../../../api/report';
 import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../../pageStateCache';
+import useProgressButton from '../../../components/ui/ProgressButton';
+import { sleep } from '../../../utils/timer-utils';
+import { allAtMentionsRegex } from '../../../utils/text-utils';
 
 type Props = {
   movieData: MovieData;
@@ -70,6 +73,7 @@ function MovieReviews({
   const [isWorthIt, setWorthIt] = useState<any>(0);
   const [liked, setLike] = useState<boolean>(false);
   const [disLiked, setDisLike] = useState<boolean>(false);
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   // eslint-disable-next-line max-len
   const ReviewsCache: MoviePageCache['reviews'] = useMemo(() => getPageStateCache<MoviePageCache>(location)?.reviews ?? [], [location]);
   const [reviewPostData, setReviewPostData] = useState<any>(
@@ -182,8 +186,11 @@ function MovieReviews({
   };
 
   const createMovieReview = (movieReviewPostData: object) => {
+    setProgressButtonStatus('loading');
     createPost(movieReviewPostData, '')
-      .then(() => {
+      .then(async () => {
+        setProgressButtonStatus('success');
+        await sleep(1000);
         setMovieData({
           ...movieData,
           userData: {
@@ -198,6 +205,7 @@ function MovieReviews({
         setShowReviewForm(false);
       })
       .catch((error) => {
+        setProgressButtonStatus('failure');
         const msg = error.response.status === 0 && !error.response.data
           ? 'Combined size of files is too large.'
           : error.response.data.message;
@@ -206,6 +214,7 @@ function MovieReviews({
   };
 
   const updateMovieReview = (movieReviewPostData: any) => {
+    setProgressButtonStatus('loading');
     updateFeedPost(
       movieReviewPostData.postId,
       movieReviewPostData.message,
@@ -213,7 +222,9 @@ function MovieReviews({
       [],
       movieReviewPostData,
     )
-      .then(() => {
+      .then(async () => {
+        setProgressButtonStatus('success');
+        await sleep(1000);
         setMovieData({
           ...movieData,
           userData: {
@@ -228,6 +239,7 @@ function MovieReviews({
         setShowReviewForm(false);
       })
       .catch((error) => {
+        setProgressButtonStatus('failure');
         const msg = error.response.status === 0 && !error.response.data
           ? 'Combined size of files is too large.'
           : error.response.data.message;
@@ -236,8 +248,10 @@ function MovieReviews({
   };
 
   const addPost = () => {
-    /* eslint no-useless-escape: 0 */
-    const postContentWithMentionReplacements = (postContent.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    const postContentWithMentionReplacements = (postContent.replace(
+      allAtMentionsRegex,
+      mentionReplacementMatchFunc,
+    ));
     const movieReviewPostData = {
       message: postContentWithMentionReplacements,
       spoiler: containSpoiler,
@@ -434,6 +448,7 @@ function MovieReviews({
               setReviewForm={setReviewForm}
               setShowReviewForm={setShowReviewForm}
               handleScroll={handleScroll}
+              ProgressButton={ProgressButton}
               createEditPost
             />
           ) : (

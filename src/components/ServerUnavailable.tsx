@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Modal } from 'react-bootstrap';
 import { healthCheck } from '../api/health-check';
 import { useAppSelector, useAppDispatch } from '../redux/hooks';
@@ -10,6 +10,17 @@ export default function ServerUnavailable() {
   const isServerAvailable = useAppSelector((state) => state.serverAvailability.isAvailable);
   const dispatch = useAppDispatch();
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
+
+  const show = !isServerAvailable;
+
+  const handleWindowFocus = useCallback(() => {
+    dispatch(setServerAvailable(true));
+  }, [dispatch]);
+
+  useEffect(() => {
+    window.addEventListener('focus', handleWindowFocus);
+    return () => window.removeEventListener('focus', handleWindowFocus);
+  });
 
   const handleTryAgain = () => {
     setProgressButtonStatus('loading');
@@ -23,7 +34,7 @@ export default function ServerUnavailable() {
 
   return (
     <div>
-      <CustomModal show={!isServerAvailable} centered size="sm">
+      <CustomModal show={show} centered size="sm">
         <Modal.Header className="border-0 shadow-none justify-content-end" />
         <Modal.Body className="d-flex flex-column align-items-center text-center pt-0">
           <h1 className="h3 text-primary">Unable to reach the server.</h1>

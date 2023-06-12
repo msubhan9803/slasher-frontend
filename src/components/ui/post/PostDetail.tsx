@@ -744,6 +744,8 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     return undefined;
   }, [selectedBlockedUserId, dropDownValue, updateCommentDataAfterBlockUser]);
 
+  const handleCloseSuccessCommentOrReplyAlert = () => setCommentOrReplySuccessAlertMessage('');
+
   return (
     <>
       {postType === 'news'
@@ -824,7 +826,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         : (
           // eslint-disable-next-line max-len
           // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-          <div onClick={() => setCommentOrReplySuccessAlertMessage('')}>
+          <div onClick={handleCloseSuccessCommentOrReplyAlert}>
             <PostFeed
               isSinglePost
               postFeedData={postData}

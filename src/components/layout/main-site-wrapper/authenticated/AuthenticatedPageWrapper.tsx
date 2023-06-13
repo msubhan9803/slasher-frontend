@@ -2,11 +2,16 @@
 import React, {
   useCallback, useEffect, useRef, useState,
 } from 'react';
-import { Offcanvas } from 'react-bootstrap';
+import {
+  Button, Col, Offcanvas, Row,
+} from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { useMediaQuery } from 'react-responsive';
 import { io } from 'socket.io-client';
+import { Capacitor } from '@capacitor/core';
 import SidebarNavContent from '../../sidebar-nav/SidebarNavContent';
 import AuthenticatedPageHeader from './AuthenticatedPageHeader';
 import MobileOnlySidebarContent from '../../sidebar-nav/MobileOnlySidebarContent';
@@ -63,7 +68,7 @@ const LeftSidebarWrapper = styled.div`
 `;
 
 // This id links the offcanvas to the top navar toggle for accessibility.
-const offcanvasId = 'offcanvas-sidebar-nav';
+const offcanvasId = 'offcanvas-sidebar-nav'; // *Do not chagne this as global.scss also consume this value.
 const desktopBreakPoint = 'lg';
 
 function AuthenticatedPageWrapper({ children }: Props) {
@@ -226,6 +231,16 @@ function AuthenticatedPageWrapper({ children }: Props) {
   }
   return (
     <div className="page-wrapper full">
+      {Capacitor.getPlatform() === 'ios'
+        && (
+          <Row className="d-md-nonept-2">
+            <Col xs="auto" className="ms-2">
+              <Button variant="link" className="p-0 px-1" onClick={() => navigate(-1)}>
+                <FontAwesomeIcon role="button" icon={solid('arrow-left-long')} size="2x" />
+              </Button>
+            </Col>
+          </Row>
+        )}
       <SkipToMainContent />
       <AuthenticatedPageHeader
         userName={userData.user?.userName}

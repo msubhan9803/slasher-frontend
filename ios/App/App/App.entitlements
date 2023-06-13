@@ -7,5 +7,7 @@
 		<string>applinks:www.slasher.tv</string>
 		<string>applinks:preview.slasher.tv</string>
 	</array>
+	<key>aps-environment</key>
+	<string>development</string>
 </dict>
 </plist>

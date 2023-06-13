@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.sdei.slasher",
+      "sha256_cert_fingerprints": [
+        "ED:2F:6E:20:26:0C:B0:13:7E:13:67:0E:A8:FB:08:B5:C9:6F:ED:07:5D:52:0A:03:F4:01:84:6F:60:A6:50:34"
+      ]
+    }
+  }
+]

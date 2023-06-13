@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Navigate,
-  Route, RouterProvider, createBrowserRouter, createRoutesFromElements,
+  Outlet,
+  Route, RouterProvider, createBrowserRouter, createRoutesFromElements, useNavigate,
 } from 'react-router-dom';
-import { App as CapacitorApp } from '@capacitor/app';
+import { App as CapacitorApp, URLOpenListenerEvent } from '@capacitor/app';
 import VerificationEmailNotReceived from './routes/verification-email-not-received/VerificationEmailNotReceived';
 import ForgotPassword from './routes/forgot-password/ForgotPassword';
 import Home from './routes/home/Home';
@@ -111,13 +112,30 @@ CapacitorApp.addListener('backButton', ({ canGoBack }) => {
   }
 });
 
+function AppUrlListener() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    CapacitorApp.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
+      const { pathname, search, hash } = new URL(event.url);
+      const routePath = pathname + search + hash;
+      if (routePath) {
+        navigate(routePath);
+      }
+    });
+  }, [navigate]);
+
+  return (
+    <Outlet />
+  );
+}
+
 function App() {
   usePubWiseAdSlots(enableADs);
   const isServerAvailable = useAppSelector((state) => state.serverAvailability.isAvailable);
 
   const router = createBrowserRouter(
     createRoutesFromElements(
-      <Route>
+      <Route path="/" element={<AppUrlListener />}>
         {/* TODO: Uncomment line below when switching from beta to prod */}
         {/* <Route path="/" element={<Index />} /> */}
         {/* TODO: REMOVE line below when switching from beta to prod */}

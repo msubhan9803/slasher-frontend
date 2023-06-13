@@ -62,11 +62,8 @@ android-template/app/app.iml
 .project
 .env
 
-# Capacitor user config files directory
-capacitor-configs
-
-# capacitor config file
-capacitor.config.ts
+# Capacitor
+.env.capacitor.local-network-ip
 
 # Carthage and Carthage-built binaries
 Carthage

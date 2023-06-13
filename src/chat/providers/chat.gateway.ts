@@ -85,10 +85,16 @@ export class ChatGateway {
 
     const unreadMsgCount = await this.getUnreadMessageCount(messageObject.fromId.toString(), messageObject.matchId.toString());
     messageObject.unreadMsgCount = unreadMsgCount;
+    messageObject.fromUser = {
+      _id: user.id,
+      userName: user.userName,
+      profilePic: user.profilePic,
+      matchId: messageObject.matchId,
+    };
 
     targetUserSocketIds.forEach((socketId) => {
       client.to(socketId).emit('chatMessageReceived', {
-        message: pick(messageObject, ['_id', 'image', 'urls', 'message', 'fromId', 'matchId', 'createdAt', 'unreadMsgCount']),
+        message: pick(messageObject, ['_id', 'image', 'urls', 'message', 'fromId', 'matchId', 'createdAt', 'unreadMsgCount', 'fromUser']),
       });
       // TODO: Remove messageV2, and messageV3 lines below as soon as the old Android and iOS apps
       // are retired.  These lines are only here for temporary compatibility.
@@ -208,10 +214,15 @@ export class ChatGateway {
 
       const unreadMsgCount = await this.getUnreadMessageCount(messageObject.fromId.toString(), messageObject.matchId.toString());
       cloneMessage.unreadMsgCount = unreadMsgCount;
-
+      cloneMessage.fromUser = {
+        _id: fromUser.id,
+        userName: fromUser.userName,
+        profilePic: fromUser.profilePic,
+        matchId: messageObject.matchId,
+      };
       targetUserSocketIds.forEach((socketId) => {
         this.server.to(socketId).emit('chatMessageReceived', {
-          message: pick(cloneMessage, ['_id', 'image', 'urls', 'message', 'fromId', 'matchId', 'createdAt', 'unreadMsgCount']),
+          message: pick(cloneMessage, ['_id', 'image', 'urls', 'message', 'fromId', 'matchId', 'createdAt', 'unreadMsgCount', 'fromUser']),
         });
         // TODO: Remove messageV2, and messageV3 lines below as soon as the old Android and iOS apps
         // are retired.  These lines are only here for temporary compatibility.

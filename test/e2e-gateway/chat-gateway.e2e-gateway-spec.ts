@@ -203,6 +203,12 @@ describe('Chat Gateway (e2e)', () => {
             matchId: expect.any(String),
             message: encodeURIComponent('Hi, test message via socket.'),
             unreadMsgCount: 1,
+            fromUser: {
+              _id: expect.any(String),
+              userName: 'Username1',
+              profilePic: 'noUser.jpg',
+              matchId: expect.any(String),
+            },
           },
         });
       });
@@ -572,6 +578,12 @@ describe('Chat Gateway (e2e)', () => {
           matchId: matchList.id,
           message: 'Hi, there!',
           unreadMsgCount: 1,
+          fromUser: {
+            _id: expect.any(String),
+            userName: 'Michael',
+            profilePic: 'noUser.jpg',
+            matchId: expect.any(String),
+          },
         },
       });
     });

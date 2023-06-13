@@ -32,6 +32,8 @@ function CustomSearchInput({ label, setSearch, search }: SearchProps) {
   const handleSearch = (e: any) => {
     if (e.keyCode === 13 || e.type === 'click') {
       setSearch(searchValue);
+      // Hide keyboard (tested on `web-android` and `capacitor-android`)
+      e.target.blur();
     }
   };
   return (

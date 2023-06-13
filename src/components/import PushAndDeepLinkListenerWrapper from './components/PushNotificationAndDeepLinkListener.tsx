@@ -21,7 +21,7 @@ function PushNotificationAndDeepLinkListener() {
         navigate(routePath);
       }
     });
-  },[navigate])
+  }, [navigate]);
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
       PushNotifications.requestPermissions().then((result) => {

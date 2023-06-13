@@ -49,6 +49,7 @@ import ScrollToTop from '../../../ScrollToTop';
 import { postMovieDataToMovieDBformat, showMoviePoster } from '../../../../routes/movies/movie-utils';
 import { useAppSelector } from '../../../../redux/hooks';
 import CustomSelect from '../../../filter-sort/CustomSelect';
+import { ProgressButtonComponentType } from '../../ProgressButton';
 
 interface Props {
   popoverOptions: string[];
@@ -94,6 +95,7 @@ interface Props {
   showPubWiseAdAtPageBottom?: boolean;
   setSelectedBlockedUserId?: (value: string) => void;
   setDropDownValue?: (value: string) => void;
+  ProgressButton?: ProgressButtonComponentType,
   commentOrReplySuccessAlertMessage?: string;
   setCommentOrReplySuccessAlertMessage?: React.Dispatch<React.SetStateAction<string>>;
   commentsOrder?: string;
@@ -302,7 +304,7 @@ function PostFeed({
   handleSearch, mentionList, commentImages, setCommentImages, commentError,
   commentReplyError, postType, onSpoilerClick,
   commentSent, setCommentReplyErrorMessage, setCommentErrorMessage,
-  showPubWiseAdAtPageBottom, setSelectedBlockedUserId, setDropDownValue,
+  showPubWiseAdAtPageBottom, setSelectedBlockedUserId, setDropDownValue, ProgressButton,
   commentOrReplySuccessAlertMessage, setCommentOrReplySuccessAlertMessage,
   commentsOrder, handleCommentsOrder,
 }: Props) {
@@ -561,6 +563,7 @@ function PostFeed({
                       isMainPostCommentClick={isCommentClick}
                       setSelectedBlockedUserId={setSelectedBlockedUserId}
                       setCommentDropDownValue={setDropDownValue}
+                      ProgressButton={ProgressButton}
                       commentOrReplySuccessAlertMessage={commentOrReplySuccessAlertMessage}
                       setCommentOrReplySuccessAlertMessage={setCommentOrReplySuccessAlertMessage}
                     />
@@ -645,6 +648,7 @@ PostFeed.defaultProps = {
   showPubWiseAdAtPageBottom: undefined,
   setSelectedBlockedUserId: undefined,
   setDropDownValue: undefined,
+  ProgressButton: undefined,
   commentOrReplySuccessAlertMessage: '',
   setCommentOrReplySuccessAlertMessage: undefined,
   commentsOrder: '',

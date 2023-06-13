@@ -55,6 +55,7 @@ function PostCommentSection({
   isMainPostCommentClick,
   setSelectedBlockedUserId,
   setCommentDropDownValue,
+  ProgressButton,
   commentOrReplySuccessAlertMessage,
   setCommentOrReplySuccessAlertMessage,
 }: any) {
@@ -96,7 +97,6 @@ function PostCommentSection({
       }
     }
   }, [queryCommentId, queryReplyId, checkLoadMoreId]);
-
   const checkPopover = (id: string) => {
     if (id === loginUserId) {
       return popoverOption;
@@ -720,6 +720,7 @@ function PostCommentSection({
             postImages={commentImages}
             setPostImages={setCommentImages}
             commentError={commentError.length > 0 ? commentError : commentReplyError}
+            ProgressButton={ProgressButton}
           />
         )
       }

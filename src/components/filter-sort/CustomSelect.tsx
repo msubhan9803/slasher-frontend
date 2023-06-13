@@ -6,7 +6,7 @@ interface SortDataProps {
   options?: OptionsProps[];
   type?: string;
   onChange?(value: string): void | null;
-  value?: string;
+  value?: string | number;
   placeholder?: string;
 }
 interface OptionsProps {
@@ -102,7 +102,7 @@ CustomSelect.defaultProps = {
   options: [],
   type: '',
   onChange: null,
-  value: 'name',
+  value: undefined,
   placeholder: undefined,
 };
 

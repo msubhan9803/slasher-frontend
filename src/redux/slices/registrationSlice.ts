@@ -10,9 +10,9 @@ export const registrationSlice = createSlice({
     passwordConfirmation: '',
     securityQuestion: '',
     securityAnswer: '',
-    month: '',
-    year: '',
-    day: '',
+    month: 0,
+    year: 0,
+    day: 0,
   },
   reducers: {
     setIdentityFields: (state, action) => ({

@@ -146,6 +146,8 @@ type PostContentPropsType = {
   onSpoilerClick: ((value: string) => void) | undefined, isSinglePost: boolean | undefined,
 };
 const SelectContainer = styled.div`
+  @media(max-width: ${MD_MEDIA_BREAKPOINT}) { margin-bottom: 8px; }
+  @media(min-width: ${MD_MEDIA_BREAKPOINT}) { width: 35%; }
   @media(min-width: ${LG_MEDIA_BREAKPOINT}) { width: 52%; }
   @media(min-width: ${XL_MEDIA_BREAKPOINT}) { width: 40%; }
   @media(min-width: ${XXL_MEDIA_BREAKPOINT}) { width: 30%; }

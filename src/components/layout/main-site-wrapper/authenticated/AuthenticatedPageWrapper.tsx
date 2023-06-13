@@ -20,7 +20,7 @@ import {
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { getSessionToken, signOut } from '../../../../utils/session-utils';
 import {
-  LG_MEDIA_BREAKPOINT, analyticsId, MAIN_CONTENT_ID, apiUrl,
+  LG_MEDIA_BREAKPOINT, analyticsId, MAIN_CONTENT_ID, apiUrl, RETRY_CONNECTION_BUTTON_ID,
 } from '../../../../constants';
 import useGoogleAnalytics from '../../../../hooks/useGoogleAnalytics';
 import SkipToMainContent from '../../sidebar-nav/SkipToMainContent';
@@ -81,9 +81,19 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const isSocketConnected = useAppSelector((state) => state.socket.isConnected);
   const { socket } = socketStore;
 
-  const showUnreachableServerModalIfDisconnected = useCallback(() => {
+  const showUnreachableServerModalIfDisconnected = useCallback((e: MouseEvent) => {
     // If socket state is disconnected then show server-unavailable dialog.
-    if (!isSocketConnected) { dispatch(setIsServerAvailable(false)); }
+    if (!isSocketConnected) {
+      const clickedElementIsRetryConnectButton = (
+        e.target as Element || null
+      )?.id === RETRY_CONNECTION_BUTTON_ID;
+
+      if (!clickedElementIsRetryConnectButton) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      dispatch(setIsServerAvailable(false));
+    }
   }, [dispatch, isSocketConnected]);
 
   useEffect(() => {

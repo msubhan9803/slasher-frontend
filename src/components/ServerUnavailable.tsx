@@ -5,6 +5,7 @@ import { useAppSelector, useAppDispatch } from '../redux/hooks';
 import { setIsServerAvailable } from '../redux/slices/serverAvailableSlice';
 import CustomModal from './ui/CustomModal';
 import useProgressButton from './ui/ProgressButton';
+import { RETRY_CONNECTION_BUTTON_ID } from '../constants';
 
 export default function ServerUnavailable() {
   const isServerAvailable = useAppSelector((state) => state.serverAvailability.isAvailable);
@@ -32,7 +33,7 @@ export default function ServerUnavailable() {
         <Modal.Body className="d-flex flex-column align-items-center text-center pt-0">
           <h1 className="h3 text-primary">Unable to reach the server.</h1>
           <p className="px-3">Please check your internet connection and try again.</p>
-          <ProgressButton className="mb-3 w-100 fs-3" label="Try again" onClick={handleTryAgain} />
+          <ProgressButton id={RETRY_CONNECTION_BUTTON_ID} className="mb-3 w-100 fs-3" label="Try again" onClick={handleTryAgain} />
         </Modal.Body>
       </CustomModal>
     </div>

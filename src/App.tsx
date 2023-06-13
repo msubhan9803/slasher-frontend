@@ -42,10 +42,10 @@ import PasswordResetSuccess from './routes/password-reset-success/PasswordResetS
 import ChangeEmailConfirm from './routes/change-email/ChangeEmailConfirm';
 import ChangeEmailRevert from './routes/change-email/ChangeEmailRevert';
 import PublicProfile from './routes/public-home-page/public-profile-web/PublicProfile';
-import PushNotificationWrapper from './components/pushNotification';
 import { useAppSelector } from './redux/hooks';
 import ServerUnavailable from './components/ServerUnavailable';
 import Conversation from './routes/conversation/Conversation';
+import PushNotificationAndDeepLinkListener from './components/import PushAndDeepLinkListenerWrapper from \'./components/PushNotificationAndDeepLinkListener';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -124,7 +124,7 @@ function App() {
 
   const router = createBrowserRouter(
     createRoutesFromElements(
-      <Route path="/" element={<PushNotificationWrapper />}>
+      <Route path="/" element={<PushNotificationAndDeepLinkListener />}>
         {/* TODO: Uncomment line below when switching from beta to prod */}
         {/* <Route path="/" element={<Index />} /> */}
         {/* TODO: REMOVE line below when switching from beta to prod */}

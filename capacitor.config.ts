@@ -1,0 +1,32 @@
+import { CapacitorConfig } from '@capacitor/cli';
+import dotenv from 'dotenv'
+
+dotenv.config({ path: '.env.capacitor.local-network-ip' });
+
+const useLiveReloadConfig = process.env.LIVE_RELOAD === 'true';
+if (useLiveReloadConfig && !process.env.LOCAL_MACHINE_IP) {
+  console.error('ERROR: Please define your machine\'s ip address in .env.capacitor.local-network-ip file.')
+  process.exit(1)
+}
+
+if (useLiveReloadConfig) {
+  console.log('INFO: Using live reload for capacitor')
+} else {
+  console.log('INFO: Using static build for capacitor')
+}
+
+const config: CapacitorConfig = {
+  appId: 'tv.slasher.app',
+  appName: 'Slasher',
+  webDir: useLiveReloadConfig ? undefined : 'build',
+  bundledWebRuntime: false,
+  server: {
+    cleartext: true,
+    // We must give a hostname having domain `slasher.tv` so that pubwise ads properly. 
+    hostname: 'cap.android.slasher.tv',
+    // Please defined your own machine's ip address in file `.env.capacitor.local-network-ip`
+    url: useLiveReloadConfig ? process.env.LOCAL_MACHINE_IP : undefined,
+  }
+};
+
+export default config;

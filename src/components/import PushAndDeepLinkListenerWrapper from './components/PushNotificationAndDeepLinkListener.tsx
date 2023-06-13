@@ -1,15 +1,27 @@
 import React, { useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import {
   ActionPerformed, PushNotifications, Token,
 } from '@capacitor/push-notifications';
 import { Capacitor } from '@capacitor/core';
+import { App as CapacitorApp, URLOpenListenerEvent } from '@capacitor/app';
 import Cookies from 'js-cookie';
 import { Device } from '@capacitor/device';
-import { updateUserDeviceToken } from '../api/users';
-import { urlForNotification } from '../utils/notification-url-utils';
+import { updateUserDeviceToken } from '../../../api/users';
+import { urlForNotification } from '../../../utils/notification-url-utils';
 
-function PushNotificationWrapper() {
+function PushNotificationAndDeepLinkListener() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    CapacitorApp.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
+      const { pathname, search, hash } = new URL(event.url);
+      const routePath = pathname + search + hash;
+      if (routePath) {
+        navigate(routePath);
+      }
+    });
+  },[navigate])
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
       PushNotifications.requestPermissions().then((result) => {
@@ -52,4 +64,4 @@ function PushNotificationWrapper() {
   );
 }
 
-export default PushNotificationWrapper;
+export default PushNotificationAndDeepLinkListener;

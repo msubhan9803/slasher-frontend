@@ -50,6 +50,7 @@ import { postMovieDataToMovieDBformat, showMoviePoster } from '../../../../route
 import { useAppSelector } from '../../../../redux/hooks';
 import CustomSelect from '../../../filter-sort/CustomSelect';
 import { ProgressButtonComponentType } from '../../ProgressButton';
+import { enableDevFeatures } from '../../../../utils/configEnvironment';
 
 interface Props {
   popoverOptions: string[];
@@ -510,9 +511,12 @@ function PostFeed({
                 </Row>
               </Card.Body>
             </Card>
-            <SelectContainer className="ml-auto ms-auto pb-1">
-              <CustomSelect value={commentsOrder} onChange={handleCommentsOrder} options={[{ value: CommentsOrder.oldestFirst, label: 'Oldest to newest (default)' }, { value: CommentsOrder.newestFirst, label: 'Newest to oldest' }]} />
-            </SelectContainer>
+            {enableDevFeatures
+              && (
+              <SelectContainer className="ml-auto ms-auto pb-1">
+                <CustomSelect value={commentsOrder} onChange={handleCommentsOrder} options={[{ value: CommentsOrder.oldestFirst, label: 'Oldest to newest (default)' }, { value: CommentsOrder.newestFirst, label: 'Newest to oldest' }]} />
+              </SelectContainer>
+              )}
 
             {
               isCommentSection

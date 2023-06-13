@@ -21,7 +21,7 @@ import { getSuggestUserName } from '../../../api/users';
 import { useAppSelector } from '../../../redux/hooks';
 import { MentionProps } from '../../../routes/posts/create-post/CreatePost';
 import {
-  CommentValue, ContentDescription, FeedComments, Post, User,
+  CommentValue, CommentsOrder, ContentDescription, FeedComments, Post, User,
 } from '../../../types';
 import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-utils';
 import { decryptMessage } from '../../../utils/text-utils';
@@ -50,6 +50,8 @@ interface Props {
   // postType?: '' | 'review' | 'news';
   showPubWiseAdAtPageBottom?: boolean;
 }
+
+const DEFAULT_COMMENTS_SORYBY_OLDEST_FIRST = true;
 
 function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   const {
@@ -85,6 +87,9 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   const [selectedBlockedUserId, setSelectedBlockedUserId] = useState<string>('');
   const [commentOrReplySuccessAlertMessage, setCommentOrReplySuccessAlertMessage] = useState('');
   const location = useLocation();
+  const [isCommentsOldestFirst, setIsCommentsByOldestFirst] = useState<boolean>(
+    DEFAULT_COMMENTS_SORYBY_OLDEST_FIRST,
+  );
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     setSelectedBlockedUserId(popoverClickProps.userId!);
@@ -103,33 +108,28 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     setPopoverClick(popoverClickProps);
   };
 
-  const feedComments = useCallback((sortBy?: boolean) => {
+  const feedComments = useCallback((isLoadNewerCommentsClick: boolean, isOldestFirst: boolean) => {
     let data;
-    if (sortBy) {
-      data = commentData.length > 0 ? commentData[0]._id : undefined;
-    } else {
+    const isAddingAfterCurrentComments = !isLoadNewerCommentsClick;
+    if (isAddingAfterCurrentComments) {
       data = commentData.length > 0 ? commentData[commentData.length - 1]._id : undefined;
+    } else {
+      data = commentData.length > 0 ? commentData[0]._id : undefined;
     }
+    // Note: Using === below provides a conciser expression for
+    // expression `isCommentsOldestFirst ? isAddingAfter : !isAddingAfter`
+    const isOldestFirstFromApi = isOldestFirst === isAddingAfterCurrentComments;
+    // console.log('paradise (isCommentsOldestFirst)?', isCommentsOldestFirst);
     getFeedComments(
       postId!,
       data,
-      sortBy,
+      isOldestFirstFromApi,
     ).then((res) => {
-      const comments = sortBy ? res.data.reverse() : res.data;
-      setCommentData((prev: any) => {
-        if (sortBy) {
-          return [
-            ...comments,
-            ...prev,
-          ];
-        }
-        return [
-          ...prev,
-          ...comments,
-        ];
-      });
+      const comments = isAddingAfterCurrentComments ? res.data : res.data.reverse();
+      // eslint-disable-next-line max-len
+      setCommentData((prev: any) => (isAddingAfterCurrentComments ? [...prev, ...comments] : [...comments, ...prev]));
       if (res.data.length === 0) { setNoMoreData(true); }
-      if (res.data.length < 20 && sortBy) {
+      if (res.data.length < 20 && !isAddingAfterCurrentComments) {
         setPreviousCommentsAvailable(false);
       }
     }).catch(
@@ -146,12 +146,13 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     if (requestAdditionalPosts && !loadingComments && (commentData.length || !queryCommentId)) {
       setLoadingComments(true);
       setNoMoreData(false);
-      feedComments();
+      feedComments(/* isLoadNewerCommentsClick= */false, isCommentsOldestFirst);
     }
-  }, [requestAdditionalPosts, loadingComments, commentData, queryCommentId, feedComments]);
+  }, [requestAdditionalPosts, loadingComments, commentData, queryCommentId, feedComments,
+    isCommentsOldestFirst]);
 
   const callLatestFeedComments = () => {
-    getFeedComments(postId!).then((res) => {
+    getFeedComments(postId!, undefined, isCommentsOldestFirst).then((res) => {
       const updateComment = res.data;
       setCommentData(updateComment);
       setLoadingComments(false);
@@ -697,7 +698,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   }, [queryCommentId, getSingleComment]);
 
   const loadNewerComment = () => {
-    feedComments(true);
+    feedComments(/* isLoadNewerCommentsClick= */true, isCommentsOldestFirst);
   };
 
   const onBlockYesClick = () => {
@@ -750,6 +751,20 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
 
   const handleCloseSuccessCommentOrReplyAlert = () => setCommentOrReplySuccessAlertMessage('');
 
+  const handleCommentsOrder = (value: CommentsOrder) => {
+    if (!Object.values(CommentsOrder).includes(value)) { console.error('Please use one of following values:', Object.values(CommentsOrder)); }
+
+    setCommentData([]);
+    setIsCommentsByOldestFirst(value === CommentsOrder.oldestFirst);
+    if (!noMoreData) { setNoMoreData(false); }
+    // necessary to trigger the `useEffect` responsible to fetch comments.
+    setLoadingComments(false);
+    setRequestAdditionalPosts(true);
+  };
+  const commentsOrder: CommentsOrder = isCommentsOldestFirst
+    ? CommentsOrder.oldestFirst
+    : CommentsOrder.newestFirst;
+
   return (
     <>
       {postType === 'news'
@@ -799,6 +814,8 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                 setDropDownValue={setDropDownValue}
                 commentOrReplySuccessAlertMessage={commentOrReplySuccessAlertMessage}
                 setCommentOrReplySuccessAlertMessage={setCommentOrReplySuccessAlertMessage}
+                commentsOrder={commentsOrder}
+                handleCommentsOrder={handleCommentsOrder}
               />
               {dropDownValue !== 'Edit'
                 && (
@@ -875,6 +892,8 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
               setDropDownValue={setDropDownValue}
               commentOrReplySuccessAlertMessage={commentOrReplySuccessAlertMessage}
               setCommentOrReplySuccessAlertMessage={setCommentOrReplySuccessAlertMessage}
+              commentsOrder={commentsOrder}
+              handleCommentsOrder={handleCommentsOrder}
             />
             {dropDownValue !== 'Edit'
               && (

@@ -358,3 +358,5 @@ export interface ConversationListItem {
   profilePic: string;
   updatedAt: string;
 }
+
+export enum CommentsOrder { oldestFirst = 'oldestFirst', newestFirst = 'newestFirst' }

@@ -15,7 +15,7 @@ import * as stringSimilarity from 'string-similarity';
 import PostFooter from './PostFooter';
 import {
   CommentValue, LikeShareModalResourceName, Post, LikeShareModalTabName,
-  ReplyValue, WorthWatchingStatus,
+  ReplyValue, WorthWatchingStatus, CommentsOrder,
 } from '../../../../types';
 import LikeShareModal from '../../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
@@ -32,7 +32,9 @@ import {
   newLineToBr,
 } from '../../../../utils/text-utils';
 import { MentionListProps } from '../../MessageTextarea';
-import { MD_MEDIA_BREAKPOINT } from '../../../../constants';
+import {
+  LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT, XL_MEDIA_BREAKPOINT, XXL_MEDIA_BREAKPOINT,
+} from '../../../../constants';
 import RoundButton from '../../RoundButton';
 import CustomRatingText from '../../CustomRatingText';
 import CustomWortItText from '../../CustomWortItText';
@@ -46,6 +48,7 @@ import { isHomePage, isNewsPartnerPage, isPostDetailsPage } from '../../../../ut
 import ScrollToTop from '../../../ScrollToTop';
 import { postMovieDataToMovieDBformat, showMoviePoster } from '../../../../routes/movies/movie-utils';
 import { useAppSelector } from '../../../../redux/hooks';
+import CustomSelect from '../../../filter-sort/CustomSelect';
 
 interface Props {
   popoverOptions: string[];
@@ -93,6 +96,8 @@ interface Props {
   setDropDownValue?: (value: string) => void;
   commentOrReplySuccessAlertMessage?: string;
   setCommentOrReplySuccessAlertMessage?: React.Dispatch<React.SetStateAction<string>>;
+  commentsOrder?: string;
+  handleCommentsOrder?: (value: CommentsOrder) => void;
 }
 
 interface StyledProps {
@@ -140,6 +145,11 @@ type PostContentPropsType = {
   loginUserId: string | undefined, spoilerId: any,
   onSpoilerClick: ((value: string) => void) | undefined, isSinglePost: boolean | undefined,
 };
+const SelectContainer = styled.div`
+  @media(min-width: ${LG_MEDIA_BREAKPOINT}) { width: 52%; }
+  @media(min-width: ${XL_MEDIA_BREAKPOINT}) { width: 40%; }
+  @media(min-width: ${XXL_MEDIA_BREAKPOINT}) { width: 30%; }
+`;
 function PostContent({
   post, postType, generateReadMoreLink,
   escapeHtml, onPostContentClick, handlePostContentKeyDown, loginUserId,
@@ -292,6 +302,7 @@ function PostFeed({
   commentSent, setCommentReplyErrorMessage, setCommentErrorMessage,
   showPubWiseAdAtPageBottom, setSelectedBlockedUserId, setDropDownValue,
   commentOrReplySuccessAlertMessage, setCommentOrReplySuccessAlertMessage,
+  commentsOrder, handleCommentsOrder,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [isCommentClick, setCommentClick] = useState<boolean>(false);
@@ -495,6 +506,10 @@ function PostFeed({
                 </Row>
               </Card.Body>
             </Card>
+            <SelectContainer className="ml-auto ms-auto pb-1">
+              <CustomSelect value={commentsOrder} onChange={handleCommentsOrder} options={[{ value: CommentsOrder.oldestFirst, label: 'Oldest to newest (default)' }, { value: CommentsOrder.newestFirst, label: 'Newest to oldest' }]} />
+            </SelectContainer>
+
             {
               isCommentSection
               && (
@@ -630,5 +645,7 @@ PostFeed.defaultProps = {
   setDropDownValue: undefined,
   commentOrReplySuccessAlertMessage: '',
   setCommentOrReplySuccessAlertMessage: undefined,
+  commentsOrder: '',
+  handleCommentsOrder: undefined,
 };
 export default PostFeed;

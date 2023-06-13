@@ -2,10 +2,9 @@
 import axios from 'axios';
 import { Capacitor } from '@capacitor/core';
 import { Device } from '@capacitor/device';
-import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
 import { DeviceFields, RegisterUser } from '../types';
-import { getSessionToken, getSessionUserId } from '../utils/session-utils';
+import { getDeviceToken, getSessionToken, getSessionUserId } from '../utils/session-utils';
 
 export async function signIn(emailOrUsername: string, password: string, signal?: AbortSignal) {
   let deviceFields: DeviceFields;
@@ -14,7 +13,7 @@ export async function signIn(emailOrUsername: string, password: string, signal?:
     const deviceInfo = await Device.getInfo();
     deviceFields = {
       device_id: deviceId.uuid,
-      device_token: Cookies.get('deviceToken')!,
+      device_token: (await getDeviceToken())!,
       device_type: deviceInfo.platform,
       app_version: `${deviceInfo.platform}-capacitor-${process.env.REACT_APP_VERSION}`,
       device_version: `${deviceInfo.manufacturer} ${deviceInfo.model} ${deviceInfo.operatingSystem} ${deviceInfo.osVersion}, Name: ${deviceInfo.name}`,

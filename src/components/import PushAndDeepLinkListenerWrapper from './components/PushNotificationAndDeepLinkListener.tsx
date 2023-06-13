@@ -5,10 +5,10 @@ import {
 } from '@capacitor/push-notifications';
 import { Capacitor } from '@capacitor/core';
 import { App as CapacitorApp, URLOpenListenerEvent } from '@capacitor/app';
-import Cookies from 'js-cookie';
 import { Device } from '@capacitor/device';
 import { updateUserDeviceToken } from '../../../api/users';
 import { urlForNotification } from '../../../utils/notification-url-utils';
+import { getDeviceToken, getSessionToken, setDeviceToken } from '../../../utils/session-utils';
 
 function PushNotificationAndDeepLinkListener() {
   const navigate = useNavigate();
@@ -33,11 +33,12 @@ function PushNotificationAndDeepLinkListener() {
       PushNotifications.addListener('registration', async (token: Token) => {
         // Send the token to your server for further processing, if needed
         const deviceToken = token.value;
-        if (deviceToken !== Cookies.get('deviceToken')) {
+        if (await getSessionToken() && await getDeviceToken()
+          && deviceToken !== await getDeviceToken()) {
           const deviceId = await Device.getId();
           updateUserDeviceToken(deviceId.uuid, deviceToken);
         }
-        Cookies.set('deviceToken', deviceToken);
+        await setDeviceToken(deviceToken);
       });
 
       // PushNotifications.addListener('pushNotificationReceived',

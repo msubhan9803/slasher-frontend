@@ -202,6 +202,7 @@ describe('Chat Gateway (e2e)', () => {
             urls: [],
             matchId: expect.any(String),
             message: encodeURIComponent('Hi, test message via socket.'),
+            unreadMsgCount: 1,
           },
         });
       });
@@ -570,6 +571,7 @@ describe('Chat Gateway (e2e)', () => {
           urls: [],
           matchId: matchList.id,
           message: 'Hi, there!',
+          unreadMsgCount: 1,
         },
       });
     });

@@ -50,12 +50,19 @@ export class NotificationsService {
   }
 
   async sendPushNotification(notification) {
-    const [user, userSetting] = await Promise.all([this.usersService.findById(notification.userId.toString(), true),
-    this.userSettingsService.findByUserId(notification.userId.toString())]);
-    const isNotificationEnabled = userSetting[`${NOTIFICATION_TYPES_TO_CATEGORIES.get(notification.notifyType)}`];
+    // this will remove once old backend retire and update the notificationMsg value in db
+    const notificationData = notification;
+    const senderName = notificationData.notifyType === NotificationType.NewPostFromFollowedRssFeedProvider
+      || ((NotificationType.UserSentYouAFriendRequest || NotificationType.UserAcceptedYourFriendRequest)
+        && notificationData?.senderId?.userName === 'Slasher')
+      ? '' : `${notificationData.senderId?.userName} `;
+    notificationData.notificationMsg = senderName + notificationData.notificationMsg;
+    const [user, userSetting] = await Promise.all([this.usersService.findById(notificationData.userId.toString(), true),
+    this.userSettingsService.findByUserId(notificationData.userId.toString())]);
+    const isNotificationEnabled = userSetting[`${NOTIFICATION_TYPES_TO_CATEGORIES.get(notificationData.notifyType)}`];
     if (isNotificationEnabled && user.userDevices.length) {
       const deviceTokens = user.userDevices.filter((device) => device.device_id !== 'browser').map((device) => device.device_token);
-      await this.pushNotificationsService.sendPushNotification(notification, deviceTokens);
+      await this.pushNotificationsService.sendPushNotification(notificationData, deviceTokens);
     }
   }
 

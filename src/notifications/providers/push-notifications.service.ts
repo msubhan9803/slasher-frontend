@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import { Injectable } from '@nestjs/common';
-import admin from '../../app/providers/firebase.service';
+import { firebaseInstance } from '../../app/providers/initFirebase';
 
 @Injectable()
 export class PushNotificationsService {
@@ -24,7 +24,7 @@ export class PushNotificationsService {
 
   triggerPushNotification(message) {
     return new Promise((resolve, reject) => {
-      admin.messaging().send(message)
+      firebaseInstance.admin.messaging().send(message)
         .then((response) => {
           resolve(response);
         })

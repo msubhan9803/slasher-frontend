@@ -6,6 +6,7 @@ export const analyticsId = process.env.REACT_APP_GOOGLE_ANALYTICS_PROPERTY_ID;
 export const isNativePlatform = Capacitor.isNativePlatform();
 
 export const MAIN_CONTENT_ID = 'main-content';
+export const RETRY_CONNECTION_BUTTON_ID = 'retry-connection-button';
 
 export const BREAK_POINTS = {
   // NOTE: Break points below must be in ascending numeric order.

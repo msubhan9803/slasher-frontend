@@ -12,7 +12,7 @@ import { LG_MEDIA_BREAKPOINT, SERVER_UNAVAILABLE_TIMEOUT } from '../../constants
 import SigninComponent from '../../components/ui/SigninComponent';
 import useSessionToken from '../../hooks/useSessionToken';
 import { sleep } from '../../utils/timer-utils';
-import { setServerAvailable } from '../../redux/slices/serverAvailableSlice';
+import { setIsServerAvailable } from '../../redux/slices/serverAvailableSlice';
 import { useAppDispatch } from '../../redux/hooks';
 import useProgressButton from '../../components/ui/ProgressButton';
 
@@ -97,7 +97,7 @@ function SignIn() {
       const isAborted = error.message === 'canceled';
       const isConnectionLost = error.message === 'Network Error';
       if (isConnectionLost || isAborted) {
-        dispatch(setServerAvailable(false));
+        dispatch(setIsServerAvailable(false));
       } else {
         setErrorMessage(error.response.data.message);
       }

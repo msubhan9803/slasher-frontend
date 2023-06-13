@@ -25,7 +25,7 @@ import {
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { getSessionToken, signOut } from '../../../../utils/session-utils';
 import {
-  LG_MEDIA_BREAKPOINT, analyticsId, MAIN_CONTENT_ID, apiUrl,
+  LG_MEDIA_BREAKPOINT, analyticsId, MAIN_CONTENT_ID, apiUrl, RETRY_CONNECTION_BUTTON_ID,
 } from '../../../../constants';
 import useGoogleAnalytics from '../../../../hooks/useGoogleAnalytics';
 import SkipToMainContent from '../../sidebar-nav/SkipToMainContent';
@@ -33,11 +33,11 @@ import { setRemoteConstantsData } from '../../../../redux/slices/remoteConstants
 import { fetchRemoteConstants } from '../../../../api/remote-constants';
 import slasherLogo from '../../../../images/slasher-logo-medium.png';
 import HeaderLogo from '../../../ui/HeaderLogo';
-import { setSocketConnected } from '../../../../redux/slices/socketSlice';
+import { setIsSocketConnected } from '../../../../redux/slices/socketSlice';
 import socketStore from '../../../../socketStore';
 import useSessionTokenMonitorAsync from '../../../../hooks/useSessionTokenMonitorAsync';
 import useSessionToken from '../../../../hooks/useSessionToken';
-import { setServerAvailable } from '../../../../redux/slices/serverAvailableSlice';
+import { setIsServerAvailable } from '../../../../redux/slices/serverAvailableSlice';
 
 interface Props {
   children: React.ReactNode;
@@ -80,6 +80,31 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const location = useLocation();
   const token = useSessionToken();
   const tokenNotFound = !token.isLoading && !token.value;
+  const [show, setShow] = useState(false);
+  const isDesktopResponsiveSize = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` });
+  const isConnectingSocketRef = useRef(false);
+  const isSocketConnected = useAppSelector((state) => state.socket.isConnected);
+  const { socket } = socketStore;
+
+  const showUnreachableServerModalIfDisconnected = useCallback((e: MouseEvent) => {
+    // If socket state is disconnected then show server-unavailable dialog.
+    if (!isSocketConnected) {
+      const clickedElementIsRetryConnectButton = (
+        e.target as Element || null
+      )?.id === RETRY_CONNECTION_BUTTON_ID;
+
+      if (!clickedElementIsRetryConnectButton) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      dispatch(setIsServerAvailable(false));
+    }
+  }, [dispatch, isSocketConnected]);
+
+  useEffect(() => {
+    window.addEventListener('click', showUnreachableServerModalIfDisconnected, true);
+    return () => window.removeEventListener('click', showUnreachableServerModalIfDisconnected, true);
+  }, [showUnreachableServerModalIfDisconnected]);
 
   useGoogleAnalytics(analyticsId);
   const params = useParams();
@@ -95,12 +120,6 @@ function AuthenticatedPageWrapper({ children }: Props) {
     () => { window.location.reload(); },
     5_000,
   );
-
-  const [show, setShow] = useState(false);
-  const isDesktopResponsiveSize = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` });
-  const isConnectingSocketRef = useRef(false);
-  const isSocketConnected = useAppSelector((state) => state.socket.isConnected);
-  const { socket } = socketStore;
 
   const showOffcanvasSidebar = () => setShow(true);
   const toggleOffCanvas = () => {
@@ -161,16 +180,6 @@ function AuthenticatedPageWrapper({ children }: Props) {
     dispatch(handleUpdatedUnreadConversationCount(count.unreadConversationCount));
   }, [dispatch]);
 
-  const handleSocketConnect = useCallback(() => {
-    dispatch(setSocketConnected(true));
-    dispatch(setServerAvailable(true));
-  }, [dispatch]);
-
-  const handleSocketDisconnect = useCallback(() => {
-    dispatch(setSocketConnected(false));
-    dispatch(setServerAvailable(false));
-  }, [dispatch]);
-
   useEffect(() => {
     if (isSocketConnected || isConnectingSocketRef.current
       || token.isLoading || tokenNotFound) { return; }
@@ -180,14 +189,18 @@ function AuthenticatedPageWrapper({ children }: Props) {
       transports: ['websocket'],
       auth: { token: token.value },
     });
-    socketStore.socket.on('connect', handleSocketConnect);
+
+    socketStore.socket.on('connect', () => {
+      dispatch(setIsSocketConnected(true));
+      dispatch(setIsServerAvailable(true));
+    });
     socketStore.socket.on('connect_error', (err: any) => {
       const isConnectionFailure = err.message === 'websocket error';
-      if (isConnectionFailure) { handleSocketDisconnect(); }
+      if (isConnectionFailure) { dispatch(setIsSocketConnected(false)); }
     });
     socketStore.socket.on('disconnect', (err) => {
       const isConnectionLost = err === 'transport close';
-      if (isConnectionLost) { handleSocketDisconnect(); }
+      if (isConnectionLost) { dispatch(setIsSocketConnected(false)); }
     });
     // This is here to help with troubleshooting if there are ever any connection issues.
     // This will just prove whether or not authentication worked. If authentication fails,
@@ -197,8 +210,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
         (socketStore.socket as any).slasherAuthSuccess = true;
       }
     });
-  }, [dispatch, isSocketConnected, tokenNotFound, token, handleSocketConnect,
-    handleSocketDisconnect]);
+  }, [dispatch, isSocketConnected, tokenNotFound, token]);
 
   useEffect(() => {
     if (!socket) { return () => { }; }

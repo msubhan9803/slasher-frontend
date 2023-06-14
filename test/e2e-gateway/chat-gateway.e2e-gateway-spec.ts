@@ -206,7 +206,7 @@ describe('Chat Gateway (e2e)', () => {
             fromUser: {
               _id: expect.any(String),
               userName: 'Username1',
-              profilePic: 'noUser.jpg',
+              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
               matchId: expect.any(String),
             },
           },
@@ -581,7 +581,7 @@ describe('Chat Gateway (e2e)', () => {
           fromUser: {
             _id: expect.any(String),
             userName: 'Michael',
-            profilePic: 'noUser.jpg',
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
             matchId: expect.any(String),
           },
         },

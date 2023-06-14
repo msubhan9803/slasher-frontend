@@ -6,9 +6,9 @@ import {
 import { Capacitor } from '@capacitor/core';
 import { App as CapacitorApp, URLOpenListenerEvent } from '@capacitor/app';
 import { Device } from '@capacitor/device';
-import { updateUserDeviceToken } from '../../../api/users';
-import { urlForNotification } from '../../../utils/notification-url-utils';
-import { getDeviceToken, getSessionToken, setDeviceToken } from '../../../utils/session-utils';
+import { getDeviceToken, getSessionToken, setDeviceToken } from '../utils/session-utils';
+import { updateUserDeviceToken } from '../api/users';
+import { urlForNotification } from '../utils/notification-url-utils';
 
 function PushNotificationAndDeepLinkListener() {
   const navigate = useNavigate();

@@ -360,3 +360,10 @@ export interface ConversationListItem {
 }
 
 export enum CommentsOrder { oldestFirst = 'oldestFirst', newestFirst = 'newestFirst' }
+export interface DeviceFields {
+  device_token: string;
+  device_type: string;
+  app_version: string;
+  device_version: string;
+  device_id: string;
+}

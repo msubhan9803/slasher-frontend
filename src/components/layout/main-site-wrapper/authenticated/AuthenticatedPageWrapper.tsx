@@ -21,6 +21,7 @@ import {
   resetNewFriendRequestCountCount, incrementUnreadNotificationCount,
   incrementFriendRequestCount,
   appendToPathnameHistory,
+  updateRecentMessage,
 } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { getSessionToken, signOut } from '../../../../utils/session-utils';
@@ -180,6 +181,10 @@ function AuthenticatedPageWrapper({ children }: Props) {
     dispatch(handleUpdatedUnreadConversationCount(count.unreadConversationCount));
   }, [dispatch]);
 
+  const onChatMessageReceivedHandler = useCallback((chat: any) => {
+    dispatch(updateRecentMessage(chat));
+  }, [dispatch]);
+
   useEffect(() => {
     if (isSocketConnected || isConnectingSocketRef.current
       || token.isLoading || tokenNotFound) { return; }
@@ -220,15 +225,18 @@ function AuthenticatedPageWrapper({ children }: Props) {
     socket.on('unreadConversationCountUpdate', onUnreadConversationCountUpdate);
     socket.on('clearNewNotificationCount', onClearNewNotificationCount);
     socket.on('clearNewFriendRequestCount', onClearNewFriendRequestCount);
+    socket.on('chatMessageReceived', onChatMessageReceivedHandler);
     return () => {
       socket.off('notificationReceived', onNotificationReceivedHandler);
       socket.off('friendRequestReceived', onFriendRequestReceivedHandler);
       socket.off('unreadMessageCountUpdate', onUnreadConversationCountUpdate);
       socket.off('clearNewNotificationCount', onClearNewNotificationCount);
       socket.off('clearNewFriendRequestCount', onClearNewFriendRequestCount);
+      socket.off('chatMessageReceived', onChatMessageReceivedHandler);
     };
   }, [onClearNewFriendRequestCount, onClearNewNotificationCount, onFriendRequestReceivedHandler,
-    onNotificationReceivedHandler, onUnreadConversationCountUpdate, socket]);
+    onNotificationReceivedHandler, onUnreadConversationCountUpdate, socket,
+    onChatMessageReceivedHandler]);
 
   if (token.isLoading || !userData.user?.id) {
     return (

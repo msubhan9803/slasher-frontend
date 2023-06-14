@@ -45,7 +45,7 @@ import PublicProfile from './routes/public-home-page/public-profile-web/PublicPr
 import { useAppSelector } from './redux/hooks';
 import ServerUnavailable from './components/ServerUnavailable';
 import Conversation from './routes/conversation/Conversation';
-import PushNotificationAndDeepLinkListener from './components/import PushAndDeepLinkListenerWrapper from \'./components/PushNotificationAndDeepLinkListener';
+import PushNotificationAndDeepLinkListener from './components/PushNotificationAndDeepLinkListener';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';

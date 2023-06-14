@@ -6,6 +6,7 @@ import {
   useLocation,
   useNavigate, useParams, useSearchParams,
 } from 'react-router-dom';
+import { AxiosResponse } from 'axios';
 import { createBlockUser } from '../../../api/blocks';
 import {
   addFeedComments, addFeedReplyComments, getFeedComments,
@@ -111,28 +112,32 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     setPopoverClick(popoverClickProps);
   };
 
-  const feedComments = useCallback((isLoadNewerCommentsClick: boolean, isOldestFirst: boolean) => {
+  type FeedCommentsOptions = { isOldestFirst: boolean, isLoadNewerCommentsClick: boolean };
+
+  const feedComments = useCallback((options: FeedCommentsOptions) => {
+    const { isOldestFirst, isLoadNewerCommentsClick } = options;
     let data;
-    const isAddingAfterCurrentComments = !isLoadNewerCommentsClick;
-    if (isAddingAfterCurrentComments) {
+    const isAddingBelowCurrentComments = !isLoadNewerCommentsClick;
+    if (isAddingBelowCurrentComments) {
       data = commentData.length > 0 ? commentData[commentData.length - 1]._id : undefined;
     } else {
       data = commentData.length > 0 ? commentData[0]._id : undefined;
     }
     // Note: Using === below provides a conciser expression for
-    // expression `isCommentsOldestFirst ? isAddingAfter : !isAddingAfter`
-    const isOldestFirstFromApi = isOldestFirst === isAddingAfterCurrentComments;
-    // console.log('paradise (isCommentsOldestFirst)?', isCommentsOldestFirst);
+    // expression `isOldestFirst ? isAddingBelowCurrentComments : !isAddingBelowCurrentComments`
+    const isOldestFirstFromApi = isOldestFirst === isAddingBelowCurrentComments;
     getFeedComments(
       postId!,
       data,
       isOldestFirstFromApi,
-    ).then((res) => {
-      const comments = isAddingAfterCurrentComments ? res.data : res.data.reverse();
+    ).then((res: AxiosResponse<FeedComments[]>) => {
+      const comments = isAddingBelowCurrentComments
+        ? res.data
+        : res.data.reverse().map((comment) => ({ ...comment, replies: comment.replies.reverse() }));
       // eslint-disable-next-line max-len
-      setCommentData((prev: any) => (isAddingAfterCurrentComments ? [...prev, ...comments] : [...comments, ...prev]));
+      setCommentData((prev: any) => (isAddingBelowCurrentComments ? [...prev, ...comments] : [...comments, ...prev]));
       if (res.data.length === 0) { setNoMoreData(true); }
-      if (res.data.length < 20 && !isAddingAfterCurrentComments) {
+      if (res.data.length < 20 && !isAddingBelowCurrentComments) {
         setPreviousCommentsAvailable(false);
       }
     }).catch(
@@ -149,7 +154,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     if (requestAdditionalPosts && !loadingComments && (commentData.length || !queryCommentId)) {
       setLoadingComments(true);
       setNoMoreData(false);
-      feedComments(/* isLoadNewerCommentsClick= */false, isCommentsOldestFirst);
+      feedComments({ isOldestFirst: isCommentsOldestFirst, isLoadNewerCommentsClick: false });
     }
   }, [requestAdditionalPosts, loadingComments, commentData, queryCommentId, feedComments,
     isCommentsOldestFirst]);
@@ -241,7 +246,11 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             likeCount: 0,
             createdAt: new Date().toISOString(),
           };
-          newCommentArray = [commentValueData].concat(newCommentArray);
+          if (isCommentsOldestFirst) {
+            newCommentArray = newCommentArray.concat(commentValueData);
+          } else {
+            newCommentArray = [commentValueData].concat(newCommentArray);
+          }
           setCommentData(newCommentArray);
           setPostData([{
             ...postData[0],
@@ -725,7 +734,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   }, [queryCommentId, getSingleComment]);
 
   const loadNewerComment = () => {
-    feedComments(/* isLoadNewerCommentsClick= */true, isCommentsOldestFirst);
+    feedComments({ isOldestFirst: isCommentsOldestFirst, isLoadNewerCommentsClick: true });
   };
 
   const onBlockYesClick = () => {

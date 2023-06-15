@@ -5,10 +5,10 @@ import React, {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Button } from 'react-bootstrap';
-import { HashLink } from 'react-router-hash-link';
 import { DateTime } from 'luxon';
 import linkifyHtml from 'linkify-html';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 import UserCircleImage from '../../UserCircleImage';
 import CustomPopover, { PopoverClickProps } from '../../CustomPopover';
 import { defaultLinkifyOpts } from '../../../../utils/linkify-utils';
@@ -136,9 +136,9 @@ function CommentSection({
   return (
     <div key={id}>
       <div className={`position-absolute ps-1 ${!commentMention && 'mt-0 mt-md-3'} ${commentMention && 'ms-md-1'}`}>
-        <HashLink to={`/${name}#`} className="d-block rounded-circle">
+        <Link to={`/${name}`} className="d-block rounded-circle">
           <UserCircleImage size={`${userCircleImageSizeInRems}rem`} src={image} alt="user picture" className="rounded-circle d-flex bg-secondary" />
-        </HashLink>
+        </Link>
       </div>
       <div style={{ marginLeft: `${userCircleImageSizeInRems + 0.5}rem` }}>
         <div
@@ -147,9 +147,9 @@ function CommentSection({
         >
           <div className="d-flex justify-content-between">
             <div className="ps-0 align-self-center mb-2">
-              <HashLink to={`/${name}#`} className="d-block text-decoration-none">
+              <Link to={`/${name}`} className="d-block text-decoration-none">
                 <h1 className="mb-0 h3">{name}</h1>
-              </HashLink>
+              </Link>
               <p className="fs-6 text-light mb-0">
                 {DateTime.fromISO(time).toFormat('MM/dd/yyyy t')}
               </p>

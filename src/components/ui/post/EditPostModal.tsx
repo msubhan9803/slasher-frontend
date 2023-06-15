@@ -3,8 +3,9 @@ import { Modal } from 'react-bootstrap';
 import { FormatMentionProps } from '../../../routes/posts/create-post/CreatePost';
 import CreatePostComponent from '../CreatePostComponent';
 import ModalContainer from '../CustomModal';
-import { decryptMessage } from '../../../utils/text-utils';
+import { allAtMentionsRegex, decryptMessage } from '../../../utils/text-utils';
 import { ContentDescription } from '../../../types';
+import { ProgressButtonComponentType } from '../ProgressButton';
 
 interface Props {
   show: boolean;
@@ -12,6 +13,7 @@ interface Props {
   setShow: (value: boolean) => void;
   setPostContent: (val: string) => void;
   postContent: string;
+  ProgressButton: ProgressButtonComponentType,
   onUpdatePost: (
     value: string,
     images: string[],
@@ -21,7 +23,7 @@ interface Props {
   setPostImages: any;
   deleteImageIds?: string[];
   setDeleteImageIds?: (val: string) => void;
-  editPost?: boolean
+  editPost?: boolean;
 }
 function EditPostModal({
   show,
@@ -35,6 +37,7 @@ function EditPostModal({
   deleteImageIds,
   setDeleteImageIds,
   editPost,
+  ProgressButton,
 }: Props) {
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const [descriptionArray, setDescriptionArray] = useState<ContentDescription[]>([]);
@@ -70,7 +73,10 @@ function EditPostModal({
     return undefined;
   };
   const updatePost = () => {
-    const postContentWithMentionReplacements = (postContent.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    const postContentWithMentionReplacements = (postContent.replace(
+      allAtMentionsRegex,
+      mentionReplacementMatchFunc,
+    ));
     const files = postImages.filter((images: any) => images instanceof File);
     onUpdatePost(postContentWithMentionReplacements, files, deleteImageIds, descriptionArray);
   };
@@ -100,6 +106,7 @@ function EditPostModal({
           descriptionArray={descriptionArray}
           setDescriptionArray={setDescriptionArray}
           createEditPost={editPost}
+          ProgressButton={ProgressButton}
         />
       </Modal.Body>
     </ModalContainer>

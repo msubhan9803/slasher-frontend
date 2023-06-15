@@ -1,9 +1,11 @@
+/* eslint-disable no-alert */
 import React from 'react';
 import {
   Navigate,
   Route, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
 import { App as CapacitorApp } from '@capacitor/app';
+import { StatusBar } from '@capacitor/status-bar';
 import VerificationEmailNotReceived from './routes/verification-email-not-received/VerificationEmailNotReceived';
 import ForgotPassword from './routes/forgot-password/ForgotPassword';
 import Home from './routes/home/Home';
@@ -27,7 +29,7 @@ import Account from './routes/account/Account';
 import ResetPassword from './routes/reset-password/ResetPassword';
 import AccountActivated from './routes/account-activated/AccountActivated';
 import usePubWiseAdSlots from './hooks/usePubWiseAdSlots';
-import { enableADs } from './constants';
+import { enableADs, topStatuBarBackgroundColorAndroidOnly } from './constants';
 import Books from './routes/books/Books';
 import Artists from './routes/artists/Artists';
 import Podcasts from './routes/podcasts/Podcasts';
@@ -43,6 +45,7 @@ import PublicProfile from './routes/public-home-page/public-profile-web/PublicPr
 import { useAppSelector } from './redux/hooks';
 import ServerUnavailable from './components/ServerUnavailable';
 import Conversation from './routes/conversation/Conversation';
+import PushNotificationAndDeepLinkListener from './components/PushNotificationAndDeepLinkListener';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -111,13 +114,17 @@ CapacitorApp.addListener('backButton', ({ canGoBack }) => {
   }
 });
 
+// Display content under transparent status bar (Android only)
+StatusBar.setOverlaysWebView({ overlay: true });
+StatusBar.setBackgroundColor({ color: topStatuBarBackgroundColorAndroidOnly });
+
 function App() {
   usePubWiseAdSlots(enableADs);
   const isServerAvailable = useAppSelector((state) => state.serverAvailability.isAvailable);
 
   const router = createBrowserRouter(
     createRoutesFromElements(
-      <Route>
+      <Route path="/" element={<PushNotificationAndDeepLinkListener />}>
         {/* TODO: Uncomment line below when switching from beta to prod */}
         {/* <Route path="/" element={<Index />} /> */}
         {/* TODO: REMOVE line below when switching from beta to prod */}

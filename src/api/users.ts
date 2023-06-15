@@ -1,20 +1,38 @@
 /* eslint-disable max-lines */
 import axios from 'axios';
+import { Capacitor } from '@capacitor/core';
+import { Device } from '@capacitor/device';
 import { apiUrl } from '../constants';
-import { RegisterUser } from '../types';
-import { getSessionToken, getSessionUserId } from '../utils/session-utils';
+import { DeviceFields, RegisterUser } from '../types';
+import { getDeviceToken, getSessionToken, getSessionUserId } from '../utils/session-utils';
 
 export async function signIn(emailOrUsername: string, password: string, signal?: AbortSignal) {
-  return axios.post(
-    `${apiUrl}/api/v1/users/sign-in`,
-    {
-      emailOrUsername,
-      password,
+  let deviceFields: DeviceFields;
+  if (Capacitor.isNativePlatform()) {
+    const deviceId = await Device.getId();
+    const deviceInfo = await Device.getInfo();
+    deviceFields = {
+      device_id: deviceId.uuid,
+      device_token: (await getDeviceToken())!,
+      device_type: deviceInfo.platform,
+      app_version: `${deviceInfo.platform}-capacitor-${process.env.REACT_APP_VERSION}`,
+      device_version: `${deviceInfo.manufacturer} ${deviceInfo.model} ${deviceInfo.operatingSystem} ${deviceInfo.osVersion}, Name: ${deviceInfo.name}`,
+    };
+  } else {
+    deviceFields = {
       device_id: 'browser',
       device_token: 'browser',
       device_type: 'browser',
       app_version: `web-${process.env.REACT_APP_VERSION}`,
       device_version: window.navigator.userAgent,
+    };
+  }
+  return axios.post(
+    `${apiUrl}/api/v1/users/sign-in`,
+    {
+      emailOrUsername,
+      password,
+      ...deviceFields,
     },
     { signal },
   );
@@ -255,6 +273,17 @@ export async function updateUserAbout(
     Authorization: `Bearer ${token}`,
   };
   return axios.patch(`${apiUrl}/api/v1/users/${id}`, { aboutMe }, { headers });
+}
+
+export async function updateUserDeviceToken(
+  device_id: string,
+  device_token: string,
+) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.post(`${apiUrl}/api/v1/users/update-device-token`, { device_id, device_token }, { headers });
 }
 
 export async function getUserMoviesList(

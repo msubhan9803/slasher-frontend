@@ -1,4 +1,4 @@
-package tv.slasher.app;
+package com.sdei.slasher;
 
 import android.os.Bundle;
 import android.webkit.WebView;

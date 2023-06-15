@@ -52,13 +52,17 @@ html {
   }
 }
 
+
 body {
   &::-webkit-scrollbar {
     width: 10px;
     /* Mostly for vertical scrollbars */
     height: 10px;
     /* Mostly for horizontal scrollbars */
-  }
+}
+  --safe-area-inset-top: constant(safe-area-inset-top);
+  --safe-area-inset-bottom: constant(safe-area-inset-bottom);
+  height: calc(100% + (var(--safe-area-inset-top) + var(--safe-area-inset-bottom)));
 }
 
 abbr[title] {

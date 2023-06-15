@@ -3,9 +3,10 @@ import { Capacitor } from '@capacitor/core';
 // eslint-disable-next-line import/prefer-default-export
 export const apiUrl = process.env.REACT_APP_API_URL;
 export const analyticsId = process.env.REACT_APP_GOOGLE_ANALYTICS_PROPERTY_ID;
-export const isCapacitorApp = Capacitor.isNativePlatform();
+export const isNativePlatform = Capacitor.isNativePlatform();
 
 export const MAIN_CONTENT_ID = 'main-content';
+export const RETRY_CONNECTION_BUTTON_ID = 'retry-connection-button';
 
 export const BREAK_POINTS = {
   // NOTE: Break points below must be in ascending numeric order.
@@ -38,3 +39,5 @@ export const topToDivHeight = 110;
 
 export const bottomMobileNavHeight = 80;
 export const SERVER_UNAVAILABLE_TIMEOUT = 10_000;
+
+export const topStatuBarBackgroundColorAndroidOnly = '000000';

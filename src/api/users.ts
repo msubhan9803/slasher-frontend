@@ -2,7 +2,6 @@
 import axios from 'axios';
 import { Capacitor } from '@capacitor/core';
 import { Device } from '@capacitor/device';
-import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
 import { DeviceFields, RegisterUser } from '../types';
 import { getDeviceToken, getSessionToken, getSessionUserId } from '../utils/session-utils';
@@ -351,8 +350,8 @@ export async function resetPassword(
 export async function addHashtags(
   hashtags: string[],
 ) {
-  const userId = Cookies.get('userId');
-  const token = Cookies.get('sessionToken');
+  const userId = await getSessionUserId();
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -360,7 +359,7 @@ export async function addHashtags(
 }
 
 export async function getFollowedHashtags(userId: string, search: string, page: number) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -377,7 +376,7 @@ export async function followHashtag(
   userId: string,
   notification: boolean,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -388,7 +387,7 @@ export async function unfollowHashtag(
   hashtag: string,
   userId: string,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -399,7 +398,7 @@ export async function getSingleHashtagDetail(
   hashtag: string,
   userId: string,
 ) {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };

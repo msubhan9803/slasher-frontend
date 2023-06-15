@@ -358,3 +358,11 @@ export interface ConversationListItem {
   profilePic: string;
   updatedAt: string;
 }
+
+export interface DeviceFields {
+  device_token: string;
+  device_type: string;
+  app_version: string;
+  device_version: string;
+  device_id: string;
+}

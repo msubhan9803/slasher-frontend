@@ -8,7 +8,7 @@ import { signIn } from '../../api/users';
 import { setSignInCookies } from '../../utils/session-utils';
 import useProgressButton from './ProgressButton';
 import { SERVER_UNAVAILABLE_TIMEOUT } from '../../constants';
-import { setServerAvailable } from '../../redux/slices/serverAvailableSlice';
+import { setIsServerAvailable } from '../../redux/slices/serverAvailableSlice';
 import { useAppDispatch } from '../../redux/hooks';
 
 const StyledModal = styled(Modal)`
@@ -68,7 +68,7 @@ function SignInModal({ show, setShow, isPublicProfile }: SignInProps) {
       const isAborted = error.message === 'canceled';
       const isConnectionLost = error.message === 'Network Error';
       if (isConnectionLost || isAborted) {
-        dispatch(setServerAvailable(false));
+        dispatch(setIsServerAvailable(false));
       } else {
         setErrorMessage(error.response.data.message);
       }

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "399218252615",
+    "project_id": "slasher-2023-fe951",
+    "storage_bucket": "slasher-2023-fe951.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:399218252615:android:83a729bdfacea97a068a62",
+        "android_client_info": {
+          "package_name": "com.sdei.slasher"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "399218252615-920sc8gql43jh0d6qdkmakbno6915vbq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDaC2EdefLxo3G5TsUx2yL3hNYlC13Y6zg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "399218252615-920sc8gql43jh0d6qdkmakbno6915vbq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect } from 'react';
+import React from 'react';
 import { Modal } from 'react-bootstrap';
 import { healthCheck } from '../api/health-check';
 import { useAppSelector, useAppDispatch } from '../redux/hooks';
-import { setServerAvailable } from '../redux/slices/serverAvailableSlice';
+import { setIsServerAvailable } from '../redux/slices/serverAvailableSlice';
 import CustomModal from './ui/CustomModal';
 import useProgressButton from './ui/ProgressButton';
+import { RETRY_CONNECTION_BUTTON_ID } from '../constants';
 
 export default function ServerUnavailable() {
   const isServerAvailable = useAppSelector((state) => state.serverAvailability.isAvailable);
@@ -13,23 +14,16 @@ export default function ServerUnavailable() {
 
   const show = !isServerAvailable;
 
-  const handleWindowFocus = useCallback(() => {
-    dispatch(setServerAvailable(true));
-  }, [dispatch]);
-
-  useEffect(() => {
-    window.addEventListener('focus', handleWindowFocus);
-    return () => window.removeEventListener('focus', handleWindowFocus);
-  });
-
   const handleTryAgain = () => {
     setProgressButtonStatus('loading');
     healthCheck().then((res) => {
       if (res.data.status === 'ok') {
         setProgressButtonStatus('success');
-        setTimeout(() => dispatch(setServerAvailable(true)), 500);
+        setTimeout(() => dispatch(setIsServerAvailable(true)), 500);
       }
-    }).catch(() => setProgressButtonStatus('failure'));
+    }).catch(() => {
+      setTimeout(() => setProgressButtonStatus('failure'), 500);
+    });
   };
 
   return (
@@ -39,7 +33,7 @@ export default function ServerUnavailable() {
         <Modal.Body className="d-flex flex-column align-items-center text-center pt-0">
           <h1 className="h3 text-primary">Unable to reach the server.</h1>
           <p className="px-3">Please check your internet connection and try again.</p>
-          <ProgressButton className="mb-3 w-100 fs-3" label="Try again" onClick={handleTryAgain} />
+          <ProgressButton id={RETRY_CONNECTION_BUTTON_ID} className="mb-3 w-100 fs-3" label="Try again" onClick={handleTryAgain} />
         </Modal.Body>
       </CustomModal>
     </div>

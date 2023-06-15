@@ -7,11 +7,11 @@ export const serverAvailability = createSlice({
     isAvailable: true,
   },
   reducers: {
-    setServerAvailable: (state, action: PayloadAction<boolean>) => {
+    setIsServerAvailable: (state, action: PayloadAction<boolean>) => {
       state.isAvailable = action.payload;
     },
   },
 });
 
-export const { setServerAvailable } = serverAvailability.actions;
+export const { setIsServerAvailable } = serverAvailability.actions;
 export default serverAvailability.reducer;

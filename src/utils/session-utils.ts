@@ -86,3 +86,12 @@ export const getSessionUserName = async () => {
   }
   return null;
 };
+
+export const getDeviceToken = async () => {
+  const deviceToken = (await Preferences.get({ key: 'deviceToken' })).value;
+  return deviceToken;
+};
+
+export const setDeviceToken = async (deviceToken: string) => {
+  await Preferences.set({ key: 'deviceToken', value: deviceToken });
+};

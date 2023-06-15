@@ -28,13 +28,13 @@ function FilterModal({
 }: FilterDialogProps) {
   const [keyboard, setKeyboard] = useState<string[]>([]);
   const [key, setKey] = useState<string>('');
-  const [selectedSortValue, seSelectedSortValue] = useState<string>('');
+  const [selectedSortValue, setSelectedSortValue] = useState<string>('');
 
   useEffect(() => {
     setKey(selectedKey!.toUpperCase());
   }, [selectedKey]);
   useEffect(() => {
-    seSelectedSortValue(sortVal!);
+    setSelectedSortValue(sortVal!);
   }, [sortVal]);
 
   const generateAlphabet = () => {
@@ -80,7 +80,7 @@ function FilterModal({
         {postType !== 'group-post' && (
           <div className="d-lg-none mb-4">
             <Modal.Title className="fs-3 mb-2">Sort</Modal.Title>
-            <CustomSelect value={selectedSortValue} onChange={seSelectedSortValue} options={sortoptions} type="sort" />
+            <CustomSelect value={selectedSortValue} onChange={setSelectedSortValue} options={sortoptions} type="sort" />
           </div>
         )}
         <h2 className={`fs-3 mb-3 ${postType === 'group-post' ? 'text-primary' : ''} text-center `}>{postType === 'group-post' ? 'Filters' : 'Title starts with:'}</h2>

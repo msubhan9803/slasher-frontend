@@ -792,10 +792,12 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
 
     setCommentData([]);
     setIsCommentsByOldestFirst(value === CommentsOrder.oldestFirst);
-    if (!noMoreData) { setNoMoreData(false); }
-    // necessary to trigger the `useEffect` responsible to fetch comments.
-    setLoadingComments(false);
-    setRequestAdditionalPosts(true);
+    if (!queryCommentId) {
+      setRequestAdditionalPosts(true);
+    } else {
+      getSingleComment();
+      setRequestAdditionalPosts(true);
+    }
   };
   const commentsOrder: CommentsOrder = isCommentsOldestFirst
     ? CommentsOrder.oldestFirst

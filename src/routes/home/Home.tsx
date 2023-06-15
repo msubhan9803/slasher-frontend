@@ -11,7 +11,9 @@ import ReportModal from '../../components/ui/ReportModal';
 import {
   deleteFeedPost, getHomeFeedPosts, hideFeedPost, updateFeedPost,
 } from '../../api/feed-posts';
-import { ContentDescription, Post } from '../../types';
+import {
+  ContentDescription, FriendRequestReaction, FriendType, Post,
+} from '../../types';
 import { PopoverClickProps } from '../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../api/feed-likes';
 import { createBlockUser } from '../../api/blocks';
@@ -27,6 +29,9 @@ import {
 } from '../../pageStateCache';
 import useProgressButton from '../../components/ui/ProgressButton';
 import { sleep } from '../../utils/timer-utils';
+import { useAppSelector } from '../../redux/hooks';
+import { friendship } from '../../api/friends';
+import FriendshipStatusModal from '../../components/ui/friendShipCheckModal';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
@@ -48,8 +53,12 @@ function Home() {
   const [postId, setPostId] = useState<string>('');
   const [postUserId, setPostUserId] = useState<string>('');
   const [rssfeedProviderId, setRssfeedProviderId] = useState<string>('');
+  const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
+  const [friendData, setFriendData] = useState<FriendType>(null);
+  const [friendShipStatusModal, setFriendShipStatusModal] = useState<boolean>(false);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const location = useLocation();
+  const userId = useAppSelector((state: any) => state.user.user.id);
   const pageStateCache = (getPageStateCache(location) ?? [])
     .filter(removeDeletedPost)
     .filter(removeBlockedUserPosts);
@@ -270,46 +279,70 @@ function Home() {
       .catch((error) => console.error(error));
   };
 
-  const onLikeClick = (feedPostId: string) => {
+  const checkFriendShipStatus = (selectedFeedPostId: string) => new Promise<void>(
+    (resolve, reject) => {
+      if (userId === selectedFeedPostId) {
+        resolve();
+      } else {
+        friendship(selectedFeedPostId).then((res) => {
+          if (res.data.reaction === FriendRequestReaction.Accepted) {
+            resolve();
+          } else {
+            setPostUserId(selectedFeedPostId!);
+            setFriendShipStatusModal(true);
+            setFriendData(res.data);
+            setFriendStatus(res.data.reaction);
+          }
+        }).catch(() => reject());
+      }
+    },
+  );
+
+  const onLikeClick = async (feedPostId: string) => {
     const checkLike = posts.some((post) => post.id === feedPostId
       && post.likeIcon);
-    if (checkLike) {
-      unlikeFeedPost(feedPostId).then((res) => {
-        if (res.status === 200) {
-          const unLikePostData = posts.map(
-            (unLikePost: Post) => {
-              if (unLikePost._id === feedPostId) {
+
+    const selectedFeedPostId = posts.find((post) => post.id === feedPostId)?.userId;
+
+    await checkFriendShipStatus(selectedFeedPostId!).then(() => {
+      if (checkLike) {
+        unlikeFeedPost(feedPostId).then((res) => {
+          if (res.status === 200) {
+            const unLikePostData = posts.map(
+              (unLikePost: Post) => {
+                if (unLikePost._id === feedPostId) {
+                  return {
+                    ...unLikePost,
+                    likeIcon: false,
+                    likedByUser: false,
+                    likeCount: unLikePost.likeCount - 1,
+                  };
+                }
+                return unLikePost;
+              },
+            );
+            setPosts(unLikePostData);
+          }
+        });
+      } else {
+        likeFeedPost(feedPostId).then((res) => {
+          if (res.status === 201) {
+            const likePostData = posts.map((likePost: Post) => {
+              if (likePost._id === feedPostId) {
                 return {
-                  ...unLikePost,
-                  likeIcon: false,
-                  likedByUser: false,
-                  likeCount: unLikePost.likeCount - 1,
+                  ...likePost,
+                  likeIcon: true,
+                  likedByUser: true,
+                  likeCount: likePost.likeCount + 1,
                 };
               }
-              return unLikePost;
-            },
-          );
-          setPosts(unLikePostData);
-        }
-      });
-    } else {
-      likeFeedPost(feedPostId).then((res) => {
-        if (res.status === 201) {
-          const likePostData = posts.map((likePost: Post) => {
-            if (likePost._id === feedPostId) {
-              return {
-                ...likePost,
-                likeIcon: true,
-                likedByUser: true,
-                likeCount: likePost.likeCount + 1,
-              };
-            }
-            return likePost;
-          });
-          setPosts(likePostData);
-        }
-      });
-    }
+              return likePost;
+            });
+            setPosts(likePostData);
+          }
+        });
+      }
+    });
   };
 
   const onBlockYesClick = () => {
@@ -416,6 +449,18 @@ function Home() {
             />
           )
         }
+
+        {friendShipStatusModal && (
+          <FriendshipStatusModal
+            friendShipStatusModal={friendShipStatusModal}
+            setFriendShipStatusModal={setFriendShipStatusModal}
+            friendStatus={friendStatus}
+            setFriendStatus={setFriendStatus}
+            setFriendData={setFriendData}
+            friendData={friendData}
+            userId={postUserId}
+          />
+        )}
       </ContentPageWrapper>
       <RightSidebarWrapper>
         <RightSidebarSelf />

@@ -366,3 +366,9 @@ export interface DeviceFields {
   device_version: string;
   device_id: string;
 }
+
+export type FriendType = {
+  from: string,
+  to: string,
+  reaction: FriendRequestReaction
+} | null;

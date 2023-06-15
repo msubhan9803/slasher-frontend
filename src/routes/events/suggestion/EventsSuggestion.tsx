@@ -115,7 +115,10 @@ function prettifyErrorMessages(errorMessageList: string[]) {
     .replace('address', 'Address')
     .replace('city', 'City')
     .replace('endDate', 'End date')
-    .replace('startDate', 'Start date'));
+    .replace('startDate', 'Start date')
+    .replace('should not be empty', 'is required'))
+    .filter((errorMessage) => !errorMessage.includes('Invalid')) // remove duplicate error message for empty fields
+    .sort((a) => (a.includes('Event category') ? -1 : 1)); // make the Event category to appear first in the `errorMessageList`;
 }
 
 const INITIAL_EVENTFORM: EventForm = {
@@ -188,6 +191,13 @@ function EventSuggestion() {
     });
   };
 
+  const requiredFieldElement = (
+    <p className="m-0 py-2">
+      <span className="text-primary">* </span>
+      required
+    </p>
+  );
+
   return (
     <div>
       <CustomContainer className="rounded p-lg-4 pb-0 pb-lg-4">
@@ -230,7 +240,7 @@ function EventSuggestion() {
               value={eventForm.eventType}
               onChange={(val) => { handleChange(val, 'eventType'); }}
               placeholder={
-                loadingEventCategories ? 'Loading event categories...' : 'Event category *'
+                loadingEventCategories ? 'Loading event categories...' : 'Event category'
               }
               options={
                 loadingEventCategories
@@ -239,9 +249,11 @@ function EventSuggestion() {
               }
               type="form"
             />
+            {requiredFieldElement}
           </Col>
           <Col md={6} className="mt-3">
-            <Form.Control value={eventForm.name} aria-label="Event name" type="text" placeholder="Event name *" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'name')} />
+            <Form.Control value={eventForm.name} aria-label="Event name" type="text" placeholder="Event name" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'name')} />
+            {requiredFieldElement}
           </Col>
         </Row>
         <Row className="mt-3">
@@ -273,10 +285,12 @@ function EventSuggestion() {
         </Row>
         <Row>
           <Col md={6} className="mt-3">
-            <CustomDatePicker date={eventForm.startDate} setDate={(value: any) => handleChange(value, 'startDate')} label="Start date *" />
+            <CustomDatePicker date={eventForm.startDate} setDate={(value: any) => handleChange(value, 'startDate')} label="Start date" />
+            {requiredFieldElement}
           </Col>
           <Col md={6} className="mt-3">
-            <CustomDatePicker date={eventForm.endDate} setDate={(value: any) => handleChange(value, 'endDate')} label="End date *" />
+            <CustomDatePicker date={eventForm.endDate} setDate={(value: any) => handleChange(value, 'endDate')} label="End date" />
+            {requiredFieldElement}
           </Col>
         </Row>
         <Row>
@@ -284,19 +298,21 @@ function EventSuggestion() {
             <CustomSelect
               value={eventForm.country}
               onChange={(val) => { handleChange(val, 'country'); }}
-              placeholder="Country *"
+              placeholder="Country"
               options={getCountries()}
               type="form"
             />
+            {requiredFieldElement}
           </Col>
           <Col md={6} className="mt-3">
             <CustomSelect
               value={eventForm.state}
               onChange={(val) => { handleChange(val, 'state'); }}
-              placeholder="State/Province *"
+              placeholder="State/Province"
               options={getStatesbyCountryName(eventForm.country)}
               type="form"
             />
+            {requiredFieldElement}
           </Col>
         </Row>
         <Row>
@@ -304,14 +320,10 @@ function EventSuggestion() {
             <Form.Control value={eventForm.address} aria-label="Street address" type="text" placeholder="Street address" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'address')} />
           </Col>
           <Col md={6} className="mt-3">
-            <Form.Control value={eventForm.city} aria-label="City" type="text" placeholder="City *" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'city')} />
+            <Form.Control value={eventForm.city} aria-label="City" type="text" placeholder="City" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'city')} />
+            {requiredFieldElement}
           </Col>
         </Row>
-        <p className="mt-3">
-          Fields marked with
-          <span className="text-primary"> * </span>
-          are required.
-        </p>
         <ErrorMessageList errorMessages={errors} className="mt-4" />
         {isEventSuggestionSuccessful && (
           <Alert variant="info" className="my-4">

@@ -1,7 +1,6 @@
 /* eslint-disable no-alert */
 import React from 'react';
 import {
-  Navigate,
   Route, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
 import { App as CapacitorApp } from '@capacitor/app';
@@ -46,6 +45,7 @@ import { useAppSelector } from './redux/hooks';
 import ServerUnavailable from './components/ServerUnavailable';
 import Conversation from './routes/conversation/Conversation';
 import PushNotificationAndDeepLinkListener from './components/PushNotificationAndDeepLinkListener';
+import Index from './routes/Index';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -126,9 +126,9 @@ function App() {
     createRoutesFromElements(
       <Route path="/" element={<PushNotificationAndDeepLinkListener />}>
         {/* TODO: Uncomment line below when switching from beta to prod */}
-        {/* <Route path="/" element={<Index />} /> */}
+        <Route path="/" element={<Index />} />
         {/* TODO: REMOVE line below when switching from beta to prod */}
-        <Route path="/" element={<Navigate to="/app/home" replace />} />
+        {/* <Route path="/" element={<Navigate to="/app/home" replace />} /> */}
         {
           Object.entries(routes).map(
             ([routePath, opts]) => (

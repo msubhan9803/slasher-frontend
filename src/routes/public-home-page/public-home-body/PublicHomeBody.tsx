@@ -9,13 +9,13 @@ function PublicHomeBody({ children }: any) {
   return (
     <div>
       {children || (
-      <div className="bg-black">
-        <HeroSection />
-        <AboutApp />
-        <DownloadAppSection />
-        <UserReview />
-        <PublicSignIn />
-      </div>
+        <div className="bg-black">
+          <HeroSection />
+          <AboutApp />
+          <DownloadAppSection />
+          <UserReview />
+          <PublicSignIn />
+        </div>
       )}
     </div>
 

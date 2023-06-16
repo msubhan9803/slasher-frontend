@@ -21,6 +21,7 @@ import { FriendsService } from '../friends/providers/friends.service';
 import { UsersService } from '../users/providers/users.service';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { LikesLimitOffSetDto } from './dto/likes-limit-offset-query.dto';
+import { PostType } from '../schemas/feedPost/feedPost.enums';
 
 @Controller({ path: 'feed-likes', version: ['1'] })
 export class FeedLikesController {
@@ -81,7 +82,7 @@ export class FeedLikesController {
         senderId: user._id,
         allUsers: [user._id as any], // senderId must be in allUsers for old API compatibility
         notifyType: NotificationType.UserLikedYourPost,
-        notificationMsg: 'liked your post',
+        notificationMsg: post.postType === PostType.MovieReview ? 'liked your movie review' : 'liked your post',
       });
     }
     return { success: true };

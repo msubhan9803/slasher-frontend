@@ -3,7 +3,7 @@ import * as request from 'supertest';
 import * as path from 'path';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { readdirSync } from 'fs';
@@ -28,6 +28,8 @@ import { RssFeedProvidersService } from '../../../../../src/rss-feed-providers/p
 import { rssFeedProviderFactory } from '../../../../factories/rss-feed-providers.factory';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { NotificationType } from '../../../../../src/schemas/notification/notification.enums';
+import { PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
 
 describe('Feed-Comments/Replies File (e2e)', () => {
   let app: INestApplication;
@@ -782,6 +784,51 @@ describe('Feed-Comments/Replies File (e2e)', () => {
             //   notificationMsg: 'mentioned you in a comment reply',
             // });
           });
+
+        it('sends the expected notifications when postType is movieReview', async () => {
+          const post = await feedPostsService.create(feedPostFactory.build({
+            userId: postCreatorUser._id,
+            postType: PostType.MovieReview,
+          }));
+          const comment = await feedCommentsService.createFeedComment(
+            feedCommentsFactory.build(
+              {
+                userId: commentCreatorUser.id,
+                feedPostId: post.id,
+                message: 'This is a comment',
+                images: [],
+              },
+            ),
+          );
+          const response = await request(app.getHttpServer())
+            .post('/api/v1/feed-comments/replies').auth(otherUser1AuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('feedCommentId', comment._id.toString())
+            .field('message', 'hello test user')
+            .expect(HttpStatus.CREATED);
+
+          expect(notificationsService.create).toHaveBeenCalledTimes(2);
+          expect(notificationsService.create).toHaveBeenCalledWith({
+            userId: postCreatorUser._id,
+            feedPostId: post._id,
+            feedCommentId: comment._id,
+            feedReplyId: new mongoose.Types.ObjectId(response.body._id),
+            senderId: otherUser1._id,
+            allUsers: [otherUser1._id],
+            notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+            notificationMsg: 'replied to a comment on your movie review',
+          });
+          expect(notificationsService.create).toHaveBeenCalledWith({
+            userId: commentCreatorUser._id.toString(),
+            feedPostId: { _id: post._id.toString() },
+            feedCommentId: { _id: comment._id.toString() },
+            feedReplyId: response.body._id,
+            senderId: otherUser1._id.toString(),
+            allUsers: [otherUser1._id],
+            notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+            notificationMsg: 'replied to your comment',
+          });
+        });
       });
     });
 

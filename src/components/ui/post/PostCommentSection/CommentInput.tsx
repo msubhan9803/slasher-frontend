@@ -245,7 +245,7 @@ function CommentInput({
                 <MessageTextarea
                   rows={1}
                   id={checkCommnt}
-                  className="fs-5 form-control p-0 pe-4"
+                  className="fs-5 form-control pe-4"
                   placeholder={isReply ? 'Reply to comment' : 'Write a comment'}
                   isReply={isReply}
                   handleSearch={handleSearch}

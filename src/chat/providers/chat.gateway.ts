@@ -86,11 +86,10 @@ export class ChatGateway {
     const unreadMsgCount = await this.getUnreadMessageCount(messageObject.fromId.toString(), messageObject.matchId.toString());
     Object.assign(messageObject, {
       unreadMsgCount,
-fromUser: {
+      fromUser: {
         _id: user.id,
         userName: user.userName,
         profilePic: relativeToFullImagePath(this.config, user.profilePic),
-        matchId: messageObject.matchId,
       },
     });
 
@@ -220,7 +219,6 @@ fromUser: {
         _id: fromUser.id,
         userName: fromUser.userName,
         profilePic: relativeToFullImagePath(this.config, fromUser.profilePic),
-        matchId: messageObject.matchId,
       };
       targetUserSocketIds.forEach((socketId) => {
         this.server.to(socketId).emit('chatMessageReceived', {

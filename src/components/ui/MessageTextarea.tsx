@@ -24,6 +24,7 @@ const StyledMention = styled(Mentions) <SytledMentionProps>`
   padding: 0.063rem;
   textarea {
     border-radius: 0.875rem !important;
+    cursor: auto;
     ${(props) => (props.iscommentinput && 'margin-left :0.875rem')}
   }
   ${(props) => (props.iscommentinput

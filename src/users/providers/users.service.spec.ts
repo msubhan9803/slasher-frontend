@@ -2,6 +2,7 @@
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
+import { DateTime } from 'luxon';
 import mongoose, { Connection, Model, Types } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { AppModule } from '../../app.module';
@@ -685,6 +686,43 @@ describe('UsersService', () => {
       const user = await usersService.create(userFactory.build());
       const userData = await usersService.clearConverstionIds(user.id);
       expect(userData.newConversationIds).toEqual([]);
+    });
+  });
+
+  describe('#findOneAndUpdateDeviceToken', () => {
+    const deviceAndAppVersionPlaceholderSignInFields = {
+      device_id: 'sample-device-id',
+      device_token: 'sample-device-token',
+      device_type: 'sample-device-type',
+      device_version: 'sample-device-version',
+      app_version: 'sample-app-version',
+    };
+    let user: UserDocument;
+    beforeEach(async () => {
+      const userDevices = [];
+      for (let i = 1; i <= 2; i += 1) {
+        const weekAgo = DateTime.now().minus({ days: i }).toISODate();
+        userDevices.push(
+          {
+            ...deviceAndAppVersionPlaceholderSignInFields,
+            device_id: `${i}`,
+            login_date: weekAgo,
+          },
+        );
+      }
+      const userData = userFactory.build();
+      userData.userDevices = userDevices;
+      user = await usersService.create(userData);
+    });
+
+    it('finds the expected user and update device token', async () => {
+      const userData = await usersService.findOneAndUpdateDeviceToken(user.id, '1', 'new-device-token');
+      expect(userData.userDevices[0].device_token).toBe('new-device-token');
+    });
+
+    it('when device id is not exist than expected response', async () => {
+      const userData = await usersService.findOneAndUpdateDeviceToken(user.id, '3', 'new-device-token');
+      expect(userData).toBeNull();
     });
   });
 });

@@ -22,11 +22,13 @@ import {
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 import { ActiveStatus } from '../../../../../src/schemas/user/user.enums';
+import { ChatService } from '../../../../../src/chat/providers/chat.service';
 
 describe('Users activate account (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
+  let chatService: ChatService;
   let rssFeedProvidersService: RssFeedProvidersService;
   let rssFeedProvidersFollowModel: Model<RssFeedProviderFollowDocument>;
 
@@ -37,6 +39,7 @@ describe('Users activate account (e2e)', () => {
     connection = moduleRef.get<Connection>(getConnectionToken());
 
     usersService = moduleRef.get<UsersService>(UsersService);
+    chatService = moduleRef.get<ChatService>(ChatService);
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
     rssFeedProvidersFollowModel = moduleRef.get<Model<RssFeedProviderFollowDocument>>(getModelToken(RssFeedProviderFollow.name));
 
@@ -66,6 +69,7 @@ describe('Users activate account (e2e)', () => {
         status: ActiveStatus.Inactive,
       });
       user = await usersService.create(userData);
+
       postBody = {
         userId: user.id,
         token: user.verification_token,
@@ -86,11 +90,16 @@ describe('Users activate account (e2e)', () => {
 
     describe('userId and token existence cases', () => {
       it('when userId and token both exist, it successfully activates, creates '
-        + 'the expected RssFeedProviderFollow records, and returns the expected response', async () => {
+        + 'the expected RssFeedProviderFollow records, sends welcome message, returns the expected response', async () => {
+          jest.spyOn(chatService, 'sendPrivateDirectMessage');
+          // Spy on the sendPrivateDirectMessage method
           const response = await request(app.getHttpServer())
             .post('/api/v1/users/activate-account')
             .send(postBody)
             .expect(HttpStatus.CREATED);
+
+          const userData = await usersService.findById(user.id, true);
+          expect(userData.newConversationIds).toHaveLength(1);
           expect(response.body).toEqual({ success: true });
 
           // Make sure that expected rss feed provider follows were set

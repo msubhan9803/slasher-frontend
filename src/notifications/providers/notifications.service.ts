@@ -2,10 +2,15 @@ import mongoose, { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DateTime } from 'luxon';
+import { ConfigService } from '@nestjs/config';
+import { UserSettingsService } from '../../settings/providers/user-settings.service';
 import { Notification, NotificationDocument } from '../../schemas/notification/notification.schema';
-import { NotificationDeletionStatus, NotificationReadStatus, NotificationType } from '../../schemas/notification/notification.enums';
+import {
+  NOTIFICATION_TYPES_TO_CATEGORIES, NotificationDeletionStatus, NotificationReadStatus, NotificationType,
+} from '../../schemas/notification/notification.enums';
 import { NotificationsGateway } from './notifications.gateway';
 import { UsersService } from '../../users/providers/users.service';
+import { PushNotificationsService } from './push-notifications.service';
 
 @Injectable()
 export class NotificationsService {
@@ -13,14 +18,16 @@ export class NotificationsService {
     @InjectModel(Notification.name)
     private notificationModel: Model<NotificationDocument>,
     private notificationsGateway: NotificationsGateway,
+    private pushNotificationsService: PushNotificationsService,
+    private configService: ConfigService,
     private readonly usersService: UsersService,
+    private userSettingsService: UserSettingsService,
   ) { }
 
   async create(notification: Partial<Notification>) {
     const newNotification = await this.notificationModel.create(notification);
     // TODO: Eventually move this to a background job (probably using a NestJS Queue: https://docs.nestjs.com/techniques/queues)
     // This can be processed in the background instead of adding a small delay to each notification creation.
-
     await Promise.all([this.processNotification(newNotification.id),
     this.usersService.updateNewNotificationCount((notification.userId).toString())]);
     return newNotification;
@@ -35,18 +42,28 @@ export class NotificationsService {
     // In SD-661, confirmed that all notifications should be emitted over socket.
     this.notificationsGateway.emitMessageForNotification(notification);
 
-    // UserSettings determine whether push notifications should ALSO be sent.  The new API
-    // app doesn't currently support push notifications because it's only supporting a web app
-    // at this time, so the lines below are just placeholder code for later:
-
-    // const userSettings = await this.userSettingsService.findByUserId((notification.userId as mongoose.Types.ObjectId).toString());
-    // if (userSettings.notificationTypeEnabled(notification.notifyType)) {
-    //   // Emit notification if user has this notification type enabled
-    //   // TODO: Send push notification
-    // }
-
+    if (this.configService.get<boolean>('SEND_PUSH_NOTIFICATION')) {
+      this.sendPushNotification(notification);
+    }
     // Mark notification as processed
     await notification.updateOne({ isProcessed: true });
+  }
+
+  async sendPushNotification(notification) {
+    // this will remove once old backend retire and update the notificationMsg value in db
+    const notificationData = notification;
+    const senderName = notificationData.notifyType === NotificationType.NewPostFromFollowedRssFeedProvider
+      || ((NotificationType.UserSentYouAFriendRequest || NotificationType.UserAcceptedYourFriendRequest)
+        && notificationData?.senderId?.userName === 'Slasher')
+      ? '' : `${notificationData.senderId?.userName} `;
+    notificationData.notificationMsg = senderName + notificationData.notificationMsg;
+    const [user, userSetting] = await Promise.all([this.usersService.findById(notificationData.userId.toString(), true),
+    this.userSettingsService.findByUserId(notificationData.userId.toString())]);
+    const isNotificationEnabled = userSetting[`${NOTIFICATION_TYPES_TO_CATEGORIES.get(notificationData.notifyType)}`];
+    if (isNotificationEnabled && user.userDevices.length) {
+      const deviceTokens = user.userDevices.filter((device) => device.device_id !== 'browser').map((device) => device.device_token);
+      await this.pushNotificationsService.sendPushNotification(notificationData, deviceTokens);
+    }
   }
 
   async findAllByUser(userId: string, limit: number, before?: string): Promise<NotificationDocument[]> {

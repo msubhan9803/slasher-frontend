@@ -44,7 +44,7 @@ import { Device, User, UserDocument } from '../schemas/user/user.schema';
 import { AllFeedPostQueryDto } from '../feed-posts/dto/all-feed-posts-query.dto';
 import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 import { ParamUserIdDto } from './dto/param-user-id.dto';
-import { MAXIMUM_IMAGE_UPLOAD_SIZE, SIMPLE_MONGODB_ID_REGEX } from '../constants';
+import { MAXIMUM_IMAGE_UPLOAD_SIZE, SIMPLE_MONGODB_ID_REGEX, WELCOME_MSG } from '../constants';
 import { SuggestUserNameQueryDto } from './dto/suggest-user-name-query.dto';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 import { GetFriendsDto } from './dto/get-friends.dto';
@@ -69,6 +69,7 @@ import { BetaTestersService } from '../beta-tester/providers/beta-testers.servic
 import { EmailRevertTokensService } from '../email-revert-tokens/providers/email-revert-tokens.service';
 import { FriendRequestReaction } from '../schemas/friend/friend.enums';
 import { Public } from '../app/guards/auth.guard';
+import { UpdateDeviceTokenDto } from './dto/update-device-token.dto';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -353,6 +354,15 @@ export class UsersController {
           status: ActiveStatus.Active,
           verification_token: null,
         });
+
+        const userConversationData = await this.chatService.sendPrivateDirectMessage(
+          this.config.get<string>('WELCOME_MESSAGE_SENDER_USER_ID'),
+          user.id,
+          WELCOME_MSG,
+        );
+
+        await this.usersService.addAndUpdateNewConversationId(user.id, userConversationData.matchId.toString());
+
         const autoFollowRssFeedProviders = await this.rssFeedProvidersService.findAllAutoFollowRssFeedProviders();
         autoFollowRssFeedProviders.forEach((rssFeedProvider) => {
           this.rssFeedProviderFollowsService.create({
@@ -968,5 +978,22 @@ export class UsersController {
     return movies.map(
       (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating']),
     );
+  }
+
+  @Post('update-device-token')
+  async updateDeviceToken(
+    @Req() request: Request,
+    @Body() updateDeviceTokenDto: UpdateDeviceTokenDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const updatedDeviceToken = await this.usersService.findOneAndUpdateDeviceToken(
+      user.id,
+      updateDeviceTokenDto.device_id,
+      updateDeviceTokenDto.device_token,
+    );
+    if (!updatedDeviceToken) {
+      throw new HttpException('Device id not found', HttpStatus.BAD_REQUEST);
+    }
+    return { success: true };
   }
 }

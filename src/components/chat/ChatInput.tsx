@@ -55,10 +55,8 @@ const StyledChatInputGroup = styled.div`
 `;
 
 const StyledTextareaAutosize = styled(TextareaAutosize)`
-  cursor: "auto"
-`
-
-
+  cursor: auto
+`;
 
 function ChatInput({
   onSubmit, onFocus, onBlur, onRemoveFile, placeholder, errorsToDisplay,
@@ -265,7 +263,6 @@ function ChatInput({
           onFocus={() => { onFocus(); setIsFocused(true); }}
           onBlur={() => { onBlur(); setIsFocused(false); }}
           onKeyDown={handleTextareaKeyDown}
-          style={{cursor: "auto"}}
         />
         <div className="ps-3">
           <Button

@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import LikeShareModalContent from './LikeShareModalContent';
-import { enableDevFeatures } from '../../utils/configEnvironment';
+import { enableDevFeatures } from '../../constants';
 import { LikeShareModalResourceName, LikeShareModalTabName } from '../../types';
 
 interface Props {

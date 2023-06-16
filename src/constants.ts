@@ -4,6 +4,8 @@ import { Capacitor } from '@capacitor/core';
 export const apiUrl = process.env.REACT_APP_API_URL;
 export const analyticsId = process.env.REACT_APP_GOOGLE_ANALYTICS_PROPERTY_ID;
 export const isNativePlatform = Capacitor.isNativePlatform();
+export const enableDevFeatures = process.env.REACT_APP_ENABLE_DEV_ELEMENTS === 'true';
+export const FRONTEND_URL = `${window.location.protocol}//${window.location.host}`;
 
 export const MAIN_CONTENT_ID = 'main-content';
 export const RETRY_CONNECTION_BUTTON_ID = 'retry-connection-button';
@@ -31,7 +33,7 @@ export const DEFAULT_USER_UPLOADED_CONTENT_ALT_TEXT = 'User uploaded content';
 export const GOOGLE_PLAY_DOWNLOAD_URL = 'https://play.google.com/store/apps/details?id=com.sdei.slasher';
 export const APP_STORE_DOWNLOAD_URL = 'https://apps.apple.com/app/id1458216326';
 
-export const WORDPRESS_SITE_URL = 'https://pages.slasher.tv'; // TODO: Change to pages.slasher.tv when we go from preview to prod
+export const WORDPRESS_SITE_URL = 'https://slasher.tv'; // TODO: Change to pages.slasher.tv when we go from preview to prod
 
 // Note: If the value below is changed, make sure that the Chat conversation page does not have
 // a body scrollbar.  If it does, this value needs to be increased.

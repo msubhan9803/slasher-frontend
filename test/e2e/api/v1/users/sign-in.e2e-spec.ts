@@ -15,8 +15,7 @@ import { UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
-import { BetaTestersService } from '../../../../../src/beta-tester/providers/beta-testers.service';
-import { betaTesterFactory } from '../../../../factories/beta-tester.factory';
+// import { BetaTestersService } from '../../../../../src/beta-tester/providers/beta-testers.service';
 
 describe('Users sign-in (e2e)', () => {
   let app: INestApplication;
@@ -24,7 +23,7 @@ describe('Users sign-in (e2e)', () => {
   let usersService: UsersService;
   let activeUser: UserDocument;
   let activeUserUnhashedPassword: string;
-  let betaTestersService: BetaTestersService;
+  // let betaTestersService: BetaTestersService;
 
   const simpleJwtRegex = /^[\w-]*\.[\w-]*\.[\w-]*$/;
   const deviceAndAppVersionPlaceholderSignInFields = {
@@ -42,7 +41,7 @@ describe('Users sign-in (e2e)', () => {
     connection = moduleRef.get<Connection>(getConnectionToken());
 
     usersService = moduleRef.get<UsersService>(UsersService);
-    betaTestersService = moduleRef.get<BetaTestersService>(BetaTestersService);
+    // betaTestersService = moduleRef.get<BetaTestersService>(BetaTestersService);
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
     await app.init();

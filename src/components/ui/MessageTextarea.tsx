@@ -77,6 +77,7 @@ const StyledMention = styled(Mentions) <SytledMentionProps>`
 
 const StyledEmoji = styled(Button)`
   z-index:2;
+  padding: 10px;
   ${(props) => (props.createpost
     ? `
     left: 0.75rem;

@@ -54,6 +54,12 @@ const StyledChatInputGroup = styled.div`
   }
 `;
 
+const StyledTextareaAutosize = styled(TextareaAutosize)`
+  cursor: "auto"
+`
+
+
+
 function ChatInput({
   onSubmit, onFocus, onBlur, onRemoveFile, placeholder, errorsToDisplay,
 }: Props) {
@@ -250,7 +256,7 @@ function ChatInput({
             <FontAwesomeIcon icon={solid('smile')} size="lg" />
           </Button>
         </div>
-        <TextareaAutosize
+        <StyledTextareaAutosize
           ref={textareaRef}
           maxRows={4}
           placeholder={placeholder}
@@ -259,6 +265,7 @@ function ChatInput({
           onFocus={() => { onFocus(); setIsFocused(true); }}
           onBlur={() => { onBlur(); setIsFocused(false); }}
           onKeyDown={handleTextareaKeyDown}
+          style={{cursor: "auto"}}
         />
         <div className="ps-3">
           <Button

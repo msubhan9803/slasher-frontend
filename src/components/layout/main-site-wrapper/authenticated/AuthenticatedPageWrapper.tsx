@@ -39,6 +39,7 @@ import socketStore from '../../../../socketStore';
 import useSessionTokenMonitorAsync from '../../../../hooks/useSessionTokenMonitorAsync';
 import useSessionToken from '../../../../hooks/useSessionToken';
 import { setIsServerAvailable } from '../../../../redux/slices/serverAvailableSlice';
+import { Message } from '../../../../types';
 
 interface Props {
   children: React.ReactNode;
@@ -181,8 +182,8 @@ function AuthenticatedPageWrapper({ children }: Props) {
     dispatch(handleUpdatedUnreadConversationCount(count.unreadConversationCount));
   }, [dispatch]);
 
-  const onChatMessageReceivedHandler = useCallback((chat: any) => {
-    dispatch(updateRecentMessage(chat));
+  const onChatMessageReceivedHandler = useCallback((message: Message) => {
+    dispatch(updateRecentMessage(message));
   }, [dispatch]);
 
   useEffect(() => {

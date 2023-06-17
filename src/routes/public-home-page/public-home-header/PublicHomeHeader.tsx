@@ -1,11 +1,14 @@
 /* eslint-disable max-len */
 /* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
-import { Navbar, Offcanvas } from 'react-bootstrap';
+import { Container, Navbar, Offcanvas } from 'react-bootstrap';
 import styled from 'styled-components';
 import { useMediaQuery } from 'react-responsive';
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { WORDPRESS_SITE_URL, XL_MEDIA_BREAKPOINT } from '../../../constants';
+import slasherLogoMedium from '../../../images/slasher-logo-medium.png';
+import { socialMediaSites, StyledMediaIcon } from '../public-home-footer/PublicHomeFooter';
 
 const NavbarToggle = styled(Navbar.Toggle)`
   margin-right:0px !important;
@@ -14,8 +17,8 @@ const NavbarToggle = styled(Navbar.Toggle)`
   }
 `;
 
-function OffcanvasHeadingTitle({ children }: { children: React.ReactNode }) {
-  return <div className="offcanvas-title h2 mb-0">{children}</div>;
+function OffcanvasHeadingTitle({ id, children }: { id: string, children: React.ReactNode }) {
+  return <div id={id} className="offcanvas-title h2 mb-0">{children}</div>;
 }
 
 type NavItem = { value: string, label: string };
@@ -56,10 +59,54 @@ function PublicHomeHeader() {
 
   return (
     <div id="header" className="fixed-top">
-      <nav id="main-nav" className={`navbar navbar-expand-xl navbar-dark ${applySolidBackgroundToTopNav ? 'with-background' : ''}`} aria-labelledby="main-nav-label">
+      <Navbar id="main-nav" expand="xl" variant="dark" expanded={isOpen} onToggle={() => { setIsOpen(!isOpen); }} className={`mb-3 ${applySolidBackgroundToTopNav ? 'with-background' : ''}`}>
+        <Container fluid className="container-xl">
+          <Link to="/" className="navbar-brand custom-logo-link">
+            <img width="510" height="300" src={slasherLogoMedium} className="img-fluid" alt="Slasher" />
+          </Link>
+          <div className="toggle-button-wrapper order-first">
+            <Navbar.Toggle aria-controls="navbarNavOffcanvas" />
+          </div>
+          <Navbar.Offcanvas
+            id="navbarNavOffcanvas"
+            aria-labelledby="offcanvasNavbarLabel-expand"
+            placement="start"
+          >
+            <Offcanvas.Header closeButton>
+              <Offcanvas.Title
+                id="offcanvasNavbarLabel-expand"
+                as={OffcanvasHeadingTitle}
+              >
+                Navigation
+              </Offcanvas.Title>
+            </Offcanvas.Header>
+            <Offcanvas.Body>
+              <Link className="mobile-menu-sign-in-link fw-bold nav-link py-2 d-xl-none" to="/app/sign-in">Sign In or Create An Account</Link>
+              <ul id="main-menu" className="navbar-nav justify-content-between flex-grow-1 pe-3">
+                {navList.map((nav) => (
+                  <li
+                    key={nav.value.slice(25)} // remove `url` from key
+                    className="nav-item"
+                  >
+                    {
+                      nav.value === '/'
+                        ? <Link to={nav.value} className="nav-link">{nav.label}</Link>
+                        : <a href={nav.value} className="nav-link">{nav.label}</a>
+                    }
+                  </li>
+                ))}
+              </ul>
+            </Offcanvas.Body>
+          </Navbar.Offcanvas>
+          <div className="sign-in-button-wrapper">
+            <Link className="d-none d-xl-block sign-in-button btn btn-primary rounded rounded-5 fw-bold px-2 px-md-3" to={signInNavItem.value}>{signInNavItem.label}</Link>
+          </div>
+        </Container>
+      </Navbar>
+      {/* <nav id="main-nav" className={`navbar navbar-expand-xl navbar-dark ${applySolidBackgroundToTopNav ? 'with-background' : ''}`} aria-labelledby="main-nav-label">
         <div className="container-fluid container-xl">
           <Link to="/" className="navbar-brand custom-logo-link">
-            <img width="510" height="300" src="http://pages.slasher.localhost:9000/wp-content/uploads/2023/05/slasher-logo-medium.png" className="img-fluid" alt="Slasher" decoding="async" srcSet="http://pages.slasher.localhost:9000/wp-content/uploads/2023/05/slasher-logo-medium.png 510w, http://pages.slasher.localhost:9000/wp-content/uploads/2023/05/slasher-logo-medium-300x176.png 300w" sizes="(max-width: 510px) 100vw, 510px" />
+            <img width="510" height="300" src={slasherLogoMedium} className="img-fluid" alt="Slasher" />
           </Link>
           <div className="toggle-button-wrapper order-first">
             <NavbarToggle onClick={() => setIsOpen(!isOpen)} aria-controls="responsive-navbar-nav" className="toggle" />
@@ -113,10 +160,19 @@ function PublicHomeHeader() {
                   </li>
                 ))}
               </ul>
+              <div className="align-items-center d-flex mt-4">
+                {socialMediaSites.map((site: any) => (
+                  <a href={site.to} key={site.icon}>
+                    <StyledMediaIcon style={{ height: '32px', width: '32px' }} bgcolor={site.bgColor} className="me-3 align-items-center bg-white d-flex justify-content-center rounded-circle text-black">
+                      <FontAwesomeIcon icon={site.icon} className="" />
+                    </StyledMediaIcon>
+                  </a>
+                ))}
+              </div>
             </Offcanvas.Body>
           </Offcanvas>
         )}
-      </nav>
+      </nav> */}
     </div>
   );
 }

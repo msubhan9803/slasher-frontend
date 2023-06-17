@@ -3,7 +3,7 @@ import { Container } from 'react-bootstrap';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
-import { enableDevFeatures } from '../../../utils/configEnvironment';
+import { enableDevFeatures } from '../../../constants';
 import BooksRightSideNav from '../components/BooksRightSideNav';
 import AboutBooks from './AboutBooks';
 

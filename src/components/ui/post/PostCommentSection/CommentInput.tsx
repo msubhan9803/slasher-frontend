@@ -91,7 +91,8 @@ function CommentInput({
   handleSearch, mentionList, addUpdateComment, replyImageArray, isReply,
   addUpdateReply, commentID, commentReplyID, checkCommnt, commentError, commentReplyError,
   commentSent, setCommentReplyErrorMessage, setReplyImageArray, isEdit, descriptionArray,
-  setDescriptionArray, replyDescriptionArray, setReplyDescriptionArray, isMainPostCommentClick,selectedReplyUserId
+  setDescriptionArray, replyDescriptionArray, setReplyDescriptionArray,
+  isMainPostCommentClick, selectedReplyUserId,
 }: CommentInputProps) {
   const [editMessage, setEditMessage] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
@@ -115,7 +116,7 @@ function CommentInput({
       handleSetReplyImageArray([]);
     }
   }, [message, commentID, isReply, commentReplyID,
-    handleSetCommentReplyErrorMessage, handleSetReplyImageArray]);
+    handleSetCommentReplyErrorMessage, handleSetReplyImageArray, selectedReplyUserId]);
   useEffect(() => {
     if (editMessage) {
       const mentionStringList = editMessage.match(/##LINK_ID##[a-zA-Z0-9@_.-]+##LINK_END##/g);
@@ -360,7 +361,7 @@ CommentInput.defaultProps = {
   replyDescriptionArray: undefined,
   setReplyDescriptionArray: undefined,
   isMainPostCommentClick: undefined,
-  selectedReplyUserId: undefined
+  selectedReplyUserId: undefined,
 };
 
 export default CommentInput;

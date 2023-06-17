@@ -16,7 +16,7 @@ import CreatePostComponent from '../../../components/ui/CreatePostComponent';
 import { ContentDescription, PostType } from '../../../types';
 import useProgressButton from '../../../components/ui/ProgressButton';
 import { sleep } from '../../../utils/timer-utils';
-import { allAtMentionsRegex } from '../../../utils/text-utils';
+import { allAtMentionsRegex, getStartingWhiteCharacters } from '../../../utils/text-utils';
 
 export interface MentionProps {
   id: string;
@@ -49,6 +49,7 @@ function CreatePost() {
   const paramsMovieId = searchParams.get('movieId');
 
   const mentionReplacementMatchFunc = (match: string) => {
+    const startingWithWhiteCharaters = getStartingWhiteCharacters(match);
     if (match) {
       const finalString: any = formatMention.find(
         (matchMention: FormatMentionProps) => match.includes(matchMention.value),
@@ -56,7 +57,7 @@ function CreatePost() {
       if (finalString) {
         return finalString.format;
       }
-      return match;
+      return `${startingWithWhiteCharaters || ''}${finalString.format}` as any;
     }
     return undefined;
   };

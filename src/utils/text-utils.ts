@@ -81,4 +81,13 @@ export function sortInPlace(array: string[]) {
   return array.sort((a, b) => a.localeCompare(b));
 }
 
+// For tests of below regex refer - file://./regex-tests.ts (TIP: Use Ctrl+click to browse the file in vscode)
 export const allAtMentionsRegex = /(\s|^)@[a-zA-Z0-9_.-]+/g;
+
+/**
+ * This function return all white space characters in the beginning of the input text.
+ * @param text This is any text with or without space, tab or new line characters in front of
+ * the text. Example - 'cat', ' cat', '    cat', '  <newLineCharacter>  cat'
+ * @returns All white space characters in the beginning of the input text
+ */
+export const getStartingWhiteCharacters = (text: string) => text.match(/\s.+/)?.[0]?.replace(text.trimStart(), '');

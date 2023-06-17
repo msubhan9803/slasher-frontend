@@ -227,16 +227,17 @@ export class ChatService {
         })
         .sort({ createdAt: -1 })
         .exec();
-      const unreadCount = await this.messageModel
-        .countDocuments({ // TODO: Exclude {deleted: true} messages
-          isRead: false,
-          fromId: { $ne: new mongoose.Types.ObjectId(userId) },
-          matchId: matchList._id,
-        })
-        .sort({ createdAt: -1 })
-        // .limit(1)
-        .exec();
+
       if (latestMessage) {
+        const unreadCount = await this.messageModel
+          .countDocuments({ // TODO: Exclude {deleted: true} messages
+            isRead: false,
+            fromId: { $ne: new mongoose.Types.ObjectId(userId) },
+            matchId: matchList._id,
+          })
+          .sort({ createdAt: -1 })
+          // .limit(1)
+          .exec();
         conversations.push({
           _id: matchList._id,
           participants: matchList.participants,
@@ -282,16 +283,15 @@ export class ChatService {
         .sort({ createdAt: -1 })
         .exec();
 
-      const unreadCount = await this.messageModel
-        .countDocuments({ // TODO: Exclude {deleted: true} messages
-          isRead: false,
-          fromId: { $ne: new mongoose.Types.ObjectId(userId) },
-          matchId: matchList._id,
-        })
-        .sort({ createdAt: -1 })
-        .exec();
-
       if (latestMessage) {
+        const unreadCount = await this.messageModel
+          .countDocuments({ // TODO: Exclude {deleted: true} messages
+            isRead: false,
+            fromId: { $ne: new mongoose.Types.ObjectId(userId) },
+            matchId: matchList._id,
+          })
+          .sort({ createdAt: -1 })
+          .exec();
         conversations.push({
           _id: matchList._id,
           participants: matchList.participants,

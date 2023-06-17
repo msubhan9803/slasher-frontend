@@ -90,4 +90,4 @@ export const allAtMentionsRegex = /(\s|^)@[a-zA-Z0-9_.-]+/g;
  * the text. Example - 'cat', ' cat', '    cat', '  <newLineCharacter>  cat'
  * @returns All white space characters in the beginning of the input text
  */
-export const getStartingWhiteCharacters = (text: string) => text.match(/\s.+/)?.[0]?.replace(text.trimStart(), '');
+export const getLeadingWhiteSpace = (text: string) => text.match(/\s.+/)?.[0]?.replace(text.trimStart(), '');

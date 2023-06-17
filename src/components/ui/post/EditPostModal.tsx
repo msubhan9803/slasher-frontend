@@ -3,7 +3,7 @@ import { Modal } from 'react-bootstrap';
 import { FormatMentionProps } from '../../../routes/posts/create-post/CreatePost';
 import CreatePostComponent from '../CreatePostComponent';
 import ModalContainer from '../CustomModal';
-import { allAtMentionsRegex, decryptMessage, getStartingWhiteCharacters } from '../../../utils/text-utils';
+import { allAtMentionsRegex, decryptMessage, getLeadingWhiteSpace } from '../../../utils/text-utils';
 import { ContentDescription } from '../../../types';
 import { ProgressButtonComponentType } from '../ProgressButton';
 
@@ -61,7 +61,7 @@ function EditPostModal({
     setShow(false);
   };
   const mentionReplacementMatchFunc = (match: string) => {
-    const startingWithWhiteCharaters = getStartingWhiteCharacters(match);
+    const startingWithWhiteCharaters = getLeadingWhiteSpace(match);
     if (match && formatMention) {
       const finalString: any = formatMention.find(
         (matchMention: FormatMentionProps) => match.includes(matchMention.value),

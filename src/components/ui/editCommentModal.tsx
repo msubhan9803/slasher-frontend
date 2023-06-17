@@ -4,7 +4,7 @@ import React, {
 import { Modal } from 'react-bootstrap';
 import { FormatMentionProps } from '../../routes/posts/create-post/CreatePost';
 import { CommentValue, ContentDescription, ReplyValue } from '../../types';
-import { allAtMentionsRegex, decryptMessage, getStartingWhiteCharacters } from '../../utils/text-utils';
+import { allAtMentionsRegex, decryptMessage, getLeadingWhiteSpace } from '../../utils/text-utils';
 import CreatePostComponent from './CreatePostComponent';
 import ModalContainer from './CustomModal';
 import { ProgressButtonComponentType } from './ProgressButton';
@@ -81,7 +81,7 @@ function EditCommentModal({
     }
   };
   const mentionReplacementMatchFunc = (match: string) => {
-    const startingWithWhiteCharaters = getStartingWhiteCharacters(match);
+    const startingWithWhiteCharaters = getLeadingWhiteSpace(match);
     if (match) {
       const finalString: any = formatMention.find(
         (matchMention: FormatMentionProps) => match.includes(matchMention.value),

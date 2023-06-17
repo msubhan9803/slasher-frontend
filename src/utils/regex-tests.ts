@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { allAtMentionsRegex } from './text-utils';
 
 const regex = allAtMentionsRegex;
@@ -6,14 +7,14 @@ const regex = allAtMentionsRegex;
 test('1 - Should match valid usernames starting with @', () => {
   const text = 'Hello, @JohnDoe! How are you, @Jane.Doe?';
   const matches = text.match(regex);
-  // NOTE: The leading space is handled in the replace callback
+  // NOTE: The leading whitespace should be handled explicity using function `getLeadingWhiteCharacters`
   expect(matches).toEqual([' @JohnDoe', ' @Jane.Doe']);
 });
 
 test('2 - Should match valid usernames starting with @ in start of line', () => {
   const text = '@JohnDoe! How are you, @Jane.Doe?';
   const matches = text.match(regex);
-  // NOTE: The leading space is handled in the replace callback
+  // NOTE: The leading whitespace should be handled explicity using function `getLeadingWhiteCharacters`
   expect(matches).toEqual(['@JohnDoe', ' @Jane.Doe']);
 });
 
@@ -32,14 +33,14 @@ test('4 - Should NOT match usernames preceded by non-whitespace characters in th
 test('5 - Should match usernames with uppercase and lowercase letters', () => {
   const text = 'Hello, @JohnDoe and @jane_doe!';
   const matches = text.match(regex);
-  // NOTE: The leading space is handled in the replace callback
+  // NOTE: The leading whitespace should be handled explicity using function `getLeadingWhiteCharacters`
   expect(matches).toEqual([' @JohnDoe', ' @jane_doe']);
 });
 
 test('6 - Should match usernames with digits and special characters', () => {
   const text = 'You can find me on Twitter: @user_1234!';
   const matches = text.match(regex);
-  // NOTE: The leading space is handled in the replace callback
+  // NOTE: The leading whitespace should be handled explicity using function `getLeadingWhiteCharacters`
   expect(matches).toEqual([' @user_1234']);
 });
 

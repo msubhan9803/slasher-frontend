@@ -11,7 +11,7 @@ import {
 import styled from 'styled-components';
 import UserCircleImage from '../../UserCircleImage';
 import ImagesContainer from '../../ImagesContainer';
-import { allAtMentionsRegex, decryptMessage, getStartingWhiteCharacters } from '../../../../utils/text-utils';
+import { allAtMentionsRegex, decryptMessage, getLeadingWhiteSpace } from '../../../../utils/text-utils';
 import MessageTextarea from '../../MessageTextarea';
 import { FormatMentionProps } from '../../../../routes/posts/create-post/CreatePost';
 import ErrorMessageList from '../../ErrorMessageList';
@@ -179,7 +179,7 @@ function CommentInput({
   };
 
   const mentionReplacementMatchFunc = (match: string) => {
-    const startingWithWhiteCharaters = getStartingWhiteCharacters(match);
+    const startingWithWhiteCharaters = getLeadingWhiteSpace(match);
     if (match) {
       const finalString: any = formatMention.find(
         (matchMention: FormatMentionProps) => match.includes(matchMention.value),

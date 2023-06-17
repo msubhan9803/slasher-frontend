@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Navigate, useParams } from 'react-router-dom';
-import { Col, Row } from 'react-bootstrap';
+import { Col, Container, Row } from 'react-bootstrap';
 import PublicHomeFooter from '../public-home-footer/PublicHomeFooter';
 import PublicHomeHeader from '../public-home-header/PublicHomeHeader';
 import ProfileAbout from '../../profile/ProfileAbout/ProfileAbout';
@@ -14,15 +14,15 @@ import { ProfileVisibility, User } from '../../../types';
 import useSessionToken from '../../../hooks/useSessionToken';
 
 const StyleSection = styled.div`
-background: url(${HeroImage}) top center;
-padding-top:100px;
-background-repeat: no-repeat;
-    background-size: contain;
-`;
+  background: url(${HeroImage}) top center;
+  padding-top:150px;
+  background-repeat: no-repeat;
+      background-size: contain;
+  `;
 const CustomDiv = styled.div`
-@media (max-width: 767px)  {
- margin-top: 7.5rem;
-}
+  @media (max-width: 767px)  {
+  margin-top: 7.5rem;
+  }
 `;
 function PublicProfile() {
   const { userName } = useParams();
@@ -48,22 +48,26 @@ function PublicProfile() {
 
     if (errorMessage && errorMessage.length > 0) {
       return (
-        <CustomDiv className="bg-dark rounded p-4 my-3">
-          User not found.
-        </CustomDiv>
+        <Container>
+          <CustomDiv className="bg-dark rounded p-4 my-3">
+            User not found.
+          </CustomDiv>
+        </Container>
       );
     }
     return (
       <StyleSection>
-        <Row className="d-flex justify-content-center px-2">
-          <Col lg={9} className="px-lg-4 px-3">
-            <PublicHomeBody>
-              {profileData.profile_status === ProfileVisibility.Private
-                ? <ProfileLimitedView user={user!} />
-                : <ProfileAbout user={user!} />}
-            </PublicHomeBody>
-          </Col>
-        </Row>
+        <Container>
+          <Row className="d-flex justify-content-center px-2">
+            <Col xs={12} lg={10}>
+              <PublicHomeBody>
+                {profileData.profile_status === ProfileVisibility.Private
+                  ? <ProfileLimitedView user={user!} />
+                  : <ProfileAbout user={user!} />}
+              </PublicHomeBody>
+            </Col>
+          </Row>
+        </Container>
       </StyleSection>
     );
   };

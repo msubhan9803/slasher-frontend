@@ -1,13 +1,9 @@
 import React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Col, Image, Row,
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import {
-  faFacebookF, faTwitter, faYoutube, faInstagram,
-} from '@fortawesome/free-brands-svg-icons';
 import slasherLogo from '../../../images/slasher-logo-medium.png';
 import HeaderLogo from '../../../components/ui/HeaderLogo';
 import AppStoreImage from '../../../images/app-store-badge.png';
@@ -15,17 +11,7 @@ import PlayStoreImage from '../../../images/google-play-badge.png';
 import {
   APP_STORE_DOWNLOAD_URL, GOOGLE_PLAY_DOWNLOAD_URL, MD_MEDIA_BREAKPOINT, WORDPRESS_SITE_URL,
 } from '../../../constants';
-
-export const socialMediaSites = [
-  { icon: faFacebookF, to: 'https://www.facebook.com/TheSlasherApp', bgColor: '#3b5998' },
-  { icon: faTwitter, to: 'https://twitter.com/theslasherapp', bgColor: '#1da1f2' },
-  { icon: faYoutube, to: 'https://www.youtube.com/channel/UCUcGxsG2u55zlVoe_s8TjcA', bgColor: '#CD201F' },
-  { icon: faInstagram, to: 'https://www.instagram.com/theslasherapp/', bgColor: '#AF1C9D' },
-];
-
-interface SocialMediaIcon {
-  bgcolor?: string;
-}
+import { socialMediaIcons } from '../../../utils/socialMediaIcons';
 
 const StyledFooter = styled.footer`
   .nav-link {
@@ -65,15 +51,6 @@ const StyledFooter = styled.footer`
   }
 `;
 
-export const StyledMediaIcon = styled.div <SocialMediaIcon>`
-  width: 30px;
-  height: 30px;
-  &:hover {
-    background-color: ${(prop) => prop.bgcolor} !important;
-    color: var(--bs-body-color) !important;
-  }
-`;
-
 const footerNavList = [
   { value: '', label: 'HOME' },
   { value: 'shop', label: 'SHOP' },
@@ -93,11 +70,9 @@ function PublicHomeFooter() {
               <HeaderLogo logo={slasherLogo} height="8.6rem" style={{ marginTop: 25 }} />
             </Link>
             <div style={{ marginTop: 10, marginLeft: -4 }} className="align-items-center d-flex mb-3 justify-content-center justify-content-md-start">
-              {socialMediaSites.map((site: any) => (
-                <a href={site.to} key={site.icon}>
-                  <StyledMediaIcon bgcolor={site.bgColor} style={{ margin: 6 }} className="align-items-center bg-white d-flex justify-content-center rounded-circle text-black">
-                    <FontAwesomeIcon icon={site.icon} className="" />
-                  </StyledMediaIcon>
+              {socialMediaIcons.map((icon) => (
+                <a key={icon.to} className="mobile-nav-menu-icon-link rounded-circle d-flex align-items-center justify-content-center rounded-circle" href={icon.to}>
+                  <img src={icon.svg} alt={icon.label} />
                 </a>
               ))}
             </div>

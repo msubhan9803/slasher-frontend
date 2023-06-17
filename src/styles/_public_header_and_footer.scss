@@ -1,23 +1,23 @@
 @use "sass:map";
 @import './bootstrap-variables.scss';
 
+/**************************************************************
+ * Keep the lines below in sync with WordPress and main site. *
+ * NOTE: The CSS below applies to BOTH sites, so there        *
+ * are a couple of CSS rules that only apply to one of        *
+ * the sites and don't have effect on the other.              *
+ **************************************************************/
+
 $footer-height: 320px; // Used for sticky footer
 
-/********************************************************
- * Main nav (keep in sync with WordPress and main site) *
- * NOTE: The CSS below applies to BOTH sites, so there  *
- * are a couple of CSS rules that only apply to one of  *
- * the sites and don't have effect on the other.        *
- ********************************************************/
-
- #main-nav.with-background {
+#main-nav.with-background {
   background-color: #000;
   -webkit-transition: background-color 400ms linear;
   -ms-transition: background-color 400ms linear;
   transition: background-color 400ms linear;
 }
 
- #main-nav {
+#main-nav {
   a {
     text-decoration: none;
   }
@@ -61,11 +61,11 @@ $footer-height: 320px; // Used for sticky footer
   }
 }
 
-#main-nav, #navbarNavOffcanvas, #footer-menu-wrapper {
+#main-nav, #footer-menu-wrapper {
   text-transform: uppercase;
   font-weight: bold;
 
-  li a, .mobile-menu-sign-in-link {
+  .navbar-nav li a, .mobile-menu-sign-in-link {
     color: #fff;
 
     &:hover {
@@ -93,11 +93,19 @@ $footer-height: 320px; // Used for sticky footer
       }
     }
   }
-}
 
-/******************************************************
- * Footer (keep in sync with WordPress and main site) *
- ******************************************************/
+  a.mobile-nav-menu-icon-link {
+    color: #000;
+    background-color: #fff;
+    width: 32px;
+    height: 32px;
+    margin-right: 1rem;
+
+    &:hover {
+      background-color: var(--bs-primary);
+    }
+  }
+}
 
 #footer-menu-wrapper {
   #footer-menu li {

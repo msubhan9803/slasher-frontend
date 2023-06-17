@@ -108,8 +108,6 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
       while (searchUser.startsWith('@')) {
         searchUser = searchUser.substring(1);
       }
-      // If user is changed then set friends list to empty
-      // if (isUserChanged) { setFriendsList([]); }
 
       userProfileFriends(controllerRef.current?.signal, user._id, page, searchUser)
         .then((res) => {

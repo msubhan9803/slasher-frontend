@@ -5,7 +5,6 @@ export const apiUrl = process.env.REACT_APP_API_URL;
 export const analyticsId = process.env.REACT_APP_GOOGLE_ANALYTICS_PROPERTY_ID;
 export const isNativePlatform = Capacitor.isNativePlatform();
 export const enableDevFeatures = process.env.REACT_APP_ENABLE_DEV_ELEMENTS === 'true';
-export const FRONTEND_URL = `${window.location.protocol}//${window.location.host}`;
 
 export const MAIN_CONTENT_ID = 'main-content';
 export const RETRY_CONNECTION_BUTTON_ID = 'retry-connection-button';

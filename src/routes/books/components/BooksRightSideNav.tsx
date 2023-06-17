@@ -5,7 +5,7 @@ import NotificationSetting from '../../../components/layout/right-sidebar-wrappe
 import RecentMessages from '../../../components/layout/right-sidebar-wrapper/components/RecentMessages';
 import AdvertisementBox from '../../../components/layout/right-sidebar-wrapper/components/AdvertisementBox';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
-import { enableDevFeatures } from '../../../utils/configEnvironment';
+import { enableDevFeatures } from '../../../constants';
 
 function BooksRightSideNav() {
   const params = useParams();

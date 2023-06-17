@@ -428,16 +428,16 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           }
         } else if (postType === 'review') {
           if (queryCommentId && queryReplyId) {
-            navigate(`/app/movies/${res.data.movieId}/reviews/${postId}?commentId=${queryCommentId}&replyId=${queryReplyId}`);
+            navigate(`/app/movies/${res.data.movieId._id}/reviews/${postId}?commentId=${queryCommentId}&replyId=${queryReplyId}`);
           } else if (queryCommentId) {
-            navigate(`/app/movies/${res.data.movieId}/reviews/${postId}?commentId=${queryCommentId}`);
+            navigate(`/app/movies/${res.data.movieId._id}/reviews/${postId}?commentId=${queryCommentId}`);
+          } else {
+            navigate(`/app/movies/${res.data.movieId._id}/reviews/${postId}`);
           }
+        } else if (!isPostDetailsPage(location.pathname)) {
           // Only navigate to post-details page if necessary (fix bug of forward-browser history
           // lost when we click on user-profile link followed by click browser-back arrow)
-          if (!isPostDetailsPage(location.pathname)) {
-            navigate(`/${res.data.userId.userName}/posts/${feedPostId}`);
-          }
-          return;
+          navigate(`/${res.data.userId.userName}/posts/${feedPostId}`);
         }
         let post: any = {};
         if (postType === 'news') {
@@ -477,7 +477,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             worthWatching: res.data?.reviewData?.worthWatching || 0,
             contentHeading: res?.data?.title,
             spoilers: res.data.spoilers,
-            movieId: res.data.movieId,
+            movieId: res.data.movieId._id,
           };
         } else {
           // Regular post

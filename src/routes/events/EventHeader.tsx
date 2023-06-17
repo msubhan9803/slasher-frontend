@@ -3,7 +3,7 @@ import { Col, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import RoundButton from '../../components/ui/RoundButton';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
-import { enableDevFeatures } from '../../utils/configEnvironment';
+import { enableDevFeatures } from '../../constants';
 
 interface EventHeaderProps {
   tabKey: string;

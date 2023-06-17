@@ -36,7 +36,7 @@ const useGoogleAnalytics = (analyticsId?: string) => {
     gtag('config', analyticsId); // necessary
 
     gtag('event', 'page_view', {
-      page_location: path,
+      page_location: window.location.href,
       page_title: document.title,
     });
   }, [location, isLoaded, analyticsId, hash, pathname, search, DISABLE_HOOK]);

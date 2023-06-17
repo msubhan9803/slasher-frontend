@@ -265,6 +265,7 @@ export class ChatService {
       })
       .populate('participants', 'userName _id profilePic')
       .sort({ updatedAt: -1 })
+      .limit(50)
       .lean()
       .exec();
 

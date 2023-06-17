@@ -55,14 +55,15 @@ function CreatePost() {
         (matchMention: FormatMentionProps) => match.includes(matchMention.value),
       );
       if (finalString) {
-        return finalString.format;
+        return `${startingWithWhiteCharaters || ''}${finalString.format}` as any;
       }
-      return `${startingWithWhiteCharaters || ''}${finalString.format}` as any;
+      return match;
     }
     return undefined;
   };
 
-  const addPost = async () => {
+  const addPost = async (e: any) => {
+    e.preventDefault();
     /* eslint no-useless-escape: 0 */
     setProgressButtonStatus('loading');
     const postContentWithMentionReplacements = (postContent.replace(
@@ -136,7 +137,7 @@ function CreatePost() {
           <CreatePostComponent
             setPostMessageContent={setPostContent}
             errorMessage={errorMessage}
-            createUpdatePost={addPost}
+            createUpdatePost={addPost as any}
             imageArray={imageArray}
             setImageArray={setImageArray}
             defaultValue={postContent}

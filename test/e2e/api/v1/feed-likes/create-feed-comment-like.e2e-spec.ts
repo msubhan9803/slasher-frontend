@@ -22,6 +22,8 @@ import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { feedCommentsFactory } from '../../../../factories/feed-comments.factory';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { UserSettingsService } from '../../../../../src/settings/providers/user-settings.service';
+import { userSettingFactory } from '../../../../factories/user-setting.factory';
 
 describe('Create Feed Comment Like (e2e)', () => {
   let app: INestApplication;
@@ -35,6 +37,7 @@ describe('Create Feed Comment Like (e2e)', () => {
   let feedCommentsService: FeedCommentsService;
   let notificationsService: NotificationsService;
   let blocksModel: Model<BlockAndUnblockDocument>;
+  let userSettingsService: UserSettingsService;
 
   const feedCommentsAndReplyObject = {
     images: [
@@ -63,6 +66,7 @@ describe('Create Feed Comment Like (e2e)', () => {
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
+    userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -261,6 +265,13 @@ describe('Create Feed Comment Like (e2e)', () => {
       it('when notification is create for createFeedCommentLike than check newNotificationCount is increment in user', async () => {
         const user3 = await usersService.create(userFactory.build({ userName: 'Divine' }));
         const commentCreatorUser = await usersService.create(userFactory.build({ userName: 'Divine' }));
+        await userSettingsService.create(
+          userSettingFactory.build(
+            {
+              userId: commentCreatorUser._id,
+            },
+          ),
+        );
         const post = await feedPostsService.create(feedPostFactory.build({ userId: user3._id }));
         const comment = await feedCommentsService.createFeedComment(
           feedCommentsFactory.build(

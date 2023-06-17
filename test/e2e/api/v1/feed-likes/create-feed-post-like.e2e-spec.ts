@@ -22,6 +22,9 @@ import { RssFeedProvidersService } from '../../../../../src/rss-feed-providers/p
 import { rssFeedProviderFactory } from '../../../../factories/rss-feed-providers.factory';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { UserSettingsService } from '../../../../../src/settings/providers/user-settings.service';
+import { userSettingFactory } from '../../../../factories/user-setting.factory';
+import { PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
 
 describe('Create Feed Post Like (e2e)', () => {
   let app: INestApplication;
@@ -37,6 +40,7 @@ describe('Create Feed Post Like (e2e)', () => {
   let notificationsService: NotificationsService;
   let blocksModel: Model<BlockAndUnblockDocument>;
   let rssFeedProvidersService: RssFeedProvidersService;
+  let userSettingsService: UserSettingsService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -51,6 +55,7 @@ describe('Create Feed Post Like (e2e)', () => {
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
+    userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -150,6 +155,30 @@ describe('Create Feed Post Like (e2e)', () => {
       });
     });
 
+    it('sends the expected notifications when postType is movieReview', async () => {
+      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
+      const postCreatorUser1 = await usersService.create(userFactory.build());
+      const post1 = await feedPostsService.create(feedPostFactory.build({
+        userId: postCreatorUser1._id,
+        postType: PostType.MovieReview,
+      }));
+      await request(app.getHttpServer())
+        .post(`/api/v1/feed-likes/post/${post1._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send()
+        .expect(HttpStatus.CREATED);
+
+      expect(notificationsService.create).toHaveBeenCalledTimes(1);
+      expect(notificationsService.create).toHaveBeenCalledWith({
+        userId: postCreatorUser1._id.toString(),
+        feedPostId: { _id: post1._id.toString() },
+        senderId: activeUser._id,
+        allUsers: [activeUser._id],
+        notifyType: NotificationType.UserLikedYourPost,
+        notificationMsg: 'liked your movie review',
+      });
+    });
+
     describe('when the feed post was created by a user with a non-public profile', () => {
       let user1;
       let feedPost1;
@@ -194,6 +223,13 @@ describe('Create Feed Post Like (e2e)', () => {
     describe('notifications', () => {
       it('when notification is create for createFeedPostLike than check newNotificationCount is increment in user', async () => {
         const postCreatorUser = await usersService.create(userFactory.build({ userName: 'Divine' }));
+        await userSettingsService.create(
+          userSettingFactory.build(
+            {
+              userId: postCreatorUser._id,
+            },
+          ),
+        );
         const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
 
         await request(app.getHttpServer())

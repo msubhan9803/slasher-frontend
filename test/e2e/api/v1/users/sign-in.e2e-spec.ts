@@ -1,3 +1,4 @@
+/* eslint-disable jest/no-commented-out-tests */
 /* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
@@ -14,8 +15,7 @@ import { UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
-import { BetaTestersService } from '../../../../../src/beta-tester/providers/beta-testers.service';
-import { betaTesterFactory } from '../../../../factories/beta-tester.factory';
+// import { BetaTestersService } from '../../../../../src/beta-tester/providers/beta-testers.service';
 
 describe('Users sign-in (e2e)', () => {
   let app: INestApplication;
@@ -23,7 +23,7 @@ describe('Users sign-in (e2e)', () => {
   let usersService: UsersService;
   let activeUser: UserDocument;
   let activeUserUnhashedPassword: string;
-  let betaTestersService: BetaTestersService;
+  // let betaTestersService: BetaTestersService;
 
   const simpleJwtRegex = /^[\w-]*\.[\w-]*\.[\w-]*$/;
   const deviceAndAppVersionPlaceholderSignInFields = {
@@ -41,7 +41,7 @@ describe('Users sign-in (e2e)', () => {
     connection = moduleRef.get<Connection>(getConnectionToken());
 
     usersService = moduleRef.get<UsersService>(UsersService);
-    betaTestersService = moduleRef.get<BetaTestersService>(BetaTestersService);
+    // betaTestersService = moduleRef.get<BetaTestersService>(BetaTestersService);
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
     await app.init();
@@ -112,67 +112,70 @@ describe('Users sign-in (e2e)', () => {
       });
     });
 
-    // This is temporary, but required during the beta release phase
-    describe('A user who is not a beta tester', () => {
-      it('receives an error message when attempting to sign in', async () => {
-        const nonBetaUserUnhashedPassword = 'TestPassword';
-        const nonBetaUser = await usersService.create(
-          userFactory.build(
-            { betaTester: false },
-            { transient: { unhashedPassword: nonBetaUserUnhashedPassword } },
-          ),
-        );
+    // We're no longer restricting login to beta testers, so this code is commented out.
+    // TODO: We can probably remove this, but I'm keeping it here for a little while longer
+    // in case we need to bring it back for any reason.
 
-        const postBody: UserSignInDto = {
-          emailOrUsername: nonBetaUser.userName,
-          password: nonBetaUserUnhashedPassword,
-          ...deviceAndAppVersionPlaceholderSignInFields,
-        };
-        return request(app.getHttpServer())
-          .post('/api/v1/users/sign-in')
-          .send(postBody)
-          .expect(HttpStatus.UNAUTHORIZED)
-          .expect({
-            statusCode: 401,
-            message: 'Only people who requested an invitation are able to sign in during the sneak preview.',
-          });
-      });
+    // describe('A user who is not a beta tester', () => {
+    //   it('receives an error message when attempting to sign in', async () => {
+    //     const nonBetaUserUnhashedPassword = 'TestPassword';
+    //     const nonBetaUser = await usersService.create(
+    //       userFactory.build(
+    //         { betaTester: false },
+    //         { transient: { unhashedPassword: nonBetaUserUnhashedPassword } },
+    //       ),
+    //     );
 
-      it('when user is not marked as a beta tester yet, but user.email exists in the BetaTester collection,'
-        + 'the user is allowed to sign in and is marked as a betaTester going forward', async () => {
-          const nonBetaUserUnhashedPassword = 'TestPassword';
-          const nonBetaUser = await usersService.create(
-            userFactory.build(
-              { betaTester: false },
-              { transient: { unhashedPassword: nonBetaUserUnhashedPassword } },
-            ),
-          );
+    //     const postBody: UserSignInDto = {
+    //       emailOrUsername: nonBetaUser.userName,
+    //       password: nonBetaUserUnhashedPassword,
+    //       ...deviceAndAppVersionPlaceholderSignInFields,
+    //     };
+    //     return request(app.getHttpServer())
+    //       .post('/api/v1/users/sign-in')
+    //       .send(postBody)
+    //       .expect(HttpStatus.UNAUTHORIZED)
+    //       .expect({
+    //         statusCode: 401,
+    //         message: 'Only people who requested an invitation are able to sign in during the sneak preview.',
+    //       });
+    //   });
 
-          await betaTestersService.create(
-            betaTesterFactory.build(
-              { name: 'TestUser', email: nonBetaUser.email },
-            ),
-          );
-          const postBody: UserSignInDto = {
-            emailOrUsername: nonBetaUser.email,
-            password: nonBetaUserUnhashedPassword,
-            ...deviceAndAppVersionPlaceholderSignInFields,
-          };
-          const response = await request(app.getHttpServer())
-            .post('/api/v1/users/sign-in')
-            .send(postBody)
-            .expect(HttpStatus.CREATED);
-          expect(response.body).toEqual({
-            id: nonBetaUser.id,
-            userName: 'Username2',
-            email: 'User2@Example.com',
-            firstName: 'First name 2',
-            token: expect.stringMatching(simpleJwtRegex),
-          });
-          const user = await usersService.findById(response.body.id, true);
-          expect(user.betaTester).toBe(true);
-        });
-    });
+    //   it('when user is not marked as a beta tester yet, but user.email exists in the BetaTester collection,'
+    //     + 'the user is allowed to sign in and is marked as a betaTester going forward', async () => {
+    //       const nonBetaUserUnhashedPassword = 'TestPassword';
+    //       const nonBetaUser = await usersService.create(
+    //         userFactory.build(
+    //           { betaTester: false },
+    //           { transient: { unhashedPassword: nonBetaUserUnhashedPassword } },
+    //         ),
+    //       );
+
+    //       await betaTestersService.create(
+    //         betaTesterFactory.build(
+    //           { name: 'TestUser', email: nonBetaUser.email },
+    //         ),
+    //       );
+    //       const postBody: UserSignInDto = {
+    //         emailOrUsername: nonBetaUser.email,
+    //         password: nonBetaUserUnhashedPassword,
+    //         ...deviceAndAppVersionPlaceholderSignInFields,
+    //       };
+    //       const response = await request(app.getHttpServer())
+    //         .post('/api/v1/users/sign-in')
+    //         .send(postBody)
+    //         .expect(HttpStatus.CREATED);
+    //       expect(response.body).toEqual({
+    //         id: nonBetaUser.id,
+    //         userName: 'Username2',
+    //         email: 'User2@Example.com',
+    //         firstName: 'First name 2',
+    //         token: expect.stringMatching(simpleJwtRegex),
+    //       });
+    //       const user = await usersService.findById(response.body.id, true);
+    //       expect(user.betaTester).toBe(true);
+    //     });
+    // });
 
     describe('An inactive user', () => {
       it('receives an error message when attempting to sign in', async () => {

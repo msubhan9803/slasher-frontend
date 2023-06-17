@@ -27,3 +27,5 @@ variable "file_storage" {}
 variable "cron_enabled_cron" {}
 variable "cron_enabled_web" {}
 variable "storage_location_generator_prefix" {}
+variable "welcome_message_sender_user_id" {}
+variable "send_push_notification" {}

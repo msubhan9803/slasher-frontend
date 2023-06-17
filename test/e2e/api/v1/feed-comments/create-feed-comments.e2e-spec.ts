@@ -4,7 +4,7 @@ import * as request from 'supertest';
 import * as path from 'path';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { readdirSync } from 'fs';
@@ -26,6 +26,10 @@ import { RssFeedProvidersService } from '../../../../../src/rss-feed-providers/p
 import { rssFeedProviderFactory } from '../../../../factories/rss-feed-providers.factory';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { UserSettingsService } from '../../../../../src/settings/providers/user-settings.service';
+import { userSettingFactory } from '../../../../factories/user-setting.factory';
+import { PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
+import { NotificationType } from '../../../../../src/schemas/notification/notification.enums';
 
 describe('Feed-Comments / Comments File (e2e)', () => {
   let app: INestApplication;
@@ -39,6 +43,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
   let notificationsService: NotificationsService;
   let blocksModel: Model<BlockAndUnblockDocument>;
   let rssFeedProvidersService: RssFeedProvidersService;
+  let userSettingsService: UserSettingsService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -52,6 +57,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
+    userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -472,6 +478,33 @@ describe('Feed-Comments / Comments File (e2e)', () => {
         // });
       });
 
+      it('sends the expected notifications when postType is movieReview', async () => {
+        const postCreatorUser = await usersService.create(userFactory.build());
+        const otherUser1 = await usersService.create(userFactory.build());
+        const otherUser1AuthToken = otherUser1.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
+        const post = await feedPostsService.create(feedPostFactory.build({
+          userId: postCreatorUser._id,
+          postType: PostType.MovieReview,
+        }));
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-comments').auth(otherUser1AuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('feedPostId', post._id.toString())
+          .field('message', 'hello test user')
+          .expect(HttpStatus.CREATED);
+
+        expect(notificationsService.create).toHaveBeenCalledTimes(1);
+        expect(notificationsService.create).toHaveBeenCalledWith({
+          userId: postCreatorUser._id,
+          feedPostId: new mongoose.Types.ObjectId(response.body.feedPostId),
+          feedCommentId: new mongoose.Types.ObjectId(response.body._id),
+          senderId: otherUser1._id,
+          allUsers: [otherUser1._id],
+          notifyType: NotificationType.UserCommentedOnYourPost,
+          notificationMsg: 'commented on your movie review',
+        });
+      });
+
       it('does not send any notifications when the commenter user is the post creator user', async () => {
         const postCreatorUser1 = await usersService.create(userFactory.build());
         const postCreatorAuthToken1 = postCreatorUser1.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
@@ -602,10 +635,24 @@ describe('Feed-Comments / Comments File (e2e)', () => {
         otherUser1 = await usersService.create(userFactory.build());
         otherUser1AuthToken = otherUser1.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
         otherUser2 = await usersService.create(userFactory.build());
+        await userSettingsService.create(
+          userSettingFactory.build(
+            {
+              userId: otherUser2._id,
+            },
+          ),
+        );
       });
 
       it('when notification is create for createFeedComments than check newNotificationCount is increment in user', async () => {
         const user0 = await usersService.create(userFactory.build({ userName: 'Divine' }));
+        await userSettingsService.create(
+          userSettingFactory.build(
+            {
+              userId: user0._id,
+            },
+          ),
+        );
         const post = await feedPostsService.create(feedPostFactory.build({ userId: user0._id }));
         await request(app.getHttpServer())
           .post('/api/v1/feed-comments').auth(otherUser1AuthToken, { type: 'bearer' })

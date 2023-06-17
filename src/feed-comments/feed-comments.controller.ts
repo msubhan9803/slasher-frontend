@@ -81,7 +81,7 @@ export class FeedCommentsController {
 
     const user = getUserFromRequest(request);
     if (
-      !post.rssfeedProviderId
+      post.postType !== PostType.MovieReview && !post.rssfeedProviderId
       && user.id !== (post.userId as unknown as User)._id.toString()
     ) {
       const areFriends = await this.friendsService.areFriends(user.id, (post.userId as unknown as User)._id.toString());
@@ -304,7 +304,7 @@ export class FeedCommentsController {
     }
 
     if (
-      !feedPost.rssfeedProviderId
+      feedPost.postType !== PostType.MovieReview && !feedPost.rssfeedProviderId
       && user.id !== (feedPost.userId as unknown as User)._id.toString()
     ) {
       const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString());

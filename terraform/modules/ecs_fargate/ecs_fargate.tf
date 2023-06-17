@@ -96,6 +96,10 @@ resource "aws_ecs_task_definition" "slasher-web-task-new-defination" {
         "value" : "${var.send_push_notification}"
       },
       {
+        "name" : "LOG_LEVEL",
+        "value" : "${var.log_level}"
+      },
+      {
         "name" : "FILE_STORAGE",
         "value" : "${var.file_storage}"
       },

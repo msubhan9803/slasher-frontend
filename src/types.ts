@@ -32,7 +32,8 @@ export interface Post {
   likedByUser: boolean;
   likes?: string[];
   hashTag?: string[];
-  userId?: string
+  userId?: string;
+  postType: number;
 }
 
 export interface User {

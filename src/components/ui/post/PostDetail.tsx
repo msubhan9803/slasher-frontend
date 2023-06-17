@@ -152,7 +152,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   }, [commentData, postId]);
 
   const checkFriendShipStatus = () => new Promise<void>((resolve, reject) => {
-    if (userData.id === postData[0].userId) {
+    if (postType === 'review' || userData.id === postData[0].userId) {
       resolve();
     } else {
       friendship(postData[0].userId!).then((res) => {

@@ -30,8 +30,6 @@ import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../.
 import useProgressButton from '../../../components/ui/ProgressButton';
 import { sleep } from '../../../utils/timer-utils';
 import { allAtMentionsRegex } from '../../../utils/text-utils';
-import { useAppSelector } from '../../../redux/hooks';
-import { friendship } from '../../../api/friends';
 import FriendshipStatusModal from '../../../components/ui/friendShipCheckModal';
 
 type Props = {
@@ -82,7 +80,6 @@ function MovieReviews({
   const [friendData, setFriendData] = useState<FriendType>(null);
   const [friendShipStatusModal, setFriendShipStatusModal] = useState<boolean>(false);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
-  const userId = useAppSelector((state) => state.user.user.id);
   // eslint-disable-next-line max-len
   const ReviewsCache: MoviePageCache['reviews'] = useMemo(() => getPageStateCache<MoviePageCache>(location)?.reviews ?? [], [location]);
   const [reviewPostData, setReviewPostData] = useState<any>(
@@ -385,69 +382,46 @@ function MovieReviews({
     navigate(`/app/movies/${id}/reviews/${currentPostId}`);
   };
 
-  const checkFriendShipStatus = (selectedFeedPostId: string) => new Promise<void>(
-    (resolve, reject) => {
-      if (userId === selectedFeedPostId) {
-        resolve();
-      } else {
-        friendship(selectedFeedPostId).then((res) => {
-          if (res.data.reaction === FriendRequestReaction.Accepted) {
-            resolve();
-          } else {
-            setPostUserId(selectedFeedPostId!);
-            setFriendShipStatusModal(true);
-            setFriendData(res.data);
-            setFriendStatus(res.data.reaction);
-          }
-        }).catch(() => reject());
-      }
-    },
-  );
-
   const onLikeClick = async (feedPostId: string) => {
     const checkLike = reviewPostData.some((post: any) => post.id === feedPostId
       && post.likeIcon);
-    const selectedFeedPostId = reviewPostData.find((post: any) => post.id === feedPostId)?.userId;
-
-    await checkFriendShipStatus(selectedFeedPostId!).then(() => {
-      if (checkLike) {
-        unlikeFeedPost(feedPostId).then((res) => {
-          if (res.status === 200) {
-            const unLikePostData = reviewPostData.map(
-              (unLikePost: Post) => {
-                if (unLikePost._id === feedPostId) {
-                  return {
-                    ...unLikePost,
-                    likeIcon: false,
-                    likedByUser: false,
-                    likeCount: unLikePost.likeCount - 1,
-                  };
-                }
-                return unLikePost;
-              },
-            );
-            setReviewPostData(unLikePostData);
-          }
-        });
-      } else {
-        likeFeedPost(feedPostId).then((res) => {
-          if (res.status === 201) {
-            const likePostData = reviewPostData.map((likePost: Post) => {
-              if (likePost._id === feedPostId) {
+    if (checkLike) {
+      unlikeFeedPost(feedPostId).then((res) => {
+        if (res.status === 200) {
+          const unLikePostData = reviewPostData.map(
+            (unLikePost: Post) => {
+              if (unLikePost._id === feedPostId) {
                 return {
-                  ...likePost,
-                  likeIcon: true,
-                  likedByUser: true,
-                  likeCount: likePost.likeCount + 1,
+                  ...unLikePost,
+                  likeIcon: false,
+                  likedByUser: false,
+                  likeCount: unLikePost.likeCount - 1,
                 };
               }
-              return likePost;
-            });
-            setReviewPostData(likePostData);
-          }
-        });
-      }
-    });
+              return unLikePost;
+            },
+          );
+          setReviewPostData(unLikePostData);
+        }
+      });
+    } else {
+      likeFeedPost(feedPostId).then((res) => {
+        if (res.status === 201) {
+          const likePostData = reviewPostData.map((likePost: Post) => {
+            if (likePost._id === feedPostId) {
+              return {
+                ...likePost,
+                likeIcon: true,
+                likedByUser: true,
+                likeCount: likePost.likeCount + 1,
+              };
+            }
+            return likePost;
+          });
+          setReviewPostData(likePostData);
+        }
+      });
+    }
   };
   return (
     <StyledReviewContainer>

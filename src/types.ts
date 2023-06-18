@@ -368,6 +368,11 @@ export interface DeviceFields {
   device_id: string;
 }
 
+export interface FormatMentionProps {
+  id: string;
+  value: string;
+  format: string;
+}
 export type FriendType = {
   from: string,
   to: string,

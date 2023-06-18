@@ -1,11 +1,10 @@
 import React from 'react';
 import RoundButton from '../RoundButton';
-import { FriendRequestReaction, User } from '../../../types';
+import { FriendRequestReaction, FriendType, User } from '../../../types';
 import RoundButtonLink from '../RoundButtonLink';
 import { acceptFriendsRequest, addFriend, rejectFriendsRequest } from '../../../api/friends';
 import { useAppSelector } from '../../../redux/hooks';
 
-type FriendType = { from: string, to: string, reaction: FriendRequestReaction } | null;
 const getButtonLabelForUser = (
   user: User,
   friend: FriendType,

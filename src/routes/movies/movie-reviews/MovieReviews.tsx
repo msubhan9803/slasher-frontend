@@ -14,6 +14,8 @@ import {
   createPost, deleteFeedPost, feedPostDetail, getMovieReview, updateFeedPost,
 } from '../../../api/feed-posts';
 import {
+  FriendRequestReaction,
+  FriendType,
   MovieData, MoviePageCache, Post, PostType,
 } from '../../../types';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
@@ -28,6 +30,7 @@ import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../.
 import useProgressButton from '../../../components/ui/ProgressButton';
 import { sleep } from '../../../utils/timer-utils';
 import { allAtMentionsRegex } from '../../../utils/text-utils';
+import FriendshipStatusModal from '../../../components/ui/friendShipCheckModal';
 
 type Props = {
   movieData: MovieData;
@@ -73,6 +76,9 @@ function MovieReviews({
   const [isWorthIt, setWorthIt] = useState<any>(0);
   const [liked, setLike] = useState<boolean>(false);
   const [disLiked, setDisLike] = useState<boolean>(false);
+  const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
+  const [friendData, setFriendData] = useState<FriendType>(null);
+  const [friendShipStatusModal, setFriendShipStatusModal] = useState<boolean>(false);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   // eslint-disable-next-line max-len
   const ReviewsCache: MoviePageCache['reviews'] = useMemo(() => getPageStateCache<MoviePageCache>(location)?.reviews ?? [], [location]);
@@ -376,7 +382,7 @@ function MovieReviews({
     navigate(`/app/movies/${id}/reviews/${currentPostId}`);
   };
 
-  const onLikeClick = (feedPostId: string) => {
+  const onLikeClick = async (feedPostId: string) => {
     const checkLike = reviewPostData.some((post: any) => post.id === feedPostId
       && post.likeIcon);
     if (checkLike) {
@@ -496,6 +502,18 @@ function MovieReviews({
           />
         )
       }
+
+      {friendShipStatusModal && (
+        <FriendshipStatusModal
+          friendShipStatusModal={friendShipStatusModal}
+          setFriendShipStatusModal={setFriendShipStatusModal}
+          friendStatus={friendStatus}
+          setFriendStatus={setFriendStatus}
+          setFriendData={setFriendData}
+          friendData={friendData}
+          userId={postUserId}
+        />
+      )}
     </StyledReviewContainer>
   );
 }

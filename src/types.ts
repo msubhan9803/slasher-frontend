@@ -32,7 +32,8 @@ export interface Post {
   likedByUser: boolean;
   likes?: string[];
   hashTag?: string[];
-  userId?: string
+  userId?: string;
+  postType: number;
 }
 
 export interface User {
@@ -366,3 +367,9 @@ export interface DeviceFields {
   device_version: string;
   device_id: string;
 }
+
+export type FriendType = {
+  from: string,
+  to: string,
+  reaction: FriendRequestReaction
+} | null;

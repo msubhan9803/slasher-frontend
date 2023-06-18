@@ -21,6 +21,7 @@ import {
   resetNewFriendRequestCountCount, incrementUnreadNotificationCount,
   incrementFriendRequestCount,
   appendToPathnameHistory,
+  updateRecentMessage,
 } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { getSessionToken, signOut } from '../../../../utils/session-utils';
@@ -38,6 +39,7 @@ import socketStore from '../../../../socketStore';
 import useSessionTokenMonitorAsync from '../../../../hooks/useSessionTokenMonitorAsync';
 import useSessionToken from '../../../../hooks/useSessionToken';
 import { setIsServerAvailable } from '../../../../redux/slices/serverAvailableSlice';
+import { Message } from '../../../../types';
 
 interface Props {
   children: React.ReactNode;
@@ -180,6 +182,10 @@ function AuthenticatedPageWrapper({ children }: Props) {
     dispatch(handleUpdatedUnreadConversationCount(count.unreadConversationCount));
   }, [dispatch]);
 
+  const onChatMessageReceivedHandler = useCallback((message: Message) => {
+    dispatch(updateRecentMessage(message));
+  }, [dispatch]);
+
   useEffect(() => {
     if (isSocketConnected || isConnectingSocketRef.current
       || token.isLoading || tokenNotFound) { return; }
@@ -220,15 +226,18 @@ function AuthenticatedPageWrapper({ children }: Props) {
     socket.on('unreadConversationCountUpdate', onUnreadConversationCountUpdate);
     socket.on('clearNewNotificationCount', onClearNewNotificationCount);
     socket.on('clearNewFriendRequestCount', onClearNewFriendRequestCount);
+    socket.on('chatMessageReceived', onChatMessageReceivedHandler);
     return () => {
       socket.off('notificationReceived', onNotificationReceivedHandler);
       socket.off('friendRequestReceived', onFriendRequestReceivedHandler);
       socket.off('unreadMessageCountUpdate', onUnreadConversationCountUpdate);
       socket.off('clearNewNotificationCount', onClearNewNotificationCount);
       socket.off('clearNewFriendRequestCount', onClearNewFriendRequestCount);
+      socket.off('chatMessageReceived', onChatMessageReceivedHandler);
     };
   }, [onClearNewFriendRequestCount, onClearNewNotificationCount, onFriendRequestReceivedHandler,
-    onNotificationReceivedHandler, onUnreadConversationCountUpdate, socket]);
+    onNotificationReceivedHandler, onUnreadConversationCountUpdate, socket,
+    onChatMessageReceivedHandler]);
 
   if (token.isLoading || !userData.user?.id) {
     return (

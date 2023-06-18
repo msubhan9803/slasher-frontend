@@ -1,6 +1,6 @@
 import React from 'react';
 import AboutApp from './AboutApp';
-import DownloadAppSection from './DownloadAppSection';
+import NowAvailableSection from './NowAvailableSection';
 import HeroSection from './HeroSection';
 import PublicSignIn from './PublicSignIn';
 import UserReview from './UserReview';
@@ -9,10 +9,10 @@ function PublicHomeBody({ children }: any) {
   return (
     <div>
       {children || (
-        <div className="bg-black">
+        <div style={{ backgroundColor: '#171717' }}>
           <HeroSection />
           <AboutApp />
-          <DownloadAppSection />
+          <NowAvailableSection />
           <UserReview />
           <PublicSignIn />
         </div>

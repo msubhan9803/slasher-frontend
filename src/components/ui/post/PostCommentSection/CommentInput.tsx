@@ -48,6 +48,7 @@ interface CommentInputProps {
   replyDescriptionArray?: string[];
   setReplyDescriptionArray?: (value: string[]) => void;
   isMainPostCommentClick?: boolean;
+  selectedReplyUserId?:string;
 }
 
 interface InputProps {
@@ -92,7 +93,8 @@ function CommentInput({
   handleSearch, mentionList, addUpdateComment, replyImageArray, isReply,
   addUpdateReply, commentID, commentReplyID, checkCommnt, commentError, commentReplyError,
   commentSent, setCommentReplyErrorMessage, setReplyImageArray, isEdit, descriptionArray,
-  setDescriptionArray, replyDescriptionArray, setReplyDescriptionArray, isMainPostCommentClick,
+  setDescriptionArray, replyDescriptionArray, setReplyDescriptionArray,
+  isMainPostCommentClick, selectedReplyUserId,
 }: CommentInputProps) {
   const [editMessage, setEditMessage] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
@@ -109,17 +111,14 @@ function CommentInput({
 
   useEffect(() => {
     if (message && message.length > 0) {
-      const regexMessgafe = isReply && commentReplyID
-        ? `##LINK_ID##${commentReplyID}${message}##LINK_END## `
-        : `##LINK_ID##${commentID}${message}##LINK_END## `;
-      setEditMessage(regexMessgafe);
+      setEditMessage(`##LINK_ID##${selectedReplyUserId}${message}##LINK_END## `);
     } else {
       setEditMessage('');
       handleSetCommentReplyErrorMessage([]);
       handleSetReplyImageArray([]);
     }
   }, [message, commentID, isReply, commentReplyID,
-    handleSetCommentReplyErrorMessage, handleSetReplyImageArray]);
+    handleSetCommentReplyErrorMessage, handleSetReplyImageArray, selectedReplyUserId]);
   useEffect(() => {
     if (editMessage) {
       const mentionStringList = editMessage.match(/##LINK_ID##[a-zA-Z0-9@_.-]+##LINK_END##/g);
@@ -235,7 +234,7 @@ function CommentInput({
                 <MessageTextarea
                   rows={1}
                   id={checkCommnt}
-                  className="fs-5 form-control p-0 pe-4"
+                  className="fs-5 form-control pe-4"
                   placeholder={isReply ? 'Reply to comment' : 'Write a comment'}
                   isReply={isReply}
                   handleSearch={handleSearch}
@@ -352,6 +351,7 @@ CommentInput.defaultProps = {
   replyDescriptionArray: undefined,
   setReplyDescriptionArray: undefined,
   isMainPostCommentClick: undefined,
+  selectedReplyUserId: undefined,
 };
 
 export default CommentInput;

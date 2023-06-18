@@ -89,7 +89,7 @@ function PublicHomeHeader() {
               </ul>
               <div className="d-flex mt-4 d-xl-none">
                 {socialMediaIcons.map((icon: any) => (
-                  <a key={icon.to} className="mobile-nav-menu-icon-link rounded-circle d-flex align-items-center justify-content-center rounded-circle" href={icon.to}>
+                  <a key={icon.to} className="social-network-icon-group-link rounded-circle d-flex align-items-center justify-content-center rounded-circle" href={icon.to}>
                     <img src={icon.svg} alt={icon.label} />
                   </a>
                 ))}

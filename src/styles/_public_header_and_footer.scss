@@ -94,16 +94,17 @@ $footer-height: 320px; // Used for sticky footer
     }
   }
 
-  a.mobile-nav-menu-icon-link {
-    color: #000;
-    background-color: #fff;
-    width: 32px;
-    height: 32px;
-    margin-right: 1rem;
+}
 
-    &:hover {
-      background-color: var(--bs-primary);
-    }
+a.social-network-icon-group-link {
+  color: #000;
+  background-color: #fff;
+  width: 32px;
+  height: 32px;
+  margin-right: 1rem;
+
+  &:hover {
+    background-color: var(--bs-primary);
   }
 }
 

@@ -69,9 +69,9 @@ function PublicHomeFooter() {
             <Link to="/" className="mb-3">
               <HeaderLogo logo={slasherLogo} height="8.6rem" style={{ marginTop: 25 }} />
             </Link>
-            <div style={{ marginTop: 10, marginLeft: -4 }} className="align-items-center d-flex mb-3 justify-content-center justify-content-md-start">
-              {socialMediaIcons.map((icon) => (
-                <a key={icon.to} className="mobile-nav-menu-icon-link rounded-circle d-flex align-items-center justify-content-center rounded-circle" href={icon.to}>
+            <div className="d-flex mt-4 mb-3">
+              {socialMediaIcons.map((icon: any) => (
+                <a key={icon.to} className="social-network-icon-group-link rounded-circle d-flex align-items-center justify-content-center rounded-circle" href={icon.to}>
                   <img src={icon.svg} alt={icon.label} />
                 </a>
               ))}
@@ -94,20 +94,7 @@ function PublicHomeFooter() {
               </a>
             ))}
           </Col>
-          <Col md={4} className="p-2 pt-md-0" style={{ marginTop: 32 }}>
-            <Row className="store__links__container g-0 justify-content-end align-items-center">
-              <Col>
-                <a href={APP_STORE_DOWNLOAD_URL} target="_blank" className="p-0 h-100 d-block w-100" rel="noreferrer">
-                  <Image fluid style={{ border: '3px solid gray' }} src={AppStoreImage} alt="app store" className="rounded-4 w-100 ios-badge" />
-                </a>
-              </Col>
-              <Col>
-                <a href={GOOGLE_PLAY_DOWNLOAD_URL} target="_blank" className="p-0 h-100 d-block w-100" rel="noreferrer">
-                  <Image fluid style={{ border: '3px solid gray' }} src={PlayStoreImage} alt="play store" className="rounded-4 w-100 h-100" />
-                </a>
-              </Col>
-            </Row>
-          </Col>
+          <Col md={4} className="p-2 pt-md-0" style={{ marginTop: 32 }} />
         </Row>
       </div>
     </StyledFooter>

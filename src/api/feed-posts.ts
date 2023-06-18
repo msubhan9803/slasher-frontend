@@ -75,16 +75,18 @@ export async function updateFeedPost(
 ) {
   const token = await getSessionToken();
   const formData = new FormData();
-  for (let i = 0; i < descriptionArray.length; i += 1) {
-    if (file && file.length && file !== undefined) {
-      if (file[i] !== undefined) {
-        formData.append('files', file[i]);
+  if (descriptionArray && descriptionArray.length) {
+    for (let i = 0; i < descriptionArray.length; i += 1) {
+      if (file && file.length && file !== undefined) {
+        if (file[i] !== undefined) {
+          formData.append('files', file[i]);
+        }
       }
+      if (descriptionArray![i].id) {
+        formData.append(`imageDescriptions[${[i]}][_id]`, descriptionArray![i].id);
+      }
+      formData.append(`imageDescriptions[${[i]}][description]`, descriptionArray![i].description);
     }
-    if (descriptionArray![i].id) {
-      formData.append(`imageDescriptions[${[i]}][_id]`, descriptionArray![i].id);
-    }
-    formData.append(`imageDescriptions[${[i]}][description]`, descriptionArray![i].description);
   }
   formData.append('message', message);
   if (imagesToDelete) {

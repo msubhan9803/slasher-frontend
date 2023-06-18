@@ -9,11 +9,11 @@ import styled from 'styled-components';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import CreatePostComponent from '../../../components/ui/CreatePostComponent';
-import { FormatMentionProps } from '../../posts/create-post/CreatePost';
 import {
   createPost, deleteFeedPost, feedPostDetail, getMovieReview, updateFeedPost,
 } from '../../../api/feed-posts';
 import {
+  FormatMentionProps,
   MovieData, MoviePageCache, Post, PostType,
 } from '../../../types';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
@@ -27,7 +27,7 @@ import { reportData } from '../../../api/report';
 import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../../pageStateCache';
 import useProgressButton from '../../../components/ui/ProgressButton';
 import { sleep } from '../../../utils/timer-utils';
-import { allAtMentionsRegex, getLeadingWhiteSpace } from '../../../utils/text-utils';
+import { atMentionsGlobalRegex, generateMentionReplacementMatchFunc } from '../../../utils/text-utils';
 
 type Props = {
   movieData: MovieData;
@@ -172,19 +172,6 @@ function MovieReviews({
     setDropDownValue(value);
     setDeletePostId(popoverClickProps.id);
   };
-  const mentionReplacementMatchFunc = (match: string) => {
-    const startingWithWhiteCharaters = getLeadingWhiteSpace(match);
-    if (match) {
-      const finalString: any = formatMention.find(
-        (matchMention: FormatMentionProps) => match.includes(matchMention.value),
-      );
-      if (finalString) {
-        return `${startingWithWhiteCharaters || ''}${finalString.format}` as any;
-      }
-      return match;
-    }
-    return undefined;
-  };
 
   const createMovieReview = (movieReviewPostData: object) => {
     setProgressButtonStatus('loading');
@@ -250,8 +237,8 @@ function MovieReviews({
 
   const addPost = () => {
     const postContentWithMentionReplacements = (postContent.replace(
-      allAtMentionsRegex,
-      mentionReplacementMatchFunc,
+      atMentionsGlobalRegex,
+      generateMentionReplacementMatchFunc(formatMention),
     ));
     const movieReviewPostData = {
       message: postContentWithMentionReplacements,

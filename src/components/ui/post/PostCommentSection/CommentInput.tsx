@@ -11,10 +11,12 @@ import {
 import styled from 'styled-components';
 import UserCircleImage from '../../UserCircleImage';
 import ImagesContainer from '../../ImagesContainer';
-import { allAtMentionsRegex, decryptMessage, getLeadingWhiteSpace } from '../../../../utils/text-utils';
+import {
+  atMentionsGlobalRegex, decryptMessage, generateMentionReplacementMatchFunc,
+} from '../../../../utils/text-utils';
 import MessageTextarea from '../../MessageTextarea';
-import { FormatMentionProps } from '../../../../routes/posts/create-post/CreatePost';
 import ErrorMessageList from '../../ErrorMessageList';
+import { FormatMentionProps } from '../../../../types';
 
 interface CommentInputProps {
   userData: any;
@@ -178,23 +180,10 @@ function CommentInput({
     }
   };
 
-  const mentionReplacementMatchFunc = (match: string) => {
-    const startingWithWhiteCharaters = getLeadingWhiteSpace(match);
-    if (match) {
-      const finalString: any = formatMention.find(
-        (matchMention: FormatMentionProps) => match.includes(matchMention.value),
-      );
-      if (finalString) {
-        return `${startingWithWhiteCharaters || ''}${finalString.format}` as any;
-      }
-      return match;
-    }
-    return undefined;
-  };
   const handleMessage = () => {
     const postContentWithMentionReplacements = (editMessage!.replace(
-      allAtMentionsRegex,
-      mentionReplacementMatchFunc,
+      atMentionsGlobalRegex,
+      generateMentionReplacementMatchFunc(formatMention),
     ));
     onUpdatePost(postContentWithMentionReplacements);
     setShowPicker(false);

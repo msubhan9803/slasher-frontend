@@ -366,3 +366,9 @@ export interface DeviceFields {
   device_version: string;
   device_id: string;
 }
+
+export interface FormatMentionProps {
+  id: string;
+  value: string;
+  format: string;
+}

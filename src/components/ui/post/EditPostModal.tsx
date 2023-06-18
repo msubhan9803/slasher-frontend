@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Modal } from 'react-bootstrap';
-import { FormatMentionProps } from '../../../routes/posts/create-post/CreatePost';
 import CreatePostComponent from '../CreatePostComponent';
 import ModalContainer from '../CustomModal';
-import { allAtMentionsRegex, decryptMessage, getLeadingWhiteSpace } from '../../../utils/text-utils';
-import { ContentDescription } from '../../../types';
+import { atMentionsGlobalRegex, decryptMessage, generateMentionReplacementMatchFunc } from '../../../utils/text-utils';
+import { ContentDescription, FormatMentionProps } from '../../../types';
 import { ProgressButtonComponentType } from '../ProgressButton';
 
 interface Props {
@@ -60,23 +59,10 @@ function EditPostModal({
   const closeModal = () => {
     setShow(false);
   };
-  const mentionReplacementMatchFunc = (match: string) => {
-    const startingWithWhiteCharaters = getLeadingWhiteSpace(match);
-    if (match && formatMention) {
-      const finalString: any = formatMention.find(
-        (matchMention: FormatMentionProps) => match.includes(matchMention.value),
-      );
-      if (finalString) {
-        return `${startingWithWhiteCharaters || ''}${finalString.format}` as any;
-      }
-      return match;
-    }
-    return undefined;
-  };
   const updatePost = () => {
     const postContentWithMentionReplacements = (postContent.replace(
-      allAtMentionsRegex,
-      mentionReplacementMatchFunc,
+      atMentionsGlobalRegex,
+      generateMentionReplacementMatchFunc(formatMention),
     ));
     const files = postImages.filter((images: any) => images instanceof File);
     onUpdatePost(postContentWithMentionReplacements, files, deleteImageIds, descriptionArray);

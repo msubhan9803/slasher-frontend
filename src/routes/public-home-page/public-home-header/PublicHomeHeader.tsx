@@ -22,7 +22,7 @@ const navList: NavItem[] = [
   { value: `${WORDPRESS_SITE_URL}/help`, label: 'Help' },
   { value: `${WORDPRESS_SITE_URL}/contact-us`, label: 'Contact Us' },
 ];
-const signInNavItem: NavItem = { value: '/app/sign-in', label: 'Sign In or Create An Account' };
+const signInNavItem: NavItem = { value: '/app/sign-in', label: 'Sign in or Create an account' };
 
 function PublicHomeHeader() {
   const [isOpen, setIsOpen] = useState(false);
@@ -72,7 +72,7 @@ function PublicHomeHeader() {
               </Offcanvas.Title>
             </Offcanvas.Header>
             <Offcanvas.Body>
-              <Link className="mobile-menu-sign-in-link fw-bold nav-link py-2 d-xl-none" to="/app/sign-in">Sign In or Create An Account</Link>
+              <Link className="mobile-menu-sign-in-link fw-bold nav-link py-2 d-xl-none" to={signInNavItem.value}>{signInNavItem.label}</Link>
               <ul id="main-menu" className="navbar-nav justify-content-between flex-grow-1 pe-3">
                 {navList.map((nav) => (
                   <li

@@ -9,7 +9,7 @@ function PublicHomeBody({ children }: any) {
   return (
     <div>
       {children || (
-        <div className="bg-black">
+        <div style={{ backgroundColor: '#171717' }}>
           <HeroSection />
           <AboutApp />
           <DownloadAppSection />

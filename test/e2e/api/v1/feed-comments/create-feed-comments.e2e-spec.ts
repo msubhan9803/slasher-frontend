@@ -30,6 +30,7 @@ import { UserSettingsService } from '../../../../../src/settings/providers/user-
 import { userSettingFactory } from '../../../../factories/user-setting.factory';
 import { PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
 import { NotificationType } from '../../../../../src/schemas/notification/notification.enums';
+import { FriendsService } from '../../../../../src/friends/providers/friends.service';
 
 describe('Feed-Comments / Comments File (e2e)', () => {
   let app: INestApplication;
@@ -44,6 +45,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
   let blocksModel: Model<BlockAndUnblockDocument>;
   let rssFeedProvidersService: RssFeedProvidersService;
   let userSettingsService: UserSettingsService;
+  let friendsService: FriendsService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -58,6 +60,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
+    friendsService = moduleRef.get<FriendsService>(FriendsService);
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -405,6 +408,9 @@ describe('Feed-Comments / Comments File (e2e)', () => {
             },
           ),
         );
+        await friendsService.createFriendRequest(activeUser._id.toString(), user1.id);
+        await friendsService.acceptFriendRequest(activeUser._id.toString(), user1.id);
+
         await blocksModel.create({
           from: activeUser._id,
           to: user1._id,
@@ -457,6 +463,8 @@ describe('Feed-Comments / Comments File (e2e)', () => {
         const otherUser1 = await usersService.create(userFactory.build());
         const otherUser1AuthToken = otherUser1.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
         const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
+        await friendsService.createFriendRequest(otherUser1._id.toString(), postCreatorUser.id);
+        await friendsService.acceptFriendRequest(otherUser1._id.toString(), postCreatorUser.id);
         await request(app.getHttpServer())
           .post('/api/v1/feed-comments').auth(otherUser1AuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
@@ -528,6 +536,8 @@ describe('Feed-Comments / Comments File (e2e)', () => {
           const otherUser4 = await usersService.create(userFactory.build());
           const otherUser2AuthToken = otherUser2.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
           const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
+          await friendsService.createFriendRequest(otherUser2._id.toString(), postCreatorUser.id);
+          await friendsService.acceptFriendRequest(otherUser2._id.toString(), postCreatorUser.id);
           await request(app.getHttpServer())
             .post('/api/v1/feed-comments').auth(otherUser2AuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
@@ -555,7 +565,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
         expect(postAfterUpdate.lastUpdateAt > postBeforeUpdate.lastUpdateAt).toBeTruthy();
       });
 
-      describe('when the feed post was created by a user with a non-public profile', () => {
+      describe('when the feed post was created by a user with a non-public or non-private profile', () => {
         let user1;
         let feedPost1;
         beforeEach(async () => {
@@ -582,7 +592,72 @@ describe('Feed-Comments / Comments File (e2e)', () => {
               .attach('images', tempPaths[0])
               .attach('images', tempPaths[1]);
             expect(response.status).toBe(HttpStatus.FORBIDDEN);
-            expect(response.body).toEqual({ statusCode: 403, message: 'You must be friends with this user to perform this action.' });
+            expect(response.body).toEqual({ statusCode: 403, message: 'You can only interact with posts of friends.' });
+          }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+        });
+
+        it('should not allow the creation of a feed comments when commenter'
+          + 'is not a friend of the post creator and user with a public profile', async () => {
+            const user3 = await usersService.create(userFactory.build({
+              profile_status: ProfileVisibility.Public,
+            }));
+            const feedPost3 = await feedPostsService.create(
+              feedPostFactory.build(
+                {
+                  userId: user3._id,
+                },
+              ),
+            );
+            await createTempFiles(async (tempPaths) => {
+              const response = await request(app.getHttpServer())
+                .post('/api/v1/feed-comments')
+                .auth(activeUserAuthToken, { type: 'bearer' })
+                .set('Content-Type', 'multipart/form-data')
+                .field('message', 'hello test user')
+                .field('feedPostId', feedPost3._id.toString())
+                .attach('images', tempPaths[0])
+                .attach('images', tempPaths[1]);
+              expect(response.status).toBe(HttpStatus.FORBIDDEN);
+              expect(response.body).toEqual({ statusCode: 403, message: 'You can only interact with posts of friends.' });
+            }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+          });
+
+        it('should allow the creation of a feed comments when commenter is a friend of the post creator', async () => {
+          const user4 = await usersService.create(userFactory.build({
+            profile_status: ProfileVisibility.Private,
+          }));
+          const feedPost4 = await feedPostsService.create(
+            feedPostFactory.build(
+              {
+                userId: user4._id,
+              },
+            ),
+          );
+          await friendsService.createFriendRequest(activeUser._id.toString(), user4.id);
+          await friendsService.acceptFriendRequest(activeUser._id.toString(), user4.id);
+          await createTempFiles(async (tempPaths) => {
+            const response = await request(app.getHttpServer())
+              .post('/api/v1/feed-comments')
+              .auth(activeUserAuthToken, { type: 'bearer' })
+              .set('Content-Type', 'multipart/form-data')
+              .field('message', 'hello test user')
+              .field('feedPostId', feedPost4._id.toString())
+              .attach('images', tempPaths[0])
+              .field('imageDescriptions[0][description]', 'this is create feed comment description 0');
+            expect(response.status).toBe(HttpStatus.CREATED);
+            expect(response.body).toEqual({
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              feedPostId: feedPost4._id.toString(),
+              message: 'hello test user',
+              userId: activeUser._id.toString(),
+              images: [
+                {
+                  image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                  description: 'this is create feed comment description 0',
+                  _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                },
+              ],
+            });
           }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
         });
 
@@ -654,6 +729,8 @@ describe('Feed-Comments / Comments File (e2e)', () => {
           ),
         );
         const post = await feedPostsService.create(feedPostFactory.build({ userId: user0._id }));
+        await friendsService.createFriendRequest(otherUser1._id.toString(), user0.id);
+        await friendsService.acceptFriendRequest(otherUser1._id.toString(), user0.id);
         await request(app.getHttpServer())
           .post('/api/v1/feed-comments').auth(otherUser1AuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')

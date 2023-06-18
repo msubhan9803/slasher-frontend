@@ -81,13 +81,12 @@ export class FeedCommentsController {
 
     const user = getUserFromRequest(request);
     if (
-      !post.rssfeedProviderId
+      post.postType !== PostType.MovieReview && !post.rssfeedProviderId
       && user.id !== (post.userId as unknown as User)._id.toString()
-      && (post.userId as unknown as User).profile_status !== ProfileVisibility.Public
     ) {
       const areFriends = await this.friendsService.areFriends(user.id, (post.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+        throw new HttpException('You can only interact with posts of friends.', HttpStatus.FORBIDDEN);
       }
     }
 
@@ -305,13 +304,12 @@ export class FeedCommentsController {
     }
 
     if (
-      !feedPost.rssfeedProviderId
+      feedPost.postType !== PostType.MovieReview && !feedPost.rssfeedProviderId
       && user.id !== (feedPost.userId as unknown as User)._id.toString()
-      && (feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public
     ) {
       const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+        throw new HttpException('You can only interact with posts of friends.', HttpStatus.FORBIDDEN);
       }
     }
 

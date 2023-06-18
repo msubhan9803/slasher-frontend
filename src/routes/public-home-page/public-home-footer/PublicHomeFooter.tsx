@@ -1,15 +1,13 @@
 import React from 'react';
 import {
-  Col, Image, Row,
+  Col, Row,
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import slasherLogo from '../../../images/slasher-logo-medium.png';
 import HeaderLogo from '../../../components/ui/HeaderLogo';
-import AppStoreImage from '../../../images/app-store-badge.png';
-import PlayStoreImage from '../../../images/google-play-badge.png';
 import {
-  APP_STORE_DOWNLOAD_URL, GOOGLE_PLAY_DOWNLOAD_URL, MD_MEDIA_BREAKPOINT, WORDPRESS_SITE_URL,
+  MD_MEDIA_BREAKPOINT, WORDPRESS_SITE_URL,
 } from '../../../constants';
 import { socialMediaIcons } from '../../../utils/socialMediaIcons';
 

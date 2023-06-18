@@ -23,7 +23,7 @@ import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import { rejectFriendsRequest } from '../../../api/friends';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
 import {
-  deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
+  getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../../pageStateCache';
 
 interface FriendProps {
@@ -53,9 +53,8 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
   const friendContainerElementRef = useRef<any>(null);
   const loginUserData = useAppSelector((state) => state.user.user);
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
-  const [additionalFriend, setAdditionalFriend] = useState<boolean>(false);
+  const [additionalFriend, setAdditionalFriend] = useState<boolean>(true);
   const location = useLocation();
-  const [userId, setUserId] = useState('');
   type CacheType = { page: number, data: any[], searchValue: string };
   const pageStateCache: CacheType = getPageStateCache(location) ?? { page: 0, data: [], searchValue: '' };
   const [friendsList, setFriendsList] = useState<FriendProps[]>(
@@ -72,6 +71,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
   );
   const isLoadingRef = useRef(true);
   const controllerRef = useRef<AbortController | null>();
+  const lastUserIdRef = useRef(user._id);
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
@@ -98,14 +98,6 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
     setPopoverClick(popoverClickProps);
   };
 
-  useEffect(() => {
-    if (user.userName === params.userName) {
-      setUserId(user._id);
-      setNoMoreData(false);
-      setAdditionalFriend(true);
-    }
-  }, [params.userName, user.userName, user._id, location.pathname]);
-
   const fetchMoreFriendList = useCallback(() => {
     if (controllerRef.current) {
       controllerRef.current.abort();
@@ -116,20 +108,22 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
       while (searchUser.startsWith('@')) {
         searchUser = searchUser.substring(1);
       }
-      userProfileFriends(controllerRef.current?.signal, userId, page, searchUser)
+
+      userProfileFriends(controllerRef.current?.signal, user._id, page, searchUser)
         .then((res) => {
-          setFriendsList((prev: any) => (page === 0 && search !== ''
-            ? res.data.friends
-            : [
+          setFriendsList((prev: any) => {
+            const newFriendsList = (page === 0 && search !== '') ? res.data.friends : [
               ...prev,
               ...res.data.friends,
-            ]
-          ));
+            ];
+            // eslint-disable-next-line max-len
+            setPageStateCache<CacheType>(location, { data: newFriendsList, page: page + 1, searchValue: search });
+            return newFriendsList;
+          });
           setPage(page + 1);
           if (res.data.friends.length === 0) {
             setNoMoreData(true);
           }
-          if (hasPageStateCache(location)) { deletePageStateCache(location); }
         })
         .catch((error) => setErrorMessage(error.response.data.message))
         .finally(
@@ -137,24 +131,33 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
           () => { setAdditionalFriend(false); setLoadingFriends(false); isLoadingRef.current = false; controllerRef.current = null; },
         );
     }
-  }, [search, userId, page, location]);
+  }, [location, page, search, user._id]);
 
   useEffect(() => {
-    if (additionalFriend && !loadingFriends && userId && user.userName === params.userName) {
-      if (!hasPageStateCache(location)
-        || friendsList.length >= pageStateCache.data.length
-        || friendsList.length === 0
-        || page > 0
-      ) {
-        setTimeout(() => {
-          setLoadingFriends(true);
-          fetchMoreFriendList();
-        }, 0);
-      }
+    const isUserChanged = lastUserIdRef.current !== user._id;
+    if (isUserChanged) {
+      lastUserIdRef.current = user._id;
+      // Cancel setting state for most recent friendList api call
+      if (controllerRef.current) { controllerRef.current.abort(); }
+      // Set the new user's data in comoponent state
+      setFriendsList(hasPageStateCache(location) ? getPageStateCache(location)?.data : []);
+      const currentPage = hasPageStateCache(location) ? getPageStateCache(location)?.page : 0;
+      setPage(currentPage);
+      const currentSearch = hasPageStateCache(location) ? getPageStateCache(location)?.searchValue : '';
+      setSearch(currentSearch);
+      // Reset infinite-loading
+      setNoMoreData(false);
+      setAdditionalFriend(true);
     }
-  }, [additionalFriend, loadingFriends, search, friendsList, userId, location.pathname,
-    page, fetchMoreFriendList, user.userName, params.userName, location,
-    pageStateCache.data.length]);
+
+    if (additionalFriend && !loadingFriends && user._id) {
+      setTimeout(() => {
+        setLoadingFriends(true);
+        fetchMoreFriendList();
+      }, 200);
+    }
+  }, [additionalFriend, loadingFriends, search, friendsList, user._id,
+    page, fetchMoreFriendList, location]);
 
   const renderNoMoreDataMessage = () => {
     const message = friendsList.length === 0 && search

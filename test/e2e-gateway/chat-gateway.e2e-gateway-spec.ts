@@ -202,6 +202,12 @@ describe('Chat Gateway (e2e)', () => {
             urls: [],
             matchId: expect.any(String),
             message: encodeURIComponent('Hi, test message via socket.'),
+            unreadMsgCount: 1,
+            fromUser: {
+              _id: expect.any(String),
+              userName: 'Username1',
+              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+            },
           },
         });
       });
@@ -570,6 +576,12 @@ describe('Chat Gateway (e2e)', () => {
           urls: [],
           matchId: matchList.id,
           message: 'Hi, there!',
+          unreadMsgCount: 1,
+          fromUser: {
+            _id: expect.any(String),
+            userName: 'Michael',
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
         },
       });
     });

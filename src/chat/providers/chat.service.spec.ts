@@ -27,6 +27,12 @@ describe('ChatService', () => {
   let user2: UserDocument;
   let user3: UserDocument;
   let user4: UserDocument;
+  let user5: UserDocument;
+  let user6: UserDocument;
+  let user7: UserDocument;
+  let user8: UserDocument;
+  let user9: UserDocument;
+  let user10: UserDocument;
   let activeUser: UserDocument;
   let messageModel: Model<MessageDocument>;
   let matchListModel: Model<MatchListDocument>;
@@ -67,6 +73,9 @@ describe('ChatService', () => {
     user2 = await usersService.create(userFactory.build({ userName: 'Test' }));
     user3 = await usersService.create(userFactory.build({ userName: 'Denial' }));
     user4 = await usersService.create(userFactory.build({ userName: 'Rock' }));
+    user5 = await usersService.create(userFactory.build({ userName: 'Slasher' }));
+    user6 = await usersService.create(userFactory.build({ userName: 'Horror' }));
+    user7 = await usersService.create(userFactory.build({ userName: 'John' }));
   });
 
   it('should be defined', () => {
@@ -170,8 +179,8 @@ describe('ChatService', () => {
 
   describe('#getConversations', () => {
     let messageLatest1;
-    let m2;
-    let m3;
+    let message2;
+    let message3;
     beforeEach(async () => {
       // User 1 sends a message and receives a message. Received message is unread.
       const message1 = await chatService.sendPrivateDirectMessage(user1.id, user0.id, 'Hi, there!');
@@ -180,8 +189,8 @@ describe('ChatService', () => {
       messageLatest1 = await chatService.sendPrivateDirectMessage(user0.id, user1.id, 'This is a reply');
 
       // User 1 sends two messages. Both sent messages are unread.
-      m2 = await chatService.sendPrivateDirectMessage(user1.id, user2.id, 'This is a new message');
-      m3 = await chatService.sendPrivateDirectMessage(user1.id, user2.id, 'This is another new message');
+      message2 = await chatService.sendPrivateDirectMessage(user1.id, user2.id, 'This is a new message');
+      message3 = await chatService.sendPrivateDirectMessage(user1.id, user2.id, 'This is another new message');
 
       // Send message to `user3` and `user3` blocks `user1` (Note: Block is bidirectional)
       await chatService.sendPrivateDirectMessage(user1.id, user3.id, 'You will block me!');
@@ -213,8 +222,8 @@ describe('ChatService', () => {
 
     it('should filter deleted message for single user when returning list of convesations for a user', async () => {
       await messageModel.updateOne({ _id: messageLatest1._id }, { $set: { deletefor: [user1._id] } });
-      await messageModel.updateOne({ _id: m2._id }, { $set: { deletefor: [user1._id] } });
-      await messageModel.updateOne({ _id: m3._id }, { $set: { deletefor: [user1._id] } });
+      await messageModel.updateOne({ _id: message2._id }, { $set: { deletefor: [user1._id] } });
+      await messageModel.updateOne({ _id: message3._id }, { $set: { deletefor: [user1._id] } });
 
       const conversations = await chatService.getConversations(user1.id, 5);
 
@@ -260,6 +269,84 @@ describe('ChatService', () => {
         const secondResults = await chatService.getConversations(activeUser.id, limit, firstResults[limit - 1]._id.toString());
         expect(secondResults).toHaveLength(2);
       });
+    });
+  });
+
+  describe('#getUnreadConversations', () => {
+    let messageLatest1;
+    let message2;
+    let message3;
+
+    beforeEach(async () => {
+      // User 1 sends a message and receives a message. Received message is unread.
+      const message1 = await chatService.sendPrivateDirectMessage(user1.id, user0.id, 'Hi, there!');
+      message1.isRead = true;
+      await message1.save();
+      messageLatest1 = await chatService.sendPrivateDirectMessage(user0.id, user1.id, 'This is a reply');
+
+      // User 1 sends two messages. Both sent messages are unread.
+      message2 = await chatService.sendPrivateDirectMessage(user1.id, user2.id, 'This is a new message');
+      message3 = await chatService.sendPrivateDirectMessage(user1.id, user3.id, 'This is another new message');
+      await chatService.sendPrivateDirectMessage(user1.id, user4.id, 'Slasher 1');
+      await chatService.sendPrivateDirectMessage(user1.id, user5.id, 'Slasher 2');
+      await chatService.sendPrivateDirectMessage(user1.id, user6.id, 'Slasher 3');
+      await chatService.sendPrivateDirectMessage(user1.id, user7.id, 'Slasher 4');
+
+      // Send message to `user3` and `user3` blocks `user1` (Note: Block is bidirectional)
+      await chatService.sendPrivateDirectMessage(user1.id, user3.id, 'You will block me!');
+      await blocksModel.create({
+        from: user1.id,
+        to: user3.id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+    });
+
+    it('successfully returns the expected response when all msgs are read', async () => {
+      user8 = await usersService.create(userFactory.build({ userName: 'Devil' }));
+      user9 = await usersService.create(userFactory.build({ userName: 'Mickey' }));
+      user10 = await usersService.create(userFactory.build({ userName: 'Minnie' }));
+      const message8 = await chatService.sendPrivateDirectMessage(user8.id, user9.id, 'Hello');
+      message8.isRead = true;
+      await message8.save();
+      const message9 = await chatService.sendPrivateDirectMessage(user8.id, user10.id, 'Welcome!');
+      message9.isRead = true;
+      await message9.save();
+
+      const conversations = await chatService.getUnreadConversations(user8.id);
+      expect(conversations).toHaveLength(0);
+    });
+
+    it('successfully returns a list of convesations for a user', async () => {
+      const conversations = await chatService.getUnreadConversations(user1.id);
+      expect(conversations).toHaveLength(6);
+
+      // Expect newest conversation in array position 0
+      expect(conversations[0].latestMessage).toBe('Slasher 4');
+      // Expect unreadCount of 0 because the unread messages are the ones sent by the viewing user
+      expect(conversations[0].unreadCount).toBe(0);
+
+      // Expect second newest conversation in array position 1
+      expect(conversations[5].latestMessage).toBe('This is a reply');
+      // Expect unreadCount of 1 because the unread message in the conversation is unread by the viewing user
+      expect(conversations[5].unreadCount).toBe(1);
+
+      // Conversations should not converstaion from blocked users
+      expect(conversations.map((m) => m.latestMessage)).not.toContain('You will block me!');
+    });
+
+    it('should filter deleted message for single user when returning list of convesations for a user', async () => {
+      await messageModel.updateOne({ _id: messageLatest1._id }, { $set: { deletefor: [user1._id] } });
+      await messageModel.updateOne({ _id: message2._id }, { $set: { deletefor: [user1._id] } });
+      await messageModel.updateOne({ _id: message3._id }, { $set: { deletefor: [user1._id] } });
+
+      const conversations = await chatService.getUnreadConversations(user1.id);
+      // Note: The second conversation should not be returned since all messages for second conversation
+      // are set in `deletefor` this user
+      expect(conversations).toHaveLength(4);
+      // Expect newest conversation in array position 0 having latest message which is `non-deleted` message for user
+      expect(conversations[0].latestMessage).toBe('Slasher 4');
+      // Expect unreadCount of 1 because the unread message in the conversation is unread by the viewing user
+      expect(conversations[0].unreadCount).toBe(0);
     });
   });
 

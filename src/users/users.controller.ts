@@ -449,7 +449,7 @@ export class UsersController {
     const user: UserDocument = getUserFromRequest(request);
     // Note: Below, we retrieve more conversations than we need because deleted conversations are
     // currently retrieved by this method, so we
-    const recentMessages: any = (await this.chatService.getConversations(user.id, 10)).slice(0, 3);
+    const recentMessages: any = (await this.chatService.getUnreadConversations(user.id)).slice(0, 3);
     const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user.id, 3);
     const unreadNotificationCount = await this.notificationsService.getUnreadNotificationCount(user.id);
     return {

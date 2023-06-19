@@ -9,7 +9,7 @@ import {
   IsNumber,
   IsOptional, Max, MaxLength, Min, ValidateNested,
 } from 'class-validator';
-import { WorthWatchingStatus } from 'src/types';
+import { WorthWatchingStatus } from '../../types';
 import { MAX_ALLOWED_UPLOAD_FILES_FOR_POST } from '../../constants';
 
 export class UpdateImageDescriptionsDto {

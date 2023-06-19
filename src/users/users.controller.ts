@@ -45,7 +45,7 @@ import { Device, User, UserDocument } from '../schemas/user/user.schema';
 import { AllFeedPostQueryDto } from '../feed-posts/dto/all-feed-posts-query.dto';
 import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 import { ParamUserIdDto } from './dto/param-user-id.dto';
-import { MAXIMUM_IMAGE_UPLOAD_SIZE, SIMPLE_MONGODB_ID_REGEX } from '../constants';
+import { MAXIMUM_IMAGE_UPLOAD_SIZE, SIMPLE_MONGODB_ID_REGEX, WELCOME_MSG } from '../constants';
 import { SuggestUserNameQueryDto } from './dto/suggest-user-name-query.dto';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 import { GetFriendsDto } from './dto/get-friends.dto';
@@ -76,6 +76,7 @@ import { BetaTestersService } from '../beta-tester/providers/beta-testers.servic
 import { EmailRevertTokensService } from '../email-revert-tokens/providers/email-revert-tokens.service';
 import { FriendRequestReaction } from '../schemas/friend/friend.enums';
 import { Public } from '../app/guards/auth.guard';
+import { UpdateDeviceTokenDto } from './dto/update-device-token.dto';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -115,15 +116,21 @@ export class UsersController {
       );
     }
 
-    if (!user.betaTester) {
-      const betaTester = await this.betaTestersService.findByEmail(user.email);
-      if (betaTester) {
-        // Since a BetaTester record was found for this user's email, mark them as a beta tester.
-        user = await this.usersService.update(user.id, { betaTester: true });
-      } else {
-        throw new HttpException('Only beta testers are able to sign in at this time, sorry!', HttpStatus.UNAUTHORIZED);
-      }
-    }
+    // We're no longer restricting login to beta testers, so this code is commented out.
+    // TODO: We can probably remove this, but I'm keeping it here for a little while longer
+    // in case we need to bring it back for any reason.
+    // if (!user.betaTester) {
+    //   const betaTester = await this.betaTestersService.findByEmail(user.email);
+    //   if (betaTester) {
+    //     // Since a BetaTester record was found for this user's email, mark them as a beta tester.
+    //     user = await this.usersService.update(user.id, { betaTester: true });
+    //   } else {
+    //     throw new HttpException(
+    //       'Only people who requested an invitation are able to sign in during the sneak preview.',
+    //       HttpStatus.UNAUTHORIZED,
+    //     );
+    //   }
+    // }
 
     if (user.userSuspended) {
       throw new HttpException('User suspended.', HttpStatus.UNAUTHORIZED);
@@ -235,6 +242,14 @@ export class UsersController {
       if (disallowedUsername) { requestedErrorsList.unshift('Username is not available.'); }
     }
     if (requestedFields.includes('email') && !invalidFields.includes('email')) {
+      // We're no longer restricting login to beta testers, so this code is commented out.
+      // TODO: We can probably remove this, but I'm keeping it here for a little while longer
+      // in case we need to bring it back for any reason.
+      // const betaTester = await this.betaTestersService.findByEmail(userRegisterDto.email);
+      // if (!betaTester) {
+      //   requestedErrorsList.unshift('Only people who requested an invitation are able to register during the sneak preview.');
+      // }
+
       const available = await this.usersService.emailAvailable(query.email);
       if (!available) { requestedErrorsList.unshift('Email address is already associated with an existing user.'); }
     }
@@ -266,13 +281,16 @@ export class UsersController {
       );
     }
 
-    const betaTester = await this.betaTestersService.findByEmail(userRegisterDto.email);
-    if (!betaTester) {
-      throw new HttpException(
-        'Only beta testers are able to register at this time, sorry!',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    // We're no longer restricting login to beta testers, so this code is commented out.
+    // TODO: We can probably remove this, but I'm keeping it here for a little while longer
+    // in case we need to bring it back for any reason.
+    // const betaTester = await this.betaTestersService.findByEmail(userRegisterDto.email);
+    // if (!betaTester) {
+    //   throw new HttpException(
+    //     'Only people who requested an invitation are able to register during the sneak preview.',
+    //     HttpStatus.BAD_REQUEST,
+    //   );
+    // }
 
     if (!await this.usersService.userNameAvailable(userRegisterDto.userName)) {
       throw new HttpException(
@@ -355,6 +373,15 @@ export class UsersController {
           status: ActiveStatus.Active,
           verification_token: null,
         });
+
+        const userConversationData = await this.chatService.sendPrivateDirectMessage(
+          this.config.get<string>('WELCOME_MESSAGE_SENDER_USER_ID'),
+          user.id,
+          WELCOME_MSG,
+        );
+
+        await this.usersService.addAndUpdateNewConversationId(user.id, userConversationData.matchId.toString());
+
         const autoFollowRssFeedProviders = await this.rssFeedProvidersService.findAllAutoFollowRssFeedProviders();
         autoFollowRssFeedProviders.forEach((rssFeedProvider) => {
           this.rssFeedProviderFollowsService.create({
@@ -431,7 +458,7 @@ export class UsersController {
     const user: UserDocument = getUserFromRequest(request);
     // Note: Below, we retrieve more conversations than we need because deleted conversations are
     // currently retrieved by this method, so we
-    const recentMessages: any = (await this.chatService.getConversations(user.id, 10)).slice(0, 3);
+    const recentMessages: any = (await this.chatService.getUnreadConversations(user.id)).slice(0, 3);
     const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user.id, 3);
     const unreadNotificationCount = await this.notificationsService.getUnreadNotificationCount(user.id);
     return {
@@ -970,6 +997,23 @@ export class UsersController {
     return movies.map(
       (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating']),
     );
+  }
+
+  @Post('update-device-token')
+  async updateDeviceToken(
+    @Req() request: Request,
+    @Body() updateDeviceTokenDto: UpdateDeviceTokenDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const updatedDeviceToken = await this.usersService.findOneAndUpdateDeviceToken(
+      user.id,
+      updateDeviceTokenDto.device_id,
+      updateDeviceTokenDto.device_token,
+    );
+    if (!updatedDeviceToken) {
+      throw new HttpException('Device id not found', HttpStatus.BAD_REQUEST);
+    }
+    return { success: true };
   }
 
   @Get(':userId/hashtag-follows')

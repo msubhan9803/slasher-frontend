@@ -1,3 +1,4 @@
+/* eslint-disable jest/no-commented-out-tests */
 /* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
@@ -78,6 +79,17 @@ describe('Users / Register (e2e)', () => {
         const response = await request(app.getHttpServer())
           .get('/api/v1/users/validate-registration-fields')
           .query(postBody);
+        expect(response.body).toHaveLength(0);
+      });
+
+      // TODO: Remove this check once the beta period is over
+      it('can successfully allow an approved beta tester with case-insensitive beta tester email check', async () => {
+        const response = await request(app.getHttpServer())
+          .get('/api/v1/users/validate-registration-fields')
+          .query({
+            ...postBody,
+            email: postBody.email.toUpperCase(),
+          });
         expect(response.body).toHaveLength(0);
       });
     });
@@ -381,6 +393,26 @@ describe('Users / Register (e2e)', () => {
           'Email address is already associated with an existing user.',
         ]);
       });
+
+      // We're no longer restricting login to beta testers, so this code is commented out.
+      // TODO: We can probably remove this, but I'm keeping it here for a little while longer
+      // in case we need to bring it back for any reason.
+      // it.skip('returns an error when email is not on the beta tester list', async () => {
+      //   let response = await request(app.getHttpServer())
+      //     .post('/api/v1/users/register')
+      //     .send(postBody);
+      //   expect(response.status).toEqual(HttpStatus.CREATED);
+
+      //   postBody.userName = `Different${postBody.userName}`;
+      //   postBody.email = `not-a-beta-tester-${postBody.email}`;
+      //   response = await request(app.getHttpServer())
+      //     .get('/api/v1/users/validate-registration-fields')
+      //     .query(postBody);
+      //   expect(response.status).toEqual(HttpStatus.OK);
+      //   expect(response.body).toEqual([
+      //     'Only people who requested an invitation are able to register during the sneak preview.',
+      //   ]);
+      // });
 
       it('returns an error when userName is on the list of disallowed usernames', async () => {
         await disallowedUsernameService.create({

@@ -208,7 +208,7 @@ export class User extends UserUnusedFields {
       return a.login_date.getTime() - b.login_date.getTime();
     }); // sort devices by ascending login_date
 
-    if (newDeviceEntries.length >= 10) {
+    if (newDeviceEntries.length >= 30) {
       newDeviceEntries.shift(); // remove earliest login_date item
     }
 

@@ -13,6 +13,11 @@ class EnvironmentVariables {
   CRON_ENABLED: boolean;
 
   @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => value === 'true')
+  SEND_PUSH_NOTIFICATION: boolean;
+
+  @IsOptional()
   @IsNumber()
   @Transform(({ value }) => parseInt(value, 10))
   REQUEST_TIMEOUT: number;

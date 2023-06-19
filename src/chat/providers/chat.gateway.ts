@@ -8,13 +8,15 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { ConfigService } from '@nestjs/config';
+import { InjectModel } from '@nestjs/mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Server, Socket } from 'socket.io';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
 import { SHARED_GATEWAY_OPTS, UNREAD_MESSAGE_NOTIFICATION_DELAY } from '../../constants';
 import { UsersService } from '../../users/providers/users.service';
 import { ChatService } from './chat.service';
-import { Message } from '../../schemas/message/message.schema';
+import { Message, MessageDocument } from '../../schemas/message/message.schema';
 import { pick } from '../../utils/object-utils';
 import { FriendsService } from '../../friends/providers/friends.service';
 import { relativeToFullImagePath } from '../../utils/image-utils';
@@ -23,6 +25,7 @@ import { relativeToFullImagePath } from '../../utils/image-utils';
 export class ChatGateway {
   constructor(
     @InjectQueue('message-count-update') private messageCountUpdateQueue: Queue,
+    @InjectModel(Message.name) private messageModel: Model<MessageDocument>,
     private readonly usersService: UsersService,
     private readonly chatService: ChatService,
     private readonly friendsService: FriendsService,
@@ -80,9 +83,19 @@ export class ChatGateway {
       },
     };
 
+    const unreadMsgCount = await this.getUnreadMessageCount(messageObject.fromId.toString(), messageObject.matchId.toString());
+    Object.assign(messageObject, {
+      unreadMsgCount,
+      fromUser: {
+        _id: user.id,
+        userName: user.userName,
+        profilePic: relativeToFullImagePath(this.config, user.profilePic),
+      },
+    });
+
     targetUserSocketIds.forEach((socketId) => {
       client.to(socketId).emit('chatMessageReceived', {
-        message: pick(messageObject, ['_id', 'image', 'urls', 'message', 'fromId', 'matchId', 'createdAt']),
+        message: pick(messageObject, ['_id', 'image', 'urls', 'message', 'fromId', 'matchId', 'createdAt', 'unreadMsgCount', 'fromUser']),
       });
       // TODO: Remove messageV2, and messageV3 lines below as soon as the old Android and iOS apps
       // are retired.  These lines are only here for temporary compatibility.
@@ -200,10 +213,16 @@ export class ChatGateway {
         },
       };
 
-      // Emit message to receiver
+      const unreadMsgCount = await this.getUnreadMessageCount(messageObject.fromId.toString(), messageObject.matchId.toString());
+      cloneMessage.unreadMsgCount = unreadMsgCount;
+      cloneMessage.fromUser = {
+        _id: fromUser.id,
+        userName: fromUser.userName,
+        profilePic: relativeToFullImagePath(this.config, fromUser.profilePic),
+      };
       targetUserSocketIds.forEach((socketId) => {
         this.server.to(socketId).emit('chatMessageReceived', {
-          message: pick(cloneMessage, ['_id', 'image', 'urls', 'message', 'fromId', 'matchId', 'createdAt']),
+          message: pick(cloneMessage, ['_id', 'image', 'urls', 'message', 'fromId', 'matchId', 'createdAt', 'unreadMsgCount', 'fromUser']),
         });
         // TODO: Remove messageV2, and messageV3 lines below as soon as the old Android and iOS apps
         // are retired.  These lines are only here for temporary compatibility.
@@ -225,5 +244,17 @@ export class ChatGateway {
     const userId = user._id.toString();
     const clearNewConversationIds = await this.usersService.clearConverstionIds(userId);
     return { newConversationIds: clearNewConversationIds.newConversationIds };
+  }
+
+  async getUnreadMessageCount(fromId: string, matchId: string) {
+    const unreadCount = await this.messageModel
+      .countDocuments({
+        // deleted: false,
+        isRead: false,
+        fromId: new mongoose.Types.ObjectId(fromId),
+        matchId: new mongoose.Types.ObjectId(matchId),
+      })
+      .exec();
+    return unreadCount;
   }
 }

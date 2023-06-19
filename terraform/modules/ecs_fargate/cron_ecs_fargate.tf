@@ -144,6 +144,10 @@ resource "aws_ecs_task_definition" "slasher-cron-task-defination" {
       {
         "name" : "REDIS_PORT",
         "valueFrom" : "/ECS-CLUSTER/slasher-${terraform.workspace}/REDIS_PORT"
+      },
+      {
+        "name" : "FIREBASE_SERVER_KEY",
+        "valueFrom" : "/ECS-CLUSTER/slasher-${terraform.workspace}/FIREBASE_SERVER_KEY"
       }
     ],
     "essential": true,

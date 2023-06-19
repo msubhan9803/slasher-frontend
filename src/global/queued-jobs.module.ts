@@ -1,9 +1,11 @@
 import { Global, Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
 import { ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
 import { MessageCountUpdateConsumer } from '../jobs/consumers/message-count-update.consumer';
 import { ChatModule } from '../chat/chat.module';
 import { ChatGateway } from '../chat/providers/chat.gateway';
+import { Message, MessageSchema } from '../schemas/message/message.schema';
 
 @Global()
 @Module({
@@ -21,6 +23,7 @@ import { ChatGateway } from '../chat/providers/chat.gateway';
       name: 'message-count-update',
     }),
     ChatModule,
+    MongooseModule.forFeature([{ name: Message.name, schema: MessageSchema }]),
   ],
   providers: [MessageCountUpdateConsumer, ChatGateway],
   exports: [BullModule, ChatGateway],

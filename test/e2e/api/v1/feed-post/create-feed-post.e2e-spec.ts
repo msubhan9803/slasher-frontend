@@ -25,6 +25,8 @@ import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums'
 import { FeedPostsService } from '../../../../../src/feed-posts/providers/feed-posts.service';
 import { MovieUserStatusService } from '../../../../../src/movie-user-status/providers/movie-user-status.service';
 import { WorthWatchingStatus } from '../../../../../src/types';
+import { UserSettingsService } from '../../../../../src/settings/providers/user-settings.service';
+import { userSettingFactory } from '../../../../factories/user-setting.factory';
 
 describe('Feed-Post / Post File (e2e)', () => {
   let app: INestApplication;
@@ -37,6 +39,7 @@ describe('Feed-Post / Post File (e2e)', () => {
   let hashtagModel: Model<HashtagDocument>;
   let feedPostsService: FeedPostsService;
   let movieUserStatusService: MovieUserStatusService;
+  let userSettingsService: UserSettingsService;
 
   beforeAll(async () => {
     //set max listeners value 12 because it required 12 images in 'only allows a maximum of 10 images'
@@ -45,7 +48,7 @@ describe('Feed-Post / Post File (e2e)', () => {
       imports: [AppModule],
     }).compile();
     connection = moduleRef.get<Connection>(getConnectionToken());
-
+    userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     usersService = moduleRef.get<UsersService>(UsersService);
     moviesService = moduleRef.get<MoviesService>(MoviesService);
     configService = moduleRef.get<ConfigService>(ConfigService);
@@ -681,7 +684,20 @@ describe('Feed-Post / Post File (e2e)', () => {
       it('when notification is create for createFeedPost than check newNotificationCount is increment in user', async () => {
         const otherUser1 = await usersService.create(userFactory.build({ userName: 'Denial' }));
         const otherUser2 = await usersService.create(userFactory.build({ userName: 'Devine' }));
-
+        await userSettingsService.create(
+          userSettingFactory.build(
+            {
+              userId: otherUser1._id,
+            },
+          ),
+        );
+        await userSettingsService.create(
+          userSettingFactory.build(
+            {
+              userId: otherUser2._id,
+            },
+          ),
+        );
         await createTempFiles(async (tempPaths) => {
           await request(app.getHttpServer())
             .post('/api/v1/feed-posts')

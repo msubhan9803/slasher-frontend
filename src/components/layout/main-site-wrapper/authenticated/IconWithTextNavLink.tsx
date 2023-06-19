@@ -3,6 +3,7 @@ import { IconDefinition, SizeProp } from '@fortawesome/fontawesome-svg-core';
 import { Link, useLocation } from 'react-router-dom';
 import IconWithTextNavItemInnerElement from './IconWithTextNavItemInnerElement';
 import { deletePageStateCache } from '../../../../pageStateCache';
+import { scrollToTop } from '../../../../utils/scrollFunctions';
 
 interface Props {
   label: string;
@@ -39,6 +40,7 @@ function IconWithTextNavLink({
   }, []);
   const handleRefresh = () => {
     deletePageStateCache(to);
+    scrollToTop('instant');
   };
   return (
     <Link to={to} onClick={handleRefresh} ref={linkRef} className={`text-decoration-none pb-1 mb-1 ${className}`}>

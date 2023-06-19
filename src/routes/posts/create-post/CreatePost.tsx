@@ -13,20 +13,15 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/la
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import CreatePostComponent from '../../../components/ui/CreatePostComponent';
-import { ContentDescription, PostType } from '../../../types';
+import { ContentDescription, FormatMentionProps, PostType } from '../../../types';
 import useProgressButton from '../../../components/ui/ProgressButton';
 import { sleep } from '../../../utils/timer-utils';
-import { allAtMentionsRegex } from '../../../utils/text-utils';
+import { atMentionsGlobalRegex, generateMentionReplacementMatchFunc } from '../../../utils/text-utils';
 
 export interface MentionProps {
   id: string;
   userName: string;
   profilePic: string;
-}
-export interface FormatMentionProps {
-  id: string;
-  value: string;
-  format: string;
 }
 
 function CreatePost() {
@@ -48,25 +43,12 @@ function CreatePost() {
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const paramsMovieId = searchParams.get('movieId');
 
-  const mentionReplacementMatchFunc = (match: string) => {
-    if (match) {
-      const finalString: any = formatMention.find(
-        (matchMention: FormatMentionProps) => match.includes(matchMention.value),
-      );
-      if (finalString) {
-        return finalString.format;
-      }
-      return match;
-    }
-    return undefined;
-  };
-
   const addPost = async () => {
     /* eslint no-useless-escape: 0 */
     setProgressButtonStatus('loading');
     const postContentWithMentionReplacements = (postContent.replace(
-      allAtMentionsRegex,
-      mentionReplacementMatchFunc,
+      atMentionsGlobalRegex,
+      generateMentionReplacementMatchFunc(formatMention),
     ));
     if (paramsType === 'group-post') {
       const groupPostData = {
@@ -135,7 +117,7 @@ function CreatePost() {
           <CreatePostComponent
             setPostMessageContent={setPostContent}
             errorMessage={errorMessage}
-            createUpdatePost={addPost}
+            createUpdatePost={addPost as any}
             imageArray={imageArray}
             setImageArray={setImageArray}
             defaultValue={postContent}

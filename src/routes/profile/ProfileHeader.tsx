@@ -13,7 +13,7 @@ import defaultCoverImage from '../../images/default-cover-image.jpg';
 import CustomPopover, { PopoverClickProps } from '../../components/ui/CustomPopover';
 import UserCircleImage from '../../components/ui/UserCircleImage';
 import ReportModal from '../../components/ui/ReportModal';
-import { User, FriendRequestReaction } from '../../types';
+import { User, FriendRequestReaction, FriendType } from '../../types';
 import { friendship } from '../../api/friends';
 import { createBlockUser } from '../../api/blocks';
 import { reportData } from '../../api/report';
@@ -55,7 +55,7 @@ const StyledPopoverContainer = styled.div`
   top: 70px;
   right: 10px;
 `;
-type FriendType = { from: string, to: string, reaction: FriendRequestReaction } | null;
+// type FriendType = { from: string, to: string, reaction: FriendRequestReaction } | null;
 
 function ProfileHeader({
   tabKey, user, showTabs,

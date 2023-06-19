@@ -505,6 +505,7 @@ function PostCommentSection({
         replyDescriptionArray={replyDescriptionArray}
         setReplyDescriptionArray={setReplyDescriptionArray}
         isMainPostCommentClick={isMainPostCommentClick}
+        selectedReplyUserId={selectedReplyUserID}
       />
       {
         !isEdit && commentReplyError

@@ -6,7 +6,7 @@ import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import BorderButton from '../../components/ui/BorderButton';
 import CustomSearchInput from '../../components/ui/CustomSearchInput';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
-import { enableDevFeatures } from '../../utils/configEnvironment';
+import { enableDevFeatures } from '../../constants';
 import { StyledHastagsCircle } from './component/Hashtags';
 import CustomPopover from '../../components/ui/CustomPopover';
 import ReportModal from '../../components/ui/ReportModal';

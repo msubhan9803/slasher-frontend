@@ -1,4 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import {
   Navigate, Route, Routes, useLocation, useNavigate, useParams,
 } from 'react-router-dom';
@@ -59,6 +61,7 @@ function Profile() {
   const loginUserData = useAppSelector((state) => state.user.user);
   const isSelfProfile = loginUserData.id === user?._id;
   const bp = useBootstrapBreakpointName();
+  const lastLocationKeyRef = useRef(location.key);
 
   /**
    * 1. This function fetch userInfo from api and set in component state.
@@ -85,6 +88,14 @@ function Profile() {
         if (e.response.status === 403) { setUserIsBlocked(true); } else { setUserNotFound(true); }
       });
   }, [location.pathname, location.search, navigate, userNameOrId]);
+
+  useEffect(() => {
+    const isSameKey = lastLocationKeyRef.current === location.key;
+    if (isSameKey) { return; }
+    loadUser();
+    // Update lastLocation
+    lastLocationKeyRef.current = location.key;
+  }, [loadUser, location.key]);
 
   useEffect(() => {
     if (!userNameOrId) { return; }

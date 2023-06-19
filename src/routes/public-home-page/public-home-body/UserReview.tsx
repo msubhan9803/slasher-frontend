@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Card, Col } from 'react-bootstrap';
+import { Card, Col, Container } from 'react-bootstrap';
 import styled from 'styled-components';
 import { StyledCast } from '../../movies/movie-details/MovieCasts';
 import useResize from '../../../hooks/useResize';
@@ -128,7 +128,7 @@ function UserReview() {
   }
   return (
     <StyledSlider className="mt-5 pt-4">
-      <div className="px-3 px-lg-5">
+      <Container>
 
         <div className="mb-4 text-center">
           <h1 className="h1 fw-bold">
@@ -163,8 +163,7 @@ function UserReview() {
             ))}
           </StyledCast>
         </div>
-
-      </div>
+      </Container>
     </StyledSlider>
   );
 }

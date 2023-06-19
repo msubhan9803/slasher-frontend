@@ -3,6 +3,7 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Card } from 'react-bootstrap';
 import styled from 'styled-components';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
 import LikeIconButton from './LikeIconButton';
 import { WorthWatchingStatus } from '../../../types';
 
@@ -52,7 +53,7 @@ function PosterCard({
   return (
     <PosterCardStyle className="bg-transparent border-0">
       <div className="poster">
-        <Card.Img variant="top" src={poster} alt={`${name} poster`} className="w-100 h-100 rounded-4" />
+        <LazyLoadImage src={poster} alt={`${name} poster`} className="w-100 h-100 rounded-4" />
       </div>
       {rating !== 0 && (
         <RatingDiv className="d-flex justify-content-end me-2">

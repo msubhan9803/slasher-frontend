@@ -1,31 +1,15 @@
 import React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Col, Image, Row,
+  Col, Container, Row,
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import {
-  faFacebookF, faTwitter, faYoutube, faInstagram,
-} from '@fortawesome/free-brands-svg-icons';
 import slasherLogo from '../../../images/slasher-logo-medium.png';
 import HeaderLogo from '../../../components/ui/HeaderLogo';
-import AppStoreImage from '../../../images/app-store-badge.png';
-import PlayStoreImage from '../../../images/google-play-badge.png';
 import {
-  APP_STORE_DOWNLOAD_URL, GOOGLE_PLAY_DOWNLOAD_URL, MD_MEDIA_BREAKPOINT, WORDPRESS_SITE_URL,
+  MD_MEDIA_BREAKPOINT, WORDPRESS_SITE_URL,
 } from '../../../constants';
-
-export const socialMediaSites = [
-  { icon: faFacebookF, to: 'https://www.facebook.com/TheSlasherApp', bgColor: '#3b5998' },
-  { icon: faTwitter, to: 'https://twitter.com/theslasherapp', bgColor: '#1da1f2' },
-  { icon: faYoutube, to: 'https://www.youtube.com/channel/UCUcGxsG2u55zlVoe_s8TjcA', bgColor: '#CD201F' },
-  { icon: faInstagram, to: 'https://www.instagram.com/theslasherapp/', bgColor: '#AF1C9D' },
-];
-
-interface SocialMediaIcon {
-  bgcolor?: string;
-}
+import { socialMediaIcons } from '../../../utils/socialMediaIcons';
 
 const StyledFooter = styled.footer`
   .nav-link {
@@ -65,15 +49,6 @@ const StyledFooter = styled.footer`
   }
 `;
 
-export const StyledMediaIcon = styled.div <SocialMediaIcon>`
-  width: 30px;
-  height: 30px;
-  &:hover {
-    background-color: ${(prop) => prop.bgcolor} !important;
-    color: var(--bs-body-color) !important;
-  }
-`;
-
 const footerNavList = [
   { value: '', label: 'HOME' },
   { value: 'shop', label: 'SHOP' },
@@ -86,18 +61,16 @@ const footerNavList = [
 function PublicHomeFooter() {
   return (
     <StyledFooter>
-      <div className="w-100 bottom-0">
+      <Container>
         <Row className="m-0 align-items-start justify-content-between pt-4 pb-2">
           <Col md={3} className="p-2 text-center text-md-start">
             <Link to="/" className="mb-3">
               <HeaderLogo logo={slasherLogo} height="8.6rem" style={{ marginTop: 25 }} />
             </Link>
-            <div style={{ marginTop: 10, marginLeft: -4 }} className="align-items-center d-flex mb-3 justify-content-center justify-content-md-start">
-              {socialMediaSites.map((site: any) => (
-                <a href={site.to} key={site.icon}>
-                  <StyledMediaIcon bgcolor={site.bgColor} style={{ margin: 6 }} className="align-items-center bg-white d-flex justify-content-center rounded-circle text-black">
-                    <FontAwesomeIcon icon={site.icon} className="" />
-                  </StyledMediaIcon>
+            <div className="d-flex mt-4 mb-3">
+              {socialMediaIcons.map((icon: any) => (
+                <a key={icon.to} className="social-network-icon-group-link rounded-circle d-flex align-items-center justify-content-center rounded-circle" href={icon.to}>
+                  <img src={icon.svg} alt={icon.label} />
                 </a>
               ))}
             </div>
@@ -119,22 +92,9 @@ function PublicHomeFooter() {
               </a>
             ))}
           </Col>
-          <Col md={4} className="p-2 pt-md-0" style={{ marginTop: 32 }}>
-            <Row className="store__links__container g-0 justify-content-end align-items-center">
-              <Col>
-                <a href={APP_STORE_DOWNLOAD_URL} target="_blank" className="p-0 h-100 d-block w-100" rel="noreferrer">
-                  <Image fluid style={{ border: '3px solid gray' }} src={AppStoreImage} alt="app store" className="rounded-4 w-100 ios-badge" />
-                </a>
-              </Col>
-              <Col>
-                <a href={GOOGLE_PLAY_DOWNLOAD_URL} target="_blank" className="p-0 h-100 d-block w-100" rel="noreferrer">
-                  <Image fluid style={{ border: '3px solid gray' }} src={PlayStoreImage} alt="play store" className="rounded-4 w-100 h-100" />
-                </a>
-              </Col>
-            </Row>
-          </Col>
+          <Col md={4} className="p-2 pt-md-0" style={{ marginTop: 32 }} />
         </Row>
-      </div>
+      </Container>
     </StyledFooter>
   );
 }

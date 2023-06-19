@@ -2,9 +2,10 @@ import React, {
   useState, useEffect,
 } from 'react';
 import { Modal } from 'react-bootstrap';
-import { FormatMentionProps } from '../../routes/posts/create-post/CreatePost';
-import { CommentValue, ContentDescription, ReplyValue } from '../../types';
-import { allAtMentionsRegex, decryptMessage } from '../../utils/text-utils';
+import {
+  CommentValue, ContentDescription, FormatMentionProps, ReplyValue,
+} from '../../types';
+import { atMentionsGlobalRegex, decryptMessage, generateMentionReplacementMatchFunc } from '../../utils/text-utils';
 import CreatePostComponent from './CreatePostComponent';
 import ModalContainer from './CustomModal';
 import { ProgressButtonComponentType } from './ProgressButton';
@@ -80,22 +81,10 @@ function EditCommentModal({
       });
     }
   };
-  const mentionReplacementMatchFunc = (match: string) => {
-    if (match) {
-      const finalString: any = formatMention.find(
-        (matchMention: FormatMentionProps) => match.includes(matchMention.value),
-      );
-      if (finalString) {
-        return finalString.format;
-      }
-      return match;
-    }
-    return undefined;
-  };
   const handlePostComment = () => {
     const postContentWithMentionReplacements = (editMessage!.replace(
-      allAtMentionsRegex,
-      mentionReplacementMatchFunc,
+      atMentionsGlobalRegex,
+      generateMentionReplacementMatchFunc(formatMention),
     ));
     const files = postImages.filter((images: any) => images instanceof File);
     onUpdatePost(postContentWithMentionReplacements, files, deleteImageIds);

@@ -1,3 +1,4 @@
+@use "sass:map";
 @import './bootstrap-variables.scss';
 @import "~bootstrap/scss/bootstrap";
 
@@ -55,11 +56,11 @@ html {
 
 body {
   &::-webkit-scrollbar {
-    width: 10px;
     /* Mostly for vertical scrollbars */
-    height: 10px;
+    width: 10px;
     /* Mostly for horizontal scrollbars */
-}
+    height: 10px;
+  }
   --safe-area-inset-top: constant(safe-area-inset-top);
   --safe-area-inset-bottom: constant(safe-area-inset-bottom);
   height: calc(100% + (var(--safe-area-inset-top) + var(--safe-area-inset-bottom)));
@@ -363,3 +364,5 @@ textarea {
 body.modal-open {
   overflow: visible !important;
 }
+
+@import "./_public_header_and_footer";

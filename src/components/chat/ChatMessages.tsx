@@ -1,11 +1,10 @@
 import { DateTime } from 'luxon';
 import React from 'react';
 import styled from 'styled-components';
-import { enableDevFeatures } from '../../utils/configEnvironment';
 import ChatMessageText from './ChatMessageText';
 import ChatTimestamp from './ChatTimestamp';
 import { Message } from '../../types';
-import { DEFAULT_USER_UPLOADED_CONTENT_ALT_TEXT } from '../../constants';
+import { DEFAULT_USER_UPLOADED_CONTENT_ALT_TEXT, enableDevFeatures } from '../../constants';
 import ZoomableImage from '../ui/ZoomableImage';
 
 interface Props {

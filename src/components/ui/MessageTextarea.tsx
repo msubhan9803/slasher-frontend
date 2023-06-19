@@ -243,7 +243,7 @@ function MessageTextarea({
 
       <StyledShadowWrapper isMentionsFocused={isMentionsFocused} iscommentinput={isCommentInput!}>
         <StyledMention
-        prefix={isCommentInput ? ['@'] : ['@', '#']}
+          prefix={isCommentInput ? ['@'] : ['@', '#']}
           ref={textareaRef}
           iscommentinput={isCommentInput!}
           id={id}
@@ -262,28 +262,28 @@ function MessageTextarea({
         >
           {mentionLists
           && mentionLists.map((mentionList: MentionListProps) => (
-              <Option
+            <Option
               value={mentionList.userName || mentionList.name}
               key={mentionList.id || mentionList._id}
               style={{ zIndex: '100' }}
             >
-                <div ref={optionRef} className="list--hover soft-half cursor-pointer">
-                  <div>
+              <div ref={optionRef} className="list--hover soft-half cursor-pointer">
+                <div>
                   {mentionList.userName && (
-                      <UserCircleImage
+                    <UserCircleImage
                       size="2rem"
                       src={mentionList?.profilePic}
                       className="ms-0 me-3 bg-secondary"
                     />
                   )}
-                    <span>
-                      {mentionList.name ? ' #' : ' @'}
-                      {mentionList.userName || mentionList.name}
-                    </span>
-                  </div>
+                  <span>
+                    {mentionList.name ? ' #' : ' @'}
+                    {mentionList.userName || mentionList.name}
+                  </span>
                 </div>
-              </Option>
-            ))}
+              </div>
+            </Option>
+          ))}
         </StyledMention>
 
         <StyledEmojiButton iscommentinput={isCommentInput!}>

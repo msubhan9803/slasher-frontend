@@ -199,6 +199,7 @@ function MovieReviews({
             goreFactorRating: goreFactor + 1,
             worthWatching: isWorthIt,
           },
+          isUpdated: true,
         });
         callLatestFeedPost();
         setErrorMessage([]);
@@ -233,6 +234,7 @@ function MovieReviews({
             goreFactorRating: goreFactor + 1,
             worthWatching: isWorthIt,
           },
+          isUpdated: true,
         });
         callLatestFeedPost();
         setErrorMessage([]);

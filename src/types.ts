@@ -315,7 +315,9 @@ export interface MovieData {
     goreFactorRating: number;
     worthWatching: number;
     reviewPostId: string;
-  }
+  },
+  // to check movieData state update
+  isUpdated?: boolean
 }
 export type LocationPointType = {
   type: 'Point',

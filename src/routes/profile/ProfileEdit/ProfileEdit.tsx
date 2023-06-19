@@ -21,7 +21,7 @@ import NotFound from '../../../components/NotFound';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import useProgressButton from '../../../components/ui/ProgressButton';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import { updateUserProfilePic } from '../../../redux/slices/userSlice';
+import { updateUserProfilePic, updateUserUserName } from '../../../redux/slices/userSlice';
 
 interface Props {
   user: User
@@ -117,7 +117,9 @@ function ProfileEdit({ user }: Props) {
 
     if (updateResponse && errorList.length === 0) {
       // Update was successful
-
+      dispatch(
+        updateUserUserName(userDataInForm.userName),
+      );
       updateUserNameCookie(userDataInForm.userName).finally(() => {
         handleChange(updateResponse.data.unverifiedNewEmail || updateResponse.data.email, 'email');
         handleChange(updateResponse.data.unverifiedNewEmail, 'unverifiedNewEmail');

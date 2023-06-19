@@ -34,6 +34,10 @@ export const userSlice = createSlice({
       state.user.profilePic = action.payload;
     },
     /* eslint-disable no-param-reassign */
+    updateUserUserName: (state, action) => {
+      state.user.userName = action.payload;
+    },
+    /* eslint-disable no-param-reassign */
     updateRecentMessage: (state, action: any) => {
       const newMessageObj = {
         _id: action.payload.message.matchId,
@@ -141,6 +145,7 @@ export const {
   resetNewFriendRequestCountCount,
   handleUpdatedUnreadConversationCount,
   updateUserProfilePic,
+  updateUserUserName,
   setUserRecentFriendRequests,
   setFriendListReload,
   appendToPathnameHistory,

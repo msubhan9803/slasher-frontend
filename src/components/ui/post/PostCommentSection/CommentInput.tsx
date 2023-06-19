@@ -11,10 +11,12 @@ import {
 import styled from 'styled-components';
 import UserCircleImage from '../../UserCircleImage';
 import ImagesContainer from '../../ImagesContainer';
-import { allAtMentionsRegex, decryptMessage } from '../../../../utils/text-utils';
+import {
+  atMentionsGlobalRegex, decryptMessage, generateMentionReplacementMatchFunc,
+} from '../../../../utils/text-utils';
 import MessageTextarea from '../../MessageTextarea';
-import { FormatMentionProps } from '../../../../routes/posts/create-post/CreatePost';
 import ErrorMessageList from '../../ErrorMessageList';
+import { FormatMentionProps } from '../../../../types';
 
 interface CommentInputProps {
   userData: any;
@@ -177,22 +179,10 @@ function CommentInput({
     }
   };
 
-  const mentionReplacementMatchFunc = (match: string) => {
-    if (match) {
-      const finalString: any = formatMention.find(
-        (matchMention: FormatMentionProps) => match.includes(matchMention.value),
-      );
-      if (finalString) {
-        return finalString.format;
-      }
-      return match;
-    }
-    return undefined;
-  };
   const handleMessage = () => {
     const postContentWithMentionReplacements = (editMessage!.replace(
-      allAtMentionsRegex,
-      mentionReplacementMatchFunc,
+      atMentionsGlobalRegex,
+      generateMentionReplacementMatchFunc(formatMention),
     ));
     onUpdatePost(postContentWithMentionReplacements);
     setShowPicker(false);
@@ -244,7 +234,7 @@ function CommentInput({
                 <MessageTextarea
                   rows={1}
                   id={checkCommnt}
-                  className="fs-5 form-control p-0 pe-4"
+                  className="fs-5 form-control pe-4"
                   placeholder={isReply ? 'Reply to comment' : 'Write a comment'}
                   isReply={isReply}
                   handleSearch={handleSearch}

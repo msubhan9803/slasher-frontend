@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Col, Row,
+  Col, Container, Row,
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -61,7 +61,7 @@ const footerNavList = [
 function PublicHomeFooter() {
   return (
     <StyledFooter>
-      <div className="w-100 bottom-0">
+      <Container>
         <Row className="m-0 align-items-start justify-content-between pt-4 pb-2">
           <Col md={3} className="p-2 text-center text-md-start">
             <Link to="/" className="mb-3">
@@ -94,7 +94,7 @@ function PublicHomeFooter() {
           </Col>
           <Col md={4} className="p-2 pt-md-0" style={{ marginTop: 32 }} />
         </Row>
-      </div>
+      </Container>
     </StyledFooter>
   );
 }

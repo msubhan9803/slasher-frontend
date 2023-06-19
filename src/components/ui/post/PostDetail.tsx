@@ -21,7 +21,7 @@ import { getSuggestUserName } from '../../../api/users';
 import { useAppSelector } from '../../../redux/hooks';
 import { MentionProps } from '../../../routes/posts/create-post/CreatePost';
 import {
-  CommentValue, ContentDescription, FeedComments, Post, User,
+  CommentValue, ContentDescription, FeedComments, FriendRequestReaction, FriendType, Post, User,
 } from '../../../types';
 import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-utils';
 import { decryptMessage } from '../../../utils/text-utils';
@@ -37,6 +37,8 @@ import { deletedPostsCache } from '../../../pageStateCache';
 import useProgressButton from '../ProgressButton';
 import { sleep } from '../../../utils/timer-utils';
 import { isPostDetailsPage } from '../../../utils/url-utils';
+import { friendship } from '../../../api/friends';
+import FriendshipStatusModal from '../friendShipCheckModal';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -85,6 +87,11 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   const [updateState, setUpdateState] = useState(false);
   const [commentSent, setCommentSent] = useState<boolean>(false);
   const [selectedBlockedUserId, setSelectedBlockedUserId] = useState<string>('');
+  const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
+  const [friendData, setFriendData] = useState<FriendType>(null);
+  const [friendShipStatusModal, setFriendShipStatusModal] = useState<boolean>(false);
+  const [postUserId, setPostUserId] = useState<string>('');
+
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const location = useLocation();
   const abortControllerRef = useRef<AbortController | null>();
@@ -145,6 +152,23 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     );
   }, [commentData, postId]);
 
+  const checkFriendShipStatus = () => new Promise<void>((resolve, reject) => {
+    if (postType === 'news' || postType === 'review' || userData.user.id === postData[0].userId) {
+      resolve();
+    } else {
+      friendship(postData[0].userId!).then((res) => {
+        if (res.data.reaction === FriendRequestReaction.Accepted) {
+          resolve();
+        } else {
+          setPostUserId(postData[0].userId!);
+          setFriendShipStatusModal(true);
+          setFriendData(res.data);
+          setFriendStatus(res.data.reaction);
+        }
+      }).catch(() => reject());
+    }
+  });
+
   useEffect(() => {
     if (requestAdditionalPosts && !loadingComments && (commentData.length || !queryCommentId)) {
       setLoadingComments(true);
@@ -161,21 +185,22 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     });
   };
 
-  const addUpdateComment = (comment: CommentValue) => {
+  const addUpdateComment = async (comment: CommentValue) => {
     if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    } else {
-      const controller = new AbortController();
-      abortControllerRef.current = controller;
-      setCommentSent(true);
-      let commentValueData: any = {
-        feedPostId: '',
-        images: [],
-        message: '',
-        userId: { ...userData.user, _id: userData.user.id },
-        replies: [],
-        createdAt: new Date().toISOString(),
-      };
+      return;
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    setCommentSent(true);
+    let commentValueData: any = {
+      feedPostId: '',
+      images: [],
+      message: '',
+      userId: { ...userData.user, _id: userData.user.id },
+      replies: [],
+      createdAt: new Date().toISOString(),
+    };
+    await checkFriendShipStatus().then(() => {
       if (comment?.commentId) {
         updateFeedComments(
           postId!,
@@ -263,27 +288,27 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             abortControllerRef.current = null;
           });
       }
-    }
+    }).catch(() => { });
   };
-
-  const addUpdateReply = (reply: any) => {
+  const addUpdateReply = async (reply: any) => {
     if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    } else {
-      const controller = new AbortController();
-      abortControllerRef.current = controller;
-      setCommentSent(true);
-      let replyValueData: any = {
-        feedPostId: '',
-        feedCommentId: '',
-        images: [],
-        message: '',
-        userId: { ...userData.user, _id: userData.user.id },
-        deleteImage: [],
-        likeCount: 0,
-        createdAt: new Date().toISOString(),
-      };
+      return;
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    setCommentSent(true);
+    let replyValueData: any = {
+      feedPostId: '',
+      feedCommentId: '',
+      images: [],
+      message: '',
+      userId: { ...userData.user, _id: userData.user.id },
+      deleteImage: [],
+      likeCount: 0,
+      createdAt: new Date().toISOString(),
+    };
 
+    await checkFriendShipStatus().then(() => {
       if (reply.replyId) {
         updateFeedCommentReply(
           postId!,
@@ -372,7 +397,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             abortControllerRef.current = null;
           });
       }
-    }
+    }).catch(() => { });
   };
 
   const removeComment = () => {
@@ -536,137 +561,142 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     }
   };
 
-  const onPostLikeClick = (feedPostId: string) => {
+  const onPostLikeClick = async (feedPostId: string) => {
     const checkLike = postData.some((post) => post.id === feedPostId
       && post.likedByUser);
 
-    if (checkLike) {
-      unlikeFeedPost(feedPostId).then((res) => {
-        if (res.status === 200) {
-          const unLikePostData = postData.map(
-            (unLikePost: any) => { // NewsPartnerPostProps || Post type check
-              if (unLikePost._id === feedPostId) {
+    await checkFriendShipStatus().then(() => {
+      if (checkLike) {
+        unlikeFeedPost(feedPostId).then((res) => {
+          if (res.status === 200) {
+            const unLikePostData = postData.map(
+              (unLikePost: any) => { // NewsPartnerPostProps || Post type check
+                if (unLikePost._id === feedPostId) {
+                  return {
+                    ...unLikePost,
+                    likeIcon: false,
+                    likedByUser: false,
+                    likeCount: unLikePost.likeCount - 1,
+                  };
+                }
+                return unLikePost;
+              },
+            );
+            setPostData(unLikePostData);
+          }
+        });
+      } else {
+        likeFeedPost(feedPostId).then((res) => {
+          if (res.status === 201) {
+            const likePostData = postData.map((likePost: Post) => {
+              if (likePost._id === feedPostId) {
                 return {
-                  ...unLikePost,
-                  likeIcon: false,
-                  likedByUser: false,
-                  likeCount: unLikePost.likeCount - 1,
+                  ...likePost,
+                  likeIcon: true,
+                  likedByUser: true,
+                  likeCount: likePost.likeCount + 1,
                 };
               }
-              return unLikePost;
-            },
-          );
-          setPostData(unLikePostData);
-        }
-      });
-    } else {
-      likeFeedPost(feedPostId).then((res) => {
-        if (res.status === 201) {
-          const likePostData = postData.map((likePost: Post) => {
-            if (likePost._id === feedPostId) {
-              return {
-                ...likePost,
-                likeIcon: true,
-                likedByUser: true,
-                likeCount: likePost.likeCount + 1,
-              };
-            }
-            return likePost;
-          });
-          setPostData(likePostData);
-        }
-      });
-    }
+              return likePost;
+            });
+            setPostData(likePostData);
+          }
+        });
+      }
+    }).catch(() => { });
   };
 
-  const onCommentLike = (feedCommentId: string) => {
+  const onCommentLike = async (feedCommentId: string) => {
     const checkCommentId = commentData.find((comment: any) => comment._id === feedCommentId);
     const checkReplyId = commentData.map(
       (comment: any) => comment.replies.find((reply: any) => reply._id === feedCommentId),
     ).filter(Boolean);
-    if (feedCommentId === checkCommentId?._id) {
-      const checkCommentLike = checkCommentId?.likedByUser;
 
-      if (checkCommentLike) {
-        unlikeFeedComment(feedCommentId).then((res) => {
-          if (res.status === 200) {
-            const unLikeCommentData = commentData.map(
-              (commentLike: any) => (commentLike === checkCommentId
-                ? { ...commentLike, likedByUser: false, likeCount: commentLike.likeCount - 1 }
-                : commentLike),
-            );
-            setCommentData(unLikeCommentData);
-            setUpdateState(true);
-          }
-        });
-      } else {
-        likeFeedComment(feedCommentId).then((res) => {
-          if (res.status === 201) {
-            const likeCommentData = commentData.map(
-              (commentLike: any) => (commentLike === checkCommentId
-                ? { ...commentLike, likedByUser: true, likeCount: commentLike.likeCount + 1 }
-                : commentLike),
-            );
-            setCommentData(likeCommentData);
-            setUpdateState(true);
-          }
-        });
+    await checkFriendShipStatus().then(() => {
+      if (feedCommentId === checkCommentId?._id) {
+        const checkCommentLike = checkCommentId?.likedByUser;
+
+        if (checkCommentLike) {
+          unlikeFeedComment(feedCommentId).then((res) => {
+            if (res.status === 200) {
+              const unLikeCommentData = commentData.map(
+                (commentLike: any) => (commentLike === checkCommentId
+                  ? { ...commentLike, likedByUser: false, likeCount: commentLike.likeCount - 1 }
+                  : commentLike),
+              );
+              setCommentData(unLikeCommentData);
+              setUpdateState(true);
+            }
+          });
+        } else {
+          likeFeedComment(feedCommentId).then((res) => {
+            if (res.status === 201) {
+              const likeCommentData = commentData.map(
+                (commentLike: any) => (commentLike === checkCommentId
+                  ? { ...commentLike, likedByUser: true, likeCount: commentLike.likeCount + 1 }
+                  : commentLike),
+              );
+              setCommentData(likeCommentData);
+              setUpdateState(true);
+            }
+          });
+        }
       }
-    }
-    if (feedCommentId === checkReplyId[0]?._id) {
-      const checkReplyLike = checkReplyId[0].likedByUser;
-      if (checkReplyLike) {
-        unlikeFeedReply(feedCommentId).then((res) => {
-          if (res.status === 200) {
-            const updatedCommentData: any = [];
-            commentData.map((commentLike: any) => {
-              if (commentLike._id === checkReplyId[0].feedCommentId) {
-                commentLike.replies.map((reply: any) => {
-                  if (reply._id === checkReplyId[0]._id) {
-                    /* eslint-disable no-param-reassign */
-                    reply.likeCount -= 1;
-                    reply.likedByUser = false;
+      if (feedCommentId === checkReplyId[0]?._id) {
+        const checkReplyLike = checkReplyId[0].likedByUser;
+        if (checkReplyLike) {
+          unlikeFeedReply(feedCommentId).then((res) => {
+            if (res.status === 200) {
+              const updatedCommentData: any = [];
+              commentData.map((commentLike: any) => {
+                if (commentLike._id === checkReplyId[0].feedCommentId) {
+                  commentLike.replies.map((reply: any) => {
+                    if (reply._id === checkReplyId[0]._id) {
+                      /* eslint-disable no-param-reassign */
+                      reply.likeCount -= 1;
+                      reply.likedByUser = false;
+                      return reply;
+                    }
                     return reply;
-                  }
-                  return reply;
-                });
-                updatedCommentData.push(commentLike);
-              } else {
-                updatedCommentData.push(commentLike);
-              }
-              return null;
-            });
-            setCommentData(updatedCommentData);
-            setUpdateState(true);
-          }
-        });
-      } else {
-        likeFeedReply(feedCommentId).then((res) => {
-          if (res.status === 201) {
-            const updatedCommentData: any = [];
-            commentData.map((commentLike: any) => {
-              if (commentLike._id === checkReplyId[0].feedCommentId) {
-                commentLike.replies.map((reply: any) => {
-                  if (reply._id === checkReplyId[0]._id) {
-                    /* eslint-disable no-param-reassign */
-                    reply.likeCount += 1;
-                    reply.likedByUser = true;
+                  });
+                  updatedCommentData.push(commentLike);
+                } else {
+                  updatedCommentData.push(commentLike);
+                }
+                return null;
+              });
+              setCommentData(updatedCommentData);
+              setUpdateState(true);
+            }
+          });
+        } else {
+          likeFeedReply(feedCommentId).then((res) => {
+            if (res.status === 201) {
+              const updatedCommentData: any = [];
+              commentData.map((commentLike: any) => {
+                if (commentLike._id === checkReplyId[0].feedCommentId) {
+                  commentLike.replies.map((reply: any) => {
+                    if (reply._id === checkReplyId[0]._id) {
+                      /* eslint-disable no-param-reassign */
+                      reply.likeCount += 1;
+                      reply.likedByUser = true;
+                      return reply;
+                    }
                     return reply;
-                  }
-                  return reply;
-                });
-                updatedCommentData.push(commentLike);
-              } else {
-                updatedCommentData.push(commentLike);
-              }
-              return null;
-            });
-            setCommentData(updatedCommentData);
-            setUpdateState(true);
-          }
-        });
+                  });
+                  updatedCommentData.push(commentLike);
+                } else {
+                  updatedCommentData.push(commentLike);
+                }
+                return null;
+              });
+              setCommentData(updatedCommentData);
+              setUpdateState(true);
+            }
+          });
+        }
       }
-    }
+    });
   };
 
   const onLikeClick = (feedId: string) => {
@@ -852,6 +882,18 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                     ProgressButton={ProgressButton}
                   />
                 )}
+
+              {friendShipStatusModal && (
+                <FriendshipStatusModal
+                  friendShipStatusModal={friendShipStatusModal}
+                  setFriendShipStatusModal={setFriendShipStatusModal}
+                  friendStatus={friendStatus}
+                  setFriendStatus={setFriendStatus}
+                  setFriendData={setFriendData}
+                  friendData={friendData}
+                  userId={postUserId}
+                />
+              )}
             </div>
           </ContentPageWrapper>
         )
@@ -931,6 +973,18 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                   editPost
                 />
               )}
+
+            {friendShipStatusModal && (
+              <FriendshipStatusModal
+                friendShipStatusModal={friendShipStatusModal}
+                setFriendShipStatusModal={setFriendShipStatusModal}
+                friendStatus={friendStatus}
+                setFriendStatus={setFriendStatus}
+                setFriendData={setFriendData}
+                friendData={friendData}
+                userId={postUserId}
+              />
+            )}
           </div>
         )}
 

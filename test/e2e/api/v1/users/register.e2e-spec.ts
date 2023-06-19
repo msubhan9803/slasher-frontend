@@ -1,3 +1,4 @@
+/* eslint-disable jest/no-commented-out-tests */
 /* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
@@ -429,30 +430,33 @@ describe('Users / Register (e2e)', () => {
       });
     });
 
-    describe('A user whose email is not in the BetaTesters collection', () => {
-      it('receives an error message when attempting to register', async () => {
-        jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
-        postBody.email = 'slasherusertest@gmail.com';
-        const response = await request(app.getHttpServer())
-          .post('/api/v1/users/register')
-          .send(postBody)
-          .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body).toEqual({
-          statusCode: 400,
-          message: 'Only people who requested an invitation are able to register during the sneak preview.',
-        });
-      });
+    // We're no longer restricting login to beta testers, so this code is commented out.
+    // TODO: We can probably remove this, but I'm keeping it here for a little while longer
+    // in case we need to bring it back for any reason.
+    // describe('A user whose email is not in the BetaTesters collection', () => {
+    //   it('receives an error message when attempting to register', async () => {
+    //     jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
+    //     postBody.email = 'slasherusertest@gmail.com';
+    //     const response = await request(app.getHttpServer())
+    //       .post('/api/v1/users/register')
+    //       .send(postBody)
+    //       .expect(HttpStatus.BAD_REQUEST);
+    //     expect(response.body).toEqual({
+    //       statusCode: 400,
+    //       message: 'Only people who requested an invitation are able to register during the sneak preview.',
+    //     });
+    //   });
 
-      it('when email is already exists in betatester than expected response', async () => {
-        jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
-        const response = await request(app.getHttpServer())
-          .post('/api/v1/users/register')
-          .send(postBody)
-          .expect(HttpStatus.CREATED);
-        expect(response.body).toEqual({
-          id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-        });
-      });
-    });
+    //   it('when email is already exists in betatester than expected response', async () => {
+    //     jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
+    //     const response = await request(app.getHttpServer())
+    //       .post('/api/v1/users/register')
+    //       .send(postBody)
+    //       .expect(HttpStatus.CREATED);
+    //     expect(response.body).toEqual({
+    //       id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+    //     });
+    //   });
+    // });
   });
 });

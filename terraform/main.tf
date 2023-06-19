@@ -24,4 +24,7 @@ module "ecs_fargate" {
   cron_enabled_cron                 = var.cron_enabled_cron
   AWSRegion                         = var.AWSRegion
   storage_location_generator_prefix = var.storage_location_generator_prefix
+  welcome_message_sender_user_id    = var.welcome_message_sender_user_id
+  send_push_notification            = var.send_push_notification
+  log_level                         = var.log_level
 }

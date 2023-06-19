@@ -37,6 +37,7 @@ import { FeedReply } from '../schemas/feedReply/feedReply.schema';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
 import { UsersService } from '../users/providers/users.service';
+import { PostType } from '../schemas/feedPost/feedPost.enums';
 
 @Controller({ path: 'feed-comments', version: ['1'] })
 export class FeedCommentsController {
@@ -80,13 +81,12 @@ export class FeedCommentsController {
 
     const user = getUserFromRequest(request);
     if (
-      !post.rssfeedProviderId
+      post.postType !== PostType.MovieReview && !post.rssfeedProviderId
       && user.id !== (post.userId as unknown as User)._id.toString()
-      && (post.userId as unknown as User).profile_status !== ProfileVisibility.Public
     ) {
       const areFriends = await this.friendsService.areFriends(user.id, (post.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+        throw new HttpException('You can only interact with posts of friends.', HttpStatus.FORBIDDEN);
       }
     }
 
@@ -304,13 +304,12 @@ export class FeedCommentsController {
     }
 
     if (
-      !feedPost.rssfeedProviderId
+      feedPost.postType !== PostType.MovieReview && !feedPost.rssfeedProviderId
       && user.id !== (feedPost.userId as unknown as User)._id.toString()
-      && (feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public
     ) {
       const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+        throw new HttpException('You can only interact with posts of friends.', HttpStatus.FORBIDDEN);
       }
     }
 
@@ -633,7 +632,7 @@ export class FeedCommentsController {
         senderId: commentCreatorUser._id,
         allUsers: [commentCreatorUser._id as any], // senderId must be in allUsers for old API compatibility
         notifyType: NotificationType.UserCommentedOnYourPost,
-        notificationMsg: 'commented on your post',
+        notificationMsg: post.postType === PostType.MovieReview ? 'commented on your movie review' : 'commented on your post',
       });
     }
 
@@ -691,6 +690,7 @@ export class FeedCommentsController {
       post.rssfeedProviderId // rss feed posts are not created by a real user
       || userIdsToSkip.includes(postCreatorUserId)
     );
+    const commmentOnMovieReview = 'replied to a comment on your movie review';
     if (!skipPostCreatorNotification) {
       userIdsToSkip.push(postCreatorUserId);
       await this.notificationsService.create({
@@ -701,7 +701,7 @@ export class FeedCommentsController {
         senderId: replyCreatorUser._id,
         allUsers: [replyCreatorUser._id as any], // senderId must be in allUsers for old API compatibility
         notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
-        notificationMsg: 'replied to a comment on your post',
+        notificationMsg: post.postType === PostType.MovieReview ? commmentOnMovieReview : 'replied to a comment on your post',
       });
     }
 

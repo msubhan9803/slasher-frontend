@@ -714,6 +714,39 @@ describe('Feed-Comments/Replies File (e2e)', () => {
             });
           }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
         });
+
+        it('when postType is movieReview than expected response', async () => {
+          const feedPost5 = await feedPostsService.create(
+            feedPostFactory.build(
+              {
+                userId: user1._id,
+                postType: PostType.User,
+              },
+            ),
+          );
+          const feedComment5 = await feedCommentsService.createFeedComment(
+            feedCommentsFactory.build(
+              {
+                userId: user1._id,
+                feedPostId: feedPost5.id,
+                message: sampleFeedReplyObject.message,
+                images: sampleFeedReplyObject.images,
+              },
+            ),
+          );
+          await createTempFiles(async (tempPaths) => {
+            const response = await request(app.getHttpServer())
+              .post('/api/v1/feed-comments/replies')
+              .auth(activeUserAuthToken, { type: 'bearer' })
+              .set('Content-Type', 'multipart/form-data')
+              .field('message', 'hello test user')
+              .field('feedCommentId', feedComment5._id.toString())
+              .attach('images', tempPaths[0])
+              .attach('images', tempPaths[1]);
+            expect(response.status).toBe(HttpStatus.FORBIDDEN);
+            expect(response.body).toEqual({ statusCode: 403, message: 'You can only interact with posts of friends.' });
+          }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+        });
       });
 
       describe('notifications', () => {

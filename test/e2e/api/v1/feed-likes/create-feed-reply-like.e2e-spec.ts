@@ -29,6 +29,7 @@ import { FriendsService } from '../../../../../src/friends/providers/friends.ser
 import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { RssFeedProvidersService } from '../../../../../src/rss-feed-providers/providers/rss-feed-providers.service';
 import { rssFeedProviderFactory } from '../../../../factories/rss-feed-providers.factory';
+import { PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
 
 describe('Create Feed Reply Like (e2e)', () => {
   let app: INestApplication;
@@ -486,6 +487,44 @@ describe('Create Feed Reply Like (e2e)', () => {
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
           expect(response.body).toEqual({ success: true });
+        });
+
+        it('when postType is movieReview than expected response', async () => {
+          const feedPost5 = await feedPostsService.create(
+            feedPostFactory.build(
+              {
+                userId: user1._id,
+                postType: PostType.User,
+              },
+            ),
+          );
+          const feedComments6 = await feedCommentsService.createFeedComment(
+            feedCommentsFactory.build(
+              {
+                userId: activeUser._id,
+                feedPostId: feedPost5.id,
+                message: feedCommentsAndReplyObject.message,
+                images: feedCommentsAndReplyObject.images,
+              },
+            ),
+          );
+          const feedReply7 = await feedCommentsService.createFeedReply(
+            feedRepliesFactory.build(
+              {
+                userId: user0._id,
+                feedCommentId: feedComments6.id,
+                feedPostId: feedPost5.id,
+                message: feedCommentsAndReplyObject.message,
+                images: feedCommentsAndReplyObject.images,
+              },
+            ),
+          );
+          const response = await request(app.getHttpServer())
+            .post(`/api/v1/feed-likes/reply/${feedReply7._id}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .send();
+          expect(response.status).toBe(HttpStatus.FORBIDDEN);
+          expect(response.body).toEqual({ statusCode: 403, message: 'You can only interact with posts of friends.' });
         });
       });
     });

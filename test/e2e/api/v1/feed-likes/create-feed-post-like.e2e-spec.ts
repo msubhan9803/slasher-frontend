@@ -193,6 +193,13 @@ describe('Create Feed Post Like (e2e)', () => {
         user1 = await usersService.create(userFactory.build({
           profile_status: ProfileVisibility.Private,
         }));
+        await userSettingsService.create(
+          userSettingFactory.build(
+            {
+              userId: user1._id,
+            },
+          ),
+        );
         feedPost1 = await feedPostsService.create(
           feedPostFactory.build(
             {
@@ -258,6 +265,23 @@ describe('Create Feed Post Like (e2e)', () => {
           .send();
         expect(response.status).toBe(HttpStatus.CREATED);
         expect(response.body).toEqual({ success: true });
+      });
+
+      it('when postType is movieReview than expected response', async () => {
+        const feedPost3 = await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: user1._id,
+              postType: PostType.User,
+            },
+          ),
+        );
+        const response = await request(app.getHttpServer())
+          .post(`/api/v1/feed-likes/post/${feedPost3._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toBe(HttpStatus.FORBIDDEN);
+        expect(response.body).toEqual({ statusCode: 403, message: 'You can only interact with posts of friends.' });
       });
 
       it('when post has an rssfeedProviderId, it returns a successful response', async () => {

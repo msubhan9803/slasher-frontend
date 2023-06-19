@@ -700,6 +700,29 @@ describe('Feed-Comments / Comments File (e2e)', () => {
             });
           }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
         });
+
+        it('when postType is movieReview than expected response', async () => {
+          const feedPost5 = await feedPostsService.create(
+            feedPostFactory.build(
+              {
+                userId: user1._id,
+                postType: PostType.User,
+              },
+            ),
+          );
+          await createTempFiles(async (tempPaths) => {
+            const response = await request(app.getHttpServer())
+              .post('/api/v1/feed-comments')
+              .auth(activeUserAuthToken, { type: 'bearer' })
+              .set('Content-Type', 'multipart/form-data')
+              .field('message', 'hello test user')
+              .field('feedPostId', feedPost5._id.toString())
+              .attach('images', tempPaths[0])
+              .attach('images', tempPaths[1]);
+            expect(response.status).toBe(HttpStatus.FORBIDDEN);
+            expect(response.body).toEqual({ statusCode: 403, message: 'You can only interact with posts of friends.' });
+          }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+        });
       });
     });
     describe('notifications', () => {

@@ -26,6 +26,7 @@ import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 import { UserSettingsService } from '../../../../../src/settings/providers/user-settings.service';
 import { userSettingFactory } from '../../../../factories/user-setting.factory';
 import { FriendsService } from '../../../../../src/friends/providers/friends.service';
+import { PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
 
 describe('Create Feed Comment Like (e2e)', () => {
   let app: INestApplication;
@@ -330,6 +331,33 @@ describe('Create Feed Comment Like (e2e)', () => {
           .send();
         expect(response.status).toBe(HttpStatus.CREATED);
         expect(response.body).toEqual({ success: true });
+      });
+
+      it('when postType is movieReview than expected response', async () => {
+        const feedPost5 = await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: user1._id,
+              postType: PostType.User,
+            },
+          ),
+        );
+        const feedComments4 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: user1._id,
+              feedPostId: feedPost5.id,
+              message: feedCommentsAndReplyObject.message,
+              images: feedCommentsAndReplyObject.images,
+            },
+          ),
+        );
+        const response = await request(app.getHttpServer())
+          .post(`/api/v1/feed-likes/comment/${feedComments4._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toBe(HttpStatus.FORBIDDEN);
+        expect(response.body).toEqual({ statusCode: 403, message: 'You can only interact with posts of friends.' });
       });
     });
 

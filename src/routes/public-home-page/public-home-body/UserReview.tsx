@@ -16,16 +16,28 @@ const StyledSlider = styled.div`
 `;
 const cardData = [
   {
-    id: 1, user: 'Darknessofmystery', rating: 5, review: 'I’ve joined up early on and saw the initial vision of the creator Damon. He is very active on the app looking to help people network and genuinely connect with one another over the bonding from horror and it’s sub genres. The Slasher app provides agency to those that feel uneasy or can be seen as distanced from other social media experiences due to the subculture of the horror community. I have found a new home along with more fulfilled connections than I have made over the months growing with Slasher and the community!',
+    id: 1,
+    user: 'JahRose',
+    rating: 5,
+    review: 'One pet peeve that I have with certain social media fan pages is that there isn’t much complexity the types of posts. That is not the case with this app. There are so many people with many different interests from pure fans, to those that aspire to or work within this beloved industry. While there are aspects about the app that need to be updated, the potential is already here and I plan to stay with this app for long haul. I’m very glad I found this app, and I think you will too.',
+    title: 'A Horror Fan’s Home away from Home',
   },
   {
-    id: 3, user: 'Jennifer Jeffries', rating: 5, review: 'Absolutely love this app. Full of like minded, cool, nonjudgemental people, a must for horror fans! The developers have been very available for any issues or questions, and continue to make new amazing features available.',
+    id: 3,
+    user: 'Renee Dodd',
+    rating: 5,
+    review: 'Yes, this app does have some lags or glitches when it gets really busy, but that’s only because it has had a huge influx of users that the app is working very hard to keep up with. The new users are there because the app is amazing and the people are amazing and it is attracting more and more friendly horror people. Be patient! It won’t be slow forever!',
+    title: 'Amazing app, have patience',
   },
   {
-    id: 2, user: 'A Google user', rating: 5, review: 'Love this app! Its really great for EVERYTHING horror.... And I do mean everything!...the developer is really involved, and has a suggestion section where he actually personally responds to all suggestions and questions. There is a section for literally everything...Movies, books, blogs, podcasts, videos, home decor, haunts, and for extra horror there is even a "Dating" section.... If you dare! ',
+    id: 2, user: 'A Google user', rating: 5, review: "Love this app! It's really great for EVERYTHING horror.... And I do mean everything!...the developer is really involved, and has a suggestion section where he actually personally responds to all suggestions and questions. There is a section for literally everything...Movies, books, blogs, podcasts, videos, home decor, haunts, and for extra horror there is even a 'Dating' section.... If you dare! 😉 Download it or forever have nightmares of being stuck on FB.. & Tinder!",
   },
   {
-    id: 4, user: 'TypeOfan', rating: 5, review: 'This app is amazing. Where the hell has this been all my life?!! Good job with the app. Keep up the great work all! Update: This app continues to thrive and become what anyone would want from an app. Its definitely recommended if you dont want to deal with nonsense and want to be part of an online community that is respectful of others. Its awesome to see so many horror fans and music fans gathering in one place. ',
+    id: 4,
+    user: 'ChrisWritesReviews',
+    rating: 5,
+    review: 'I’ve been using this since day one and absolutely love it. Great work on what you’re doing, the only issue I have is the movies and podcasts sections, I can go into those sections but can’t click on any of the movies or podcasts in the lists. It just lets me scroll the list. Not sure if anyone else has had this issue but I just wanted to bring it to your attention. Thanks for making such a great app.',
+    title: 'Love the app, but...',
   },
 ];
 
@@ -144,16 +156,22 @@ function UserReview() {
               <Col key={card.id} md={6} lg={3}>
                 <Card className="bg-black border-0 rounded-3 p-4">
                   <Card.Body className="px-0 pb-0">
-                    <div className="d-flex mb-3 testimonial-item position-relative">
+                    {card.title
+                      && (
+                      <Card.Title className="fs-4 fw-bold mb-3">
+                        {card.title}
+                      </Card.Title>
+                      )}
+                    <Card.Text className="fs-4 review">
+                      {card.review}
+                    </Card.Text>
+                    <div className="d-flex mt-3 mb-1 testimonial-item position-relative">
                       {ratingIcons.map((star) => (
                         <div key={star}>
                           <FontAwesomeIcon icon={solid('star')} className="rate" />
                         </div>
                       ))}
                     </div>
-                    <Card.Title className="fs-4 review">
-                      {card.review}
-                    </Card.Title>
                     <Card.Text className="fs-3 fw-bold">
                       {card.user}
                     </Card.Text>

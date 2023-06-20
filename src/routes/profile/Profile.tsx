@@ -12,7 +12,9 @@ import ProfileWatchList from './ProfileWatchList/ProfileWatchList';
 import ProfileEdit from './ProfileEdit/ProfileEdit';
 import ProfileFriendRequest from './ProfileFriends/ProfileFriendRequest/ProfileFriendRequest';
 import { getUser } from '../../api/users';
-import { FriendRequestReaction, ProfileVisibility, User } from '../../types';
+import {
+  FriendRequestReaction, ProfileFriendsCache, ProfileVisibility, User,
+} from '../../types';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { useAppSelector } from '../../redux/hooks';
 import NotFound from '../../components/NotFound';
@@ -25,6 +27,7 @@ import ProfileLimitedView from './ProfileLimitedView/ProfileLimitedView';
 import RightSidebarAdOnly from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarAdOnly';
 import ContentNotAvailable from '../../components/ContentNotAvailable';
 import useBootstrapBreakpointName from '../../hooks/useBootstrapBreakpoint';
+import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../pageStateCache';
 
 interface SharedHeaderProfilePagesProps {
   user: User;
@@ -52,7 +55,9 @@ function Profile() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [user, setUser] = useState<User>();
+  const [user, setUser] = useState<User | undefined>(
+    getPageStateCache<ProfileFriendsCache>(location)?.user,
+  );
   const [userNotFound, setUserNotFound] = useState<boolean>(false);
   const [userIsBlocked, setUserIsBlocked] = useState<boolean>(false);
 
@@ -60,6 +65,9 @@ function Profile() {
   const isSelfProfile = loginUserData.id === user?._id;
   const bp = useBootstrapBreakpointName();
   const lastLocationKeyRef = useRef(location.key);
+
+  // eslint-disable-next-line max-len
+  const getProfileFriendsPageCache = useCallback(() => getPageStateCache<ProfileFriendsCache>(location), [location]);
 
   /**
    * 1. This function fetch userInfo from api and set in component state.
@@ -79,13 +87,17 @@ function Profile() {
           return;
         }
         setUser(res.data);
+        setPageStateCache<ProfileFriendsCache>(location, {
+          ...getProfileFriendsPageCache(),
+          user: res.data,
+        });
       })
       .catch((e) => {
         // If requested user is blocked then show "This content is no longer available" page
         // else a general user not found page is shown.
         if (e.response.status === 403) { setUserIsBlocked(true); } else { setUserNotFound(true); }
       });
-  }, [location.pathname, location.search, navigate, userNameOrId]);
+  }, [location, navigate, userNameOrId, getProfileFriendsPageCache]);
 
   useEffect(() => {
     const isSameKey = lastLocationKeyRef.current === location.key;

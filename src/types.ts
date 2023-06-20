@@ -341,15 +341,22 @@ export interface FriendshipStatus {
   to: string;
 }
 
-// Cache for NewsPartner and NewsPartnerPosts cache (page = http://local.slasher.tv:3000/app/news/partner/:id)
+// Cache type for NewsPartner and NewsPartnerPosts cache (page = http://local.slasher.tv:3000/app/news/partner/:id)
 export type NewsPartnerAndPostsCache = { newsPartner: any, newsPosts: any };
 
-// Cache for Movie related data (page = http://localhost:3000/app/movies/64477b42b12f5efbb3468ff4/reviews)
+// Cache type for Movie related data (page = http://localhost:3000/app/movies/64477b42b12f5efbb3468ff4/reviews)
 export type MoviePageCache = {
   movieData: MovieData,
   additionalMovieData: AdditionalMovieData,
   reviews: any
 };
+
+// Cache type for profile subroutes (i.e, About, Posts, Friends, Photos, Watched list)
+export type ProfileFriendsCache = {
+  user: any,
+  allFriends?: { page: number, data: any[], searchValue: string }
+};
+
 export interface ConversationListItem {
   unreadCount: number;
   latestMessage: string;

@@ -7,11 +7,12 @@ import InfiniteScroll from 'react-infinite-scroller';
 import {
   useLocation, useNavigate, useParams,
 } from 'react-router-dom';
+import { AxiosResponse } from 'axios';
 import { userProfileFriends } from '../../../api/users';
 import CustomSearchInput from '../../../components/ui/CustomSearchInput';
 import ReportModal from '../../../components/ui/ReportModal';
 import TabLinks from '../../../components/ui/Tabs/TabLinks';
-import { User } from '../../../types';
+import { ProfileFriendsCache, User } from '../../../types';
 import ProfileHeader from '../ProfileHeader';
 import FriendsProfileCard from './FriendsProfileCard';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
@@ -25,6 +26,8 @@ import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent'
 import {
   getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../../pageStateCache';
+
+type UserProfileFriendsResponseData = AxiosResponse<{ friends: FriendProps[] }>;
 
 interface FriendProps {
   _id?: string;
@@ -55,19 +58,21 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
   const [additionalFriend, setAdditionalFriend] = useState<boolean>(true);
   const location = useLocation();
-  type CacheType = { page: number, data: any[], searchValue: string };
-  const pageStateCache: CacheType = getPageStateCache(location) ?? { page: 0, data: [], searchValue: '' };
+  const pageStateCache: ProfileFriendsCache = getPageStateCache(location) ?? {
+    user: undefined,
+    allFriends: { page: 0, data: [], searchValue: '' },
+  };
   const [friendsList, setFriendsList] = useState<FriendProps[]>(
-    hasPageStateCache(location)
-      ? pageStateCache?.data : [],
+    pageStateCache?.allFriends?.data! || [],
   );
+  console.log('friendsList?', friendsList);
   const [page, setPage] = useState<number>(
     hasPageStateCache(location)
-      ? pageStateCache?.page : 0,
+      ? pageStateCache?.allFriends?.page! : 0,
   );
   const [search, setSearch] = useState<string>(
     hasPageStateCache(location)
-      ? pageStateCache?.searchValue : '',
+      ? pageStateCache?.allFriends?.searchValue! : '',
   );
   const isLoadingRef = useRef(true);
   const controllerRef = useRef<AbortController | null>();
@@ -77,6 +82,9 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
     { value: '', label: 'All friends' },
     { value: 'request', label: 'Friend requests', badge: friendsReqCount },
   ];
+
+  // eslint-disable-next-line max-len
+  const getProfileFriendsPageCache = useCallback(() => (getPageStateCache<ProfileFriendsCache>(location) || {}), [location]);
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (value === 'Report' || value === 'Block user') {
@@ -110,14 +118,19 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
       }
 
       userProfileFriends(controllerRef.current?.signal, user._id, page, searchUser)
-        .then((res) => {
-          setFriendsList((prev: any) => {
+        .then((res: UserProfileFriendsResponseData) => {
+          setFriendsList((prev) => {
             const newFriendsList = (page === 0 && search !== '') ? res.data.friends : [
               ...prev,
               ...res.data.friends,
             ];
-            // eslint-disable-next-line max-len
-            setPageStateCache<CacheType>(location, { data: newFriendsList, page: page + 1, searchValue: search });
+            setPageStateCache<ProfileFriendsCache>(location, {
+              ...getProfileFriendsPageCache(),
+              allFriends: {
+                ...(getProfileFriendsPageCache()?.allFriends || {}),
+                data: newFriendsList,
+              } as any,
+            });
             return newFriendsList;
           });
           setPage(page + 1);
@@ -131,7 +144,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
           () => { setAdditionalFriend(false); setLoadingFriends(false); isLoadingRef.current = false; controllerRef.current = null; },
         );
     }
-  }, [location, page, search, user._id]);
+  }, [getProfileFriendsPageCache, location, page, search, user._id]);
 
   useEffect(() => {
     const isUserChanged = lastUserIdRef.current !== user._id;
@@ -140,10 +153,10 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
       // Cancel setting state for most recent friendList api call
       if (controllerRef.current) { controllerRef.current.abort(); }
       // Set the new user's data in comoponent state
-      setFriendsList(hasPageStateCache(location) ? getPageStateCache(location)?.data : []);
-      const currentPage = hasPageStateCache(location) ? getPageStateCache(location)?.page : 0;
+      setFriendsList(getProfileFriendsPageCache()?.allFriends?.data || []);
+      const currentPage = getProfileFriendsPageCache()?.allFriends?.page || 0;
       setPage(currentPage);
-      const currentSearch = hasPageStateCache(location) ? getPageStateCache(location)?.searchValue : '';
+      const currentSearch = getProfileFriendsPageCache()?.allFriends?.searchValue || '';
       setSearch(currentSearch);
       // Reset infinite-loading
       setNoMoreData(false);
@@ -156,8 +169,8 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
         fetchMoreFriendList();
       }, 200);
     }
-  }, [additionalFriend, loadingFriends, search, friendsList, user._id,
-    page, fetchMoreFriendList, location]);
+  }, [additionalFriend, loadingFriends, search, friendsList, user._id, page, fetchMoreFriendList,
+    location, getProfileFriendsPageCache]);
 
   const renderNoMoreDataMessage = () => {
     const message = friendsList.length === 0 && search
@@ -212,7 +225,13 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
       .catch((error) => console.error(error));
   };
   const persistScrollPosition = () => {
-    setPageStateCache<CacheType>(location, { data: friendsList, page, searchValue: search });
+    setPageStateCache<ProfileFriendsCache>(
+      location,
+      {
+        ...getProfileFriendsPageCache(),
+        allFriends: { data: friendsList, page, searchValue: search },
+      },
+    );
   };
   return (
     <div>

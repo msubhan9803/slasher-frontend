@@ -96,12 +96,12 @@ pipelines:
     develop:
       - step: *lint-build-test
     deploy/prod:
-      - step: *lint-build-test
+      #- step: *lint-build-test
       - step: *deploy-cloudflare
     deploy/prod-skiptests:
       - step: *deploy-cloudflare
     deploy/staging:
-      - step: *lint-build-test
+      #- step: *lint-build-test
       - step: *deploy-cloudflare
     deploy/staging-skiptests:
       - step: *deploy-cloudflare

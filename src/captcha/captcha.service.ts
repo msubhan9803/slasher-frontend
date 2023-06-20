@@ -18,7 +18,7 @@ export class CaptchaService {
       };
       const params = {
         response: token,
-        secret: `${this.configService.get<string>('HCAPTCHA_SECRET_KEY')}`,
+        secret: this.configService.get<string>('HCAPTCHA_SECRET_KEY'),
       };
       const result = await lastValueFrom(this.httpService.post<any>('https://hcaptcha.com/siteverify', qs.stringify(params), { headers }));
       const data = result.data || {};

@@ -255,14 +255,6 @@ export class UsersController {
   async register(@Body() userRegisterDto: UserRegisterDto, @IpOrForwardedIp() ip) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
 
-    const hCaptchaVerified = await this.captchaService.verifyHCaptchaToken(userRegisterDto.hCaptchaToken);
-
-    if (!hCaptchaVerified.success) {
-      throw new HttpException(
-        'Captcha validation failed. Please try again.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      );
-    }
     // TODO: Move values below into the database instead of hard-coding here
     const hardCodedDisallowedUsernames = [
       'app',
@@ -307,6 +299,13 @@ export class UsersController {
       );
     }
 
+    const hCaptchaVerified = await this.captchaService.verifyHCaptchaToken(userRegisterDto.hCaptchaToken);
+    if (!hCaptchaVerified.success) {
+      throw new HttpException(
+        'Captcha validation failed. Please try again.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
     const user = new User(userRegisterDto);
     user.setUnhashedPassword(userRegisterDto.password);
     user.verification_token = uuidv4();

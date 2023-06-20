@@ -37,6 +37,7 @@ function ProfileEdit({ user }: Props) {
   const [errorMessage, setErrorMessages] = useState<string[]>();
   const [profilePhoto, setProfilePhoto] = useState<File | null | undefined>();
   const [coverPhoto, setCoverPhoto] = useState<any>();
+  const [profileUpdate, setProfileUpdate] = useState<any>(false);
   const [publicStatus, setPublic] = useState<boolean>(
     user.profile_status === ProfileVisibility.Public,
   );
@@ -55,6 +56,7 @@ function ProfileEdit({ user }: Props) {
 
   const updateProfile = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    setProfileUpdate(false);
     setProgressButtonStatus('loading');
     let errorList: string[] = [];
 
@@ -124,6 +126,7 @@ function ProfileEdit({ user }: Props) {
         handleChange(updateResponse.data.unverifiedNewEmail || updateResponse.data.email, 'email');
         handleChange(updateResponse.data.unverifiedNewEmail, 'unverifiedNewEmail');
 
+        setProfileUpdate(true);
         // And update current url to use latest userName (to handle possible userName change)
         navigate(
           location.pathname.replace(params.userName!, userDataInForm.userName),
@@ -131,6 +134,9 @@ function ProfileEdit({ user }: Props) {
         );
       });
       setProgressButtonStatus('success');
+      setTimeout(() => {
+        setProfileUpdate(false);
+      }, 4000);
     } else {
       setProgressButtonStatus('failure');
     }
@@ -178,7 +184,7 @@ function ProfileEdit({ user }: Props) {
                       ? undefined
                       : userDataInForm.profilePic
                   }
-                  onChange={(file) => { setProfilePhoto(file); }}
+                  onChange={(file) => { setProfilePhoto(file); setProfileUpdate(false); }}
                 />
                 <div className="text-center text-md-start mt-4 mt-md-0">
                   <h1 className="h3 mb-2 fw-bold">Change profile photo</h1>
@@ -200,7 +206,7 @@ function ProfileEdit({ user }: Props) {
                   height="10rem"
                   variant="outline"
                   defaultPhotoUrl={userDataInForm.coverPhoto}
-                  onChange={(file) => { setCoverPhoto(file); }}
+                  onChange={(file) => { setCoverPhoto(file); setProfileUpdate(false); }}
                 />
                 <div className="text-center text-md-start mt-4 mt-md-0">
                   <h1 className="h3 mb-2 fw-bold">Change cover photo</h1>
@@ -219,6 +225,7 @@ function ProfileEdit({ user }: Props) {
         </div>
         <div className="bg-dark p-4 mt-4 rounded bg-mobile-transparent">
           <h1 className="h2 fw-bold mb-4">Edit information</h1>
+          {profileUpdate && <Alert variant="info">Your profile has been updated</Alert>}
           <Row>
             <Col md={6}>
               <Form.Group className="mb-4">

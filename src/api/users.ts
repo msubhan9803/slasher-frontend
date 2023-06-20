@@ -47,6 +47,7 @@ export async function register(
   securityQuestion: string,
   securityAnswer: string,
   dob: string,
+  hCaptchaToken: string,
 ) {
   return axios.post(
     `${apiUrl}/api/v1/users/register`,
@@ -59,6 +60,7 @@ export async function register(
       securityQuestion,
       securityAnswer,
       dob,
+      hCaptchaToken,
     },
   );
 }

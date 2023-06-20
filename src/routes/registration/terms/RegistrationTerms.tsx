@@ -5,6 +5,7 @@ import {
   Row,
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { register } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import useProgressButton from '../../../components/ui/ProgressButton';
@@ -23,6 +24,7 @@ function RegistrationTerms({ activeStep }: Props) {
   const [errorMessages, setErrorMessages] = useState<string[]>();
   const [isAgreedToTerms, setIsAgreedToTerms] = useState(false);
   const [showAgreeToTermsError, setShowAgreeToTermsError] = useState(false);
+  const [hCaptchaToken, setHCaptchaToken] = useState('');
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
 
   const submitRegister = async () => {
@@ -50,6 +52,7 @@ function RegistrationTerms({ activeStep }: Props) {
         securityQuestion,
         securityAnswer,
         dobIsoString,
+        hCaptchaToken,
       );
 
       setProgressButtonStatus('success');
@@ -59,6 +62,10 @@ function RegistrationTerms({ activeStep }: Props) {
       setProgressButtonStatus('failure');
       setErrorMessages(error.response.data.message);
     }
+  };
+
+  const handleVerificationSuccess = (token: string) => {
+    setHCaptchaToken(token);
   };
 
   const handleCheckbox = () => {
@@ -85,7 +92,6 @@ function RegistrationTerms({ activeStep }: Props) {
             <a target="_blank" rel="noreferrer" href={`${WORDPRESS_SITE_URL}/rules`}>Community Standards</a>
             .
           </p>
-          <ErrorMessageList errorMessages={errorMessages} />
           <div className="mt-1">
             <label htmlFor="term-agreement-checkbox" className="h2">
               <input
@@ -104,7 +110,18 @@ function RegistrationTerms({ activeStep }: Props) {
           </div>
         </Col>
       </Row>
+      <Row className="mt-2">
+        <Col className="justify-content-center d-flex">
+          <HCaptcha
+            // This is testing sitekey, will autopass
+            // Make sure to replace
+            sitekey="aade8ad0-8a3e-4f80-9aba-9c4d03e7806c"
+            onVerify={(token) => handleVerificationSuccess(token)}
+          />
+        </Col>
+      </Row>
       <Row className="justify-content-center my-5">
+        <ErrorMessageList errorMessages={errorMessages} />
         <Col sm={4} md={3} className="mb-sm-0 mb-3 order-2 order-sm-1">
           <RoundButtonLink
             to="/app/registration/security"

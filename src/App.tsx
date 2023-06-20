@@ -114,7 +114,7 @@ CapacitorApp.addListener('backButton', ({ canGoBack }) => {
 });
 
 // Display content under transparent status bar (Android only)
-StatusBar.setOverlaysWebView({ overlay: true });
+StatusBar.setOverlaysWebView({ overlay: false });
 StatusBar.setBackgroundColor({ color: topStatuBarBackgroundColorAndroidOnly });
 
 function App() {

@@ -23,6 +23,7 @@ import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import mongoose from 'mongoose';
 import { validate } from 'class-validator';
+import { CaptchaService } from 'src/captcha/captcha.service';
 import { UserSignInDto } from './dto/user-sign-in.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { UsersService } from './providers/users.service';
@@ -70,7 +71,6 @@ import { EmailRevertTokensService } from '../email-revert-tokens/providers/email
 import { FriendRequestReaction } from '../schemas/friend/friend.enums';
 import { Public } from '../app/guards/auth.guard';
 import { UpdateDeviceTokenDto } from './dto/update-device-token.dto';
-import { CaptchaService } from 'src/captcha/captcha.service';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -255,8 +255,8 @@ export class UsersController {
   async register(@Body() userRegisterDto: UserRegisterDto, @IpOrForwardedIp() ip) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
 
-    const hCaptchaVerified = await this.captchaService.verifyHCaptchaToken(userRegisterDto.hCaptchaToken)
-    
+    const hCaptchaVerified = await this.captchaService.verifyHCaptchaToken(userRegisterDto.hCaptchaToken);
+
     if (!hCaptchaVerified.success) {
       throw new HttpException(
         'Captcha validation failed. Please try again.',

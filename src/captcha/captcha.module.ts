@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
-import { CaptchaService } from './captcha.service';
 import { HttpModule } from '@nestjs/axios';
+import { CaptchaService } from './captcha.service';
 
 @Global()
 @Module({

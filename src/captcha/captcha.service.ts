@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
-import * as qs from 'qs'
-import { lastValueFrom, map } from 'rxjs';
+import * as qs from 'qs';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class CaptchaService {
@@ -12,20 +12,19 @@ export class CaptchaService {
   ) { }
 
   async verifyHCaptchaToken(token: string): Promise<any> {
-
     try {
       const headers = {
         'content-type': 'application/x-www-form-urlencoded',
       };
       const params = {
-        'response': token,
-        'secret': `${this.configService.get<string>('HCAPTCHA_SECRET_KEY')}`
-      }
-      let result = await lastValueFrom(this.httpService.post<any>(`https://hcaptcha.com/siteverify`, qs.stringify(params), { headers }))
-      let data = result.data || {};
-      return data
+        response: token,
+        secret: `${this.configService.get<string>('HCAPTCHA_SECRET_KEY')}`,
+      };
+      const result = await lastValueFrom(this.httpService.post<any>('https://hcaptcha.com/siteverify', qs.stringify(params), { headers }));
+      const data = result.data || {};
+      return data;
     } catch (err) {
-      return { success: false, error: 'Captcha validation failed. Please try again.' }
+      return { success: false, error: 'Captcha validation failed. Please try again.' };
     }
   }
 }

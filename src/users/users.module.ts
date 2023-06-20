@@ -1,5 +1,6 @@
 import { Module, Global } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { CaptchaModule } from 'src/captcha/captcha.module';
 import { UsersController } from './users.controller';
 import { UsersService } from './providers/users.service';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
@@ -15,7 +16,6 @@ import { DisallowedUsernameModule } from '../disallowedUsername/disallowed-usern
 import { UsersEmailChangeController } from './users.email-change.controller';
 import { UsersPublicController } from './users.public.controller';
 import { EmailRevertTokensModule } from '../email-revert-tokens/email-revert-tokens.module';
-import { CaptchaModule } from 'src/captcha/captcha.module';
 
 // Since the UsersModule is likely to be used in many places, we'll make it global
 @Global()

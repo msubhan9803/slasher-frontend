@@ -15,6 +15,7 @@ import { DisallowedUsernameModule } from '../disallowedUsername/disallowed-usern
 import { UsersEmailChangeController } from './users.email-change.controller';
 import { UsersPublicController } from './users.public.controller';
 import { EmailRevertTokensModule } from '../email-revert-tokens/email-revert-tokens.module';
+import { CaptchaModule } from 'src/captcha/captcha.module';
 
 // Since the UsersModule is likely to be used in many places, we'll make it global
 @Global()
@@ -29,6 +30,7 @@ import { EmailRevertTokensModule } from '../email-revert-tokens/email-revert-tok
     RssFeedProvidersModule,
     MailModule,
     DisallowedUsernameModule,
+    CaptchaModule,
   ],
   controllers: [UsersEmailChangeController, UsersPublicController, UsersController],
   providers: [UsersService, LocalStorageService, S3StorageService],

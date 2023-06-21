@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useState, useEffect } from 'react';
 import {
   Alert, Col, Form, Row,
 } from 'react-bootstrap';
@@ -49,6 +49,10 @@ function ProfileEdit({ user }: Props) {
   const dispatch = useAppDispatch();
   const loggedInUserName = useAppSelector((state) => state.user.user.userName);
   const isUnAuthorizedUser = userName !== loggedInUserName;
+
+  useEffect(() => {
+    setProfileUpdate(false);
+  }, [profilePhoto, coverPhoto]);
 
   const handleChange = (value: string, key: string) => {
     setUserDataInForm({ ...userDataInForm, [key]: value });
@@ -136,7 +140,7 @@ function ProfileEdit({ user }: Props) {
       setProgressButtonStatus('success');
       setTimeout(() => {
         setProfileUpdate(false);
-      }, 4000);
+      }, 5000);
     } else {
       setProgressButtonStatus('failure');
     }
@@ -166,6 +170,7 @@ function ProfileEdit({ user }: Props) {
     setPrivate(false);
     handleChange('0', 'profile_status');
   };
+
   return (
     <div>
       {userDataInForm.profilePic.includes('default_user_icon') && !profilePhoto
@@ -184,7 +189,7 @@ function ProfileEdit({ user }: Props) {
                       ? undefined
                       : userDataInForm.profilePic
                   }
-                  onChange={(file) => { setProfilePhoto(file); setProfileUpdate(false); }}
+                  onChange={(file) => { setProfilePhoto(file); }}
                 />
                 <div className="text-center text-md-start mt-4 mt-md-0">
                   <h1 className="h3 mb-2 fw-bold">Change profile photo</h1>
@@ -206,7 +211,7 @@ function ProfileEdit({ user }: Props) {
                   height="10rem"
                   variant="outline"
                   defaultPhotoUrl={userDataInForm.coverPhoto}
-                  onChange={(file) => { setCoverPhoto(file); setProfileUpdate(false); }}
+                  onChange={(file) => { setCoverPhoto(file); }}
                 />
                 <div className="text-center text-md-start mt-4 mt-md-0">
                   <h1 className="h3 mb-2 fw-bold">Change cover photo</h1>
@@ -225,7 +230,6 @@ function ProfileEdit({ user }: Props) {
         </div>
         <div className="bg-dark p-4 mt-4 rounded bg-mobile-transparent">
           <h1 className="h2 fw-bold mb-4">Edit information</h1>
-          {profileUpdate && <Alert variant="info">Your profile has been updated</Alert>}
           <Row>
             <Col md={6}>
               <Form.Group className="mb-4">
@@ -331,6 +335,7 @@ function ProfileEdit({ user }: Props) {
             </Col>
           </Row>
           <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+          {profileUpdate && <Alert variant="info">Your profile has been updated</Alert>}
           <Row className="mt-2">
             <Col xs={12} md={3} lg={4} xl={3}>
               <ProgressButton label="Update profile" className="w-100" onClick={updateProfile} />

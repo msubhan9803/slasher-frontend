@@ -36,3 +36,6 @@ export type LikeUserAndFriendship = {
   firstName: string;
   friendship?: FriendShip;
 };
+
+export const CommentsSortBy = ['newestFirst', 'oldestFirst'] as const;
+export type CommentsSortByType = typeof CommentsSortBy[number];

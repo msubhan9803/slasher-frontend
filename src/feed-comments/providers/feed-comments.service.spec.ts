@@ -23,6 +23,7 @@ import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndUnblock.enums';
 import { BlocksService } from '../../blocks/providers/blocks.service';
+import { CommentsSortBy } from '../../types';
 
 describe('FeedCommentsService', () => {
   let app: INestApplication;
@@ -421,50 +422,66 @@ describe('FeedCommentsService', () => {
         ],
       });
 
-      const getFeedPostData = await feedCommentsModel.find({
-        $and: [
-          { feedPostId: feedPost1._id },
-          { userId: { $nin: excludedUserIds } },
-        ],
-      });
-      const getFeedReplyData = await feedReplyModel.find({
-        $and: [
-          {
-            feedCommentId:
-              { $in: [feedComments1._id.toString(), feedComments2._id.toString()] },
-          },
-          { userId: { $nin: excludedUserIds } },
-        ],
-      });
-      const userData = await usersService.findById(activeUser.id, true);
+      // Run for both 'newestFirst' and 'oldestFirst'
+      for await (const SORT_BY of CommentsSortBy) {
+        // for await (const SORT_BY of CommentsSortBy) { // original
+        const sortClause: any = {
+          createdAt: (SORT_BY === 'newestFirst' ? -1 : 1),
+        };
 
-      const feedCommentsWithReplies = await feedCommentsService.findFeedCommentsWithReplies(
-        feedPost1.id,
-        20,
-        'newestFirst',
-        excludedUserIds,
-        activeUser.id,
-      );
+        const getFeedPostData = await feedCommentsModel.find({
+          $and: [
+            { feedPostId: feedPost1._id },
+            { userId: { $nin: excludedUserIds } },
+          ],
+        })
+          .sort(sortClause);
+        const getFeedReplyData = await feedReplyModel.find({
+          $and: [
+            {
+              feedCommentId:
+                { $in: [feedComments1._id.toString(), feedComments2._id.toString()] },
+            },
+            { userId: { $nin: excludedUserIds } },
+          ],
+        });
+        const userData = await usersService.findById(activeUser.id, true);
 
-      const feedCommentAndReply = JSON.parse(JSON.stringify(getFeedPostData));
-      const replyData = JSON.parse(JSON.stringify(getFeedReplyData));
-      for (let i = 0; i < feedCommentAndReply.length; i += 1) {
-        const filterReply = replyData
-          .filter((replyId) => replyId.feedCommentId === feedCommentAndReply[i]._id)
-          .map((replyId) => {// eslint-disable-line
-            // eslint-disable-next-line no-param-reassign
-            replyId.likedByUser = replyId.likes.includes(activeUser.id);
-            // eslint-disable-next-line no-param-reassign
-            replyId.userId = { _id: userData._id.toString(), profilePic: userData.profilePic, userName: userData.userName };
-            return replyId;
-          });
-        feedCommentAndReply[i].likedByUser = feedCommentAndReply[i].likes.includes(activeUser.id);
-        feedCommentAndReply[i].userId = { _id: userData._id.toString(), profilePic: userData.profilePic, userName: userData.userName };
-        feedCommentAndReply[i].replies = filterReply;
+        const feedCommentsWithReplies = await feedCommentsService.findFeedCommentsWithReplies(
+          feedPost1.id,
+          20,
+          SORT_BY,
+          excludedUserIds,
+          activeUser.id,
+        );
+
+        const feedCommentAndReply = JSON.parse(JSON.stringify(getFeedPostData));
+        const replyData = JSON.parse(JSON.stringify(getFeedReplyData));
+        for (let i = 0; i < feedCommentAndReply.length; i += 1) {
+          const filterReply = replyData
+            .filter((replyId) => replyId.feedCommentId === feedCommentAndReply[i]._id)
+            .map((replyId) => {// eslint-disable-line
+              // eslint-disable-next-line no-param-reassign
+              replyId.likedByUser = replyId.likes.includes(activeUser.id);
+              // eslint-disable-next-line no-param-reassign
+              replyId.userId = { _id: userData._id.toString(), profilePic: userData.profilePic, userName: userData.userName };
+              return replyId;
+            });
+          feedCommentAndReply[i].likedByUser = feedCommentAndReply[i].likes.includes(activeUser.id);
+          feedCommentAndReply[i].userId = { _id: userData._id.toString(), profilePic: userData.profilePic, userName: userData.userName };
+          feedCommentAndReply[i].replies = filterReply;
+        }
+        if (SORT_BY === 'newestFirst') {
+          feedCommentAndReply.sort((a, b) => -a.createdAt.localeCompare(b.createdAt));
+        } else {
+          feedCommentAndReply.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+        }
+        expect(feedCommentsWithReplies).toHaveLength(2);
+        // expect(feedCommentsWithReplies).toEqual(feedCommentAndReply); // original
+        expect(feedCommentsWithReplies[0]._id).toEqual(feedCommentAndReply[0]._id);
+        expect(feedCommentsWithReplies[1]._id).toEqual(feedCommentAndReply[1]._id);
+        expect(feedCommentsWithReplies[1]).toEqual(feedCommentAndReply[1]);
       }
-      feedCommentAndReply.sort((a, b) => -a.createdAt.localeCompare(b.createdAt));
-      expect(feedCommentsWithReplies).toHaveLength(2);
-      expect(feedCommentsWithReplies).toEqual(feedCommentAndReply);
     });
 
     describe('when `before` argument is supplied', () => {

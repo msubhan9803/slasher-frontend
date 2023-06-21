@@ -6,7 +6,7 @@ function NowAvailableSection() {
   return (
     <div className="mx-3 mx-lg-4 px-2">
       <Container>
-        <div className="bg-primary rounded-3 p-4 text-black">
+        <div className="bg-primary d-flex justify-content-center rounded-3 p-4 text-black">
           <Image fluid src={NowAvailableWorldwide} alt="Slasher is now available worldwide" />
         </div>
       </Container>

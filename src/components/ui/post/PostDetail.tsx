@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  useCallback, useEffect, useState,
+  useCallback, useEffect, useRef, useState,
 } from 'react';
 import {
   useLocation,
@@ -96,6 +96,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
 
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const location = useLocation();
+  const abortControllerRef = useRef<AbortController | null>();
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     setSelectedBlockedUserId(popoverClickProps.userId!);
@@ -187,7 +188,11 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   };
 
   const addUpdateComment = async (comment: CommentValue) => {
-    setProgressButtonStatus('loading');
+    if (abortControllerRef.current) {
+      return;
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
     setCommentSent(true);
     let commentValueData: any = {
       feedPostId: '',
@@ -208,8 +213,6 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           comment?.descriptionArr,
         )
           .then(async (res) => {
-            setProgressButtonStatus('success');
-            await sleep(1000);
             const updateCommentArray: any = commentData;
             const index = updateCommentArray.findIndex(
               (commentId: any) => commentId._id === res.data._id,
@@ -238,12 +241,14 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             setIsEdit(false);
           })
           .catch((error) => {
-            setProgressButtonStatus('failure');
             const msg = error.response.status === 0 && !error.response.data
               ? 'Combined size of files is too large.'
               : error.response.data.message;
             setCommentErrorMessage(msg);
             setCommentSent(false);
+          })
+          .finally(() => {
+            abortControllerRef.current = null;
           });
       } else {
         addFeedComments(
@@ -253,8 +258,6 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           comment.descriptionArr,
         )
           .then(async (res) => {
-            setProgressButtonStatus('success');
-            await sleep(1000);
             let newCommentArray: any = commentData;
             commentValueData = {
               _id: res.data._id,
@@ -277,21 +280,25 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             setCommentErrorMessage([]);
           })
           .catch((error) => {
-            setProgressButtonStatus('failure');
             const msg = error.response.status === 0 && !error.response.data
               ? 'Combined size of files is too large.'
               : error.response.data.message;
             setCommentErrorMessage(msg);
             setCommentSent(false);
+          })
+          .finally(() => {
+            abortControllerRef.current = null;
           });
       }
     }).catch(() => { });
   };
-
   const addUpdateReply = async (reply: any) => {
+    if (abortControllerRef.current) {
+      return;
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
     setCommentSent(true);
-    setProgressButtonStatus('loading');
-
     let replyValueData: any = {
       feedPostId: '',
       feedCommentId: '',
@@ -315,8 +322,6 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         )
           .then(async (res) => {
             const updateReplyArray: any = commentData;
-            setProgressButtonStatus('success');
-            await sleep(1000);
             updateReplyArray.map((comment: any) => {
               const staticReplies = comment.replies;
               if (comment._id === res.data.feedCommentId) {
@@ -342,12 +347,14 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             setIsEdit(false);
             setCommentSent(false);
           }).catch((error) => {
-            setProgressButtonStatus('failure');
             const msg = error.response.status === 0 && !error.response.data
               ? 'Combined size of files is too large.'
               : error.response.data.message;
             setCommentReplyErrorMessage(msg);
             setCommentSent(false);
+          })
+          .finally(() => {
+            abortControllerRef.current = null;
           });
       } else {
         addFeedReplyComments(
@@ -358,8 +365,6 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           reply.descriptionArr,
         ).then(async (res) => {
           const newReplyArray: any = commentData;
-          setProgressButtonStatus('success');
-          await sleep(1000);
           replyValueData = {
             feedPostId: postId,
             feedCommentId: res.data.feedCommentId,
@@ -384,13 +389,15 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           setCommentSent(false);
           setCommentID('');
         }).catch((error) => {
-          setProgressButtonStatus('failure');
           const msg = error.response.status === 0 && !error.response.data
             ? 'Combined size of files is too large.'
             : error.response.data.message;
           setCommentReplyErrorMessage(msg);
           setCommentSent(false);
-        });
+        })
+          .finally(() => {
+            abortControllerRef.current = null;
+          });
       }
     }).catch(() => { });
   };

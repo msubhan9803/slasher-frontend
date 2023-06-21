@@ -23,13 +23,13 @@ export class PushNotificationsService {
   }
 
   triggerPushNotification(message) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       firebaseInstance.admin.messaging().send(message)
         .then((response) => {
           resolve(response);
         })
         .catch((error) => {
-          reject(error);
+          resolve(error);
         });
     });
   }

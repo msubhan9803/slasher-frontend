@@ -107,18 +107,21 @@ export class UsersController {
       );
     }
 
-    if (!user.betaTester) {
-      const betaTester = await this.betaTestersService.findByEmail(user.email);
-      if (betaTester) {
-        // Since a BetaTester record was found for this user's email, mark them as a beta tester.
-        user = await this.usersService.update(user.id, { betaTester: true });
-      } else {
-        throw new HttpException(
-          'Only people who requested an invitation are able to sign in during the sneak preview.',
-          HttpStatus.UNAUTHORIZED,
-        );
-      }
-    }
+    // We're no longer restricting login to beta testers, so this code is commented out.
+    // TODO: We can probably remove this, but I'm keeping it here for a little while longer
+    // in case we need to bring it back for any reason.
+    // if (!user.betaTester) {
+    //   const betaTester = await this.betaTestersService.findByEmail(user.email);
+    //   if (betaTester) {
+    //     // Since a BetaTester record was found for this user's email, mark them as a beta tester.
+    //     user = await this.usersService.update(user.id, { betaTester: true });
+    //   } else {
+    //     throw new HttpException(
+    //       'Only people who requested an invitation are able to sign in during the sneak preview.',
+    //       HttpStatus.UNAUTHORIZED,
+    //     );
+    //   }
+    // }
 
     if (user.userSuspended) {
       throw new HttpException('User suspended.', HttpStatus.UNAUTHORIZED);
@@ -230,10 +233,14 @@ export class UsersController {
       if (disallowedUsername) { requestedErrorsList.unshift('Username is not available.'); }
     }
     if (requestedFields.includes('email') && !invalidFields.includes('email')) {
-      const betaTester = await this.betaTestersService.findByEmail(userRegisterDto.email);
-      if (!betaTester) {
-        requestedErrorsList.unshift('Only people who requested an invitation are able to register during the sneak preview.');
-      }
+      // We're no longer restricting login to beta testers, so this code is commented out.
+      // TODO: We can probably remove this, but I'm keeping it here for a little while longer
+      // in case we need to bring it back for any reason.
+      // const betaTester = await this.betaTestersService.findByEmail(userRegisterDto.email);
+      // if (!betaTester) {
+      //   requestedErrorsList.unshift('Only people who requested an invitation are able to register during the sneak preview.');
+      // }
+
       const available = await this.usersService.emailAvailable(query.email);
       if (!available) { requestedErrorsList.unshift('Email address is already associated with an existing user.'); }
     }
@@ -265,13 +272,16 @@ export class UsersController {
       );
     }
 
-    const betaTester = await this.betaTestersService.findByEmail(userRegisterDto.email);
-    if (!betaTester) {
-      throw new HttpException(
-        'Only people who requested an invitation are able to register during the sneak preview.',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    // We're no longer restricting login to beta testers, so this code is commented out.
+    // TODO: We can probably remove this, but I'm keeping it here for a little while longer
+    // in case we need to bring it back for any reason.
+    // const betaTester = await this.betaTestersService.findByEmail(userRegisterDto.email);
+    // if (!betaTester) {
+    //   throw new HttpException(
+    //     'Only people who requested an invitation are able to register during the sneak preview.',
+    //     HttpStatus.BAD_REQUEST,
+    //   );
+    // }
 
     if (!await this.usersService.userNameAvailable(userRegisterDto.userName)) {
       throw new HttpException(
@@ -439,7 +449,7 @@ export class UsersController {
     const user: UserDocument = getUserFromRequest(request);
     // Note: Below, we retrieve more conversations than we need because deleted conversations are
     // currently retrieved by this method, so we
-    const recentMessages: any = (await this.chatService.getConversations(user.id, 10)).slice(0, 3);
+    const recentMessages: any = (await this.chatService.getUnreadConversations(user.id)).slice(0, 3);
     const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user.id, 3);
     const unreadNotificationCount = await this.notificationsService.getUnreadNotificationCount(user.id);
     return {

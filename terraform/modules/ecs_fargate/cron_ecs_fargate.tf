@@ -148,6 +148,10 @@ resource "aws_ecs_task_definition" "slasher-cron-task-defination" {
       {
         "name" : "FIREBASE_SERVER_KEY",
         "valueFrom" : "/ECS-CLUSTER/slasher-${terraform.workspace}/FIREBASE_SERVER_KEY"
+      },
+      {
+        "name" : "HCAPTCHA_SECRET_KEY",
+        "valueFrom" : "/ECS-CLUSTER/slasher-${terraform.workspace}/HCAPTCHA_SECRET_KEY"
       }
     ],
     "essential": true,

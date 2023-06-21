@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import * as fs from 'fs';
 import * as selfsigned from 'selfsigned';
+import { LogLevel } from '@nestjs/common';
 import { RedisIoAdapter } from './adapters/redis-io.adapter';
 import { AppModule } from './app.module';
 import { configureAppPrefixAndVersioning } from './utils/app-setup-utils';
@@ -19,11 +20,17 @@ async function bootstrap() {
       cert: pems.cert,
     };
   }
-
+  const logLevels: LogLevel[] = process.env.LOG_LEVEL ? [process.env.LOG_LEVEL as LogLevel] : ['debug'];
   const app = await NestFactory.create(AppModule, {
     httpsOptions,
-    // TODO: Consider a variable logging policy later on, based on NODE_ENV
-    // logger: process.env.NODE_ENV === 'development' ? ['log', 'error', 'warn', 'debug', 'verbose'] : ['error', 'warn'],
+    // For log level, selecting a single value at a lower level will automatically include all
+    // higher levels, but if you choose two values then only those two will be shown.
+    // - error (highest)
+    // - warn
+    // - log
+    // - verbose
+    // - debug (lowest)
+    logger: logLevels,
   });
   configureAppPrefixAndVersioning(app);
 
@@ -56,7 +63,7 @@ async function bootstrap() {
   await redisIoAdapter.connectToRedis();
   app.useWebSocketAdapter(redisIoAdapter);
 
-  console.log(`Starting app on port: ${port}`);
+  console.log(`Starting app on port ${port} with log level: ${JSON.stringify(logLevels)}`);
   await app.listen(port);
 }
 bootstrap();

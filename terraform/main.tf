@@ -26,4 +26,5 @@ module "ecs_fargate" {
   storage_location_generator_prefix = var.storage_location_generator_prefix
   welcome_message_sender_user_id    = var.welcome_message_sender_user_id
   send_push_notification            = var.send_push_notification
+  log_level                         = var.log_level
 }

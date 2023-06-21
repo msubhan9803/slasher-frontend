@@ -1,7 +1,7 @@
 import React from 'react';
 import CustomSearchInput from '../../components/ui/CustomSearchInput';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
-import { enableDevFeatures } from '../../utils/configEnvironment';
+import { enableDevFeatures } from '../../constants';
 
 interface Search {
   tabKey: string;

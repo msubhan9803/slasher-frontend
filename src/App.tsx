@@ -1,7 +1,6 @@
 /* eslint-disable no-alert */
 import React from 'react';
 import {
-  Navigate,
   Route, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
 import { App as CapacitorApp } from '@capacitor/app';
@@ -29,13 +28,12 @@ import Account from './routes/account/Account';
 import ResetPassword from './routes/reset-password/ResetPassword';
 import AccountActivated from './routes/account-activated/AccountActivated';
 import usePubWiseAdSlots from './hooks/usePubWiseAdSlots';
-import { enableADs, topStatuBarBackgroundColorAndroidOnly } from './constants';
+import { enableDevFeatures, enableADs, topStatuBarBackgroundColorAndroidOnly } from './constants';
 import Books from './routes/books/Books';
 import Artists from './routes/artists/Artists';
 import Podcasts from './routes/podcasts/Podcasts';
 import Music from './routes/music/Music';
 import SocialGroups from './routes/social-group/SocialGroups';
-import { enableDevFeatures } from './utils/configEnvironment';
 import ActivateAccount from './routes/activate-account/ActivateAccount';
 import PasswordResetSuccess from './routes/password-reset-success/PasswordResetSuccess';
 // import Index from './routes/Index';
@@ -46,6 +44,7 @@ import { useAppSelector } from './redux/hooks';
 import ServerUnavailable from './components/ServerUnavailable';
 import Conversation from './routes/conversation/Conversation';
 import PushNotificationAndDeepLinkListener from './components/PushNotificationAndDeepLinkListener';
+import Index from './routes/Index';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -126,9 +125,9 @@ function App() {
     createRoutesFromElements(
       <Route path="/" element={<PushNotificationAndDeepLinkListener />}>
         {/* TODO: Uncomment line below when switching from beta to prod */}
-        {/* <Route path="/" element={<Index />} /> */}
+        <Route path="/" element={<Index />} />
         {/* TODO: REMOVE line below when switching from beta to prod */}
-        <Route path="/" element={<Navigate to="/app/home" replace />} />
+        {/* <Route path="/" element={<Navigate to="/app/home" replace />} /> */}
         {
           Object.entries(routes).map(
             ([routePath, opts]) => (

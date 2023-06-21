@@ -11,10 +11,12 @@ import {
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import ImagesContainer from '../../ImagesContainer';
-import { allAtMentionsRegex, decryptMessage } from '../../../../utils/text-utils';
+import {
+  atMentionsGlobalRegex, decryptMessage, generateMentionReplacementMatchFunc,
+} from '../../../../utils/text-utils';
 import MessageTextarea from '../../MessageTextarea';
-import { FormatMentionProps } from '../../../../routes/posts/create-post/CreatePost';
 import ErrorMessageList from '../../ErrorMessageList';
+import { FormatMentionProps } from '../../../../types';
 import { LG_MEDIA_BREAKPOINT } from '../../../../constants';
 
 interface CommentInputProps {
@@ -46,6 +48,7 @@ interface CommentInputProps {
   replyDescriptionArray?: string[];
   setReplyDescriptionArray?: (value: string[]) => void;
   isMainPostCommentClick?: boolean;
+  selectedReplyUserId?:string;
   commentOrReplySuccessAlertMessage?: string;
   setCommentOrReplySuccessAlertMessage?: React.Dispatch<React.SetStateAction<string>>;
 }
@@ -105,7 +108,8 @@ function CommentInput({
   handleSearch, mentionList, addUpdateComment, replyImageArray, isReply,
   addUpdateReply, commentID, commentReplyID, checkCommnt, commentError, commentReplyError,
   commentSent, setCommentReplyErrorMessage, setReplyImageArray, isEdit, descriptionArray,
-  setDescriptionArray, replyDescriptionArray, setReplyDescriptionArray, isMainPostCommentClick,
+  setDescriptionArray, replyDescriptionArray, setReplyDescriptionArray,
+  isMainPostCommentClick, selectedReplyUserId,
   commentOrReplySuccessAlertMessage, setCommentOrReplySuccessAlertMessage,
 }: CommentInputProps) {
   const [editMessage, setEditMessage] = useState<string>('');
@@ -123,17 +127,14 @@ function CommentInput({
 
   useEffect(() => {
     if (message && message.length > 0) {
-      const regexMessgafe = isReply && commentReplyID
-        ? `##LINK_ID##${commentReplyID}${message}##LINK_END## `
-        : `##LINK_ID##${commentID}${message}##LINK_END## `;
-      setEditMessage(regexMessgafe);
+      setEditMessage(`##LINK_ID##${selectedReplyUserId}${message}##LINK_END## `);
     } else {
       setEditMessage('');
       handleSetCommentReplyErrorMessage([]);
       handleSetReplyImageArray([]);
     }
   }, [message, commentID, isReply, commentReplyID,
-    handleSetCommentReplyErrorMessage, handleSetReplyImageArray]);
+    handleSetCommentReplyErrorMessage, handleSetReplyImageArray, selectedReplyUserId]);
   useEffect(() => {
     if (editMessage) {
       const mentionStringList = editMessage.match(/##LINK_ID##[a-zA-Z0-9@_.-]+##LINK_END##/g);
@@ -194,22 +195,10 @@ function CommentInput({
     }
   };
 
-  const mentionReplacementMatchFunc = (match: string) => {
-    if (match) {
-      const finalString: any = formatMention.find(
-        (matchMention: FormatMentionProps) => match.includes(matchMention.value),
-      );
-      if (finalString) {
-        return finalString.format;
-      }
-      return match;
-    }
-    return undefined;
-  };
   const handleMessage = () => {
     const postContentWithMentionReplacements = (editMessage!.replace(
-      allAtMentionsRegex,
-      mentionReplacementMatchFunc,
+      atMentionsGlobalRegex,
+      generateMentionReplacementMatchFunc(formatMention),
     ));
     onUpdatePost(postContentWithMentionReplacements);
     setShowPicker(false);
@@ -261,7 +250,7 @@ function CommentInput({
                 <MessageTextarea
                   rows={1}
                   id={checkCommnt}
-                  className="fs-5 form-control p-0 pe-4"
+                  className="fs-5 form-control pe-4"
                   placeholder={isReply ? 'Reply to comment' : 'Write a comment'}
                   isReply={isReply}
                   handleSearch={handleSearch}
@@ -390,6 +379,7 @@ CommentInput.defaultProps = {
   replyDescriptionArray: undefined,
   setReplyDescriptionArray: undefined,
   isMainPostCommentClick: undefined,
+  selectedReplyUserId: undefined,
   commentOrReplySuccessAlertMessage: '',
   setCommentOrReplySuccessAlertMessage: undefined,
 };

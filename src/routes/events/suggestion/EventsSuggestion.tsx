@@ -111,11 +111,14 @@ function prettifyErrorMessages(errorMessageList: string[]) {
     .replace('event_info', 'Event description')
     .replace('name', 'Event name')
     .replace('country', 'Country')
-    .replace('state', 'State')
+    .replace('state', 'State/Province')
     .replace('address', 'Address')
     .replace('city', 'City')
     .replace('endDate', 'End date')
-    .replace('startDate', 'Start date'));
+    .replace('startDate', 'Start date')
+    .replace('should not be empty', 'is required'))
+    .filter((errorMessage) => !errorMessage.includes('Invalid')) // remove duplicate error message for empty fields
+    .sort((a) => (a.includes('Event category') ? -1 : 1)); // make the Event category to appear first in the `errorMessageList`;
 }
 
 const INITIAL_EVENTFORM: EventForm = {
@@ -188,6 +191,13 @@ function EventSuggestion() {
     });
   };
 
+  const requiredFieldElement = (
+    <p className="m-0 py-2">
+      <span className="text-primary">* </span>
+      required
+    </p>
+  );
+
   return (
     <div>
       <CustomContainer className="rounded p-lg-4 pb-0 pb-lg-4">
@@ -239,9 +249,11 @@ function EventSuggestion() {
               }
               type="form"
             />
+            {requiredFieldElement}
           </Col>
           <Col md={6} className="mt-3">
             <Form.Control value={eventForm.name} aria-label="Event name" type="text" placeholder="Event name" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'name')} />
+            {requiredFieldElement}
           </Col>
         </Row>
         <Row className="mt-3">
@@ -274,9 +286,11 @@ function EventSuggestion() {
         <Row>
           <Col md={6} className="mt-3">
             <CustomDatePicker date={eventForm.startDate} setDate={(value: any) => handleChange(value, 'startDate')} label="Start date" />
+            {requiredFieldElement}
           </Col>
           <Col md={6} className="mt-3">
             <CustomDatePicker date={eventForm.endDate} setDate={(value: any) => handleChange(value, 'endDate')} label="End date" />
+            {requiredFieldElement}
           </Col>
         </Row>
         <Row>
@@ -288,6 +302,7 @@ function EventSuggestion() {
               options={getCountries()}
               type="form"
             />
+            {requiredFieldElement}
           </Col>
           <Col md={6} className="mt-3">
             <CustomSelect
@@ -297,6 +312,7 @@ function EventSuggestion() {
               options={getStatesbyCountryName(eventForm.country)}
               type="form"
             />
+            {requiredFieldElement}
           </Col>
         </Row>
         <Row>
@@ -305,6 +321,7 @@ function EventSuggestion() {
           </Col>
           <Col md={6} className="mt-3">
             <Form.Control value={eventForm.city} aria-label="City" type="text" placeholder="City" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'city')} />
+            {requiredFieldElement}
           </Col>
         </Row>
         <ErrorMessageList errorMessages={errors} className="mt-4" />

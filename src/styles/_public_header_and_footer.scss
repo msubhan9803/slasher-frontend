@@ -1,0 +1,119 @@
+@use "sass:map";
+@import './bootstrap-variables.scss';
+
+/**************************************************************
+ * Keep the lines below in sync with WordPress and main site. *
+ * NOTE: The CSS below applies to BOTH sites, so there        *
+ * are a couple of CSS rules that only apply to one of        *
+ * the sites and don't have effect on the other.              *
+ **************************************************************/
+
+$footer-height: 320px; // Used for sticky footer
+
+#main-nav.with-background {
+  background-color: #000;
+  -webkit-transition: background-color 400ms linear;
+  -ms-transition: background-color 400ms linear;
+  transition: background-color 400ms linear;
+}
+
+#main-nav {
+  a {
+    text-decoration: none;
+  }
+
+  .navbar-brand {
+    margin-right: 0;
+    @media (min-width: map.get($grid-breakpoints, "xl")) {
+      margin-right: 1rem;
+    }
+
+    img {
+      height: 120px;
+      width: 204px;
+      max-height: 120px;
+      max-width: 204px;
+
+      margin-right: 0;
+      @media (min-width: map.get($grid-breakpoints, "xl")) {
+        margin-right: 2rem;
+      }
+    }
+  }
+
+  .sign-in-button {
+    margin-left: .25rem;
+    @media (min-width: map.get($grid-breakpoints, "xl")) {
+      margin-left: 2rem;
+    }
+  }
+
+  // Make these wrappers the same width in mobile view to guarantee that the Slasher logo
+  // is centered (by flex box) in between them.
+  .toggle-button-wrapper, .sign-in-button-wrapper {
+    width: 90px;
+    @media (min-width: map.get($grid-breakpoints, "lg")) {
+      width: 120px;
+    }
+    @media (min-width: map.get($grid-breakpoints, "xl")) {
+      width: auto;
+    }
+  }
+}
+
+#main-nav, #footer-menu-wrapper {
+  text-transform: uppercase;
+  font-weight: bold;
+
+  .navbar-nav li a, .mobile-menu-sign-in-link {
+    color: #fff;
+
+    &:hover {
+      color: var(--bs-primary) !important;
+    }
+  }
+}
+
+#navbarNavOffcanvas {
+  // We don't capitalize the text in the offcanvas slide-out menu
+  &.offcanvas {
+    &.show, &.showing, &.hiding, &.offcanvas-toggling {
+      font-weight: normal;
+      text-transform: none !important;
+      a {
+        text-decoration: none !important;
+      }
+
+      .offcanvas-body {
+        padding-top: .25rem;
+      }
+
+      .navbar-nav li a, .mobile-menu-sign-in-link {
+        padding: 1rem 0 !important;
+      }
+    }
+  }
+
+}
+
+a.social-network-icon-group-link {
+  color: #000;
+  background-color: #fff;
+  width: 32px;
+  height: 32px;
+  margin-right: 1rem;
+
+  &:hover {
+    background-color: var(--bs-primary);
+  }
+}
+
+#footer-menu-wrapper {
+  #footer-menu li {
+    width: 50%;
+    a {
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+    }
+  }
+}

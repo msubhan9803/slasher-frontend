@@ -2,8 +2,9 @@ import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Nav } from 'react-bootstrap';
 import SidebarNavItem from './SidebarNavItem';
-import { enableDevFeatures } from '../../../utils/configEnvironment';
-import { GOOGLE_PLAY_DOWNLOAD_URL, APP_STORE_DOWNLOAD_URL, WORDPRESS_SITE_URL } from '../../../constants';
+import {
+  enableDevFeatures, GOOGLE_PLAY_DOWNLOAD_URL, APP_STORE_DOWNLOAD_URL, WORDPRESS_SITE_URL,
+} from '../../../constants';
 import RoundButtonLink from '../../ui/RoundButtonLink';
 
 const MAX_ALLOWED_COMING_SOON_ITEMS_IN_MENU = 1;

@@ -39,6 +39,7 @@ import { sleep } from '../../../utils/timer-utils';
 import { isPostDetailsPage } from '../../../utils/url-utils';
 import { friendship } from '../../../api/friends';
 import FriendshipStatusModal from '../friendShipCheckModal';
+import ContentNotAvailable from '../../ContentNotAvailable';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -91,6 +92,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   const [friendData, setFriendData] = useState<FriendType>(null);
   const [friendShipStatusModal, setFriendShipStatusModal] = useState<boolean>(false);
   const [postUserId, setPostUserId] = useState<string>('');
+  const [notFound, setNotFound] = useState<boolean>(false);
 
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const location = useLocation();
@@ -500,6 +502,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         setPostContent(res.data.message);
       })
       .catch((error) => {
+        if (error.response.status === 404) { setNotFound(true); }
         setErrorMessage(error.response.data.message);
       });
   }, [navigate, partnerId, postId, postType, queryCommentId, queryReplyId,
@@ -800,6 +803,8 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     }
     return undefined;
   }, [selectedBlockedUserId, dropDownValue, updateCommentDataAfterBlockUser]);
+
+  if (notFound) { return (<ContentNotAvailable />); }
 
   return (
     <>

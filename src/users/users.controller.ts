@@ -98,6 +98,8 @@ export class UsersController {
   @Post('sign-in')
   @Public()
   async signIn(@Body() userSignInDto: UserSignInDto, @IpOrForwardedIp() ip) {
+    await sleep(500); // throttle so this endpoint is less likely to be abused
+
     let user = await this.usersService.findNonDeletedUserByEmailOrUsername(userSignInDto.emailOrUsername);
 
     if (!user) {

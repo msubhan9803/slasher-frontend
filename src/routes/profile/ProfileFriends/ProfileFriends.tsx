@@ -24,7 +24,7 @@ import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import { rejectFriendsRequest } from '../../../api/friends';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
 import {
-  getPageStateCache, hasPageStateCache, setPageStateCache,
+  getPageStateCache, setPageStateCache,
 } from '../../../pageStateCache';
 
 type UserProfileFriendsResponseData = AxiosResponse<{ friends: FriendProps[] }>;
@@ -56,27 +56,25 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
   const friendContainerElementRef = useRef<any>(null);
   const loginUserData = useAppSelector((state) => state.user.user);
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
-  const [additionalFriend, setAdditionalFriend] = useState<boolean>(true);
+  const [requestAdditionalFriends, setRequestAdditionalFriends] = useState<boolean>(false);
   const location = useLocation();
   const pageStateCache: ProfileFriendsCache = getPageStateCache(location) ?? {
     user: undefined,
     allFriends: { page: 0, data: [], searchValue: '' },
   };
   const [friendsList, setFriendsList] = useState<FriendProps[]>(
-    pageStateCache?.allFriends?.data! || [],
+    pageStateCache?.allFriends?.data || [],
   );
-  console.log('friendsList?', friendsList);
   const [page, setPage] = useState<number>(
-    hasPageStateCache(location)
-      ? pageStateCache?.allFriends?.page! : 0,
+    pageStateCache?.allFriends?.page || 0,
   );
   const [search, setSearch] = useState<string>(
-    hasPageStateCache(location)
-      ? pageStateCache?.allFriends?.searchValue! : '',
+    pageStateCache?.allFriends?.searchValue || '',
   );
-  const isLoadingRef = useRef(true);
   const controllerRef = useRef<AbortController | null>();
   const lastUserIdRef = useRef(user._id);
+  const [initialLoad] = useState((pageStateCache.allFriends?.data || 0) === 0);
+  const friendsBodyElementRef = useRef<HTMLDivElement>(null);
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
@@ -141,7 +139,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
         .catch((error) => setErrorMessage(error.response.data.message))
         .finally(
           // eslint-disable-next-line max-len
-          () => { setAdditionalFriend(false); setLoadingFriends(false); isLoadingRef.current = false; controllerRef.current = null; },
+          () => { setRequestAdditionalFriends(false); setLoadingFriends(false); controllerRef.current = null; },
         );
     }
   }, [getProfileFriendsPageCache, location, page, search, user._id]);
@@ -152,6 +150,8 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
       lastUserIdRef.current = user._id;
       // Cancel setting state for most recent friendList api call
       if (controllerRef.current) { controllerRef.current.abort(); }
+      // TODO: Incorporate below logic into `fetchMoreFriendList(true)` where `true` would mean
+      // TODO:      `forceReload` for friends and update below values there in the same function.
       // Set the new user's data in comoponent state
       setFriendsList(getProfileFriendsPageCache()?.allFriends?.data || []);
       const currentPage = getProfileFriendsPageCache()?.allFriends?.page || 0;
@@ -160,16 +160,17 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
       setSearch(currentSearch);
       // Reset infinite-loading
       setNoMoreData(false);
-      setAdditionalFriend(true);
+      setRequestAdditionalFriends(true);
     }
 
-    if (additionalFriend && !loadingFriends && user._id) {
+    if (requestAdditionalFriends && !loadingFriends && user._id) {
       setTimeout(() => {
         setLoadingFriends(true);
         fetchMoreFriendList();
       }, 200);
     }
-  }, [additionalFriend, loadingFriends, search, friendsList, user._id, page, fetchMoreFriendList,
+  }, [requestAdditionalFriends, loadingFriends, search, friendsList, user._id, page,
+    fetchMoreFriendList,
     location, getProfileFriendsPageCache]);
 
   const renderNoMoreDataMessage = () => {
@@ -193,7 +194,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
     }
     setFriendsList([]);
     setNoMoreData(false);
-    setAdditionalFriend(true);
+    setRequestAdditionalFriends(true);
     setSearch(value);
     setPage(0);
   };
@@ -243,15 +244,22 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
               <CustomSearchInput label="Search friends..." setSearch={handleSearch} search={search} />
             </Col>
           </Row>
-          <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 my-3 py-3">
+          <div
+            className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 my-3 py-3"
+            ref={friendsBodyElementRef}
+          >
             {loginUserData.userName === user.userName
               && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="" />}
             <InfiniteScroll
               threshold={3000}
               pageStart={0}
-              initialLoad
-              loadMore={() => { setAdditionalFriend(true); }}
+              initialLoad={initialLoad}
+              loadMore={() => { setRequestAdditionalFriends(true); }}
               hasMore={!noMoreData}
+              /* Using a custom parentNode element to base the scroll calulations on. */
+              useWindow={false}
+              getScrollParent={() => friendsBodyElementRef.current}
+
             >
               <Row ref={friendContainerElementRef} className="mt-4">
                 {friendsList.map((friend: FriendProps) => (
@@ -266,7 +274,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
                 ))}
               </Row>
             </InfiniteScroll>
-            {(isLoadingRef.current || loadingFriends) && <LoadingIndicator className="py-3" />}
+            {loadingFriends && <LoadingIndicator className="py-3" />}
             {noMoreData && renderNoMoreDataMessage()}
             <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
           </div>

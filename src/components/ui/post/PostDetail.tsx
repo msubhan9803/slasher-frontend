@@ -123,8 +123,8 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     } else {
       data = commentData.length > 0 ? commentData[0]._id : undefined;
     }
-    // Note: Using === below provides a conciser expression for
-    // expression `isOldestFirst ? isAddingBelowCurrentComments : !isAddingBelowCurrentComments`
+    // Note: Using === below provides a concise expression of
+    // this = `isOldestFirst ? isAddingBelowCurrentComments : !isAddingBelowCurrentComments`
     const isOldestFirstFromApi = isOldestFirst === isAddingBelowCurrentComments;
     getFeedComments(
       postId!,
@@ -133,7 +133,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     ).then((res: AxiosResponse<FeedComments[]>) => {
       const comments = isAddingBelowCurrentComments
         ? res.data
-        : res.data.reverse().map((comment) => ({ ...comment, replies: comment.replies.reverse() }));
+        : res.data.reverse();
       // eslint-disable-next-line max-len
       setCommentData((prev: any) => (isAddingBelowCurrentComments ? [...prev, ...comments] : [...comments, ...prev]));
       if (res.data.length === 0) { setNoMoreData(true); }

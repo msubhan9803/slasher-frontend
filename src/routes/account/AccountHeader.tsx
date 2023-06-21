@@ -5,7 +5,7 @@ interface AccountHeaderProps {
   tabKey: string;
 }
 const tabs = [
-  { value: 'notifications', label: 'Notifications' },
+  // { value: 'notifications', label: 'Notifications' },
   { value: 'blocked-users', label: 'Blocked users' },
   { value: 'change-password', label: 'Change password' },
   { value: 'sign-out', label: 'Sign out' },

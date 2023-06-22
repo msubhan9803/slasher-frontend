@@ -162,8 +162,8 @@ resource "aws_ecs_task_definition" "slasher-web-task-new-defination" {
         "valueFrom" : "/ECS-CLUSTER/slasher-${terraform.workspace}/FIREBASE_SERVER_KEY"
       },
       {
-        "name" : "HCAPTCHA_SECRET_KEY",
-        "valueFrom" : "/ECS-CLUSTER/slasher-${terraform.workspace}/HCAPTCHA_SECRET_KEY"
+        "name" : "CAPTCHA_SECRET_KEY",
+        "valueFrom" : "/ECS-CLUSTER/slasher-${terraform.workspace}/CAPTCHA_SECRET_KEY"
       }
     ],
     "essential": true,

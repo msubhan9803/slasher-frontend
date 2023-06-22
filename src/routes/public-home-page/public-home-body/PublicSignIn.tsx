@@ -43,17 +43,15 @@ function PublicSignIn() {
       <Form className="text-center py-5 px-4 mt-4 mx-auto">
         <Row className="pt-3">
           <Col>
+            <p className="text-primary mb-0 text-uppercase fs-4">We would love to hear from you!</p>
             <h1 className="fw-bolder">GET NOTIFIED OF ALL THE LATEST SLASHER NEWS &#8722; SIGN UP!</h1>
           </Col>
         </Row>
         <Row className="text-light justify-content-center mt-3 mb-5 pb-2">
           <Col>
             <p>
-              Slasher will be launching lots of new features WORLDWIDE!
-              <br />
-              Get all the lastest info, sneak previews, early beta access and more.
-              <br />
-              Sign up now!
+              Send a message to let us know if you have questions about Slasher, suggestions for
+              new features, or would like to work with us.
             </p>
           </Col>
         </Row>

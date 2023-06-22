@@ -34,7 +34,7 @@ function PublicHomeHeader() {
   }
 
   useEffect(() => {
-    const handleScroll = () => {
+    const handleCurrentScrollPosition = () => {
       if (window.scrollY > 50) {
         if (!applySolidBackgroundToTopNav) {
           setApplySolidBackgroundToTopNav(true);
@@ -44,8 +44,11 @@ function PublicHomeHeader() {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => { window.removeEventListener('scroll', handleScroll); };
+    // Fire once on component mount, in case the component mounts while page is not scrolled to the top
+    handleCurrentScrollPosition();
+
+    window.addEventListener('scroll', handleCurrentScrollPosition);
+    return () => { window.removeEventListener('scroll', handleCurrentScrollPosition); };
   }, [applySolidBackgroundToTopNav]);
 
   return (

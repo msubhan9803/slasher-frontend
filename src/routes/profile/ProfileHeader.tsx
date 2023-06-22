@@ -179,7 +179,7 @@ function ProfileHeader({
           </CustomCol>
           <Col className="w-100 mt-md-4">
             <Row className="d-flex justify-content-between">
-              <Col xs={12} md={4} lg={12} xl={4} className="text-center text-capitalize text-md-start text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
+              <Col xs={12} md={4} lg={12} xl={4} className="text-center text-md-start text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
                 <h1 className="mb-md-0 text-nowrap">
                   {user?.firstName}
                 </h1>

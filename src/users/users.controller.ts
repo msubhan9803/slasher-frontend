@@ -485,6 +485,15 @@ export class UsersController {
     return this.usersService.suggestUserName(query.query, query.limit, true, excludedUserIds);
   }
 
+  @Get('previous-username/:userName')
+  async findByPreviousUserName(@Param('userName') userName: string) {
+    const user = await this.usersService.findByPreviousUsername(userName);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    return user;
+  }
+
   @TransformImageUrls('$.profilePic', '$.coverPhoto')
   @Get(':userNameOrId')
   async findOne(@Req() request: Request, @Param('userNameOrId') userNameOrId: string) {
@@ -557,14 +566,15 @@ export class UsersController {
       throw new HttpException('You are not allowed to do this action', HttpStatus.FORBIDDEN);
     }
 
-    if (updateUserDto.userName
-      && updateUserDto.userName !== user.userName
-      && !await this.usersService.userNameAvailable(updateUserDto.userName)
-    ) {
-      throw new HttpException(
-        'Username is already associated with an existing user.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      );
+    let changingUserName = false;
+    if (updateUserDto.userName && updateUserDto.userName !== user.userName) {
+      changingUserName = true;
+      if (!await this.usersService.userNameAvailable(updateUserDto.userName)) {
+        throw new HttpException(
+          'Username is already associated with an existing user.',
+          HttpStatus.UNPROCESSABLE_ENTITY,
+        );
+      }
     }
 
     const additionalFieldsToUpdate: Partial<User> = {};
@@ -600,6 +610,18 @@ export class UsersController {
       // If newly supplied email address matches existing email, make sure to clear out the
       // unverifiedNewEmail field.
       additionalFieldsToUpdate.unverifiedNewEmail = null;
+    }
+
+    if (changingUserName) {
+      // TODO (SD-1336): When user is allowed to update username, remove `throw` below
+      throw new HttpException(
+        'You can edit your username after July 31, 2023',
+        HttpStatus.BAD_REQUEST,
+      );
+
+      // TODO (SD-1336): When user is allowed to update username, uncomment lines below
+      // await this.usersService.removePreviousUsernameEntry(updateUserDto.userName);
+      // additionalFieldsToUpdate.previousUserName = user.userName;
     }
 
     const userData = await this.usersService.update(id, { ...updateUserDto, ...additionalFieldsToUpdate });

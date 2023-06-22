@@ -62,7 +62,9 @@ describe('Users / :id (e2e)', () => {
     // Reset sequences so we start fresh before each test
     rewindAllFactories();
 
-    activeUser = await usersService.create(userFactory.build());
+    activeUser = await usersService.create(userFactory.build({
+      userName: 'TestUser',
+    }));
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
@@ -160,7 +162,9 @@ describe('Users / :id (e2e)', () => {
       });
 
       it('update the user data successfully when previousUserName is provided', async () => {
-        const sampleUserUpdateObject1 = { userName: 'slasher1', previousUserName: activeUser.userName };
+        // const sampleUserUpdateObject1 = { userName: 'slasher1', previousUserName: activeUser.userName };
+        // REvert when we allow user to update the username
+        const sampleUserUpdateObject1 = { userName: 'TestUser', previousUserName: activeUser.userName };
         const postBody1 = { ...sampleUserUpdateObject1 };
         const response = await request(app.getHttpServer())
           .patch(`/api/v1/users/${activeUser.id}`)

@@ -605,6 +605,13 @@ export class UsersController {
       // unverifiedNewEmail field.
       additionalFieldsToUpdate.unverifiedNewEmail = null;
     }
+    // Remove when we allow user to update the username
+    if (updateUserDto.userName && updateUserDto.userName !== user.userName) {
+      throw new HttpException(
+        'You can edit your username after July 31, 2023',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
 
     const userData = await this.usersService.update(id, { ...updateUserDto, ...additionalFieldsToUpdate });
     return {

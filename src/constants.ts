@@ -2,6 +2,7 @@ import { Capacitor } from '@capacitor/core';
 
 // eslint-disable-next-line import/prefer-default-export
 export const apiUrl = process.env.REACT_APP_API_URL;
+export const captchaSiteKey = process.env.REACT_APP_CAPTCHA_SITE_KEY || '';
 export const analyticsId = process.env.REACT_APP_GOOGLE_ANALYTICS_PROPERTY_ID;
 export const isNativePlatform = Capacitor.isNativePlatform();
 export const enableDevFeatures = process.env.REACT_APP_ENABLE_DEV_ELEMENTS === 'true';

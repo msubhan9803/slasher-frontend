@@ -12,7 +12,7 @@ import useProgressButton from '../../../components/ui/ProgressButton';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 import { useAppSelector } from '../../../redux/hooks';
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
-import { WORDPRESS_SITE_URL } from '../../../constants';
+import { WORDPRESS_SITE_URL, captchaSiteKey } from '../../../constants';
 
 interface Props {
   activeStep: number;
@@ -112,7 +112,7 @@ function RegistrationTerms({ activeStep }: Props) {
       <Row className="mt-2">
         <Col className="justify-content-center d-flex">
           <ReCAPTCHA
-            sitekey={process.env.REACT_APP_RECAPTCHA_APP_SITE_KEY!}
+            sitekey={captchaSiteKey}
             ref={captchaRef}
             size="invisible"
           />

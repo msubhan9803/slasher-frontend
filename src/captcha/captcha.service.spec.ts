@@ -53,7 +53,7 @@ describe('CaptchaService', () => {
   });
 
   describe('#verifyReCaptchaToken', () => {
-    it('should verify hCaptcha token and return data', async () => {
+    it('should verify captcha token and return data', async () => {
       const token = '48ed6df1-a1f2-4267-a3b9-7aadafbca5b3';
       const responseData = {
         success: true,
@@ -69,7 +69,7 @@ describe('CaptchaService', () => {
       expect(result).toEqual(responseData);
     });
 
-    it('should handle invalid hCaptcha token', async () => {
+    it('should handle invalid captcha token', async () => {
       const token = 'invalid-token';
       const errorResponse = {
         success: false,

@@ -139,7 +139,7 @@ describe('Users / Register (e2e)', () => {
         expect(registeredUser.registrationIp.length).toBeGreaterThan(4); // test for presence of IP value
       });
 
-      it('should handle invalid hCaptcha token', async () => {
+      it('should handle invalid captcha token', async () => {
         jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
         jest.spyOn(captchaService, 'verifyReCaptchaToken').mockImplementation(() => Promise.resolve({ success: false }));
         const response = await request(app.getHttpServer())

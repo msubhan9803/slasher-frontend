@@ -301,8 +301,8 @@ export class UsersController {
       );
     }
 
-    const hCaptchaVerified = await this.captchaService.verifyReCaptchaToken(userRegisterDto.reCaptchaToken);
-    if (!hCaptchaVerified.success) {
+    const captchaVerified = await this.captchaService.verifyReCaptchaToken(userRegisterDto.reCaptchaToken);
+    if (!captchaVerified.success) {
       throw new HttpException(
         'Captcha validation failed. Please try again.',
         HttpStatus.UNPROCESSABLE_ENTITY,

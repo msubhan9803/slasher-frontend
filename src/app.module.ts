@@ -41,6 +41,7 @@ import { AppController } from './app/app.controller';
 import { BetaTesterModule } from './beta-tester/beta-tester.module';
 import { TimeoutInterceptor } from './app/interceptors/timeout.interceptor';
 import { AuthGuard } from './app/guards/auth.guard';
+import { CaptchaModule } from './captcha/captcha.module';
 
 @Module({
   imports: [
@@ -99,6 +100,7 @@ import { AuthGuard } from './app/guards/auth.guard';
     QueuedJobsModule,
     MovieUserStatusModule,
     BetaTesterModule,
+    CaptchaModule,
   ],
   controllers: [AppController],
   providers: [

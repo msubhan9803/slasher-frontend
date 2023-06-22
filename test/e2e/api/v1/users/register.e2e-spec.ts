@@ -19,6 +19,7 @@ import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-se
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 import { BetaTestersService } from '../../../../../src/beta-tester/providers/beta-testers.service';
 import { betaTesterFactory } from '../../../../factories/beta-tester.factory';
+import { CaptchaService } from '../../../../../src/captcha/captcha.service';
 
 describe('Users / Register (e2e)', () => {
   let app: INestApplication;
@@ -28,6 +29,7 @@ describe('Users / Register (e2e)', () => {
   let disallowedUsernameService: DisallowedUsernameService;
   let userSettingsService: UserSettingsService;
   let betaTestersService: BetaTestersService;
+  let captchaService: CaptchaService;
 
   const sampleUserRegisterObject = {
     firstName: 'user',
@@ -38,6 +40,7 @@ describe('Users / Register (e2e)', () => {
     securityQuestion: 'Name of your first pet?',
     securityAnswer: 'tom',
     dob: DateTime.now().minus({ years: 18 }).toISODate(),
+    reCaptchaToken: '48ed6df1-a1f2-4267-a3b9-7aadafbca5b3',
   };
 
   beforeAll(async () => {
@@ -51,6 +54,7 @@ describe('Users / Register (e2e)', () => {
     disallowedUsernameService = moduleRef.get<DisallowedUsernameService>(DisallowedUsernameService);
     userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     betaTestersService = moduleRef.get<BetaTestersService>(BetaTestersService);
+    captchaService = moduleRef.get<CaptchaService>(CaptchaService);
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -88,6 +92,7 @@ describe('Users / Register (e2e)', () => {
     describe('Successful Registration', () => {
       it('can successfully register with given user data', async () => {
         jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
+        jest.spyOn(captchaService, 'verifyReCaptchaToken').mockImplementation(() => Promise.resolve({ success: true }));
         const response = await request(app.getHttpServer())
           .post('/api/v1/users/register')
           .send(postBody)
@@ -95,6 +100,7 @@ describe('Users / Register (e2e)', () => {
         expect(response.body).toEqual({
           id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
         });
+
         // Verify that the correct fields were set on the created user object
         const registeredUser = await usersService.findById(response.body.id, false);
         expect(await userSettingsService.findByUserId(response.body.id)).not.toBeNull();
@@ -116,10 +122,14 @@ describe('Users / Register (e2e)', () => {
           registeredUser.id,
           registeredUser.verification_token,
         );
+        expect(captchaService.verifyReCaptchaToken).toHaveBeenCalledWith(
+          postBody.reCaptchaToken,
+        );
       });
 
       it('sets the registrationIp', async () => {
         jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
+        jest.spyOn(captchaService, 'verifyReCaptchaToken').mockImplementation(() => Promise.resolve({ success: true }));
         const response = await request(app.getHttpServer())
           .post('/api/v1/users/register')
           .send(postBody)
@@ -127,6 +137,18 @@ describe('Users / Register (e2e)', () => {
         const registeredUser = await usersService.findById(response.body.id, false);
 
         expect(registeredUser.registrationIp.length).toBeGreaterThan(4); // test for presence of IP value
+      });
+
+      it('should handle invalid hCaptcha token', async () => {
+        jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
+        jest.spyOn(captchaService, 'verifyReCaptchaToken').mockImplementation(() => Promise.resolve({ success: false }));
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/users/register')
+          .send(postBody);
+        expect(response.body).toEqual({
+          statusCode: 422,
+          message: 'Captcha validation failed. Please try again.',
+        });
       });
     });
 
@@ -371,10 +393,20 @@ describe('Users / Register (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('Invalid date of birth');
       });
+
+      it('reCaptchaToken should not be empty', async () => {
+        postBody.reCaptchaToken = '';
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/users/register')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('Captcha is required');
+      });
     });
 
     describe('Existing username or email check', () => {
       it('returns an error when userName already exists', async () => {
+        jest.spyOn(captchaService, 'verifyReCaptchaToken').mockImplementation(() => Promise.resolve({ success: true }));
         let response = await request(app.getHttpServer())
           .post('/api/v1/users/register')
           .send(postBody);
@@ -391,6 +423,7 @@ describe('Users / Register (e2e)', () => {
       });
 
       it('returns an error when email already exists', async () => {
+        jest.spyOn(captchaService, 'verifyReCaptchaToken').mockImplementation(() => Promise.resolve({ success: true }));
         let response = await request(app.getHttpServer())
           .post('/api/v1/users/register')
           .send(postBody);

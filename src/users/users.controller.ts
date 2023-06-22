@@ -23,6 +23,7 @@ import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import mongoose from 'mongoose';
 import { validate } from 'class-validator';
+import { CaptchaService } from '../captcha/captcha.service';
 import { UserSignInDto } from './dto/user-sign-in.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { UsersService } from './providers/users.service';
@@ -93,6 +94,7 @@ export class UsersController {
     private readonly betaTestersService: BetaTestersService,
     private readonly emailRevertTokensService: EmailRevertTokensService,
     private configService: ConfigService,
+    private captchaService: CaptchaService,
   ) { }
 
   @Post('sign-in')
@@ -299,6 +301,13 @@ export class UsersController {
       );
     }
 
+    const hCaptchaVerified = await this.captchaService.verifyReCaptchaToken(userRegisterDto.reCaptchaToken);
+    if (!hCaptchaVerified.success) {
+      throw new HttpException(
+        'Captcha validation failed. Please try again.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
     const user = new User(userRegisterDto);
     user.setUnhashedPassword(userRegisterDto.password);
     user.verification_token = uuidv4();

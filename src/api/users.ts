@@ -12,7 +12,7 @@ export async function signIn(emailOrUsername: string, password: string, signal?:
     const deviceId = await Device.getId();
     const deviceInfo = await Device.getInfo();
     deviceFields = {
-      device_id: deviceId.uuid,
+      device_id: deviceId.identifier,
       device_token: (await getDeviceToken())!,
       device_type: deviceInfo.platform,
       app_version: `${deviceInfo.platform}-capacitor-${process.env.REACT_APP_VERSION}`,

@@ -140,6 +140,22 @@ describe('Users / :id (e2e)', () => {
           });
         });
 
+      // TODO (SD-1336): When user is allowed to update username, remove test below
+      it('returns the expected error when a user tries to update their userName', async () => {
+        const userUpdatePostBody = { userName: `${activeUser.userName}-updated` };
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/users/${activeUser.id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send(userUpdatePostBody);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body).toEqual({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'You can edit your username after July 31, 2023',
+        });
+        const updatedActiveUser = await usersService.findById(activeUser.id, true);
+        expect(updatedActiveUser.userName).toEqual(activeUser.userName);
+      });
+
       // TODO (SD-1336): When user is allowed to update username, uncomment test below
       // eslint-disable-next-line jest/no-commented-out-tests
       // it("upates user's userName and clears out previousUserName for different user if user's new userName equals "

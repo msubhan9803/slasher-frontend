@@ -607,7 +607,7 @@ export class UsersController {
       // TODO (SD-1336): When user is allowed to update username, remove `throw` below
       throw new HttpException(
         'You can edit your username after July 31, 2023',
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        HttpStatus.BAD_REQUEST,
       );
 
       // TODO (SD-1336): When user is allowed to update username, uncomment lines below

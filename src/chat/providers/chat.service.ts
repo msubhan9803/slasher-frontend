@@ -278,6 +278,7 @@ export class ChatService {
           matchId: matchList._id,
           deletefor: { $ne: new mongoose.Types.ObjectId(userId) },
           isRead: false,
+          fromId: { $ne: new mongoose.Types.ObjectId(userId) },
           // TODO: Exclude {deleted: true} messages
         })
         .sort({ createdAt: -1 })

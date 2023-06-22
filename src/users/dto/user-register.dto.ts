@@ -45,5 +45,5 @@ export class UserRegisterDto {
   dob: Date;
 
   @IsNotEmpty({ message: 'Captcha is required' })
-  hCaptchaToken: string;
+  reCaptchaToken: string;
 }

@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
-import * as qs from 'qs';
 import { lastValueFrom } from 'rxjs';
 
 @Injectable()
@@ -13,14 +12,10 @@ export class CaptchaService {
 
   async verifyHCaptchaToken(token: string): Promise<any> {
     try {
-      const headers = {
-        'content-type': 'application/x-www-form-urlencoded',
-      };
-      const params = {
-        response: token,
-        secret: this.configService.get<string>('HCAPTCHA_SECRET_KEY'),
-      };
-      const result = await lastValueFrom(this.httpService.post<any>('https://hcaptcha.com/siteverify', qs.stringify(params), { headers }));
+      // const result = await lastValueFrom(this.httpService.post<any>(`https://www.google.com/recaptcha/api/siteverify?
+      // secret=${this.configService.get<string>('RECAPTCHA_SECRET_KEY')}&response=${token}`));
+      const result = await lastValueFrom(this.httpService.post<any>(`https://www.google.com/recaptcha/api/siteverify
+      ?secret=6LfC3L4mAAAAAEzfQvMv9Igj-mOs6oUYyJNkCIsX&response=${token}`));
       const data = result.data || {};
       return data;
     } catch (err) {

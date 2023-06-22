@@ -92,8 +92,12 @@ function Profile() {
       .catch((e) => {
         // If requested user is blocked then show "This content is no longer available" page
         // else a general user not found page is shown.
-        if (e.response.status === 403) { setUserIsBlocked(true); } else { setUserNotFound(true); }
-        // if (e.response.status === 404) { checkWithPreviousUserName(); }
+        if (e.response.status === 403) {
+          setUserIsBlocked(true);
+        } else {
+          // if (e.response.status === 404) { checkWithPreviousUserName(); }
+          setUserNotFound(true);
+        }
       });
   }, [location.pathname, location.search, navigate, userNameOrId]);
 

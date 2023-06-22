@@ -114,7 +114,6 @@ function ProfileEdit({ user }: Props) {
         userDataInForm.email,
         userDataInForm._id,
         userDataInForm.profile_status,
-        params.userName !== userDataInForm.userName ? params.userName! : null,
       );
     } catch (requestError: any) {
       errorList = errorList.concat([requestError.response.data.message]);

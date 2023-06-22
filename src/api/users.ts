@@ -170,7 +170,6 @@ export async function updateUser(
   email: string,
   id: string,
   profile_status: number,
-  previousUserName:string | null,
 ) {
   const token = await getSessionToken();
   const headers = {
@@ -181,7 +180,6 @@ export async function updateUser(
     firstName,
     email,
     profile_status,
-    previousUserName,
   }, { headers });
 }
 

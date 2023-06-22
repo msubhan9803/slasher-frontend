@@ -87,7 +87,7 @@ function Chat({
       newHeight -= topToDivHeight;
     } else {
       // add addition spacing beyond bottomMobileNavHeight so we don't cut it too close with padding
-      newHeight -= bottomMobileNavHeight + 15;
+      newHeight -= (bottomMobileNavHeight + 15);
     }
     setMaxHeight(newHeight);
   }, 100);

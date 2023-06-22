@@ -38,7 +38,15 @@ export const WORDPRESS_SITE_URL = 'https://slasher.tv'; // TODO: Change to pages
 // a body scrollbar.  If it does, this value needs to be increased.
 export const topToDivHeight = 110;
 
+// TODO: Make use of `bottomMobileNavHeight` in below file too:
+// TODO: Note: Chat.tsx file is alredy using `bottomMobileNavHeight` variable.
+// 1. used 77px in CommentInput.tsx file
+// 2. used 78.750px in ContentWrapper.tsx file
 export const bottomMobileNavHeight = 80;
 export const SERVER_UNAVAILABLE_TIMEOUT = 10_000;
 
 export const topStatuBarBackgroundColorAndroidOnly = '000000';
+
+// Note: This must be numeric value because we use this
+// compare against return value of `useResize` hook
+export const maxWidthForCommentOrReplyInputOnMobile: number = BREAK_POINTS.lg;

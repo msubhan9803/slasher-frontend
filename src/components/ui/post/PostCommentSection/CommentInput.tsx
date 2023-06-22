@@ -5,6 +5,7 @@ import React, {
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Alert,
   Button,
   Col, Form, InputGroup, Row,
@@ -17,7 +18,9 @@ import {
 import MessageTextarea from '../../MessageTextarea';
 import ErrorMessageList from '../../ErrorMessageList';
 import { FormatMentionProps } from '../../../../types';
-import { LG_MEDIA_BREAKPOINT } from '../../../../constants';
+import { maxWidthForCommentOrReplyInputOnMobile } from '../../../../constants';
+import useWindowInnerWidth from '../../../../hooks/useWindowInnerWidth';
+import { setGlobalCssProperty } from '../../../../utils/styles-utils ';
 
 interface CommentInputProps {
   message: string;
@@ -59,12 +62,12 @@ interface InputProps {
 
 const CommentForm = styled(Form)`
 /* Make comment/reply input fixed on bottom of the screen on mobile and tabs */
-  @media (max-width: ${LG_MEDIA_BREAKPOINT}) {
+  @media (max-width: ${maxWidthForCommentOrReplyInputOnMobile}px) {
     position: fixed;
     left: 0;
     width: 100%;
     background: black;
-    bottom: 78px;
+    bottom: 77px;
     z-index: 1;
     padding: 0px 10px;
   }
@@ -110,6 +113,7 @@ function CommentInput({
   commentSent, setCommentReplyErrorMessage, setReplyImageArray, isEdit, descriptionArray,
   setDescriptionArray, replyDescriptionArray, setReplyDescriptionArray,
   isMainPostCommentClick, selectedReplyUserId,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   commentOrReplySuccessAlertMessage, setCommentOrReplySuccessAlertMessage,
 }: CommentInputProps) {
   const [editMessage, setEditMessage] = useState<string>('');
@@ -174,6 +178,14 @@ function CommentInput({
     }
   }, [commentSent, dataId, editMessage, sendComment]);
 
+  const windowInnerWidth = useWindowInnerWidth();
+
+  // Note: We use `windowInnerWidth` as dependency to set css variable only when necessary
+  useEffect(() => {
+    const heightOfCommentOrReplyInputOnMobile = document.querySelector<HTMLElement>('#comment-or-reply-input')?.offsetHeight;
+    setGlobalCssProperty('--heightOfCommentOrReplyInputOnMobile', `${heightOfCommentOrReplyInputOnMobile ?? 0}px`);
+  }, [windowInnerWidth]);
+
   const onUpdatePost = (msg: string) => {
     const imageArr = isReply ? replyImageArray : imageArray;
     const descriptionArr = isReply ? replyDescriptionArray : descriptionArray;
@@ -237,11 +249,12 @@ function CommentInput({
       setDescriptionArray!([...descriptionArrayList]);
     }
   };
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleCloseCommentOrReplySuccessAlert = () => {
     setCommentOrReplySuccessAlertMessage?.('');
   };
   return (
-    <CommentForm>
+    <CommentForm id="comment-or-reply-input">
       <Row className="pt-2 order-last order-sm-0 gx-0">
         <Col className="ps-0">
           <div className="d-flex align-items-end mb-2">
@@ -343,18 +356,25 @@ function CommentInput({
             className="m-0"
           />
         )}
+      {/* TEMPORARILY DISABLED, refer: https://slasher.atlassian.net/browse/SD-1301?focusedCommentId=15989 */}
       {/* This cooment/reply-to-comment success alert is only for mobile and tablets */}
-      {commentOrReplySuccessAlertMessage
+      {/* {commentOrReplySuccessAlertMessage
         && (
-        <Alert variant="success" className="d-flex d-lg-none align-items-center justify-content-between mb-1">
+        <Alert
+          variant="success"
+          className="d-flex d-lg-none align-items-center justify-content-between mb-1"
+        >
           <div>
             {commentOrReplySuccessAlertMessage}
           </div>
-          <Button onClick={handleCloseCommentOrReplySuccessAlert} className="bg-transparent border-0">
+          <Button
+            onClick={handleCloseCommentOrReplySuccessAlert}
+            className="bg-transparent border-0"
+          >
             <FontAwesomeIcon className="d-block" icon={solid('close')} size="lg" />
           </Button>
         </Alert>
-        )}
+        )} */}
     </CommentForm>
   );
 }

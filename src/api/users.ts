@@ -12,7 +12,7 @@ export async function signIn(emailOrUsername: string, password: string, signal?:
     const deviceId = await Device.getId();
     const deviceInfo = await Device.getInfo();
     deviceFields = {
-      device_id: deviceId.uuid,
+      device_id: deviceId.identifier,
       device_token: (await getDeviceToken())!,
       device_type: deviceInfo.platform,
       app_version: `${deviceInfo.platform}-capacitor-${process.env.REACT_APP_VERSION}`,
@@ -123,6 +123,14 @@ export async function getUser(userName: string) {
 }
 export async function getPublicProfile(userName: string) {
   return axios.get(`${apiUrl}/api/v1/users/public/${userName}`);
+}
+
+export async function getUserByPreviousUserName(userName: string) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.get(`${apiUrl}/api/v1/users/previous-username/${userName}`, { headers });
 }
 
 export async function getProfilePosts(id: string, lastRetrievedPostId?: string) {

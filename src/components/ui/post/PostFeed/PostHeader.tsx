@@ -67,7 +67,7 @@ function PostHeader({
                 : `/${userName}`}
               className="text-decoration-none d-block"
             >
-              <h2 className="mb-0 h3 text-capitalize">{userName}</h2>
+              <h2 className="mb-0 h3">{userName}</h2>
             </Link>
             {
               isSinglePost ? (

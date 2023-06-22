@@ -61,6 +61,15 @@ function Profile() {
   const bp = useBootstrapBreakpointName();
   const lastLocationKeyRef = useRef(location.key);
 
+  // commented until we enable update username support
+  // const checkWithPreviousUserName = useCallback(() => {
+  //   getUserByPreviousUserName(userNameOrId!).then((res) => {
+  //     navigate(`/${res.data.userName}`);
+  //   }).catch((e) => {
+  //     if (e.response.status === 404) { setUserNotFound(true); }
+  //   });
+  // }, [userNameOrId, navigate]);
+
   /**
    * 1. This function fetch userInfo from api and set in component state.
    * 2. This function can be used when a loggedin user blocks another user
@@ -83,7 +92,12 @@ function Profile() {
       .catch((e) => {
         // If requested user is blocked then show "This content is no longer available" page
         // else a general user not found page is shown.
-        if (e.response.status === 403) { setUserIsBlocked(true); } else { setUserNotFound(true); }
+        if (e.response.status === 403) {
+          setUserIsBlocked(true);
+        } else {
+          // if (e.response.status === 404) { checkWithPreviousUserName(); }
+          setUserNotFound(true);
+        }
       });
   }, [location.pathname, location.search, navigate, userNameOrId]);
 

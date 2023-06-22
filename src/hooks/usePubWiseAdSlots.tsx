@@ -58,8 +58,8 @@ const usePubWiseAdSlots = (enableADs: boolean) => {
   // Load scripts required for required for PubWise Adslots
   const { isScriptsLoaded, error } = useLoadScriptsInOrder([
     'https://securepubads.g.doubleclick.net/tag/js/gpt.js',
-    '//fdyn.pubwise.io/script/786ead05-a265-491d-aeb6-cdbb8ad4cac7/v3/dyn/pre_pws.js?type=web',
-    '//fdyn.pubwise.io/script/786ead05-a265-491d-aeb6-cdbb8ad4cac7/v3/dyn/pws.js?type=web',
+    'https://fdyn.pubwise.io/script/786ead05-a265-491d-aeb6-cdbb8ad4cac7/v3/dyn/pre_pws.js?type=web',
+    'https://fdyn.pubwise.io/script/786ead05-a265-491d-aeb6-cdbb8ad4cac7/v3/dyn/pws.js?type=web',
   ], !enableADs);
 
   useEffect(() => {

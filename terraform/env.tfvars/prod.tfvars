@@ -28,5 +28,6 @@ storage_location_generator_prefix = "/"
 # User id below is Damon's user id
 welcome_message_sender_user_id    = "5cf146426038e206a2fe681b"
 send_push_notification            = true
+log_level                         = "warn"
 
 cron_enabled_cron                 = true # for cron service the cron is enabled

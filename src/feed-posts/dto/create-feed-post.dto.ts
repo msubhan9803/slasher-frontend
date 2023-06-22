@@ -15,7 +15,7 @@ import { PostType } from '../../schemas/feedPost/feedPost.enums';
 import { WorthWatchingStatus } from '../../types';
 import { MAX_ALLOWED_UPLOAD_FILES_FOR_POST } from '../../constants';
 
-export class MoviePostDto {
+class CreateMoviePostDto {
   @IsNotEmpty({ message: 'spoilers should not be empty' })
   @IsBoolean()
   @Transform(({ value }) => (value === 'true'))
@@ -62,9 +62,9 @@ export class CreateFeedPostsDto {
   postType: PostType;
 
   @IsOptional()
-  @Type(() => MoviePostDto)
+  @Type(() => CreateMoviePostDto)
   @ValidateNested({ each: true })
-  moviePostFields: MoviePostDto;
+  moviePostFields: CreateMoviePostDto;
 
   @IsOptional()
   @IsMongoId()

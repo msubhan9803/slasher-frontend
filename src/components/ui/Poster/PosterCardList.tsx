@@ -7,6 +7,7 @@ import checkAdsPosterCardList from './checkAdsPosterCardList';
 import useBootstrapBreakpointName from '../../../hooks/useBootstrapBreakpoint';
 import PubWiseAd from '../PubWiseAd';
 import { useAppSelector } from '../../../redux/hooks';
+import { deletePageStateCache } from '../../../pageStateCache';
 
 interface PosterCardProps {
   dataList: CardListProps[] | [];
@@ -48,7 +49,8 @@ function PosterCardList({ dataList, pubWiseAdUnitDivId, onSelect }: PosterCardPr
             <Col xs={4} md={3} lg={4} xl={3} key={listDetail._id}>
               <Link
                 className="m-1"
-                onClick={() => onSelect!(listDetail._id!)}
+                // eslint-disable-next-line max-len
+                onClick={() => { deletePageStateCache(`/app/movies/${listDetail._id}`); onSelect!(listDetail._id!); }}
                 to={`/app/movies/${listDetail._id}`}
               >
                 <PosterCard

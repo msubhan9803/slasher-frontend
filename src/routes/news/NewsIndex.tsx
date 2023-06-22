@@ -12,7 +12,9 @@ import { NEWS_DIV_ID } from '../../utils/pubwise-ad-units';
 import { ContentPageWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
-import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../pageStateCache';
+import {
+  deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
+} from '../../pageStateCache';
 
 const TrucatedDescription = styled.small`
   display: -webkit-box;
@@ -67,7 +69,7 @@ function NewsIndex() {
               return (
                 <React.Fragment key={news._id}>
                   <Col xs={6} sm={4} md={3} lg={4} xl={3} className="pt-2">
-                    <Link to={`/app/news/partner/${news._id}`} className="d-block text-decoration-none">
+                    <Link to={`/app/news/partner/${news._id}`} onClick={() => deletePageStateCache(`/app/news/partner/${news._id}`)} className="d-block text-decoration-none">
                       <Card className="bg-transparent border-0">
                         <Card.Img src={news.logo} alt="news logo" className="rounded-4" style={{ aspectRatio: '1' }} />
                         <Card.Body className="px-0">

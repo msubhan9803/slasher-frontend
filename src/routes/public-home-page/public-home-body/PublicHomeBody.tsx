@@ -4,6 +4,7 @@ import NowAvailableSection from './NowAvailableSection';
 import HeroSection from './HeroSection';
 import PublicSignIn from './PublicSignIn';
 import UserReview from './UserReview';
+import { enableDevFeatures } from '../../../constants';
 
 function PublicHomeBody({ children }: any) {
   return (
@@ -14,7 +15,8 @@ function PublicHomeBody({ children }: any) {
           <AboutApp />
           <NowAvailableSection />
           <UserReview />
-          <PublicSignIn />
+          {enableDevFeatures
+            && <PublicSignIn />}
         </div>
       )}
     </div>

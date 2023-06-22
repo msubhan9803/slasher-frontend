@@ -23,7 +23,7 @@ function MovieDetails() {
     hasPageStateCache(location) ? pageStateCache.additionalMovieData : undefined,
   );
   useEffect(() => {
-    if (params.id && !movieData) {
+    if (params.id && (!movieData || movieData?.isUpdated)) {
       getMoviesById(params.id)
         .then((res) => {
           setMovieData(res.data);

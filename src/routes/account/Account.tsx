@@ -6,7 +6,7 @@ import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/righ
 import AccountBlockedUser from './AccountBlockedUser/AccountBlockedUser';
 import AccountChangePassword from './AccountChangePassword/AccountChangePassword';
 import AccountDelete from './AccountDelete/AccountDelete';
-import AccountNotification from './AccountNotification/AccountNotification';
+// import AccountNotification from './AccountNotification/AccountNotification';
 import AccountSettings from './AccountSettings/AccountSettings';
 import ScrollToTopOnPathnameChange from '../../components/ScrollToTopOnPathnameChange';
 
@@ -16,8 +16,8 @@ function Account() {
       <ContentPageWrapper>
         <ScrollToTopOnPathnameChange />
         <Routes>
-          <Route path="/" element={<Navigate to="notifications" replace />} />
-          <Route path="/notifications" element={<AccountNotification />} />
+          <Route path="/" element={<Navigate to="blocked-users" replace />} />
+          {/* <Route path="/notifications" element={<AccountNotification />} /> */}
           <Route path="/blocked-users" element={<AccountBlockedUser />} />
           <Route path="/change-password" element={<AccountChangePassword />} />
           <Route path="/sign-out" element={<AccountSettings />} />

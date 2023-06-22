@@ -720,7 +720,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
             feedPostFactory.build(
               {
                 userId: user1._id,
-                postType: PostType.User,
+                postType: PostType.MovieReview,
               },
             ),
           );
@@ -742,9 +742,73 @@ describe('Feed-Comments/Replies File (e2e)', () => {
               .field('message', 'hello test user')
               .field('feedCommentId', feedComment5._id.toString())
               .attach('images', tempPaths[0])
-              .attach('images', tempPaths[1]);
-            expect(response.status).toBe(HttpStatus.FORBIDDEN);
-            expect(response.body).toEqual({ statusCode: 403, message: 'You can only interact with posts of friends.' });
+              .field('imageDescriptions[0][description]', 'this is create feed reply description 0');
+            expect(response.status).toBe(HttpStatus.CREATED);
+            expect(response.body).toEqual({
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              feedCommentId: feedComment5._id.toString(),
+              feedPostId: feedPost5._id.toString(),
+              message: 'hello test user',
+              userId: activeUser._id.toString(),
+              images: [
+                {
+                  image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                  description: 'this is create feed reply description 0',
+                  _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                },
+              ],
+            });
+          }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+        });
+
+        it('when postType is movieReview and replying user is a friend of the post creator', async () => {
+          const user5 = await usersService.create(userFactory.build({
+            profile_status: ProfileVisibility.Private,
+          }));
+          const feedPost6 = await feedPostsService.create(
+            feedPostFactory.build(
+              {
+                userId: user5._id,
+                postType: PostType.MovieReview,
+              },
+            ),
+          );
+          const feedComment6 = await feedCommentsService.createFeedComment(
+            feedCommentsFactory.build(
+              {
+                userId: user5._id,
+                feedPostId: feedPost6.id,
+                message: sampleFeedReplyObject.message,
+                images: sampleFeedReplyObject.images,
+              },
+            ),
+          );
+          await friendsService.createFriendRequest(activeUser._id.toString(), user5.id);
+          await friendsService.acceptFriendRequest(activeUser._id.toString(), user5.id);
+          await createTempFiles(async (tempPaths) => {
+            const response = await request(app.getHttpServer())
+              .post('/api/v1/feed-comments/replies')
+              .auth(activeUserAuthToken, { type: 'bearer' })
+              .set('Content-Type', 'multipart/form-data')
+              .field('message', 'hello test user')
+              .field('feedCommentId', feedComment6._id.toString())
+              .attach('images', tempPaths[0])
+              .field('imageDescriptions[0][description]', 'this is create feed reply description 0');
+            expect(response.status).toBe(HttpStatus.CREATED);
+            expect(response.body).toEqual({
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              feedCommentId: feedComment6._id.toString(),
+              feedPostId: feedPost6._id.toString(),
+              message: 'hello test user',
+              userId: activeUser._id.toString(),
+              images: [
+                {
+                  image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                  description: 'this is create feed reply description 0',
+                  _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                },
+              ],
+            });
           }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
         });
       });

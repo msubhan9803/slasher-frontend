@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Alert,
   Col,
   Row,
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import HCaptcha from '@hcaptcha/react-hcaptcha';
+import ReCAPTCHA from 'react-google-recaptcha';
 import { register } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import useProgressButton from '../../../components/ui/ProgressButton';
@@ -24,13 +24,8 @@ function RegistrationTerms({ activeStep }: Props) {
   const [errorMessages, setErrorMessages] = useState<string[]>();
   const [isAgreedToTerms, setIsAgreedToTerms] = useState(false);
   const [showAgreeToTermsError, setShowAgreeToTermsError] = useState(false);
-  const [hCaptchaToken, setHCaptchaToken] = useState<string | null>(null);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
-  const captchaRef = useRef<HCaptcha>(null);
-
-  useEffect(() => {
-    captchaRef?.current?.resetCaptcha();
-  }, []);
+  const captchaRef = useRef<ReCAPTCHA>(null);
 
   const submitRegister = async () => {
     setErrorMessages([]);
@@ -38,7 +33,9 @@ function RegistrationTerms({ activeStep }: Props) {
       setShowAgreeToTermsError(true);
       return;
     }
+    const reCaptchaToken = await captchaRef?.current?.executeAsync();
 
+    captchaRef?.current?.reset();
     setProgressButtonStatus('loading');
 
     const {
@@ -58,7 +55,7 @@ function RegistrationTerms({ activeStep }: Props) {
         securityQuestion,
         securityAnswer,
         dobIsoString,
-        hCaptchaToken!,
+        reCaptchaToken!,
       );
 
       setProgressButtonStatus('success');
@@ -68,10 +65,6 @@ function RegistrationTerms({ activeStep }: Props) {
       setProgressButtonStatus('failure');
       setErrorMessages(error.response.data.message);
     }
-  };
-
-  const handleVerificationSuccess = (token: string) => {
-    setHCaptchaToken(token);
   };
 
   const handleCheckbox = () => {
@@ -118,10 +111,11 @@ function RegistrationTerms({ activeStep }: Props) {
       </Row>
       <Row className="mt-2">
         <Col className="justify-content-center d-flex">
-          <HCaptcha
-            sitekey="aade8ad0-8a3e-4f80-9aba-9c4d03e7806c"
-            onVerify={(token) => handleVerificationSuccess(token)}
+          <ReCAPTCHA
+            // sitekey={process.env.RECAPTCHA_APP_SITE_KEY!}
+            sitekey="6LfC3L4mAAAAAJLNyVxVFYaxmNRcUjPYKNae2Fjz"
             ref={captchaRef}
+            size="invisible"
           />
         </Col>
       </Row>

@@ -8,7 +8,6 @@ import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';
 import { UsersService } from '../../../../../src/users/providers/users.service';
 import { userFactory } from '../../../../factories/user.factory';
-import { UpdateUserDto } from '../../../../../src/users/dto/update-user-data.dto';
 import { User, UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
@@ -23,6 +22,7 @@ describe('Users / :id (e2e)', () => {
   let usersService: UsersService;
   let activeUserAuthToken: string;
   let activeUser: UserDocument;
+  let user1: UserDocument;
   let configService: ConfigService;
   let mailService: MailService;
   let emailRevertTokenModel: Model<EmailRevertTokenDocument>;
@@ -66,10 +66,14 @@ describe('Users / :id (e2e)', () => {
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
+    user1 = await usersService.create(userFactory.build({
+      userName: 'Slasher',
+      previousUserName: activeUser.userName,
+    }));
   });
 
   describe('PATCH /api/v1/users/:id', () => {
-    let postBody: UpdateUserDto;
+    let postBody;
     beforeEach(() => {
       postBody = { ...sampleUserUpdateObject };
       jest.spyOn(mailService, 'sendEmailChangeConfirmationEmails').mockImplementation();
@@ -153,6 +157,19 @@ describe('Users / :id (e2e)', () => {
         });
         expect(response.body.firstName).toBeUndefined();
         expect(response.body.email).toBeUndefined();
+      });
+
+      it('update the user data successfully when previousUserName is provided', async () => {
+        const sampleUserUpdateObject1 = { userName: 'slasher1', previousUserName: activeUser.userName };
+        const postBody1 = { ...sampleUserUpdateObject1 };
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/users/${activeUser.id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send(postBody1);
+        expect(response.status).toEqual(HttpStatus.OK);
+
+        const updatedUser1 = await usersService.findById(user1.id, true);
+        expect(updatedUser1.previousUserName).toBeNull();
       });
 
       it('when the profile_status is not provided, updates to other fields are still successful', async () => {

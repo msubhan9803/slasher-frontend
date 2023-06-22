@@ -476,6 +476,15 @@ export class UsersController {
     return this.usersService.suggestUserName(query.query, query.limit, true, excludedUserIds);
   }
 
+  @Get('previous-username/:userName')
+  async findByPreviousUserName(@Param('userName')userName:string) {
+    const user = await this.usersService.findByPreviousUsername(userName);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    return user;
+  }
+
   @TransformImageUrls('$.profilePic', '$.coverPhoto')
   @Get(':userNameOrId')
   async findOne(@Req() request: Request, @Param('userNameOrId') userNameOrId: string) {
@@ -556,6 +565,10 @@ export class UsersController {
         'Username is already associated with an existing user.',
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
+    }
+
+    if (updateUserDto.previousUserName) {
+      await this.usersService.findAndUpdatePreviousUsername(updateUserDto.previousUserName);
     }
 
     const additionalFieldsToUpdate: Partial<User> = {};

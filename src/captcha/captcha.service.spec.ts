@@ -52,7 +52,7 @@ describe('CaptchaService', () => {
     expect(captchaService).toBeDefined();
   });
 
-  describe('#verifyHCaptchaToken', () => {
+  describe('#verifyReCaptchaToken', () => {
     it('should verify hCaptcha token and return data', async () => {
       const token = '48ed6df1-a1f2-4267-a3b9-7aadafbca5b3';
       const responseData = {
@@ -65,7 +65,7 @@ describe('CaptchaService', () => {
         headers: {},
         config: {},
       }));
-      const result = await captchaService.verifyHCaptchaToken(token);
+      const result = await captchaService.verifyReCaptchaToken(token);
       expect(result).toEqual(responseData);
     });
 
@@ -82,7 +82,7 @@ describe('CaptchaService', () => {
         headers: {},
         config: {},
       }));
-      const result = await captchaService.verifyHCaptchaToken(token);
+      const result = await captchaService.verifyReCaptchaToken(token);
       expect(result).toEqual(errorResponse);
     });
   });

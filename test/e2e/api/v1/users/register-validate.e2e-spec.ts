@@ -31,7 +31,7 @@ describe('Users / Register (e2e)', () => {
     securityQuestion: 'What is favourite food?',
     securityAnswer: 'Pizza',
     dob: DateTime.now().minus({ years: 18 }).toISODate(),
-    hCaptchaToken: '48ed6df1-a1f2-4267-a3b9-7aadafbca5b3',
+    reCaptchaToken: '48ed6df1-a1f2-4267-a3b9-7aadafbca5b3',
   };
 
   beforeAll(async () => {
@@ -369,7 +369,7 @@ describe('Users / Register (e2e)', () => {
 
     describe('Existing username or email check, or disallowed username', () => {
       it('returns an error when userName already exists', async () => {
-        jest.spyOn(captchaService, 'verifyHCaptchaToken').mockImplementation(() => Promise.resolve({ success: true }));
+        jest.spyOn(captchaService, 'verifyReCaptchaToken').mockImplementation(() => Promise.resolve({ success: true }));
         let response = await request(app.getHttpServer())
           .post('/api/v1/users/register')
           .send(postBody);
@@ -384,7 +384,7 @@ describe('Users / Register (e2e)', () => {
       });
 
       it('returns an error when email already exists', async () => {
-        jest.spyOn(captchaService, 'verifyHCaptchaToken').mockImplementation(() => Promise.resolve({ success: true }));
+        jest.spyOn(captchaService, 'verifyReCaptchaToken').mockImplementation(() => Promise.resolve({ success: true }));
         let response = await request(app.getHttpServer())
           .post('/api/v1/users/register')
           .send(postBody);

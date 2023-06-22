@@ -301,7 +301,7 @@ export class UsersController {
       );
     }
 
-    const hCaptchaVerified = await this.captchaService.verifyHCaptchaToken(userRegisterDto.reCaptchaToken);
+    const hCaptchaVerified = await this.captchaService.verifyReCaptchaToken(userRegisterDto.reCaptchaToken);
     if (!hCaptchaVerified.success) {
       throw new HttpException(
         'Captcha validation failed. Please try again.',

@@ -40,7 +40,7 @@ describe('Users / Register (e2e)', () => {
     securityQuestion: 'Name of your first pet?',
     securityAnswer: 'tom',
     dob: DateTime.now().minus({ years: 18 }).toISODate(),
-    hCaptchaToken: '48ed6df1-a1f2-4267-a3b9-7aadafbca5b3',
+    reCaptchaToken: '48ed6df1-a1f2-4267-a3b9-7aadafbca5b3',
   };
 
   beforeAll(async () => {
@@ -92,7 +92,7 @@ describe('Users / Register (e2e)', () => {
     describe('Successful Registration', () => {
       it('can successfully register with given user data', async () => {
         jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
-        jest.spyOn(captchaService, 'verifyHCaptchaToken').mockImplementation(() => Promise.resolve({ success: true }));
+        jest.spyOn(captchaService, 'verifyReCaptchaToken').mockImplementation(() => Promise.resolve({ success: true }));
         const response = await request(app.getHttpServer())
           .post('/api/v1/users/register')
           .send(postBody)
@@ -122,14 +122,14 @@ describe('Users / Register (e2e)', () => {
           registeredUser.id,
           registeredUser.verification_token,
         );
-        expect(captchaService.verifyHCaptchaToken).toHaveBeenCalledWith(
-          postBody.hCaptchaToken,
+        expect(captchaService.verifyReCaptchaToken).toHaveBeenCalledWith(
+          postBody.reCaptchaToken,
         );
       });
 
       it('sets the registrationIp', async () => {
         jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
-        jest.spyOn(captchaService, 'verifyHCaptchaToken').mockImplementation(() => Promise.resolve({ success: true }));
+        jest.spyOn(captchaService, 'verifyReCaptchaToken').mockImplementation(() => Promise.resolve({ success: true }));
         const response = await request(app.getHttpServer())
           .post('/api/v1/users/register')
           .send(postBody)
@@ -141,7 +141,7 @@ describe('Users / Register (e2e)', () => {
 
       it('should handle invalid hCaptcha token', async () => {
         jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
-        jest.spyOn(captchaService, 'verifyHCaptchaToken').mockImplementation(() => Promise.resolve({ success: false }));
+        jest.spyOn(captchaService, 'verifyReCaptchaToken').mockImplementation(() => Promise.resolve({ success: false }));
         const response = await request(app.getHttpServer())
           .post('/api/v1/users/register')
           .send(postBody);
@@ -394,8 +394,8 @@ describe('Users / Register (e2e)', () => {
         expect(response.body.message).toContain('Invalid date of birth');
       });
 
-      it('hCaptchaToken should not be empty', async () => {
-        postBody.hCaptchaToken = '';
+      it('reCaptchaToken should not be empty', async () => {
+        postBody.reCaptchaToken = '';
         const response = await request(app.getHttpServer())
           .post('/api/v1/users/register')
           .send(postBody);
@@ -406,7 +406,7 @@ describe('Users / Register (e2e)', () => {
 
     describe('Existing username or email check', () => {
       it('returns an error when userName already exists', async () => {
-        jest.spyOn(captchaService, 'verifyHCaptchaToken').mockImplementation(() => Promise.resolve({ success: true }));
+        jest.spyOn(captchaService, 'verifyReCaptchaToken').mockImplementation(() => Promise.resolve({ success: true }));
         let response = await request(app.getHttpServer())
           .post('/api/v1/users/register')
           .send(postBody);
@@ -423,7 +423,7 @@ describe('Users / Register (e2e)', () => {
       });
 
       it('returns an error when email already exists', async () => {
-        jest.spyOn(captchaService, 'verifyHCaptchaToken').mockImplementation(() => Promise.resolve({ success: true }));
+        jest.spyOn(captchaService, 'verifyReCaptchaToken').mockImplementation(() => Promise.resolve({ success: true }));
         let response = await request(app.getHttpServer())
           .post('/api/v1/users/register')
           .send(postBody);

@@ -4,6 +4,7 @@ import {
   Route, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
 import { App as CapacitorApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 import { StatusBar } from '@capacitor/status-bar';
 import VerificationEmailNotReceived from './routes/verification-email-not-received/VerificationEmailNotReceived';
 import ForgotPassword from './routes/forgot-password/ForgotPassword';
@@ -114,8 +115,10 @@ CapacitorApp.addListener('backButton', ({ canGoBack }) => {
 });
 
 // Display content under transparent status bar (Android only)
-StatusBar.setOverlaysWebView({ overlay: true });
-StatusBar.setBackgroundColor({ color: topStatuBarBackgroundColorAndroidOnly });
+if (Capacitor.isNativePlatform()) {
+  StatusBar.setOverlaysWebView({ overlay: true });
+  StatusBar.setBackgroundColor({ color: topStatuBarBackgroundColorAndroidOnly });
+}
 
 function App() {
   usePubWiseAdSlots(enableADs);

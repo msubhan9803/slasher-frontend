@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Col,
@@ -24,10 +24,16 @@ function RegistrationTerms({ activeStep }: Props) {
   const [errorMessages, setErrorMessages] = useState<string[]>();
   const [isAgreedToTerms, setIsAgreedToTerms] = useState(false);
   const [showAgreeToTermsError, setShowAgreeToTermsError] = useState(false);
-  const [hCaptchaToken, setHCaptchaToken] = useState('');
+  const [hCaptchaToken, setHCaptchaToken] = useState<string | null>(null);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
+  const captchaRef = useRef<HCaptcha>(null);
+
+  useEffect(() => {
+    captchaRef?.current?.resetCaptcha();
+  }, []);
 
   const submitRegister = async () => {
+    setErrorMessages([]);
     if (!isAgreedToTerms) {
       setShowAgreeToTermsError(true);
       return;
@@ -52,7 +58,7 @@ function RegistrationTerms({ activeStep }: Props) {
         securityQuestion,
         securityAnswer,
         dobIsoString,
-        hCaptchaToken,
+        hCaptchaToken!,
       );
 
       setProgressButtonStatus('success');
@@ -113,10 +119,9 @@ function RegistrationTerms({ activeStep }: Props) {
       <Row className="mt-2">
         <Col className="justify-content-center d-flex">
           <HCaptcha
-            // This is testing sitekey, will autopass
-            // Make sure to replace
             sitekey="aade8ad0-8a3e-4f80-9aba-9c4d03e7806c"
             onVerify={(token) => handleVerificationSuccess(token)}
+            ref={captchaRef}
           />
         </Col>
       </Row>

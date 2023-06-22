@@ -112,8 +112,7 @@ function RegistrationTerms({ activeStep }: Props) {
       <Row className="mt-2">
         <Col className="justify-content-center d-flex">
           <ReCAPTCHA
-            // sitekey={process.env.RECAPTCHA_APP_SITE_KEY!}
-            sitekey="6LfC3L4mAAAAAJLNyVxVFYaxmNRcUjPYKNae2Fjz"
+            sitekey={process.env.REACT_APP_RECAPTCHA_APP_SITE_KEY!}
             ref={captchaRef}
             size="invisible"
           />

@@ -123,6 +123,14 @@ export async function getPublicProfile(userName: string) {
   return axios.get(`${apiUrl}/api/v1/users/public/${userName}`);
 }
 
+export async function getUserByPreviousUserName(userName: string) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.get(`${apiUrl}/api/v1/users/previous-username/${userName}`, { headers });
+}
+
 export async function getProfilePosts(id: string, lastRetrievedPostId?: string) {
   const token = await getSessionToken();
   const headers = {
@@ -162,6 +170,7 @@ export async function updateUser(
   email: string,
   id: string,
   profile_status: number,
+  previousUserName:string | null,
 ) {
   const token = await getSessionToken();
   const headers = {
@@ -172,6 +181,7 @@ export async function updateUser(
     firstName,
     email,
     profile_status,
+    previousUserName,
   }, { headers });
 }
 

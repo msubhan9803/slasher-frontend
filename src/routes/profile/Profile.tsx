@@ -11,7 +11,7 @@ import ProfilePosts from './ProfilePosts/ProfilePosts';
 import ProfileWatchList from './ProfileWatchList/ProfileWatchList';
 import ProfileEdit from './ProfileEdit/ProfileEdit';
 import ProfileFriendRequest from './ProfileFriends/ProfileFriendRequest/ProfileFriendRequest';
-import { getUser } from '../../api/users';
+import { getUser, getUserByPreviousUserName } from '../../api/users';
 import { FriendRequestReaction, ProfileVisibility, User } from '../../types';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { useAppSelector } from '../../redux/hooks';
@@ -61,6 +61,14 @@ function Profile() {
   const bp = useBootstrapBreakpointName();
   const lastLocationKeyRef = useRef(location.key);
 
+  const checkWithPreviousUserName = useCallback(() => {
+    getUserByPreviousUserName(userNameOrId!).then((res) => {
+      navigate(`/${res.data.userName}`);
+    }).catch((e) => {
+      if (e.response.status === 404) { setUserNotFound(true); }
+    });
+  }, [userNameOrId, navigate]);
+
   /**
    * 1. This function fetch userInfo from api and set in component state.
    * 2. This function can be used when a loggedin user blocks another user
@@ -84,8 +92,9 @@ function Profile() {
         // If requested user is blocked then show "This content is no longer available" page
         // else a general user not found page is shown.
         if (e.response.status === 403) { setUserIsBlocked(true); } else { setUserNotFound(true); }
+        if (e.response.status === 404) { checkWithPreviousUserName(); }
       });
-  }, [location.pathname, location.search, navigate, userNameOrId]);
+  }, [location.pathname, location.search, navigate, userNameOrId, checkWithPreviousUserName]);
 
   useEffect(() => {
     const isSameKey = lastLocationKeyRef.current === location.key;

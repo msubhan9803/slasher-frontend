@@ -22,7 +22,6 @@ describe('Users / :id (e2e)', () => {
   let usersService: UsersService;
   let activeUserAuthToken: string;
   let activeUser: UserDocument;
-  let user1: UserDocument;
   let configService: ConfigService;
   let mailService: MailService;
   let emailRevertTokenModel: Model<EmailRevertTokenDocument>;
@@ -64,14 +63,11 @@ describe('Users / :id (e2e)', () => {
 
     activeUser = await usersService.create(userFactory.build({
       userName: 'TestUser',
+      previousUserName: 'TestUserPreviousUserName',
     }));
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
-    user1 = await usersService.create(userFactory.build({
-      userName: 'Slasher',
-      previousUserName: activeUser.userName,
-    }));
   });
 
   describe('PATCH /api/v1/users/:id', () => {
@@ -144,37 +140,28 @@ describe('Users / :id (e2e)', () => {
           });
         });
 
-      it('update the userName successful, it returns the expected response', async () => {
-        const { firstName, email, ...restPostBody } = postBody;
-        const response = await request(app.getHttpServer())
-          .patch(`/api/v1/users/${activeUser.id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .send(restPostBody);
-        expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body).toEqual({
-          _id: activeUser.id,
-          userName: 'TestUser',
-          aboutMe: 'I am a human being',
-          profile_status: ProfileVisibility.Private,
-        });
-        expect(response.body.firstName).toBeUndefined();
-        expect(response.body.email).toBeUndefined();
-      });
+      // TODO (SD-1336): When user is allowed to update username, uncomment test below
+      // eslint-disable-next-line jest/no-commented-out-tests
+      // it("upates user's userName and clears out previousUserName for different user if user's new userName equals "
+      //   + "different user's previousUserName", async () => {
+      //     const otherUser = await usersService.create(userFactory.build({ userName: 'Slasher' }));
+      //     const otherUserAuthToken = otherUser.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
 
-      it('update the user data successfully when previousUserName is provided', async () => {
-        // const sampleUserUpdateObject1 = { userName: 'slasher1', previousUserName: activeUser.userName };
-        // REvert when we allow user to update the username
-        const sampleUserUpdateObject1 = { userName: 'TestUser', previousUserName: activeUser.userName };
-        const postBody1 = { ...sampleUserUpdateObject1 };
-        const response = await request(app.getHttpServer())
-          .patch(`/api/v1/users/${activeUser.id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .send(postBody1);
-        expect(response.status).toEqual(HttpStatus.OK);
-
-        const updatedUser1 = await usersService.findById(user1.id, true);
-        expect(updatedUser1.previousUserName).toBeNull();
-      });
+      //     const userUpdatePostBody = { userName: activeUser.previousUserName };
+      //     const response = await request(app.getHttpServer())
+      //       .patch(`/api/v1/users/${otherUser.id}`)
+      //       .auth(otherUserAuthToken, { type: 'bearer' })
+      //       .send(userUpdatePostBody);
+      //     expect(response.status).toEqual(HttpStatus.OK);
+      //     expect(response.body).toEqual({
+      //       _id: otherUser.id,
+      //       userName: activeUser.previousUserName,
+      //     });
+      //     const updatedActiveUser = await usersService.findById(activeUser.id, true);
+      //     const updatedOtherUser = await usersService.findById(otherUser.id, true);
+      //     expect(updatedActiveUser.previousUserName).toBeNull();
+      //     expect(updatedOtherUser.userName).toEqual(userUpdatePostBody.userName);
+      //   });
 
       it('when the profile_status is not provided, updates to other fields are still successful', async () => {
         // eslint-disable-next-line @typescript-eslint/naming-convention

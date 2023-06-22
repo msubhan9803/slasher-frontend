@@ -86,7 +86,7 @@ export class UsersService {
       .exec();
   }
 
-  async findAndUpdatePreviousUsername(previousUserName: string): Promise<UserDocument> {
+  async removePreviousUsernameEntry(previousUserName: string): Promise<UserDocument> {
     return this.userModel.findOneAndUpdate(
       { previousUserName },
       { $set: { previousUserName: null } },

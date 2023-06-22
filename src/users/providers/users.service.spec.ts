@@ -201,12 +201,12 @@ describe('UsersService', () => {
     });
   });
 
-  describe('#findAndUpdatePreviousUsername', () => {
-    it('finds the expected user and update previousUserName', async () => {
+  describe('#removePreviousUsernameEntry', () => {
+    it('finds the user with the given previousUserName and removes that previousUserName value', async () => {
       const user1 = await usersService.create(
         userFactory.build({ userName: 'user1', previousUserName: 'slasher' }),
       );
-      const updatedUser = await usersService.findAndUpdatePreviousUsername(user1.previousUserName);
+      const updatedUser = await usersService.removePreviousUsernameEntry(user1.previousUserName);
       expect(updatedUser.previousUserName).toBeNull();
     });
   });

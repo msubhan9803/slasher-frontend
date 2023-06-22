@@ -257,6 +257,7 @@ function ProfileEdit({ user }: Props) {
               <Form.Group className="mb-4">
                 <Form.Label className="h3" htmlFor="username">Username</Form.Label>
                 <Form.Control
+                  readOnly
                   type="text"
                   id="username"
                   placeholder="Username"
@@ -269,6 +270,7 @@ function ProfileEdit({ user }: Props) {
                 />
                 <Form.Text className="text-muted fs-4">
                   This is how people will see you post and comment on Slasher.
+                  You can edit your username after July 31, 2023.
                 </Form.Text>
               </Form.Group>
             </Col>

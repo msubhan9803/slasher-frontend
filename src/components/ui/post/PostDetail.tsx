@@ -42,6 +42,8 @@ import { isPostDetailsPage } from '../../../utils/url-utils';
 import { friendship } from '../../../api/friends';
 import FriendshipStatusModal from '../friendShipCheckModal';
 import ContentNotAvailable from '../../ContentNotAvailable';
+import { onKeyboardClose, onKeyboardOpen } from '../../../utils/styles-utils ';
+import { COMMENT_OR_REPLY_INPUT_PARENT, CONTENT_PAGE_WRAPPER_ID } from '../../../constants';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -105,6 +107,29 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     DEFAULT_COMMENTS_SORYBY_OLDEST_FIRST,
   );
   const abortControllerRef = useRef<AbortController | null>();
+
+  const clearErrorMessages = useCallback((e: MouseEvent) => {
+    setCommentErrorMessage([]);
+    setCommentOrReplySuccessAlertMessage('');
+
+    const elementId = (e.target as Element || null)?.id;
+    const isEl1 = elementId === 'reply-on-comment';
+    const isEl2 = elementId === 'comments';
+    const isEl3 = elementId === CONTENT_PAGE_WRAPPER_ID;
+    const isEl4 = elementId === COMMENT_OR_REPLY_INPUT_PARENT;
+    const clickedElementIsCommentOrReplyInput = isEl1 || isEl2 || isEl3 || isEl4;
+
+    if (clickedElementIsCommentOrReplyInput) {
+      onKeyboardOpen();
+    } else {
+      onKeyboardClose();
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('click', clearErrorMessages, true);
+    return () => window.removeEventListener('click', clearErrorMessages, true);
+  }, [clearErrorMessages]);
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     setSelectedBlockedUserId(popoverClickProps.userId!);
@@ -829,8 +854,6 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     return undefined;
   }, [selectedBlockedUserId, dropDownValue, updateCommentDataAfterBlockUser]);
 
-  const handleCloseSuccessCommentOrReplyAlert = () => setCommentOrReplySuccessAlertMessage('');
-
   const handleCommentsOrder = (value: CommentsOrder) => {
     if (!Object.values(CommentsOrder).includes(value)) { console.error('Please use one of following values:', Object.values(CommentsOrder)); }
 
@@ -942,9 +965,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           </ContentPageWrapper>
         )
         : (
-          // eslint-disable-next-line max-len
-          // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-          <div onClick={handleCloseSuccessCommentOrReplyAlert}>
+          <div>
             <PostFeed
               isSinglePost
               postFeedData={postData}

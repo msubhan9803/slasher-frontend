@@ -25,6 +25,7 @@ import ProfileLimitedView from './ProfileLimitedView/ProfileLimitedView';
 import RightSidebarAdOnly from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarAdOnly';
 import ContentNotAvailable from '../../components/ContentNotAvailable';
 import useBootstrapBreakpointName from '../../hooks/useBootstrapBreakpoint';
+import { CONTENT_PAGE_WRAPPER_ID } from '../../constants';
 
 interface SharedHeaderProfilePagesProps {
   user: User;
@@ -130,7 +131,7 @@ function Profile() {
 
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper id={CONTENT_PAGE_WRAPPER_ID}>
         <h1 className="sr-only">{user.userName}</h1>
         <Routes>
           <Route path="/edit" element={<ProfileEdit user={user} />} />

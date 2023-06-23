@@ -95,6 +95,33 @@ When you need to see console logs of a native capacitor app running on a real de
 `chrome://inspect/#devices` (bookmark the url for reliability)
 
 
+**Generating AAB/APK builds via capacitor CLI:**
+
+- Docs - Capacitor CLI - cap build: [Click here](https://capacitorjs.com/docs/cli/commands/build)
+- Note the keystore file must be plaed in the project root.
+
+With older keystore file -
+
+```bash
+npx cap build android \
+--keystorepath="../Slasher.jks" \
+--keystorepass=KEYSTORE-PASSWORD-HERE \
+--keystorealias=key0 \
+--keystorealiaspass=KEYSTORE-PASSWORD-HERE \
+--androidreleasetype=AAB
+```
+
+With newer keystore file -
+
+```bash
+npx cap build android \
+--keystorepath=slasher-app.keystore \
+--keystorepass=KEYSTORE-PASSWORD-HERE \
+--keystorealias=slasher-app \
+--keystorealiaspass=KEYSTORE-PASSWORD-HERE \
+--androidreleasetype=AAB
+```
+
 ## App Structure
 
 Below is a general overview of our app structure, with some example subdirectories that show naming conventions.

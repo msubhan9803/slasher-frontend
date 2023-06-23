@@ -5,6 +5,7 @@ import {
 } from 'react-router-dom';
 import { App as CapacitorApp } from '@capacitor/app';
 import { StatusBar } from '@capacitor/status-bar';
+import { Keyboard } from '@capacitor/keyboard';
 import VerificationEmailNotReceived from './routes/verification-email-not-received/VerificationEmailNotReceived';
 import ForgotPassword from './routes/forgot-password/ForgotPassword';
 import Home from './routes/home/Home';
@@ -28,7 +29,9 @@ import Account from './routes/account/Account';
 import ResetPassword from './routes/reset-password/ResetPassword';
 import AccountActivated from './routes/account-activated/AccountActivated';
 import usePubWiseAdSlots from './hooks/usePubWiseAdSlots';
-import { enableDevFeatures, enableADs, topStatuBarBackgroundColorAndroidOnly } from './constants';
+import {
+  enableDevFeatures, enableADs, topStatuBarBackgroundColorAndroidOnly,
+} from './constants';
 import Books from './routes/books/Books';
 import Artists from './routes/artists/Artists';
 import Podcasts from './routes/podcasts/Podcasts';
@@ -45,6 +48,7 @@ import ServerUnavailable from './components/ServerUnavailable';
 import Conversation from './routes/conversation/Conversation';
 import PushNotificationAndDeepLinkListener from './components/PushNotificationAndDeepLinkListener';
 import Index from './routes/Index';
+import { onKeyboardClose, onKeyboardOpen } from './utils/styles-utils ';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -104,6 +108,14 @@ if (enableDevFeatures) {
   // routes['shopping/*'] = { wrapper: AuthenticatedPageWrapper, component: Shopping };
   // routes['places/*'] = { wrapper: AuthenticatedPageWrapper, component: Places };
 }
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+Keyboard.addListener('keyboardWillShow', (info) => {
+  onKeyboardOpen();
+});
+Keyboard.addListener('keyboardWillHide', () => {
+  onKeyboardClose();
+});
 
 CapacitorApp.addListener('backButton', ({ canGoBack }) => {
   if (!canGoBack) {

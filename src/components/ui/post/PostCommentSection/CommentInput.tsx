@@ -18,9 +18,9 @@ import {
 import MessageTextarea from '../../MessageTextarea';
 import ErrorMessageList from '../../ErrorMessageList';
 import { FormatMentionProps } from '../../../../types';
-import { maxWidthForCommentOrReplyInputOnMobile } from '../../../../constants';
+import { COMMENT_OR_REPLY_INPUT, bottomForCommentOrReplyInputOnMobile, maxWidthForCommentOrReplyInputOnMobile } from '../../../../constants';
 import useWindowInnerWidth from '../../../../hooks/useWindowInnerWidth';
-import { setGlobalCssProperty } from '../../../../utils/styles-utils ';
+import { onKeyboardClose, setGlobalCssProperty } from '../../../../utils/styles-utils ';
 
 interface CommentInputProps {
   message: string;
@@ -51,7 +51,7 @@ interface CommentInputProps {
   replyDescriptionArray?: string[];
   setReplyDescriptionArray?: (value: string[]) => void;
   isMainPostCommentClick?: boolean;
-  selectedReplyUserId?:string;
+  selectedReplyUserId?: string;
   commentOrReplySuccessAlertMessage?: string;
   setCommentOrReplySuccessAlertMessage?: React.Dispatch<React.SetStateAction<string>>;
 }
@@ -67,7 +67,8 @@ const CommentForm = styled(Form)`
     left: 0;
     width: 100%;
     background: black;
-    bottom: 77px;
+    // If 'bottomForCommentOrReplyInputOnMobile' variable is not set then 0px (fallback value is used)
+    bottom: var(--bottomForCommentOrReplyInputOnMobile, ${bottomForCommentOrReplyInputOnMobile});
     z-index: 1;
     padding: 0px 10px;
   }
@@ -182,7 +183,7 @@ function CommentInput({
 
   // Note: We use `windowInnerWidth` as dependency to set css variable only when necessary
   useEffect(() => {
-    const heightOfCommentOrReplyInputOnMobile = document.querySelector<HTMLElement>('#comment-or-reply-input')?.offsetHeight;
+    const heightOfCommentOrReplyInputOnMobile = document.querySelector<HTMLElement>(`#${COMMENT_OR_REPLY_INPUT}`)?.offsetHeight;
     setGlobalCssProperty('--heightOfCommentOrReplyInputOnMobile', `${heightOfCommentOrReplyInputOnMobile ?? 0}px`);
   }, [windowInnerWidth]);
 
@@ -208,6 +209,7 @@ function CommentInput({
   };
 
   const handleMessage = () => {
+    onKeyboardClose();
     const postContentWithMentionReplacements = (editMessage!.replace(
       atMentionsGlobalRegex,
       generateMentionReplacementMatchFunc(formatMention),
@@ -254,7 +256,7 @@ function CommentInput({
     setCommentOrReplySuccessAlertMessage?.('');
   };
   return (
-    <CommentForm id="comment-or-reply-input">
+    <CommentForm id={COMMENT_OR_REPLY_INPUT}>
       <Row className="pt-2 order-last order-sm-0 gx-0">
         <Col className="ps-0">
           <div className="d-flex align-items-end mb-2">
@@ -317,7 +319,7 @@ function CommentInput({
                 </InputGroup.Text>
               </div>
             </StyledCommentInputGroup>
-            <Button onClick={() => handleMessage()} variant="link" aria-label="submit" className="ms-2 mb-1 p-0">
+            <Button onClick={handleMessage} variant="link" aria-label="submit" className="ms-2 mb-1 p-0">
               <FontAwesomeIcon icon={solid('paper-plane')} style={{ fontSize: '26px' }} className="text-primary" />
             </Button>
           </div>

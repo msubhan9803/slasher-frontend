@@ -8,6 +8,10 @@ export const enableDevFeatures = process.env.REACT_APP_ENABLE_DEV_ELEMENTS === '
 
 export const MAIN_CONTENT_ID = 'main-content';
 export const RETRY_CONNECTION_BUTTON_ID = 'retry-connection-button';
+export const COMMENT_OR_REPLY_INPUT = 'comment-or-reply-input';
+export const COMMENT_OR_REPLY_INPUT_PARENT = 'comment-or-reply-input-parent';
+export const MOBILE_NAVBAR = 'mobile-navbar';
+export const CONTENT_PAGE_WRAPPER_ID = 'content-page-wrapper';
 
 export const BREAK_POINTS = {
   // NOTE: Break points below must be in ascending numeric order.
@@ -38,10 +42,6 @@ export const WORDPRESS_SITE_URL = 'https://slasher.tv'; // TODO: Change to pages
 // a body scrollbar.  If it does, this value needs to be increased.
 export const topToDivHeight = 110;
 
-// TODO: Make use of `bottomMobileNavHeight` in below file too:
-// TODO: Note: Chat.tsx file is alredy using `bottomMobileNavHeight` variable.
-// 1. used 77px in CommentInput.tsx file
-// 2. used 78.750px in ContentWrapper.tsx file
 export const bottomMobileNavHeight = 80;
 export const SERVER_UNAVAILABLE_TIMEOUT = 10_000;
 
@@ -50,3 +50,6 @@ export const topStatuBarBackgroundColorAndroidOnly = '000000';
 // Note: This must be numeric value because we use this
 // compare against return value of `useResize` hook
 export const maxWidthForCommentOrReplyInputOnMobile: number = BREAK_POINTS.lg;
+export const bottomForCommentOrReplyInputOnMobile = '77px';
+
+export const isDevelopmentServer = process.env.NODE_ENV === 'development';

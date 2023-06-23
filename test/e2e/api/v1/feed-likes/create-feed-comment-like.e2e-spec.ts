@@ -26,6 +26,7 @@ import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 import { UserSettingsService } from '../../../../../src/settings/providers/user-settings.service';
 import { userSettingFactory } from '../../../../factories/user-setting.factory';
 import { FriendsService } from '../../../../../src/friends/providers/friends.service';
+import { PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
 
 describe('Create Feed Comment Like (e2e)', () => {
   let app: INestApplication;
@@ -236,6 +237,13 @@ describe('Create Feed Comment Like (e2e)', () => {
         user1 = await usersService.create(userFactory.build({
           profile_status: ProfileVisibility.Private,
         }));
+        await userSettingsService.create(
+          userSettingFactory.build(
+            {
+              userId: user1._id,
+            },
+          ),
+        );
         feedPost1 = await feedPostsService.create(
           feedPostFactory.build(
             {
@@ -330,6 +338,72 @@ describe('Create Feed Comment Like (e2e)', () => {
           .send();
         expect(response.status).toBe(HttpStatus.CREATED);
         expect(response.body).toEqual({ success: true });
+      });
+
+      it('when postType is movieReview than expected response', async () => {
+        const feedPost5 = await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: user1._id,
+              postType: PostType.MovieReview,
+            },
+          ),
+        );
+        const feedComments4 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: user1._id,
+              feedPostId: feedPost5.id,
+              message: feedCommentsAndReplyObject.message,
+              images: feedCommentsAndReplyObject.images,
+            },
+          ),
+        );
+        const response = await request(app.getHttpServer())
+          .post(`/api/v1/feed-likes/comment/${feedComments4._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+          expect(response.status).toBe(HttpStatus.CREATED);
+          expect(response.body).toEqual({ success: true });
+      });
+
+      it('when postType is movieReview and comment liking user is a friend of the post creator', async () => {
+        const user5 = await usersService.create(userFactory.build({
+          profile_status: ProfileVisibility.Private,
+        }));
+        await userSettingsService.create(
+          userSettingFactory.build(
+            {
+              userId: user5._id,
+            },
+          ),
+        );
+        const feedPost6 = await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: user5._id,
+              postType: PostType.MovieReview,
+            },
+          ),
+        );
+        const feedComments5 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: user5._id,
+              feedPostId: feedPost6.id,
+              message: feedCommentsAndReplyObject.message,
+              images: feedCommentsAndReplyObject.images,
+            },
+          ),
+        );
+        await friendsService.createFriendRequest(activeUser._id.toString(), user5.id);
+        await friendsService.acceptFriendRequest(activeUser._id.toString(), user5.id);
+        const response = await request(app.getHttpServer())
+          .post(`/api/v1/feed-likes/comment/${feedComments5._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+          expect(response.status).toBe(HttpStatus.CREATED);
+          expect(response.body).toEqual({ success: true });
       });
     });
 

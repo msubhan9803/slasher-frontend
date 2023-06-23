@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Alert,
   Col,
   Row,
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import ReCAPTCHA from 'react-google-recaptcha';
 import { register } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import useProgressButton from '../../../components/ui/ProgressButton';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 import { useAppSelector } from '../../../redux/hooks';
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
-import { WORDPRESS_SITE_URL } from '../../../constants';
+import { WORDPRESS_SITE_URL, captchaSiteKey } from '../../../constants';
 
 interface Props {
   activeStep: number;
@@ -24,13 +25,17 @@ function RegistrationTerms({ activeStep }: Props) {
   const [isAgreedToTerms, setIsAgreedToTerms] = useState(false);
   const [showAgreeToTermsError, setShowAgreeToTermsError] = useState(false);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
+  const captchaRef = useRef<ReCAPTCHA>(null);
 
   const submitRegister = async () => {
+    setErrorMessages([]);
     if (!isAgreedToTerms) {
       setShowAgreeToTermsError(true);
       return;
     }
+    const reCaptchaToken = await captchaRef?.current?.executeAsync();
 
+    captchaRef?.current?.reset();
     setProgressButtonStatus('loading');
 
     const {
@@ -50,6 +55,7 @@ function RegistrationTerms({ activeStep }: Props) {
         securityQuestion,
         securityAnswer,
         dobIsoString,
+        reCaptchaToken!,
       );
 
       setProgressButtonStatus('success');
@@ -85,7 +91,6 @@ function RegistrationTerms({ activeStep }: Props) {
             <a target="_blank" rel="noreferrer" href={`${WORDPRESS_SITE_URL}/rules`}>Community Standards</a>
             .
           </p>
-          <ErrorMessageList errorMessages={errorMessages} />
           <div className="mt-1">
             <label htmlFor="term-agreement-checkbox" className="h2">
               <input
@@ -104,7 +109,17 @@ function RegistrationTerms({ activeStep }: Props) {
           </div>
         </Col>
       </Row>
+      <Row className="mt-2">
+        <Col className="justify-content-center d-flex">
+          <ReCAPTCHA
+            sitekey={captchaSiteKey}
+            ref={captchaRef}
+            size="invisible"
+          />
+        </Col>
+      </Row>
       <Row className="justify-content-center my-5">
+        <ErrorMessageList errorMessages={errorMessages} />
         <Col sm={4} md={3} className="mb-sm-0 mb-3 order-2 order-sm-1">
           <RoundButtonLink
             to="/app/registration/security"

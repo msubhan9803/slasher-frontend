@@ -31,7 +31,7 @@ import ResetPassword from './routes/reset-password/ResetPassword';
 import AccountActivated from './routes/account-activated/AccountActivated';
 import usePubWiseAdSlots from './hooks/usePubWiseAdSlots';
 import {
-  enableDevFeatures, enableADs, topStatuBarBackgroundColorAndroidOnly,
+  enableDevFeatures, enableADs, topStatuBarBackgroundColorAndroidOnly, isNativePlatform,
 } from './constants';
 import Books from './routes/books/Books';
 import Artists from './routes/artists/Artists';
@@ -51,6 +51,9 @@ import PushNotificationAndDeepLinkListener from './components/PushNotificationAn
 import Index from './routes/Index';
 import { onKeyboardClose, onKeyboardOpen } from './utils/styles-utils ';
 import UnexpectedError from './components/UnexpectedError';
+import { healthCheck } from './api/health-check';
+import { store } from './redux/store';
+import { setIsServerAvailable } from './redux/slices/serverAvailableSlice';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -131,6 +134,12 @@ CapacitorApp.addListener('backButton', ({ canGoBack }) => {
 if (Capacitor.isNativePlatform()) {
   StatusBar.setOverlaysWebView({ overlay: false });
   StatusBar.setBackgroundColor({ color: topStatuBarBackgroundColorAndroidOnly });
+}
+
+if (isNativePlatform) {
+  healthCheck().catch(() => {
+    store.dispatch(setIsServerAvailable(false));
+  });
 }
 
 function App() {

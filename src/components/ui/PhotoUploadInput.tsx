@@ -119,7 +119,7 @@ function PhotoUploadInput({
             : undefined
         }
         variant="link"
-        className="p-1 d-flex align-items-center justify-content-center text-center position-absolute rounded-circle bg-primary text-secondary"
+        className={`${photo ? 'photo-selected' : ''} p-1 d-flex align-items-center justify-content-center text-center position-absolute rounded-circle bg-primary text-secondary`}
         aria-label="photo"
       >
         <FontAwesomeIcon

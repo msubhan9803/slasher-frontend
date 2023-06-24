@@ -145,7 +145,10 @@ function EventSuggestion() {
     // NOTE: This is a temporary hack to clear out the image after the submission.  I'm doing this
     // for speed, but we should update the PhotoUploadInput component later so that it takes
     // it value as a prop and can be cleared.
-    (document.querySelector('button[aria-label="photo"]') as HTMLButtonElement)?.click();
+    setTimeout(() => {
+      const clearImageButton = document.querySelector('button.photo-selected[aria-label="photo"]') as HTMLButtonElement;
+      if (clearImageButton) { clearImageButton.click(); }
+    }, 100);
   };
   const handleChange = useCallback((value: any, key: EventFormKeys) => {
     // Remove event suggestion successful message on getting any user input

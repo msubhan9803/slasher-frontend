@@ -117,6 +117,9 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     const isEl2 = elementId === 'comments';
     const isEl3 = elementId === CONTENT_PAGE_WRAPPER_ID;
     const isEl4 = elementId === COMMENT_OR_REPLY_INPUT_PARENT;
+    // TODO: El5 is trigged when clicked inside the input and
+    // TODO:         also when clicked ouside, how to handle this?
+    // const isEl5 = elementId === AUTHENTICATED_PAGE_WRAPPER_ID;
     const clickedElementIsCommentOrReplyInput = isEl1 || isEl2 || isEl3 || isEl4;
 
     if (clickedElementIsCommentOrReplyInput) {

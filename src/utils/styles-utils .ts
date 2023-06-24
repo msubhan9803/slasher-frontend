@@ -16,6 +16,7 @@ export const onKeyboardOpen = () => {
     mobileNavBarElement.style.display = 'none';
     // Set botom position for the comment or rely input on post-details page when keyboard is opened
     setGlobalCssProperty('--bottomForCommentOrReplyInputOnMobile', '0px');
+    setGlobalCssProperty('--close-keyboard-assistance-button', 'block');
   }
 };
 
@@ -26,5 +27,6 @@ export const onKeyboardClose = () => {
     mobileNavBarElement.style.display = 'flex';
     // Set botom position for the comment or rely input on post-details page when keyboard is opened
     setGlobalCssProperty('--bottomForCommentOrReplyInputOnMobile', bottomForCommentOrReplyInputOnMobile);
+    setGlobalCssProperty('--close-keyboard-assistance-button', 'none');
   }
 };

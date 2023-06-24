@@ -12,6 +12,7 @@ export const COMMENT_OR_REPLY_INPUT = 'comment-or-reply-input';
 export const COMMENT_OR_REPLY_INPUT_PARENT = 'comment-or-reply-input-parent';
 export const MOBILE_NAVBAR = 'mobile-navbar';
 export const CONTENT_PAGE_WRAPPER_ID = 'content-page-wrapper';
+export const AUTHENTICATED_PAGE_WRAPPER_ID = 'authenticated-page-wrapper';
 
 export const BREAK_POINTS = {
   // NOTE: Break points below must be in ascending numeric order.

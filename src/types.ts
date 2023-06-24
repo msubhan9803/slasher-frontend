@@ -32,7 +32,8 @@ export interface Post {
   likedByUser: boolean;
   likes?: string[];
   hashTag?: string[];
-  userId?: string
+  userId?: string;
+  postType: number;
 }
 
 export interface User {
@@ -315,7 +316,9 @@ export interface MovieData {
     goreFactorRating: number;
     worthWatching: number;
     reviewPostId: string;
-  }
+  },
+  // to check movieData state update
+  isUpdated?: boolean
 }
 export type LocationPointType = {
   type: 'Point',
@@ -358,3 +361,22 @@ export interface ConversationListItem {
   profilePic: string;
   updatedAt: string;
 }
+
+export interface DeviceFields {
+  device_token: string;
+  device_type: string;
+  app_version: string;
+  device_version: string;
+  device_id: string;
+}
+
+export interface FormatMentionProps {
+  id: string;
+  value: string;
+  format: string;
+}
+export type FriendType = {
+  from: string,
+  to: string,
+  reaction: FriendRequestReaction
+} | null;

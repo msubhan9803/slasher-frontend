@@ -13,17 +13,15 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/la
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import CreatePostComponent from '../../../components/ui/CreatePostComponent';
-import { ContentDescription, PostType } from '../../../types';
+import { ContentDescription, FormatMentionProps, PostType } from '../../../types';
+import useProgressButton from '../../../components/ui/ProgressButton';
+import { sleep } from '../../../utils/timer-utils';
+import { atMentionsGlobalRegex, generateMentionReplacementMatchFunc } from '../../../utils/text-utils';
 
 export interface MentionProps {
   id: string;
   userName: string;
   profilePic: string;
-}
-export interface FormatMentionProps {
-  id: string;
-  value: string;
-  format: string;
 }
 
 function CreatePost() {
@@ -42,24 +40,16 @@ function CreatePost() {
   const [titleContent, setTitleContent] = useState<string>('');
   const [containSpoiler, setContainSpoiler] = useState<boolean>(false);
   const [selectedPostType, setSelectedPostType] = useState<string>('');
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const paramsMovieId = searchParams.get('movieId');
 
-  const mentionReplacementMatchFunc = (match: string) => {
-    if (match) {
-      const finalString: any = formatMention.find(
-        (matchMention: FormatMentionProps) => match.includes(matchMention.value),
-      );
-      if (finalString) {
-        return finalString.format;
-      }
-      return match;
-    }
-    return undefined;
-  };
-
-  const addPost = () => {
+  const addPost = async () => {
     /* eslint no-useless-escape: 0 */
-    const postContentWithMentionReplacements = (postContent.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    setProgressButtonStatus('loading');
+    const postContentWithMentionReplacements = (postContent.replace(
+      atMentionsGlobalRegex,
+      generateMentionReplacementMatchFunc(formatMention),
+    ));
     if (paramsType === 'group-post') {
       const groupPostData = {
         title: titleContent,
@@ -77,11 +67,14 @@ function CreatePost() {
       movieId: paramsMovieId,
     };
     return createPost(createPostData, imageArray, descriptionArray!)
-      .then(() => {
+      .then(async () => {
+        setProgressButtonStatus('success');
+        await sleep(1000);
         setErrorMessage([]);
         navigate(location.state);
       })
       .catch((error) => {
+        setProgressButtonStatus('failure');
         const msg = error.response.status === 0 && !error.response.data
           ? 'Combined size of files is too large.'
           : error.response.data.message;
@@ -124,7 +117,7 @@ function CreatePost() {
           <CreatePostComponent
             setPostMessageContent={setPostContent}
             errorMessage={errorMessage}
-            createUpdatePost={addPost}
+            createUpdatePost={addPost as any}
             imageArray={imageArray}
             setImageArray={setImageArray}
             defaultValue={postContent}
@@ -139,6 +132,7 @@ function CreatePost() {
             placeHolder="Create a post"
             descriptionArray={descriptionArray}
             setDescriptionArray={setDescriptionArray}
+            ProgressButton={ProgressButton}
             createEditPost
           />
         </Form>

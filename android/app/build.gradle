@@ -1,9 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
+    namespace "com.sdei.slasher"
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "tv.slasher.app"
+        applicationId "com.sdei.slasher"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

@@ -10,8 +10,10 @@ import CopyLinkIcon from '../../images/share-links-modal-copy-links.png';
 import FacebookIcon from '../../images/share-links-modal-facebook.png';
 import InstagramIcon from '../../images/share-links-modal-instagram.png';
 import TwitterIcon from '../../images/share-links-modal-twitter.png';
-import { FRONTEND_URL, enableDevFeatures } from '../../utils/configEnvironment';
+import { enableDevFeatures } from '../../constants';
 import { isMovieDetailsPage } from '../../utils/url-utils';
+
+const FRONTEND_URL = `${window.location.protocol}//${window.location.host}`;
 
 export const copyUrlToClipboard = (copyLinkUrl: string) => {
   copy(`${FRONTEND_URL}${copyLinkUrl}`);
@@ -49,9 +51,9 @@ function ShareLinksModal({ copyLinkUrl, show, setShow }: any) {
         <Row xs={3} lg="auto" className="mt-4">
           {isMovieDetailsPage(pathname)
             && (
-            <Col className="pb-5">
-              <ShareIconButton label="Share as a post" onClick={() => { navigate(`/app/posts/create?movieId=${params.id}`, { state: pathname }); }} imgSrc={ShareAsApostIcon} />
-            </Col>
+              <Col className="pb-5">
+                <ShareIconButton label="Share as a post" onClick={() => { navigate(`/app/posts/create?movieId=${params.id}`, { state: pathname }); }} imgSrc={ShareAsApostIcon} />
+              </Col>
             )}
           {
             enableDevFeatures && (

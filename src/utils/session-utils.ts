@@ -2,7 +2,7 @@ import Cookies from 'js-cookie';
 import { Preferences } from '@capacitor/preferences';
 import { clearLocalStorage } from './localstorage-utils';
 import socketStore from '../socketStore';
-import { isCapacitorApp } from '../constants';
+import { isNativePlatform } from '../constants';
 
 export const setSignInCookies = async (sessionToken: string, userId: string, userName: string) => {
   // Set cookies
@@ -16,7 +16,7 @@ export const setSignInCookies = async (sessionToken: string, userId: string, use
 
   // Use `Capacitor Preferences` api to cache user credentials in native storage for android and
   // ios devices for persistence after application is completely closed from recent-apps.
-  if (isCapacitorApp) {
+  if (isNativePlatform) {
     await Preferences.set({ key: 'sessionToken', value: sessionToken });
     await Preferences.set({ key: 'userId', value: userId });
     await Preferences.set({ key: 'userName', value: userName });
@@ -25,19 +25,21 @@ export const setSignInCookies = async (sessionToken: string, userId: string, use
 export const updateUserNameCookie = async (userName: string) => {
   const onlySendCookieOverHttps = !['development', 'test'].includes(process.env.NODE_ENV);
   Cookies.set('userName', userName, { secure: onlySendCookieOverHttps });
-  if (isCapacitorApp) {
+  if (isNativePlatform) {
     await Preferences.set({ key: 'userName', value: userName });
   }
 };
 
 const clearSignInCookies = async () => {
+  if (isNativePlatform) { await Preferences.clear(); }
+  // SD-1247: Bug Fixed: Please make sure capacitor Shared-preferences are cleared first (i.e,
+  // before Cookies) otherwise sometimes there are race conditions which tend to reset cookies
+  // for `sessionToken` when some call for `getSessionToken` is also in queue for some active
+  // requests.
   Cookies.remove('sessionToken');
   Cookies.remove('userId');
   Cookies.remove('userName');
   clearLocalStorage('spoilersIds');
-  if (isCapacitorApp) {
-    await Preferences.clear();
-  }
 };
 export const signOut = async () => {
   await clearSignInCookies();
@@ -49,7 +51,7 @@ export const getSessionToken = async () => {
   const sessionToken = Cookies.get('sessionToken');
   if (sessionToken) { return sessionToken; }
   // Try to restore from native storage for capacitor app.
-  if (isCapacitorApp) {
+  if (isNativePlatform) {
     const token = (await Preferences.get({ key: 'sessionToken' })).value;
     if (token) {
       Cookies.set('sessionToken', token);
@@ -62,7 +64,7 @@ export const getSessionUserId = async () => {
   const sessionUserId = Cookies.get('userId');
   if (sessionUserId) { return sessionUserId; }
   // Try to restore from native storage for capacitor app.
-  if (isCapacitorApp) {
+  if (isNativePlatform) {
     const userId = (await Preferences.get({ key: 'userId' })).value;
     if (userId) {
       Cookies.set('userId', userId);
@@ -75,12 +77,21 @@ export const getSessionUserName = async () => {
   const sessionUserName = Cookies.get('userName');
   if (sessionUserName) { return sessionUserName; }
   // Try to restore from native storage for capacitor app.
-  if (isCapacitorApp) {
-    const userName = (await Preferences.get({ key: 'sessionToken' })).value;
+  if (isNativePlatform) {
+    const userName = (await Preferences.get({ key: 'userName' })).value;
     if (userName) {
       Cookies.set('userName', userName);
       return userName;
     }
   }
   return null;
+};
+
+export const getDeviceToken = async () => {
+  const deviceToken = (await Preferences.get({ key: 'deviceToken' })).value;
+  return deviceToken;
+};
+
+export const setDeviceToken = async (deviceToken: string) => {
+  await Preferences.set({ key: 'deviceToken', value: deviceToken });
 };

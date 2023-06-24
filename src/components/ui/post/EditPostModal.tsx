@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Modal } from 'react-bootstrap';
-import { FormatMentionProps } from '../../../routes/posts/create-post/CreatePost';
 import CreatePostComponent from '../CreatePostComponent';
 import ModalContainer from '../CustomModal';
-import { decryptMessage } from '../../../utils/text-utils';
-import { ContentDescription } from '../../../types';
+import { atMentionsGlobalRegex, decryptMessage, generateMentionReplacementMatchFunc } from '../../../utils/text-utils';
+import { ContentDescription, FormatMentionProps } from '../../../types';
+import { ProgressButtonComponentType } from '../ProgressButton';
 
 interface Props {
   show: boolean;
@@ -12,6 +12,7 @@ interface Props {
   setShow: (value: boolean) => void;
   setPostContent: (val: string) => void;
   postContent: string;
+  ProgressButton: ProgressButtonComponentType,
   onUpdatePost: (
     value: string,
     images: string[],
@@ -21,7 +22,7 @@ interface Props {
   setPostImages: any;
   deleteImageIds?: string[];
   setDeleteImageIds?: (val: string) => void;
-  editPost?: boolean
+  editPost?: boolean;
 }
 function EditPostModal({
   show,
@@ -35,6 +36,7 @@ function EditPostModal({
   deleteImageIds,
   setDeleteImageIds,
   editPost,
+  ProgressButton,
 }: Props) {
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const [descriptionArray, setDescriptionArray] = useState<ContentDescription[]>([]);
@@ -57,20 +59,11 @@ function EditPostModal({
   const closeModal = () => {
     setShow(false);
   };
-  const mentionReplacementMatchFunc = (match: string) => {
-    if (match && formatMention) {
-      const finalString: any = formatMention.find(
-        (matchMention: FormatMentionProps) => match.includes(matchMention.value),
-      );
-      if (finalString) {
-        return finalString.format;
-      }
-      return match;
-    }
-    return undefined;
-  };
   const updatePost = () => {
-    const postContentWithMentionReplacements = (postContent.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    const postContentWithMentionReplacements = (postContent.replace(
+      atMentionsGlobalRegex,
+      generateMentionReplacementMatchFunc(formatMention),
+    ));
     const files = postImages.filter((images: any) => images instanceof File);
     onUpdatePost(postContentWithMentionReplacements, files, deleteImageIds, descriptionArray);
   };
@@ -100,6 +93,7 @@ function EditPostModal({
           descriptionArray={descriptionArray}
           setDescriptionArray={setDescriptionArray}
           createEditPost={editPost}
+          ProgressButton={ProgressButton}
         />
       </Modal.Body>
     </ModalContainer>

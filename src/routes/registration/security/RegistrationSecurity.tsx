@@ -1,5 +1,7 @@
 /* eslint-disable max-lines */
-import React, { ChangeEvent, useState } from 'react';
+import React, {
+  ChangeEvent, useState, useEffect, useCallback,
+} from 'react';
 import {
   Col, Form, InputGroup, Row,
 } from 'react-bootstrap';
@@ -16,11 +18,11 @@ import RegistartionSecurityList from '../components/RegistrationSecurityList';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import { validateRegistrationFields } from '../../../api/users';
 import useProgressButton from '../../../components/ui/ProgressButton';
-import SortData from '../../../components/filter-sort/SortData';
+import CustomSelect from '../../../components/filter-sort/CustomSelect';
 
 const yearOptions = generate18OrOlderYearList();
-const monthOptions = generateMonthOptions();
 const dayOptions = generateDayOptions(1, 31);
+const monthOptions = generateMonthOptions();
 interface Props {
   activeStep: number;
 }
@@ -33,17 +35,28 @@ function RegistrationSecurity({ activeStep }: Props) {
   const [errorMessages, setErrorMessages] = useState<string[]>();
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const navigate = useNavigate();
-  const convertedDayOptions = dayOptions.map((day) => ({ value: day, label: day }));
+  const [updateDayOptions, setUpdateDayOptions] = useState(dayOptions);
+  const convertedDayOptions = updateDayOptions.map((day) => ({ value: day, label: day }));
   const convertedYearOptions = yearOptions.map((year) => ({ value: year, label: year }));
-  const [selectedMonth, setSelectedMonth] = useState('disabled');
-  const [selectedDay, setSelectedDay] = useState('disabled');
-  const [selectedYear, setSelectedYear] = useState('disabled');
-  const [selectedSecurityQuestion, setSelectedSecurityQuestion] = useState('disabled');
+  const [selectedMonth, setSelectedMonth] = useState<number>(0);
+  const [selectedDay, setSelectedDay] = useState<number>(0);
+  const [selectedYear, setSelectedYear] = useState<number>(0);
+  const [selectedSecurityQuestion, setSelectedSecurityQuestion] = useState<string>();
   const RegistartionSecurityQuestions = RegistartionSecurityList.map(
     (list) => ({ value: list, label: list }),
   );
 
-  const handleChange = (value: string, key: string) => {
+  useEffect(() => {
+    const newDay = generateDayOptions(
+      1,
+      31,
+      selectedYear !== 0 ? selectedYear : undefined,
+      selectedMonth !== 0 ? selectedMonth : undefined,
+    );
+    setUpdateDayOptions(newDay);
+  }, [selectedMonth, selectedYear]);
+
+  const handleChange = (value: string | number, key: string) => {
     const registerInfoTemp = { ...securityInfo };
     (registerInfoTemp as any)[key] = value;
     dispatch(setSecurityFields(registerInfoTemp));
@@ -87,6 +100,36 @@ function RegistrationSecurity({ activeStep }: Props) {
       navigate('/app/registration/terms');
     }
   };
+
+  const handleChangeDay = useCallback(() => {
+    if (selectedDay > updateDayOptions.length) {
+      setSelectedDay(updateDayOptions.length);
+    }
+  }, [updateDayOptions.length, selectedDay]);
+
+  useEffect(() => {
+    handleChangeDay();
+  }, [updateDayOptions.length, selectedDay, handleChangeDay]);
+
+  useEffect(() => {
+    if (securityInfo) {
+      if (securityInfo.day) {
+        setSelectedDay(securityInfo.day);
+      }
+
+      if (securityInfo.month) {
+        setSelectedMonth(securityInfo.month);
+      }
+
+      if (securityInfo.year) {
+        setSelectedYear(securityInfo.year);
+      }
+
+      if (securityInfo.securityQuestion) {
+        setSelectedSecurityQuestion(securityInfo.securityQuestion);
+      }
+    }
+  }, [securityInfo]);
 
   return (
     <RegistrationPageWrapper activeStep={activeStep}>
@@ -133,11 +176,12 @@ function RegistrationSecurity({ activeStep }: Props) {
             </Row>
           </Col>
           <Col sm={12} md={9} className="mt-4">
-            <SortData
-              sortVal={selectedSecurityQuestion}
-              onSelectSort={(val) => { handleChange(val, 'securityQuestion'); setSelectedSecurityQuestion(val); }}
-              sortoptions={[{ value: 'disabled', label: 'Select a security question' }, ...RegistartionSecurityQuestions]}
+            <CustomSelect
+              value={selectedSecurityQuestion}
+              onChange={(val) => { handleChange(val, 'securityQuestion'); setSelectedSecurityQuestion(val); }}
+              options={[...RegistartionSecurityQuestions]}
               type="form"
+              placeholder="Select a security question"
             />
             <p className="mt-3 text-light">
               By selecting a security question, you will be able to verify that
@@ -168,26 +212,29 @@ function RegistrationSecurity({ activeStep }: Props) {
                 <p className="mb-4 text-light">Your age will not be shown in your profile.</p>
               </Col>
               <Col sm={12} md={4}>
-                <SortData
-                  sortVal={selectedMonth}
-                  onSelectSort={(val) => { handleChange(val, 'month'); setSelectedMonth(val); }}
-                  sortoptions={[{ value: 'disabled', label: 'Month' }, ...monthOptions]}
+                <CustomSelect
+                  value={selectedMonth}
+                  placeholder="Month"
+                  onChange={(val) => { handleChange(val, 'month'); setSelectedMonth(+val); handleChangeDay(); }}
+                  options={[...monthOptions]}
                   type="form"
                 />
               </Col>
               <Col sm={12} md={4} className="my-2 my-md-0">
-                <SortData
-                  sortVal={selectedDay}
-                  onSelectSort={(val) => { handleChange(val, 'day'); setSelectedDay(val); }}
-                  sortoptions={[{ value: 'disabled', label: 'Day' }, ...convertedDayOptions]}
+                <CustomSelect
+                  value={selectedDay}
+                  placeholder="Day"
+                  onChange={(val) => { handleChange(val, 'day'); setSelectedDay(+val); }}
+                  options={[...convertedDayOptions]}
                   type="form"
                 />
               </Col>
               <Col sm={12} md={4}>
-                <SortData
-                  sortVal={selectedYear}
-                  onSelectSort={(val) => { handleChange(val, 'year'); setSelectedYear(val); }}
-                  sortoptions={[{ value: 'disabled', label: 'Year' }, ...convertedYearOptions]}
+                <CustomSelect
+                  value={selectedYear}
+                  placeholder="Year"
+                  onChange={(val) => { handleChange(val, 'year'); setSelectedYear(+val); }}
+                  options={[...convertedYearOptions]}
                   type="form"
                 />
               </Col>

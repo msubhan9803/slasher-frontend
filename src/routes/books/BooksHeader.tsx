@@ -2,7 +2,7 @@ import React from 'react';
 import { Col, Row } from 'react-bootstrap';
 import FilterModal from '../../components/filter-sort/FilterModal';
 import FilterOptions from '../../components/filter-sort/FilterOptions';
-import SortData from '../../components/filter-sort/SortData';
+import CustomSelect from '../../components/filter-sort/CustomSelect';
 import CustomSearchInput from '../../components/ui/CustomSearchInput';
 import RoundButton from '../../components/ui/RoundButton';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
@@ -35,7 +35,7 @@ function BooksHeader({
           <FilterOptions setShowKeys={setShowKeys} showKeys={showKeys} />
         </Col>
         <Col md={4} className="d-none d-lg-block">
-          <SortData sortoptions={sortoptions} type="sort" />
+          <CustomSelect options={sortoptions} type="sort" />
         </Col>
         <Col md={4} className="order-first order-md-last">
           <RoundButton className="d-lg-none w-100">Add your book</RoundButton>

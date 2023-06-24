@@ -1,3 +1,5 @@
+import { FormatMentionProps } from '../types';
+
 // Finds the first YouTube link in a post and returns the YouTube ID in the 6-index capture group
 const YOUTUBE_LINK_REGEX = /((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\\-]+\?v=|embed\/|v\/)?)([\w\\-]+)(\S+)?/;
 
@@ -80,3 +82,34 @@ export function decryptMessage(message: any) {
 export function sortInPlace(array: string[]) {
   return array.sort((a, b) => a.localeCompare(b));
 }
+
+// For tests of below regex refer - file://./regex-tests.ts (TIP: Use Ctrl+click to browse the file in vscode)
+export const atMentionsGlobalRegex = /(\s|^)@[a-zA-Z0-9_.-]+/g;
+
+/**
+ * This function return all white space characters in the beginning of the input text.
+ * @param text This is any text with or without space, tab or new line characters in front of
+ * the text. Example - 'cat', ' cat', '    cat', '  <newLineCharacter>  cat'
+ * @returns All white space characters in the beginning of the input text
+ */
+export const getLeadingWhiteSpace = (text: string) => text.match(/\s.+/)?.[0]?.replace(text.trimStart(), '');
+
+export const generateMentionReplacementMatchFunc = (
+  formatMention: FormatMentionProps[],
+) => {
+  function mentionReplacementMatchFunc(match: string) {
+    const leadingWhiteCharacters = getLeadingWhiteSpace(match);
+    if (match) {
+      const finalString: any = formatMention.find(
+        (matchMention: FormatMentionProps) => match.includes(matchMention.value),
+      );
+      if (finalString) {
+        return `${leadingWhiteCharacters || ''}${finalString.format}` as any;
+      }
+      return match;
+    }
+    return undefined;
+  }
+
+  return mentionReplacementMatchFunc;
+};

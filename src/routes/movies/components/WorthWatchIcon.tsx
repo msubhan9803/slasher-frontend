@@ -92,6 +92,20 @@ function WorthWatchIcon({
       setLike(false);
     }
   }, [setLike, setDisLike, isWorthIt]);
+  useEffect(() => {
+    if (movieData?.userData.worthWatching === WorthWatchingStatus.Up) {
+      setLike(true);
+      setDisLike(false);
+    }
+    if (movieData?.userData.worthWatching === WorthWatchingStatus.Down) {
+      setDisLike(true);
+      setLike(false);
+    }
+    if (movieData?.userData.worthWatching === WorthWatchingStatus.NoRating) {
+      setLike(false);
+      setDisLike(false);
+    }
+  }, [setLike, setDisLike, movieData?.userData.worthWatching]);
   const handleThumbsUp = useCallback(() => {
     const alreadyLiked = clickType === 'form' ? isWorthIt === WorthWatchingStatus.Up : movieData?.userData.worthWatching === WorthWatchingStatus.Up;
     if (alreadyLiked) {

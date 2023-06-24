@@ -122,13 +122,15 @@ function AllMovies() {
     dispatch, isKeyMoviesReady, key, location, pageStateCache?.length, fetchMovies]);
 
   useEffect(() => {
-    const isSameKey = lastLocationKeyRef.current === location.key;
-    if (isSameKey) { return; }
-    // Fetch movies when we click the `movies` in left-side-navbar
-    fetchMovies(true);
-    // Update lastLocation
-    lastLocationKeyRef.current = location.key;
-  }, [fetchMovies, location.key]);
+    if (noMoreData) {
+      const isSameKey = lastLocationKeyRef.current === location.key;
+      if (isSameKey) { return; }
+      // Fetch movies when we click the `movies` in left-side-navbar
+      fetchMovies(true);
+      // Update lastLocation
+      lastLocationKeyRef.current = location.key;
+    }
+  }, [fetchMovies, location.key, noMoreData]);
 
   const applyFilter = (keyValue: string, sortValue?: string) => {
     setCallNavigate(true);

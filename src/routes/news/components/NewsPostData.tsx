@@ -12,7 +12,7 @@ import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
 import {
-  deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
+  getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../../pageStateCache';
 
 interface Props {
@@ -65,10 +65,6 @@ function NewsPostData({ partnerId }: Props) {
             ...newPosts,
           ]);
           if (res.data.length === 0) { setNoMoreData(true); }
-          if (hasPageStateCache(location)
-            && postData.length >= newsPostsCache.length + 10) {
-            deletePageStateCache(location);
-          }
         }).catch(
           () => {
             setNoMoreData(true);

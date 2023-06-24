@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useState, useEffect } from 'react';
 import {
   Alert, Col, Form, Row,
 } from 'react-bootstrap';
@@ -21,7 +21,7 @@ import NotFound from '../../../components/NotFound';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import useProgressButton from '../../../components/ui/ProgressButton';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import { updateUserProfilePic } from '../../../redux/slices/userSlice';
+import { updateUserProfilePic, updateUserUserName } from '../../../redux/slices/userSlice';
 
 interface Props {
   user: User
@@ -37,6 +37,7 @@ function ProfileEdit({ user }: Props) {
   const [errorMessage, setErrorMessages] = useState<string[]>();
   const [profilePhoto, setProfilePhoto] = useState<File | null | undefined>();
   const [coverPhoto, setCoverPhoto] = useState<any>();
+  const [profileUpdate, setProfileUpdate] = useState<any>(false);
   const [publicStatus, setPublic] = useState<boolean>(
     user.profile_status === ProfileVisibility.Public,
   );
@@ -49,12 +50,17 @@ function ProfileEdit({ user }: Props) {
   const loggedInUserName = useAppSelector((state) => state.user.user.userName);
   const isUnAuthorizedUser = userName !== loggedInUserName;
 
+  useEffect(() => {
+    setProfileUpdate(false);
+  }, [profilePhoto, coverPhoto]);
+
   const handleChange = (value: string, key: string) => {
     setUserDataInForm({ ...userDataInForm, [key]: value });
   };
 
   const updateProfile = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    setProfileUpdate(false);
     setProgressButtonStatus('loading');
     let errorList: string[] = [];
 
@@ -117,11 +123,14 @@ function ProfileEdit({ user }: Props) {
 
     if (updateResponse && errorList.length === 0) {
       // Update was successful
-
+      dispatch(
+        updateUserUserName(userDataInForm.userName),
+      );
       updateUserNameCookie(userDataInForm.userName).finally(() => {
         handleChange(updateResponse.data.unverifiedNewEmail || updateResponse.data.email, 'email');
         handleChange(updateResponse.data.unverifiedNewEmail, 'unverifiedNewEmail');
 
+        setProfileUpdate(true);
         // And update current url to use latest userName (to handle possible userName change)
         navigate(
           location.pathname.replace(params.userName!, userDataInForm.userName),
@@ -129,6 +138,9 @@ function ProfileEdit({ user }: Props) {
         );
       });
       setProgressButtonStatus('success');
+      setTimeout(() => {
+        setProfileUpdate(false);
+      }, 5000);
     } else {
       setProgressButtonStatus('failure');
     }
@@ -158,6 +170,7 @@ function ProfileEdit({ user }: Props) {
     setPrivate(false);
     handleChange('0', 'profile_status');
   };
+
   return (
     <div>
       {userDataInForm.profilePic.includes('default_user_icon') && !profilePhoto
@@ -243,6 +256,7 @@ function ProfileEdit({ user }: Props) {
               <Form.Group className="mb-4">
                 <Form.Label className="h3" htmlFor="username">Username</Form.Label>
                 <Form.Control
+                  readOnly
                   type="text"
                   id="username"
                   placeholder="Username"
@@ -255,6 +269,7 @@ function ProfileEdit({ user }: Props) {
                 />
                 <Form.Text className="text-muted fs-4">
                   This is how people will see you post and comment on Slasher.
+                  You can edit your username after July 31, 2023.
                 </Form.Text>
               </Form.Group>
             </Col>
@@ -322,6 +337,7 @@ function ProfileEdit({ user }: Props) {
             </Col>
           </Row>
           <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+          {profileUpdate && <Alert variant="info">Your profile has been updated</Alert>}
           <Row className="mt-2">
             <Col xs={12} md={3} lg={4} xl={3}>
               <ProgressButton label="Update profile" className="w-100" onClick={updateProfile} />

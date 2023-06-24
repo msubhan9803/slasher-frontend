@@ -9,7 +9,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import LoadingIndicator from '../ui/LoadingIndicator';
 import { getConversation, markAllReadForSingleConversation, sendMessageWithFiles } from '../../api/messages';
 import { Message, User } from '../../types';
-import { useAppSelector } from '../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import socketStore from '../../socketStore';
 import { getConversationMessages } from '../../api/chat';
 import {
@@ -19,6 +19,7 @@ import ChatOptions from './ChatOptions';
 import ChatUserStatus from './ChatUserStatus';
 import ChatMessages from './ChatMessages';
 import NewChatInput from './ChatInput';
+import { removeRecentMessage } from '../../redux/slices/userSlice';
 
 interface Props {
   viewerUserId: string;
@@ -78,6 +79,7 @@ function Chat({
   const abortControllerRef = useRef<AbortController | null>(null);
   const chatBodyElementRef = useRef<HTMLDivElement>(null);
   const latestChatScrollDistanceFromBottom = useRef<number>(0);
+  const dispatch = useAppDispatch();
 
   const updateMaxHeightBasedOnCurrentWindowHeight = debounce(() => {
     let newHeight = window.innerHeight;
@@ -219,8 +221,9 @@ function Chat({
       // Since this message is from the current conversation, indicate that it has been read.
       socket!.emit('messageRead', { messageId: responsePayload.message._id });
       appendNewMessage(message);
+      dispatch(removeRecentMessage(message.matchId));
     }
-  }, [appendNewMessage, conversationId, socket]);
+  }, [appendNewMessage, conversationId, socket, dispatch]);
 
   // For adjusting chat container height based on window size changes (to get around css 100vh issue
   // with mobile browser navbar.
@@ -234,10 +237,11 @@ function Chat({
     if (conversationId) {
       setLoadState(LoadState.Loading);
       loadConversation();
+      dispatch(removeRecentMessage(conversationId));
     } else {
       setLoadState(LoadState.LoadFailure);
     }
-  }, [conversationId, loadConversation]);
+  }, [conversationId, loadConversation, dispatch]);
 
   useEffect(() => {
     if (socket) {

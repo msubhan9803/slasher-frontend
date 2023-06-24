@@ -5,7 +5,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { AxiosResponse } from 'axios';
 import { HashLink } from 'react-router-hash-link';
 import UserCircleImage from './UserCircleImage';
-import { FriendRequestReaction, LikeShareModalResourceName } from '../../types';
+import { FriendRequestReaction, FriendType, LikeShareModalResourceName } from '../../types';
 import { getLikeUsersForPost } from '../../api/feed-posts';
 import FriendActionButtons from './Friend/FriendActionButtons';
 import { friendship } from '../../api/friends';
@@ -22,8 +22,6 @@ type LikeUsersType = {
     to: string,
   } | null,
 };
-
-type FriendType = { from: string, to: string, reaction: FriendRequestReaction } | null;
 
 function FriendAction({ likeUser }: { likeUser: LikeUsersType }) {
   const [friendshipStatus, setFriendshipStatus] = useState<any>();

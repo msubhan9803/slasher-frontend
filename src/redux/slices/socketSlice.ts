@@ -7,12 +7,12 @@ export const socketSlice = createSlice({
     isConnected: false,
   },
   reducers: {
-    setSocketConnected: (state, action: PayloadAction<boolean>) => {
-      state.isConnected = action.payload;
-    },
+    setIsSocketConnected: (state, action: PayloadAction<boolean>) => ({
+      isConnected: action.payload,
+    }),
   },
 });
 
-export const { setSocketConnected } = socketSlice.actions;
+export const { setIsSocketConnected } = socketSlice.actions;
 
 export default socketSlice.reducer;

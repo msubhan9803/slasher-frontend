@@ -30,8 +30,65 @@ export const userSlice = createSlice({
       newConversationIdsCount: action.payload.newConversationIdsCount,
     }),
     /* eslint-disable no-param-reassign */
-    updateUserProfilePic: (state, action: PayloadAction<string>) => {
+    updateUserProfilePic: (state, action) => {
       state.user.profilePic = action.payload;
+    },
+    /* eslint-disable no-param-reassign */
+    updateUserUserName: (state, action) => {
+      state.user.userName = action.payload;
+    },
+    /* eslint-disable no-param-reassign */
+    updateRecentMessage: (state, action: any) => {
+      const newMessageObj = {
+        _id: action.payload.message.matchId,
+        unreadCount: action.payload.message.unreadMsgCount,
+        latestMessage: action.payload.message.message,
+        updatedAt: action.payload.message.createdAt,
+        participants: [{
+          _id: action.payload.message.fromId,
+          userName: action.payload.message.fromUser.userName,
+          profilePic: action.payload.message.fromUser.profilePic,
+        }],
+      };
+      let existingRecentMessage = [...JSON.parse(JSON.stringify(state.recentMessages))];
+
+      // eslint-disable-next-line max-len
+      const matchedMessage = existingRecentMessage.find((m) => m._id === action.payload.message.matchId);
+
+      if (matchedMessage) {
+        const matchedIndex = existingRecentMessage.indexOf(matchedMessage);
+        existingRecentMessage[matchedIndex] = {
+          ...matchedMessage,
+          updatedAt: action.payload.message.createdAt,
+          latestMessage: action.payload.message.message,
+          unreadCount: action.payload.message.unreadMsgCount,
+        };
+      } else {
+        existingRecentMessage = [...JSON.parse(JSON.stringify(state.recentMessages)),
+          newMessageObj,
+        ];
+      }
+
+      const sortedMessage = existingRecentMessage.sort((a: MessagesList, b: MessagesList) => {
+        const keyA = new Date(a.updatedAt);
+        const keyB = new Date(b.updatedAt);
+        // Compare the 2 dates
+        if (keyA < keyB) { return 1; }
+        if (keyA > keyB) { return -1; }
+        return 0;
+      });
+
+      state.recentMessages = sortedMessage.length > 3
+        && !matchedMessage ? sortedMessage.slice(0, -1) : sortedMessage;
+    },
+
+    /* eslint-disable no-param-reassign */
+    removeRecentMessage: (state, action) => {
+      state.recentMessages = [...state.recentMessages.filter(
+        // eslint-disable-next-line max-len
+        (m) => m._id !== action.payload,
+      ),
+      ];
     },
     /* eslint-disable no-param-reassign */
     incrementUnreadNotificationCount: (state) => {
@@ -88,10 +145,13 @@ export const {
   resetNewFriendRequestCountCount,
   handleUpdatedUnreadConversationCount,
   updateUserProfilePic,
+  updateUserUserName,
   setUserRecentFriendRequests,
   setFriendListReload,
   appendToPathnameHistory,
   removeBlockedUserFromRecentMessages,
+  updateRecentMessage,
+  removeRecentMessage,
 } = userSlice.actions;
 
 export default userSlice.reducer;

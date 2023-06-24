@@ -1,20 +1,38 @@
 /* eslint-disable max-lines */
 import axios from 'axios';
+import { Capacitor } from '@capacitor/core';
+import { Device } from '@capacitor/device';
 import { apiUrl } from '../constants';
-import { RegisterUser } from '../types';
-import { getSessionToken, getSessionUserId } from '../utils/session-utils';
+import { DeviceFields, RegisterUser } from '../types';
+import { getDeviceToken, getSessionToken, getSessionUserId } from '../utils/session-utils';
 
 export async function signIn(emailOrUsername: string, password: string, signal?: AbortSignal) {
-  return axios.post(
-    `${apiUrl}/api/v1/users/sign-in`,
-    {
-      emailOrUsername,
-      password,
+  let deviceFields: DeviceFields;
+  if (Capacitor.isNativePlatform()) {
+    const deviceId = await Device.getId();
+    const deviceInfo = await Device.getInfo();
+    deviceFields = {
+      device_id: deviceId.identifier,
+      device_token: (await getDeviceToken())!,
+      device_type: deviceInfo.platform,
+      app_version: `${deviceInfo.platform}-capacitor-${process.env.REACT_APP_VERSION}`,
+      device_version: `${deviceInfo.manufacturer} ${deviceInfo.model} ${deviceInfo.operatingSystem} ${deviceInfo.osVersion}, Name: ${deviceInfo.name}`,
+    };
+  } else {
+    deviceFields = {
       device_id: 'browser',
       device_token: 'browser',
       device_type: 'browser',
       app_version: `web-${process.env.REACT_APP_VERSION}`,
       device_version: window.navigator.userAgent,
+    };
+  }
+  return axios.post(
+    `${apiUrl}/api/v1/users/sign-in`,
+    {
+      emailOrUsername,
+      password,
+      ...deviceFields,
     },
     { signal },
   );
@@ -29,6 +47,7 @@ export async function register(
   securityQuestion: string,
   securityAnswer: string,
   dob: string,
+  reCaptchaToken: string,
 ) {
   return axios.post(
     `${apiUrl}/api/v1/users/register`,
@@ -41,6 +60,7 @@ export async function register(
       securityQuestion,
       securityAnswer,
       dob,
+      reCaptchaToken,
     },
   );
 }
@@ -103,6 +123,14 @@ export async function getUser(userName: string) {
 }
 export async function getPublicProfile(userName: string) {
   return axios.get(`${apiUrl}/api/v1/users/public/${userName}`);
+}
+
+export async function getUserByPreviousUserName(userName: string) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.get(`${apiUrl}/api/v1/users/previous-username/${userName}`, { headers });
 }
 
 export async function getProfilePosts(id: string, lastRetrievedPostId?: string) {
@@ -255,6 +283,17 @@ export async function updateUserAbout(
     Authorization: `Bearer ${token}`,
   };
   return axios.patch(`${apiUrl}/api/v1/users/${id}`, { aboutMe }, { headers });
+}
+
+export async function updateUserDeviceToken(
+  device_id: string,
+  device_token: string,
+) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.post(`${apiUrl}/api/v1/users/update-device-token`, { device_id, device_token }, { headers });
 }
 
 export async function getUserMoviesList(

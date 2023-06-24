@@ -7,7 +7,9 @@ import ProfileHeader from '../ProfileHeader';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import ReportModal from '../../../components/ui/ReportModal';
 import { getProfilePosts } from '../../../api/users';
-import { User, Post, ContentDescription } from '../../../types';
+import {
+  User, Post, ContentDescription, FriendRequestReaction, FriendType,
+} from '../../../types';
 import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
@@ -21,6 +23,10 @@ import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent'
 import {
   deletePageStateCache, deletedPostsCache, getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../../pageStateCache';
+import useProgressButton from '../../../components/ui/ProgressButton';
+import { sleep } from '../../../utils/timer-utils';
+import FriendshipStatusModal from '../../../components/ui/friendShipCheckModal';
+import { friendship } from '../../../api/friends';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -52,6 +58,10 @@ function ProfilePosts({ user }: Props) {
     hasPageStateCache(location)
       ? pageStateCache : [],
   );
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
+  const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
+  const [friendData, setFriendData] = useState<FriendType>(null);
+  const [friendShipStatusModal, setFriendShipStatusModal] = useState<boolean>(false);
   const { userName: userNameOrId } = useParams<string>();
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.message) {
@@ -154,7 +164,10 @@ function ProfilePosts({ user }: Props) {
     imageDelete: string[] | undefined,
     descriptionArray?: ContentDescription[],
   ) => {
-    updateFeedPost(postId, message, images, imageDelete, null, descriptionArray).then(() => {
+    setProgressButtonStatus('loading');
+    updateFeedPost(postId, message, images, imageDelete, null, descriptionArray).then(async () => {
+      setProgressButtonStatus('success');
+      await sleep(1000);
       setShowReportModal(false);
       const updatePost = posts.map((post: any) => {
         if (post._id === postId) {
@@ -168,6 +181,7 @@ function ProfilePosts({ user }: Props) {
       callLatestFeedPost();
     })
       .catch((error) => {
+        setProgressButtonStatus('failure');
         const msg = error.response.status === 0 && !error.response.data
           ? 'Combined size of files is too large.'
           : error.response.data.message;
@@ -185,47 +199,70 @@ function ProfilePosts({ user }: Props) {
       .catch((error) => console.error(error));
   };
 
-  const onLikeClick = (feedPostId: string) => {
+  const checkFriendShipStatus = (selectedFeedPostId: string) => new Promise<void>(
+    (resolve, reject) => {
+      if (userId === selectedFeedPostId) {
+        resolve();
+      } else {
+        friendship(selectedFeedPostId).then((res) => {
+          if (res.data.reaction === FriendRequestReaction.Accepted) {
+            resolve();
+          } else {
+            setPostUserId(selectedFeedPostId);
+            setFriendShipStatusModal(true);
+            setFriendData(res.data);
+            setFriendStatus(res.data.reaction);
+          }
+        }).catch(() => reject());
+      }
+    },
+  );
+
+  const onLikeClick = async (feedPostId: string) => {
     const checkLike = posts.some((post) => post.id === feedPostId
       && post.likeIcon);
 
-    if (checkLike) {
-      unlikeFeedPost(feedPostId).then((res) => {
-        if (res.status === 200) {
-          const unLikePostData = posts.map(
-            (unLikePost: Post) => {
-              if (unLikePost._id === feedPostId) {
+    const selectedFeedPostId = posts.find((post) => post.id === feedPostId)?.userId;
+
+    await checkFriendShipStatus(selectedFeedPostId!).then(() => {
+      if (checkLike) {
+        unlikeFeedPost(feedPostId).then((res) => {
+          if (res.status === 200) {
+            const unLikePostData = posts.map(
+              (unLikePost: Post) => {
+                if (unLikePost._id === feedPostId) {
+                  return {
+                    ...unLikePost,
+                    likeIcon: false,
+                    likedByUser: false,
+                    likeCount: unLikePost.likeCount - 1,
+                  };
+                }
+                return unLikePost;
+              },
+            );
+            setPosts(unLikePostData);
+          }
+        });
+      } else {
+        likeFeedPost(feedPostId).then((res) => {
+          if (res.status === 201) {
+            const likePostData = posts.map((likePost: Post) => {
+              if (likePost._id === feedPostId) {
                 return {
-                  ...unLikePost,
-                  likeIcon: false,
-                  likedByUser: false,
-                  likeCount: unLikePost.likeCount - 1,
+                  ...likePost,
+                  likeIcon: true,
+                  likedByUser: true,
+                  likeCount: likePost.likeCount + 1,
                 };
               }
-              return unLikePost;
-            },
-          );
-          setPosts(unLikePostData);
-        }
-      });
-    } else {
-      likeFeedPost(feedPostId).then((res) => {
-        if (res.status === 201) {
-          const likePostData = posts.map((likePost: Post) => {
-            if (likePost._id === feedPostId) {
-              return {
-                ...likePost,
-                likeIcon: true,
-                likedByUser: true,
-                likeCount: likePost.likeCount + 1,
-              };
-            }
-            return likePost;
-          });
-          setPosts(likePostData);
-        }
-      });
-    }
+              return likePost;
+            });
+            setPosts(likePostData);
+          }
+        });
+      }
+    }).catch(() => { });
   };
 
   const onBlockYesClick = () => {
@@ -316,8 +353,21 @@ function ProfilePosts({ user }: Props) {
               setPostImages={setPostImages}
               deleteImageIds={deleteImageIds}
               setDeleteImageIds={setDeleteImageIds}
+              ProgressButton={ProgressButton}
             />
           )}
+
+        {friendShipStatusModal && (
+          <FriendshipStatusModal
+            friendShipStatusModal={friendShipStatusModal}
+            setFriendShipStatusModal={setFriendShipStatusModal}
+            friendStatus={friendStatus}
+            setFriendStatus={setFriendStatus}
+            setFriendData={setFriendData}
+            friendData={friendData}
+            userId={postUserId}
+          />
+        )}
       </ProfileTabContent>
     </div>
   );

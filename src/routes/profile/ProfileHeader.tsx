@@ -13,17 +13,15 @@ import defaultCoverImage from '../../images/default-cover-image.jpg';
 import CustomPopover, { PopoverClickProps } from '../../components/ui/CustomPopover';
 import UserCircleImage from '../../components/ui/UserCircleImage';
 import ReportModal from '../../components/ui/ReportModal';
-import { User, FriendRequestReaction } from '../../types';
+import { User, FriendRequestReaction, FriendType } from '../../types';
 import { friendship } from '../../api/friends';
 import { createBlockUser } from '../../api/blocks';
 import { reportData } from '../../api/report';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { StyledBorder } from '../../components/ui/StyledBorder';
-import { enableDevFeatures } from '../../utils/configEnvironment';
+import { enableDevFeatures, BREAK_POINTS, topToDivHeight } from '../../constants';
 import FriendActionButtons from '../../components/ui/Friend/FriendActionButtons';
-import { BREAK_POINTS, topToDivHeight } from '../../constants';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import { setScrollToTabsPosition } from '../../redux/slices/scrollPositionSlice';
 import SignInModal from '../../components/ui/SignInModal';
 import { getLastNonProfilePathname } from '../../utils/url-utils';
 import useSessionToken from '../../hooks/useSessionToken';
@@ -56,7 +54,7 @@ const StyledPopoverContainer = styled.div`
   top: 70px;
   right: 10px;
 `;
-type FriendType = { from: string, to: string, reaction: FriendRequestReaction } | null;
+// type FriendType = { from: string, to: string, reaction: FriendRequestReaction } | null;
 
 function ProfileHeader({
   tabKey, user, showTabs,
@@ -115,8 +113,7 @@ function ProfileHeader({
 
     // Scroll so that "About-Posts-Friends-Photos-Watched_list" nav-bar sticks to top of the
     // viewport.
-    if (scrollPosition.scrollToTab) {
-      dispatch(setScrollToTabsPosition(false));
+    if (!location.pathname.includes('about')) {
       window.scrollTo({
         top: element.offsetTop - (window.innerWidth >= BREAK_POINTS.lg ? (topToDivHeight - 18) : 0),
         behavior: 'instant' as any,
@@ -182,7 +179,7 @@ function ProfileHeader({
           </CustomCol>
           <Col className="w-100 mt-md-4">
             <Row className="d-flex justify-content-between">
-              <Col xs={12} md={4} lg={12} xl={4} className="text-center text-capitalize text-md-start text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
+              <Col xs={12} md={4} lg={12} xl={4} className="text-center text-md-start text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
                 <h1 className="mb-md-0 text-nowrap">
                   {user?.firstName}
                 </h1>

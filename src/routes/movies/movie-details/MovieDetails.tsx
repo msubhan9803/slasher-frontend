@@ -7,7 +7,7 @@ import AboutMovie from './AboutMovie';
 import { getMoviesById, getMoviesDataById } from '../../../api/movies';
 import { AdditionalMovieData, MovieData, MoviePageCache } from '../../../types';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
-import { enableDevFeatures } from '../../../utils/configEnvironment';
+import { enableDevFeatures } from '../../../constants';
 import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../../pageStateCache';
 
 function MovieDetails() {
@@ -23,7 +23,7 @@ function MovieDetails() {
     hasPageStateCache(location) ? pageStateCache.additionalMovieData : undefined,
   );
   useEffect(() => {
-    if (params.id && !movieData) {
+    if (params.id && (!movieData || movieData?.isUpdated)) {
       getMoviesById(params.id)
         .then((res) => {
           setMovieData(res.data);

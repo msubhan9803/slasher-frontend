@@ -7,7 +7,6 @@ import {
 } from 'react-bootstrap';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import CommentSection from './CommentSection';
 import CommentInput from './CommentInput';
 import { FeedComments } from '../../../../types';
@@ -17,8 +16,7 @@ import { reportData } from '../../../../api/report';
 import ReportModal from '../../ReportModal';
 import EditCommentModal from '../../editCommentModal';
 import ErrorMessageList from '../../ErrorMessageList';
-import { COMMENT_OR_REPLY_INPUT_PARENT, isNativePlatform } from '../../../../constants';
-import CircleButton from '../../CircleButton';
+import { COMMENT_OR_REPLY_INPUT_PARENT } from '../../../../constants';
 
 const LoadMoreCommentsWrapper = styled.div.attrs({ className: 'text-center' })`
   margin: -1rem 0 1rem;
@@ -536,23 +534,6 @@ function PostCommentSection({
   }, [isMainPostCommentClick, commentSectionData]);
   return (
     <div id={COMMENT_OR_REPLY_INPUT_PARENT} ref={commentSectionRef}>
-      {/* Assistance button is shown to hint user so that when user clicks
-      anywhere on the viewport the bottom-navbar appears again. */}
-      { !isNativePlatform
-        && (
-        <div style={{ display: 'var(--close-keyboard-assistance-button)' }}>
-          <CircleButton
-            variant="black"
-            className="text-primary position-fixed"
-            style={{ top: 18, right: 18 }}
-            icon={solid('times')}
-            userId=""
-            onAcceptRejectClick={() => {}}
-            label="Close keyboard assistance"
-          />
-        </div>
-        )}
-
       {/* This `CommentInput` is the ``comment-on-post``. */}
       <CommentInput
         message={message}

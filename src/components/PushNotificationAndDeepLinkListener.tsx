@@ -36,7 +36,7 @@ function PushNotificationAndDeepLinkListener() {
         if (await getSessionToken() && await getDeviceToken()
           && deviceToken !== await getDeviceToken()) {
           const deviceId = await Device.getId();
-          updateUserDeviceToken(deviceId.uuid, deviceToken);
+          updateUserDeviceToken(deviceId.identifier, deviceToken);
         }
         await setDeviceToken(deviceToken);
       });

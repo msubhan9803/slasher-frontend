@@ -5,6 +5,7 @@ import {
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import ReCAPTCHA from 'react-google-recaptcha';
+import { captchaSiteKey } from '../../../constants';
 
 const StyledContainer = styled.div`
   background-color: #1B1B1B;
@@ -12,7 +13,7 @@ const StyledContainer = styled.div`
   & > form {
     max-width: 900px;
   }
-  
+
   .recaptcha-element > div {
     margin: auto;
   }
@@ -90,7 +91,7 @@ function PublicSignIn() {
         <Row className="mb-3">
           <Col className="d-flex recaptcha-element">
             <ReCAPTCHA
-              sitekey="6LfJ9dcZAAAAAKaqEGRbBQMg66p-0Cgw4rf2M3J6"
+              sitekey={captchaSiteKey}
             />
           </Col>
         </Row>

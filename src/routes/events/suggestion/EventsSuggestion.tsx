@@ -1,6 +1,7 @@
 /* eslint-disable max-lines */
 import React, {
   ChangeEvent,
+  useCallback,
   useEffect,
   useState,
 } from 'react';
@@ -141,8 +142,15 @@ function EventSuggestion() {
     setImageUpload(undefined);
     setCharCount(0);
     setEventForm({ ...INITIAL_EVENTFORM });
+    // NOTE: This is a temporary hack to clear out the image after the submission.  I'm doing this
+    // for speed, but we should update the PhotoUploadInput component later so that it takes
+    // it value as a prop and can be cleared.
+    setTimeout(() => {
+      const clearImageButton = document.querySelector('button.photo-selected[aria-label="photo"]') as HTMLButtonElement;
+      if (clearImageButton) { clearImageButton.click(); }
+    }, 100);
   };
-  const handleChange = (value: any, key: EventFormKeys) => {
+  const handleChange = useCallback((value: any, key: EventFormKeys) => {
     // Remove event suggestion successful message on getting any user input
     setIsEventSuggestionSuccessful(false);
 
@@ -151,7 +159,7 @@ function EventSuggestion() {
       return;
     }
     setEventForm({ ...eventForm, [key]: value });
-  };
+  }, [eventForm]);
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCharCount(e.target.value.length);
     handleChange(e.target.value, 'eventInfo');
@@ -217,7 +225,7 @@ function EventSuggestion() {
                 <PhotoUploadInput
                   height="9rem"
                   variant="outline"
-                  onChange={(file) => {
+                  onChange={(file: File | null | undefined) => {
                     setImageUpload(file);
                     handleChange(file, 'file');
                   }}

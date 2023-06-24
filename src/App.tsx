@@ -4,6 +4,7 @@ import {
   Route, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
 import { App as CapacitorApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 import { StatusBar } from '@capacitor/status-bar';
 import { Keyboard } from '@capacitor/keyboard';
 import VerificationEmailNotReceived from './routes/verification-email-not-received/VerificationEmailNotReceived';
@@ -49,6 +50,7 @@ import Conversation from './routes/conversation/Conversation';
 import PushNotificationAndDeepLinkListener from './components/PushNotificationAndDeepLinkListener';
 import Index from './routes/Index';
 import { onKeyboardClose, onKeyboardOpen } from './utils/styles-utils ';
+import UnexpectedError from './components/UnexpectedError';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -126,8 +128,10 @@ CapacitorApp.addListener('backButton', ({ canGoBack }) => {
 });
 
 // Display content under transparent status bar (Android only)
-StatusBar.setOverlaysWebView({ overlay: true });
-StatusBar.setBackgroundColor({ color: topStatuBarBackgroundColorAndroidOnly });
+if (Capacitor.isNativePlatform()) {
+  StatusBar.setOverlaysWebView({ overlay: false });
+  StatusBar.setBackgroundColor({ color: topStatuBarBackgroundColorAndroidOnly });
+}
 
 function App() {
   usePubWiseAdSlots(enableADs);
@@ -135,7 +139,11 @@ function App() {
 
   const router = createBrowserRouter(
     createRoutesFromElements(
-      <Route path="/" element={<PushNotificationAndDeepLinkListener />}>
+      <Route
+        path="/"
+        element={<PushNotificationAndDeepLinkListener />}
+        errorElement={<UnauthenticatedPageWrapper><UnexpectedError /></UnauthenticatedPageWrapper>}
+      >
         {/* TODO: Uncomment line below when switching from beta to prod */}
         <Route path="/" element={<Index />} />
         {/* TODO: REMOVE line below when switching from beta to prod */}

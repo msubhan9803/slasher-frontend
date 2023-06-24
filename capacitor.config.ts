@@ -22,10 +22,14 @@ const config: CapacitorConfig = {
   appName: 'Slasher',
   webDir: useLiveReloadConfig ? undefined : 'build',
   bundledWebRuntime: false,
+  backgroundColor: '000000',
+  ios: {
+    contentInset: 'automatic',
+  },
   server: {
     cleartext: true,
     // We must give a hostname having domain `slasher.tv` so that pubwise ads properly. 
-    hostname: 'cap.android.slasher.tv',
+    hostname: 'cap.slasher.tv',
     // Please defined your own machine's ip address in file `.env.capacitor.local-network-ip`
     url: useLiveReloadConfig ? process.env.LOCAL_MACHINE_IP : undefined,
   },

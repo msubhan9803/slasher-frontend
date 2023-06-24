@@ -28,6 +28,7 @@ import { getSessionToken, signOut } from '../../../../utils/session-utils';
 import {
   LG_MEDIA_BREAKPOINT, analyticsId, MAIN_CONTENT_ID, apiUrl, RETRY_CONNECTION_BUTTON_ID,
   AUTHENTICATED_PAGE_WRAPPER_ID,
+  isNativePlatform,
 } from '../../../../constants';
 import useGoogleAnalytics from '../../../../hooks/useGoogleAnalytics';
 import SkipToMainContent from '../../sidebar-nav/SkipToMainContent';
@@ -242,7 +243,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
 
   if (token.isLoading || !userData.user?.id) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+      <div className={`d-flex justify-content-center align-items-center ${isNativePlatform && 'd-none'}`} style={{ height: '100vh' }}>
         <HeaderLogo
           logo={slasherLogo}
           height="6.5rem"

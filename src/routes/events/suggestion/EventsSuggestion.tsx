@@ -151,9 +151,6 @@ function EventSuggestion() {
     }, 100);
   };
   const handleChange = useCallback((value: any, key: EventFormKeys) => {
-    // Remove event suggestion successful message on getting any user input
-    setIsEventSuggestionSuccessful(false);
-
     if (key === 'country') {
       setEventForm({ ...eventForm, [key]: value, state: '' });
       return;

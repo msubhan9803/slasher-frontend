@@ -91,10 +91,10 @@
     "build-storybook": "build-storybook -s public",
     "cap-android": "cap sync android && cap run android",
     "cap-ios": "cap sync ios && cap run ios",
-    "cap-static-build-android": "npm run build && npm run cap-android",
-    "cap-static-build-ios": "npm run build && npm run cap-ios",
-    "cap-live-reload-android": "LIVE_RELOAD=true npm run cap-android",
-    "cap-live-reload-ios": "LIVE_RELOAD=true npm run cap-ios"
+    "cap-run-android-dev-live-reload": "LIVE_RELOAD=true npm run cap-android",
+    "cap-run-android-prod": "npm run build && npm run cap-android",
+    "cap-run-ios-dev-live-reload": "LIVE_RELOAD=true npm run cap-ios",
+    "cap-run-ios-prod": "npm run build && npm run cap-ios"
   },
   "eslintConfig": {
     "extends": [

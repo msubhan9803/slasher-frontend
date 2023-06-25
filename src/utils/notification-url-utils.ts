@@ -75,6 +75,8 @@ export const urlForNotification = (notification: Notification) => {
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}`;
     case NotificationType.NewPostFromFollowedRssFeedProvider:
       return `/app/news/partner/${notification.rssFeedProviderId?._id}/posts/${notification.feedPostId._id}`;
+    case NotificationType.FriendMessageNotification:
+      return `/app/messages/conversation/${notification.matchId}`;
     default:
       return '/app/notifications';
   }

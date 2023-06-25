@@ -20,7 +20,7 @@ const navList: NavItem[] = [
   { value: `${WORDPRESS_SITE_URL}/shop`, label: 'Shop' },
   { value: `${WORDPRESS_SITE_URL}/advertise`, label: 'Advertise' },
   { value: `${WORDPRESS_SITE_URL}/help`, label: 'Help' },
-  { value: `${WORDPRESS_SITE_URL}/contact-us`, label: 'Contact Us' },
+  { value: `${WORDPRESS_SITE_URL}/contact`, label: 'Contact Us' },
 ];
 const signInNavItem: NavItem = { value: '/app/sign-in', label: 'Sign in or Create an account' };
 

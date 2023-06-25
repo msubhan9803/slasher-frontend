@@ -143,10 +143,7 @@ function App() {
         element={<PushNotificationAndDeepLinkListener />}
         errorElement={<UnauthenticatedPageWrapper><UnexpectedError /></UnauthenticatedPageWrapper>}
       >
-        {/* TODO: Uncomment line below when switching from beta to prod */}
         <Route path="/" element={<Index />} />
-        {/* TODO: REMOVE line below when switching from beta to prod */}
-        {/* <Route path="/" element={<Navigate to="/app/home" replace />} /> */}
         {
           Object.entries(routes).map(
             ([routePath, opts]) => (

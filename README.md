@@ -98,7 +98,7 @@ When you need to see console logs of a native capacitor app running on a real de
 **Generating AAB/APK builds via capacitor CLI:**
 
 - Docs - Capacitor CLI - cap build: [Click here](https://capacitorjs.com/docs/cli/commands/build)
-- Note the keystore file must be plaed in the project root.
+- Note the **keystore file must be plaed in the project root**.
 
 With older keystore file -
 
@@ -115,7 +115,7 @@ With newer keystore file -
 
 ```bash
 npx cap build android \
---keystorepath=slasher-app.keystore \
+--keystorepath="../slasher-app.keystore" \
 --keystorepass=KEYSTORE-PASSWORD-HERE \
 --keystorealias=slasher-app \
 --keystorealiaspass=KEYSTORE-PASSWORD-HERE \

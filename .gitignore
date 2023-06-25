@@ -68,3 +68,7 @@ android-template/app/app.iml
 # Carthage and Carthage-built binaries
 Carthage
 *.xcframework.zip
+
+# Keystore files
+*.jks
+*.keystore

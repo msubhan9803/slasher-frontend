@@ -32,6 +32,7 @@ import { UserSettingsService } from '../../../../../src/settings/providers/user-
 import { userSettingFactory } from '../../../../factories/user-setting.factory';
 import { NotificationType } from '../../../../../src/schemas/notification/notification.enums';
 import { PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
+import { FriendsService } from '../../../../../src/friends/providers/friends.service';
 
 describe('Feed-Comments/Replies File (e2e)', () => {
   let app: INestApplication;
@@ -48,6 +49,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
   let feedComment: FeedComment;
   let rssFeedProvidersService: RssFeedProvidersService;
   let userSettingsService: UserSettingsService;
+  let friendsService: FriendsService;
 
   const sampleFeedReplyObject = {
     images: [
@@ -77,6 +79,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
     userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
+    friendsService = moduleRef.get<FriendsService>(FriendsService);
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -533,7 +536,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         expect(postAfterUpdate.lastUpdateAt > postBeforeUpdate.lastUpdateAt).toBeTruthy();
       });
 
-      describe('when the feed post was created by a user with a non-public profile', () => {
+      describe('when the feed post was created by a user with a non-public or non-private profile', () => {
         let user1;
         let feedPost1;
         let feedComment1;
@@ -571,7 +574,93 @@ describe('Feed-Comments/Replies File (e2e)', () => {
               .attach('images', tempPaths[0])
               .attach('images', tempPaths[1]);
             expect(response.status).toBe(HttpStatus.FORBIDDEN);
-            expect(response.body).toEqual({ statusCode: 403, message: 'You must be friends with this user to perform this action.' });
+            expect(response.body).toEqual({ statusCode: 403, message: 'You can only interact with posts of friends.' });
+          }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+        });
+
+        it('should not allow the creation of a feed reply when replying user is not a'
+          + 'friend of the post creator user with a public profile', async () => {
+            const user4 = await usersService.create(userFactory.build({
+              profile_status: ProfileVisibility.Public,
+            }));
+            const feedPost3 = await feedPostsService.create(
+              feedPostFactory.build(
+                {
+                  userId: user4._id,
+                },
+              ),
+            );
+            const feedComment3 = await feedCommentsService.createFeedComment(
+              feedCommentsFactory.build(
+                {
+                  userId: user4._id,
+                  feedPostId: feedPost3.id,
+                  message: sampleFeedReplyObject.message,
+                  images: sampleFeedReplyObject.images,
+                },
+              ),
+            );
+            await createTempFiles(async (tempPaths) => {
+              const response = await request(app.getHttpServer())
+                .post('/api/v1/feed-comments/replies')
+                .auth(activeUserAuthToken, { type: 'bearer' })
+                .set('Content-Type', 'multipart/form-data')
+                .field('message', 'hello test user')
+                .field('feedCommentId', feedComment3._id.toString())
+                .attach('images', tempPaths[0])
+                .attach('images', tempPaths[1]);
+              expect(response.status).toBe(HttpStatus.FORBIDDEN);
+              expect(response.body).toEqual({ statusCode: 403, message: 'You can only interact with posts of friends.' });
+            }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+          });
+
+        it('should allow the creation of a feed reply when replying user is a friend of the post creator', async () => {
+          const user4 = await usersService.create(userFactory.build({
+            profile_status: ProfileVisibility.Private,
+          }));
+          const feedPost4 = await feedPostsService.create(
+            feedPostFactory.build(
+              {
+                userId: user4._id,
+              },
+            ),
+          );
+          const feedComment4 = await feedCommentsService.createFeedComment(
+            feedCommentsFactory.build(
+              {
+                userId: user4._id,
+                feedPostId: feedPost4.id,
+                message: sampleFeedReplyObject.message,
+                images: sampleFeedReplyObject.images,
+              },
+            ),
+          );
+          await friendsService.createFriendRequest(activeUser._id.toString(), user4.id);
+          await friendsService.acceptFriendRequest(activeUser._id.toString(), user4.id);
+          await createTempFiles(async (tempPaths) => {
+            const response = await request(app.getHttpServer())
+              .post('/api/v1/feed-comments/replies')
+              .auth(activeUserAuthToken, { type: 'bearer' })
+              .set('Content-Type', 'multipart/form-data')
+              .field('message', 'hello test user')
+              .field('feedCommentId', feedComment4._id.toString())
+              .attach('images', tempPaths[0])
+              .field('imageDescriptions[0][description]', 'this is create feed reply description 0');
+            expect(response.status).toBe(HttpStatus.CREATED);
+            expect(response.body).toEqual({
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              feedPostId: feedPost4._id.toString(),
+              feedCommentId: feedComment4._id.toString(),
+              message: 'hello test user',
+              userId: activeUser._id.toString(),
+              images: [
+                {
+                  image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                  description: 'this is create feed reply description 0',
+                  _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                },
+              ],
+            });
           }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
         });
 
@@ -625,6 +714,103 @@ describe('Feed-Comments/Replies File (e2e)', () => {
             });
           }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
         });
+
+        it('when postType is movieReview than expected response', async () => {
+          const feedPost5 = await feedPostsService.create(
+            feedPostFactory.build(
+              {
+                userId: user1._id,
+                postType: PostType.MovieReview,
+              },
+            ),
+          );
+          const feedComment5 = await feedCommentsService.createFeedComment(
+            feedCommentsFactory.build(
+              {
+                userId: user1._id,
+                feedPostId: feedPost5.id,
+                message: sampleFeedReplyObject.message,
+                images: sampleFeedReplyObject.images,
+              },
+            ),
+          );
+          await createTempFiles(async (tempPaths) => {
+            const response = await request(app.getHttpServer())
+              .post('/api/v1/feed-comments/replies')
+              .auth(activeUserAuthToken, { type: 'bearer' })
+              .set('Content-Type', 'multipart/form-data')
+              .field('message', 'hello test user')
+              .field('feedCommentId', feedComment5._id.toString())
+              .attach('images', tempPaths[0])
+              .field('imageDescriptions[0][description]', 'this is create feed reply description 0');
+            expect(response.status).toBe(HttpStatus.CREATED);
+            expect(response.body).toEqual({
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              feedCommentId: feedComment5._id.toString(),
+              feedPostId: feedPost5._id.toString(),
+              message: 'hello test user',
+              userId: activeUser._id.toString(),
+              images: [
+                {
+                  image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                  description: 'this is create feed reply description 0',
+                  _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                },
+              ],
+            });
+          }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+        });
+
+        it('when postType is movieReview and replying user is a friend of the post creator', async () => {
+          const user5 = await usersService.create(userFactory.build({
+            profile_status: ProfileVisibility.Private,
+          }));
+          const feedPost6 = await feedPostsService.create(
+            feedPostFactory.build(
+              {
+                userId: user5._id,
+                postType: PostType.MovieReview,
+              },
+            ),
+          );
+          const feedComment6 = await feedCommentsService.createFeedComment(
+            feedCommentsFactory.build(
+              {
+                userId: user5._id,
+                feedPostId: feedPost6.id,
+                message: sampleFeedReplyObject.message,
+                images: sampleFeedReplyObject.images,
+              },
+            ),
+          );
+          await friendsService.createFriendRequest(activeUser._id.toString(), user5.id);
+          await friendsService.acceptFriendRequest(activeUser._id.toString(), user5.id);
+          await createTempFiles(async (tempPaths) => {
+            const response = await request(app.getHttpServer())
+              .post('/api/v1/feed-comments/replies')
+              .auth(activeUserAuthToken, { type: 'bearer' })
+              .set('Content-Type', 'multipart/form-data')
+              .field('message', 'hello test user')
+              .field('feedCommentId', feedComment6._id.toString())
+              .attach('images', tempPaths[0])
+              .field('imageDescriptions[0][description]', 'this is create feed reply description 0');
+            expect(response.status).toBe(HttpStatus.CREATED);
+            expect(response.body).toEqual({
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              feedCommentId: feedComment6._id.toString(),
+              feedPostId: feedPost6._id.toString(),
+              message: 'hello test user',
+              userId: activeUser._id.toString(),
+              images: [
+                {
+                  image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                  description: 'this is create feed reply description 0',
+                  _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                },
+              ],
+            });
+          }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+        });
       });
 
       describe('notifications', () => {
@@ -655,6 +841,8 @@ describe('Feed-Comments/Replies File (e2e)', () => {
               },
             ),
           );
+          await friendsService.createFriendRequest(otherUser1._id.toString(), postCreatorUser.id);
+          await friendsService.acceptFriendRequest(otherUser1._id.toString(), postCreatorUser.id);
           await request(app.getHttpServer())
             .post('/api/v1/feed-comments/replies').auth(otherUser1AuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
@@ -733,6 +921,8 @@ describe('Feed-Comments/Replies File (e2e)', () => {
                 },
               ),
             );
+            await friendsService.createFriendRequest(otherUser1._id.toString(), postCreatorUser.id);
+            await friendsService.acceptFriendRequest(otherUser1._id.toString(), postCreatorUser.id);
             await request(app.getHttpServer())
               .post('/api/v1/feed-comments/replies').auth(otherUser1AuthToken, { type: 'bearer' })
               .set('Content-Type', 'multipart/form-data')
@@ -882,6 +1072,8 @@ describe('Feed-Comments/Replies File (e2e)', () => {
             },
           ),
         );
+        await friendsService.createFriendRequest(otherUser1._id.toString(), user0.id);
+        await friendsService.acceptFriendRequest(otherUser1._id.toString(), user0.id);
         await request(app.getHttpServer())
           .post('/api/v1/feed-comments/replies').auth(otherUser1AuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')

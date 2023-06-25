@@ -360,7 +360,7 @@ export class FeedPostsController {
           user.id,
         );
       }
-      if (updateFeedPostsDto.moviePostFields.worthWatching) {
+      if (typeof updateFeedPostsDto.moviePostFields.worthWatching === 'number') {
         await this.moviesService.createOrUpdateWorthWatching(
           (feedPost.movieId as any)._id.toString(),
           updateFeedPostsDto.moviePostFields.worthWatching,

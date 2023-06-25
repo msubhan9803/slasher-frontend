@@ -96,6 +96,10 @@ resource "aws_ecs_task_definition" "slasher-web-task-new-defination" {
         "value" : "${var.send_push_notification}"
       },
       {
+        "name" : "LOG_LEVEL",
+        "value" : "${var.log_level}"
+      },
+      {
         "name" : "FILE_STORAGE",
         "value" : "${var.file_storage}"
       },
@@ -156,6 +160,10 @@ resource "aws_ecs_task_definition" "slasher-web-task-new-defination" {
       {
         "name" : "FIREBASE_SERVER_KEY",
         "valueFrom" : "/ECS-CLUSTER/slasher-${terraform.workspace}/FIREBASE_SERVER_KEY"
+      },
+      {
+        "name" : "CAPTCHA_SECRET_KEY",
+        "valueFrom" : "/ECS-CLUSTER/slasher-${terraform.workspace}/CAPTCHA_SECRET_KEY"
       }
     ],
     "essential": true,

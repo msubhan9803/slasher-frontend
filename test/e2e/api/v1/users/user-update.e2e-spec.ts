@@ -8,7 +8,6 @@ import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';
 import { UsersService } from '../../../../../src/users/providers/users.service';
 import { userFactory } from '../../../../factories/user.factory';
-import { UpdateUserDto } from '../../../../../src/users/dto/update-user-data.dto';
 import { User, UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
@@ -62,14 +61,17 @@ describe('Users / :id (e2e)', () => {
     // Reset sequences so we start fresh before each test
     rewindAllFactories();
 
-    activeUser = await usersService.create(userFactory.build());
+    activeUser = await usersService.create(userFactory.build({
+      userName: 'TestUser',
+      previousUserName: 'TestUserPreviousUserName',
+    }));
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
   });
 
   describe('PATCH /api/v1/users/:id', () => {
-    let postBody: UpdateUserDto;
+    let postBody;
     beforeEach(() => {
       postBody = { ...sampleUserUpdateObject };
       jest.spyOn(mailService, 'sendEmailChangeConfirmationEmails').mockImplementation();
@@ -138,22 +140,44 @@ describe('Users / :id (e2e)', () => {
           });
         });
 
-      it('update the userName successful, it returns the expected response', async () => {
-        const { firstName, email, ...restPostBody } = postBody;
+      // TODO (SD-1336): When user is allowed to update username, remove test below
+      it('returns the expected error when a user tries to update their userName', async () => {
+        const userUpdatePostBody = { userName: `${activeUser.userName}-updated` };
         const response = await request(app.getHttpServer())
           .patch(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
-          .send(restPostBody);
-        expect(response.status).toEqual(HttpStatus.OK);
+          .send(userUpdatePostBody);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body).toEqual({
-          _id: activeUser.id,
-          userName: 'TestUser',
-          aboutMe: 'I am a human being',
-          profile_status: ProfileVisibility.Private,
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'You can edit your username after July 31, 2023',
         });
-        expect(response.body.firstName).toBeUndefined();
-        expect(response.body.email).toBeUndefined();
+        const updatedActiveUser = await usersService.findById(activeUser.id, true);
+        expect(updatedActiveUser.userName).toEqual(activeUser.userName);
       });
+
+      // TODO (SD-1336): When user is allowed to update username, uncomment test below
+      // eslint-disable-next-line jest/no-commented-out-tests
+      // it("upates user's userName and clears out previousUserName for different user if user's new userName equals "
+      //   + "different user's previousUserName", async () => {
+      //     const otherUser = await usersService.create(userFactory.build({ userName: 'Slasher' }));
+      //     const otherUserAuthToken = otherUser.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
+
+      //     const userUpdatePostBody = { userName: activeUser.previousUserName };
+      //     const response = await request(app.getHttpServer())
+      //       .patch(`/api/v1/users/${otherUser.id}`)
+      //       .auth(otherUserAuthToken, { type: 'bearer' })
+      //       .send(userUpdatePostBody);
+      //     expect(response.status).toEqual(HttpStatus.OK);
+      //     expect(response.body).toEqual({
+      //       _id: otherUser.id,
+      //       userName: activeUser.previousUserName,
+      //     });
+      //     const updatedActiveUser = await usersService.findById(activeUser.id, true);
+      //     const updatedOtherUser = await usersService.findById(otherUser.id, true);
+      //     expect(updatedActiveUser.previousUserName).toBeNull();
+      //     expect(updatedOtherUser.userName).toEqual(userUpdatePostBody.userName);
+      //   });
 
       it('when the profile_status is not provided, updates to other fields are still successful', async () => {
         // eslint-disable-next-line @typescript-eslint/naming-convention

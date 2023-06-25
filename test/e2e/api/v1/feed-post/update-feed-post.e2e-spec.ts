@@ -531,6 +531,39 @@ describe('Update Feed Post (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
+    it('when WorthWatchingStatus is NoRating than expected response', async () => {
+      const feedPost5 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: activeUser._id,
+            movieId: movie._id,
+            postType: PostType.MovieReview,
+          },
+        ),
+      );
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-posts/${feedPost5._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'this new post')
+          .field('moviePostFields[spoilers]', true)
+          .field('moviePostFields[worthWatching]', WorthWatchingStatus.NoRating)
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1])
+          .field('imageDescriptions[0][description]', 'this is update post description 0')
+          .field('imageDescriptions[1][description]', 'this is update post description 1');
+        const post = await feedPostsService.findById(response.body._id, true);
+        const movieUserStatus = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString());
+        expect(post.spoilers).toBe(true);
+        expect(movieUserStatus.worthWatching).toBe(WorthWatchingStatus.NoRating);
+      }, [{ extension: 'png' }, { extension: 'jpg' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
     it('when moviePostFields is exits but movieId is not exist in post than expected response', async () => {
       const feedPost6 = await feedPostsService.create(
         feedPostFactory.build(
@@ -810,7 +843,7 @@ describe('Update Feed Post (e2e)', () => {
       expect(response.body.message).toContain('goreFactorRating must be greater than 1');
     });
 
-    it('worthWatching must be one of the following values: 1, 2', async () => {
+    it('worthWatching must be one of the following values: 0, 1, 2', async () => {
       const response = await request(app.getHttpServer())
         .patch(`/api/v1/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
@@ -818,7 +851,7 @@ describe('Update Feed Post (e2e)', () => {
         .field('postType', 3)
         .field('moviePostFields[spoilers]', true)
         .field('moviePostFields[worthWatching]', 6);
-      expect(response.body.message).toContain('worthWatching must be one of the following values: 1, 2');
+      expect(response.body.message).toContain('worthWatching must be one of the following values: 0, 1, 2');
     });
 
     it('check description length validation', async () => {

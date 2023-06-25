@@ -59,7 +59,7 @@ export class NotificationsService {
     notificationData.notificationMsg = senderName + notificationData.notificationMsg;
     const [user, userSetting] = await Promise.all([this.usersService.findById(notificationData.userId.toString(), true),
     this.userSettingsService.findByUserId(notificationData.userId.toString())]);
-    const isNotificationEnabled = userSetting[`${NOTIFICATION_TYPES_TO_CATEGORIES.get(notificationData.notifyType)}`];
+    const isNotificationEnabled = userSetting && userSetting[`${NOTIFICATION_TYPES_TO_CATEGORIES.get(notificationData.notifyType)}`];
     if (isNotificationEnabled && user.userDevices.length) {
       const deviceTokens = user.userDevices.filter((device) => device.device_id !== 'browser').map((device) => device.device_token);
       await this.pushNotificationsService.sendPushNotification(notificationData, deviceTokens);

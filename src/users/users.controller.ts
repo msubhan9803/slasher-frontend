@@ -23,6 +23,7 @@ import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import mongoose from 'mongoose';
 import { validate } from 'class-validator';
+import { CaptchaService } from '../captcha/captcha.service';
 import { UserSignInDto } from './dto/user-sign-in.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { UsersService } from './providers/users.service';
@@ -93,11 +94,14 @@ export class UsersController {
     private readonly betaTestersService: BetaTestersService,
     private readonly emailRevertTokensService: EmailRevertTokensService,
     private configService: ConfigService,
+    private captchaService: CaptchaService,
   ) { }
 
   @Post('sign-in')
   @Public()
   async signIn(@Body() userSignInDto: UserSignInDto, @IpOrForwardedIp() ip) {
+    await sleep(500); // throttle so this endpoint is less likely to be abused
+
     let user = await this.usersService.findNonDeletedUserByEmailOrUsername(userSignInDto.emailOrUsername);
 
     if (!user) {
@@ -297,6 +301,13 @@ export class UsersController {
       );
     }
 
+    const captchaVerified = await this.captchaService.verifyReCaptchaToken(userRegisterDto.reCaptchaToken);
+    if (!captchaVerified.success) {
+      throw new HttpException(
+        'Captcha validation failed. Please try again.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
     const user = new User(userRegisterDto);
     user.setUnhashedPassword(userRegisterDto.password);
     user.verification_token = uuidv4();
@@ -449,7 +460,7 @@ export class UsersController {
     const user: UserDocument = getUserFromRequest(request);
     // Note: Below, we retrieve more conversations than we need because deleted conversations are
     // currently retrieved by this method, so we
-    const recentMessages: any = (await this.chatService.getConversations(user.id, 10)).slice(0, 3);
+    const recentMessages: any = (await this.chatService.getUnreadConversations(user.id)).slice(0, 3);
     const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user.id, 3);
     const unreadNotificationCount = await this.notificationsService.getUnreadNotificationCount(user.id);
     return {
@@ -472,6 +483,15 @@ export class UsersController {
     // Note: We are allowing a user to look up their own username when getting user suggestions.
     const excludedUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(user.id);
     return this.usersService.suggestUserName(query.query, query.limit, true, excludedUserIds);
+  }
+
+  @Get('previous-username/:userName')
+  async findByPreviousUserName(@Param('userName') userName: string) {
+    const user = await this.usersService.findByPreviousUsername(userName);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    return user;
   }
 
   @TransformImageUrls('$.profilePic', '$.coverPhoto')
@@ -546,14 +566,15 @@ export class UsersController {
       throw new HttpException('You are not allowed to do this action', HttpStatus.FORBIDDEN);
     }
 
-    if (updateUserDto.userName
-      && updateUserDto.userName !== user.userName
-      && !await this.usersService.userNameAvailable(updateUserDto.userName)
-    ) {
-      throw new HttpException(
-        'Username is already associated with an existing user.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      );
+    let changingUserName = false;
+    if (updateUserDto.userName && updateUserDto.userName !== user.userName) {
+      changingUserName = true;
+      if (!await this.usersService.userNameAvailable(updateUserDto.userName)) {
+        throw new HttpException(
+          'Username is already associated with an existing user.',
+          HttpStatus.UNPROCESSABLE_ENTITY,
+        );
+      }
     }
 
     const additionalFieldsToUpdate: Partial<User> = {};
@@ -589,6 +610,18 @@ export class UsersController {
       // If newly supplied email address matches existing email, make sure to clear out the
       // unverifiedNewEmail field.
       additionalFieldsToUpdate.unverifiedNewEmail = null;
+    }
+
+    if (changingUserName) {
+      // TODO (SD-1336): When user is allowed to update username, remove `throw` below
+      throw new HttpException(
+        'You can edit your username after July 31, 2023',
+        HttpStatus.BAD_REQUEST,
+      );
+
+      // TODO (SD-1336): When user is allowed to update username, uncomment lines below
+      // await this.usersService.removePreviousUsernameEntry(updateUserDto.userName);
+      // additionalFieldsToUpdate.previousUserName = user.userName;
     }
 
     const userData = await this.usersService.update(id, { ...updateUserDto, ...additionalFieldsToUpdate });

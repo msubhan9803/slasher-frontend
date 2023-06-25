@@ -10,7 +10,7 @@ cron_desired_count          = 1
 cron_cpu_unit               = 256
 cron_memory_unit            = 512
 api_url                     = "https://api.slasher.tv"
-frontend_url                = "https://preview.slasher.tv"
+frontend_url                = "https://www.slasher.tv"
 log_group_retention_in_days = 60
 slasher_web_new_host_header = "api.slasher.tv"
 slasher_cron_host_header    = "cron.slasher.tv"
@@ -28,5 +28,6 @@ storage_location_generator_prefix = "/"
 # User id below is Damon's user id
 welcome_message_sender_user_id    = "5cf146426038e206a2fe681b"
 send_push_notification            = true
+log_level                         = "warn"
 
 cron_enabled_cron                 = true # for cron service the cron is enabled

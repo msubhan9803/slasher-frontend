@@ -201,6 +201,27 @@ describe('UsersService', () => {
     });
   });
 
+  describe('#removePreviousUsernameEntry', () => {
+    it('finds the user with the given previousUserName and removes that previousUserName value', async () => {
+      const user1 = await usersService.create(
+        userFactory.build({ userName: 'user1', previousUserName: 'slasher' }),
+      );
+      const updatedUser = await usersService.removePreviousUsernameEntry(user1.previousUserName);
+      expect(updatedUser.previousUserName).toBeNull();
+    });
+  });
+
+  describe('#findByPreviousUsername', () => {
+    it('finds the expected response by previousUserName', async () => {
+      const user1 = await usersService.create(userFactory.build({
+        userName: 'slasher1',
+        previousUserName: 'John',
+      }));
+      const response = await usersService.findByPreviousUsername(user1.previousUserName);
+      expect(response.previousUserName).toEqual(user1.previousUserName);
+    });
+  });
+
   describe('#findNonDeletedUserByEmailOrUsername', () => {
     let activeUser;
     let inactiveUser;

@@ -25,6 +25,7 @@ import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 import { UserSettingsService } from '../../../../../src/settings/providers/user-settings.service';
 import { userSettingFactory } from '../../../../factories/user-setting.factory';
 import { PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
+import { FriendsService } from '../../../../../src/friends/providers/friends.service';
 
 describe('Create Feed Post Like (e2e)', () => {
   let app: INestApplication;
@@ -41,6 +42,7 @@ describe('Create Feed Post Like (e2e)', () => {
   let blocksModel: Model<BlockAndUnblockDocument>;
   let rssFeedProvidersService: RssFeedProvidersService;
   let userSettingsService: UserSettingsService;
+  let friendsService: FriendsService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -56,6 +58,7 @@ describe('Create Feed Post Like (e2e)', () => {
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
+    friendsService = moduleRef.get<FriendsService>(FriendsService);
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -88,6 +91,8 @@ describe('Create Feed Post Like (e2e)', () => {
           },
         ),
       );
+      await friendsService.createFriendRequest(activeUser._id.toString(), user0._id.toString());
+      await friendsService.acceptFriendRequest(activeUser._id.toString(), user0._id.toString());
       await feedLikesService.createFeedPostLike(feedPost.id, user0._id.toString());
     });
 
@@ -139,6 +144,8 @@ describe('Create Feed Post Like (e2e)', () => {
           },
         ),
       );
+      await friendsService.createFriendRequest(activeUser._id.toString(), user1._id.toString());
+      await friendsService.acceptFriendRequest(activeUser._id.toString(), user1._id.toString());
       await blocksModel.create({
         from: activeUser._id,
         to: user1._id,
@@ -186,6 +193,13 @@ describe('Create Feed Post Like (e2e)', () => {
         user1 = await usersService.create(userFactory.build({
           profile_status: ProfileVisibility.Private,
         }));
+        await userSettingsService.create(
+          userSettingFactory.build(
+            {
+              userId: user1._id,
+            },
+          ),
+        );
         feedPost1 = await feedPostsService.create(
           feedPostFactory.build(
             {
@@ -201,7 +215,102 @@ describe('Create Feed Post Like (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toBe(HttpStatus.FORBIDDEN);
-        expect(response.body).toEqual({ statusCode: 403, message: 'You must be friends with this user to perform this action.' });
+        expect(response.body).toEqual({ statusCode: 403, message: 'You can only interact with posts of friends.' });
+      });
+
+      it('should not allow the creation of a post like when liking user is not a'
+        + 'friend of the post creator and user with a public profile', async () => {
+          const user3 = await usersService.create(userFactory.build({
+            profile_status: ProfileVisibility.Public,
+          }));
+          const feedPost3 = await feedPostsService.create(
+            feedPostFactory.build(
+              {
+                userId: user3._id,
+              },
+            ),
+          );
+          const response = await request(app.getHttpServer())
+            .post(`/api/v1/feed-likes/post/${feedPost3._id}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .send();
+          expect(response.status).toBe(HttpStatus.FORBIDDEN);
+          expect(response.body).toEqual({ statusCode: 403, message: 'You can only interact with posts of friends.' });
+        });
+
+      it('should allow the creation of a post like when liking user is a friend of the post creator', async () => {
+        const user4 = await usersService.create(userFactory.build({
+          profile_status: ProfileVisibility.Private,
+        }));
+        await userSettingsService.create(
+          userSettingFactory.build(
+            {
+              userId: user4._id,
+            },
+          ),
+        );
+        const feedPost4 = await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: user4._id,
+            },
+          ),
+        );
+
+        await friendsService.createFriendRequest(activeUser._id.toString(), user4.id);
+        await friendsService.acceptFriendRequest(activeUser._id.toString(), user4.id);
+        const response = await request(app.getHttpServer())
+          .post(`/api/v1/feed-likes/post/${feedPost4._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toBe(HttpStatus.CREATED);
+        expect(response.body).toEqual({ success: true });
+      });
+
+      it('when postType is movieReview than expected response', async () => {
+        const feedPost3 = await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: user1._id,
+              postType: PostType.MovieReview,
+            },
+          ),
+        );
+        const response = await request(app.getHttpServer())
+          .post(`/api/v1/feed-likes/post/${feedPost3._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toBe(HttpStatus.CREATED);
+        expect(response.body).toEqual({ success: true });
+      });
+
+      it('when postType is movieReview and post liking user is a friend of the post creator', async () => {
+        const user5 = await usersService.create(userFactory.build({
+          profile_status: ProfileVisibility.Private,
+        }));
+        await userSettingsService.create(
+          userSettingFactory.build(
+            {
+              userId: user5._id,
+            },
+          ),
+        );
+        const feedPost4 = await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: user5._id,
+              postType: PostType.MovieReview,
+            },
+          ),
+        );
+        await friendsService.createFriendRequest(activeUser._id.toString(), user5.id);
+        await friendsService.acceptFriendRequest(activeUser._id.toString(), user5.id);
+        const response = await request(app.getHttpServer())
+          .post(`/api/v1/feed-likes/post/${feedPost4._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toBe(HttpStatus.CREATED);
+        expect(response.body).toEqual({ success: true });
       });
 
       it('when post has an rssfeedProviderId, it returns a successful response', async () => {
@@ -231,7 +340,8 @@ describe('Create Feed Post Like (e2e)', () => {
           ),
         );
         const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
-
+        await friendsService.createFriendRequest(activeUser._id.toString(), postCreatorUser.id);
+        await friendsService.acceptFriendRequest(activeUser._id.toString(), postCreatorUser.id);
         await request(app.getHttpServer())
           .post(`/api/v1/feed-likes/post/${post._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })

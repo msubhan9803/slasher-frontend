@@ -33,3 +33,4 @@ variable "cron_enabled_web" {}
 variable "storage_location_generator_prefix" {}
 variable "welcome_message_sender_user_id" {}
 variable "send_push_notification" {}
+variable "log_level" {}

@@ -66,6 +66,19 @@ export class NotificationsService {
     }
   }
 
+  async sendChatMsgPushNotification(matchId, user) {
+    const notificationData:any = {};
+    notificationData.notificationMsg = `${user.userName} sent you a message`;
+    notificationData.matchId = matchId;
+    notificationData.notifyType = NotificationType.FriendMessageNotification;
+    const userSetting = await this.userSettingsService.findByUserId(user.id.toString());
+    const isNotificationEnabled = userSetting && userSetting[`${NOTIFICATION_TYPES_TO_CATEGORIES.get(126)}`];
+    if (isNotificationEnabled && user.userDevices.length) {
+      const deviceTokens = user.userDevices.filter((device) => device.device_id !== 'browser').map((device) => device.device_token);
+      await this.pushNotificationsService.sendPushNotification(notificationData, deviceTokens);
+    }
+  }
+
   async findAllByUser(userId: string, limit: number, before?: string): Promise<NotificationDocument[]> {
     let beforeCreatedAt;
     if (before) {

@@ -1,4 +1,4 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsEmpty, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class UserSignInDto {
   @IsNotEmpty()
@@ -10,7 +10,7 @@ export class UserSignInDto {
   @IsNotEmpty()
   device_id: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   device_token: string;
 
   @IsNotEmpty()

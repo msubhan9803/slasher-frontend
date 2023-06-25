@@ -72,3 +72,6 @@ Carthage
 # Keystore files
 *.jks
 *.keystore
+
+# Builds
+android/app/release

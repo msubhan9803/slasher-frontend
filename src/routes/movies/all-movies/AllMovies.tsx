@@ -122,7 +122,7 @@ function AllMovies() {
     dispatch, isKeyMoviesReady, key, location, pageStateCache?.length, fetchMovies]);
 
   useEffect(() => {
-    if (noMoreData) {
+    if (requestAdditionalMovies && noMoreData) {
       const isSameKey = lastLocationKeyRef.current === location.key;
       if (isSameKey) { return; }
       // Fetch movies when we click the `movies` in left-side-navbar
@@ -130,7 +130,7 @@ function AllMovies() {
       // Update lastLocation
       lastLocationKeyRef.current = location.key;
     }
-  }, [fetchMovies, location.key, noMoreData]);
+  }, [fetchMovies, location.key, noMoreData, requestAdditionalMovies]);
 
   const applyFilter = (keyValue: string, sortValue?: string) => {
     setCallNavigate(true);

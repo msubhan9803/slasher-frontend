@@ -10,10 +10,12 @@ import CopyLinkIcon from '../../images/share-links-modal-copy-links.png';
 import FacebookIcon from '../../images/share-links-modal-facebook.png';
 import InstagramIcon from '../../images/share-links-modal-instagram.png';
 import TwitterIcon from '../../images/share-links-modal-twitter.png';
-import { enableDevFeatures } from '../../constants';
+import { enableDevFeatures, isNativePlatform } from '../../constants';
 import { isMovieDetailsPage } from '../../utils/url-utils';
 
-const FRONTEND_URL = `${window.location.protocol}//${window.location.host}`;
+const FRONTEND_URL = isNativePlatform
+  ? 'https://slasher.tv'
+  : `${window.location.protocol}//${window.location.host}`;
 
 export const copyUrlToClipboard = (copyLinkUrl: string) => {
   copy(`${FRONTEND_URL}${copyLinkUrl}`);

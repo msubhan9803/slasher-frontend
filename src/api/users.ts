@@ -38,6 +38,21 @@ export async function signIn(emailOrUsername: string, password: string, signal?:
   );
 }
 
+export async function signOut() {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  const deviceId = await Device.getId();
+  return axios.post(
+    `${apiUrl}/api/v1/users/sign-out`,
+    {
+      device_id: deviceId.identifier,
+    },
+    { headers },
+  );
+}
+
 export async function register(
   firstName: string,
   userName: string,

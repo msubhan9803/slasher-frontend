@@ -66,7 +66,7 @@ And to run tests:
 # unit tests
 $ npm run test
 
-# e2e tests
+# e2e tests (this includes e2e-core and e2e-gateway)
 $ npm run test:e2e
 ```
 

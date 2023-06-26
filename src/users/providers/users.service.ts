@@ -42,6 +42,12 @@ export class UsersService {
     return user;
   }
 
+  async findByDeviceId(deviceId: string, userId: string): Promise<UserDocument> {
+    return this.userModel.findOne(
+      { $and: [{ 'userDevices.device_id': deviceId }, { _id: userId }] },
+    ).exec();
+  }
+
   /**
    * For the given array of user ids, returns true if they are ALL existing, active users.
    * @param participants

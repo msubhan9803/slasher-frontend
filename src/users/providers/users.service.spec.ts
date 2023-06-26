@@ -86,6 +86,37 @@ describe('UsersService', () => {
     });
   });
 
+  describe('#findByDeviceId', () => {
+    let user;
+    beforeEach(async () => {
+      user = await usersService.create(
+        userFactory.build({
+          userDevices: [{
+            device_id: 'sample-device-id',
+            device_token: 'sample-device-token',
+            device_type: 'sample-device-type',
+            device_version: 'sample-device-version',
+            app_version: 'sample-app-version',
+            login_date: DateTime.fromISO('2023-06-15T00:00:00Z').toJSDate(),
+          },
+          {
+            device_id: 'sample-device-id1',
+            device_token: 'sample-device-token',
+            device_type: 'sample-device-type',
+            device_version: 'sample-device-version',
+            app_version: 'sample-app-version',
+            login_date: DateTime.fromISO('2023-06-15T00:00:00Z').toJSDate(),
+          },
+         ],
+        }),
+      );
+    });
+    it('returns the expected response when requesting userId and deviceId', async () => {
+      const response = await usersService.findByDeviceId('sample-device-id', user._id.toString());
+      expect(response.userDevices[0].device_id).toEqual(user.userDevices[0].device_id);
+    });
+  });
+
   describe('#usersExistAndAreActive', () => {
     let users;
     beforeEach(async () => {

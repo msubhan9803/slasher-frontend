@@ -363,6 +363,11 @@ textarea {
 
 body.modal-open {
   overflow: visible !important;
+  padding-right: 0 !important;
+}
+
+body.modal-open .navbar{
+  padding-right: 0 !important;
 }
 
 @import "./_public_header_and_footer";

@@ -11,6 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from 'react-bootstrap';
 import UserCircleImage from './UserCircleImage';
 import CustomEmojiPicker from './CustomEmojiPicker';
+import { isNativePlatform } from '../../constants';
 
 interface SytledMentionProps {
   iscommentinput: string;
@@ -31,8 +32,10 @@ const StyledMention = styled(Mentions) <SytledMentionProps>`
   position:relative;
   padding: 0.063rem;
   ${(props) => (!props.iscommentinput && `
-  border-bottom-right-radius: 0 !important;
-  border-bottom-left-radius: 0 !important;
+  ${!isNativePlatform
+    && `border-bottom-right-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;`
+    }
   border-top-right-radius: 0.875rem !important;
   border-top-left-radius: 0.875rem !important;
   padding: 0;
@@ -43,18 +46,20 @@ const StyledMention = styled(Mentions) <SytledMentionProps>`
     border-radius: 0.875rem !important;
     cursor: auto;
     ${(props) => (!props.iscommentinput && `
-    border-bottom-right-radius: 0 !important;
-    border-bottom-left-radius: 0 !important;
+    ${!isNativePlatform
+    && `border-bottom-right-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;`
+    }
     border-top-right-radius: 0.875rem !important;
     border-top-left-radius: 0.875rem !important;
     min-height: 196px !important;
-    height: 196px !important;
-    max-height: 196px !important;
+    height: ${!isNativePlatform ? '196px !important' : '220px !important'};
+    max-height: ${!isNativePlatform ? '196px !important' : '220px !important'};
     padding-bottom: 0px !important;
     `)}
 
 
-    ${(props) => (props.iscommentinput && 'margin-left :0.875rem')}
+    ${(props) => (props.iscommentinput && !isNativePlatform && 'margin-left :0.875rem')}
   }
   ${(props) => (props.iscommentinput
     ? `&.form-control{
@@ -72,7 +77,7 @@ const StyledMention = styled(Mentions) <SytledMentionProps>`
       }
     `
     : '')
-}
+  }
   }
 `;
 
@@ -102,13 +107,13 @@ const StyledEmojiButton = styled.div<EmojiButtonProps>`
         border-bottom-right-radius: 0.875rem !important;
         border-bottom-left-radius: 0.875rem !important;
         margin-top: -0.438rem !important;`
-}
+  }
 `;
 const StyledShadowWrapper = styled.div<StyledShadowWrapperProps>`
 width: 100%;
 ${(props) => (!props.iscommentinput
     && ` border-radius: 0.875rem !important;
-  ${props.isMentionsFocused
+  ${props.isMentionsFocused && !isNativePlatform
       ? `
     box-shadow: 0 0 0 2px var(--stroke-and-line-separator-color) !important;
     `
@@ -271,18 +276,21 @@ function MessageTextarea({
           ))}
         </StyledMention>
 
-        <StyledEmojiButton iscommentinput={isCommentInput!}>
-          <StyledEmoji
-            type="button"
-            variant="link"
-            aria-label="emoji-picker"
-            className={`d-flex align-self-end ${isCommentInput ? 'p-0 position-absolute' : ''}`}
-            createpost={createEditPost}
-            isCommentInput={isCommentInput}
-          >
-            <FontAwesomeIcon icon={solid('smile')} onClick={handleShowPicker} size="lg" />
-          </StyledEmoji>
-        </StyledEmojiButton>
+        {!isNativePlatform
+          && (
+            <StyledEmojiButton iscommentinput={isCommentInput!}>
+              <StyledEmoji
+                type="button"
+                variant="link"
+                aria-label="emoji-picker"
+                className={`d-flex align-self-end ${isCommentInput ? 'p-0 position-absolute' : ''}`}
+                createpost={createEditPost}
+                isCommentInput={isCommentInput}
+              >
+                <FontAwesomeIcon icon={solid('smile')} onClick={handleShowPicker} size="lg" />
+              </StyledEmoji>
+            </StyledEmojiButton>
+          )}
 
       </StyledShadowWrapper>
 

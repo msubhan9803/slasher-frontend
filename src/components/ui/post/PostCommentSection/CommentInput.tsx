@@ -74,7 +74,7 @@ const StyledCommentInputGroup = styled(InputGroup) <InputProps>`
   && ` textarea {
     padding-left: 1.5rem !important;
   }`
-  }
+}
   svg {
     min-width: 1.875rem;
     &:focus {

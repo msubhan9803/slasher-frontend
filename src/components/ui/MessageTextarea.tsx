@@ -77,7 +77,7 @@ const StyledMention = styled(Mentions) <SytledMentionProps>`
       }
     `
     : '')
-  }
+}
   }
 `;
 
@@ -107,7 +107,7 @@ const StyledEmojiButton = styled.div<EmojiButtonProps>`
         border-bottom-right-radius: 0.875rem !important;
         border-bottom-left-radius: 0.875rem !important;
         margin-top: -0.438rem !important;`
-  }
+}
 `;
 const StyledShadowWrapper = styled.div<StyledShadowWrapperProps>`
 width: 100%;

@@ -94,7 +94,6 @@ When you need to see console logs of a native capacitor app running on a real de
 
 `chrome://inspect/#devices` (bookmark the url for reliability)
 
-
 ## App Structure
 
 Below is a general overview of our app structure, with some example subdirectories that show naming conventions.

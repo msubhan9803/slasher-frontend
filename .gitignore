@@ -68,3 +68,11 @@ android-template/app/app.iml
 # Carthage and Carthage-built binaries
 Carthage
 *.xcframework.zip
+
+# Keystore files
+# Uncomment the following lines if you do not want to check your keystore files in.
+*.jks
+*.keystore
+
+# Builds
+android/app/release

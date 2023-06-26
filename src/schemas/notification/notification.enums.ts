@@ -24,6 +24,7 @@ export enum NotificationType {
   UserMentionedYouInACommentOnANewsPost = 121,
   UserLikedYourCommentOnANewsPost = 122,
   NewPostFromFollowedRssFeedProvider = 125,
+  FriendMessageNotification = 126,
 }
 
 export enum NotificationStatus {
@@ -52,4 +53,5 @@ export const NOTIFICATION_TYPES_TO_CATEGORIES = new Map([
     NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
     'feed_mention_on_post_comment_reply',
   ],
+  [NotificationType.FriendMessageNotification, 'friends_message_received'],
 ]);

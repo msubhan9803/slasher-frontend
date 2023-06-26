@@ -127,9 +127,12 @@ if (Capacitor.isNativePlatform()) {
 }
 
 if (isNativePlatform) {
-  healthCheck().catch(() => {
-    store.dispatch(setIsServerAvailable(false));
-  });
+  const SERVER_UNAVAILABILITY_CHECK_DELAY = 3_000;
+  setTimeout(() => {
+    healthCheck().catch(() => {
+      store.dispatch(setIsServerAvailable(false));
+    });
+  }, SERVER_UNAVAILABILITY_CHECK_DELAY);
 }
 
 function App() {

@@ -1,11 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import { createTheme, ThemeProvider } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { useAppDispatch } from '../../../redux/hooks';
-import { setScrollToTabsPosition } from '../../../redux/slices/scrollPositionSlice';
 import useSessionToken from '../../../hooks/useSessionToken';
 
 interface TabLinksProps {
@@ -39,6 +37,18 @@ const StyledBadge = styled.div`
 function TabLinks({
   tabLink, selectedTab, toLink, params, display, tabsClass, tabsClassSmall, overrideOnClick,
 }: TabLinksProps) {
+  const [tabValue, setTabValue] = React.useState<any>(selectedTab);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setTabValue(selectedTab);
+  }, [selectedTab]);
+
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+    const url = newValue ? `${toLink}/${newValue}` : toLink;
+    navigate(url);
+  };
   const color = 'var(--bs-link-color)';
   const token = useSessionToken();
   const userIsLoggedIn = !token.isLoading && token.value;
@@ -76,20 +86,16 @@ function TabLinks({
       },
     },
   });
-  const dispatch = useAppDispatch();
-  const handleTabsScroll = () => {
-    dispatch(setScrollToTabsPosition(true));
-  };
   if (token.isLoading) { return null; }
   return (
     <ThemeProvider theme={theme}>
       <StyleTabs className={`${display === 'underline' ? '' : 'bg-dark bg-mobile-transparent rounded-3'}`}>
         <Tabs
-          value={(selectedTab)}
+          value={(tabValue)}
+          onChange={handleChange}
           variant="scrollable"
-          scrollButtons="auto"
-          allowScrollButtonsMobile
-          aria-label="scrollable auto tabs example"
+          scrollButtons={false}
+          aria-label="scrollable prevent tabs example"
         >
           {tabLink.map(({ value, label, badge }) => (
             <Tab
@@ -111,7 +117,8 @@ function TabLinks({
               to={!userIsLoggedIn ? '' : params ? `${toLink}/${value}${params}` : `${toLink}/${value}`}
               className="text-decoration-none shadow-none"
               onClick={(e: any) => {
-                handleTabsScroll();
+                e.preventDefault();
+                setTabValue(value);
                 if (overrideOnClick) {
                   overrideOnClick(e);
                 }

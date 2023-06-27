@@ -50,13 +50,6 @@ function SidebarNavItem({
   const handleRefresh = () => {
     deletePageStateCache(to);
   };
-  const onClickHandler = (e: React.MouseEvent) => {
-    if (comingSoon) {
-      e.preventDefault();
-      return;
-    }
-    onToggleCanvas!(); handleRefresh();
-  };
 
   const renderInnerNavItemContent = () => (
     <LinkContentWrapper className="d-flex align-items-center justify-content-start">
@@ -74,7 +67,17 @@ function SidebarNavItem({
       </div>
     </LinkContentWrapper>
   );
-
+  const onClickHandler = (e: React.MouseEvent, link_label: string) => {
+    if (comingSoon) {
+      e.preventDefault();
+      return;
+    }
+    onToggleCanvas!(); handleRefresh();
+    if (link_label === 'Help') {
+      e.preventDefault();
+      window.open('https://pages.slasher.tv/help/', '_blank');
+    }
+  };
   const commonClasses = 'h-100 w-100 rounded-3 px-3 py-2 d-flex align-items-center';
 
   return (
@@ -93,7 +96,7 @@ function SidebarNavItem({
             ${matchPath({ path: to, end: false }, pathname) ? 'btn-filter' : ''}`
               }
               to={to}
-              onClick={onClickHandler}
+              onClick={(e) => onClickHandler(e, label)}
             >
               {renderInnerNavItemContent()}
             </Link>

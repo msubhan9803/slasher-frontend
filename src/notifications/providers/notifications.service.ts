@@ -60,7 +60,8 @@ export class NotificationsService {
     this.userSettingsService.findByUserId(notificationData.userId.toString())]);
     const isNotificationEnabled = userSetting && userSetting[`${NOTIFICATION_TYPES_TO_CATEGORIES.get(notificationData.notifyType)}`];
     if (isNotificationEnabled && user.userDevices.length) {
-      const deviceTokens = user.userDevices.filter((device) => device.device_id !== 'browser').map((device) => device.device_token);
+      const deviceTokens = user.userDevices.filter((device) => device.device_id !== 'browser' && device.device_token)
+      .map((device) => device.device_token);
       await this.pushNotificationsService.sendPushNotification(notificationData, deviceTokens);
     }
   }
@@ -73,7 +74,8 @@ export class NotificationsService {
     const userSetting = await this.userSettingsService.findByUserId(receiverUser.id.toString());
     const isNotificationEnabled = userSetting && userSetting[`${NOTIFICATION_TYPES_TO_CATEGORIES.get(126)}`];
     if (isNotificationEnabled && receiverUser.userDevices.length) {
-      const deviceTokens = receiverUser.userDevices.filter((device) => device.device_id !== 'browser').map((device) => device.device_token);
+      const deviceTokens = receiverUser.userDevices.filter((device) => device.device_id !== 'browser' && device.device_token)
+      .map((device) => device.device_token);
       await this.pushNotificationsService.sendPushNotification(notificationData, deviceTokens);
     }
   }

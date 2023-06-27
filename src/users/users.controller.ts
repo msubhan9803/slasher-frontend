@@ -71,6 +71,7 @@ import { EmailRevertTokensService } from '../email-revert-tokens/providers/email
 import { FriendRequestReaction } from '../schemas/friend/friend.enums';
 import { Public } from '../app/guards/auth.guard';
 import { UpdateDeviceTokenDto } from './dto/update-device-token.dto';
+import { SignOutDto } from './dto/sign-out.dto';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -1036,6 +1037,20 @@ export class UsersController {
     );
     if (!updatedDeviceToken) {
       throw new HttpException('Device id not found', HttpStatus.BAD_REQUEST);
+    }
+    return { success: true };
+  }
+
+  @Post('sign-out')
+  async signOut(@Req() request: Request, @Body() signOutDto: SignOutDto) {
+    const user = getUserFromRequest(request);
+    const deviceId = await this.usersService.findByDeviceId(signOutDto.device_id, user.id);
+    if (deviceId) {
+      const userDevices = user.userDevices.filter((device) => device.device_id !== signOutDto.device_id);
+      user.userDevices = userDevices;
+      user.save();
+    } else {
+      throw new HttpException('Device id is not found', HttpStatus.BAD_REQUEST);
     }
     return { success: true };
   }

@@ -41,6 +41,7 @@ import useSessionTokenMonitorAsync from '../../../../hooks/useSessionTokenMonito
 import useSessionToken from '../../../../hooks/useSessionToken';
 import { setIsServerAvailable } from '../../../../redux/slices/serverAvailableSlice';
 import { Message } from '../../../../types';
+import { showBackButtonInIos } from '../../../../utils/url-utils';
 
 interface Props {
   children: React.ReactNode;
@@ -88,6 +89,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const isConnectingSocketRef = useRef(false);
   const isSocketConnected = useAppSelector((state) => state.socket.isConnected);
   const { socket } = socketStore;
+  const backButtonElementRef = useRef<HTMLDivElement>(null);
 
   const showUnreachableServerModalIfDisconnected = useCallback((e: MouseEvent) => {
     // If socket state is disconnected then show server-unavailable dialog.
@@ -251,11 +253,23 @@ function AuthenticatedPageWrapper({ children }: Props) {
 
     );
   }
+
+  // TODO: `styles-utils .ts` (import from this file)
+  function setGlobalCssProperty(name: string, value: any) {
+    if (!name.startsWith('--')) { throw new Error('A CSS variable must start be prefixed with --'); }
+    document.documentElement.style.setProperty(name, value);
+  }
+
+  if (Capacitor.getPlatform() === 'ios' && showBackButtonInIos(location.pathname)) {
+    setGlobalCssProperty('--heightOfBackButtonOfIos', `${backButtonElementRef.current?.clientHeight}px`);
+  }
+
   return (
-    <div className="page-wrapper full">
-      {Capacitor.getPlatform() === 'ios'
+    <div className="page-wrapper full" style={{ paddingTop: 'var(--heightOfBackButtonOfIos)' }}>
+      { Capacitor.getPlatform() === 'ios'
+      && showBackButtonInIos(location.pathname)
         && (
-          <Row className="d-md-nonept-2">
+          <Row className="d-md-nonept-2 position-fixed" ref={backButtonElementRef} style={{ top: '0.625rem', zIndex: 1 }}>
             <Col xs="auto" className="ms-2">
               <Button variant="link" className="p-0 px-1" onClick={() => navigate(-1)}>
                 <FontAwesomeIcon role="button" icon={solid('arrow-left-long')} size="2x" />

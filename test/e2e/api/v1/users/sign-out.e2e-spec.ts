@@ -5,7 +5,6 @@ import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { DateTime } from 'luxon';
 import { ConfigService } from '@nestjs/config';
-import { DeviceIdDto } from 'src/users/dto/deviceId.dto';
 import { AppModule } from '../../../../../src/app.module';
 import { UsersService } from '../../../../../src/users/providers/users.service';
 import { userFactory } from '../../../../factories/user.factory';
@@ -13,6 +12,7 @@ import { UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { SignOutDto } from '../../../../../src/users/dto/sign-out.dto';
 
 describe('Users sign-out (e2e)', () => {
     let app: INestApplication;
@@ -21,7 +21,7 @@ describe('Users sign-out (e2e)', () => {
     let activeUser: UserDocument;
     let activeUserAuthToken: string;
     let configService: ConfigService;
-    let postBody: DeviceIdDto;
+    let postBody: SignOutDto;
 
     const userDevices = [
         {

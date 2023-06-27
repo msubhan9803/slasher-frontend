@@ -71,7 +71,7 @@ import { EmailRevertTokensService } from '../email-revert-tokens/providers/email
 import { FriendRequestReaction } from '../schemas/friend/friend.enums';
 import { Public } from '../app/guards/auth.guard';
 import { UpdateDeviceTokenDto } from './dto/update-device-token.dto';
-import { DeviceIdDto } from './dto/deviceId.dto';
+import { SignOutDto } from './dto/sign-out.dto';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -1042,11 +1042,11 @@ export class UsersController {
   }
 
   @Post('sign-out')
-  async signOut(@Req() request: Request, @Body() deviceIdDto: DeviceIdDto) {
+  async signOut(@Req() request: Request, @Body() signOutDto: SignOutDto) {
     const user = getUserFromRequest(request);
-    const deviceId = await this.usersService.findByDeviceId(deviceIdDto.device_id, user.id);
+    const deviceId = await this.usersService.findByDeviceId(signOutDto.device_id, user.id);
     if (deviceId) {
-      const userDevices = user.userDevices.filter((device) => device.device_id !== deviceIdDto.device_id);
+      const userDevices = user.userDevices.filter((device) => device.device_id !== signOutDto.device_id);
       user.userDevices = userDevices;
       user.save();
     } else {

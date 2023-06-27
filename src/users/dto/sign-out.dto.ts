@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
 
-export class DeviceIdDto {
+export class SignOutDto {
   @IsNotEmpty()
   device_id: string;
 }

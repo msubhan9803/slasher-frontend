@@ -9,6 +9,7 @@ import ImagesContainer from '../ui/ImagesContainer';
 import ErrorMessageList from '../ui/ErrorMessageList';
 import CustomEmojiPicker, { Emoji } from '../ui/CustomEmojiPicker';
 import { isMobile } from '../../utils/browser-utils';
+import { isNativePlatform } from '../../constants';
 
 interface Props {
   onSubmit: (message: string, files: File[], fileDescriptions: string[]) => Promise<void>;
@@ -224,36 +225,39 @@ function ChatInput({
             />
           </label>
         </div>
-        <div className="pe-3">
-          {
-            showEmojiPicker && (
-              <div className="position-relative">
-                <div className="emoji-picker-wrapper">
-                  <CustomEmojiPicker
-                    autoFocus
-                    handleEmojiSelect={handleEmojiSelect}
-                    onClickOutside={closeEmojiPickerIfOpen}
-                    onEscapeKeyPress={closeEmojiPickerIfOpen}
-                  />
-                </div>
-              </div>
-            )
-          }
-          <Button
-            type="button"
-            variant="link"
-            className="emoji-button"
-            onClick={
-              // NOTE: Must stop event propagation below, otherwise the emoji picker
-              // onClickOutside function will fire because it will detect a click that is
-              // technically outside of the emoji picker box area.
-              (e) => { e.preventDefault(); e.stopPropagation(); setShowEmojiPicker(true); }
-            }
-          >
-            <span className="sr-only">Toggle emoji picker</span>
-            <FontAwesomeIcon icon={solid('smile')} size="lg" />
-          </Button>
-        </div>
+        {!isNativePlatform
+          && (
+            <div className="pe-3">
+              {
+                showEmojiPicker && (
+                  <div className="position-relative">
+                    <div className="emoji-picker-wrapper">
+                      <CustomEmojiPicker
+                        autoFocus
+                        handleEmojiSelect={handleEmojiSelect}
+                        onClickOutside={closeEmojiPickerIfOpen}
+                        onEscapeKeyPress={closeEmojiPickerIfOpen}
+                      />
+                    </div>
+                  </div>
+                )
+              }
+              <Button
+                type="button"
+                variant="link"
+                className="emoji-button"
+                onClick={
+                  // NOTE: Must stop event propagation below, otherwise the emoji picker
+                  // onClickOutside function will fire because it will detect a click that is
+                  // technically outside of the emoji picker box area.
+                  (e) => { e.preventDefault(); e.stopPropagation(); setShowEmojiPicker(true); }
+                }
+              >
+                <span className="sr-only">Toggle emoji picker</span>
+                <FontAwesomeIcon icon={solid('smile')} size="lg" />
+              </Button>
+            </div>
+          )}
         <StyledTextareaAutosize
           ref={textareaRef}
           maxRows={4}

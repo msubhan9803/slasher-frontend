@@ -204,6 +204,7 @@ export enum NotificationType {
   UserMentionedYouInACommentOnANewsPost = 121,
   UserLikedYourCommentOnANewsPost = 122,
   NewPostFromFollowedRssFeedProvider = 125,
+  FriendMessageNotification = 126,
 }
 
 export interface Notification {
@@ -220,6 +221,7 @@ export interface Notification {
   rssFeedProviderId: NotificationRssFeedProviderId,
   rssFeedId: string,
   notifyType: NotificationType,
+  matchId?: string
 }
 
 interface Sender {

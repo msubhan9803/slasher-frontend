@@ -24,7 +24,7 @@ import {
   updateRecentMessage,
 } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
-import { getSessionToken, signOut } from '../../../../utils/session-utils';
+import { clearUserSession, getSessionToken } from '../../../../utils/session-utils';
 import {
   LG_MEDIA_BREAKPOINT, analyticsId, MAIN_CONTENT_ID, apiUrl, RETRY_CONNECTION_BUTTON_ID,
   AUTHENTICATED_PAGE_WRAPPER_ID,
@@ -158,7 +158,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
         dispatch(setUserInitialData(res.data));
       }).catch((err) => {
         if (err.response.status === 401) {
-          signOut();
+          clearUserSession();
         }
       });
     }

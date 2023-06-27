@@ -54,11 +54,11 @@ function PublicHomeHeader() {
   return (
     <div id="header" className="fixed-top">
       <Navbar id="main-nav" expand="xl" variant="dark" expanded={isOpen} onToggle={() => { setIsOpen(!isOpen); }} className={`mb-3 ${applySolidBackgroundToTopNav ? 'with-background' : ''}`}>
-        <Container fluid className="container-xl">
+        <Container fluid className="container-xl justify-content-center">
           <Link to="/" className="navbar-brand custom-logo-link">
             <img width="510" height="300" src={slasherLogoMedium} className="img-fluid" alt="Slasher" />
           </Link>
-          <div className="toggle-button-wrapper order-first">
+          <div className="toggle-button-wrapper order-first position-fixed">
             <Navbar.Toggle aria-controls="navbarNavOffcanvas" />
           </div>
           <Navbar.Offcanvas

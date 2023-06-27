@@ -7,7 +7,7 @@ import { changePassword } from '../../../api/users';
 import { CustomVisibilityButton } from '../../../components/ui/CustomVisibilityButton';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
-import { signOut } from '../../../utils/session-utils';
+import { clearUserSession } from '../../../utils/session-utils';
 import AccountHeader from '../AccountHeader';
 
 function AccountChangePassword() {
@@ -21,7 +21,7 @@ function AccountChangePassword() {
 
   const handleChangePassword = () => {
     changePassword(currentPassword, newPassword, newPasswordConfirmation)
-      .then(() => signOut())
+      .then(() => clearUserSession())
       .catch((error) => setErrorMessage(error.response.data.message));
   };
   return (

@@ -83,7 +83,7 @@ const StyledMention = styled(Mentions) <SytledMentionProps>`
 
 const StyledEmoji = styled(Button)`
   z-index:2;
-  padding: 0.625rem;
+  padding: 10px;
   ${(props) => (props.createpost
     ? `
     left: 0.75rem;
@@ -101,7 +101,6 @@ const EmojiPicker = styled.div<PickerProp>`
 `;
 
 const StyledEmojiButton = styled.div<EmojiButtonProps>`
-  padding: 0.625rem;
   ${(props) => !props.iscommentinput
     && `background-color: black;
         border-bottom-radius: 1.875rem !important;
@@ -284,7 +283,7 @@ function MessageTextarea({
                 type="button"
                 variant="link"
                 aria-label="emoji-picker"
-                className={`d-flex align-self-end p-0 ${isCommentInput ? 'position-absolute' : ''}`}
+                className={`d-flex align-self-end ${isCommentInput ? 'p-0 position-absolute' : ''}`}
                 createpost={createEditPost}
                 isCommentInput={isCommentInput}
               >

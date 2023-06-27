@@ -41,7 +41,7 @@ const clearSignInCookies = async () => {
   Cookies.remove('userName');
   clearLocalStorage('spoilersIds');
 };
-export const signOut = async () => {
+export const clearUserSession = async () => {
   await clearSignInCookies();
   window.location.replace('/app/sign-in'); // redirect clears redux data and js caches
   socketStore.socket?.disconnect();

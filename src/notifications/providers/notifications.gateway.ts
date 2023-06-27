@@ -60,6 +60,9 @@ export class NotificationsGateway {
     const user = await this.usersService.findBySocketId(client.id);
     const userId = user._id.toString();
     const clearNotificationCount = await this.usersService.clearNotificationCount(userId);
-    return { newNotificationCount: clearNotificationCount.newNotificationCount };
+    const targetUserSocketIds = await this.usersService.findSocketIdsForUser(userId);
+    return targetUserSocketIds.forEach((socketId) => {
+      this.server.to(socketId).emit('clearNewNotificationCount', { newNotificationCount: clearNotificationCount.newNotificationCount });
+    });
   }
 }

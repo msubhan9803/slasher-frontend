@@ -17,6 +17,7 @@ import {
 import MessageTextarea from '../../MessageTextarea';
 import ErrorMessageList from '../../ErrorMessageList';
 import { FormatMentionProps } from '../../../../types';
+import { isNativePlatform } from '../../../../constants';
 
 interface CommentInputProps {
   userData: any;
@@ -48,7 +49,7 @@ interface CommentInputProps {
   replyDescriptionArray?: string[];
   setReplyDescriptionArray?: (value: string[]) => void;
   isMainPostCommentClick?: boolean;
-  selectedReplyUserId?:string;
+  selectedReplyUserId?: string;
 }
 
 interface InputProps {
@@ -69,9 +70,11 @@ const StyledCommentInputGroup = styled(InputGroup) <InputProps>`
     border-bottom-left-radius: 0rem !important;
     border-top-left-radius: 0rem !important;
   }
-  textarea {
+  ${!isNativePlatform
+  && ` textarea {
     padding-left: 1.5rem !important;
-  }
+  }`
+}
   svg {
     min-width: 1.875rem;
     &:focus {

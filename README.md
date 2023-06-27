@@ -126,10 +126,6 @@ npm run build && npx cap build android \
 --androidreleasetype=AAB
 ```
 
-The output apk or aab file will path will be -
-
-
-
 ## App Structure
 
 Below is a general overview of our app structure, with some example subdirectories that show naming conventions.

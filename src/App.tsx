@@ -52,6 +52,7 @@ import UnexpectedError from './components/UnexpectedError';
 import { healthCheck } from './api/health-check';
 import { store } from './redux/store';
 import { setIsServerAvailable } from './redux/slices/serverAvailableSlice';
+import { isHomePage } from './utils/url-utils';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -112,11 +113,9 @@ if (enableDevFeatures) {
   // routes['places/*'] = { wrapper: AuthenticatedPageWrapper, component: Places };
 }
 
-CapacitorApp.addListener('backButton', ({ canGoBack }) => {
-  if (!canGoBack) {
+CapacitorApp.addListener('backButton', () => {
+  if (isHomePage(window.location.pathname)) {
     CapacitorApp.exitApp();
-  } else {
-    window.history.back();
   }
 });
 

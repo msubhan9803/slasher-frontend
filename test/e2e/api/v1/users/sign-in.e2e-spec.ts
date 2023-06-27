@@ -69,7 +69,7 @@ describe('Users sign-in (e2e)', () => {
   describe('POST /api/v1/users/sign-in', () => {
     describe('An active user', () => {
       it('can successfully sign in with a username and password OR email and password', async () => {
-        const postBodyScenarios: Partial<UserSignInDto>[] = [
+        const postBodyScenarios: UserSignInDto[] = [
           {
             emailOrUsername: activeUser.userName,
             password: activeUserUnhashedPassword,
@@ -204,7 +204,7 @@ describe('Users sign-in (e2e)', () => {
             { transient: { unhashedPassword: inactiveUserUnhashedPassword } },
           ),
         );
-        const postBody: Partial<UserSignInDto> = {
+        const postBody: UserSignInDto = {
           emailOrUsername: inactiveUser.userName,
           password: inactiveUserUnhashedPassword,
           ...deviceAndAppVersionPlaceholderSignInFields,
@@ -231,7 +231,7 @@ describe('Users sign-in (e2e)', () => {
             },
           ),
         );
-        const postBody: Partial<UserSignInDto> = {
+        const postBody: UserSignInDto = {
           emailOrUsername: deactivatedUser.userName,
           password: deactivatedUserUnhashedPassword,
           ...deviceAndAppVersionPlaceholderSignInFields,
@@ -336,7 +336,7 @@ describe('Users sign-in (e2e)', () => {
             { transient: { unhashedPassword: userUnhashedPassword } },
           ),
         );
-        const postBody: Partial<UserSignInDto> = {
+        const postBody: UserSignInDto = {
           emailOrUsername: user.userName,
           password: userUnhashedPassword,
           ...deviceAndAppVersionPlaceholderSignInFields,
@@ -360,7 +360,7 @@ describe('Users sign-in (e2e)', () => {
             { transient: { unhashedPassword: userUnhashedPassword } },
           ),
         );
-        const postBody: Partial<UserSignInDto> = {
+        const postBody: UserSignInDto = {
           emailOrUsername: user.userName,
           password: userUnhashedPassword,
           ...deviceAndAppVersionPlaceholderSignInFields,
@@ -384,7 +384,7 @@ describe('Users sign-in (e2e)', () => {
             { transient: { unhashedPassword: userUnhashedPassword } },
           ),
         );
-        const postBody: Partial<UserSignInDto> = {
+        const postBody: UserSignInDto = {
           emailOrUsername: user.userName,
           password: userUnhashedPassword,
           ...deviceAndAppVersionPlaceholderSignInFields,
@@ -408,7 +408,7 @@ describe('Users sign-in (e2e)', () => {
             { transient: { unhashedPassword: userUnhashedPassword } },
           ),
         );
-        const postBody: Partial<UserSignInDto> = {
+        const postBody: UserSignInDto = {
           emailOrUsername: 'testusertestuser',
           password: userUnhashedPassword,
           ...deviceAndAppVersionPlaceholderSignInFields,
@@ -432,7 +432,7 @@ describe('Users sign-in (e2e)', () => {
             { transient: { unhashedPassword: userUnhashedPassword } },
           ),
         );
-        const postBody: Partial<UserSignInDto> = {
+        const postBody: UserSignInDto = {
           emailOrUsername: user.userName,
           password: `incorrect${userUnhashedPassword}`,
           ...deviceAndAppVersionPlaceholderSignInFields,

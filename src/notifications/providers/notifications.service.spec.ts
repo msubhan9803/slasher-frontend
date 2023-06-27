@@ -24,6 +24,8 @@ import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 import { UserSettingsService } from '../../settings/providers/user-settings.service';
 import { userSettingFactory } from '../../../test/factories/user-setting.factory';
 import { PushNotificationsService } from './push-notifications.service';
+import { Message } from '../../schemas/message/message.schema';
+import { ChatService } from '../../chat/providers/chat.service';
 
 describe('NotificationsService', () => {
   let app: INestApplication;
@@ -38,6 +40,8 @@ describe('NotificationsService', () => {
   let feedPostData: FeedPostDocument;
   let pushNotificationsService: PushNotificationsService;
   let notificationModel: Model<NotificationDocument>;
+  let chatService: ChatService;
+
   const deviceAndAppVersionPlaceholderSignInFields = {
     device_id: 'sample-device-id-1',
     device_token: 'sample',
@@ -57,6 +61,7 @@ describe('NotificationsService', () => {
     userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     pushNotificationsService = moduleRef.get<PushNotificationsService>(PushNotificationsService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
+    chatService = moduleRef.get<ChatService>(ChatService);
     notificationModel = moduleRef.get<Model<NotificationDocument>>(getModelToken(Notification.name));
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -112,6 +117,39 @@ describe('NotificationsService', () => {
       };
       const notificationData = await notificationsService.create(notificationObj);
       expect(notificationData.userId.toString()).toBe(activeUser.id);
+    });
+  });
+
+  describe('#sendChatMsgPushNotification', () => {
+    let message: Message;
+    it('should send chat message push notification', async () => {
+      jest.spyOn(pushNotificationsService, 'sendPushNotification').mockImplementation(() => Promise.resolve());
+      const userDevices = [];
+      const weekAgo = DateTime.now().minus({ days: 8 }).toISODate();
+      userDevices.push(
+        {
+          ...deviceAndAppVersionPlaceholderSignInFields,
+          login_date: weekAgo,
+        },
+      );
+      const userData = userFactory.build();
+      userData.userDevices = userDevices;
+      user2 = await usersService.create(userData);
+      await userSettingsService.create(userSettingFactory.build({
+        userId: user2.id,
+      }));
+
+      message = await chatService.sendPrivateDirectMessage(user1.id, user2.id, 'Hi, test message.');
+      await notificationsService.sendChatMsgPushNotification(message.matchId, user2, user1);
+      jest.spyOn(userSettingsService, 'findByUserId').mockResolvedValue(user2.id.toString());
+      expect(pushNotificationsService.sendPushNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          notificationMsg: `${user1.userName} sent you a message`,
+          matchId: message.matchId,
+          notifyType: NotificationType.FriendMessageNotification,
+        }),
+        ['sample'],
+      );
     });
   });
 

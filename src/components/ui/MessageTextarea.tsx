@@ -10,7 +10,7 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from 'react-bootstrap';
 import UserCircleImage from './UserCircleImage';
-import CustomEmojiPicker from './CustomEmojiPicker';
+import CustomEmojiPicker from './Emoji/CustomEmojiPicker';
 import { isNativePlatform } from '../../constants';
 
 interface SytledMentionProps {
@@ -83,7 +83,7 @@ const StyledMention = styled(Mentions) <SytledMentionProps>`
 
 const StyledEmoji = styled(Button)`
   z-index:2;
-  padding: 10px;
+  padding: 0.625rem;
   ${(props) => (props.createpost
     ? `
     left: 0.75rem;
@@ -101,6 +101,7 @@ const EmojiPicker = styled.div<PickerProp>`
 `;
 
 const StyledEmojiButton = styled.div<EmojiButtonProps>`
+  padding: 0.625rem;
   ${(props) => !props.iscommentinput
     && `background-color: black;
         border-bottom-radius: 1.875rem !important;
@@ -283,7 +284,7 @@ function MessageTextarea({
                 type="button"
                 variant="link"
                 aria-label="emoji-picker"
-                className={`d-flex align-self-end ${isCommentInput ? 'p-0 position-absolute' : ''}`}
+                className={`d-flex align-self-end p-0 ${isCommentInput ? 'position-absolute' : ''}`}
                 createpost={createEditPost}
                 isCommentInput={isCommentInput}
               >

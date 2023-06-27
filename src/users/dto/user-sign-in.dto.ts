@@ -11,7 +11,7 @@ export class UserSignInDto {
   device_id: string;
 
   @IsOptional()
-  device_token: string;
+  device_token?: string;
 
   @IsNotEmpty()
   device_type: string;

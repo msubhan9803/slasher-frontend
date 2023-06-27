@@ -112,11 +112,9 @@ if (enableDevFeatures) {
   // routes['places/*'] = { wrapper: AuthenticatedPageWrapper, component: Places };
 }
 
-CapacitorApp.addListener('backButton', ({ canGoBack }) => {
-  if (!canGoBack) {
+CapacitorApp.addListener('backButton', () => {
+  if (window.location.pathname === '/app/home') {
     CapacitorApp.exitApp();
-  } else {
-    window.history.back();
   }
 });
 

@@ -16,7 +16,7 @@ import { reportData } from '../../../../api/report';
 import ReportModal from '../../ReportModal';
 import EditCommentModal from '../../editCommentModal';
 import ErrorMessageList from '../../ErrorMessageList';
-import { COMMENT_OR_REPLY_INPUT_PARENT } from '../../../../constants';
+import { COMMENT_SECTION_ID } from '../../../../constants';
 
 const LoadMoreCommentsWrapper = styled.div.attrs({ className: 'text-center' })`
   margin: -1rem 0 1rem;
@@ -533,7 +533,7 @@ function PostCommentSection({
     }, 600);
   }, [isMainPostCommentClick, commentSectionData]);
   return (
-    <div id={COMMENT_OR_REPLY_INPUT_PARENT} ref={commentSectionRef}>
+    <div id={COMMENT_SECTION_ID} ref={commentSectionRef}>
       {/* This `CommentInput` is the ``comment-on-post``. */}
       <CommentInput
         message={message}

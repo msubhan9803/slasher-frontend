@@ -10,7 +10,7 @@ export const enableDevFeatures = process.env.REACT_APP_ENABLE_DEV_ELEMENTS === '
 export const MAIN_CONTENT_ID = 'main-content';
 export const RETRY_CONNECTION_BUTTON_ID = 'retry-connection-button';
 export const COMMENT_OR_REPLY_INPUT = 'comment-or-reply-input';
-export const COMMENT_OR_REPLY_INPUT_PARENT = 'comment-or-reply-input-parent';
+export const COMMENT_SECTION_ID = 'comment-section-id';
 export const MOBILE_NAVBAR = 'mobile-navbar';
 export const CONTENT_PAGE_WRAPPER_ID = 'content-page-wrapper';
 export const AUTHENTICATED_PAGE_WRAPPER_ID = 'authenticated-page-wrapper';

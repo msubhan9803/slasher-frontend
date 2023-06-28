@@ -35,8 +35,8 @@ const config: CapacitorConfig = {
   },
   plugins: {
     Keyboard: {
-      resize: KeyboardResize.Body,
-      resizeOnFullScreen: true,
+      resize: KeyboardResize.Native, // iOS only
+      resizeOnFullScreen: true, // Android only
     },
   },
 };

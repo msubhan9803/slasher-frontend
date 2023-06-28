@@ -27,6 +27,7 @@ import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { clearUserSession, getSessionToken } from '../../../../utils/session-utils';
 import {
   LG_MEDIA_BREAKPOINT, analyticsId, MAIN_CONTENT_ID, apiUrl, RETRY_CONNECTION_BUTTON_ID,
+  AUTHENTICATED_PAGE_WRAPPER_ID,
   isNativePlatform,
 } from '../../../../constants';
 import useGoogleAnalytics from '../../../../hooks/useGoogleAnalytics';
@@ -254,7 +255,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
   }
 
   return (
-    <div className="page-wrapper full">
+    <div id={AUTHENTICATED_PAGE_WRAPPER_ID} className="page-wrapper full">
       {Capacitor.getPlatform() === 'ios'
         && showBackButtonInIos(location.pathname)
         && (

@@ -10,7 +10,8 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from 'react-bootstrap';
 import UserCircleImage from './UserCircleImage';
-import CustomEmojiPicker from './CustomEmojiPicker';
+import CustomEmojiPicker from './Emoji/CustomEmojiPicker';
+import { onKeyboardOpen } from '../../utils/styles-utils ';
 import { isNativePlatform } from '../../constants';
 
 interface SytledMentionProps {
@@ -101,12 +102,13 @@ const EmojiPicker = styled.div<PickerProp>`
 `;
 
 const StyledEmojiButton = styled.div<EmojiButtonProps>`
-  ${(props) => !props.iscommentinput
-    && `background-color: black;
-        border-bottom-radius: 1.875rem !important;
-        border-bottom-right-radius: 0.875rem !important;
-        border-bottom-left-radius: 0.875rem !important;
-        margin-top: -0.438rem !important;`
+${(props) => !props.iscommentinput
+  && `background-color: black;
+  border-bottom-radius: 1.875rem !important;
+  border-bottom-right-radius: 0.875rem !important;
+  border-bottom-left-radius: 0.875rem !important;
+  padding: 0.625rem;
+  margin-top: -0.438rem !important;`
 }
 `;
 const StyledShadowWrapper = styled.div<StyledShadowWrapperProps>`
@@ -252,6 +254,7 @@ function MessageTextarea({
           autoSize={{ minRows: rows, maxRows: isCommentInput ? 4 : rows }}
           rows={rows}
           onChange={(e) => handleMessage(e)}
+          onFocusCapture={() => { onKeyboardOpen(); }}
           placeholder={placeholder}
           onSearch={handleSearch}
           onSelect={handleSelect}
@@ -283,7 +286,7 @@ function MessageTextarea({
                 type="button"
                 variant="link"
                 aria-label="emoji-picker"
-                className={`d-flex align-self-end ${isCommentInput ? 'p-0 position-absolute' : ''}`}
+                className={`d-flex align-self-end p-0 ${isCommentInput ? 'p-0 position-absolute' : ''}`}
                 createpost={createEditPost}
                 isCommentInput={isCommentInput}
               >

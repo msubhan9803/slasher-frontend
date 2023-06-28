@@ -11,6 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from 'react-bootstrap';
 import UserCircleImage from './UserCircleImage';
 import CustomEmojiPicker from './Emoji/CustomEmojiPicker';
+import { onKeyboardOpen } from '../../utils/styles-utils ';
 import { isNativePlatform } from '../../constants';
 
 interface SytledMentionProps {
@@ -253,6 +254,7 @@ function MessageTextarea({
           autoSize={{ minRows: rows, maxRows: isCommentInput ? 4 : rows }}
           rows={rows}
           onChange={(e) => handleMessage(e)}
+          onFocusCapture={() => { onKeyboardOpen(); }}
           placeholder={placeholder}
           onSearch={handleSearch}
           onSelect={handleSelect}

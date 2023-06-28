@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Image, Modal } from 'react-bootstrap';
 import styled from 'styled-components';
 import CustomModal from './CustomModal';
@@ -21,6 +21,11 @@ const FullscreenImage = styled(Image)`
 function ZoomableImageModal({
   imgSrc, imgAlt, show, onHide,
 }: Props) {
+  useEffect(() => {
+    const html : any = document.querySelector('html');
+    html.style.overflow = show ? 'hidden' : '';
+  }, [show]);
+
   return (
     <CustomModal show={show} fullscreen onHide={onHide}>
       <Modal.Header closeButton />

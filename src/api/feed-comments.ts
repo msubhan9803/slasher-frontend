@@ -5,15 +5,15 @@ import { ContentDescription } from '../types';
 
 export async function getFeedComments(
   feedPostId: string,
-  lastRetrievedCommentId?: string,
-  showComments?: boolean,
+  lastRetrievedCommentId: string | undefined,
+  isOldestFirst: boolean,
 ) {
   const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
 
-  let queryParameter = `?feedPostId=${feedPostId}&limit=20&sortBy=${showComments ? 'oldestFirst' : 'newestFirst'}`;
+  let queryParameter = `?feedPostId=${feedPostId}&limit=20&sortBy=${isOldestFirst ? 'oldestFirst' : 'newestFirst'}`;
   if (lastRetrievedCommentId) {
     queryParameter += `&after=${lastRetrievedCommentId}`;
   }

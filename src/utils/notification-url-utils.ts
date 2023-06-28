@@ -3,12 +3,12 @@ import { Notification, NotificationType, PostType } from '../types';
 function userNameForReceivedFriendRequestNotification(
   notification: Notification,
 ) {
-  const extractedUserName = notification.senderId.userName === 'Slasher'
+  const extractedUserName = notification.senderId?.userName === 'Slasher'
     ? notification.notificationMsg.substring(
       0,
       notification.notificationMsg.indexOf(' '),
     )
-    : notification.senderId.userName;
+    : notification.senderId?.userName;
   return extractedUserName;
 }
 

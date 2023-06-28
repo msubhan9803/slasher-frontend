@@ -75,7 +75,7 @@ Note: You need to get your local ip address of your machine, usually it looks li
 2. In frontend create a file with name `.env.development.local` in the project root directory. Then add an environment variable `REACT_APP_API_URL=http://192.168.18.5:4000`.
 3. In backend open `.env.development` file and add an environment variable `API_URL=http://192.168.18.5:4000`. (Note: This is helpful for backend to provide correct image urls for the api responses).
 
-Now you can start run frontend via `npm start`, run backend via `npm run start:dev` followed by running capacitor app via `npm run cap-live-reload-android` or `npm run cap-live-reload-ios` for appropriate device you want to run the app on with live reload.
+Now you can start run frontend via `npm start`, run backend via `npm run start:dev` followed by running capacitor app via `npm run cap-run-android-dev-live-reload` or `cap-run-ios-dev-live-reload` for appropriate device you want to run the app on with live reload.
 
 **Updating capacitor app icon and splash screen:**
 
@@ -85,14 +85,46 @@ You can add/update icons and splash screen in `resources` directory by running `
 
 **Passing environement variables to capacitor native builds:**
 
-- `.env` file is used when `npm run cap-static-build-android` or `npm run cap-static-build-ios` is used.
-- `.env.development`/`.env.development.local` is used when we use `npm run cap-live-reload-android` or `npm run cap-live-reload-ios`.
+- `.env.production.local` > `env.production` file is used when `npm run cap-run-android-prod` or `npm run cap-static-build-ios` is used.
+- `.env.development.local` > `.env.development` is used when we use `npm run cap-run-android-dev-live-reload` or `cap-run-ios-dev-live-reload`.
 
 **Viewing console logs in capacitor live-reload build and static builds:**
 
 When you need to see console logs of a native capacitor app running on a real device (or Android Emulator) you can use below url in *Google Chrome Browser* to get access the debugging-console:
 
 `chrome://inspect/#devices` (bookmark the url for reliability)
+
+Note: We have a similar functionality in Safari as well.
+
+**Generating AAB/APK builds via capacitor CLI:**
+
+- Docs: Capacitor CLI - cap build: [Click here](https://capacitorjs.com/docs/cli/commands/build)
+- Note the **keystore file must be plaed in the project root**.
+- Since we're using "npm run build" the following prefence of .env files will be used - ".env.production.local > .env.local > .env.production > .env".
+
+The output APK/AAB will be generated at - `./android/app/build/outputs/bundle/release` directory.
+
+With older keystore file -
+
+```bash
+npm run build && npx cap build android \
+--keystorepath="../Slasher.jks" \
+--keystorepass=KEYSTORE-PASSWORD-HERE \
+--keystorealias=key0 \
+--keystorealiaspass=KEYSTORE-PASSWORD-HERE \
+--androidreleasetype=AAB
+```
+
+With newer keystore file -
+
+```bash
+npm run build && npx cap build android \
+--keystorepath="../slasher-app.keystore" \
+--keystorepass=KEYSTORE-PASSWORD-HERE \
+--keystorealias=slasher-app \
+--keystorealiaspass=KEYSTORE-PASSWORD-HERE \
+--androidreleasetype=AAB
+```
 
 ## App Structure
 

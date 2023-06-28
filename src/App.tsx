@@ -6,6 +6,7 @@ import {
 import { App as CapacitorApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar } from '@capacitor/status-bar';
+import { Keyboard } from '@capacitor/keyboard';
 import VerificationEmailNotReceived from './routes/verification-email-not-received/VerificationEmailNotReceived';
 import ForgotPassword from './routes/forgot-password/ForgotPassword';
 import Home from './routes/home/Home';
@@ -48,6 +49,7 @@ import ServerUnavailable from './components/ServerUnavailable';
 import Conversation from './routes/conversation/Conversation';
 import PushNotificationAndDeepLinkListener from './components/PushNotificationAndDeepLinkListener';
 import Index from './routes/Index';
+import { onKeyboardClose, onKeyboardOpen } from './utils/styles-utils ';
 import UnexpectedError from './components/UnexpectedError';
 import { healthCheck } from './api/health-check';
 import { store } from './redux/store';
@@ -112,6 +114,14 @@ if (enableDevFeatures) {
   // routes['shopping/*'] = { wrapper: AuthenticatedPageWrapper, component: Shopping };
   // routes['places/*'] = { wrapper: AuthenticatedPageWrapper, component: Places };
 }
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+Keyboard.addListener('keyboardWillShow', (info) => {
+  onKeyboardOpen();
+});
+Keyboard.addListener('keyboardWillHide', () => {
+  onKeyboardClose();
+});
 
 CapacitorApp.addListener('backButton', () => {
   if (isHomePage(window.location.pathname)) {

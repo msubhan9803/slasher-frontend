@@ -7,7 +7,7 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ImagesContainer from '../ui/ImagesContainer';
 import ErrorMessageList from '../ui/ErrorMessageList';
-import CustomEmojiPicker, { Emoji } from '../ui/CustomEmojiPicker';
+import CustomEmojiPicker, { Emoji } from '../ui/Emoji/CustomEmojiPicker';
 import { isMobile } from '../../utils/browser-utils';
 import { isNativePlatform } from '../../constants';
 

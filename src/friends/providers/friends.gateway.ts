@@ -28,11 +28,14 @@ export class FriendsGateway {
     const userId = user._id.toString();
     const clearFriendRequestCount = await this.usersService.clearFriendRequestCount(userId);
     const targetUserSocketIds = await this.usersService.findSocketIdsForUser(userId);
-    return targetUserSocketIds.forEach((socketId) => {
+    targetUserSocketIds.forEach((socketId) => {
       this.server.to(socketId).emit('clearNewFriendRequestCount', {
         newFriendRequestCount: clearFriendRequestCount.newFriendRequestCount,
       });
     });
+    return {
+      newFriendRequestCount: clearFriendRequestCount.newFriendRequestCount,
+    };
   }
 
   async emitFriendRequestReceivedEvent(friend: Friend) {

@@ -43,6 +43,7 @@ import useSessionToken from '../../../../hooks/useSessionToken';
 import { setIsServerAvailable } from '../../../../redux/slices/serverAvailableSlice';
 import { Message } from '../../../../types';
 import { showBackButtonInIos } from '../../../../utils/url-utils';
+import { removeGlobalCssProperty, setGlobalCssProperty } from '../../../../utils/styles-utils ';
 
 interface Props {
   children: React.ReactNode;
@@ -90,7 +91,8 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const isConnectingSocketRef = useRef(false);
   const isSocketConnected = useAppSelector((state) => state.socket.isConnected);
   const { socket } = socketStore;
-
+  const backButtonElementRef = useRef<HTMLDivElement>(null);
+  const isIOS = Capacitor.getPlatform() === 'ios';
   const showUnreachableServerModalIfDisconnected = useCallback((e: MouseEvent) => {
     // If socket state is disconnected then show server-unavailable dialog.
     if (!isSocketConnected) {
@@ -254,12 +256,18 @@ function AuthenticatedPageWrapper({ children }: Props) {
     );
   }
 
+  if (isIOS && showBackButtonInIos(location.pathname)) {
+    setGlobalCssProperty('--heightOfBackButtonOfIos', `${backButtonElementRef.current?.clientHeight}px`);
+  } else {
+    removeGlobalCssProperty('--heightOfBackButtonOfIos');
+  }
+
   return (
-    <div id={AUTHENTICATED_PAGE_WRAPPER_ID} className="page-wrapper full">
-      {Capacitor.getPlatform() === 'ios'
+    <div id={AUTHENTICATED_PAGE_WRAPPER_ID} className="page-wrapper full" style={{ paddingTop: `${isIOS && showBackButtonInIos(location.pathname) ? 'var(--heightOfBackButtonOfIos)' : ''}` }}>
+      {isIOS
         && showBackButtonInIos(location.pathname)
         && (
-          <Row className="d-md-nonept-2">
+          <Row className="d-md-nonept-2 position-fixed" ref={backButtonElementRef} style={{ top: 0, paddingTop: '0.625rem', zIndex: 1 }}>
             <Col xs="auto" className="ms-2">
               <Button variant="link" className="p-0 px-1" onClick={() => navigate(-1)}>
                 <FontAwesomeIcon role="button" icon={solid('arrow-left-long')} size="2x" />

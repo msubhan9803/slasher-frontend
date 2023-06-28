@@ -43,7 +43,7 @@ import { friendship } from '../../../api/friends';
 import FriendshipStatusModal from '../friendShipCheckModal';
 import ContentNotAvailable from '../../ContentNotAvailable';
 import { onKeyboardClose, onKeyboardOpen } from '../../../utils/styles-utils ';
-import { COMMENT_OR_REPLY_INPUT_PARENT, CONTENT_PAGE_WRAPPER_ID } from '../../../constants';
+import { COMMENT_SECTION_ID, CONTENT_PAGE_WRAPPER_ID } from '../../../constants';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -116,7 +116,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     const isEl1 = elementId === 'reply-on-comment';
     const isEl2 = elementId === 'comments';
     const isEl3 = elementId === CONTENT_PAGE_WRAPPER_ID;
-    const isEl4 = elementId === COMMENT_OR_REPLY_INPUT_PARENT;
+    const isEl4 = elementId === COMMENT_SECTION_ID;
     // TODO: El5 is trigged when clicked inside the input and
     // TODO:         also when clicked ouside, how to handle this?
     // const isEl5 = elementId === AUTHENTICATED_PAGE_WRAPPER_ID;

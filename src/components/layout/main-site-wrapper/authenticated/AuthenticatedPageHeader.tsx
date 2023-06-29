@@ -8,7 +8,7 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import IconWithTextNavLink from './IconWithTextNavLink';
 import IconWithTextNavButton from './IconWithTextNavButton';
 import { useAppSelector } from '../../../../redux/hooks';
-import { LG_MEDIA_BREAKPOINT } from '../../../../constants';
+import { LG_MEDIA_BREAKPOINT, MOBILE_NAVBAR } from '../../../../constants';
 import HeaderLogo from '../../../ui/HeaderLogo';
 
 const SOLID_BLACK_IMAGE_BASE64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
@@ -112,7 +112,7 @@ function AuthenticatedPageHeader(
         </StyledNavbar>
 
         {/* nav-bar for small screen */}
-        <MobileNavbar bg="dark" variant="dark" className={`d-${offcanvasSidebarExpandBreakPoint}-none fixed-bottom pt-3`}>
+        <MobileNavbar id={MOBILE_NAVBAR} bg="dark" variant="dark" className={`d-${offcanvasSidebarExpandBreakPoint}-none fixed-bottom pt-3`}>
           <div className="w-100 d-flex">
             {
               mobileNavLinkElements.map((el, index) => {

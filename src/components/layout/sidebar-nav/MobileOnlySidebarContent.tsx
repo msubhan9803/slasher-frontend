@@ -20,6 +20,11 @@ interface Props {
   onToggleCanvas: () => void;
 }
 
+const redirectHelpClick = (e: React.MouseEvent) => {
+  e.preventDefault();
+  window.open('https://pages.slasher.tv/help/', '_blank');
+};
+
 function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
   const loggedinUserName = useAppSelector((state) => state.user.user.userName);
   const userProfilePic = useAppSelector((state) => state.user.user.profilePic);
@@ -47,7 +52,7 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
             </SpecificHeightLink>
           </Col>
           <Col xs={3}>
-            <SpecificHeightLink to="/app/help" className="btn btn-dark btn-sidebar w-100 pt-2" onClick={onToggleCanvas}>
+            <SpecificHeightLink to="/app/help" className="btn btn-dark btn-sidebar w-100 pt-2" onClick={(e) => { onToggleCanvas(); redirectHelpClick(e); }}>
               <FontAwesomeIcon icon={solid('circle-question')} size="lg" className="mb-1" />
               Help
             </SpecificHeightLink>

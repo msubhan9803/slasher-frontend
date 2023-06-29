@@ -6,15 +6,15 @@ export const ContentSidbarWrapper = styled.div`
 `;
 
 export const ContentPageWrapper = styled.div`
-  // For mobile sizes, add bottom padding to account for persistent bottom nav buttons
-  padding-bottom: 5.25em;
+  // For MOBILE and TABLET
+  // Note: We add bottom padding to account for persistent bottom nav buttons
+  // Note: We add addition padding using css variable 'heightOfCommentOrReplyInputOnMobile' to account for comment/reply text input
+  padding-bottom: calc(5.25em + var(--heightOfCommentOrReplyInputOnMobile)); // Note: 5.25em*15px = 78.75px (approximate height of "mobile-bottom-navbar")
+  width: 100%;
 
-  // For desktop sizes, reduce bottom padding
+  // For DESKTOP
   @media (min-width: ${LG_MEDIA_BREAKPOINT}) {
     padding-bottom: 1em;
-  }
-  width: 100%;
-  @media (min-width: 980px) {
     width: calc(100% - 319px);
     padding-right: 1rem;
   }

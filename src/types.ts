@@ -364,6 +364,7 @@ export interface ConversationListItem {
   updatedAt: string;
 }
 
+export enum CommentsOrder { oldestFirst = 'oldestFirst', newestFirst = 'newestFirst' }
 export interface DeviceFields {
   device_token: string;
   device_type: string;

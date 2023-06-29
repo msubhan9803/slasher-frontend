@@ -144,9 +144,9 @@ describe('Get All Friends (e2e)', () => {
           allFriendCount: 4,
           friends: [
             {
-              _id: user5._id.toString(),
-              userName: 'Darth Maul',
-              firstName: 'First name 6',
+              _id: user3._id.toString(),
+              userName: 'Darth Vader',
+              firstName: 'First name 4',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
             },
           ],

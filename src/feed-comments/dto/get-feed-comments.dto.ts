@@ -4,6 +4,7 @@ import {
   IsMongoId,
   IsNotEmpty, IsNumber, IsOptional, IsString, Max,
 } from 'class-validator';
+import { CommentsSortBy, CommentsSortByType } from '../../types';
 
 export class GetFeedCommentsDto {
   @IsNotEmpty()
@@ -22,7 +23,7 @@ export class GetFeedCommentsDto {
   feedPostId: string;
 
   @IsNotEmpty()
-  @IsIn(['newestFirst', 'oldestFirst'])
+  @IsIn(CommentsSortBy)
   @IsString()
-  sortBy: 'newestFirst' | 'oldestFirst';
+  sortBy: CommentsSortByType;
 }

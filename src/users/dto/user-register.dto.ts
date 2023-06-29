@@ -43,4 +43,7 @@ export class UserRegisterDto {
   @MinYearsBeforeToday(18, { message: 'You must be at least 18 to register' })
   @IsISO8601({ strict: true }, { message: 'Invalid date of birth' })
   dob: Date;
+
+  @IsNotEmpty({ message: 'Captcha is required' })
+  reCaptchaToken: string;
 }

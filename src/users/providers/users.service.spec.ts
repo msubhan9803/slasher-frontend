@@ -86,6 +86,37 @@ describe('UsersService', () => {
     });
   });
 
+  describe('#findByDeviceId', () => {
+    let user;
+    beforeEach(async () => {
+      user = await usersService.create(
+        userFactory.build({
+          userDevices: [{
+            device_id: 'sample-device-id',
+            device_token: 'sample-device-token',
+            device_type: 'sample-device-type',
+            device_version: 'sample-device-version',
+            app_version: 'sample-app-version',
+            login_date: DateTime.fromISO('2023-06-15T00:00:00Z').toJSDate(),
+          },
+          {
+            device_id: 'sample-device-id1',
+            device_token: 'sample-device-token',
+            device_type: 'sample-device-type',
+            device_version: 'sample-device-version',
+            app_version: 'sample-app-version',
+            login_date: DateTime.fromISO('2023-06-15T00:00:00Z').toJSDate(),
+          },
+         ],
+        }),
+      );
+    });
+    it('returns the expected response when requesting userId and deviceId', async () => {
+      const response = await usersService.findByDeviceId('sample-device-id', user._id.toString());
+      expect(response.userDevices[0].device_id).toEqual(user.userDevices[0].device_id);
+    });
+  });
+
   describe('#usersExistAndAreActive', () => {
     let users;
     beforeEach(async () => {
@@ -198,6 +229,27 @@ describe('UsersService', () => {
       expect(
         (await usersService.findByUsername(user.userName.toUpperCase(), true))._id,
       ).toEqual(user._id);
+    });
+  });
+
+  describe('#removePreviousUsernameEntry', () => {
+    it('finds the user with the given previousUserName and removes that previousUserName value', async () => {
+      const user1 = await usersService.create(
+        userFactory.build({ userName: 'user1', previousUserName: 'slasher' }),
+      );
+      const updatedUser = await usersService.removePreviousUsernameEntry(user1.previousUserName);
+      expect(updatedUser.previousUserName).toBeNull();
+    });
+  });
+
+  describe('#findByPreviousUsername', () => {
+    it('finds the expected response by previousUserName', async () => {
+      const user1 = await usersService.create(userFactory.build({
+        userName: 'slasher1',
+        previousUserName: 'John',
+      }));
+      const response = await usersService.findByPreviousUsername(user1.previousUserName);
+      expect(response.previousUserName).toEqual(user1.previousUserName);
     });
   });
 

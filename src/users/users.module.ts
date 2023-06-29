@@ -1,5 +1,6 @@
 import { Module, Global } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { CaptchaModule } from '../captcha/captcha.module';
 import { UsersController } from './users.controller';
 import { UsersService } from './providers/users.service';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
@@ -31,6 +32,7 @@ import { EmailRevertTokensModule } from '../email-revert-tokens/email-revert-tok
     RssFeedProvidersModule,
     MailModule,
     DisallowedUsernameModule,
+    CaptchaModule,
     MoviesModule,
     HashtagFollowsModule,
   ],

@@ -50,15 +50,8 @@ export class FriendsController {
     }
     const friend = await this.friendsService.createFriendRequest(user.id, createFriendRequestDto.userId);
 
-    const recentNotificationExists = await this.notificationsService.similarRecentNotificationExists(
-      createFriendRequestDto.userId,
-      user.id,
-      NotificationType.UserSentYouAFriendRequest,
-    );
-    // Do not send another notification about this if a similar notification was recently sent.
     // This prevents people from being able to spam each other with notifications in response to
     // rapid friend-unfriend-friend-unfriend actions.
-    if (!recentNotificationExists) {
       // Create notification for post creator, informing them that a comment was added to their post
       await Promise.all(
         [
@@ -86,7 +79,6 @@ export class FriendsController {
           }),
         ],
       );
-    }
     await Promise.all([this.usersService.updateNewFriendRequestCount(createFriendRequestDto.userId),
     this.friendsGateway.emitFriendRequestReceivedEvent(friend)]);
     return { success: true };

@@ -291,6 +291,9 @@ describe('ChatService', () => {
       await chatService.sendPrivateDirectMessage(user1.id, user5.id, 'Slasher 2');
       await chatService.sendPrivateDirectMessage(user1.id, user6.id, 'Slasher 3');
       await chatService.sendPrivateDirectMessage(user1.id, user7.id, 'Slasher 4');
+      await chatService.sendPrivateDirectMessage(user2.id, user1.id, 'Slasher 5');
+      await chatService.sendPrivateDirectMessage(user3.id, user1.id, 'Slasher 6');
+      await chatService.sendPrivateDirectMessage(user5.id, user1.id, 'Slasher 7');
 
       // Send message to `user3` and `user3` blocks `user1` (Note: Block is bidirectional)
       await chatService.sendPrivateDirectMessage(user1.id, user3.id, 'You will block me!');
@@ -318,17 +321,16 @@ describe('ChatService', () => {
 
     it('successfully returns a list of convesations for a user', async () => {
       const conversations = await chatService.getUnreadConversations(user1.id);
-      expect(conversations).toHaveLength(6);
-
+      expect(conversations).toHaveLength(3);
       // Expect newest conversation in array position 0
-      expect(conversations[0].latestMessage).toBe('Slasher 4');
+      expect(conversations[0].latestMessage).toBe('Slasher 7');
       // Expect unreadCount of 0 because the unread messages are the ones sent by the viewing user
-      expect(conversations[0].unreadCount).toBe(0);
+      expect(conversations[0].unreadCount).toBe(1);
 
       // Expect second newest conversation in array position 1
-      expect(conversations[5].latestMessage).toBe('This is a reply');
+      expect(conversations[2].latestMessage).toBe('This is a reply');
       // Expect unreadCount of 1 because the unread message in the conversation is unread by the viewing user
-      expect(conversations[5].unreadCount).toBe(1);
+      expect(conversations[2].unreadCount).toBe(1);
 
       // Conversations should not converstaion from blocked users
       expect(conversations.map((m) => m.latestMessage)).not.toContain('You will block me!');
@@ -340,13 +342,9 @@ describe('ChatService', () => {
       await messageModel.updateOne({ _id: message3._id }, { $set: { deletefor: [user1._id] } });
 
       const conversations = await chatService.getUnreadConversations(user1.id);
-      // Note: The second conversation should not be returned since all messages for second conversation
-      // are set in `deletefor` this user
-      expect(conversations).toHaveLength(4);
-      // Expect newest conversation in array position 0 having latest message which is `non-deleted` message for user
-      expect(conversations[0].latestMessage).toBe('Slasher 4');
-      // Expect unreadCount of 1 because the unread message in the conversation is unread by the viewing user
-      expect(conversations[0].unreadCount).toBe(0);
+      expect(conversations).toHaveLength(2);
+      expect(conversations[0].latestMessage).toBe('Slasher 7');
+      expect(conversations[0].unreadCount).toBe(1);
     });
   });
 

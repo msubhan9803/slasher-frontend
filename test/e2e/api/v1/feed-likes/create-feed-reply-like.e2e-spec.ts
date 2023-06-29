@@ -29,6 +29,7 @@ import { FriendsService } from '../../../../../src/friends/providers/friends.ser
 import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { RssFeedProvidersService } from '../../../../../src/rss-feed-providers/providers/rss-feed-providers.service';
 import { rssFeedProviderFactory } from '../../../../factories/rss-feed-providers.factory';
+import { PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
 
 describe('Create Feed Reply Like (e2e)', () => {
   let app: INestApplication;
@@ -485,6 +486,87 @@ describe('Create Feed Reply Like (e2e)', () => {
             .post(`/api/v1/feed-likes/reply/${feedReply6._id}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
+          expect(response.body).toEqual({ success: true });
+        });
+
+        it('when postType is movieReview than expected response', async () => {
+          const feedPost5 = await feedPostsService.create(
+            feedPostFactory.build(
+              {
+                userId: user1._id,
+                postType: PostType.MovieReview,
+              },
+            ),
+          );
+          const feedComments6 = await feedCommentsService.createFeedComment(
+            feedCommentsFactory.build(
+              {
+                userId: activeUser._id,
+                feedPostId: feedPost5.id,
+                message: feedCommentsAndReplyObject.message,
+                images: feedCommentsAndReplyObject.images,
+              },
+            ),
+          );
+          const feedReply7 = await feedCommentsService.createFeedReply(
+            feedRepliesFactory.build(
+              {
+                userId: user0._id,
+                feedCommentId: feedComments6.id,
+                feedPostId: feedPost5.id,
+                message: feedCommentsAndReplyObject.message,
+                images: feedCommentsAndReplyObject.images,
+              },
+            ),
+          );
+          const response = await request(app.getHttpServer())
+            .post(`/api/v1/feed-likes/reply/${feedReply7._id}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .send();
+          expect(response.status).toBe(HttpStatus.CREATED);
+          expect(response.body).toEqual({ success: true });
+        });
+
+        it('when postType is movieReview and reply liking user is a friend of the post creator', async () => {
+          const user5 = await usersService.create(userFactory.build({
+            profile_status: ProfileVisibility.Private,
+          }));
+          const feedPost6 = await feedPostsService.create(
+            feedPostFactory.build(
+              {
+                userId: user5._id,
+                postType: PostType.MovieReview,
+              },
+            ),
+          );
+          const feedComments7 = await feedCommentsService.createFeedComment(
+            feedCommentsFactory.build(
+              {
+                userId: user5._id,
+                feedPostId: feedPost6.id,
+                message: feedCommentsAndReplyObject.message,
+                images: feedCommentsAndReplyObject.images,
+              },
+            ),
+          );
+          const feedReply8 = await feedCommentsService.createFeedReply(
+            feedRepliesFactory.build(
+              {
+                userId: user0._id,
+                feedCommentId: feedComments7.id,
+                feedPostId: feedPost6.id,
+                message: feedCommentsAndReplyObject.message,
+                images: feedCommentsAndReplyObject.images,
+              },
+            ),
+          );
+          await friendsService.createFriendRequest(activeUser._id.toString(), user5.id);
+          await friendsService.acceptFriendRequest(activeUser._id.toString(), user5.id);
+          const response = await request(app.getHttpServer())
+            .post(`/api/v1/feed-likes/reply/${feedReply8._id}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .send();
+          expect(response.status).toBe(HttpStatus.CREATED);
           expect(response.body).toEqual({ success: true });
         });
       });

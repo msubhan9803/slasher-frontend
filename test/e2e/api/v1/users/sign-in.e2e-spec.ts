@@ -28,7 +28,6 @@ describe('Users sign-in (e2e)', () => {
   const simpleJwtRegex = /^[\w-]*\.[\w-]*\.[\w-]*$/;
   const deviceAndAppVersionPlaceholderSignInFields = {
     device_id: 'sample-device-id',
-    device_token: 'sample-device-token',
     device_type: 'sample-device-type',
     device_version: 'sample-device-version',
     app_version: 'sample-app-version',
@@ -109,6 +108,25 @@ describe('Users sign-in (e2e)', () => {
         const userAfterSignIn = await usersService.findByEmail(activeUser.email, true);
         expect(userAfterSignIn.lastSignInIp.length).toBeGreaterThan(4); // test for presence of IP value
         expect(userAfterSignIn.lastSignInIp).not.toEqual(userBeforeSignIn.lastSignInIp); // make sure IP value has changed
+      });
+
+      it('can successfully sign in with a username and password with device token', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/users/sign-in')
+          .send({
+            emailOrUsername: activeUser.email,
+            password: activeUserUnhashedPassword,
+            device_token: 'sample-device-token',
+            ...deviceAndAppVersionPlaceholderSignInFields,
+          });
+        expect(response.status).toEqual(HttpStatus.CREATED); // 201 because a new sign-in session was created
+        expect(response.body).toEqual({
+          id: activeUser.id,
+          userName: 'Username1',
+          email: 'User1@Example.com',
+          firstName: 'First name 1',
+          token: expect.stringMatching(simpleJwtRegex),
+        });
       });
     });
 
@@ -242,18 +260,6 @@ describe('Users sign-in (e2e)', () => {
         expect(response.body.message).toContain(
           'device_id should not be empty',
         );
-      });
-
-      it('device_token should not be empty', async () => {
-        const postBody = {
-          ...deviceAndAppVersionPlaceholderSignInFields,
-          device_token: '',
-        };
-        const response = await request(app.getHttpServer())
-          .post('/api/v1/users/sign-in')
-          .send(postBody);
-        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('device_token should not be empty');
       });
 
       it('device_type should not be empty', async () => {

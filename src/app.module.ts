@@ -43,6 +43,7 @@ import { HashtagFollowsModule } from './hashtag-follows/hashtag-follows.module';
 import { BetaTesterModule } from './beta-tester/beta-tester.module';
 import { TimeoutInterceptor } from './app/interceptors/timeout.interceptor';
 import { AuthGuard } from './app/guards/auth.guard';
+import { CaptchaModule } from './captcha/captcha.module';
 
 @Module({
   imports: [
@@ -103,6 +104,7 @@ import { AuthGuard } from './app/guards/auth.guard';
     HashtagModule,
     HashtagFollowsModule,
     BetaTesterModule,
+    CaptchaModule,
   ],
   controllers: [AppController],
   providers: [

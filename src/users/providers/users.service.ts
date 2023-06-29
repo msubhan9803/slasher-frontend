@@ -42,6 +42,12 @@ export class UsersService {
     return user;
   }
 
+  async findByDeviceId(deviceId: string, userId: string): Promise<UserDocument> {
+    return this.userModel.findOne(
+      { $and: [{ 'userDevices.device_id': deviceId }, { _id: userId }] },
+    ).exec();
+  }
+
   /**
    * For the given array of user ids, returns true if they are ALL existing, active users.
    * @param participants
@@ -84,6 +90,18 @@ export class UsersService {
     return this.userModel
       .findOne(userFindQuery)
       .exec();
+  }
+
+  async removePreviousUsernameEntry(previousUserName: string): Promise<UserDocument> {
+    return this.userModel.findOneAndUpdate(
+      { previousUserName },
+      { $set: { previousUserName: null } },
+      { new: true },
+    );
+  }
+
+  async findByPreviousUsername(userName: string): Promise<UserDocument> {
+    return this.userModel.findOne({ previousUserName: userName }, { userName: 1, previousUserName: 1, _id: 0 }).exec();
   }
 
   async findNonDeletedUserByEmailOrUsername(emailOrUsername: string): Promise<UserDocument> {

@@ -1,5 +1,8 @@
+/// <reference types="@capacitor/keyboard" />
+
 import { CapacitorConfig } from '@capacitor/cli';
 import dotenv from 'dotenv'
+import { KeyboardResize, KeyboardStyle } from '@capacitor/keyboard';
 
 dotenv.config({ path: '.env.capacitor.local-network-ip' });
 
@@ -14,19 +17,28 @@ if (useLiveReloadConfig) {
 } else {
   console.log('INFO: Using static build for capacitor')
 }
-
 const config: CapacitorConfig = {
   appId: 'tv.slasher.app',
   appName: 'Slasher',
   webDir: useLiveReloadConfig ? undefined : 'build',
   bundledWebRuntime: false,
+  backgroundColor: '000000',
+  ios: {
+    contentInset: 'automatic',
+  },
   server: {
     cleartext: true,
     // We must give a hostname having domain `slasher.tv` so that pubwise ads properly. 
-    hostname: 'cap.android.slasher.tv',
+    hostname: 'cap.slasher.tv',
     // Please defined your own machine's ip address in file `.env.capacitor.local-network-ip`
     url: useLiveReloadConfig ? process.env.LOCAL_MACHINE_IP : undefined,
-  }
+  },
+  plugins: {
+    Keyboard: {
+      resize: KeyboardResize.Native, // iOS only
+      resizeOnFullScreen: true, // Android only
+    },
+  },
 };
 
 export default config;

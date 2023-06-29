@@ -87,6 +87,9 @@ function RegistrationIdentity({ activeStep }: Props) {
             <p>
               This is how your username will appear when you post and comment on Slasher.
             </p>
+            <p>
+              You will not be able to change your username until after July 31, 2023.
+            </p>
           </Form.Group>
 
           <Form.Group className="col-md-4 mb-3 text-start">

@@ -13,7 +13,7 @@ interface Props {
   style?: React.CSSProperties;
   variant?: 'default' | 'outline';
   defaultPhotoUrl?: string;
-  onChange?: (files: File | null | undefined) => void;
+  onChange?: (file: File | null | undefined) => void;
 }
 
 const StyledImageUploadContainer = styled.div`
@@ -52,7 +52,11 @@ function PhotoUploadInput({
       onChange(photo);
       setImageUrl(undefined);
     }
-  }, [photo, onChange]);
+    // NOTE: This is a quick fix to stop an infinite loop error.
+    // This component should be rewritten and should accept a value as a prop because
+    // that's a better design, and it would allow the component value to be cleared externally.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [photo]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const newPhoto = acceptedFiles?.[0] || null;
@@ -115,7 +119,7 @@ function PhotoUploadInput({
             : undefined
         }
         variant="link"
-        className="p-1 d-flex align-items-center justify-content-center text-center position-absolute rounded-circle bg-primary text-secondary"
+        className={`${photo ? 'photo-selected' : ''} p-1 d-flex align-items-center justify-content-center text-center position-absolute rounded-circle bg-primary text-secondary`}
         aria-label="photo"
       >
         <FontAwesomeIcon

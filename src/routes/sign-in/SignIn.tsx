@@ -8,7 +8,7 @@ import { signIn } from '../../api/users';
 import { setSignInCookies } from '../../utils/session-utils';
 import slasherLogo from '../../images/slasher-beta-logo-medium.png';
 import signInImageMobile from '../../images/sign-in-background-beta-mobile.jpg';
-import { LG_MEDIA_BREAKPOINT, SERVER_UNAVAILABLE_TIMEOUT } from '../../constants';
+import { LG_MEDIA_BREAKPOINT, SERVER_UNAVAILABLE_TIMEOUT, isDevelopmentServer } from '../../constants';
 import SigninComponent from '../../components/ui/SigninComponent';
 import useSessionToken from '../../hooks/useSessionToken';
 import { sleep } from '../../utils/timer-utils';
@@ -49,8 +49,8 @@ function SignIn() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [credentials, setCredentials] = useState<UserCredentials>({
-    emailOrUsername: '',
-    password: '',
+    emailOrUsername: isDevelopmentServer ? 'slasher-test-user1@slasher.tv' : '',
+    password: isDevelopmentServer ? '494sdsGSL001' : '',
   });
   const [searchParams] = useSearchParams();
   const token = useSessionToken();

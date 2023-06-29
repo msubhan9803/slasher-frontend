@@ -5,11 +5,12 @@ import React, {
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Alert,
   Button,
   Col, Form, InputGroup, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import UserCircleImage from '../../UserCircleImage';
 import ImagesContainer from '../../ImagesContainer';
 import {
   atMentionsGlobalRegex, decryptMessage, generateMentionReplacementMatchFunc,
@@ -17,9 +18,14 @@ import {
 import MessageTextarea from '../../MessageTextarea';
 import ErrorMessageList from '../../ErrorMessageList';
 import { FormatMentionProps } from '../../../../types';
+import {
+  COMMENT_OR_REPLY_INPUT, bottomForCommentOrReplyInputOnMobile,
+  maxWidthForCommentOrReplyInputOnMobile, isNativePlatform,
+} from '../../../../constants';
+import useWindowInnerWidth from '../../../../hooks/useWindowInnerWidth';
+import { onKeyboardClose, setGlobalCssProperty } from '../../../../utils/styles-utils ';
 
 interface CommentInputProps {
-  userData: any;
   message: string;
   setIsReply?: (value: boolean) => void;
   inputFile: any;
@@ -48,12 +54,28 @@ interface CommentInputProps {
   replyDescriptionArray?: string[];
   setReplyDescriptionArray?: (value: string[]) => void;
   isMainPostCommentClick?: boolean;
-  selectedReplyUserId?:string;
+  selectedReplyUserId?: string;
+  commentOrReplySuccessAlertMessage?: string;
+  setCommentOrReplySuccessAlertMessage?: React.Dispatch<React.SetStateAction<string>>;
 }
 
 interface InputProps {
   focus: boolean;
 }
+
+const CommentForm = styled(Form)`
+/* Make comment/reply input fixed on bottom of the screen on mobile and tabs */
+  @media (max-width: ${maxWidthForCommentOrReplyInputOnMobile}px) {
+    position: fixed;
+    left: 0;
+    width: 100%;
+    background: black;
+    // If 'bottomForCommentOrReplyInputOnMobile' variable is not set then 0px (fallback value is used)
+    bottom: var(--bottomForCommentOrReplyInputOnMobile, ${bottomForCommentOrReplyInputOnMobile});
+    z-index: 1;
+    padding: 0px 10px;
+  }
+`;
 
 const StyledCommentInputGroup = styled(InputGroup) <InputProps>`
   .form-control {
@@ -69,9 +91,11 @@ const StyledCommentInputGroup = styled(InputGroup) <InputProps>`
     border-bottom-left-radius: 0rem !important;
     border-top-left-radius: 0rem !important;
   }
-  textarea {
+  ${!isNativePlatform
+  && ` textarea {
     padding-left: 1.5rem !important;
-  }
+  }`
+}
   svg {
     min-width: 1.875rem;
     &:focus {
@@ -88,13 +112,15 @@ const StyledCommentInputGroup = styled(InputGroup) <InputProps>`
 
 `;
 function CommentInput({
-  userData, message, setIsReply, inputFile,
+  message, setIsReply, inputFile,
   handleFileChange, sendComment, imageArray, handleRemoveFile, dataId,
   handleSearch, mentionList, addUpdateComment, replyImageArray, isReply,
   addUpdateReply, commentID, commentReplyID, checkCommnt, commentError, commentReplyError,
   commentSent, setCommentReplyErrorMessage, setReplyImageArray, isEdit, descriptionArray,
   setDescriptionArray, replyDescriptionArray, setReplyDescriptionArray,
   isMainPostCommentClick, selectedReplyUserId,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  commentOrReplySuccessAlertMessage, setCommentOrReplySuccessAlertMessage,
 }: CommentInputProps) {
   const [editMessage, setEditMessage] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
@@ -158,6 +184,14 @@ function CommentInput({
     }
   }, [commentSent, dataId, editMessage, sendComment]);
 
+  const windowInnerWidth = useWindowInnerWidth();
+
+  // Note: We use `windowInnerWidth` as dependency to set css variable only when necessary
+  useEffect(() => {
+    const heightOfCommentOrReplyInputOnMobile = document.querySelector<HTMLElement>(`#${COMMENT_OR_REPLY_INPUT}`)?.offsetHeight;
+    setGlobalCssProperty('--heightOfCommentOrReplyInputOnMobile', `${heightOfCommentOrReplyInputOnMobile ?? 0}px`);
+  }, [windowInnerWidth]);
+
   const onUpdatePost = (msg: string) => {
     const imageArr = isReply ? replyImageArray : imageArray;
     const descriptionArr = isReply ? replyDescriptionArray : descriptionArray;
@@ -180,6 +214,7 @@ function CommentInput({
   };
 
   const handleMessage = () => {
+    onKeyboardClose();
     const postContentWithMentionReplacements = (editMessage!.replace(
       atMentionsGlobalRegex,
       generateMentionReplacementMatchFunc(formatMention),
@@ -221,14 +256,15 @@ function CommentInput({
       setDescriptionArray!([...descriptionArrayList]);
     }
   };
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleCloseCommentOrReplySuccessAlert = () => {
+    setCommentOrReplySuccessAlertMessage?.('');
+  };
   return (
-    <Form>
-      <Row className="pt-2 order-last order-sm-0">
-        <Col xs="auto">
-          <UserCircleImage src={userData.user.profilePic} tabIndex={0} alt="user picture" className="bg-secondary d-flex" />
-        </Col>
+    <CommentForm id={COMMENT_OR_REPLY_INPUT}>
+      <Row className="pt-2 order-last order-sm-0 gx-0">
         <Col className="ps-0">
-          <div className="d-flex align-items-end mb-4">
+          <div className="d-flex align-items-end mb-2">
             <StyledCommentInputGroup focus={isFocosInput} className="mx-1">
               <div className="position-relative d-flex w-100">
                 <MessageTextarea
@@ -288,7 +324,7 @@ function CommentInput({
                 </InputGroup.Text>
               </div>
             </StyledCommentInputGroup>
-            <Button onClick={() => handleMessage()} variant="link" aria-label="submit" className="ms-2 mb-1 p-0">
+            <Button onClick={handleMessage} variant="link" aria-label="submit" className="ms-2 mb-1 p-0">
               <FontAwesomeIcon icon={solid('paper-plane')} style={{ fontSize: '26px' }} className="text-primary" />
             </Button>
           </div>
@@ -327,7 +363,26 @@ function CommentInput({
             className="m-0"
           />
         )}
-    </Form>
+      {/* TEMPORARILY DISABLED, refer: https://slasher.atlassian.net/browse/SD-1301?focusedCommentId=15989 */}
+      {/* This cooment/reply-to-comment success alert is only for mobile and tablets */}
+      {/* {commentOrReplySuccessAlertMessage
+        && (
+        <Alert
+          variant="success"
+          className="d-flex d-lg-none align-items-center justify-content-between mb-1"
+        >
+          <div>
+            {commentOrReplySuccessAlertMessage}
+          </div>
+          <Button
+            onClick={handleCloseCommentOrReplySuccessAlert}
+            className="bg-transparent border-0"
+          >
+            <FontAwesomeIcon className="d-block" icon={solid('close')} size="lg" />
+          </Button>
+        </Alert>
+        )} */}
+    </CommentForm>
   );
 }
 
@@ -352,6 +407,8 @@ CommentInput.defaultProps = {
   setReplyDescriptionArray: undefined,
   isMainPostCommentClick: undefined,
   selectedReplyUserId: undefined,
+  commentOrReplySuccessAlertMessage: '',
+  setCommentOrReplySuccessAlertMessage: undefined,
 };
 
 export default CommentInput;

@@ -18,12 +18,17 @@ $footer-height: 320px; // Used for sticky footer
 }
 
 #main-nav {
+  padding-bottom: 0;
+  margin-top: -1.75rem;
+
   a {
     text-decoration: none;
   }
 
   .navbar-brand {
     margin-right: 0;
+    padding-bottom: .2rem;
+
     @media (min-width: map.get($grid-breakpoints, "xl")) {
       margin-right: 1rem;
     }
@@ -51,7 +56,8 @@ $footer-height: 320px; // Used for sticky footer
   // Make these wrappers the same width in mobile view to guarantee that the Slasher logo
   // is centered (by flex box) in between them.
   .toggle-button-wrapper, .sign-in-button-wrapper {
-    width: 90px;
+    // width: 90px;
+    left: 0.703rem;
     @media (min-width: map.get($grid-breakpoints, "lg")) {
       width: 120px;
     }

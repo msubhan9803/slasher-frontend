@@ -48,7 +48,7 @@ function AccountNotification() {
       <AccountHeader tabKey="notifications" />
       <div className="mt-3 p-md-4 bg-dark bg-mobile-transparent rounded">
         <h1 className="mb-5">Mobile Push Notifications</h1>
-        <div>
+        {/* <div>
           <div className="mb-4">
             <span className="fs-3">Dating</span>
             <span className="text-light fs-3"> (Only if you created a dating profile)</span>
@@ -75,7 +75,7 @@ function AccountNotification() {
               />
             </div>
           </StyledBorder>
-        </div>
+        </div> */}
         <div className="mt-5">
           <h2 className="h3 mb-3">Friends</h2>
           <StyledBorder className="mt-2 mb-3">
@@ -104,7 +104,7 @@ function AccountNotification() {
             </div>
           </StyledBorder>
         </div>
-        <div className="mt-5">
+        {/* <div className="mt-5">
           <h2 className="h3 mb-3">Groups</h2>
           <StyledBorder className="mt-2 mb-3">
             <div className="fs-3  d-flex justify-content-between">
@@ -147,7 +147,7 @@ function AccountNotification() {
               />
             </div>
           </StyledBorder>
-        </div>
+        </div> */}
         <div className="mt-5">
           <h2 className="h3 mb-3">Mentions</h2>
           <div className="fs-3  d-flex justify-content-between">

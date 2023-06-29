@@ -22,7 +22,6 @@ import { StyledBorder } from '../../components/ui/StyledBorder';
 import { enableDevFeatures, BREAK_POINTS, topToDivHeight } from '../../constants';
 import FriendActionButtons from '../../components/ui/Friend/FriendActionButtons';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import { setScrollToTabsPosition } from '../../redux/slices/scrollPositionSlice';
 import SignInModal from '../../components/ui/SignInModal';
 import { getLastNonProfilePathname } from '../../utils/url-utils';
 import useSessionToken from '../../hooks/useSessionToken';
@@ -116,8 +115,7 @@ function ProfileHeader({
 
     // Scroll so that "About-Posts-Friends-Photos-Watched_list" nav-bar sticks to top of the
     // viewport.
-    if (scrollPosition.scrollToTab) {
-      dispatch(setScrollToTabsPosition(false));
+    if (!location.pathname.includes('about')) {
       window.scrollTo({
         top: element.offsetTop - (window.innerWidth >= BREAK_POINTS.lg ? (topToDivHeight - 18) : 0),
         behavior: 'instant' as any,
@@ -183,7 +181,7 @@ function ProfileHeader({
           </CustomCol>
           <Col className="w-100 mt-md-4">
             <Row className="d-flex justify-content-between">
-              <Col xs={12} md={4} lg={12} xl={4} className="text-center text-capitalize text-md-start text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
+              <Col xs={12} md={4} lg={12} xl={4} className="text-center text-md-start text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
                 <h1 className="mb-md-0 text-nowrap">
                   {user?.firstName}
                 </h1>

@@ -5,7 +5,6 @@ import React, {
 import {
   Button,
 } from 'react-bootstrap';
-import { useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import CommentSection from './CommentSection';
@@ -17,6 +16,7 @@ import { reportData } from '../../../../api/report';
 import ReportModal from '../../ReportModal';
 import EditCommentModal from '../../editCommentModal';
 import ErrorMessageList from '../../ErrorMessageList';
+import { COMMENT_SECTION_ID } from '../../../../constants';
 
 const LoadMoreCommentsWrapper = styled.div.attrs({ className: 'text-center' })`
   margin: -1rem 0 1rem;
@@ -57,6 +57,8 @@ function PostCommentSection({
   setSelectedBlockedUserId,
   setCommentDropDownValue,
   ProgressButton,
+  commentOrReplySuccessAlertMessage,
+  setCommentOrReplySuccessAlertMessage,
 }: any) {
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [show, setShow] = useState<boolean>(false);
@@ -75,7 +77,6 @@ function PostCommentSection({
   const [selectedReplyUserID, setSelectedReplyUserID] = useState<string>('');
   const [editContent, setEditContent] = useState<any>('');
   const [deleteImageIds, setDeleteImageIds] = useState<any>([]);
-  const userData = useSelector((state: any) => state.user);
   const [commentReplyUserId, setCommentReplyUserId] = useState<string>('');
   const [searchParams] = useSearchParams();
   const queryCommentId = searchParams.get('commentId');
@@ -478,8 +479,8 @@ function PostCommentSection({
 
   const generateReplyInput = (dataId: any) => (
     <div id={scrollId} ref={tabsRef}>
+      {/* This `CommentInput` is the ``reply-on-a-comment``. */}
       <CommentInput
-        userData={userData}
         message={replyMessage}
         inputFile={replyInputFile}
         handleFileChange={handleFileChange}
@@ -493,6 +494,7 @@ function PostCommentSection({
         replyImageArray={replyImageArray}
         addUpdateReply={addUpdateReply}
         commentID={selectedReplyCommentId}
+        checkCommnt="reply-on-comment"
         commentReplyID={selectedReplyId!}
         commentError={commentError}
         commentReplyError={commentReplyError}
@@ -531,9 +533,9 @@ function PostCommentSection({
     }, 600);
   }, [isMainPostCommentClick, commentSectionData]);
   return (
-    <div ref={commentSectionRef}>
+    <div id={COMMENT_SECTION_ID} ref={commentSectionRef}>
+      {/* This `CommentInput` is the ``comment-on-post``. */}
       <CommentInput
-        userData={userData}
         message={message}
         setIsReply={setIsReply}
         inputFile={inputFile}
@@ -554,6 +556,8 @@ function PostCommentSection({
         isEdit={isEdit}
         descriptionArray={descriptionArray}
         setDescriptionArray={setDescriptionArray}
+        commentOrReplySuccessAlertMessage={commentOrReplySuccessAlertMessage}
+        setCommentOrReplySuccessAlertMessage={setCommentOrReplySuccessAlertMessage}
       />
       {commentData && commentData.length > 0 && queryCommentId && previousCommentsAvailable
         && (

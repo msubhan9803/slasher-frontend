@@ -6,6 +6,7 @@ import { FeedCommentDeletionState, FeedCommentStatus } from '../../schemas/feedC
 import { FeedReplyDeletionState } from '../../schemas/feedReply/feedReply.enums';
 import { FeedReply, FeedReplyDocument } from '../../schemas/feedReply/feedReply.schema';
 import { FeedPostsService } from '../../feed-posts/providers/feed-posts.service';
+import { CommentsSortByType } from '../../types';
 
 export interface FeedCommentWithReplies extends FeedComment {
   replies: FeedReply[];
@@ -82,7 +83,7 @@ export class FeedCommentsService {
   async findFeedCommentsWithReplies(
     parentFeedPostId: string,
     limit: number,
-    sortBy: 'newestFirst' | 'oldestFirst',
+    sortBy: CommentsSortByType,
     excludeUserIds: string[],
     identifyLikesForUser?: mongoose.Types.ObjectId,
     after?: mongoose.Types.ObjectId,

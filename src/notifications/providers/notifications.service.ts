@@ -1,7 +1,6 @@
 import mongoose, { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { DateTime } from 'luxon';
 import { ConfigService } from '@nestjs/config';
 import { UserSettingsService } from '../../settings/providers/user-settings.service';
 import { Notification, NotificationDocument } from '../../schemas/notification/notification.schema';
@@ -61,7 +60,8 @@ export class NotificationsService {
     this.userSettingsService.findByUserId(notificationData.userId.toString())]);
     const isNotificationEnabled = userSetting && userSetting[`${NOTIFICATION_TYPES_TO_CATEGORIES.get(notificationData.notifyType)}`];
     if (isNotificationEnabled && user.userDevices.length) {
-      const deviceTokens = user.userDevices.filter((device) => device.device_id !== 'browser').map((device) => device.device_token);
+      const deviceTokens = user.userDevices.filter((device) => device.device_id !== 'browser' && device.device_token)
+      .map((device) => device.device_token);
       await this.pushNotificationsService.sendPushNotification(notificationData, deviceTokens);
     }
   }
@@ -74,7 +74,8 @@ export class NotificationsService {
     const userSetting = await this.userSettingsService.findByUserId(receiverUser.id.toString());
     const isNotificationEnabled = userSetting && userSetting[`${NOTIFICATION_TYPES_TO_CATEGORIES.get(126)}`];
     if (isNotificationEnabled && receiverUser.userDevices.length) {
-      const deviceTokens = receiverUser.userDevices.filter((device) => device.device_id !== 'browser').map((device) => device.device_token);
+      const deviceTokens = receiverUser.userDevices.filter((device) => device.device_id !== 'browser' && device.device_token)
+      .map((device) => device.device_token);
       await this.pushNotificationsService.sendPushNotification(notificationData, deviceTokens);
     }
   }
@@ -146,24 +147,6 @@ export class NotificationsService {
       .count()
       .exec();
     return friendsCount;
-  }
-
-  /**
-   * Returns true if a similar recent notification is found.  Otherwise returns false.
-   * @param userId
-   * @param senderId
-   * @param notifyType
-   * @returns
-   */
-  async similarRecentNotificationExists(userId: string, senderId: string, notifyType: number): Promise<boolean> {
-    const result = await this.notificationModel.exists({
-      userId: new mongoose.Types.ObjectId(userId),
-      senderId,
-      notifyType,
-      createdAt: { $lte: DateTime.now().toJSDate(), $gte: DateTime.now().minus({ days: 7 }).toJSDate() },
-    });
-
-    return !!result;
   }
 
   /**

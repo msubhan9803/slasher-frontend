@@ -102,9 +102,6 @@ function PostCommentSection({
 
   const clearErrorMessages = useCallback((e: MouseEvent) => {
     if (!e.target) { return; }
-    setCommentErrorMessage([]);
-    setCommentOrReplySuccessAlertMessage('');
-
     const commentOrReplyTextInput = document.getElementById('comment-or-reply-input');
     if (!commentOrReplyTextInput) { return; }
 
@@ -113,6 +110,8 @@ function PostCommentSection({
       onKeyboardOpen();
     } else {
       onKeyboardClose();
+      // Disabled Temporarily by Damon request
+      // setCommentOrReplySuccessAlertMessage('');
 
       // When we click in empty-area and it is not the `SEND_BUTTON_COMMENT_OR_REPLY` then hide
       // `Reply to comment` textInput and show default "Write a comment"
@@ -122,7 +121,7 @@ function PostCommentSection({
         .some((el) => el.contains(element as any));
       if (clickedElementIsNotSendButton) { setIsReply(false); }
     }
-  }, [setCommentErrorMessage, setCommentOrReplySuccessAlertMessage]);
+  }, [setIsReply]);
 
   useEffect(() => {
     window.addEventListener('click', clearErrorMessages, true);

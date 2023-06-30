@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Nav } from 'react-bootstrap';
+import { App } from '@capacitor/app';
 import SidebarNavItem from './SidebarNavItem';
 import {
   enableDevFeatures, GOOGLE_PLAY_DOWNLOAD_URL, APP_STORE_DOWNLOAD_URL, WORDPRESS_SITE_URL,
+  isNativePlatform,
 } from '../../../constants';
 import RoundButtonLink from '../../ui/RoundButtonLink';
 
@@ -88,6 +90,18 @@ for (let i = 0; i < numberOfComingSoonItemsToShow; i += 1) {
 menuListItems = menuListItems.concat(bottomMenuListItems);
 
 function SidebarNavContent({ onToggleCanvas }: Props) {
+  const [buildNumber, setBuildNumber] = useState<string>();
+  const [versionNumber, setVersionNumber] = useState<string>();
+
+  const getAppVersion = async () => {
+    setBuildNumber((await App.getInfo()).version);
+    setVersionNumber((await App.getInfo()).build);
+  };
+
+  useEffect(() => {
+    getAppVersion();
+  }, []);
+
   return (
     <>
       <RoundButtonLink
@@ -127,12 +141,24 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
           <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/policies`} target="_blank" rel="noreferrer">Terms &amp; Policies</a></li>
           <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/about`} target="_blank" rel="noreferrer">About</a></li>
           <li className="text-light text-decoration-none">
+
+            {' '}
             &copy;
             {' '}
             {new Date().getFullYear()}
             {' '}
             Slasher Corp
           </li>
+          {isNativePlatform && (
+          <li className="mt-4 text-light text-decoration-none">
+            v
+            {buildNumber}
+            {' '}
+            (
+            {versionNumber}
+            )
+          </li>
+          )}
         </ul>
         <br />
       </Nav>

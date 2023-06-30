@@ -32,6 +32,7 @@ interface AboutMovieData {
   reviewButtonRef?: any;
   reviewSmallButtonRef?: any;
   handleScroll?: () => void;
+  setShowReviewForm?: (value: boolean) => void;
 }
 const StyledVerticalBorder = styled.div`
   border-right: 1px solid #3A3B46;
@@ -87,7 +88,7 @@ const StyledInitial = styled.p`
 
 function AboutDetails({
   aboutMovieDetail, movieData, setMovieData, setReviewForm, reviewButtonRef,
-  handleScroll, reviewSmallButtonRef,
+  handleScroll, reviewSmallButtonRef, setShowReviewForm,
 }: AboutMovieData) {
   const [showRating, setShowRating] = useState(false);
   const [showGoreRating, setShowGoreRating] = useState(false);
@@ -121,6 +122,7 @@ function AboutDetails({
 
   const handleReviwRedirect = () => {
     setReviewForm!(true);
+    setShowReviewForm!(true);
     if (params['*'] !== 'reviews') {
       navigate(`/app/movies/${params.id}/reviews`, { state: { movieId: params.id } });
     }
@@ -170,9 +172,9 @@ function AboutDetails({
                 </div>
               )}
               {aboutMovieDetail && aboutMovieDetail?.mainData?.runtime !== 0 && (
-              <p className="m-0 ms-1 fs-3 align-self-center">
-                {toHoursAndMinutes(aboutMovieDetail && aboutMovieDetail?.mainData?.runtime)}
-              </p>
+                <p className="m-0 ms-1 fs-3 align-self-center">
+                  {toHoursAndMinutes(aboutMovieDetail && aboutMovieDetail?.mainData?.runtime)}
+                </p>
               )}
             </div>
           </Col>
@@ -226,7 +228,7 @@ function AboutDetails({
                 iconStyle={{ color: hasRating ? 'var(--bs-orange)' : 'white' }}
                 iconSize="sm"
                 lable={hasRating ? String(movieData.userData ? movieData.userData?.rating : 'Rate') : 'Rate'}
-                handleClick={() => setShowRating(true)}
+                handleClick={() => { setShowRating(true); setShowReviewForm!(false); }}
               />
             </div>
             <div ref={reviewSmallButtonRef} id=" reviewSmallBUtton" className="d-flex justify-content-center my-3 d-md-none ">
@@ -242,7 +244,7 @@ function AboutDetails({
                   && (
                     <>
                       <StyledLikeIcon className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
-                        <StyleWatchWorthIcon icon={regular('thumbs-up')} />
+                        <StyleWatchWorthIcon icon={regular('thumbs-up')} onClick={() => setShowReviewForm!(false)} />
                       </StyledLikeIcon>
                       <p className="fw-bold m-0 align-self-center" style={{ color: 'var(--bs-success)' }}>Worth it!</p>
                     </>
@@ -251,7 +253,7 @@ function AboutDetails({
                   && (
                     <>
                       <StyledDislikeIcon role="button" className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
-                        <StyleWatchWorthIcon icon={regular('thumbs-down')} />
+                        <StyleWatchWorthIcon icon={regular('thumbs-down')} onClick={() => setShowReviewForm!(false)} />
                       </StyledDislikeIcon>
                       <p className="fs-3 fw-bold m-0 align-self-center" style={{ color: '#FF1800' }}>Not worth it!</p>
                     </>
@@ -327,6 +329,7 @@ AboutDetails.defaultProps = {
   reviewButtonRef: null,
   reviewSmallButtonRef: null,
   handleScroll: undefined,
+  setShowReviewForm: undefined,
 };
 
 export default AboutDetails;

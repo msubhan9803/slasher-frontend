@@ -8,7 +8,9 @@ import {
   Row, Col, Button, Form, Image,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import { useLocation, useParams, useSearchParams } from 'react-router-dom';
+import {
+  useLocation, useParams, useSearchParams,
+} from 'react-router-dom';
 import { DateTime } from 'luxon';
 import { getSuggestUserName } from '../../api/users';
 import ErrorMessageList from './ErrorMessageList';
@@ -72,10 +74,10 @@ interface Props {
   descriptionArray?: ContentDescription[];
   setDescriptionArray?: (value: ContentDescription[]) => void;
   showSaveButton?: boolean;
-  reviewForm?: boolean;
   setReviewForm?: (value: boolean) => void;
   setShowReviewForm?: (value: boolean) => void;
   handleScroll?: () => void;
+  showReviewForm?: boolean;
   createEditPost?: boolean;
 }
 
@@ -95,9 +97,9 @@ function CreatePostComponent({
   imageArray, setImageArray, defaultValue, formatMention, setFormatMention,
   deleteImageIds, setDeleteImageIds, postType, titleContent, setTitleContent,
   containSpoiler, setContainSpoiler, rating, setRating, goreFactor, setGoreFactor,
-  selectedPostType, setSelectedPostType, setWorthIt, liked, setLike, reviewForm, setReviewForm,
+  selectedPostType, setSelectedPostType, setWorthIt, liked, setLike, setReviewForm,
   disLiked, setDisLike, isWorthIt, placeHolder, descriptionArray, setDescriptionArray,
-  showSaveButton, setShowReviewForm, handleScroll, createEditPost, ProgressButton,
+  showSaveButton, setShowReviewForm, handleScroll, showReviewForm, createEditPost, ProgressButton,
 }: Props) {
   const inputFile = useRef<HTMLInputElement>(null);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
@@ -206,7 +208,7 @@ function CreatePostComponent({
 
   useEffect(() => {
     setTimeout(() => {
-      if (reviewForm || params['*'] === 'reviews' || (location.state && location.state.movieId && location.state.movieId.length)) {
+      if (showReviewForm) {
         if (movieReviewRef.current) {
           window.scrollTo({
             top: movieReviewRef.current.offsetTop - (
@@ -220,7 +222,7 @@ function CreatePostComponent({
         setReviewForm!(false);
       }
     }, 500);
-  }, [reviewForm, params, location, setReviewForm]);
+  }, [showReviewForm, params, location, setReviewForm]);
 
   return (
 
@@ -483,10 +485,10 @@ CreatePostComponent.defaultProps = {
   descriptionArray: [],
   setDescriptionArray: undefined,
   showSaveButton: false,
-  reviewForm: false,
   setReviewForm: undefined,
   setShowReviewForm: false,
   handleScroll: undefined,
+  showReviewForm: false,
   createEditPost: undefined,
 };
 export default CreatePostComponent;

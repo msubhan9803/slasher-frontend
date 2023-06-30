@@ -74,8 +74,10 @@ export function cleanExternalHtmlContent(htmlString: string) {
   return containerElement.innerHTML;
 }
 
-export function decryptMessage(message: any) {
-  const found = message ? message.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '') : '';
+export function decryptMessage(message: any, isReplaced?: Boolean) {
+  const emojiRegex = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g;
+  const replacedContent = isReplaced ? message : message.replace(emojiRegex, '<span class="emoji" style="font-size: 22px;">$1</span>');
+  const found = message ? replacedContent.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '') : '';
   return found;
 }
 

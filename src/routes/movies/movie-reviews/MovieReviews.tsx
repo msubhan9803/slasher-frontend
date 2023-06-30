@@ -29,7 +29,7 @@ import { reportData } from '../../../api/report';
 import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../../pageStateCache';
 import useProgressButton from '../../../components/ui/ProgressButton';
 import { sleep } from '../../../utils/timer-utils';
-import { atMentionsGlobalRegex, generateMentionReplacementMatchFunc } from '../../../utils/text-utils';
+import { atMentionsGlobalRegex, decryptMessage, generateMentionReplacementMatchFunc } from '../../../utils/text-utils';
 import FriendshipStatusModal from '../../../components/ui/friendShipCheckModal';
 
 type Props = {
@@ -422,7 +422,7 @@ function MovieReviews({
               movieData={movieData}
               errorMessage={errorMessage}
               setPostMessageContent={setPostContent}
-              defaultValue={postContent}
+              defaultValue={decryptMessage(postContent, true)}
               formatMention={formatMention}
               setFormatMention={setFormatMention}
               postType="review"

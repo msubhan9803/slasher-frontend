@@ -16,7 +16,8 @@ import { reportData } from '../../../../api/report';
 import ReportModal from '../../ReportModal';
 import EditCommentModal from '../../editCommentModal';
 import ErrorMessageList from '../../ErrorMessageList';
-import { COMMENT_SECTION_ID } from '../../../../constants';
+import { COMMENT_SECTION_ID, CONTENT_PAGE_WRAPPER_ID, SEND_BUTTON_COMMENT_OR_REPLY } from '../../../../constants';
+import { onKeyboardClose, onKeyboardOpen } from '../../../../utils/styles-utils ';
 
 const LoadMoreCommentsWrapper = styled.div.attrs({ className: 'text-center' })`
   margin: -1rem 0 1rem;
@@ -98,6 +99,43 @@ function PostCommentSection({
       }
     }
   }, [queryCommentId, queryReplyId, checkLoadMoreId]);
+
+  const clearErrorMessages = useCallback((e: MouseEvent) => {
+    if (!e.target) { return; }
+    setCommentErrorMessage([]);
+    setCommentOrReplySuccessAlertMessage('');
+
+    const element = e.target as Element || null;
+    const elementId = element?.id;
+    const isEl1 = elementId === 'reply-on-comment';
+    const isEl2 = elementId === 'comments';
+    const isEl3 = elementId === CONTENT_PAGE_WRAPPER_ID;
+    const isEl4 = elementId === COMMENT_SECTION_ID;
+    // TODO: El5 is trigged when clicked inside the input and
+    // TODO:         also when clicked ouside, how to handle this?
+    // const isEl5 = elementId === AUTHENTICATED_PAGE_WRAPPER_ID;
+    const clickedElementIsCommentOrReplyInput = isEl1 || isEl2 || isEl3 || isEl4;
+    if (clickedElementIsCommentOrReplyInput) {
+      onKeyboardOpen();
+    } else {
+      onKeyboardClose();
+
+      // Hide `comment-on-reply` text-input if empty-area-click
+      // is not `SEND_BUTTON_COMMENT_OR_REPLY` click
+      const sendCommentOrReplyButtons = Array.from(document.querySelectorAll(`#${SEND_BUTTON_COMMENT_OR_REPLY}`));
+      const clickedElementIsNotSendButton = !sendCommentOrReplyButtons
+        .some((el) => el.contains(element as any));
+      if (clickedElementIsNotSendButton) {
+        setIsReply(false);
+      }
+    }
+  }, [setCommentErrorMessage, setCommentOrReplySuccessAlertMessage]);
+
+  useEffect(() => {
+    window.addEventListener('click', clearErrorMessages, true);
+    return () => window.removeEventListener('click', clearErrorMessages, true);
+  }, [clearErrorMessages]);
+
   const checkPopover = (id: string) => {
     if (id === loginUserId) {
       return popoverOption;

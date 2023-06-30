@@ -300,7 +300,7 @@ function AboutDetails({
                 iconClass={`me-2 ${hasGoreFactor ? 'text-primary' : ''}`}
                 iconSize="sm"
                 lable={hasGoreFactor ? String(movieData.userData ? movieData.userData?.goreFactorRating : 'Rate') : 'Rate'}
-                handleClick={() => setShowGoreRating(true)}
+                handleClick={() => { setShowGoreRating(true); setShowReviewForm!(false); }}
               />
             </div>
           </Col>

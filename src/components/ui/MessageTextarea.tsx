@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  createRef, useEffect, useRef, useState,
+  createRef, useCallback, useEffect, useRef, useState,
 } from 'react';
 import Mentions from 'rc-mentions';
 import { OptionProps } from 'rc-mentions/lib/Option';
@@ -18,6 +18,7 @@ interface SytledMentionProps {
 }
 interface PickerProp {
   createpost: any;
+  emojiPickerTop: boolean;
 }
 
 interface StyledShadowWrapperProps {
@@ -97,12 +98,13 @@ const StyledEmoji = styled(Button)`
 
 const EmojiPicker = styled.div<PickerProp>`
     z-index:1;
-    ${(props) => (props.createpost ? 'left:1px;' : 'top:3.125rem;')}
+    ${(props) => (props.createpost ? 'left:1px;' : '')}
+    ${(props) => (props.emojiPickerTop ? 'bottom:3.125rem' : 'top:3.125rem')}
 `;
 
 const StyledEmojiButton = styled.div<EmojiButtonProps>`
 ${(props) => !props.iscommentinput
-  && `background-color: black;
+    && `background-color: black;
   border-bottom-radius: 1.875rem !important;
   border-bottom-right-radius: 0.875rem !important;
   border-bottom-left-radius: 0.875rem !important;
@@ -180,6 +182,7 @@ function MessageTextarea({
   const optionRef = createRef<HTMLInputElement>();
   const [selectedEmoji, setSelectedEmoji] = useState<string[]>([]);
   const [isMentionsFocused, setIsMentionsFocused] = useState<boolean>(false);
+  const [emojiPickerTop, setEmojiPickerTop] = useState<boolean>(false);
   const handleMessage = (e: string) => {
     setMessageContent(e);
   };
@@ -241,6 +244,24 @@ function MessageTextarea({
       onBlurHandler();
     }
   };
+  const changeEmojiPickerPosition: () => void = useCallback(() => {
+    const textArea = document.getElementById(id!);
+    const viewportOffset = textArea!.getBoundingClientRect();
+    const { top } = viewportOffset;
+    if (top > 350) {
+      setEmojiPickerTop(true);
+    } else {
+      setEmojiPickerTop(false);
+    }
+  }, [id]);
+  useEffect(() => {
+    window.addEventListener('click', changeEmojiPickerPosition, true);
+    window.addEventListener('scroll', changeEmojiPickerPosition, true);
+    return () => {
+      window.removeEventListener('scroll', changeEmojiPickerPosition, true);
+      window.removeEventListener('click', changeEmojiPickerPosition, true);
+    };
+  }, [changeEmojiPickerPosition]);
   return (
     <>
 
@@ -299,6 +320,7 @@ function MessageTextarea({
         <EmojiPicker
           className="position-absolute me-4"
           createpost={createEditPost}
+          emojiPickerTop={emojiPickerTop}
         >
           <CustomEmojiPicker
             handleEmojiSelect={handleEmojiSelect}

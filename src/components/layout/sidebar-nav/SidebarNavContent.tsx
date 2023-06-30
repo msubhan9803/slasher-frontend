@@ -141,8 +141,6 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
           <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/policies`} target="_blank" rel="noreferrer">Terms &amp; Policies</a></li>
           <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/about`} target="_blank" rel="noreferrer">About</a></li>
           <li className="text-light text-decoration-none">
-
-            {' '}
             &copy;
             {' '}
             {new Date().getFullYear()}

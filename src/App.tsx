@@ -126,6 +126,8 @@ Keyboard.addListener('keyboardWillHide', () => {
 CapacitorApp.addListener('backButton', () => {
   if (isHomePage(window.location.pathname)) {
     CapacitorApp.exitApp();
+  } else {
+    window.history.back();
   }
 });
 

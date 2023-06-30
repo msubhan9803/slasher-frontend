@@ -16,7 +16,7 @@ import { reportData } from '../../../../api/report';
 import ReportModal from '../../ReportModal';
 import EditCommentModal from '../../editCommentModal';
 import ErrorMessageList from '../../ErrorMessageList';
-import { COMMENT_SECTION_ID, CONTENT_PAGE_WRAPPER_ID, SEND_BUTTON_COMMENT_OR_REPLY } from '../../../../constants';
+import { COMMENT_SECTION_ID, SEND_BUTTON_COMMENT_OR_REPLY } from '../../../../constants';
 import { onKeyboardClose, onKeyboardOpen } from '../../../../utils/styles-utils ';
 
 const LoadMoreCommentsWrapper = styled.div.attrs({ className: 'text-center' })`
@@ -105,29 +105,22 @@ function PostCommentSection({
     setCommentErrorMessage([]);
     setCommentOrReplySuccessAlertMessage('');
 
-    const element = e.target as Element || null;
-    const elementId = element?.id;
-    const isEl1 = elementId === 'reply-on-comment';
-    const isEl2 = elementId === 'comments';
-    const isEl3 = elementId === CONTENT_PAGE_WRAPPER_ID;
-    const isEl4 = elementId === COMMENT_SECTION_ID;
-    // TODO: El5 is trigged when clicked inside the input and
-    // TODO:         also when clicked ouside, how to handle this?
-    // const isEl5 = elementId === AUTHENTICATED_PAGE_WRAPPER_ID;
-    const clickedElementIsCommentOrReplyInput = isEl1 || isEl2 || isEl3 || isEl4;
-    if (clickedElementIsCommentOrReplyInput) {
+    const commentOrReplyTextInput = document.getElementById('comment-or-reply-input');
+    if (!commentOrReplyTextInput) { return; }
+
+    const isClickedOnTextInput = e.y > commentOrReplyTextInput.offsetTop;
+    if (isClickedOnTextInput) {
       onKeyboardOpen();
     } else {
       onKeyboardClose();
 
-      // Hide `comment-on-reply` text-input if empty-area-click
-      // is not `SEND_BUTTON_COMMENT_OR_REPLY` click
+      // When we click in empty-area and it is not the `SEND_BUTTON_COMMENT_OR_REPLY` then hide
+      // `Reply to comment` textInput and show default "Write a comment"
       const sendCommentOrReplyButtons = Array.from(document.querySelectorAll(`#${SEND_BUTTON_COMMENT_OR_REPLY}`));
+      const element = e.target as Element || null;
       const clickedElementIsNotSendButton = !sendCommentOrReplyButtons
         .some((el) => el.contains(element as any));
-      if (clickedElementIsNotSendButton) {
-        setIsReply(false);
-      }
+      if (clickedElementIsNotSendButton) { setIsReply(false); }
     }
   }, [setCommentErrorMessage, setCommentOrReplySuccessAlertMessage]);
 

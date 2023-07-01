@@ -22,7 +22,7 @@ export const onKeyboardOpen = () => {
 export const onKeyboardClose = () => {
   const mobileNavBarElement = document.querySelector<HTMLElement>(`#${MOBILE_NAVBAR}`);
   if (mobileNavBarElement) {
-    // Show mobile-navbar when keyboard is shown
+    // Show mobile-navbar when keyboard is closed
     mobileNavBarElement.style.display = 'flex';
     // Set botom position for the comment or rely input on post-details page when keyboard is opened
     setGlobalCssProperty('--bottomForCommentOrReplyInputOnMobile', bottomForCommentOrReplyInputOnMobile);

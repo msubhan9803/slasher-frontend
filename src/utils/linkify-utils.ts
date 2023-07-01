@@ -1,3 +1,9 @@
+import { registerPlugin, test } from 'linkifyjs';
+import mention from './linkify-mention-plugin';
+
+registerPlugin('mention', mention);
+test('@avadh._77', 'mention');
+
 type LinkifyOpts = import('linkifyjs').Opts;
 
 const sharedLinkifyOpts: LinkifyOpts = {

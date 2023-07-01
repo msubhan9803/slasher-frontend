@@ -13,7 +13,7 @@ import {
 import styled from 'styled-components';
 import ImagesContainer from '../../ImagesContainer';
 import {
-  atMentionsGlobalRegex, decryptMessage, generateMentionReplacementMatchFunc,
+  atMentionsGlobalRegex, generateMentionReplacementMatchFunc,
 } from '../../../../utils/text-utils';
 import MessageTextarea from '../../MessageTextarea';
 import ErrorMessageList from '../../ErrorMessageList';
@@ -278,7 +278,7 @@ function CommentInput({
                   setMessageContent={setEditMessage}
                   formatMentionList={formatMention}
                   setFormatMentionList={setFormatMention}
-                  defaultValue={decryptMessage(editMessage)}
+                  defaultValue={editMessage}
                   isCommentInput="true"
                   onFocusHandler={onFocusHandler}
                   onBlurHandler={onBlurHandler}

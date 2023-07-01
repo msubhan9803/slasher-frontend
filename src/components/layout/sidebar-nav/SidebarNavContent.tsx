@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Nav } from 'react-bootstrap';
+import { App } from '@capacitor/app';
 import SidebarNavItem from './SidebarNavItem';
 import {
   enableDevFeatures, GOOGLE_PLAY_DOWNLOAD_URL, APP_STORE_DOWNLOAD_URL, WORDPRESS_SITE_URL,
+  isNativePlatform,
 } from '../../../constants';
 import RoundButtonLink from '../../ui/RoundButtonLink';
 
@@ -88,6 +90,18 @@ for (let i = 0; i < numberOfComingSoonItemsToShow; i += 1) {
 menuListItems = menuListItems.concat(bottomMenuListItems);
 
 function SidebarNavContent({ onToggleCanvas }: Props) {
+  const [buildNumber, setBuildNumber] = useState<string>();
+  const [versionNumber, setVersionNumber] = useState<string>();
+
+  const getAppVersion = async () => {
+    setVersionNumber((await App.getInfo()).version);
+    setBuildNumber((await App.getInfo()).build);
+  };
+
+  useEffect(() => {
+    getAppVersion();
+  }, []);
+
   return (
     <>
       <RoundButtonLink
@@ -133,6 +147,16 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
             {' '}
             Slasher Corp
           </li>
+          {isNativePlatform && (
+          <li className="mt-4 text-light text-decoration-none">
+            v
+            {versionNumber}
+            {' '}
+            (
+            {buildNumber}
+            )
+          </li>
+          )}
         </ul>
         <br />
       </Nav>

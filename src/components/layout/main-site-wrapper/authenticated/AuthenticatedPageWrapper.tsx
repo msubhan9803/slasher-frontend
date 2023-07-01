@@ -3,7 +3,7 @@ import React, {
   useCallback, useEffect, useRef, useState,
 } from 'react';
 import {
-  Button, Col, Offcanvas, Row,
+  Button, Offcanvas,
 } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
@@ -278,13 +278,13 @@ function AuthenticatedPageWrapper({ children }: Props) {
       {isIOS
         && showBackButtonInIos(location.pathname)
         && (
-          <Row className="d-md-nonept-2 position-fixed" ref={backButtonElementRef} style={{ top: 0, paddingTop: '0.625rem', zIndex: 1 }}>
-            <Col xs="auto" className="ms-2">
+          <div className="d-md-nonept-2 position-fixed" ref={backButtonElementRef} style={{ top: 0, paddingTop: '0.625rem', zIndex: 1 }}>
+            <div className="ms-2">
               <Button variant="link" className="p-0 px-1" onClick={() => navigate(-1)}>
                 <FontAwesomeIcon role="button" icon={solid('arrow-left-long')} size="2x" />
               </Button>
-            </Col>
-          </Row>
+            </div>
+          </div>
         )}
       <SkipToMainContent />
       <AuthenticatedPageHeader

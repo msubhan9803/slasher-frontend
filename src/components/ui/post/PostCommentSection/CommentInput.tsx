@@ -20,7 +20,7 @@ import ErrorMessageList from '../../ErrorMessageList';
 import { FormatMentionProps } from '../../../../types';
 import {
   COMMENT_OR_REPLY_INPUT, bottomForCommentOrReplyInputOnMobile,
-  maxWidthForCommentOrReplyInputOnMobile, isNativePlatform,
+  maxWidthForCommentOrReplyInputOnMobile, isNativePlatform, SEND_BUTTON_COMMENT_OR_REPLY,
 } from '../../../../constants';
 import useWindowInnerWidth from '../../../../hooks/useWindowInnerWidth';
 import { onKeyboardClose, setGlobalCssProperty } from '../../../../utils/styles-utils ';
@@ -324,7 +324,7 @@ function CommentInput({
                 </InputGroup.Text>
               </div>
             </StyledCommentInputGroup>
-            <Button onClick={handleMessage} variant="link" aria-label="submit" className="ms-2 mb-1 p-0">
+            <Button id={SEND_BUTTON_COMMENT_OR_REPLY} onClick={handleMessage} variant="link" aria-label="submit" className="ms-2 mb-1 p-0">
               <FontAwesomeIcon icon={solid('paper-plane')} style={{ fontSize: '26px' }} className="text-primary" />
             </Button>
           </div>

@@ -11,7 +11,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from 'react-bootstrap';
 import UserCircleImage from './UserCircleImage';
 import CustomEmojiPicker from './Emoji/CustomEmojiPicker';
-import { onKeyboardOpen } from '../../utils/styles-utils ';
 import { isNativePlatform } from '../../constants';
 
 interface SytledMentionProps {
@@ -101,7 +100,6 @@ const EmojiPicker = styled.div<PickerProp>`
     z-index:1;
     ${(props) => (props.createpost ? 'left:1px;' : '')}
     ${(props) => (props.emojiPickerTop ? 'bottom:3.125rem' : 'top:3.125rem')}
-
 `;
 
 const StyledEmojiButton = styled.div<EmojiButtonProps>`
@@ -246,20 +244,16 @@ function MessageTextarea({
       onBlurHandler();
     }
   };
-
   const changeEmojiPickerPosition: () => void = useCallback(() => {
     const textArea = document.getElementById(id!);
-
     const viewportOffset = textArea!.getBoundingClientRect();
     const { top } = viewportOffset;
-
     if (top > 350) {
       setEmojiPickerTop(true);
     } else {
       setEmojiPickerTop(false);
     }
   }, [id]);
-
   useEffect(() => {
     window.addEventListener('click', changeEmojiPickerPosition, true);
     window.addEventListener('scroll', changeEmojiPickerPosition, true);
@@ -280,7 +274,6 @@ function MessageTextarea({
           autoSize={{ minRows: rows, maxRows: isCommentInput ? 4 : rows }}
           rows={rows}
           onChange={(e) => handleMessage(e)}
-          onFocusCapture={() => { onKeyboardOpen(); }}
           placeholder={placeholder}
           onSearch={handleSearch}
           onSelect={handleSelect}

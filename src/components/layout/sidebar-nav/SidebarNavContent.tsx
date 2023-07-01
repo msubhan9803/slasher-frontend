@@ -94,8 +94,8 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
   const [versionNumber, setVersionNumber] = useState<string>();
 
   const getAppVersion = async () => {
-    setBuildNumber((await App.getInfo()).version);
-    setVersionNumber((await App.getInfo()).build);
+    setVersionNumber((await App.getInfo()).version);
+    setBuildNumber((await App.getInfo()).build);
   };
 
   useEffect(() => {
@@ -150,10 +150,10 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
           {isNativePlatform && (
           <li className="mt-4 text-light text-decoration-none">
             v
-            {buildNumber}
+            {versionNumber}
             {' '}
             (
-            {versionNumber}
+            {buildNumber}
             )
           </li>
           )}

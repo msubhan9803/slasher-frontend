@@ -16,7 +16,8 @@ import { reportData } from '../../../../api/report';
 import ReportModal from '../../ReportModal';
 import EditCommentModal from '../../editCommentModal';
 import ErrorMessageList from '../../ErrorMessageList';
-import { COMMENT_SECTION_ID } from '../../../../constants';
+import { COMMENT_SECTION_ID, SEND_BUTTON_COMMENT_OR_REPLY } from '../../../../constants';
+import { onKeyboardClose, onKeyboardOpen } from '../../../../utils/styles-utils ';
 
 const LoadMoreCommentsWrapper = styled.div.attrs({ className: 'text-center' })`
   margin: -1rem 0 1rem;
@@ -98,6 +99,35 @@ function PostCommentSection({
       }
     }
   }, [queryCommentId, queryReplyId, checkLoadMoreId]);
+
+  const clearErrorMessages = useCallback((e: MouseEvent) => {
+    if (!e.target) { return; }
+    const commentOrReplyTextInput = document.getElementById('comment-or-reply-input');
+    if (!commentOrReplyTextInput) { return; }
+
+    const isClickedOnTextInput = e.y > commentOrReplyTextInput.offsetTop;
+    if (isClickedOnTextInput) {
+      onKeyboardOpen();
+    } else {
+      onKeyboardClose();
+      // Disabled Temporarily by Damon request
+      // setCommentOrReplySuccessAlertMessage('');
+
+      // When we click in empty-area and it is not the `SEND_BUTTON_COMMENT_OR_REPLY` then hide
+      // `Reply to comment` textInput and show default "Write a comment"
+      const sendCommentOrReplyButtons = Array.from(document.querySelectorAll(`#${SEND_BUTTON_COMMENT_OR_REPLY}`));
+      const element = e.target as Element || null;
+      const clickedElementIsNotSendButton = !sendCommentOrReplyButtons
+        .some((el) => el.contains(element as any));
+      if (clickedElementIsNotSendButton) { setIsReply(false); }
+    }
+  }, [setIsReply]);
+
+  useEffect(() => {
+    window.addEventListener('click', clearErrorMessages, true);
+    return () => window.removeEventListener('click', clearErrorMessages, true);
+  }, [clearErrorMessages]);
+
   const checkPopover = (id: string) => {
     if (id === loginUserId) {
       return popoverOption;

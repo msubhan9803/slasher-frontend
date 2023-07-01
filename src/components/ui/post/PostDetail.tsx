@@ -26,7 +26,6 @@ import {
   FriendRequestReaction, FriendType, Post, User,
 } from '../../../types';
 import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-utils';
-import { decryptMessage } from '../../../utils/text-utils';
 import { ContentPageWrapper } from '../../layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
@@ -513,7 +512,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             _id: res.data._id,
             id: res.data._id,
             postDate: res.data.createdAt,
-            message: decryptMessage(res.data.message),
+            message: res.data.message,
             userName: res.data.userId.userName,
             profileImage: res.data.userId.profilePic,
             userId: res.data.userId._id,

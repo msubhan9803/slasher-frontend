@@ -79,6 +79,8 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
   const [searchParams] = useSearchParams();
   const [movieIdList, setMovieIdList] = useState();
   const [isReviewDetail, setReviewDetail] = useState<boolean>(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+
   const selfView = searchParams.get('view') === 'self';
   const tabs = (selfView ? tabsForSelf : tabsForViewer).filter(filterEnableDevFeatures);
   const navigate = useNavigate();
@@ -241,6 +243,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
               reviewButtonRef={reviewButtonRef}
               reviewSmallButtonRef={reviewSmallButtonRef}
               handleScroll={handleScroll}
+              setShowReviewForm={setShowReviewForm}
             />
           </Col>
         </Row>
@@ -337,7 +340,20 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
             </>
           )}
         />
-        <Route path="reviews" element={<MovieReviews reviewForm={reviewForm} setReviewForm={setReviewForm} movieData={movieData} setMovieData={setMovieData} handleScroll={handleScroll} />} />
+        <Route
+          path="reviews"
+          element={(
+            <MovieReviews
+              reviewForm={reviewForm}
+              setReviewForm={setReviewForm}
+              movieData={movieData}
+              setMovieData={setMovieData}
+              handleScroll={handleScroll}
+              showReviewForm={showReviewForm}
+              setShowReviewForm={setShowReviewForm}
+            />
+          )}
+        />
         <Route path="reviews/:postId" element={<MovieReviewDetails />} />
         <Route path="posts" element={<MoviePosts />} />
         <Route path="edit" element={<MovieEdit />} />

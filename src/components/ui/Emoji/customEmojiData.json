@@ -1,19 +1,6 @@
 {
   "categories": [
       {
-          "id": "frequent",
-          "emojis": [
-              "+1",
-              "grinning",
-              "heart_eyes",
-              "kissing_heart",
-              "laughing",
-              "relaxed",
-              "stuck_out_tongue_winking_eye",
-              "sweat_smile"
-          ]
-      },
-      {
           "id": "people",
           "emojis": [
               "grinning",
@@ -46344,19 +46331,6 @@
       "😀": "grinning"
   },
   "originalCategories": [
-      {
-          "id": "frequent",
-          "emojis": [
-              "+1",
-              "grinning",
-              "heart_eyes",
-              "kissing_heart",
-              "laughing",
-              "relaxed",
-              "stuck_out_tongue_winking_eye",
-              "sweat_smile"
-          ]
-      },
       {
           "id": "people",
           "emojis": [

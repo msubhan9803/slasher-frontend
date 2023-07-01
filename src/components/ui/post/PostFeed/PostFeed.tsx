@@ -323,6 +323,8 @@ function PostFeed({
   const [modalResourceId, setModalResourceId] = useState('');
   const [modalLikeCount, setModalLikeCount] = useState(0);
   const { pathname } = useLocation();
+  const parentSection = useRef<HTMLDivElement>(null);
+
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
       return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
@@ -522,7 +524,7 @@ function PostFeed({
             {
               isCommentSection
               && (
-                <div>
+                <div ref={parentSection}>
                   {/* <StyledBorder className="d-md-block d-none mb-4" /> */}
                   <InfiniteScroll
                     threshold={1000}
@@ -532,6 +534,10 @@ function PostFeed({
                       if (setRequestAdditionalPosts) { setRequestAdditionalPosts(true); }
                     }}
                     hasMore={!noMoreData}
+                    /* Using a custom parentNode element to base the scroll calulations on. */
+                    useWindow={false}
+                    getScrollParent={() => parentSection.current}
+
                   >
                     <PostCommentSection
                       postCreator={postData[0].userId}

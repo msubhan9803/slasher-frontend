@@ -180,14 +180,13 @@ export class FriendsService {
     const friendUsers = await this.usersModel.find({
       $and: [
         { _id: { $in: friendIds } },
-        userNameContains ? { userName: new RegExp(escapeStringForRegex(userNameContains), 'i') } : {},
+        userNameContains ? { userName: new RegExp(`^${escapeStringForRegex(userNameContains)}`, 'i') } : {},
       ],
     }).limit(limit).skip(offset).sort({ userName: 1 })
       .select({
         userName: 1, profilePic: 1, _id: 1, firstName: 1,
       })
       .exec();
-
     return {
       allFriendCount: friendIds.length,
       friends: friendUsers,

@@ -494,7 +494,7 @@ describe('All Movies (e2e)', () => {
           status: MovieActiveStatus.Active,
         }),
       );
-      const nameContains = 'li';
+      const nameContains = 'ali';
       const sortNameStartsWith = 'a';
       const limit = 3;
       const response = await request(app.getHttpServer())

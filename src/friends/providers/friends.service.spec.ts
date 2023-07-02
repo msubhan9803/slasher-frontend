@@ -355,7 +355,6 @@ describe('FriendsService', () => {
         [
           'Count Dracula',
           'Count Orlok',
-          'The Count',
         ],
       );
     });
@@ -369,10 +368,10 @@ describe('FriendsService', () => {
     it('when applying limit, offset, and userName filter', async () => {
       const { friends, allFriendCount } = await friendsService.getFriends(user0.id, 5, 1, 'count');
       expect(allFriendCount).toBe(4);
+
       expect(friends.map((friend) => friend.userName)).toEqual(
         [
           'Count Orlok',
-          'The Count',
         ],
       );
     });

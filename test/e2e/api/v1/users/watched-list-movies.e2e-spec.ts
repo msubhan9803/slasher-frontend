@@ -233,7 +233,7 @@ describe('Watched List Movies (e2e)', () => {
       });
 
       it('when startsWith is not exist and nameContains is exist than expected response', async () => {
-        const nameContains = 'li';
+        const nameContains = 'ali';
         const sortNameStartsWith = 'b';
         const limit = 3;
         const response = await request(app.getHttpServer())
@@ -255,7 +255,7 @@ describe('Watched List Movies (e2e)', () => {
       });
 
       it('when startsWith and nameContains is exists than expected response', async () => {
-        const nameContains = 'li';
+        const nameContains = 'ali';
         const sortNameStartsWith = 'a';
         const limit = 3;
         const response = await request(app.getHttpServer())

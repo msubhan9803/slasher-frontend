@@ -233,7 +233,7 @@ describe('Favorite List Movies (e2e)', () => {
       });
 
       it('when startsWith and nameContains is exists than expected response', async () => {
-        const nameContains = 'li';
+        const nameContains = 'ali';
         const sortNameStartsWith = 'a';
         const limit = 3;
         const response = await request(app.getHttpServer())

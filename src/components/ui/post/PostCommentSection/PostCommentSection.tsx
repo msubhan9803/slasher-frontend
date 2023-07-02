@@ -16,7 +16,7 @@ import { reportData } from '../../../../api/report';
 import ReportModal from '../../ReportModal';
 import EditCommentModal from '../../editCommentModal';
 import ErrorMessageList from '../../ErrorMessageList';
-import { COMMENT_SECTION_ID, SEND_BUTTON_COMMENT_OR_REPLY } from '../../../../constants';
+import { CHOOSE_FILE_CAMERA_ICON, COMMENT_SECTION_ID, SEND_BUTTON_COMMENT_OR_REPLY } from '../../../../constants';
 import { onKeyboardClose, onKeyboardOpen } from '../../../../utils/styles-utils ';
 
 const LoadMoreCommentsWrapper = styled.div.attrs({ className: 'text-center' })`
@@ -89,6 +89,7 @@ function PostCommentSection({
   const [updatedReply, setUpdatedReply] = useState<boolean>(false);
   const [descriptionArray, setDescriptionArray] = useState<string[]>([]);
   const [replyDescriptionArray, setReplyDescriptionArray] = useState<string[]>([]);
+  const [hasReplyMessage, setHasReplyMessage] = useState<boolean>(false);
 
   const commentSectionRef = useRef<any>(null);
   useEffect(() => {
@@ -116,12 +117,16 @@ function PostCommentSection({
       // When we click in empty-area and it is not the `SEND_BUTTON_COMMENT_OR_REPLY` then hide
       // `Reply to comment` textInput and show default "Write a comment"
       const sendCommentOrReplyButtons = Array.from(document.querySelectorAll(`#${SEND_BUTTON_COMMENT_OR_REPLY}`));
+      const uploadImageButtons = Array.from(document.querySelectorAll(`#${CHOOSE_FILE_CAMERA_ICON}`));
       const element = e.target as Element || null;
       const clickedElementIsNotSendButton = !sendCommentOrReplyButtons
         .some((el) => el.contains(element as any));
-      if (clickedElementIsNotSendButton) { setIsReply(false); }
+      const clickedElementIsNotFileIUploadButton = !uploadImageButtons
+        .some((el) => el.contains(element as any));
+      if (clickedElementIsNotSendButton && clickedElementIsNotFileIUploadButton
+        && !replyImageArray.length && !hasReplyMessage) { setIsReply(false); }
     }
-  }, [setIsReply]);
+  }, [setIsReply, hasReplyMessage, replyImageArray]);
 
   useEffect(() => {
     window.addEventListener('click', clearErrorMessages, true);
@@ -538,6 +543,7 @@ function PostCommentSection({
         setReplyDescriptionArray={setReplyDescriptionArray}
         isMainPostCommentClick={isMainPostCommentClick}
         selectedReplyUserId={selectedReplyUserID}
+        setHasReplyMessage={setHasReplyMessage}
       />
       {
         !isEdit && commentReplyError

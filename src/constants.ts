@@ -14,6 +14,7 @@ export const COMMENT_SECTION_ID = 'comment-section-id';
 export const MOBILE_NAVBAR = 'mobile-navbar';
 export const AUTHENTICATED_PAGE_WRAPPER_ID = 'authenticated-page-wrapper';
 export const SEND_BUTTON_COMMENT_OR_REPLY = 'send-comment-or-reply-button';
+export const CHOOSE_FILE_CAMERA_ICON = 'choose-file-icon';
 
 export const BREAK_POINTS = {
   // NOTE: Break points below must be in ascending numeric order.

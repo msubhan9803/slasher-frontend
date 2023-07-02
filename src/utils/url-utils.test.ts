@@ -12,8 +12,8 @@ describe('Page Matchers', () => {
   });
 
   test('isPostDetailsPage', () => {
-    const url = '/slasher-test-user1/posts/6450086566a60138c4e2b293';
-    expect(isPostDetailsPage(url)).toBeTruthy();
+    const path = '/slasher-test-user1/posts/6450086566a60138c4e2b293';
+    expect(isPostDetailsPage(path)).toBeTruthy();
   });
 
   test('isNewsPartnerPageSubRoutes', () => {
@@ -43,7 +43,7 @@ describe('Page Matchers', () => {
   });
 
   describe('isUserProfilePage', () => {
-    test('Good Matches', () => {
+    test('Correct matches', () => {
       const userAbout = '/slasher-test-user1/about';
       expect(isUserProfilePage(userAbout)).toBeTruthy();
       const userPosts = '/slasher-test-user1/posts';
@@ -58,7 +58,7 @@ describe('Page Matchers', () => {
       expect(isUserProfilePage(userWatchedList)).toBeTruthy();
     });
 
-    test('Non matching paths', () => {
+    test('Incorrect matches', () => {
       const homePath = '/app/home';
       expect(isUserProfilePage(homePath)).toBeFalsy();
       const moviesPath = '/app/movies/all';

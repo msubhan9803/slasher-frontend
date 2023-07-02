@@ -278,7 +278,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
       {isIOS
         && showBackButtonInIos(location.pathname)
         && (
-          <div className="d-md-nonept-2 position-fixed" ref={backButtonElementRef} style={{ top: 0, paddingTop: '0.625rem', zIndex: 1 }}>
+          <div className="d-md-none pt-2 position-fixed" ref={backButtonElementRef} style={{ top: 0, paddingTop: '0.625rem', zIndex: 1 }}>
             <div className="ms-2">
               <Button variant="link" className="p-0 px-1" onClick={() => navigate(-1)}>
                 <FontAwesomeIcon role="button" icon={solid('arrow-left-long')} size="2x" />

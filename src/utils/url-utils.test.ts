@@ -42,8 +42,8 @@ describe('Page Matchers', () => {
     expect(isConversationPage(conversationPage)).toBeTruthy();
   });
 
-  describe('', () => {
-    test('isUserProfilePage', () => {
+  describe('isUserProfilePage', () => {
+    test('Good Matches', () => {
       const userAbout = '/slasher-test-user1/about';
       expect(isUserProfilePage(userAbout)).toBeTruthy();
       const userPosts = '/slasher-test-user1/posts';

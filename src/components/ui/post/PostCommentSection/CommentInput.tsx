@@ -20,7 +20,8 @@ import ErrorMessageList from '../../ErrorMessageList';
 import { FormatMentionProps } from '../../../../types';
 import {
   COMMENT_OR_REPLY_INPUT, bottomForCommentOrReplyInputOnMobile,
-  maxWidthForCommentOrReplyInputOnMobile, isNativePlatform,
+  maxWidthForCommentOrReplyInputOnMobile, isNativePlatform, SEND_BUTTON_COMMENT_OR_REPLY,
+  CHOOSE_FILE_CAMERA_ICON,
 } from '../../../../constants';
 import useWindowInnerWidth from '../../../../hooks/useWindowInnerWidth';
 import { onKeyboardClose, setGlobalCssProperty } from '../../../../utils/styles-utils ';
@@ -57,6 +58,7 @@ interface CommentInputProps {
   selectedReplyUserId?: string;
   commentOrReplySuccessAlertMessage?: string;
   setCommentOrReplySuccessAlertMessage?: React.Dispatch<React.SetStateAction<string>>;
+  setHasReplyMessage?: (value: boolean) => void;
 }
 
 interface InputProps {
@@ -120,7 +122,7 @@ function CommentInput({
   setDescriptionArray, replyDescriptionArray, setReplyDescriptionArray,
   isMainPostCommentClick, selectedReplyUserId,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  commentOrReplySuccessAlertMessage, setCommentOrReplySuccessAlertMessage,
+  commentOrReplySuccessAlertMessage, setCommentOrReplySuccessAlertMessage, setHasReplyMessage,
 }: CommentInputProps) {
   const [editMessage, setEditMessage] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
@@ -147,6 +149,9 @@ function CommentInput({
     handleSetCommentReplyErrorMessage, handleSetReplyImageArray, selectedReplyUserId]);
   useEffect(() => {
     if (editMessage) {
+      if (setHasReplyMessage) {
+        setHasReplyMessage!(true);
+      }
       const mentionStringList = editMessage.match(/##LINK_ID##[a-zA-Z0-9@_.-]+##LINK_END##/g);
       if (mentionStringList) {
         const finalFormatMentionList = Array.from(new Set(mentionStringList))
@@ -159,8 +164,10 @@ function CommentInput({
           });
         setFormatMention((prevMentions) => prevMentions.concat(finalFormatMentionList));
       }
+    } else if (setHasReplyMessage) {
+      setHasReplyMessage!(false);
     }
-  }, [editMessage]);
+  }, [editMessage, setHasReplyMessage]);
 
   useEffect(() => {
     if (commentError! && commentError.length) {
@@ -286,7 +293,7 @@ function CommentInput({
                   showPicker={showPicker}
                   setShowPicker={setShowPicker}
                 />
-                <InputGroup.Text className="position-relative px-3 border-start-0">
+                <InputGroup.Text className="position-relative px-3 border-start-0" id={CHOOSE_FILE_CAMERA_ICON}>
                   <FontAwesomeIcon
                     role="button"
                     onClick={() => {
@@ -324,7 +331,7 @@ function CommentInput({
                 </InputGroup.Text>
               </div>
             </StyledCommentInputGroup>
-            <Button onClick={handleMessage} variant="link" aria-label="submit" className="ms-2 mb-1 p-0">
+            <Button id={SEND_BUTTON_COMMENT_OR_REPLY} onClick={handleMessage} variant="link" aria-label="submit" className="ms-2 mb-1 p-0">
               <FontAwesomeIcon icon={solid('paper-plane')} style={{ fontSize: '26px' }} className="text-primary" />
             </Button>
           </div>
@@ -409,6 +416,7 @@ CommentInput.defaultProps = {
   selectedReplyUserId: undefined,
   commentOrReplySuccessAlertMessage: '',
   setCommentOrReplySuccessAlertMessage: undefined,
+  setHasReplyMessage: undefined,
 };
 
 export default CommentInput;

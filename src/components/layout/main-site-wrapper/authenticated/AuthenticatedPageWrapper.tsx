@@ -3,7 +3,7 @@ import React, {
   useCallback, useEffect, useRef, useState,
 } from 'react';
 import {
-  Button, Col, Offcanvas, Row,
+  Button, Offcanvas,
 } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
@@ -43,7 +43,7 @@ import useSessionToken from '../../../../hooks/useSessionToken';
 import { setIsServerAvailable } from '../../../../redux/slices/serverAvailableSlice';
 import { Message } from '../../../../types';
 import { showBackButtonInIos } from '../../../../utils/url-utils';
-import { removeGlobalCssProperty, setGlobalCssProperty } from '../../../../utils/styles-utils ';
+import { onKeyboardClose, removeGlobalCssProperty, setGlobalCssProperty } from '../../../../utils/styles-utils ';
 
 interface Props {
   children: React.ReactNode;
@@ -82,7 +82,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const dispatch = useAppDispatch();
   const userData = useAppSelector((state) => state.user);
   const remoteConstantsData = useAppSelector((state) => state.remoteConstants);
-  const { pathname } = useLocation();
+  const { pathname, search, hash } = useLocation();
   const location = useLocation();
   const token = useSessionToken();
   const tokenNotFound = !token.isLoading && !token.value;
@@ -114,6 +114,17 @@ function AuthenticatedPageWrapper({ children }: Props) {
   }, [showUnreachableServerModalIfDisconnected]);
 
   useGoogleAnalytics(analyticsId);
+
+  const previousPathRef = useRef<string>();
+  useEffect(() => {
+    const currentPath = pathname + search + hash;
+    if (previousPathRef.current === currentPath) { return; }
+    previousPathRef.current = currentPath;
+    // Fix: Sometimes bottom-navbar is not shown after using
+    // `comment-textinput` on post-details page
+    onKeyboardClose();
+  }, [hash, pathname, search]);
+
   const params = useParams();
 
   // Record all navigation by user
@@ -267,13 +278,13 @@ function AuthenticatedPageWrapper({ children }: Props) {
       {isIOS
         && showBackButtonInIos(location.pathname)
         && (
-          <Row className="d-md-nonept-2 position-fixed" ref={backButtonElementRef} style={{ top: 0, paddingTop: '0.625rem', zIndex: 1 }}>
-            <Col xs="auto" className="ms-2">
+          <div className="d-md-nonept-2 position-fixed" ref={backButtonElementRef} style={{ top: 0, paddingTop: '0.625rem', zIndex: 1 }}>
+            <div className="ms-2">
               <Button variant="link" className="p-0 px-1" onClick={() => navigate(-1)}>
                 <FontAwesomeIcon role="button" icon={solid('arrow-left-long')} size="2x" />
               </Button>
-            </Col>
-          </Row>
+            </div>
+          </div>
         )}
       <SkipToMainContent />
       <AuthenticatedPageHeader

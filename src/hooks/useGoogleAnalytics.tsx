@@ -28,9 +28,9 @@ const useGoogleAnalytics = (analyticsId?: string) => {
       window.dataLayer.push(arguments);
     }
 
-    const path = pathname + search + hash;
-    if (previousPathRef.current === path) { return; }
-    previousPathRef.current = path;
+    const currentPath = pathname + search + hash;
+    if (previousPathRef.current === currentPath) { return; }
+    previousPathRef.current = currentPath;
 
     gtag('js', new Date()); // necessary
     gtag('config', analyticsId); // necessary

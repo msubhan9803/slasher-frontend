@@ -38,6 +38,8 @@ type Props = {
   reviewForm: boolean;
   setReviewForm: (value: boolean) => void;
   handleScroll: () => void;
+  showReviewForm: boolean;
+  setShowReviewForm: (value: boolean) => void;
 };
 
 export const StyledReviewContainer = styled.div`
@@ -53,13 +55,13 @@ type PopOverValueType = typeof validPopOverOptions[number];
 const isValidPopOverValue = (v: string): v is PopOverValueType => validPopOverOptions.includes(v as any);
 
 function MovieReviews({
-  movieData, setMovieData, reviewForm, setReviewForm, handleScroll,
+  movieData, setMovieData, reviewForm, setReviewForm, handleScroll, showReviewForm,
+  setShowReviewForm,
 }: Props) {
   const { id } = useParams();
   const location = useLocation();
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
-  const [showReviewForm, setShowReviewForm] = useState(false);
   const [errorMessage, setErrorMessage] = useState([]);
   const [postUserId, setPostUserId] = useState<string>('');
   const [postId, setPostId] = useState<string>('');
@@ -107,7 +109,7 @@ function MovieReviews({
       setShowReviewForm(true);
       getUserMovieReviewData(id!);
     }
-  }, [location, reviewForm, id]);
+  }, [location, reviewForm, id, setShowReviewForm]);
 
   const callLatestFeedPost = useCallback(() => {
     if (id) {
@@ -134,7 +136,8 @@ function MovieReviews({
         setReviewPostData(newPosts);
       });
     }
-  }, [id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, showReviewForm]);
 
   useEffect(() => {
     if (movieData) {
@@ -440,11 +443,11 @@ function MovieReviews({
               setDisLike={setDisLike}
               isWorthIt={isWorthIt}
               placeHolder="Write your review here"
-              reviewForm={reviewForm}
               setReviewForm={setReviewForm}
               setShowReviewForm={setShowReviewForm}
               handleScroll={handleScroll}
               ProgressButton={ProgressButton}
+              showReviewForm={showReviewForm}
               createEditPost
             />
           ) : (

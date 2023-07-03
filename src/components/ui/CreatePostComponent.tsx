@@ -132,6 +132,7 @@ function CreatePostComponent({
     const removePostImage = imageArray.filter((image: File) => image !== postImage);
     setDeleteImageIds([...deleteImageIds, postImage._id].filter(Boolean));
     setImageArray(removePostImage);
+    setUploadPost(removePostImage);
 
     const descriptionArrayList = descriptionArray;
     descriptionArrayList!.splice(index!, 1);

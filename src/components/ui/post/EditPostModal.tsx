@@ -83,7 +83,7 @@ function EditPostModal({
           createUpdatePost={updatePost}
           imageArray={postImages}
           setImageArray={setPostImages}
-          defaultValue={decryptMessage(postContent)}
+          defaultValue={decryptMessage(postContent, true)}
           formatMention={formatMention}
           setFormatMention={setFormatMention}
           deleteImageIds={deleteImageIds}

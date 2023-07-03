@@ -20,7 +20,7 @@ import ErrorMessageList from '../../ErrorMessageList';
 import { FormatMentionProps } from '../../../../types';
 import {
   COMMENT_OR_REPLY_INPUT, bottomForCommentOrReplyInputOnMobile,
-  maxWidthForCommentOrReplyInputOnMobile, isNativePlatform, SEND_BUTTON_COMMENT_OR_REPLY,
+  maxWidthForCommentOrReplyInputOnMobile, SEND_BUTTON_COMMENT_OR_REPLY,
   CHOOSE_FILE_CAMERA_ICON,
 } from '../../../../constants';
 import useWindowInnerWidth from '../../../../hooks/useWindowInnerWidth';

@@ -265,10 +265,8 @@ function MessageTextarea({
     };
   }, [changeEmojiPickerPosition]);
 
-
   return (
     <>
-
       <StyledShadowWrapper isMentionsFocused={isMentionsFocused} iscommentinput={isCommentInput!}>
         <StyledMention
           ref={textareaRef}

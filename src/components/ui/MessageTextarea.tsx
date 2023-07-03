@@ -11,7 +11,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from 'react-bootstrap';
 import UserCircleImage from './UserCircleImage';
 import CustomEmojiPicker from './Emoji/CustomEmojiPicker';
-import { isNativePlatform } from '../../constants';
+import { isNativePlatform, maxWidthForCommentOrReplyInputOnMobile } from '../../constants';
+import useWindowInnerWidth from '../../hooks/useWindowInnerWidth';
 
 interface SytledMentionProps {
   iscommentinput: string;
@@ -262,6 +263,11 @@ function MessageTextarea({
       window.removeEventListener('click', changeEmojiPickerPosition, true);
     };
   }, [changeEmojiPickerPosition]);
+
+  const windowInnerWidth = useWindowInnerWidth();
+
+  const showEmojiButton = windowInnerWidth <= maxWidthForCommentOrReplyInputOnMobile;
+
   return (
     <>
 
@@ -298,7 +304,7 @@ function MessageTextarea({
           ))}
         </StyledMention>
 
-        {!isNativePlatform
+        {showEmojiButton
           && (
             <StyledEmojiButton iscommentinput={isCommentInput!}>
               <StyledEmoji

@@ -266,7 +266,7 @@ function MessageTextarea({
 
   const windowInnerWidth = useWindowInnerWidth();
 
-  const showEmojiButton = windowInnerWidth <= maxWidthForCommentOrReplyInputOnMobile;
+  const showEmojiButton = windowInnerWidth > maxWidthForCommentOrReplyInputOnMobile;
 
   return (
     <>

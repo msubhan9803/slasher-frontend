@@ -109,7 +109,7 @@ function EditCommentModal({
           createUpdatePost={handlePostComment}
           imageArray={postImages}
           setImageArray={setPostImages}
-          defaultValue={decryptMessage(editMessage)}
+          defaultValue={decryptMessage(editMessage, true)}
           formatMention={formatMention}
           setFormatMention={setFormatMention}
           deleteImageIds={deleteImageIds}

@@ -270,6 +270,7 @@ function MessageTextarea({
       <StyledShadowWrapper isMentionsFocused={isMentionsFocused} iscommentinput={isCommentInput!}>
         <StyledMention
           ref={textareaRef}
+          placement={showEmojiButton ? 'bottom' : 'top'} // (default = "bottom")
           iscommentinput={isCommentInput!}
           id={id}
           className={isCommentInput ? className : ''}

@@ -11,8 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from 'react-bootstrap';
 import UserCircleImage from './UserCircleImage';
 import CustomEmojiPicker from './Emoji/CustomEmojiPicker';
-import { isNativePlatform, maxWidthForCommentOrReplyInputOnMobile } from '../../constants';
-import useWindowInnerWidth from '../../hooks/useWindowInnerWidth';
+import { isNativePlatform } from '../../constants';
 
 interface SytledMentionProps {
   iscommentinput: string;
@@ -156,6 +155,7 @@ interface MentionProps {
   showPicker?: boolean;
   setShowPicker?: (val: any) => void;
   createEditPost?: boolean;
+  showEmojiButton?: boolean;
 }
 
 function MessageTextarea({
@@ -177,6 +177,7 @@ function MessageTextarea({
   showPicker,
   setShowPicker,
   createEditPost,
+  showEmojiButton,
 }: MentionProps) {
   const { Option } = Mentions;
   const textareaRef = useRef<MentionsRef>(null);
@@ -264,9 +265,6 @@ function MessageTextarea({
     };
   }, [changeEmojiPickerPosition]);
 
-  const windowInnerWidth = useWindowInnerWidth();
-
-  const showEmojiButton = windowInnerWidth > maxWidthForCommentOrReplyInputOnMobile;
 
   return (
     <>
@@ -351,5 +349,6 @@ MessageTextarea.defaultProps = {
   showPicker: undefined,
   setShowPicker: undefined,
   createEditPost: undefined,
+  showEmojiButton: true,
 };
 export default MessageTextarea;

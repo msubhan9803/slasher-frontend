@@ -44,7 +44,7 @@ import { defaultLinkifyOpts } from '../../../../utils/linkify-utils';
 import { getLocalStorage } from '../../../../utils/localstorage-utils';
 import FormatImageVideoList from '../../../../utils/video-utils';
 import useOnScreen from '../../../../hooks/useOnScreen';
-import { isHomePage, isNewsPartnerPage, isPostDetailsPage } from '../../../../utils/url-utils';
+import { isHomePage, isNewsPartnerPageSubRoutes, isPostDetailsPage } from '../../../../utils/url-utils';
 import ScrollToTop from '../../../ScrollToTop';
 import { postMovieDataToMovieDBformat, showMoviePoster } from '../../../../routes/movies/movie-utils';
 import { useAppSelector } from '../../../../redux/hooks';
@@ -399,7 +399,7 @@ function PostFeed({
   if (isHomePage(location.pathname)) {
     pubWiseAdDivId = HOME_WEB_DIV_ID;
   }
-  if (isNewsPartnerPage(location.pathname)) {
+  if (isNewsPartnerPageSubRoutes(location.pathname)) {
     pubWiseAdDivId = NEWS_PARTNER_POSTS_DIV_ID;
   }
 

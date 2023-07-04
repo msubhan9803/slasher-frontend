@@ -10,6 +10,7 @@
   --stroke-and-line-separator-color: #{$stroke-and-line-separator-color};
   --primary-light: #ffbdb6;
   --poster-border-color: #0e0e0e;
+  --scroll-bar-width: 8px;
 
   --fs-1: #{$h1-font-size};
   --fs-2: #{$h2-font-size};
@@ -25,7 +26,7 @@
 }
 
 *::-webkit-scrollbar {
-  width: 8px;
+  width: var(--scroll-bar-width);
   /* Mostly for vertical scrollbars */
   height: 6px;
   /* Mostly for horizontal scrollbars */

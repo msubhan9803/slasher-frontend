@@ -71,6 +71,7 @@ interface Props {
   setDisLike?: (val: boolean) => void;
   isWorthIt?: number;
   placeHolder?: string;
+  MaxImageUserInfo?: string;
   descriptionArray?: ContentDescription[];
   setDescriptionArray?: (value: ContentDescription[]) => void;
   showSaveButton?: boolean;
@@ -100,6 +101,7 @@ function CreatePostComponent({
   selectedPostType, setSelectedPostType, setWorthIt, liked, setLike, setReviewForm,
   disLiked, setDisLike, isWorthIt, placeHolder, descriptionArray, setDescriptionArray,
   showSaveButton, setShowReviewForm, handleScroll, showReviewForm, createEditPost, ProgressButton,
+  MaxImageUserInfo,
 }: Props) {
   const inputFile = useRef<HTMLInputElement>(null);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
@@ -447,6 +449,7 @@ function CreatePostComponent({
                 <FontAwesomeIcon icon={regular('image')} className="me-2" />
                 <span className="h3">Add photos</span>
               </AddPhotosButton>
+              {MaxImageUserInfo && <p className="text-center text-muted fs-2">{MaxImageUserInfo}</p>}
             </Col>
           )}
         <Col md="auto" className={postType === 'review' ? '' : 'order-2 ms-auto'}>
@@ -483,6 +486,7 @@ CreatePostComponent.defaultProps = {
   setDisLike: () => { },
   isWorthIt: 0,
   placeHolder: 'Write a something...',
+  MaxImageUserInfo: undefined,
   descriptionArray: [],
   setDescriptionArray: undefined,
   showSaveButton: false,

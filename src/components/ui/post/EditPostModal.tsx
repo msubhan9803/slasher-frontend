@@ -89,6 +89,7 @@ function EditPostModal({
           deleteImageIds={deleteImageIds}
           setDeleteImageIds={setDeleteImageIds}
           placeHolder="Create a post"
+          MaxImageUserInfo="Up to 10"
           showSaveButton
           descriptionArray={descriptionArray}
           setDescriptionArray={setDescriptionArray}

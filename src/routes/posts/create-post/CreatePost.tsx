@@ -130,6 +130,7 @@ function CreatePost() {
             selectedPostType={selectedPostType}
             setSelectedPostType={setSelectedPostType}
             placeHolder="Create a post"
+            MaxImageUserInfo="Up to 10"
             descriptionArray={descriptionArray}
             setDescriptionArray={setDescriptionArray}
             ProgressButton={ProgressButton}

@@ -1,21 +1,20 @@
 /* eslint-disable max-lines */
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Navigation } from 'swiper';
 import 'swiper/swiper-bundle.css';
 import { Link, useNavigate } from 'react-router-dom';
 import { brands } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  Button, Col, Image, Row,
-} from 'react-bootstrap';
+import { Button, Image } from 'react-bootstrap';
 import { DateTime } from 'luxon';
 import CustomYoutubeModal from './CustomYoutubeModal';
 import { useAppSelector } from '../../redux/hooks';
 import CustomSwiperZoomableImage from './CustomSwiperZoomableImage';
 import { StyledMoviePoster } from '../../routes/movies/movie-details/StyledUtils';
 import RoundButton from './RoundButton';
+import { LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT, XL_MEDIA_BREAKPOINT } from '../../constants';
 
 interface SliderImage {
   postId?: string;
@@ -96,6 +95,30 @@ const SwiperContentContainer = styled.div`
   }
 `;
 
+const CssForColumnView = css`
+  & {
+    flex-direction: column-reverse;
+  }
+  .text__details {
+    padding-inline-start: 0px;
+  }
+`;
+
+const MoviePosterWithAdditionDetails = styled.div`
+  display: flex;
+  .text__details {
+    margin: auto;
+    padding-inline-start: 24px;
+    text-align: left;
+  }
+  @media (max-width: ${XL_MEDIA_BREAKPOINT}) and (min-width: ${LG_MEDIA_BREAKPOINT}) {
+    ${CssForColumnView}
+  }
+  @media (max-width: ${MD_MEDIA_BREAKPOINT}) {
+    ${CssForColumnView}
+  }
+`;
+
 let instanceCounter = 0;
 
 function CustomSwiper({
@@ -152,8 +175,8 @@ function CustomSwiper({
     if (imageAndVideo.movieData) {
       return (
         <SwiperContentContainer>
-          <Row className="m-0 h-100">
-            <Col className="p-0 h-100 py-3">
+          <MoviePosterWithAdditionDetails>
+            <div className="py-3">
               <StyledMoviePoster className="h-100">
                 <Image
                   src={imageAndVideo?.movieData?.poster_path}
@@ -164,8 +187,8 @@ function CustomSwiper({
                   }}
                 />
               </StyledMoviePoster>
-            </Col>
-            <Col className="m-auto ps-4 text-start">
+            </div>
+            <div className="text__details">
               <div className="fw-bold mb-1">
                 {imageAndVideo?.movieData?.title}
               </div>
@@ -177,8 +200,8 @@ function CustomSwiper({
                 View details
               </RoundButton>
 
-            </Col>
-          </Row>
+            </div>
+          </MoviePosterWithAdditionDetails>
         </SwiperContentContainer>
       );
     }

@@ -1053,7 +1053,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                 commentNotFound={commentNotFound}
                 setCommentNotFound={setCommentNotFound}
                 onCommentNotFoundClose={onCommentNotFoundClose}
-                content={queryReplyId ? 'Reply No longer Exist' : 'Comment No Longer Exist'}
+                content={queryReplyId ? 'Reply no longer exists' : 'Comment no longer exists'}
               />
             )}
           </div>

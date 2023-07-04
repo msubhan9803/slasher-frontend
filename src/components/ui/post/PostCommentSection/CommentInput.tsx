@@ -20,7 +20,7 @@ import ErrorMessageList from '../../ErrorMessageList';
 import { FormatMentionProps } from '../../../../types';
 import {
   COMMENT_OR_REPLY_INPUT, bottomForCommentOrReplyInputOnMobile,
-  maxWidthForCommentOrReplyInputOnMobile, isNativePlatform, SEND_BUTTON_COMMENT_OR_REPLY,
+  maxWidthForCommentOrReplyInputOnMobile, SEND_BUTTON_COMMENT_OR_REPLY,
   CHOOSE_FILE_CAMERA_ICON,
 } from '../../../../constants';
 import useWindowInnerWidth from '../../../../hooks/useWindowInnerWidth';
@@ -63,6 +63,7 @@ interface CommentInputProps {
 
 interface InputProps {
   focus: boolean;
+  showEmojiButton: boolean;
 }
 
 const CommentForm = styled(Form)`
@@ -93,11 +94,11 @@ const StyledCommentInputGroup = styled(InputGroup) <InputProps>`
     border-bottom-left-radius: 0rem !important;
     border-top-left-radius: 0rem !important;
   }
-  ${!isNativePlatform
-  && ` textarea {
-    padding-left: 1.5rem !important;
-  }`
-}
+
+  ${(props) => props.showEmojiButton && `
+    textarea { padding-left: 1.5rem !important; }
+  `}
+  
   svg {
     min-width: 1.875rem;
     &:focus {
@@ -267,12 +268,15 @@ function CommentInput({
   const handleCloseCommentOrReplySuccessAlert = () => {
     setCommentOrReplySuccessAlertMessage?.('');
   };
+
+  const showEmojiButton = windowInnerWidth > maxWidthForCommentOrReplyInputOnMobile;
+
   return (
     <CommentForm id={COMMENT_OR_REPLY_INPUT}>
       <Row className="pt-2 order-last order-sm-0 gx-0">
         <Col className="ps-0">
           <div className="d-flex align-items-end mb-2">
-            <StyledCommentInputGroup focus={isFocosInput} className="mx-1">
+            <StyledCommentInputGroup focus={isFocosInput} showEmojiButton={showEmojiButton} className="mx-1">
               <div className="position-relative d-flex w-100">
                 <MessageTextarea
                   rows={1}
@@ -292,6 +296,7 @@ function CommentInput({
                   isMainPostCommentClick={isMainPostCommentClick}
                   showPicker={showPicker}
                   setShowPicker={setShowPicker}
+                  showEmojiButton={showEmojiButton}
                 />
                 <InputGroup.Text className="position-relative px-3 border-start-0" id={CHOOSE_FILE_CAMERA_ICON}>
                   <FontAwesomeIcon

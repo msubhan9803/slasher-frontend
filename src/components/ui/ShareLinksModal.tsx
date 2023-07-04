@@ -51,7 +51,7 @@ function ShareLinksModal({ copyLinkUrl, show, setShow }: any) {
       <Modal.Body className="d-flex flex-column align-items-center text-center mx-5 px-5 pt-0 pb-0 mb-5">
         <h1 className="mb-0 text-primary text-center mx-4">Share</h1>
         <Row xs={3} lg="auto" className="mt-4">
-          {enableDevFeatures && isMovieDetailsPageSubRoutes(pathname)
+          {isMovieDetailsPageSubRoutes(pathname)
             && (
               <Col className="pb-5">
                 <ShareIconButton label="Share as a post" onClick={() => { navigate(`/app/posts/create?movieId=${params.id}`, { state: pathname }); }} imgSrc={ShareAsApostIcon} />

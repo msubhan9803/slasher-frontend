@@ -44,6 +44,7 @@ import { setIsServerAvailable } from '../../../../redux/slices/serverAvailableSl
 import { Message } from '../../../../types';
 import { showBackButtonInIos } from '../../../../utils/url-utils';
 import { onKeyboardClose, removeGlobalCssProperty, setGlobalCssProperty } from '../../../../utils/styles-utils ';
+import { enableScrollOnWindow } from '../../../../utils/scrollFunctions';
 
 interface Props {
   children: React.ReactNode;
@@ -123,6 +124,9 @@ function AuthenticatedPageWrapper({ children }: Props) {
     // Fix: Sometimes bottom-navbar is not shown after using
     // `comment-textinput` on post-details page
     onKeyboardClose();
+    // Fix: Sometimes scroll is disabled on home page after image in zoomed
+    // and used browser-back button to go back (SD-1404)
+    enableScrollOnWindow();
   }, [hash, pathname, search]);
 
   const params = useParams();

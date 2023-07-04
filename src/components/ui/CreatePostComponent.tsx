@@ -449,7 +449,7 @@ function CreatePostComponent({
                 <FontAwesomeIcon icon={regular('image')} className="me-2" />
                 <span className="h3">Add photos</span>
               </AddPhotosButton>
-              {MaxImageUserInfo && <p className="text-center text-muted fs-2">{MaxImageUserInfo}</p>}
+              {MaxImageUserInfo && <p className="text-center text-muted fs-5">{MaxImageUserInfo}</p>}
             </Col>
           )}
         <Col md="auto" className={postType === 'review' ? '' : 'order-2 ms-auto'}>

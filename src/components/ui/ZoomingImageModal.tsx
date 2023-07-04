@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Image, Modal } from 'react-bootstrap';
 import styled from 'styled-components';
 import CustomModal from './CustomModal';
+import { disableScrollOnWindow, enableScrollOnWindow } from '../../utils/scrollFunctions';
 
 interface Props {
   imgSrc: string;
@@ -22,8 +23,7 @@ function ZoomableImageModal({
   imgSrc, imgAlt, show, onHide,
 }: Props) {
   useEffect(() => {
-    const html : any = document.querySelector('html');
-    html.style.overflow = show ? 'hidden' : '';
+    if (show) { disableScrollOnWindow(); } else { enableScrollOnWindow(); }
   }, [show]);
 
   return (

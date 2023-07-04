@@ -8,3 +8,12 @@ export const scrollWithOffset = (el: any) => {
 export const scrollToTop = (behavior: 'instant' | 'smooth') => {
   window.scrollTo({ top: 0, behavior: behavior as any });
 };
+
+export const disableScrollOnWindow = () => {
+  const html: any = document.querySelector('html');
+  html.style.overflow = 'hidden';
+};
+export const enableScrollOnWindow = () => {
+  const html: any = document.querySelector('html');
+  html.style.overflow = '';
+};

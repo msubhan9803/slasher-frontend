@@ -16,6 +16,8 @@ import { useAppSelector } from '../../redux/hooks';
 import CustomSwiperZoomableImage from './CustomSwiperZoomableImage';
 import { StyledMoviePoster } from '../../routes/movies/movie-details/StyledUtils';
 import RoundButton from './RoundButton';
+import LoadingIndicator from './LoadingIndicator';
+import { youtube } from '../../api/youtube';
 
 interface SliderImage {
   postId?: string;
@@ -40,6 +42,7 @@ interface Props {
   images: SliderImage[];
   initialSlide?: number;
   onSelect?: (value: string) => void;
+  isSinglePost?: boolean;
 }
 
 const heightForContext: Record<SwiperContext, string> = {
@@ -99,33 +102,73 @@ const SwiperContentContainer = styled.div`
 let instanceCounter = 0;
 
 function CustomSwiper({
-  context, images, initialSlide, onSelect,
+  context, images, initialSlide, onSelect, isSinglePost,
 }: Props) {
   const uniqueId = `${instanceCounter += 1}`;
   const [showVideoPlayerModal, setShowYouTubeModal] = useState(false);
+  const [isValidURL, setValidURL] = useState<any>();
   const { placeholderUrlNoImageAvailable } = useAppSelector((state) => state.remoteConstants);
   const navigate = useNavigate();
 
+  const handleImageError = (e: any) => {
+    e.target.src = placeholderUrlNoImageAvailable;
+  };
+  const renderImage = (imageAndVideo: any) => (
+    <SwiperContentContainer style={{ height: heightForContext[context] }}>
+      <img
+        src={`https://img.youtube.com/vi/${imageAndVideo.videoKey}/hqdefault.jpg`}
+        className="w-100 h-100"
+        alt={`${imageAndVideo.imageDescription ? imageAndVideo.imageDescription : 'user uploaded content videoKey'}`}
+        onError={handleImageError}
+      />
+      <StyledYouTubeButton
+        variant="link"
+        onClick={(e: any) => {
+          e.preventDefault();
+          setShowYouTubeModal(true);
+        }}
+      >
+        <FontAwesomeIcon icon={brands('youtube')} size="4x" />
+      </StyledYouTubeButton>
+    </SwiperContentContainer>
+  );
+  const renderPlaceholderImage = (imageAndVideo: any) => (
+    <SwiperContentContainer style={{ height: heightForContext[context] }}>
+      <img
+        src={placeholderUrlNoImageAvailable}
+        className="w-100 h-100"
+        alt={`${imageAndVideo.imageDescription ? imageAndVideo.imageDescription : 'user uploaded content videoKey'}`}
+        onError={handleImageError}
+      />
+    </SwiperContentContainer>
+  );
   const displayVideoAndImage = (imageAndVideo: SliderImage) => {
     if (imageAndVideo.videoKey) {
-      return (
-        <SwiperContentContainer>
-          <img
-            src={`https://img.youtube.com/vi/${imageAndVideo.videoKey}/hqdefault.jpg`}
-            className="w-100 h-100"
-            alt={`${imageAndVideo.imageDescription ? imageAndVideo.imageDescription : 'user uploaded content'} `}
-            onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-              e.currentTarget.src = placeholderUrlNoImageAvailable;
-            }}
-          />
-          <StyledYouTubeButton
-            variant="link"
-            onClick={(e: React.MouseEvent) => { e.preventDefault(); setShowYouTubeModal(true); }}
-          >
-            <FontAwesomeIcon icon={brands('youtube')} size="4x" />
-          </StyledYouTubeButton>
-        </SwiperContentContainer>
-      );
+      youtube(imageAndVideo.videoKey).then((res) => {
+        if (res.status === 200) {
+          setValidURL(true);
+        } else {
+          setValidURL(false);
+        }
+      }).catch(() => {
+        setValidURL(false);
+      });
+      if (isValidURL === true) {
+        return (
+          renderImage(imageAndVideo)
+        );
+      }
+      if (
+        isValidURL === false && ((isSinglePost === false && images.length > 1) || (isSinglePost))
+      ) {
+        return (
+          renderPlaceholderImage(imageAndVideo)
+        );
+      }
+      if (isValidURL === undefined) {
+        return <LoadingIndicator />;
+      }
+      return null;
     }
     if (imageAndVideo.linkUrl) {
       return (
@@ -136,11 +179,11 @@ function CustomSwiper({
           }
           className="h-100"
         >
-          <SwiperContentContainer>
+          <SwiperContentContainer style={{ height: heightForContext[context] }}>
             <img
               src={imageAndVideo.imageUrl}
               className="w-100 h-100"
-              alt={`${imageAndVideo.imageDescription ? imageAndVideo.imageDescription : 'user uploaded content'} `}
+              alt={`${imageAndVideo.imageDescription ? imageAndVideo.imageDescription : 'user uploaded content imageUrl'} `}
               onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                 e.currentTarget.src = placeholderUrlNoImageAvailable;
               }}
@@ -151,7 +194,7 @@ function CustomSwiper({
     }
     if (imageAndVideo.movieData) {
       return (
-        <SwiperContentContainer>
+        <SwiperContentContainer style={{ height: heightForContext[context] }}>
           <Row className="m-0 h-100">
             <Col className="p-0 h-100 py-3">
               <StyledMoviePoster className="h-100">
@@ -183,7 +226,7 @@ function CustomSwiper({
       );
     }
     return (
-      <SwiperContentContainer>
+      <SwiperContentContainer style={{ height: heightForContext[context] }}>
         <CustomSwiperZoomableImage
           className="h-100"
           src={imageAndVideo.imageUrl}
@@ -197,7 +240,7 @@ function CustomSwiper({
   };
 
   return (
-    <div style={{ height: heightForContext[context] }} className={`${images.length > 1 ? 'mb-4' : ''}`}>
+    <div className={`${images.length > 1 ? 'mb-4' : ''}`}>
       <StyledSwiper
         pagination={{ type: 'fraction', el: `#swiper-pagination-el-${uniqueId}` }}
         initialSlide={initialSlide}
@@ -229,5 +272,6 @@ function CustomSwiper({
 CustomSwiper.defaultProps = {
   initialSlide: 0,
   onSelect: undefined,
+  isSinglePost: false,
 };
 export default CustomSwiper;

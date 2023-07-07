@@ -52,7 +52,7 @@ export const topStatuBarBackgroundColorAndroidOnly = '000000';
 
 // Note: This must be numeric value because we use this
 // compare against return value of `useResize` hook
-export const maxWidthForCommentOrReplyInputOnMobile: number = BREAK_POINTS.lg;
+export const maxWidthForCommentOrReplyInputOnMobile: number = BREAK_POINTS.lg - 1;
 export const bottomForCommentOrReplyInputOnMobile = '77px';
 
 export const isDevelopmentServer = process.env.NODE_ENV === 'development';

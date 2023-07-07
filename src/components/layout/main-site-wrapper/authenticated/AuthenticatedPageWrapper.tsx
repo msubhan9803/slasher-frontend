@@ -44,6 +44,7 @@ import { setIsServerAvailable } from '../../../../redux/slices/serverAvailableSl
 import { Message } from '../../../../types';
 import { showBackButtonInIos } from '../../../../utils/url-utils';
 import { onKeyboardClose, removeGlobalCssProperty, setGlobalCssProperty } from '../../../../utils/styles-utils ';
+import { enableScrollOnWindow } from '../../../../utils/scrollFunctions';
 
 interface Props {
   children: React.ReactNode;
@@ -123,6 +124,9 @@ function AuthenticatedPageWrapper({ children }: Props) {
     // Fix: Sometimes bottom-navbar is not shown after using
     // `comment-textinput` on post-details page
     onKeyboardClose();
+    // Fix: Sometimes scroll is disabled on home page after image in zoomed
+    // and used browser-back button to go back (SD-1404)
+    enableScrollOnWindow();
   }, [hash, pathname, search]);
 
   const params = useParams();
@@ -133,11 +137,16 @@ function AuthenticatedPageWrapper({ children }: Props) {
   }, [dispatch, location.pathname]);
 
   // Reload the page if the session token changes
-  useSessionTokenMonitorAsync(
-    getSessionToken,
-    () => { window.location.reload(); },
-    5_000,
-  );
+
+  if (!isNativePlatform) {
+    // NOTE: Below hook is not called unconditionally because `isNativePlatform` is a constant value
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useSessionTokenMonitorAsync(
+      getSessionToken,
+      () => { window.location.reload(); },
+      5_000,
+    );
+  }
 
   const showOffcanvasSidebar = () => setShow(true);
   const toggleOffCanvas = () => {
@@ -274,11 +283,11 @@ function AuthenticatedPageWrapper({ children }: Props) {
   }
 
   return (
-    <div id={AUTHENTICATED_PAGE_WRAPPER_ID} className="page-wrapper full" style={{ paddingTop: `${isIOS && showBackButtonInIos(location.pathname) ? 'var(--heightOfBackButtonOfIos)' : ''}` }}>
+    <div id={AUTHENTICATED_PAGE_WRAPPER_ID} className="page-wrapper full" style={{ paddingTop: `${!isDesktopResponsiveSize && isIOS && showBackButtonInIos(location.pathname) ? 'var(--heightOfBackButtonOfIos)' : ''}` }}>
       {isIOS
         && showBackButtonInIos(location.pathname)
         && (
-          <div className="d-md-nonept-2 position-fixed" ref={backButtonElementRef} style={{ top: 0, paddingTop: '0.625rem', zIndex: 1 }}>
+          <div className="pt-2 position-fixed" ref={backButtonElementRef} style={{ top: 0, paddingTop: '0.625rem', zIndex: 1 }}>
             <div className="ms-2">
               <Button variant="link" className="p-0 px-1" onClick={() => navigate(-1)}>
                 <FontAwesomeIcon role="button" icon={solid('arrow-left-long')} size="2x" />

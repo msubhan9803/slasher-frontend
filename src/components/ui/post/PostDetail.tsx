@@ -26,7 +26,6 @@ import {
   FriendRequestReaction, FriendType, Post, User,
 } from '../../../types';
 import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-utils';
-import { decryptMessage } from '../../../utils/text-utils';
 import { ContentPageWrapper } from '../../layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
@@ -42,6 +41,7 @@ import { isPostDetailsPage } from '../../../utils/url-utils';
 import { friendship } from '../../../api/friends';
 import FriendshipStatusModal from '../friendShipCheckModal';
 import ContentNotAvailable from '../../ContentNotAvailable';
+import CheckCommentModal from '../checkCommentModal';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -97,6 +97,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   const [friendShipStatusModal, setFriendShipStatusModal] = useState<boolean>(false);
   const [postUserId, setPostUserId] = useState<string>('');
   const [notFound, setNotFound] = useState<boolean>(false);
+  const [commentNotFound, setCommentNotFound] = useState<boolean>(false);
 
   const [commentOrReplySuccessAlertMessage, setCommentOrReplySuccessAlertMessage] = useState('');
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
@@ -513,7 +514,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             _id: res.data._id,
             id: res.data._id,
             postDate: res.data.createdAt,
-            message: decryptMessage(res.data.message),
+            message: res.data.message,
             userName: res.data.userId.userName,
             profileImage: res.data.userId.profilePic,
             userId: res.data.userId._id,
@@ -768,7 +769,16 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           navigate(`/${user?.userName}/posts/${res.data.feedPostId}?commentId=${queryCommentId}`);
         }
       }
+
+      if (queryReplyId && res.data.replies.length
+        && !res.data.replies.some((reply: any) => reply._id === queryReplyId)) {
+        setCommentNotFound(true);
+      }
       setCommentData([res.data]);
+    }).catch((err) => {
+      if (err.response.status === 404) {
+        setCommentNotFound(true);
+      }
     });
   }, [navigate, partnerId, postId, queryCommentId, queryReplyId, user?.userName, postType]);
   useEffect(() => {
@@ -845,6 +855,13 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     ? CommentsOrder.oldestFirst
     : CommentsOrder.newestFirst;
   if (notFound) { return (<ContentNotAvailable />); }
+
+  const onCommentNotFoundClose = () => {
+    if (!queryReplyId) {
+      callLatestFeedComments();
+    }
+    setCommentNotFound(false);
+  };
 
   return (
     <>
@@ -1028,6 +1045,15 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                 setFriendData={setFriendData}
                 friendData={friendData}
                 userId={postUserId}
+              />
+            )}
+
+            {commentNotFound && (
+              <CheckCommentModal
+                commentNotFound={commentNotFound}
+                setCommentNotFound={setCommentNotFound}
+                onCommentNotFoundClose={onCommentNotFoundClose}
+                content={queryReplyId ? 'Reply no longer exists' : 'Comment no longer exists'}
               />
             )}
           </div>

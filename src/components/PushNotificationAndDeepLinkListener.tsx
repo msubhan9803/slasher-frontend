@@ -33,8 +33,9 @@ function PushNotificationAndDeepLinkListener() {
       PushNotifications.addListener('registration', async (token: Token) => {
         // Send the token to your server for further processing, if needed
         const deviceToken = token.value;
-        if (await getSessionToken() && await getDeviceToken()
-          && deviceToken !== await getDeviceToken()) {
+        const fetchedDeviceToken = await getDeviceToken();
+        const fetchedSessionToken = await getSessionToken();
+        if (fetchedSessionToken && fetchedDeviceToken && deviceToken !== fetchedDeviceToken) {
           const deviceId = await Device.getId();
           updateUserDeviceToken(deviceId.identifier, deviceToken);
         }

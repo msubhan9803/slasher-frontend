@@ -27,7 +27,7 @@ import {
 } from '../../types';
 import { getMoviesById, getMoviesDataById } from '../../api/movies';
 import { StyledMoviePoster } from '../../routes/movies/movie-details/StyledUtils';
-import { LG_MEDIA_BREAKPOINT, topToDivHeight } from '../../constants';
+import { LG_MEDIA_BREAKPOINT, isNativePlatform, topToDivHeight } from '../../constants';
 import { ProgressButtonComponentType } from './ProgressButton';
 
 interface MentionProps {
@@ -71,6 +71,7 @@ interface Props {
   setDisLike?: (val: boolean) => void;
   isWorthIt?: number;
   placeHolder?: string;
+  MaxImageUserInfo?: string;
   descriptionArray?: ContentDescription[];
   setDescriptionArray?: (value: ContentDescription[]) => void;
   showSaveButton?: boolean;
@@ -100,6 +101,7 @@ function CreatePostComponent({
   selectedPostType, setSelectedPostType, setWorthIt, liked, setLike, setReviewForm,
   disLiked, setDisLike, isWorthIt, placeHolder, descriptionArray, setDescriptionArray,
   showSaveButton, setShowReviewForm, handleScroll, showReviewForm, createEditPost, ProgressButton,
+  MaxImageUserInfo,
 }: Props) {
   const inputFile = useRef<HTMLInputElement>(null);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
@@ -132,6 +134,7 @@ function CreatePostComponent({
     const removePostImage = imageArray.filter((image: File) => image !== postImage);
     setDeleteImageIds([...deleteImageIds, postImage._id].filter(Boolean));
     setImageArray(removePostImage);
+    setUploadPost(removePostImage);
 
     const descriptionArrayList = descriptionArray;
     descriptionArrayList!.splice(index!, 1);
@@ -346,6 +349,7 @@ function CreatePostComponent({
       )}
       <div className="mt-3 position-relative">
         <MessageTextarea
+          showEmojiButton={!isNativePlatform}
           rows={10}
           placeholder={placeHolder}
           handleSearch={handleSearch}
@@ -446,6 +450,7 @@ function CreatePostComponent({
                 <FontAwesomeIcon icon={regular('image')} className="me-2" />
                 <span className="h3">Add photos</span>
               </AddPhotosButton>
+              {MaxImageUserInfo && <p className="text-center text-muted fs-5">{MaxImageUserInfo}</p>}
             </Col>
           )}
         <Col md="auto" className={postType === 'review' ? '' : 'order-2 ms-auto'}>
@@ -482,6 +487,7 @@ CreatePostComponent.defaultProps = {
   setDisLike: () => { },
   isWorthIt: 0,
   placeHolder: 'Write a something...',
+  MaxImageUserInfo: undefined,
   descriptionArray: [],
   setDescriptionArray: undefined,
   showSaveButton: false,

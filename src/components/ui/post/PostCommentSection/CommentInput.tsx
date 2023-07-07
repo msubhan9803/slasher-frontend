@@ -13,14 +13,14 @@ import {
 import styled from 'styled-components';
 import ImagesContainer from '../../ImagesContainer';
 import {
-  atMentionsGlobalRegex, decryptMessage, generateMentionReplacementMatchFunc,
+  atMentionsGlobalRegex, generateMentionReplacementMatchFunc,
 } from '../../../../utils/text-utils';
 import MessageTextarea from '../../MessageTextarea';
 import ErrorMessageList from '../../ErrorMessageList';
 import { FormatMentionProps } from '../../../../types';
 import {
   COMMENT_OR_REPLY_INPUT, bottomForCommentOrReplyInputOnMobile,
-  maxWidthForCommentOrReplyInputOnMobile, isNativePlatform, SEND_BUTTON_COMMENT_OR_REPLY,
+  maxWidthForCommentOrReplyInputOnMobile, SEND_BUTTON_COMMENT_OR_REPLY,
   CHOOSE_FILE_CAMERA_ICON,
 } from '../../../../constants';
 import useWindowInnerWidth from '../../../../hooks/useWindowInnerWidth';
@@ -63,6 +63,7 @@ interface CommentInputProps {
 
 interface InputProps {
   focus: boolean;
+  showEmojiButton: boolean;
 }
 
 const CommentForm = styled(Form)`
@@ -93,11 +94,11 @@ const StyledCommentInputGroup = styled(InputGroup) <InputProps>`
     border-bottom-left-radius: 0rem !important;
     border-top-left-radius: 0rem !important;
   }
-  ${!isNativePlatform
-  && ` textarea {
-    padding-left: 1.5rem !important;
-  }`
-}
+
+  ${(props) => props.showEmojiButton && `
+    textarea { padding-left: 1.5rem !important; }
+  `}
+  
   svg {
     min-width: 1.875rem;
     &:focus {
@@ -139,7 +140,7 @@ function CommentInput({
 
   useEffect(() => {
     if (message && message.length > 0) {
-      setEditMessage(`##LINK_ID##${selectedReplyUserId}${message}##LINK_END## `);
+      setEditMessage(`${message} `);
     } else {
       setEditMessage('');
       handleSetCommentReplyErrorMessage([]);
@@ -267,12 +268,15 @@ function CommentInput({
   const handleCloseCommentOrReplySuccessAlert = () => {
     setCommentOrReplySuccessAlertMessage?.('');
   };
+
+  const showEmojiButton = windowInnerWidth > maxWidthForCommentOrReplyInputOnMobile;
+
   return (
     <CommentForm id={COMMENT_OR_REPLY_INPUT}>
       <Row className="pt-2 order-last order-sm-0 gx-0">
         <Col className="ps-0">
           <div className="d-flex align-items-end mb-2">
-            <StyledCommentInputGroup focus={isFocosInput} className="mx-1">
+            <StyledCommentInputGroup focus={isFocosInput} showEmojiButton={showEmojiButton} className="mx-1">
               <div className="position-relative d-flex w-100">
                 <MessageTextarea
                   rows={1}
@@ -285,13 +289,14 @@ function CommentInput({
                   setMessageContent={setEditMessage}
                   formatMentionList={formatMention}
                   setFormatMentionList={setFormatMention}
-                  defaultValue={decryptMessage(editMessage)}
+                  defaultValue={editMessage}
                   isCommentInput="true"
                   onFocusHandler={onFocusHandler}
                   onBlurHandler={onBlurHandler}
                   isMainPostCommentClick={isMainPostCommentClick}
                   showPicker={showPicker}
                   setShowPicker={setShowPicker}
+                  showEmojiButton={showEmojiButton}
                 />
                 <InputGroup.Text className="position-relative px-3 border-start-0" id={CHOOSE_FILE_CAMERA_ICON}>
                   <FontAwesomeIcon

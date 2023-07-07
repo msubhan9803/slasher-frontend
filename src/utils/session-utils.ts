@@ -3,86 +3,81 @@ import { Preferences } from '@capacitor/preferences';
 import { clearLocalStorage } from './localstorage-utils';
 import socketStore from '../socketStore';
 import { isNativePlatform } from '../constants';
+import { sleep } from './timer-utils';
+
+const onlySendCookieOverHttps = !['development', 'test'].includes(process.env.NODE_ENV);
+const DEFAULT_COOKIE_OPTIONS = {
+  expires: 400, // Expire cookie in 400 days (400 is maximum allowed by google-chrome)
+};
+const SESSION_TOKEN_OPTIONS = { ...DEFAULT_COOKIE_OPTIONS, secure: onlySendCookieOverHttps };
 
 export const setSignInCookies = async (sessionToken: string, userId: string, userName: string) => {
-  // Set cookies
-  const onlySendCookieOverHttps = !['development', 'test'].includes(process.env.NODE_ENV);
-  const DEFAULT_COOKIE_OPTIONS = {
-    expires: 400, // Expire cookie in 400 days (400 is maximum allowed by google-chrome)
-  };
-  Cookies.set('sessionToken', sessionToken, { ...DEFAULT_COOKIE_OPTIONS, secure: onlySendCookieOverHttps });
-  Cookies.set('userId', userId, DEFAULT_COOKIE_OPTIONS);
-  Cookies.set('userName', userName, DEFAULT_COOKIE_OPTIONS);
-
-  // Use `Capacitor Preferences` api to cache user credentials in native storage for android and
-  // ios devices for persistence after application is completely closed from recent-apps.
-  if (isNativePlatform) {
+  if (!isNativePlatform) {
+    // Set cookies
+    Cookies.set('sessionToken', sessionToken, SESSION_TOKEN_OPTIONS);
+    Cookies.set('userId', userId, DEFAULT_COOKIE_OPTIONS);
+    Cookies.set('userName', userName, DEFAULT_COOKIE_OPTIONS);
+  } else {
+    // Use `Capacitor Preferences` api to cache user credentials in native storage for android and
+    // ios devices for persistence after application is completely closed from recent-apps.
     await Preferences.set({ key: 'sessionToken', value: sessionToken });
     await Preferences.set({ key: 'userId', value: userId });
     await Preferences.set({ key: 'userName', value: userName });
   }
 };
 export const updateUserNameCookie = async (userName: string) => {
-  const onlySendCookieOverHttps = !['development', 'test'].includes(process.env.NODE_ENV);
-  Cookies.set('userName', userName, { secure: onlySendCookieOverHttps });
-  if (isNativePlatform) {
+  if (!isNativePlatform) {
+    Cookies.set('userName', userName, { secure: onlySendCookieOverHttps });
+  } else {
     await Preferences.set({ key: 'userName', value: userName });
   }
 };
 
 const clearSignInCookies = async () => {
-  if (isNativePlatform) { await Preferences.clear(); }
-  // SD-1247: Bug Fixed: Please make sure capacitor Shared-preferences are cleared first (i.e,
-  // before Cookies) otherwise sometimes there are race conditions which tend to reset cookies
-  // for `sessionToken` when some call for `getSessionToken` is also in queue for some active
-  // requests.
-  Cookies.remove('sessionToken');
-  Cookies.remove('userId');
-  Cookies.remove('userName');
+  if (!isNativePlatform) {
+    Cookies.remove('sessionToken');
+    Cookies.remove('userId');
+    Cookies.remove('userName');
+  } else {
+    await Preferences.clear();
+  }
   clearLocalStorage('spoilersIds');
 };
 export const clearUserSession = async () => {
   await clearSignInCookies();
+  await sleep(1_000);
   window.location.replace('/app/sign-in'); // redirect clears redux data and js caches
   socketStore.socket?.disconnect();
   socketStore.socket = null;
 };
 export const getSessionToken = async () => {
-  const sessionToken = Cookies.get('sessionToken');
-  if (sessionToken) { return sessionToken; }
-  // Try to restore from native storage for capacitor app.
-  if (isNativePlatform) {
+  if (!isNativePlatform) {
+    const sessionToken = Cookies.get('sessionToken');
+    if (sessionToken) { return sessionToken; }
+  } else {
     const token = (await Preferences.get({ key: 'sessionToken' })).value;
-    if (token) {
-      Cookies.set('sessionToken', token);
-      return token;
-    }
+    if (token) { return token; }
   }
   return null;
 };
+Object.assign(window, { c: clearSignInCookies, g: getSessionToken, Cookies });
 export const getSessionUserId = async () => {
-  const sessionUserId = Cookies.get('userId');
-  if (sessionUserId) { return sessionUserId; }
-  // Try to restore from native storage for capacitor app.
-  if (isNativePlatform) {
+  if (!isNativePlatform) {
+    const sessionUserId = Cookies.get('userId');
+    if (sessionUserId) { return sessionUserId; }
+  } else {
     const userId = (await Preferences.get({ key: 'userId' })).value;
-    if (userId) {
-      Cookies.set('userId', userId);
-      return userId;
-    }
+    if (userId) { return userId; }
   }
   return null;
 };
 export const getSessionUserName = async () => {
-  const sessionUserName = Cookies.get('userName');
-  if (sessionUserName) { return sessionUserName; }
-  // Try to restore from native storage for capacitor app.
-  if (isNativePlatform) {
+  if (!isNativePlatform) {
+    const sessionUserName = Cookies.get('userName');
+    if (sessionUserName) { return sessionUserName; }
+  } else {
     const userName = (await Preferences.get({ key: 'userName' })).value;
-    if (userName) {
-      Cookies.set('userName', userName);
-      return userName;
-    }
+    if (userName) { return userName; }
   }
   return null;
 };

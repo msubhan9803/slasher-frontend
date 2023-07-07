@@ -27,7 +27,7 @@ import {
 } from '../../types';
 import { getMoviesById, getMoviesDataById } from '../../api/movies';
 import { StyledMoviePoster } from '../../routes/movies/movie-details/StyledUtils';
-import { LG_MEDIA_BREAKPOINT, topToDivHeight } from '../../constants';
+import { LG_MEDIA_BREAKPOINT, isNativePlatform, topToDivHeight } from '../../constants';
 import { ProgressButtonComponentType } from './ProgressButton';
 
 interface MentionProps {
@@ -349,6 +349,7 @@ function CreatePostComponent({
       )}
       <div className="mt-3 position-relative">
         <MessageTextarea
+          showEmojiButton={!isNativePlatform}
           rows={10}
           placeholder={placeHolder}
           handleSearch={handleSearch}

@@ -39,7 +39,9 @@ const clearSignInCookies = async () => {
     Cookies.remove('userId');
     Cookies.remove('userName');
   } else {
-    await Preferences.clear();
+    await Preferences.remove({ key: 'sessionToken' });
+    await Preferences.remove({ key: 'userId' });
+    await Preferences.remove({ key: 'userName' });
   }
   clearLocalStorage('spoilersIds');
 };

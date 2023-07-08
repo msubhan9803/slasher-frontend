@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, { useState } from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Navigation } from 'swiper';
 import 'swiper/swiper-bundle.css';
@@ -14,7 +14,9 @@ import { useAppSelector } from '../../redux/hooks';
 import CustomSwiperZoomableImage from './CustomSwiperZoomableImage';
 import { StyledMoviePoster } from '../../routes/movies/movie-details/StyledUtils';
 import RoundButton from './RoundButton';
-import { LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT, XL_MEDIA_BREAKPOINT } from '../../constants';
+import {
+  ShareMovieAsPostMobileOnlyBreakPoint,
+} from '../../constants';
 
 interface SliderImage {
   postId?: string;
@@ -32,7 +34,7 @@ interface SliderImage {
   }
 }
 
-type SwiperContext = 'post' | 'comment';
+type SwiperContext = 'post' | 'comment' | 'shareMoviePostOnlyMobile';
 
 interface Props {
   context: SwiperContext;
@@ -44,6 +46,7 @@ interface Props {
 const heightForContext: Record<SwiperContext, string> = {
   comment: '275px',
   post: '450px',
+  shareMoviePostOnlyMobile: '190px',
 };
 
 const StyledYouTubeButton = styled(Button)`
@@ -95,27 +98,30 @@ const SwiperContentContainer = styled.div`
   }
 `;
 
-const CssForColumnView = css`
-  & {
-    flex-direction: column-reverse;
-  }
-  .text__details {
-    padding-inline-start: 0px;
-  }
-`;
-
 const MoviePosterWithAdditionDetails = styled.div`
   display: flex;
+  flex-direction: column-reverse;
   .text__details {
-    margin: auto;
-    padding-inline-start: 24px;
-    text-align: left;
+    margin-left: 0px;
+    padding-inline-start: 0px;
   }
-  @media (max-width: ${XL_MEDIA_BREAKPOINT}) and (min-width: ${LG_MEDIA_BREAKPOINT}) {
-    ${CssForColumnView}
+  img {
+    height: 325px !important;
   }
-  @media (max-width: ${MD_MEDIA_BREAKPOINT}) {
-    ${CssForColumnView}
+
+  /* Landscape view for mobile */
+  @media (max-width: ${ShareMovieAsPostMobileOnlyBreakPoint}px) {
+    & {
+      flex-direction: row;
+    }
+    .text__details {
+      margin: auto;
+      padding-inline-start: 24px;
+      text-align: left;
+    }
+    img {
+      height: 170px !important;
+    }
   }
 `;
 
@@ -174,14 +180,14 @@ function CustomSwiper({
     }
     if (imageAndVideo.movieData) {
       return (
-        <SwiperContentContainer>
+        <SwiperContentContainer className="me-auto">
           <MoviePosterWithAdditionDetails>
             <div className="py-3">
               <StyledMoviePoster className="h-100">
                 <Image
                   src={imageAndVideo?.movieData?.poster_path}
                   alt="movie poster"
-                  className="rounded-3 w-100 h-100"
+                  className="d-block rounded-3"
                   onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                     e.currentTarget.src = placeholderUrlNoImageAvailable;
                   }}
@@ -189,10 +195,10 @@ function CustomSwiper({
               </StyledMoviePoster>
             </div>
             <div className="text__details">
-              <div className="fw-bold mb-1">
+              <div className="fw-bold mb-1 text-start">
                 {imageAndVideo?.movieData?.title}
               </div>
-              <div className="text-light mb-2">
+              <div className="text-light mb-2 text-start">
                 {imageAndVideo?.movieData?.release_date
                   && DateTime.fromJSDate(new Date(imageAndVideo?.movieData?.release_date)).toFormat('yyyy')}
               </div>

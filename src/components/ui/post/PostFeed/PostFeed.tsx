@@ -33,7 +33,8 @@ import {
 } from '../../../../utils/text-utils';
 import { MentionListProps } from '../../MessageTextarea';
 import {
-  LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT, XL_MEDIA_BREAKPOINT, XXL_MEDIA_BREAKPOINT,
+  LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT, ShareMovieAsPostMobileOnlyBreakPoint,
+  XL_MEDIA_BREAKPOINT, XXL_MEDIA_BREAKPOINT,
 } from '../../../../constants';
 import RoundButton from '../../RoundButton';
 import CustomRatingText from '../../CustomRatingText';
@@ -50,6 +51,7 @@ import { postMovieDataToMovieDBformat, showMoviePoster } from '../../../../route
 import { useAppSelector } from '../../../../redux/hooks';
 import CustomSelect from '../../../filter-sort/CustomSelect';
 import { ProgressButtonComponentType } from '../../ProgressButton';
+import useWindowInnerWidth from '../../../../hooks/useWindowInnerWidth';
 
 interface Props {
   popoverOptions: string[];
@@ -442,6 +444,9 @@ function PostFeed({
     setCommentClick(!isCommentClick);
   };
 
+  const windowInnerWidth = useWindowInnerWidth();
+  const showMiniViewForPost = (post: any) => post?.movieId && (windowInnerWidth <= ShareMovieAsPostMobileOnlyBreakPoint);
+
   return (
     <StyledPostFeed>
       {isPostDetailsPage(pathname) && <ScrollToTop />}
@@ -483,7 +488,7 @@ function PostFeed({
                 />
                 {(post?.images?.length > 0 || findFirstYouTubeLinkVideoId(post?.message) || showMoviePoster(post.movieId, postType)) && (
                   <CustomSwiper
-                    context="post"
+                    context={showMiniViewForPost(post) ? 'shareMoviePostOnlyMobile' : 'post'}
                     images={
                       swiperDataForPost(post)
                     }

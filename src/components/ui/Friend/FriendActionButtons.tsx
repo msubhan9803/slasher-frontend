@@ -55,18 +55,40 @@ function FriendActionButtons({
     }
     if (user && user._id) {
       if (status === FriendRequestReaction.DeclinedOrCancelled) {
-        addFriend(user._id).then(() => setFriendshipStatus(status));
-        setProgressButtonStatus('success');
+        addFriend(user._id).then(() => {
+          setFriendshipStatus(status);
+          setProgressButtonStatus('success');
+        })
+          /* eslint-disable no-console */
+          .catch((error) => {
+            console.error(error);
+            setProgressButtonStatus('failure');
+          });
       } else if (status === FriendRequestReaction.Pending && friendData?.from !== loginUserId) {
-        acceptFriendsRequest(user._id).then(() => setFriendshipStatus(status));
+        acceptFriendsRequest(user._id).then(() => {
+          setFriendshipStatus(status);
+          setProgressButtonStatus('success');
+        })
+          /* eslint-disable no-console */
+          .catch((error) => {
+            console.error(error);
+            setProgressButtonStatus('failure');
+          });
         setProgressButtonStatus('success');
       } else if ((
         status === FriendRequestReaction.Accepted
         || status === FriendRequestReaction.Pending
       )
       ) {
-        rejectFriendsRequest(user._id).then(() => setFriendshipStatus(status));
-        setProgressButtonStatus('success');
+        rejectFriendsRequest(user._id).then(() => {
+          setFriendshipStatus(status);
+          setProgressButtonStatus('success');
+        })
+          /* eslint-disable no-console */
+          .catch((error) => {
+            console.error(error);
+            setProgressButtonStatus('failure');
+          });
       }
     }
   };

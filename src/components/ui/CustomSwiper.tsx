@@ -15,7 +15,7 @@ import CustomSwiperZoomableImage from './CustomSwiperZoomableImage';
 import { StyledMoviePoster } from '../../routes/movies/movie-details/StyledUtils';
 import RoundButton from './RoundButton';
 import {
-  ShareMovieAsPostMobileOnlyBreakPoint,
+  ShareMovieAsPostMobileOnlyBreakPoint, isNativePlatform,
 } from '../../constants';
 
 interface SliderImage {
@@ -62,10 +62,10 @@ const StyledSwiper = styled(Swiper)`
   height: 100%;
   z-index: 0 !important;
 .swiper-button-prev {
-  color: var(--bs-primary);
+  ${isNativePlatform ? 'display: none' : 'color: var(--bs-primary)'}
 }
 .swiper-button-next {
-  color: var(--bs-primary);
+  ${isNativePlatform ? 'display: none' : 'color: var(--bs-primary)'}
 }
 .swiper-slide {
   text-align: center;

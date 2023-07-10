@@ -446,11 +446,17 @@ function CreatePostComponent({
         {postType !== 'review'
           && (
             <Col md="auto" className="mb-3 mb-md-0 order-0 order-md-1 me-auto">
-              <AddPhotosButton size="md" disabled={uploadPost && uploadPost.length >= 10} className="mt-4 border-0 btn btn-form w-100 rounded-5" onClick={() => inputFile.current?.click()}>
-                <FontAwesomeIcon icon={regular('image')} className="me-2" />
-                <span className="h3">Add photos</span>
-              </AddPhotosButton>
-              {MaxImageUserInfo && <p className="text-center text-muted fs-5">{MaxImageUserInfo}</p>}
+              { /** Hide `photo-uploads`  for `share-movie-as-post` feature */}
+              { !movieId
+              && (
+              <>
+                <AddPhotosButton size="md" disabled={uploadPost && uploadPost.length >= 10} className="mt-4 border-0 btn btn-form w-100 rounded-5" onClick={() => inputFile.current?.click()}>
+                  <FontAwesomeIcon icon={regular('image')} className="me-2" />
+                  <span className="h3">Add photos</span>
+                </AddPhotosButton>
+                {MaxImageUserInfo && <p className="text-center text-muted fs-5">{MaxImageUserInfo}</p>}
+              </>
+              )}
             </Col>
           )}
         <Col md="auto" className={postType === 'review' ? '' : 'order-2 ms-auto'}>

@@ -55,4 +55,6 @@ export const topStatuBarBackgroundColorAndroidOnly = '000000';
 export const maxWidthForCommentOrReplyInputOnMobile: number = BREAK_POINTS.lg - 1;
 export const bottomForCommentOrReplyInputOnMobile = '77px';
 
+export const ShareMovieAsPostMobileOnlyBreakPoint = BREAK_POINTS.sm;
+
 export const isDevelopmentServer = process.env.NODE_ENV === 'development';

@@ -1,9 +1,9 @@
 import React from 'react';
-import RoundButton from '../RoundButton';
 import { FriendRequestReaction, FriendType, User } from '../../../types';
 import RoundButtonLink from '../RoundButtonLink';
 import { acceptFriendsRequest, addFriend, rejectFriendsRequest } from '../../../api/friends';
 import { useAppSelector } from '../../../redux/hooks';
+import useProgressButton from '../ProgressButton';
 
 const getButtonLabelForUser = (
   user: User,
@@ -46,8 +46,9 @@ function FriendActionButtons({
   buttonType,
 }: Props) {
   const loginUserId = useAppSelector((state) => state.user.user.id);
-
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const friendRequestApi = (status: number | null) => {
+    setProgressButtonStatus('loading');
     if (!status) {
       // eslint-disable-next-line no-param-reassign
       status = FriendRequestReaction.DeclinedOrCancelled;
@@ -55,13 +56,17 @@ function FriendActionButtons({
     if (user && user._id) {
       if (status === FriendRequestReaction.DeclinedOrCancelled) {
         addFriend(user._id).then(() => setFriendshipStatus(status));
+        setProgressButtonStatus('success');
       } else if (status === FriendRequestReaction.Pending && friendData?.from !== loginUserId) {
         acceptFriendsRequest(user._id).then(() => setFriendshipStatus(status));
+        setProgressButtonStatus('success');
       } else if ((
         status === FriendRequestReaction.Accepted
         || status === FriendRequestReaction.Pending
-      )) {
+      )
+      ) {
         rejectFriendsRequest(user._id).then(() => setFriendshipStatus(status));
+        setProgressButtonStatus('success');
       }
     }
   };
@@ -78,9 +83,13 @@ function FriendActionButtons({
       {
         show && ButtonLabel
         && (
-          <RoundButton className="me-2 text-nowrap" variant={`${friendStatus === FriendRequestReaction.Pending || friendStatus === FriendRequestReaction.Accepted ? 'black' : 'primary'}`} onClick={() => friendRequestApi(friendStatus)}>
-            {ButtonLabel}
-          </RoundButton>
+          <ProgressButton
+            id="Friend-action-button"
+            type="submit"
+            onClick={() => friendRequestApi(friendStatus)}
+            className="me-2 text-nowrap w-50"
+            label={ButtonLabel}
+          />
         )
       }
     </>

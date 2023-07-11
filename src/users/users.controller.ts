@@ -695,6 +695,7 @@ export class UsersController {
       user.id,
       query.limit,
       true,
+      loggedInUser.id,
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
     );
     return feedPosts.map(

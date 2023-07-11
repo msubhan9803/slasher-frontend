@@ -44,6 +44,11 @@ export class FeedLikesController {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
 
+    const feedPostLikeData = await this.feedLikesService.findFeedPostLike(params.feedPostId, user.id);
+    if (feedPostLikeData) {
+      throw new HttpException('You already like the post', HttpStatus.BAD_REQUEST);
+    }
+
     if (
       post.postType !== PostType.MovieReview && !post.rssfeedProviderId
       && user.id !== (post.userId as unknown as User)._id.toString()

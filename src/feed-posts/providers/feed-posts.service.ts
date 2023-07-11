@@ -62,7 +62,13 @@ export class FeedPostsService {
     return feedPost;
   }
 
-  async findAllByUser(userId: string, limit: number, activeOnly: boolean, before?: mongoose.Types.ObjectId): Promise<FeedPostDocument[]> {
+  async findAllByUser(
+    userId: string,
+    limit: number,
+    activeOnly: boolean,
+    loggedInUserId: mongoose.Types.ObjectId,
+    before?: mongoose.Types.ObjectId,
+    ): Promise<FeedPostDocument[]> {
     const feedPostFindAllQuery: any = {};
     const feedPostQuery = [];
     feedPostQuery.push({ userId: new mongoose.Types.ObjectId(userId) });
@@ -91,7 +97,7 @@ export class FeedPostsService {
       // eslint-disable-next-line no-param-reassign
       post.likeCount = post.likes.length || 0;
       // eslint-disable-next-line no-param-reassign
-      post.likedByUser = post.likes.includes(userId);
+      post.likedByUser = post.likes.includes(loggedInUserId);
       return post;
     });
   }

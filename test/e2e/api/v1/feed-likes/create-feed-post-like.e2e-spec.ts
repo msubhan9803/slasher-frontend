@@ -7,7 +7,7 @@ import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../../../src/app.module';
 import { UsersService } from '../../../../../src/users/providers/users.service';
 import { userFactory } from '../../../../factories/user.factory';
-import { User } from '../../../../../src/schemas/user/user.schema';
+import { User, UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { FeedPostDocument } from '../../../../../src/schemas/feedPost/feedPost.schema';
 import { FeedPostsService } from '../../../../../src/feed-posts/providers/feed-posts.service';
@@ -32,7 +32,7 @@ describe('Create Feed Post Like (e2e)', () => {
   let connection: Connection;
   let usersService: UsersService;
   let activeUserAuthToken: string;
-  let activeUser: User;
+  let activeUser: UserDocument;
   let user0: User;
   let configService: ConfigService;
   let feedPost: FeedPostDocument;
@@ -133,6 +133,16 @@ describe('Create Feed Post Like (e2e)', () => {
         .send()
         .expect(HttpStatus.NOT_FOUND);
       expect(response.body.message).toBe('Post not found');
+    });
+
+    it('when user already liked the post then it returns the expected response', async () => {
+      await feedLikesService.createFeedPostLike(feedPost.id, activeUser.id);
+      const response = await request(app.getHttpServer())
+        .post(`/api/v1/feed-likes/post/${feedPost.id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send()
+        .expect(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toBe('You already like the post');
     });
 
     it('when a block exists between the post creator and the liker, it returns the expected response', async () => {

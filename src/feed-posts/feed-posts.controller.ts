@@ -58,9 +58,8 @@ export class FeedPostsController {
   @TransformImageUrls('$.images[*].image_path')
   @Post()
   @UseInterceptors(
-    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_POST, {
+    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_POST, MAXIMUM_IMAGE_UPLOAD_SIZE, {
       fileFilter: defaultFileInterceptorFileFilter,
-      limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
     }),
   )
   async createFeedPost(
@@ -224,10 +223,9 @@ export class FeedPostsController {
   @TransformImageUrls('$.images[*].image_path')
   @Patch(':id')
   @UseInterceptors(
-    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_POST, {
+    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_POST, MAXIMUM_IMAGE_UPLOAD_SIZE, {
       fileFilter: defaultFileInterceptorFileFilter,
-      limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
-    }),
+      }),
   )
   async update(
     @Req() request: Request,

@@ -131,10 +131,9 @@ export class ChatController {
   @TransformImageUrls('$.messages[*].image', '$.messages[*].urls[*]')
   @Post('conversation/:matchListId/message')
   @UseInterceptors(
-    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_CHAT, {
+    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_CHAT, MAXIMUM_IMAGE_UPLOAD_SIZE, {
       fileFilter: defaultFileInterceptorFileFilter,
-      limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
-    }),
+      }),
   )
   async sendMessageInConversation(
     @UploadedFiles() files: Array<Express.Multer.File>,

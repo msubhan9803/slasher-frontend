@@ -1,7 +1,7 @@
 export const SIMPLE_MONGODB_ID_REGEX = /^[a-f\d]{24}$/i;
 export const SIMPLE_ISO_8601_REGEX = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?(([+-]\d\d:\d\d)|Z)?$/i;
 export const UUID_V4_REGEX = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
-export const MAXIMUM_IMAGE_UPLOAD_SIZE = 10 * 1_000_000; // 10 MB
+export const MAXIMUM_IMAGE_UPLOAD_SIZE = 10.24 * 1_000_000; // 10 MB
 export const UPLOAD_PARAM_NAME_FOR_FILES = 'files';
 export const UPLOAD_PARAM_NAME_FOR_IMAGES = 'images';
 export const MAX_ALLOWED_UPLOAD_FILES_FOR_POST = 10;

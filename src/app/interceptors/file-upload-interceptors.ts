@@ -4,6 +4,7 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
 import { Observable, throwError } from 'rxjs';
+import { MAXIMUM_IMAGE_UPLOAD_SIZE } from 'src/constants';
 
 /**
  * Meant to be used with a FilesInterceptor, and should always be placed AFTER the FilesInterceptor
@@ -31,7 +32,7 @@ import { Observable, throwError } from 'rxjs';
  */
 @Injectable()
 export class MaxFileCustomErrorMessageInterceptor implements NestInterceptor {
-  constructor(private readonly maxFiles: number) { }
+  constructor(private readonly maxFiles: number, private readonly maxFileSize: number) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
@@ -44,6 +45,18 @@ export class MaxFileCustomErrorMessageInterceptor implements NestInterceptor {
       ));
     }
 
+    const files = request.files as Express.Multer.File[];
+    const fileSizeExceeded = files.some((file) => file.size > this.maxFileSize);
+    if (fileSizeExceeded) {
+      const fileSizeInMB = MAXIMUM_IMAGE_UPLOAD_SIZE / (1024 * 1024);
+      return throwError(
+        () => new HttpException(
+            `File size too large. Maximum allowed size: ${`${fileSizeInMB.toFixed(0)} MB`}`,
+            HttpStatus.BAD_REQUEST,
+          ),
+      );
+    }
+
     return next.handle();
   }
 }
@@ -51,10 +64,11 @@ export class MaxFileCustomErrorMessageInterceptor implements NestInterceptor {
 export function generateFileUploadInterceptors(
   fieldName: string,
   maxCount?: number,
+  maxFileSize?: number,
   localOptions?: MulterOptions,
 ) {
   return [
     FilesInterceptor(fieldName, Infinity, localOptions),
-    new MaxFileCustomErrorMessageInterceptor(maxCount),
+    new MaxFileCustomErrorMessageInterceptor(maxCount, maxFileSize),
   ];
 }

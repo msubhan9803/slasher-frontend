@@ -39,6 +39,7 @@ function IconWithTextNavLink({
     };
   }, []);
   const handleRefresh = () => {
+    // Similarly we clear pageStateCache on mobile navItem `onClick` too: file:///./../../sidebar-nav/MobileOnlySidebarContent.tsx
     deletePageStateCache(to);
     scrollToTop('instant');
   };

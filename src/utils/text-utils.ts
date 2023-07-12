@@ -9,11 +9,11 @@ export function findFirstYouTubeLinkVideoId(message: string) {
 }
 
 export function escapeHtmlSpecialCharacters(str: string) {
-  return str.replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
+  return str?.replaceAll('&', '&amp;')
+    ?.replaceAll('<', '&lt;')
+    ?.replaceAll('>', '&gt;')
+    ?.replaceAll('"', '&quot;')
+    ?.replaceAll("'", '&#039;');
 }
 
 /**
@@ -22,7 +22,7 @@ export function escapeHtmlSpecialCharacters(str: string) {
  * @returns
  */
 export function newLineToBr(str: string) {
-  return str.replaceAll('\n', '<br />');
+  return str?.replaceAll('\n', '<br />');
 }
 
 /**

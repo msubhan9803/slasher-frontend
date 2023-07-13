@@ -110,7 +110,7 @@ function ImagesContainer({
             aria-label="Alt text description for this image"
             rows={3}
             className="alt-text-editor-input"
-            defaultValue={altText}
+            defaultValue={alt}
             onChange={(e) => { setAltText(e.target.value); }}
           />
           <RoundButton variant="primary" className="w-100 mt-4 mb-3" onClick={() => { onSave(); }}>Save changes</RoundButton>

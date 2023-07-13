@@ -18,12 +18,17 @@ export class MessageCountUpdateConsumer {
     async sendUpdateIfMessageUnread(job: Job<any>) {
         const message = await this.chatService.findByMessageId(job.data.messageId);
         const [receiverUser, senderUser] = await Promise.all([this.usersService.findById(message.senderId.toString(), true),
-            this.usersService.findById(message.fromId.toString(), true)]);
+        this.usersService.findById(message.fromId.toString(), true)]);
         if (!message.isRead && !(senderUser.newConversationIds.find((id) => id.toString() === message.matchId.toString()))) {
-            await Promise.all([
-                this.usersService.addAndUpdateNewConversationId(message.senderId.toString(), message.matchId.toString()),
-                this.chatGateway.emitConversationCountUpdateEvent(message.senderId.toString()),
-                this.notificationService.sendChatMsgPushNotification(message.matchId, receiverUser, senderUser)]);
+            const updatedConversationIds = await this.usersService.addAndUpdateNewConversationId(
+                message.senderId.toString(),
+                message.matchId.toString(),
+            );
+            if (updatedConversationIds) {
+                await Promise.all([
+                    this.chatGateway.emitConversationCountUpdateEvent(message.senderId.toString()),
+                    this.notificationService.sendChatMsgPushNotification(message.matchId, receiverUser, senderUser)]);
+            }
         }
         // as long as this job completes without throwing an error, we will consider it successful
         return { success: true };

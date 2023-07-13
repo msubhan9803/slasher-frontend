@@ -89,6 +89,7 @@ export class FeedPostsService {
     const feedPosts = await this.feedPostModel
       .find({ $and: feedPostQuery })
       .populate('userId', 'userName _id profilePic')
+      .populate('movieId', 'logo name releaseDate')
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();

@@ -57,10 +57,9 @@ export class FeedCommentsController {
   @TransformImageUrls('$.images[*].image_path')
   @Post()
   @UseInterceptors(
-    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_IMAGES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, {
+    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_IMAGES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, MAXIMUM_IMAGE_UPLOAD_SIZE, {
       fileFilter: defaultFileInterceptorFileFilter,
-      limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
-    }),
+      }),
   )
   async createFeedComment(
     @Req() request: Request,
@@ -138,10 +137,9 @@ export class FeedCommentsController {
   @TransformImageUrls('$.images[*].image_path')
   @Patch(':feedCommentId')
   @UseInterceptors(
-    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, {
+    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, MAXIMUM_IMAGE_UPLOAD_SIZE, {
       fileFilter: defaultFileInterceptorFileFilter,
-      limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
-    }),
+      }),
   )
   async updateFeedComment(
     @Req() request: Request,
@@ -265,10 +263,9 @@ export class FeedCommentsController {
   @TransformImageUrls('$.images[*].image_path')
   @Post('replies')
   @UseInterceptors(
-    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_IMAGES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, {
+    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_IMAGES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, MAXIMUM_IMAGE_UPLOAD_SIZE, {
       fileFilter: defaultFileInterceptorFileFilter,
-      limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
-    }),
+      }),
   )
   async createFeedReply(
     @Req() request: Request,
@@ -356,10 +353,9 @@ export class FeedCommentsController {
   @TransformImageUrls('$.images[*].image_path')
   @Patch('replies/:feedReplyId')
   @UseInterceptors(
-    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, {
+    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, MAXIMUM_IMAGE_UPLOAD_SIZE, {
       fileFilter: defaultFileInterceptorFileFilter,
-      limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
-    }),
+      }),
   )
   async updateFeedReply(
     @Req() request: Request,

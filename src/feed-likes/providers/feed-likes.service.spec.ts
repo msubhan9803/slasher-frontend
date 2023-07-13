@@ -136,6 +136,18 @@ describe('FeedLikesService', () => {
     });
   });
 
+  describe('#findFeedPostLike', () => {
+    it('successfully find a feedPostLikeData', async () => {
+      const feedPostLikeData = await feedLikesService.findFeedPostLike(feedPost.id, activeUser.id);
+      expect(feedPostLikeData.feedPostId).toEqual(feedPost._id);
+      expect(feedPostLikeData.userId).toEqual(activeUser._id);
+    });
+
+    it('when feed post id is not found', async () => {
+      await expect(feedLikesService.findFeedPostLike('634fc8986a5897b88a2d971b', activeUser.id)).rejects.toThrow('Post not found');
+    });
+  });
+
   describe('#deleteFeedPostLike', () => {
     it('successfully delete a feed post likes.', async () => {
       await feedLikesService.deleteFeedPostLike(feedPost.id, activeUser.id);

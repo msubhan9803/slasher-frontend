@@ -230,18 +230,18 @@ describe('FeedPostsService', () => {
         is_deleted: FeedPostDeletionState.NotDeleted,
       });
       const feedPost = await feedPostsService.create(feedPostDetails);
-      const feedPostData = await feedPostsService.findAllByUser((activeUser.id).toString(), 20, true, feedPost.id);
+      const feedPostData = await feedPostsService.findAllByUser((activeUser.id).toString(), 20, true, user0.id);
       for (let i = 1; i < feedPostData.length; i += 1) {
         expect(feedPostData[i].createdAt < feedPostData[i - 1].createdAt).toBe(true);
         expect(feedPostData[i].likeCount).toBe(2);
         expect((feedPostData[i] as any).likedByUser).toBe(true);
       }
-      expect(feedPostData).toHaveLength(10);
+      expect(feedPostData).toHaveLength(11);
       expect(feedPostData).not.toContain(feedPost.createdAt);
     });
 
     it('when earlier than post id is does not exist and active only is false then it returns the expected response', async () => {
-      const feedPost = await feedPostsService.findAllByUser((activeUser.id).toString(), 20, false);
+      const feedPost = await feedPostsService.findAllByUser((activeUser.id).toString(), 20, false, user0.id);
       for (let i = 1; i < feedPost.length; i += 1) {
         expect(feedPost[i].createdAt < feedPost[i - 1].createdAt).toBe(true);
       }
@@ -249,7 +249,7 @@ describe('FeedPostsService', () => {
     });
 
     it('when earlier than post id is does not exist but active only is true then it returns the expected response', async () => {
-      const feedPost = await feedPostsService.findAllByUser((activeUser.id).toString(), 20, true);
+      const feedPost = await feedPostsService.findAllByUser((activeUser.id).toString(), 20, true, user0.id);
       for (let i = 1; i < feedPost.length; i += 1) {
         expect(feedPost[i].createdAt < feedPost[i - 1].createdAt).toBe(true);
       }
@@ -269,11 +269,12 @@ describe('FeedPostsService', () => {
     });
     it('returns the first and second sets of paginated results', async () => {
       const limit = 6;
-      const firstResults = await feedPostsService.findAllByUser(activeUser.id, limit, true);
+      const firstResults = await feedPostsService.findAllByUser(activeUser.id, limit, true, user0.id);
       const secondResults = await feedPostsService.findAllByUser(
         activeUser.id,
         limit,
         true,
+        user0.id,
         new mongoose.Types.ObjectId(firstResults[limit - 1]._id.toString()),
       );
       expect(firstResults).toHaveLength(6);

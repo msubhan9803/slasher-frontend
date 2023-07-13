@@ -42,6 +42,14 @@ export class FeedLikesService {
     transactionSession.endSession();
   }
 
+  async findFeedPostLike(feedPostId: string, userId: string): Promise<FeedPostLikeDocument> {
+    const feedPostDetails = await this.feedPostsService.findById(feedPostId, false);
+    if (!feedPostDetails) {
+      throw new NotFoundError('Post not found');
+    }
+    return this.feedLikesModel.findOne({ feedPostId, userId });
+  }
+
   async deleteFeedPostLike(feedPostId: string, userId: string): Promise<void> {
     const feedPostDetails = await this.feedPostsService.findById(feedPostId, false);
     if (!feedPostDetails) {

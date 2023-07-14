@@ -1,7 +1,5 @@
 /* eslint-disable max-len */
-import { Location } from 'react-router-dom';
-
-type LocationType = Location | string;
+import { LocationType } from './types';
 
 export const getPageName = (location: LocationType) => (typeof location === 'string'
   ? location

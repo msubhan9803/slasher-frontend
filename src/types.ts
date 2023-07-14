@@ -3,6 +3,7 @@
 // that are shared across multiple places in the app.
 
 import { LatLngLiteral } from 'leaflet';
+import { Location } from 'react-router-dom';
 import { BREAK_POINTS } from './constants';
 
 export type BreakPointName = keyof typeof BREAK_POINTS;
@@ -356,9 +357,11 @@ export type MoviePageCache = {
 };
 
 // Cache type for profile subroutes (i.e, About, Posts, Friends, Photos, Watched list)
-export type ProfileFriendsCache = {
-  user: any,
-  allFriends?: { page: number, data: any[], searchValue: string }
+export type ProfileSubroutesCache = {
+  user?: any,
+  allFriends: { page: number, data: any[], searchValue: string }
+  friendRequests: { page: number, data: any[] }
+  profilePosts: Post[],
 };
 
 export interface ConversationListItem {
@@ -390,3 +393,5 @@ export type FriendType = {
   to: string,
   reaction: FriendRequestReaction
 } | null;
+
+export type LocationType = Location | string;

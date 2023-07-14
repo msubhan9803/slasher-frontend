@@ -12,7 +12,7 @@ import { userProfileFriends } from '../../../api/users';
 import CustomSearchInput from '../../../components/ui/CustomSearchInput';
 import ReportModal from '../../../components/ui/ReportModal';
 import TabLinks from '../../../components/ui/Tabs/TabLinks';
-import { ProfileFriendsCache, User } from '../../../types';
+import { ProfileSubroutesCache, User } from '../../../types';
 import ProfileHeader from '../ProfileHeader';
 import FriendsProfileCard from './FriendsProfileCard';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
@@ -23,9 +23,8 @@ import { createBlockUser } from '../../../api/blocks';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import { rejectFriendsRequest } from '../../../api/friends';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
-import {
-  getPageStateCache, setPageStateCache,
-} from '../../../pageStateCache';
+import { setPageStateCache } from '../../../pageStateCache';
+import { PROFILE_SUBROUTES_DEFAULT_CACHE, getProfileSubroutesCache } from '../profileSubRoutesCacheUtils';
 
 type UserProfileFriendsResponseData = AxiosResponse<{ friends: FriendProps[] }>;
 
@@ -58,31 +57,25 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
   const [requestAdditionalFriends, setRequestAdditionalFriends] = useState<boolean>(false);
   const location = useLocation();
-  const pageStateCache: ProfileFriendsCache = getPageStateCache(location) ?? {
-    user: undefined,
-    allFriends: { page: 0, data: [], searchValue: '' },
-  };
+  const profileSubRoutesCache = getProfileSubroutesCache(location);
   const [friendsList, setFriendsList] = useState<FriendProps[]>(
-    pageStateCache?.allFriends?.data || [],
+    profileSubRoutesCache?.allFriends?.data || [],
   );
   const [page, setPage] = useState<number>(
-    pageStateCache?.allFriends?.page || 0,
+    profileSubRoutesCache?.allFriends?.page || 0,
   );
   const [search, setSearch] = useState<string>(
-    pageStateCache?.allFriends?.searchValue || '',
+    profileSubRoutesCache?.allFriends?.searchValue || '',
   );
   const controllerRef = useRef<AbortController | null>();
   const lastUserIdRef = useRef(user._id);
-  const [initialLoad] = useState((pageStateCache.allFriends?.data || 0) === 0);
+  const [initialLoad] = useState((profileSubRoutesCache.allFriends?.data.length || 0) === 0);
   const friendsBodyElementRef = useRef<HTMLDivElement>(null);
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
     { value: 'request', label: 'Friend requests', badge: friendsReqCount },
   ];
-
-  // eslint-disable-next-line max-len
-  const getProfileFriendsPageCache = useCallback(() => (getPageStateCache<ProfileFriendsCache>(location) || {}), [location]);
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (value === 'Report' || value === 'Block user') {
@@ -122,12 +115,9 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
               ...prev,
               ...res.data.friends,
             ];
-            setPageStateCache<ProfileFriendsCache>(location, {
-              ...getProfileFriendsPageCache(),
-              allFriends: {
-                ...(getProfileFriendsPageCache()?.allFriends || {}),
-                data: newFriendsList,
-              } as any,
+            setPageStateCache<ProfileSubroutesCache>(location, {
+              ...getProfileSubroutesCache(location),
+              allFriends: { data: newFriendsList, page, searchValue: searchUser },
             });
             return newFriendsList;
           });
@@ -142,7 +132,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
           () => { setRequestAdditionalFriends(false); setLoadingFriends(false); controllerRef.current = null; },
         );
     }
-  }, [getProfileFriendsPageCache, location, page, search, user._id]);
+  }, [location, page, search, user._id]);
 
   useEffect(() => {
     const isUserChanged = lastUserIdRef.current !== user._id;
@@ -153,10 +143,10 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
       // TODO: Incorporate below logic into `fetchMoreFriendList(true)` where `true` would mean
       // TODO:      `forceReload` for friends and update below values there in the same function.
       // Set the new user's data in comoponent state
-      setFriendsList(getProfileFriendsPageCache()?.allFriends?.data || []);
-      const currentPage = getProfileFriendsPageCache()?.allFriends?.page || 0;
+      setFriendsList(getProfileSubroutesCache(location)?.allFriends?.data || []);
+      const currentPage = getProfileSubroutesCache(location)?.allFriends?.page || 0;
       setPage(currentPage);
-      const currentSearch = getProfileFriendsPageCache()?.allFriends?.searchValue || '';
+      const currentSearch = getProfileSubroutesCache(location)?.allFriends?.searchValue || '';
       setSearch(currentSearch);
       // Reset infinite-loading
       setNoMoreData(false);
@@ -171,7 +161,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
     }
   }, [requestAdditionalFriends, loadingFriends, search, friendsList, user._id, page,
     fetchMoreFriendList,
-    location, getProfileFriendsPageCache]);
+    location]);
 
   const renderNoMoreDataMessage = () => {
     const message = friendsList.length === 0 && search
@@ -226,13 +216,27 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
       .catch((error) => console.error(error));
   };
   const persistScrollPosition = () => {
-    setPageStateCache<ProfileFriendsCache>(
-      location,
-      {
-        ...getProfileFriendsPageCache(),
-        allFriends: { data: friendsList, page, searchValue: search },
-      },
-    );
+    setPageStateCache<ProfileSubroutesCache>(location, {
+      ...getProfileSubroutesCache(location),
+      allFriends: { data: friendsList, page, searchValue: search },
+    });
+  };
+
+  const deleteFriendRequestsSubrouteCache = (e: any, pathname?: string) => {
+    if (pathname) {
+      if (pathname.endsWith('/')) {
+        // eslint-disable-next-line no-param-reassign
+        pathname = pathname.slice(0, -1);
+        // With above statement we fix issue of creating duplicate pathname keys with trailing `/`
+      }
+      console.log('deleteFriendRequestsSubrouteCache:', pathname);
+      setPageStateCache<ProfileSubroutesCache>(pathname, {
+        ...getProfileSubroutesCache(pathname),
+        // Note: We clear the cache for the target subroute only
+        // so we always fetch fresh for target subroute.
+        friendRequests: PROFILE_SUBROUTES_DEFAULT_CACHE.friendRequests,
+      });
+    }
   };
   return (
     <div>
@@ -249,7 +253,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
             ref={friendsBodyElementRef}
           >
             {loginUserData.userName === user.userName
-              && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="" />}
+              && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="" overrideOnClick={deleteFriendRequestsSubrouteCache} />}
             <InfiniteScroll
               threshold={3000}
               pageStart={0}

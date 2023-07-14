@@ -13,7 +13,7 @@ import ProfileEdit from './ProfileEdit/ProfileEdit';
 import ProfileFriendRequest from './ProfileFriends/ProfileFriendRequest/ProfileFriendRequest';
 import { getUser } from '../../api/users';
 import {
-  FriendRequestReaction, ProfileFriendsCache, ProfileVisibility, User,
+  FriendRequestReaction, ProfileSubroutesCache, ProfileVisibility, User,
 } from '../../types';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { useAppSelector } from '../../redux/hooks';
@@ -27,7 +27,8 @@ import ProfileLimitedView from './ProfileLimitedView/ProfileLimitedView';
 import RightSidebarAdOnly from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarAdOnly';
 import ContentNotAvailable from '../../components/ContentNotAvailable';
 import useBootstrapBreakpointName from '../../hooks/useBootstrapBreakpoint';
-import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../pageStateCache';
+import { getPageStateCache, setPageStateCache } from '../../pageStateCache';
+import { getProfileSubroutesCache } from './profileSubRoutesCacheUtils';
 
 interface SharedHeaderProfilePagesProps {
   user: User;
@@ -56,7 +57,7 @@ function Profile() {
   const location = useLocation();
 
   const [user, setUser] = useState<User | undefined>(
-    getPageStateCache<ProfileFriendsCache>(location)?.user,
+    getPageStateCache<ProfileSubroutesCache>(location)?.user,
   );
   const [userNotFound, setUserNotFound] = useState<boolean>(false);
   const [userIsBlocked, setUserIsBlocked] = useState<boolean>(false);
@@ -65,9 +66,6 @@ function Profile() {
   const isSelfProfile = loginUserData.id === user?._id;
   const bp = useBootstrapBreakpointName();
   const lastLocationKeyRef = useRef(location.key);
-
-  // eslint-disable-next-line max-len
-  const getProfileFriendsPageCache = useCallback(() => getPageStateCache<ProfileFriendsCache>(location), [location]);
 
   // commented until we enable update username support
   // const checkWithPreviousUserName = useCallback(() => {
@@ -96,8 +94,8 @@ function Profile() {
           return;
         }
         setUser(res.data);
-        setPageStateCache<ProfileFriendsCache>(location, {
-          ...getProfileFriendsPageCache(),
+        setPageStateCache<ProfileSubroutesCache>(location, {
+          ...getProfileSubroutesCache(location),
           user: res.data,
         });
       })
@@ -111,7 +109,7 @@ function Profile() {
           setUserNotFound(true);
         }
       });
-  }, [location, navigate, userNameOrId, getProfileFriendsPageCache]);
+  }, [location, navigate, userNameOrId]);
 
   useEffect(() => {
     const isSameKey = lastLocationKeyRef.current === location.key;

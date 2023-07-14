@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Modal, Tab, Tabs,
 } from 'react-bootstrap';
@@ -8,6 +8,7 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import LikeShareModalContent from './LikeShareModalContent';
 import { enableDevFeatures } from '../../constants';
 import { LikeShareModalResourceName, LikeShareModalTabName } from '../../types';
+import { disableScrollOnWindow, enableScrollOnWindow } from '../../utils/scrollFunctions';
 
 interface Props {
   modaResourceName: LikeShareModalResourceName | null;
@@ -16,7 +17,7 @@ interface Props {
   click: LikeShareModalTabName;
   clickedPostId: string;
   clickedPostLikeCount: number;
-  onSelect?: (value: string) => void;
+  onSelect?: () => void;
 }
 interface LinearIconProps {
   uniqueId?: string
@@ -60,6 +61,11 @@ function LikeShareModal({
     setShow(false);
   };
 
+  useEffect(() => {
+    disableScrollOnWindow();
+    return () => enableScrollOnWindow();
+  }, []);
+
   return (
     <CustomModal
       show={show}
@@ -99,7 +105,7 @@ function LikeShareModal({
         </svg>
       </CustomModalHeader>
       <Modal.Body className="d-flex flex-column pt-4 px-4">
-        {(tab === 'like' || tab === 'share') && <LikeShareModalContent modaResourceName={modaResourceName} resourceId={clickedPostId} onSelect={onSelect} />}
+        {(tab === 'like' || tab === 'share') && <LikeShareModalContent modaResourceName={modaResourceName} resourceId={clickedPostId} onSelect={onSelect} setShow={setShow} />}
       </Modal.Body>
     </CustomModal>
   );

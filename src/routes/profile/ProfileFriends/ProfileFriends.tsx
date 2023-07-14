@@ -53,7 +53,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
     : ['View profile', 'Report', 'Block user'];
   const friendsReqCount = useAppSelector((state) => state.user.user.newFriendRequestCount);
   const friendContainerElementRef = useRef<any>(null);
-  const loginUserData = useAppSelector((state) => state.user.user);
+  const loginUserName = useAppSelector((state) => state.user.user.userName);
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
   const [requestAdditionalFriends, setRequestAdditionalFriends] = useState<boolean>(false);
   const location = useLocation();
@@ -238,6 +238,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
       });
     }
   };
+  const showAllFriendsAndFriendRequestsTabs = loginUserName === params.userName;
   return (
     <div>
       <ProfileHeader tabKey="friends" user={user} />
@@ -252,8 +253,9 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
             className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 my-3 py-3"
             ref={friendsBodyElementRef}
           >
-            {loginUserData.userName === user.userName
-              && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="" overrideOnClick={deleteFriendRequestsSubrouteCache} />}
+            { showAllFriendsAndFriendRequestsTabs && (
+              <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="" overrideOnClick={deleteFriendRequestsSubrouteCache} />
+            )}
             <InfiniteScroll
               threshold={3000}
               pageStart={0}

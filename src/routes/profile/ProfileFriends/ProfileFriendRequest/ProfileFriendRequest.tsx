@@ -165,14 +165,16 @@ function ProfileFriendRequest({ user }: Props) {
       });
     }
   };
+  const showAllFriendsAndFriendRequestsTabs = loginUserName === params.userName;
   return (
     <div>
       <ProfileHeader tabKey="friends" user={user} />
       <ProfileTabContent>
         <div className="mt-3">
-          <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
-            {loginUserName === user.userName
-              && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="request" overrideOnClick={deleteAllFriendsSubrouteCache} />}
+          <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3 ">
+            { showAllFriendsAndFriendRequestsTabs && (
+              <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="request" overrideOnClick={deleteAllFriendsSubrouteCache} />
+            )}
             <InfiniteScroll
               threshold={3000}
               pageStart={0}

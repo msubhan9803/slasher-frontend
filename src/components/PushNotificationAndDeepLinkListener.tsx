@@ -35,11 +35,12 @@ function PushNotificationAndDeepLinkListener() {
         const deviceToken = token.value;
         const fetchedDeviceToken = await getDeviceToken();
         const fetchedSessionToken = await getSessionToken();
-        if (fetchedSessionToken && fetchedDeviceToken && deviceToken !== fetchedDeviceToken) {
+        if (!fetchedDeviceToken
+          || (fetchedSessionToken && fetchedDeviceToken && deviceToken !== fetchedDeviceToken)) {
           const deviceId = await Device.getId();
           updateUserDeviceToken(deviceId.identifier, deviceToken);
+          await setDeviceToken(deviceToken);
         }
-        await setDeviceToken(deviceToken);
       });
 
       // PushNotifications.addListener('pushNotificationReceived',

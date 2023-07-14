@@ -15,7 +15,7 @@ import CustomSwiperZoomableImage from './CustomSwiperZoomableImage';
 import { StyledMoviePoster } from '../../routes/movies/movie-details/StyledUtils';
 import RoundButton from './RoundButton';
 import {
-  ShareMovieAsPostMobileOnlyBreakPoint, isNativePlatform,
+  isNativePlatform,
 } from '../../constants';
 
 interface SliderImage {
@@ -34,7 +34,7 @@ interface SliderImage {
   }
 }
 
-type SwiperContext = 'post' | 'comment' | 'shareMoviePostOnlyMobile';
+type SwiperContext = 'post' | 'comment' | 'shareMoviePost';
 
 interface Props {
   context: SwiperContext;
@@ -46,7 +46,7 @@ interface Props {
 const heightForContext: Record<SwiperContext, string> = {
   comment: '275px',
   post: '450px',
-  shareMoviePostOnlyMobile: '190px',
+  shareMoviePost: '190px',
 };
 
 const StyledYouTubeButton = styled(Button)`
@@ -100,28 +100,15 @@ const SwiperContentContainer = styled.div`
 
 const MoviePosterWithAdditionDetails = styled.div`
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: row;
+
   .text__details {
-    margin-left: 0px;
-    padding-inline-start: 0px;
+    margin: auto;
+    padding-inline-start: 24px;
+    text-align: left;
   }
   img {
-    height: 325px !important;
-  }
-
-  /* Landscape view for mobile */
-  @media (max-width: ${ShareMovieAsPostMobileOnlyBreakPoint}px) {
-    & {
-      flex-direction: row;
-    }
-    .text__details {
-      margin: auto;
-      padding-inline-start: 24px;
-      text-align: left;
-    }
-    img {
-      height: 170px !important;
-    }
+    height: 170px !important;
   }
 `;
 
@@ -179,30 +166,33 @@ function CustomSwiper({
       );
     }
     if (imageAndVideo.movieData) {
+      const movieDetailsPath = `/app/movies/${imageAndVideo?.movieData?._id}/details`;
       return (
         <SwiperContentContainer className="me-auto">
           <MoviePosterWithAdditionDetails>
             <div className="py-3">
               <StyledMoviePoster className="h-100">
-                <Image
-                  src={imageAndVideo?.movieData?.poster_path}
-                  alt="movie poster"
-                  className="d-block rounded-3"
-                  onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                    e.currentTarget.src = placeholderUrlNoImageAvailable;
-                  }}
-                />
+                <Link to={movieDetailsPath}>
+                  <Image
+                    src={imageAndVideo?.movieData?.poster_path}
+                    alt="movie poster"
+                    className="d-block rounded-3"
+                    onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                      e.currentTarget.src = placeholderUrlNoImageAvailable;
+                    }}
+                  />
+                </Link>
               </StyledMoviePoster>
             </div>
             <div className="text__details">
-              <div className="fw-bold mb-1 text-start">
+              <Link to={movieDetailsPath} className="d-block text-decoration-none fw-bold mb-1 text-start">
                 {imageAndVideo?.movieData?.title}
-              </div>
-              <div className="text-light mb-2 text-start">
+              </Link>
+              <Link to={movieDetailsPath} className="d-block text-decoration-none text-light mb-2 text-start">
                 {imageAndVideo?.movieData?.release_date
                   && DateTime.fromJSDate(new Date(imageAndVideo?.movieData?.release_date)).toFormat('yyyy')}
-              </div>
-              <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4" onClick={() => navigate(`/app/movies/${imageAndVideo?.movieData?._id}/details`)}>
+              </Link>
+              <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4" onClick={() => navigate(movieDetailsPath)}>
                 View details
               </RoundButton>
 

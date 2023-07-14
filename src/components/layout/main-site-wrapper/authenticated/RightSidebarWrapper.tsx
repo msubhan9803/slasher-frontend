@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { getGlobalCssProperty, setGlobalCssProperty } from '../../../../utils/styles-utils ';
 
 interface Props {
   children: React.ReactNode;
@@ -18,7 +19,11 @@ const StyledRightSidebarWrapper = styled.div`
   -ms-overflow-style { display: none; }
   scrollbar-width { display: none; }
   &:hover {
-    padding-right: 1rem; // We remove (--scroll-bar-width) to account for the width of scrollbar sidebar is hovered.
+    padding-right: calc(1rem + var(--reset-padding-when-no-scroll-bar, 0px));
+    // In above we remove (--scroll-bar-width) to account for the width of scrollbar sidebar is hovered.
+    // Also, we add "--reset-padding-when-no-scroll-bar" so that when height is not enought and scrollbar
+    // is not shown when hovered we must not change the padding, and we do that by setting same value for
+    // "--reset-padding-when-no-scroll-bar" as that of "--scroll-bar-width".
     ::-webkit-scrollbar { display: block; }
     -ms-overflow-style { display: block; }
     scrollbar-width { display: block; }
@@ -26,9 +31,26 @@ const StyledRightSidebarWrapper = styled.div`
 `;
 
 function RightSidebarWrapper({ children }: Props) {
+  const rightSidebarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!rightSidebarRef.current) { return undefined; }
+
+    const intervalTimer = setInterval(() => {
+      const rightSidebarElement = rightSidebarRef.current!;
+      const hasScrollBar = rightSidebarElement?.scrollHeight > rightSidebarElement?.clientHeight;
+      if (!hasScrollBar) {
+        const scrollBarWidth = getGlobalCssProperty('--scroll-bar-width');
+        setGlobalCssProperty('--reset-padding-when-no-scroll-bar', scrollBarWidth);
+      }
+    }, 500);
+
+    return () => clearTimeout(intervalTimer);
+  }, []);
   return (
     <StyledRightSidebarWrapper
       className="d-none d-lg-block"
+      ref={rightSidebarRef}
     >
       {children}
     </StyledRightSidebarWrapper>

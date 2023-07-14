@@ -4,6 +4,8 @@ import { Link, useLocation } from 'react-router-dom';
 import IconWithTextNavItemInnerElement from './IconWithTextNavItemInnerElement';
 import { deletePageStateCache } from '../../../../pageStateCache';
 import { scrollToTop } from '../../../../utils/scrollFunctions';
+import { setScrollToTabsPosition } from '../../../../redux/slices/scrollPositionSlice';
+import { useAppDispatch } from '../../../../redux/hooks';
 
 interface Props {
   label: string;
@@ -24,6 +26,7 @@ function IconWithTextNavLink({
 }: Props) {
   const { pathname } = useLocation();
   const linkRef = useRef<any>(null);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const handlePopstate = () => {
@@ -41,7 +44,13 @@ function IconWithTextNavLink({
   const handleRefresh = () => {
     // Similarly we clear pageStateCache on mobile navItem `onClick` too: file:///./../../sidebar-nav/MobileOnlySidebarContent.tsx
     deletePageStateCache(to);
-    scrollToTop('instant');
+
+    const isProfileFriendsPage = to.endsWith('/friends');
+    if (isProfileFriendsPage) {
+      dispatch(setScrollToTabsPosition(true));
+    } else {
+      scrollToTop('instant');
+    }
   };
   return (
     <Link to={to} onClick={handleRefresh} ref={linkRef} className={`text-decoration-none pb-1 mb-1 ${className}`}>

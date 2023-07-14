@@ -490,6 +490,7 @@ function PostFeed({
                     }
                     initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
                     onSelect={onSelect}
+                    isSinglePost={isSinglePost}
                   />
                 )}
                 <Row>

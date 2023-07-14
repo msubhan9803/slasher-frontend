@@ -1,5 +1,5 @@
 import { getPageStateCache } from '../../pageStateCache';
-import { LocationType, ProfileSubroutesCache } from '../../types';
+import { LocationOrPathname, ProfileSubroutesCache } from '../../types';
 
 export const PROFILE_SUBROUTES_DEFAULT_CACHE: ProfileSubroutesCache = {
   user: null,
@@ -8,7 +8,7 @@ export const PROFILE_SUBROUTES_DEFAULT_CACHE: ProfileSubroutesCache = {
   profilePosts: [],
 };
 
-export const getProfileSubroutesCache = (location: LocationType) => {
+export const getProfileSubroutesCache = (location: LocationOrPathname) => {
   const profileSubroutesCache = getPageStateCache<ProfileSubroutesCache>(location)
     || PROFILE_SUBROUTES_DEFAULT_CACHE;
   return profileSubroutesCache;

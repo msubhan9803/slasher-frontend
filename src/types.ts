@@ -394,4 +394,4 @@ export type FriendType = {
   reaction: FriendRequestReaction
 } | null;
 
-export type LocationType = Location | string;
+export type LocationOrPathname = Location | string;

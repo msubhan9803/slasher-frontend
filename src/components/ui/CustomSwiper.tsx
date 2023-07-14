@@ -15,8 +15,10 @@ import CustomSwiperZoomableImage from './CustomSwiperZoomableImage';
 import { StyledMoviePoster } from '../../routes/movies/movie-details/StyledUtils';
 import RoundButton from './RoundButton';
 import {
-  ShareMovieAsPostMobileOnlyBreakPoint,
+  isNativePlatform,
 } from '../../constants';
+import LoadingIndicator from './LoadingIndicator';
+import { youtube } from '../../api/youtube';
 
 interface SliderImage {
   postId?: string;
@@ -34,19 +36,20 @@ interface SliderImage {
   }
 }
 
-type SwiperContext = 'post' | 'comment' | 'shareMoviePostOnlyMobile';
+type SwiperContext = 'post' | 'comment' | 'shareMoviePost';
 
 interface Props {
   context: SwiperContext;
   images: SliderImage[];
   initialSlide?: number;
   onSelect?: (value: string) => void;
+  isSinglePost?: boolean;
 }
 
 const heightForContext: Record<SwiperContext, string> = {
   comment: '275px',
   post: '450px',
-  shareMoviePostOnlyMobile: '190px',
+  shareMoviePost: '190px',
 };
 
 const StyledYouTubeButton = styled(Button)`
@@ -62,10 +65,10 @@ const StyledSwiper = styled(Swiper)`
   height: 100%;
   z-index: 0 !important;
 .swiper-button-prev {
-  color: var(--bs-primary);
+  ${isNativePlatform ? 'display: none' : 'color: var(--bs-primary)'}
 }
 .swiper-button-next {
-  color: var(--bs-primary);
+  ${isNativePlatform ? 'display: none' : 'color: var(--bs-primary)'}
 }
 .swiper-slide {
   text-align: center;
@@ -100,61 +103,88 @@ const SwiperContentContainer = styled.div`
 
 const MoviePosterWithAdditionDetails = styled.div`
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: row;
+
   .text__details {
-    margin-left: 0px;
-    padding-inline-start: 0px;
+    margin: auto;
+    padding-inline-start: 24px;
+    text-align: left;
   }
   img {
-    height: 325px !important;
-  }
-
-  /* Landscape view for mobile */
-  @media (max-width: ${ShareMovieAsPostMobileOnlyBreakPoint}px) {
-    & {
-      flex-direction: row;
-    }
-    .text__details {
-      margin: auto;
-      padding-inline-start: 24px;
-      text-align: left;
-    }
-    img {
-      height: 170px !important;
-    }
+    height: 170px !important;
   }
 `;
 
 let instanceCounter = 0;
 
 function CustomSwiper({
-  context, images, initialSlide, onSelect,
+  context, images, initialSlide, onSelect, isSinglePost,
 }: Props) {
   const uniqueId = `${instanceCounter += 1}`;
   const [showVideoPlayerModal, setShowYouTubeModal] = useState(false);
+  const [isValidURL, setValidURL] = useState<any>();
   const { placeholderUrlNoImageAvailable } = useAppSelector((state) => state.remoteConstants);
   const navigate = useNavigate();
 
+  const handleImageError = (e: any) => {
+    e.target.src = placeholderUrlNoImageAvailable;
+  };
+  const renderImage = (imageAndVideo: any) => (
+    <SwiperContentContainer style={{ height: heightForContext[context] }}>
+      <img
+        src={`https://img.youtube.com/vi/${imageAndVideo.videoKey}/hqdefault.jpg`}
+        className="w-100 h-100"
+        alt={`${imageAndVideo.imageDescription ? imageAndVideo.imageDescription : 'user uploaded content videoKey'}`}
+        onError={handleImageError}
+      />
+      <StyledYouTubeButton
+        variant="link"
+        onClick={(e: any) => {
+          e.preventDefault();
+          setShowYouTubeModal(true);
+        }}
+      >
+        <FontAwesomeIcon icon={brands('youtube')} size="4x" />
+      </StyledYouTubeButton>
+    </SwiperContentContainer>
+  );
+  const renderPlaceholderImage = (imageAndVideo: any) => (
+    <SwiperContentContainer style={{ height: heightForContext[context] }}>
+      <img
+        src={placeholderUrlNoImageAvailable}
+        className="w-100 h-100"
+        alt={`${imageAndVideo.imageDescription ? imageAndVideo.imageDescription : 'user uploaded content videoKey'}`}
+        onError={handleImageError}
+      />
+    </SwiperContentContainer>
+  );
   const displayVideoAndImage = (imageAndVideo: SliderImage) => {
     if (imageAndVideo.videoKey) {
-      return (
-        <SwiperContentContainer>
-          <img
-            src={`https://img.youtube.com/vi/${imageAndVideo.videoKey}/hqdefault.jpg`}
-            className="w-100 h-100"
-            alt={`${imageAndVideo.imageDescription ? imageAndVideo.imageDescription : 'user uploaded content'} `}
-            onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-              e.currentTarget.src = placeholderUrlNoImageAvailable;
-            }}
-          />
-          <StyledYouTubeButton
-            variant="link"
-            onClick={(e: React.MouseEvent) => { e.preventDefault(); setShowYouTubeModal(true); }}
-          >
-            <FontAwesomeIcon icon={brands('youtube')} size="4x" />
-          </StyledYouTubeButton>
-        </SwiperContentContainer>
-      );
+      youtube(imageAndVideo.videoKey).then((res) => {
+        if (res.status === 200) {
+          setValidURL(true);
+        } else {
+          setValidURL(false);
+        }
+      }).catch(() => {
+        setValidURL(false);
+      });
+      if (isValidURL === true) {
+        return (
+          renderImage(imageAndVideo)
+        );
+      }
+      if (
+        isValidURL === false && ((isSinglePost === false && images.length > 1) || (isSinglePost))
+      ) {
+        return (
+          renderPlaceholderImage(imageAndVideo)
+        );
+      }
+      if (isValidURL === undefined) {
+        return <LoadingIndicator />;
+      }
+      return null;
     }
     if (imageAndVideo.linkUrl) {
       return (
@@ -165,11 +195,11 @@ function CustomSwiper({
           }
           className="h-100"
         >
-          <SwiperContentContainer>
+          <SwiperContentContainer style={{ height: heightForContext[context] }}>
             <img
               src={imageAndVideo.imageUrl}
               className="w-100 h-100"
-              alt={`${imageAndVideo.imageDescription ? imageAndVideo.imageDescription : 'user uploaded content'} `}
+              alt={`${imageAndVideo.imageDescription ? imageAndVideo.imageDescription : 'user uploaded content imageUrl'} `}
               onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                 e.currentTarget.src = placeholderUrlNoImageAvailable;
               }}
@@ -179,30 +209,33 @@ function CustomSwiper({
       );
     }
     if (imageAndVideo.movieData) {
+      const movieDetailsPath = `/app/movies/${imageAndVideo?.movieData?._id}/details`;
       return (
         <SwiperContentContainer className="me-auto">
           <MoviePosterWithAdditionDetails>
             <div className="py-3">
               <StyledMoviePoster className="h-100">
-                <Image
-                  src={imageAndVideo?.movieData?.poster_path}
-                  alt="movie poster"
-                  className="d-block rounded-3"
-                  onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                    e.currentTarget.src = placeholderUrlNoImageAvailable;
-                  }}
-                />
+                <Link to={movieDetailsPath}>
+                  <Image
+                    src={imageAndVideo?.movieData?.poster_path}
+                    alt="movie poster"
+                    className="d-block rounded-3"
+                    onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                      e.currentTarget.src = placeholderUrlNoImageAvailable;
+                    }}
+                  />
+                </Link>
               </StyledMoviePoster>
             </div>
             <div className="text__details">
-              <div className="fw-bold mb-1 text-start">
+              <Link to={movieDetailsPath} className="d-block text-decoration-none fw-bold mb-1 text-start">
                 {imageAndVideo?.movieData?.title}
-              </div>
-              <div className="text-light mb-2 text-start">
+              </Link>
+              <Link to={movieDetailsPath} className="d-block text-decoration-none text-light mb-2 text-start">
                 {imageAndVideo?.movieData?.release_date
                   && DateTime.fromJSDate(new Date(imageAndVideo?.movieData?.release_date)).toFormat('yyyy')}
-              </div>
-              <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4" onClick={() => navigate(`/app/movies/${imageAndVideo?.movieData?._id}/details`)}>
+              </Link>
+              <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4" onClick={() => navigate(movieDetailsPath)}>
                 View details
               </RoundButton>
 
@@ -212,7 +245,7 @@ function CustomSwiper({
       );
     }
     return (
-      <SwiperContentContainer>
+      <SwiperContentContainer style={{ height: heightForContext[context] }}>
         <CustomSwiperZoomableImage
           className="h-100"
           src={imageAndVideo.imageUrl}
@@ -226,7 +259,7 @@ function CustomSwiper({
   };
 
   return (
-    <div style={{ height: heightForContext[context] }} className={`${images.length > 1 ? 'mb-4' : ''}`}>
+    <div className={`${images.length > 1 ? 'mb-4' : ''}`}>
       <StyledSwiper
         pagination={{ type: 'fraction', el: `#swiper-pagination-el-${uniqueId}` }}
         initialSlide={initialSlide}
@@ -258,5 +291,6 @@ function CustomSwiper({
 CustomSwiper.defaultProps = {
   initialSlide: 0,
   onSelect: undefined,
+  isSinglePost: false,
 };
 export default CustomSwiper;

@@ -15,7 +15,7 @@ import * as stringSimilarity from 'string-similarity';
 import PostFooter from './PostFooter';
 import {
   CommentValue, LikeShareModalResourceName, Post, LikeShareModalTabName,
-  ReplyValue, WorthWatchingStatus,
+  ReplyValue, WorthWatchingStatus, CommentsOrder,
 } from '../../../../types';
 import LikeShareModal from '../../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
@@ -32,7 +32,10 @@ import {
   newLineToBr,
 } from '../../../../utils/text-utils';
 import { MentionListProps } from '../../MessageTextarea';
-import { MD_MEDIA_BREAKPOINT } from '../../../../constants';
+import {
+  LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT, ShareMovieAsPostMobileOnlyBreakPoint,
+  XL_MEDIA_BREAKPOINT, XXL_MEDIA_BREAKPOINT,
+} from '../../../../constants';
 import RoundButton from '../../RoundButton';
 import CustomRatingText from '../../CustomRatingText';
 import CustomWortItText from '../../CustomWortItText';
@@ -42,11 +45,13 @@ import { defaultLinkifyOpts } from '../../../../utils/linkify-utils';
 import { getLocalStorage } from '../../../../utils/localstorage-utils';
 import FormatImageVideoList from '../../../../utils/video-utils';
 import useOnScreen from '../../../../hooks/useOnScreen';
-import { isHomePage, isNewsPartnerPage, isPostDetailsPage } from '../../../../utils/url-utils';
+import { isHomePage, isNewsPartnerPageSubRoutes, isPostDetailsPage } from '../../../../utils/url-utils';
 import ScrollToTop from '../../../ScrollToTop';
 import { postMovieDataToMovieDBformat, showMoviePoster } from '../../../../routes/movies/movie-utils';
 import { useAppSelector } from '../../../../redux/hooks';
+import CustomSelect from '../../../filter-sort/CustomSelect';
 import { ProgressButtonComponentType } from '../../ProgressButton';
+import useWindowInnerWidth from '../../../../hooks/useWindowInnerWidth';
 
 interface Props {
   popoverOptions: string[];
@@ -93,6 +98,10 @@ interface Props {
   setSelectedBlockedUserId?: (value: string) => void;
   setDropDownValue?: (value: string) => void;
   ProgressButton?: ProgressButtonComponentType,
+  commentOrReplySuccessAlertMessage?: string;
+  setCommentOrReplySuccessAlertMessage?: React.Dispatch<React.SetStateAction<string>>;
+  commentsOrder?: string;
+  handleCommentsOrder?: (value: CommentsOrder) => void;
 }
 
 interface StyledProps {
@@ -140,6 +149,13 @@ type PostContentPropsType = {
   loginUserId: string | undefined, spoilerId: any,
   onSpoilerClick: ((value: string) => void) | undefined, isSinglePost: boolean | undefined,
 };
+const SelectContainer = styled.div`
+  @media(max-width: ${MD_MEDIA_BREAKPOINT}) { margin-bottom: 8px; }
+  @media(min-width: ${MD_MEDIA_BREAKPOINT}) { width: 35%; }
+  @media(min-width: ${LG_MEDIA_BREAKPOINT}) { width: 52%; }
+  @media(min-width: ${XL_MEDIA_BREAKPOINT}) { width: 40%; }
+  @media(min-width: ${XXL_MEDIA_BREAKPOINT}) { width: 30%; }
+`;
 function PostContent({
   post, postType, generateReadMoreLink,
   escapeHtml, onPostContentClick, handlePostContentKeyDown, loginUserId,
@@ -291,6 +307,8 @@ function PostFeed({
   commentReplyError, postType, onSpoilerClick,
   commentSent, setCommentReplyErrorMessage, setCommentErrorMessage,
   showPubWiseAdAtPageBottom, setSelectedBlockedUserId, setDropDownValue, ProgressButton,
+  commentOrReplySuccessAlertMessage, setCommentOrReplySuccessAlertMessage,
+  commentsOrder, handleCommentsOrder,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [isCommentClick, setCommentClick] = useState<boolean>(false);
@@ -307,6 +325,8 @@ function PostFeed({
   const [modalResourceId, setModalResourceId] = useState('');
   const [modalLikeCount, setModalLikeCount] = useState(0);
   const { pathname } = useLocation();
+  const parentSection = useRef<HTMLDivElement>(null);
+
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
       return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
@@ -381,7 +401,7 @@ function PostFeed({
   if (isHomePage(location.pathname)) {
     pubWiseAdDivId = HOME_WEB_DIV_ID;
   }
-  if (isNewsPartnerPage(location.pathname)) {
+  if (isNewsPartnerPageSubRoutes(location.pathname)) {
     pubWiseAdDivId = NEWS_PARTNER_POSTS_DIV_ID;
   }
 
@@ -424,6 +444,9 @@ function PostFeed({
     setCommentClick(!isCommentClick);
   };
 
+  const windowInnerWidth = useWindowInnerWidth();
+  const showMiniViewForPost = (post: any) => post?.movieId && (windowInnerWidth <= ShareMovieAsPostMobileOnlyBreakPoint);
+
   return (
     <StyledPostFeed>
       {isPostDetailsPage(pathname) && <ScrollToTop />}
@@ -465,7 +488,7 @@ function PostFeed({
                 />
                 {(post?.images?.length > 0 || findFirstYouTubeLinkVideoId(post?.message) || showMoviePoster(post.movieId, postType)) && (
                   <CustomSwiper
-                    context="post"
+                    context={showMiniViewForPost(post) ? 'shareMoviePostOnlyMobile' : 'post'}
                     images={
                       swiperDataForPost(post)
                     }
@@ -497,7 +520,16 @@ function PostFeed({
             {
               isCommentSection
               && (
-                <div>
+                <SelectContainer className="ml-auto ms-auto pb-1">
+                  <CustomSelect value={commentsOrder} onChange={handleCommentsOrder} options={[{ value: CommentsOrder.oldestFirst, label: 'Oldest to newest (default)' }, { value: CommentsOrder.newestFirst, label: 'Newest to oldest' }]} />
+                </SelectContainer>
+              )
+            }
+
+            {
+              isCommentSection
+              && (
+                <div ref={parentSection}>
                   {/* <StyledBorder className="d-md-block d-none mb-4" /> */}
                   <InfiniteScroll
                     threshold={1000}
@@ -507,6 +539,10 @@ function PostFeed({
                       if (setRequestAdditionalPosts) { setRequestAdditionalPosts(true); }
                     }}
                     hasMore={!noMoreData}
+                    /* Using a custom parentNode element to base the scroll calulations on. */
+                    useWindow={false}
+                    getScrollParent={() => parentSection.current}
+
                   >
                     <PostCommentSection
                       postCreator={postData[0].userId}
@@ -544,6 +580,8 @@ function PostFeed({
                       setSelectedBlockedUserId={setSelectedBlockedUserId}
                       setCommentDropDownValue={setDropDownValue}
                       ProgressButton={ProgressButton}
+                      commentOrReplySuccessAlertMessage={commentOrReplySuccessAlertMessage}
+                      setCommentOrReplySuccessAlertMessage={setCommentOrReplySuccessAlertMessage}
                     />
                   </InfiniteScroll>
                   {loadingPosts && <LoadingIndicator />}
@@ -627,5 +665,9 @@ PostFeed.defaultProps = {
   setSelectedBlockedUserId: undefined,
   setDropDownValue: undefined,
   ProgressButton: undefined,
+  commentOrReplySuccessAlertMessage: '',
+  setCommentOrReplySuccessAlertMessage: undefined,
+  commentsOrder: '',
+  handleCommentsOrder: undefined,
 };
 export default PostFeed;

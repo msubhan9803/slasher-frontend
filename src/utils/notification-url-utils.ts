@@ -3,12 +3,12 @@ import { Notification, NotificationType, PostType } from '../types';
 function userNameForReceivedFriendRequestNotification(
   notification: Notification,
 ) {
-  const extractedUserName = notification.senderId.userName === 'Slasher'
+  const extractedUserName = notification.senderId?.userName === 'Slasher'
     ? notification.notificationMsg.substring(
       0,
       notification.notificationMsg.indexOf(' '),
     )
-    : notification.senderId.userName;
+    : notification.senderId?.userName;
   return extractedUserName;
 }
 
@@ -75,6 +75,8 @@ export const urlForNotification = (notification: Notification) => {
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}`;
     case NotificationType.NewPostFromFollowedRssFeedProvider:
       return `/app/news/partner/${notification.rssFeedProviderId?._id}/posts/${notification.feedPostId._id}`;
+    case NotificationType.FriendMessageNotification:
+      return `/app/messages/conversation/${notification.matchId}`;
     default:
       return '/app/notifications';
   }

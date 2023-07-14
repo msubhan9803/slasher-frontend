@@ -23,7 +23,7 @@ function MovieDetails() {
     hasPageStateCache(location) ? pageStateCache.additionalMovieData : undefined,
   );
   useEffect(() => {
-    if (params.id && !movieData) {
+    if (params.id && (!movieData || movieData?.isUpdated)) {
       getMoviesById(params.id)
         .then((res) => {
           setMovieData(res.data);
@@ -53,7 +53,7 @@ function MovieDetails() {
 
   return (
     <div>
-      <Container fluid className="mb-5 p-0">
+      <Container fluid className="mb-5 p-0 pb-5">
         {enableDevFeatures && <RoundButton className="d-lg-none w-100 my-3 fs-4">Add your movie</RoundButton>}
         {additionalMovieData?.video?.[0]?.key && (
           <PlayMovie embedId={

@@ -20,7 +20,7 @@ const navList: NavItem[] = [
   { value: `${WORDPRESS_SITE_URL}/shop`, label: 'Shop' },
   { value: `${WORDPRESS_SITE_URL}/advertise`, label: 'Advertise' },
   { value: `${WORDPRESS_SITE_URL}/help`, label: 'Help' },
-  { value: `${WORDPRESS_SITE_URL}/contact-us`, label: 'Contact Us' },
+  { value: `${WORDPRESS_SITE_URL}/contact`, label: 'Contact Us' },
 ];
 const signInNavItem: NavItem = { value: '/app/sign-in', label: 'Sign in or Create an account' };
 
@@ -34,7 +34,7 @@ function PublicHomeHeader() {
   }
 
   useEffect(() => {
-    const handleScroll = () => {
+    const handleCurrentScrollPosition = () => {
       if (window.scrollY > 50) {
         if (!applySolidBackgroundToTopNav) {
           setApplySolidBackgroundToTopNav(true);
@@ -44,18 +44,21 @@ function PublicHomeHeader() {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => { window.removeEventListener('scroll', handleScroll); };
+    // Fire once on component mount, in case the component mounts while page is not scrolled to the top
+    handleCurrentScrollPosition();
+
+    window.addEventListener('scroll', handleCurrentScrollPosition);
+    return () => { window.removeEventListener('scroll', handleCurrentScrollPosition); };
   }, [applySolidBackgroundToTopNav]);
 
   return (
     <div id="header" className="fixed-top">
       <Navbar id="main-nav" expand="xl" variant="dark" expanded={isOpen} onToggle={() => { setIsOpen(!isOpen); }} className={`mb-3 ${applySolidBackgroundToTopNav ? 'with-background' : ''}`}>
-        <Container fluid className="container-xl">
+        <Container fluid className="container-xl justify-content-center">
           <Link to="/" className="navbar-brand custom-logo-link">
             <img width="510" height="300" src={slasherLogoMedium} className="img-fluid" alt="Slasher" />
           </Link>
-          <div className="toggle-button-wrapper order-first">
+          <div className="toggle-button-wrapper order-first position-fixed">
             <Navbar.Toggle aria-controls="navbarNavOffcanvas" />
           </div>
           <Navbar.Offcanvas

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
+import data from './customEmojiData.json';
 
 export interface Emoji {
   native: string

@@ -3,7 +3,7 @@ import { Col, Row } from 'react-bootstrap';
 import { userAccountDelete } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
-import { signOut } from '../../../utils/session-utils';
+import { clearUserSession } from '../../../utils/session-utils';
 import AccountHeader from '../AccountHeader';
 import DeleteAccountDialog from './DeleteAccountDialog';
 
@@ -16,7 +16,7 @@ function AccountDelete() {
   };
   const handleDeleteAccount = () => {
     userAccountDelete()
-      .then(() => signOut())
+      .then(() => clearUserSession())
       .catch((error) => setErrorMessage(error.response.data.message));
   };
   return (

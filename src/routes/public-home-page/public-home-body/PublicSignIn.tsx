@@ -5,6 +5,7 @@ import {
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import ReCAPTCHA from 'react-google-recaptcha';
+import { captchaSiteKey } from '../../../constants';
 
 const StyledContainer = styled.div`
   background-color: #1B1B1B;
@@ -12,7 +13,7 @@ const StyledContainer = styled.div`
   & > form {
     max-width: 900px;
   }
-  
+
   .recaptcha-element > div {
     margin: auto;
   }
@@ -43,17 +44,15 @@ function PublicSignIn() {
       <Form className="text-center py-5 px-4 mt-4 mx-auto">
         <Row className="pt-3">
           <Col>
+            <p className="text-primary mb-0 text-uppercase fs-4">We would love to hear from you!</p>
             <h1 className="fw-bolder">GET NOTIFIED OF ALL THE LATEST SLASHER NEWS &#8722; SIGN UP!</h1>
           </Col>
         </Row>
         <Row className="text-light justify-content-center mt-3 mb-5 pb-2">
           <Col>
             <p>
-              Slasher will be launching lots of new features WORLDWIDE!
-              <br />
-              Get all the lastest info, sneak previews, early beta access and more.
-              <br />
-              Sign up now!
+              Send a message to let us know if you have questions about Slasher, suggestions for
+              new features, or would like to work with us.
             </p>
           </Col>
         </Row>
@@ -92,7 +91,7 @@ function PublicSignIn() {
         <Row className="mb-3">
           <Col className="d-flex recaptcha-element">
             <ReCAPTCHA
-              sitekey="6LfJ9dcZAAAAAKaqEGRbBQMg66p-0Cgw4rf2M3J6"
+              sitekey={captchaSiteKey}
             />
           </Col>
         </Row>

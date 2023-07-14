@@ -3,7 +3,7 @@ import React, {
   useCallback, useEffect, useRef, useState,
 } from 'react';
 import {
-  Button, Col, Offcanvas, Row,
+  Button, Offcanvas,
 } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
@@ -24,9 +24,11 @@ import {
   updateRecentMessage,
 } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
-import { getSessionToken, signOut } from '../../../../utils/session-utils';
+import { clearUserSession, getSessionToken } from '../../../../utils/session-utils';
 import {
   LG_MEDIA_BREAKPOINT, analyticsId, MAIN_CONTENT_ID, apiUrl, RETRY_CONNECTION_BUTTON_ID,
+  AUTHENTICATED_PAGE_WRAPPER_ID,
+  isNativePlatform,
 } from '../../../../constants';
 import useGoogleAnalytics from '../../../../hooks/useGoogleAnalytics';
 import SkipToMainContent from '../../sidebar-nav/SkipToMainContent';
@@ -40,6 +42,9 @@ import useSessionTokenMonitorAsync from '../../../../hooks/useSessionTokenMonito
 import useSessionToken from '../../../../hooks/useSessionToken';
 import { setIsServerAvailable } from '../../../../redux/slices/serverAvailableSlice';
 import { Message } from '../../../../types';
+import { showBackButtonInIos } from '../../../../utils/url-utils';
+import { onKeyboardClose, removeGlobalCssProperty, setGlobalCssProperty } from '../../../../utils/styles-utils ';
+import { enableScrollOnWindow } from '../../../../utils/scrollFunctions';
 
 interface Props {
   children: React.ReactNode;
@@ -78,7 +83,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const dispatch = useAppDispatch();
   const userData = useAppSelector((state) => state.user);
   const remoteConstantsData = useAppSelector((state) => state.remoteConstants);
-  const { pathname } = useLocation();
+  const { pathname, search, hash } = useLocation();
   const location = useLocation();
   const token = useSessionToken();
   const tokenNotFound = !token.isLoading && !token.value;
@@ -87,7 +92,8 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const isConnectingSocketRef = useRef(false);
   const isSocketConnected = useAppSelector((state) => state.socket.isConnected);
   const { socket } = socketStore;
-
+  const backButtonElementRef = useRef<HTMLDivElement>(null);
+  const isIOS = Capacitor.getPlatform() === 'ios';
   const showUnreachableServerModalIfDisconnected = useCallback((e: MouseEvent) => {
     // If socket state is disconnected then show server-unavailable dialog.
     if (!isSocketConnected) {
@@ -109,6 +115,20 @@ function AuthenticatedPageWrapper({ children }: Props) {
   }, [showUnreachableServerModalIfDisconnected]);
 
   useGoogleAnalytics(analyticsId);
+
+  const previousPathRef = useRef<string>();
+  useEffect(() => {
+    const currentPath = pathname + search + hash;
+    if (previousPathRef.current === currentPath) { return; }
+    previousPathRef.current = currentPath;
+    // Fix: Sometimes bottom-navbar is not shown after using
+    // `comment-textinput` on post-details page
+    onKeyboardClose();
+    // Fix: Sometimes scroll is disabled on home page after image in zoomed
+    // and used browser-back button to go back (SD-1404)
+    enableScrollOnWindow();
+  }, [hash, pathname, search]);
+
   const params = useParams();
 
   // Record all navigation by user
@@ -117,11 +137,16 @@ function AuthenticatedPageWrapper({ children }: Props) {
   }, [dispatch, location.pathname]);
 
   // Reload the page if the session token changes
-  useSessionTokenMonitorAsync(
-    getSessionToken,
-    () => { window.location.reload(); },
-    5_000,
-  );
+
+  if (!isNativePlatform) {
+    // NOTE: Below hook is not called unconditionally because `isNativePlatform` is a constant value
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useSessionTokenMonitorAsync(
+      getSessionToken,
+      () => { window.location.reload(); },
+      5_000,
+    );
+  }
 
   const showOffcanvasSidebar = () => setShow(true);
   const toggleOffCanvas = () => {
@@ -156,7 +181,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
         dispatch(setUserInitialData(res.data));
       }).catch((err) => {
         if (err.response.status === 401) {
-          signOut();
+          clearUserSession();
         }
       });
     }
@@ -241,7 +266,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
 
   if (token.isLoading || !userData.user?.id) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+      <div className={`d-flex justify-content-center align-items-center ${isNativePlatform && 'd-none'}`} style={{ height: '100vh' }}>
         <HeaderLogo
           logo={slasherLogo}
           height="6.5rem"
@@ -250,17 +275,25 @@ function AuthenticatedPageWrapper({ children }: Props) {
 
     );
   }
+
+  if (isIOS && showBackButtonInIos(location.pathname)) {
+    setGlobalCssProperty('--heightOfBackButtonOfIos', `${backButtonElementRef.current?.clientHeight}px`);
+  } else {
+    removeGlobalCssProperty('--heightOfBackButtonOfIos');
+  }
+
   return (
-    <div className="page-wrapper full">
-      {Capacitor.getPlatform() === 'ios'
+    <div id={AUTHENTICATED_PAGE_WRAPPER_ID} className="page-wrapper full" style={{ paddingTop: `${!isDesktopResponsiveSize && isIOS && showBackButtonInIos(location.pathname) ? 'var(--heightOfBackButtonOfIos)' : ''}` }}>
+      {isIOS
+        && showBackButtonInIos(location.pathname)
         && (
-          <Row className="d-md-nonept-2">
-            <Col xs="auto" className="ms-2">
+          <div className="pt-2 position-fixed" ref={backButtonElementRef} style={{ top: 0, paddingTop: '0.625rem', zIndex: 1 }}>
+            <div className="ms-2">
               <Button variant="link" className="p-0 px-1" onClick={() => navigate(-1)}>
                 <FontAwesomeIcon role="button" icon={solid('arrow-left-long')} size="2x" />
               </Button>
-            </Col>
-          </Row>
+            </div>
+          </div>
         )}
       <SkipToMainContent />
       <AuthenticatedPageHeader

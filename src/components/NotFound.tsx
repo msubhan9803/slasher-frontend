@@ -1,13 +1,13 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import RoundButtonLink from './ui/RoundButtonLink';
 
 function NotFound() {
   return (
     <div className="text-center">
-      <h1>Not Found</h1>
-      <p>This Page could not be found.</p>
+      <h1>Something weird has happened...</h1>
+      <p>The content you are looking for could not be found.</p>
       <p>
-        <Link to="/">Go back to the home page.</Link>
+        <RoundButtonLink variant="primary" to="/">Click here to return to the home screen</RoundButtonLink>
       </p>
     </div>
   );

@@ -5,7 +5,6 @@ import React, {
 import {
   Button,
 } from 'react-bootstrap';
-import { useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import CommentSection from './CommentSection';
@@ -17,6 +16,8 @@ import { reportData } from '../../../../api/report';
 import ReportModal from '../../ReportModal';
 import EditCommentModal from '../../editCommentModal';
 import ErrorMessageList from '../../ErrorMessageList';
+import { CHOOSE_FILE_CAMERA_ICON, COMMENT_SECTION_ID, SEND_BUTTON_COMMENT_OR_REPLY } from '../../../../constants';
+import { onKeyboardClose, onKeyboardOpen } from '../../../../utils/styles-utils ';
 
 const LoadMoreCommentsWrapper = styled.div.attrs({ className: 'text-center' })`
   margin: -1rem 0 1rem;
@@ -57,6 +58,8 @@ function PostCommentSection({
   setSelectedBlockedUserId,
   setCommentDropDownValue,
   ProgressButton,
+  commentOrReplySuccessAlertMessage,
+  setCommentOrReplySuccessAlertMessage,
 }: any) {
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [show, setShow] = useState<boolean>(false);
@@ -75,7 +78,6 @@ function PostCommentSection({
   const [selectedReplyUserID, setSelectedReplyUserID] = useState<string>('');
   const [editContent, setEditContent] = useState<any>('');
   const [deleteImageIds, setDeleteImageIds] = useState<any>([]);
-  const userData = useSelector((state: any) => state.user);
   const [commentReplyUserId, setCommentReplyUserId] = useState<string>('');
   const [searchParams] = useSearchParams();
   const queryCommentId = searchParams.get('commentId');
@@ -87,6 +89,7 @@ function PostCommentSection({
   const [updatedReply, setUpdatedReply] = useState<boolean>(false);
   const [descriptionArray, setDescriptionArray] = useState<string[]>([]);
   const [replyDescriptionArray, setReplyDescriptionArray] = useState<string[]>([]);
+  const [hasReplyMessage, setHasReplyMessage] = useState<boolean>(false);
 
   const commentSectionRef = useRef<any>(null);
   useEffect(() => {
@@ -97,6 +100,39 @@ function PostCommentSection({
       }
     }
   }, [queryCommentId, queryReplyId, checkLoadMoreId]);
+
+  const clearErrorMessages = useCallback((e: MouseEvent) => {
+    if (!e.target) { return; }
+    const commentOrReplyTextInput = document.getElementById('comment-or-reply-input');
+    if (!commentOrReplyTextInput) { return; }
+
+    const isClickedOnTextInput = e.y > commentOrReplyTextInput.offsetTop;
+    if (isClickedOnTextInput) {
+      onKeyboardOpen();
+    } else {
+      onKeyboardClose();
+      // Disabled Temporarily by Damon request
+      // setCommentOrReplySuccessAlertMessage('');
+
+      // When we click in empty-area and it is not the `SEND_BUTTON_COMMENT_OR_REPLY` then hide
+      // `Reply to comment` textInput and show default "Write a comment"
+      const sendCommentOrReplyButtons = Array.from(document.querySelectorAll(`#${SEND_BUTTON_COMMENT_OR_REPLY}`));
+      const uploadImageButtons = Array.from(document.querySelectorAll(`#${CHOOSE_FILE_CAMERA_ICON}`));
+      const element = e.target as Element || null;
+      const clickedElementIsNotSendButton = !sendCommentOrReplyButtons
+        .some((el) => el.contains(element as any));
+      const clickedElementIsNotFileIUploadButton = !uploadImageButtons
+        .some((el) => el.contains(element as any));
+      if (clickedElementIsNotSendButton && clickedElementIsNotFileIUploadButton
+        && !replyImageArray.length && !hasReplyMessage) { setIsReply(false); }
+    }
+  }, [setIsReply, hasReplyMessage, replyImageArray]);
+
+  useEffect(() => {
+    window.addEventListener('click', clearErrorMessages, true);
+    return () => window.removeEventListener('click', clearErrorMessages, true);
+  }, [clearErrorMessages]);
+
   const checkPopover = (id: string) => {
     if (id === loginUserId) {
       return popoverOption;
@@ -478,8 +514,8 @@ function PostCommentSection({
 
   const generateReplyInput = (dataId: any) => (
     <div id={scrollId} ref={tabsRef}>
+      {/* This `CommentInput` is the ``reply-on-a-comment``. */}
       <CommentInput
-        userData={userData}
         message={replyMessage}
         inputFile={replyInputFile}
         handleFileChange={handleFileChange}
@@ -493,6 +529,7 @@ function PostCommentSection({
         replyImageArray={replyImageArray}
         addUpdateReply={addUpdateReply}
         commentID={selectedReplyCommentId}
+        checkCommnt="reply-on-comment"
         commentReplyID={selectedReplyId!}
         commentError={commentError}
         commentReplyError={commentReplyError}
@@ -506,6 +543,7 @@ function PostCommentSection({
         setReplyDescriptionArray={setReplyDescriptionArray}
         isMainPostCommentClick={isMainPostCommentClick}
         selectedReplyUserId={selectedReplyUserID}
+        setHasReplyMessage={setHasReplyMessage}
       />
       {
         !isEdit && commentReplyError
@@ -531,9 +569,9 @@ function PostCommentSection({
     }, 600);
   }, [isMainPostCommentClick, commentSectionData]);
   return (
-    <div ref={commentSectionRef}>
+    <div id={COMMENT_SECTION_ID} ref={commentSectionRef}>
+      {/* This `CommentInput` is the ``comment-on-post``. */}
       <CommentInput
-        userData={userData}
         message={message}
         setIsReply={setIsReply}
         inputFile={inputFile}
@@ -554,6 +592,8 @@ function PostCommentSection({
         isEdit={isEdit}
         descriptionArray={descriptionArray}
         setDescriptionArray={setDescriptionArray}
+        commentOrReplySuccessAlertMessage={commentOrReplySuccessAlertMessage}
+        setCommentOrReplySuccessAlertMessage={setCommentOrReplySuccessAlertMessage}
       />
       {commentData && commentData.length > 0 && queryCommentId && previousCommentsAvailable
         && (

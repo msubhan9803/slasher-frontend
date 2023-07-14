@@ -55,7 +55,7 @@ const footerNavList = [
   { value: 'about', label: 'ABOUT' },
   { value: 'news', label: 'NEWS' },
   { value: 'help', label: 'HELP' },
-  { value: 'contact-us', label: 'CONTACT US' },
+  { value: 'contact', label: 'CONTACT US' },
   { value: 'advertise', label: 'ADVERTISE' },
 ];
 function PublicHomeFooter() {

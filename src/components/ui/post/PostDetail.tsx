@@ -1,11 +1,12 @@
 /* eslint-disable max-lines */
 import React, {
-  useCallback, useEffect, useState,
+  useCallback, useEffect, useRef, useState,
 } from 'react';
 import {
   useLocation,
   useNavigate, useParams, useSearchParams,
 } from 'react-router-dom';
+import { AxiosResponse } from 'axios';
 import { createBlockUser } from '../../../api/blocks';
 import {
   addFeedComments, addFeedReplyComments, getFeedComments,
@@ -21,10 +22,10 @@ import { getSuggestUserName } from '../../../api/users';
 import { useAppSelector } from '../../../redux/hooks';
 import { MentionProps } from '../../../routes/posts/create-post/CreatePost';
 import {
-  CommentValue, ContentDescription, FeedComments, FriendRequestReaction, FriendType, Post, User,
+  CommentValue, CommentsOrder, ContentDescription, FeedComments,
+  FriendRequestReaction, FriendType, Post, User,
 } from '../../../types';
 import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-utils';
-import { decryptMessage } from '../../../utils/text-utils';
 import { ContentPageWrapper } from '../../layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
@@ -39,6 +40,8 @@ import { sleep } from '../../../utils/timer-utils';
 import { isPostDetailsPage } from '../../../utils/url-utils';
 import { friendship } from '../../../api/friends';
 import FriendshipStatusModal from '../friendShipCheckModal';
+import ContentNotAvailable from '../../ContentNotAvailable';
+import CheckCommentModal from '../checkCommentModal';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -54,6 +57,8 @@ interface Props {
   // postType?: '' | 'review' | 'news';
   showPubWiseAdAtPageBottom?: boolean;
 }
+
+const DEFAULT_COMMENTS_SORYBY_OLDEST_FIRST = true;
 
 function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   const {
@@ -91,9 +96,16 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   const [friendData, setFriendData] = useState<FriendType>(null);
   const [friendShipStatusModal, setFriendShipStatusModal] = useState<boolean>(false);
   const [postUserId, setPostUserId] = useState<string>('');
+  const [notFound, setNotFound] = useState<boolean>(false);
+  const [commentNotFound, setCommentNotFound] = useState<boolean>(false);
 
+  const [commentOrReplySuccessAlertMessage, setCommentOrReplySuccessAlertMessage] = useState('');
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const location = useLocation();
+  const [isCommentsOldestFirst, setIsCommentsByOldestFirst] = useState<boolean>(
+    DEFAULT_COMMENTS_SORYBY_OLDEST_FIRST,
+  );
+  const abortControllerRef = useRef<AbortController | null>();
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     setSelectedBlockedUserId(popoverClickProps.userId!);
@@ -112,33 +124,32 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     setPopoverClick(popoverClickProps);
   };
 
-  const feedComments = useCallback((sortBy?: boolean) => {
+  type FeedCommentsOptions = { isOldestFirst: boolean, isLoadNewerCommentsClick: boolean };
+
+  const feedComments = useCallback((options: FeedCommentsOptions) => {
+    const { isOldestFirst, isLoadNewerCommentsClick } = options;
     let data;
-    if (sortBy) {
-      data = commentData.length > 0 ? commentData[0]._id : undefined;
-    } else {
+    const isAddingBelowCurrentComments = !isLoadNewerCommentsClick;
+    if (isAddingBelowCurrentComments) {
       data = commentData.length > 0 ? commentData[commentData.length - 1]._id : undefined;
+    } else {
+      data = commentData.length > 0 ? commentData[0]._id : undefined;
     }
+    // Note: Using === below provides a concise expression of
+    // this = `isOldestFirst ? isAddingBelowCurrentComments : !isAddingBelowCurrentComments`
+    const isOldestFirstFromApi = isOldestFirst === isAddingBelowCurrentComments;
     getFeedComments(
       postId!,
       data,
-      sortBy,
-    ).then((res) => {
-      const comments = sortBy ? res.data.reverse() : res.data;
-      setCommentData((prev: any) => {
-        if (sortBy) {
-          return [
-            ...comments,
-            ...prev,
-          ];
-        }
-        return [
-          ...prev,
-          ...comments,
-        ];
-      });
+      isOldestFirstFromApi,
+    ).then((res: AxiosResponse<FeedComments[]>) => {
+      const comments = isAddingBelowCurrentComments
+        ? res.data
+        : res.data.reverse();
+      // eslint-disable-next-line max-len
+      setCommentData((prev: any) => (isAddingBelowCurrentComments ? [...prev, ...comments] : [...comments, ...prev]));
       if (res.data.length === 0) { setNoMoreData(true); }
-      if (res.data.length < 20 && sortBy) {
+      if (res.data.length < 20 && !isAddingBelowCurrentComments) {
         setPreviousCommentsAvailable(false);
       }
     }).catch(
@@ -172,12 +183,13 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     if (requestAdditionalPosts && !loadingComments && (commentData.length || !queryCommentId)) {
       setLoadingComments(true);
       setNoMoreData(false);
-      feedComments();
+      feedComments({ isOldestFirst: isCommentsOldestFirst, isLoadNewerCommentsClick: false });
     }
-  }, [requestAdditionalPosts, loadingComments, commentData, queryCommentId, feedComments]);
+  }, [requestAdditionalPosts, loadingComments, commentData, queryCommentId, feedComments,
+    isCommentsOldestFirst]);
 
   const callLatestFeedComments = () => {
-    getFeedComments(postId!).then((res) => {
+    getFeedComments(postId!, undefined, isCommentsOldestFirst).then((res) => {
       const updateComment = res.data;
       setCommentData(updateComment);
       setLoadingComments(false);
@@ -185,7 +197,11 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   };
 
   const addUpdateComment = async (comment: CommentValue) => {
-    setProgressButtonStatus('loading');
+    if (abortControllerRef.current) {
+      return;
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
     setCommentSent(true);
     let commentValueData: any = {
       feedPostId: '',
@@ -206,8 +222,6 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           comment?.descriptionArr,
         )
           .then(async (res) => {
-            setProgressButtonStatus('success');
-            await sleep(1000);
             const updateCommentArray: any = commentData;
             const index = updateCommentArray.findIndex(
               (commentId: any) => commentId._id === res.data._id,
@@ -236,12 +250,14 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             setIsEdit(false);
           })
           .catch((error) => {
-            setProgressButtonStatus('failure');
             const msg = error.response.status === 0 && !error.response.data
               ? 'Combined size of files is too large.'
               : error.response.data.message;
             setCommentErrorMessage(msg);
             setCommentSent(false);
+          })
+          .finally(() => {
+            abortControllerRef.current = null;
           });
       } else {
         addFeedComments(
@@ -251,8 +267,6 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           comment.descriptionArr,
         )
           .then(async (res) => {
-            setProgressButtonStatus('success');
-            await sleep(1000);
             let newCommentArray: any = commentData;
             commentValueData = {
               _id: res.data._id,
@@ -264,7 +278,11 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
               likeCount: 0,
               createdAt: new Date().toISOString(),
             };
-            newCommentArray = [commentValueData].concat(newCommentArray);
+            if (isCommentsOldestFirst) {
+              newCommentArray = newCommentArray.concat(commentValueData);
+            } else {
+              newCommentArray = [commentValueData].concat(newCommentArray);
+            }
             setCommentData(newCommentArray);
             setPostData([{
               ...postData[0],
@@ -273,23 +291,28 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             setUpdateState(true);
             setCommentSent(false);
             setCommentErrorMessage([]);
+            setCommentOrReplySuccessAlertMessage('Your comment has been added.');
           })
           .catch((error) => {
-            setProgressButtonStatus('failure');
             const msg = error.response.status === 0 && !error.response.data
               ? 'Combined size of files is too large.'
               : error.response.data.message;
             setCommentErrorMessage(msg);
             setCommentSent(false);
+          })
+          .finally(() => {
+            abortControllerRef.current = null;
           });
       }
     }).catch(() => { });
   };
-
   const addUpdateReply = async (reply: any) => {
+    if (abortControllerRef.current) {
+      return;
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
     setCommentSent(true);
-    setProgressButtonStatus('loading');
-
     let replyValueData: any = {
       feedPostId: '',
       feedCommentId: '',
@@ -313,8 +336,6 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         )
           .then(async (res) => {
             const updateReplyArray: any = commentData;
-            setProgressButtonStatus('success');
-            await sleep(1000);
             updateReplyArray.map((comment: any) => {
               const staticReplies = comment.replies;
               if (comment._id === res.data.feedCommentId) {
@@ -340,12 +361,14 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             setIsEdit(false);
             setCommentSent(false);
           }).catch((error) => {
-            setProgressButtonStatus('failure');
             const msg = error.response.status === 0 && !error.response.data
               ? 'Combined size of files is too large.'
               : error.response.data.message;
             setCommentReplyErrorMessage(msg);
             setCommentSent(false);
+          })
+          .finally(() => {
+            abortControllerRef.current = null;
           });
       } else {
         addFeedReplyComments(
@@ -356,8 +379,6 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           reply.descriptionArr,
         ).then(async (res) => {
           const newReplyArray: any = commentData;
-          setProgressButtonStatus('success');
-          await sleep(1000);
           replyValueData = {
             feedPostId: postId,
             feedCommentId: res.data.feedCommentId,
@@ -381,14 +402,21 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           setCommentReplyErrorMessage([]);
           setCommentSent(false);
           setCommentID('');
+          // eslint-disable-next-line max-len
+          // Fix showing of two success alert messages (i.e, inside two comment inputs for comment and reply-to-comment)
+          setTimeout(() => {
+            setCommentOrReplySuccessAlertMessage('Your reply has been added to the end of this comment thread.');
+          }, 500);
         }).catch((error) => {
-          setProgressButtonStatus('failure');
           const msg = error.response.status === 0 && !error.response.data
             ? 'Combined size of files is too large.'
             : error.response.data.message;
           setCommentReplyErrorMessage(msg);
           setCommentSent(false);
-        });
+        })
+          .finally(() => {
+            abortControllerRef.current = null;
+          });
       }
     }).catch(() => { });
   };
@@ -486,7 +514,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             _id: res.data._id,
             id: res.data._id,
             postDate: res.data.createdAt,
-            message: decryptMessage(res.data.message),
+            message: res.data.message,
             userName: res.data.userId.userName,
             profileImage: res.data.userId.profilePic,
             userId: res.data.userId._id,
@@ -500,6 +528,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         setPostContent(res.data.message);
       })
       .catch((error) => {
+        if (error.response.status === 404) { setNotFound(true); }
         setErrorMessage(error.response.data.message);
       });
   }, [navigate, partnerId, postId, postType, queryCommentId, queryReplyId,
@@ -740,7 +769,16 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           navigate(`/${user?.userName}/posts/${res.data.feedPostId}?commentId=${queryCommentId}`);
         }
       }
+
+      if (queryReplyId && res.data.replies.length
+        && !res.data.replies.some((reply: any) => reply._id === queryReplyId)) {
+        setCommentNotFound(true);
+      }
       setCommentData([res.data]);
+    }).catch((err) => {
+      if (err.response.status === 404) {
+        setCommentNotFound(true);
+      }
     });
   }, [navigate, partnerId, postId, queryCommentId, queryReplyId, user?.userName, postType]);
   useEffect(() => {
@@ -750,7 +788,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   }, [queryCommentId, getSingleComment]);
 
   const loadNewerComment = () => {
-    feedComments(true);
+    feedComments({ isOldestFirst: isCommentsOldestFirst, isLoadNewerCommentsClick: true });
   };
 
   const onBlockYesClick = () => {
@@ -801,6 +839,30 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     return undefined;
   }, [selectedBlockedUserId, dropDownValue, updateCommentDataAfterBlockUser]);
 
+  const handleCommentsOrder = (value: CommentsOrder) => {
+    if (!Object.values(CommentsOrder).includes(value)) { console.error('Please use one of following values:', Object.values(CommentsOrder)); }
+
+    setCommentData([]);
+    setIsCommentsByOldestFirst(value === CommentsOrder.oldestFirst);
+    if (!queryCommentId) {
+      setRequestAdditionalPosts(true);
+    } else {
+      getSingleComment();
+      setRequestAdditionalPosts(true);
+    }
+  };
+  const commentsOrder: CommentsOrder = isCommentsOldestFirst
+    ? CommentsOrder.oldestFirst
+    : CommentsOrder.newestFirst;
+  if (notFound) { return (<ContentNotAvailable />); }
+
+  const onCommentNotFoundClose = () => {
+    if (!queryReplyId) {
+      callLatestFeedComments();
+    }
+    setCommentNotFound(false);
+  };
+
   return (
     <>
       {postType === 'news'
@@ -849,6 +911,10 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                 setSelectedBlockedUserId={setSelectedBlockedUserId}
                 setDropDownValue={setDropDownValue}
                 ProgressButton={ProgressButton}
+                commentOrReplySuccessAlertMessage={commentOrReplySuccessAlertMessage}
+                setCommentOrReplySuccessAlertMessage={setCommentOrReplySuccessAlertMessage}
+                commentsOrder={commentsOrder}
+                handleCommentsOrder={handleCommentsOrder}
               />
               {dropDownValue !== 'Edit'
                 && (
@@ -935,7 +1001,10 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
               setSelectedBlockedUserId={setSelectedBlockedUserId}
               setDropDownValue={setDropDownValue}
               ProgressButton={ProgressButton}
-
+              commentOrReplySuccessAlertMessage={commentOrReplySuccessAlertMessage}
+              setCommentOrReplySuccessAlertMessage={setCommentOrReplySuccessAlertMessage}
+              commentsOrder={commentsOrder}
+              handleCommentsOrder={handleCommentsOrder}
             />
             {dropDownValue !== 'Edit'
               && (
@@ -976,6 +1045,15 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                 setFriendData={setFriendData}
                 friendData={friendData}
                 userId={postUserId}
+              />
+            )}
+
+            {commentNotFound && (
+              <CheckCommentModal
+                commentNotFound={commentNotFound}
+                setCommentNotFound={setCommentNotFound}
+                onCommentNotFoundClose={onCommentNotFoundClose}
+                content={queryReplyId ? 'Reply no longer exists' : 'Comment no longer exists'}
               />
             )}
           </div>

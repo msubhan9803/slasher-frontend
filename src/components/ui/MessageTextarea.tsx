@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  createRef, useEffect, useRef, useState,
+  createRef, useCallback, useEffect, useRef, useState,
 } from 'react';
 import Mentions from 'rc-mentions';
 import { OptionProps } from 'rc-mentions/lib/Option';
@@ -10,13 +10,15 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from 'react-bootstrap';
 import UserCircleImage from './UserCircleImage';
-import CustomEmojiPicker from './CustomEmojiPicker';
+import CustomEmojiPicker from './Emoji/CustomEmojiPicker';
+import { isNativePlatform } from '../../constants';
 
 interface SytledMentionProps {
   iscommentinput: string;
 }
 interface PickerProp {
   createpost: any;
+  emojiPickerTop: boolean;
 }
 
 interface StyledShadowWrapperProps {
@@ -31,8 +33,10 @@ const StyledMention = styled(Mentions) <SytledMentionProps>`
   position:relative;
   padding: 0.063rem;
   ${(props) => (!props.iscommentinput && `
-  border-bottom-right-radius: 0 !important;
-  border-bottom-left-radius: 0 !important;
+  ${!isNativePlatform
+    && `border-bottom-right-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;`
+    }
   border-top-right-radius: 0.875rem !important;
   border-top-left-radius: 0.875rem !important;
   padding: 0;
@@ -43,18 +47,20 @@ const StyledMention = styled(Mentions) <SytledMentionProps>`
     border-radius: 0.875rem !important;
     cursor: auto;
     ${(props) => (!props.iscommentinput && `
-    border-bottom-right-radius: 0 !important;
-    border-bottom-left-radius: 0 !important;
+    ${!isNativePlatform
+    && `border-bottom-right-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;`
+    }
     border-top-right-radius: 0.875rem !important;
     border-top-left-radius: 0.875rem !important;
     min-height: 196px !important;
-    height: 196px !important;
-    max-height: 196px !important;
+    height: ${!isNativePlatform ? '196px !important' : '220px !important'};
+    max-height: ${!isNativePlatform ? '196px !important' : '220px !important'};
     padding-bottom: 0px !important;
     `)}
 
 
-    ${(props) => (props.iscommentinput && 'margin-left :0.875rem')}
+    ${(props) => (props.iscommentinput && !isNativePlatform && 'margin-left :0.875rem')}
   }
   ${(props) => (props.iscommentinput
     ? `&.form-control{
@@ -92,23 +98,25 @@ const StyledEmoji = styled(Button)`
 
 const EmojiPicker = styled.div<PickerProp>`
     z-index:1;
-    ${(props) => (props.createpost ? 'left:1px;' : 'top:3.125rem;')}
+    ${(props) => (props.createpost ? 'left:1px;' : '')}
+    ${(props) => (props.emojiPickerTop ? 'bottom:3.125rem' : 'top:3.125rem')}
 `;
 
 const StyledEmojiButton = styled.div<EmojiButtonProps>`
-  ${(props) => !props.iscommentinput
+${(props) => !props.iscommentinput
     && `background-color: black;
-        border-bottom-radius: 1.875rem !important;
-        border-bottom-right-radius: 0.875rem !important;
-        border-bottom-left-radius: 0.875rem !important;
-        margin-top: -0.438rem !important;`
+  border-bottom-radius: 1.875rem !important;
+  border-bottom-right-radius: 0.875rem !important;
+  border-bottom-left-radius: 0.875rem !important;
+  padding: 0.625rem;
+  margin-top: -0.438rem !important;`
 }
 `;
 const StyledShadowWrapper = styled.div<StyledShadowWrapperProps>`
 width: 100%;
 ${(props) => (!props.iscommentinput
     && ` border-radius: 0.875rem !important;
-  ${props.isMentionsFocused
+  ${props.isMentionsFocused && !isNativePlatform
       ? `
     box-shadow: 0 0 0 2px var(--stroke-and-line-separator-color) !important;
     `
@@ -147,6 +155,7 @@ interface MentionProps {
   showPicker?: boolean;
   setShowPicker?: (val: any) => void;
   createEditPost?: boolean;
+  showEmojiButton?: boolean;
 }
 
 function MessageTextarea({
@@ -168,12 +177,14 @@ function MessageTextarea({
   showPicker,
   setShowPicker,
   createEditPost,
+  showEmojiButton,
 }: MentionProps) {
   const { Option } = Mentions;
   const textareaRef = useRef<MentionsRef>(null);
   const optionRef = createRef<HTMLInputElement>();
   const [selectedEmoji, setSelectedEmoji] = useState<string[]>([]);
   const [isMentionsFocused, setIsMentionsFocused] = useState<boolean>(false);
+  const [emojiPickerTop, setEmojiPickerTop] = useState<boolean>(false);
   const handleMessage = (e: string) => {
     setMessageContent(e);
   };
@@ -235,12 +246,31 @@ function MessageTextarea({
       onBlurHandler();
     }
   };
+  const changeEmojiPickerPosition: () => void = useCallback(() => {
+    const textArea = document.getElementById(id!);
+    const viewportOffset = textArea!.getBoundingClientRect();
+    const { top } = viewportOffset;
+    if (top > 350) {
+      setEmojiPickerTop(true);
+    } else {
+      setEmojiPickerTop(false);
+    }
+  }, [id]);
+  useEffect(() => {
+    window.addEventListener('click', changeEmojiPickerPosition, true);
+    window.addEventListener('scroll', changeEmojiPickerPosition, true);
+    return () => {
+      window.removeEventListener('scroll', changeEmojiPickerPosition, true);
+      window.removeEventListener('click', changeEmojiPickerPosition, true);
+    };
+  }, [changeEmojiPickerPosition]);
+
   return (
     <>
-
       <StyledShadowWrapper isMentionsFocused={isMentionsFocused} iscommentinput={isCommentInput!}>
         <StyledMention
           ref={textareaRef}
+          placement={showEmojiButton ? 'bottom' : 'top'} // (default = "bottom")
           iscommentinput={isCommentInput!}
           id={id}
           className={isCommentInput ? className : ''}
@@ -271,18 +301,21 @@ function MessageTextarea({
           ))}
         </StyledMention>
 
-        <StyledEmojiButton iscommentinput={isCommentInput!}>
-          <StyledEmoji
-            type="button"
-            variant="link"
-            aria-label="emoji-picker"
-            className={`d-flex align-self-end ${isCommentInput ? 'p-0 position-absolute' : ''}`}
-            createpost={createEditPost}
-            isCommentInput={isCommentInput}
-          >
-            <FontAwesomeIcon icon={solid('smile')} onClick={handleShowPicker} size="lg" />
-          </StyledEmoji>
-        </StyledEmojiButton>
+        {showEmojiButton
+          && (
+            <StyledEmojiButton iscommentinput={isCommentInput!}>
+              <StyledEmoji
+                type="button"
+                variant="link"
+                aria-label="emoji-picker"
+                className={`d-flex align-self-end p-0 ${isCommentInput ? 'p-0 position-absolute' : ''}`}
+                createpost={createEditPost}
+                isCommentInput={isCommentInput}
+              >
+                <FontAwesomeIcon icon={solid('smile')} onClick={handleShowPicker} size="lg" />
+              </StyledEmoji>
+            </StyledEmojiButton>
+          )}
 
       </StyledShadowWrapper>
 
@@ -290,6 +323,7 @@ function MessageTextarea({
         <EmojiPicker
           className="position-absolute me-4"
           createpost={createEditPost}
+          emojiPickerTop={emojiPickerTop}
         >
           <CustomEmojiPicker
             handleEmojiSelect={handleEmojiSelect}
@@ -314,5 +348,6 @@ MessageTextarea.defaultProps = {
   showPicker: undefined,
   setShowPicker: undefined,
   createEditPost: undefined,
+  showEmojiButton: true,
 };
 export default MessageTextarea;

@@ -204,6 +204,7 @@ export enum NotificationType {
   UserMentionedYouInACommentOnANewsPost = 121,
   UserLikedYourCommentOnANewsPost = 122,
   NewPostFromFollowedRssFeedProvider = 125,
+  FriendMessageNotification = 126,
 }
 
 export interface Notification {
@@ -220,6 +221,7 @@ export interface Notification {
   rssFeedProviderId: NotificationRssFeedProviderId,
   rssFeedId: string,
   notifyType: NotificationType,
+  matchId?: string
 }
 
 interface Sender {
@@ -316,7 +318,9 @@ export interface MovieData {
     goreFactorRating: number;
     worthWatching: number;
     reviewPostId: string;
-  }
+  },
+  // to check movieData state update
+  isUpdated?: boolean
 }
 export type LocationPointType = {
   type: 'Point',
@@ -367,6 +371,7 @@ export interface ConversationListItem {
   updatedAt: string;
 }
 
+export enum CommentsOrder { oldestFirst = 'oldestFirst', newestFirst = 'newestFirst' }
 export interface DeviceFields {
   device_token: string;
   device_type: string;

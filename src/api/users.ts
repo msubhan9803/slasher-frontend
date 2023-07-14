@@ -2,6 +2,7 @@
 import axios from 'axios';
 import { Capacitor } from '@capacitor/core';
 import { Device } from '@capacitor/device';
+import { App } from '@capacitor/app';
 import { apiUrl } from '../constants';
 import { DeviceFields, RegisterUser } from '../types';
 import { getDeviceToken, getSessionToken, getSessionUserId } from '../utils/session-utils';
@@ -12,10 +13,10 @@ export async function signIn(emailOrUsername: string, password: string, signal?:
     const deviceId = await Device.getId();
     const deviceInfo = await Device.getInfo();
     deviceFields = {
-      device_id: deviceId.uuid,
+      device_id: deviceId.identifier,
       device_token: (await getDeviceToken())!,
       device_type: deviceInfo.platform,
-      app_version: `${deviceInfo.platform}-capacitor-${process.env.REACT_APP_VERSION}`,
+      app_version: `${deviceInfo.platform}-capacitor-${(await App.getInfo()).version}(${(await App.getInfo()).build})`,
       device_version: `${deviceInfo.manufacturer} ${deviceInfo.model} ${deviceInfo.operatingSystem} ${deviceInfo.osVersion}, Name: ${deviceInfo.name}`,
     };
   } else {
@@ -38,6 +39,21 @@ export async function signIn(emailOrUsername: string, password: string, signal?:
   );
 }
 
+export async function signOut() {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  const deviceId = await Device.getId();
+  return axios.post(
+    `${apiUrl}/api/v1/users/sign-out`,
+    {
+      device_id: deviceId.identifier,
+    },
+    { headers },
+  );
+}
+
 export async function register(
   firstName: string,
   userName: string,
@@ -47,6 +63,7 @@ export async function register(
   securityQuestion: string,
   securityAnswer: string,
   dob: string,
+  reCaptchaToken: string,
 ) {
   return axios.post(
     `${apiUrl}/api/v1/users/register`,
@@ -59,6 +76,7 @@ export async function register(
       securityQuestion,
       securityAnswer,
       dob,
+      reCaptchaToken,
     },
   );
 }
@@ -121,6 +139,14 @@ export async function getUser(userName: string) {
 }
 export async function getPublicProfile(userName: string) {
   return axios.get(`${apiUrl}/api/v1/users/public/${userName}`);
+}
+
+export async function getUserByPreviousUserName(userName: string) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.get(`${apiUrl}/api/v1/users/previous-username/${userName}`, { headers });
 }
 
 export async function getProfilePosts(id: string, lastRetrievedPostId?: string) {

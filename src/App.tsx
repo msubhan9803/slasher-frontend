@@ -4,7 +4,9 @@ import {
   Route, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
 import { App as CapacitorApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 import { StatusBar } from '@capacitor/status-bar';
+import { Keyboard } from '@capacitor/keyboard';
 import VerificationEmailNotReceived from './routes/verification-email-not-received/VerificationEmailNotReceived';
 import ForgotPassword from './routes/forgot-password/ForgotPassword';
 import Home from './routes/home/Home';
@@ -28,7 +30,9 @@ import Account from './routes/account/Account';
 import ResetPassword from './routes/reset-password/ResetPassword';
 import AccountActivated from './routes/account-activated/AccountActivated';
 import usePubWiseAdSlots from './hooks/usePubWiseAdSlots';
-import { enableDevFeatures, enableADs, topStatuBarBackgroundColorAndroidOnly } from './constants';
+import {
+  enableDevFeatures, enableADs, topStatuBarBackgroundColorAndroidOnly, isNativePlatform,
+} from './constants';
 import Books from './routes/books/Books';
 import Artists from './routes/artists/Artists';
 import Podcasts from './routes/podcasts/Podcasts';
@@ -45,6 +49,12 @@ import ServerUnavailable from './components/ServerUnavailable';
 import Conversation from './routes/conversation/Conversation';
 import PushNotificationAndDeepLinkListener from './components/PushNotificationAndDeepLinkListener';
 import Index from './routes/Index';
+import { onKeyboardClose, onKeyboardOpen } from './utils/styles-utils ';
+import UnexpectedError from './components/UnexpectedError';
+import { healthCheck } from './api/health-check';
+import { store } from './redux/store';
+import { setIsServerAvailable } from './redux/slices/serverAvailableSlice';
+import { isHomePage } from './utils/url-utils';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -105,8 +115,16 @@ if (enableDevFeatures) {
   // routes['places/*'] = { wrapper: AuthenticatedPageWrapper, component: Places };
 }
 
-CapacitorApp.addListener('backButton', ({ canGoBack }) => {
-  if (!canGoBack) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+Keyboard.addListener('keyboardWillShow', (info) => {
+  onKeyboardOpen();
+});
+Keyboard.addListener('keyboardWillHide', () => {
+  onKeyboardClose();
+});
+
+CapacitorApp.addListener('backButton', () => {
+  if (isHomePage(window.location.pathname)) {
     CapacitorApp.exitApp();
   } else {
     window.history.back();
@@ -114,8 +132,19 @@ CapacitorApp.addListener('backButton', ({ canGoBack }) => {
 });
 
 // Display content under transparent status bar (Android only)
-StatusBar.setOverlaysWebView({ overlay: true });
-StatusBar.setBackgroundColor({ color: topStatuBarBackgroundColorAndroidOnly });
+if (Capacitor.isNativePlatform()) {
+  StatusBar.setOverlaysWebView({ overlay: false });
+  StatusBar.setBackgroundColor({ color: topStatuBarBackgroundColorAndroidOnly });
+}
+
+if (isNativePlatform) {
+  const SERVER_UNAVAILABILITY_CHECK_DELAY = 3_000;
+  setTimeout(() => {
+    healthCheck().catch(() => {
+      store.dispatch(setIsServerAvailable(false));
+    });
+  }, SERVER_UNAVAILABILITY_CHECK_DELAY);
+}
 
 function App() {
   usePubWiseAdSlots(enableADs);
@@ -123,11 +152,12 @@ function App() {
 
   const router = createBrowserRouter(
     createRoutesFromElements(
-      <Route path="/" element={<PushNotificationAndDeepLinkListener />}>
-        {/* TODO: Uncomment line below when switching from beta to prod */}
+      <Route
+        path="/"
+        element={<PushNotificationAndDeepLinkListener />}
+        errorElement={<UnauthenticatedPageWrapper><UnexpectedError /></UnauthenticatedPageWrapper>}
+      >
         <Route path="/" element={<Index />} />
-        {/* TODO: REMOVE line below when switching from beta to prod */}
-        {/* <Route path="/" element={<Navigate to="/app/home" replace />} /> */}
         {
           Object.entries(routes).map(
             ([routePath, opts]) => (

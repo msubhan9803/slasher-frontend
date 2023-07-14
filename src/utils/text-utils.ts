@@ -2,6 +2,7 @@ import { FormatMentionProps } from '../types';
 
 // Finds the first YouTube link in a post and returns the YouTube ID in the 6-index capture group
 const YOUTUBE_LINK_REGEX = /((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\\-]+\?v=|embed\/|v\/)?)([\w\\-]+)(\S+)?/;
+const EMOJI_REGEX = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g;
 
 export function findFirstYouTubeLinkVideoId(message: string) {
   return message?.match(YOUTUBE_LINK_REGEX)?.[6];
@@ -74,8 +75,9 @@ export function cleanExternalHtmlContent(htmlString: string) {
   return containerElement.innerHTML;
 }
 
-export function decryptMessage(message: any) {
-  const found = message ? message.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '') : '';
+export function decryptMessage(message: any, isReplaced?: Boolean) {
+  const replacedContent = isReplaced ? message : message.replace(EMOJI_REGEX, '<span style="font-size: 1.375rem;">$1</span>');
+  const found = message ? replacedContent.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '') : '';
   return found;
 }
 

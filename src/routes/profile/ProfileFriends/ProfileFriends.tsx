@@ -52,7 +52,6 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
     ? ['View profile', 'Message', 'Unfriend', 'Report', 'Block user']
     : ['View profile', 'Report', 'Block user'];
   const friendsReqCount = useAppSelector((state) => state.user.user.newFriendRequestCount);
-  const friendContainerElementRef = useRef<any>(null);
   const loginUserName = useAppSelector((state) => state.user.user.userName);
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
   const [requestAdditionalFriends, setRequestAdditionalFriends] = useState<boolean>(false);
@@ -70,7 +69,6 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
   const controllerRef = useRef<AbortController | null>();
   const lastUserIdRef = useRef(user._id);
   const [initialLoad] = useState((profileSubRoutesCache.allFriends?.data.length || 0) === 0);
-  const friendsBodyElementRef = useRef<HTMLDivElement>(null);
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
@@ -249,10 +247,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
               <CustomSearchInput label="Search friends..." setSearch={handleSearch} search={search} />
             </Col>
           </Row>
-          <div
-            className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 my-3 py-3"
-            ref={friendsBodyElementRef}
-          >
+          <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 my-3 py-3">
             { showAllFriendsAndFriendRequestsTabs && (
               <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="" overrideOnClick={deleteFriendRequestsSubrouteCache} />
             )}
@@ -262,12 +257,10 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
               initialLoad={initialLoad}
               loadMore={() => { setRequestAdditionalFriends(true); }}
               hasMore={!noMoreData}
-              /* Using a custom parentNode element to base the scroll calulations on. */
-              useWindow={false}
-              getScrollParent={() => friendsBodyElementRef.current}
-
+              /* NOTE: Do not use a custom parentNode element as it leads to infinte loading.
+              of friends for some unknown reason. */
             >
-              <Row ref={friendContainerElementRef} className="mt-4">
+              <Row className="mt-4">
                 {friendsList.map((friend: FriendProps) => (
                   <Col md={4} lg={6} xl={4} key={friend._id}>
                     <FriendsProfileCard

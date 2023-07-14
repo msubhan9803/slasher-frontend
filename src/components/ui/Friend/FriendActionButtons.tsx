@@ -106,10 +106,11 @@ function FriendActionButtons({
         show && ButtonLabel
         && (
           <ProgressButton
+            variant={`${friendStatus === FriendRequestReaction.Pending || friendStatus === FriendRequestReaction.Accepted ? 'black' : 'primary'}`}
             id="Friend-action-button"
             type="submit"
             onClick={() => friendRequestApi(friendStatus)}
-            className="me-2 text-nowrap w-50"
+            className="me-2 text-nowrap"
             label={ButtonLabel}
           />
         )

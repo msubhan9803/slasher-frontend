@@ -7,15 +7,16 @@ import 'swiper/swiper-bundle.css';
 import { Link, useNavigate } from 'react-router-dom';
 import { brands } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  Button, Col, Image, Row,
-} from 'react-bootstrap';
+import { Button, Image } from 'react-bootstrap';
 import { DateTime } from 'luxon';
 import CustomYoutubeModal from './CustomYoutubeModal';
 import { useAppSelector } from '../../redux/hooks';
 import CustomSwiperZoomableImage from './CustomSwiperZoomableImage';
 import { StyledMoviePoster } from '../../routes/movies/movie-details/StyledUtils';
 import RoundButton from './RoundButton';
+import {
+  ShareMovieAsPostMobileOnlyBreakPoint,
+} from '../../constants';
 import LoadingIndicator from './LoadingIndicator';
 import { youtube } from '../../api/youtube';
 
@@ -35,7 +36,7 @@ interface SliderImage {
   }
 }
 
-type SwiperContext = 'post' | 'comment';
+type SwiperContext = 'post' | 'comment' | 'shareMoviePostOnlyMobile';
 
 interface Props {
   context: SwiperContext;
@@ -48,6 +49,7 @@ interface Props {
 const heightForContext: Record<SwiperContext, string> = {
   comment: '275px',
   post: '450px',
+  shareMoviePostOnlyMobile: '190px',
 };
 
 const StyledYouTubeButton = styled(Button)`
@@ -96,6 +98,33 @@ const SwiperContentContainer = styled.div`
   position: relative;
   img {
     object-fit: contain;
+  }
+`;
+
+const MoviePosterWithAdditionDetails = styled.div`
+  display: flex;
+  flex-direction: column-reverse;
+  .text__details {
+    margin-left: 0px;
+    padding-inline-start: 0px;
+  }
+  img {
+    height: 325px !important;
+  }
+
+  /* Landscape view for mobile */
+  @media (max-width: ${ShareMovieAsPostMobileOnlyBreakPoint}px) {
+    & {
+      flex-direction: row;
+    }
+    .text__details {
+      margin: auto;
+      padding-inline-start: 24px;
+      text-align: left;
+    }
+    img {
+      height: 170px !important;
+    }
   }
 `;
 
@@ -194,25 +223,25 @@ function CustomSwiper({
     }
     if (imageAndVideo.movieData) {
       return (
-        <SwiperContentContainer style={{ height: heightForContext[context] }}>
-          <Row className="m-0 h-100">
-            <Col className="p-0 h-100 py-3">
+        <SwiperContentContainer className="me-auto">
+          <MoviePosterWithAdditionDetails>
+            <div className="py-3">
               <StyledMoviePoster className="h-100">
                 <Image
                   src={imageAndVideo?.movieData?.poster_path}
                   alt="movie poster"
-                  className="rounded-3 w-100 h-100"
+                  className="d-block rounded-3"
                   onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                     e.currentTarget.src = placeholderUrlNoImageAvailable;
                   }}
                 />
               </StyledMoviePoster>
-            </Col>
-            <Col className="m-auto ps-4 text-start">
-              <div className="fw-bold mb-1">
+            </div>
+            <div className="text__details">
+              <div className="fw-bold mb-1 text-start">
                 {imageAndVideo?.movieData?.title}
               </div>
-              <div className="text-light mb-2">
+              <div className="text-light mb-2 text-start">
                 {imageAndVideo?.movieData?.release_date
                   && DateTime.fromJSDate(new Date(imageAndVideo?.movieData?.release_date)).toFormat('yyyy')}
               </div>
@@ -220,8 +249,8 @@ function CustomSwiper({
                 View details
               </RoundButton>
 
-            </Col>
-          </Row>
+            </div>
+          </MoviePosterWithAdditionDetails>
         </SwiperContentContainer>
       );
     }

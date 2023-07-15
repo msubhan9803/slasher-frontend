@@ -135,122 +135,124 @@ function CommentSection({
 
   return (
     <div key={id}>
-      <div className={`position-absolute ps-1 ${!commentMention && 'mt-0 mt-md-3'} ${commentMention && 'ms-md-1'}`}>
-        <Link to={`/${name}`} className="d-block rounded-circle">
-          <UserCircleImage size={`${userCircleImageSizeInRems}rem`} src={image} alt="user picture" className="rounded-circle d-flex bg-secondary" />
-        </Link>
-      </div>
-      <div style={{ marginLeft: `${userCircleImageSizeInRems + 0.5}rem` }}>
-        <div
-          className={`text-break ms-3 pt-3 pb-4 px-3 bg-dark rounded ${active ? 'border border-primary' : ''}`}
-          ref={active ? highlightRef : null}
-        >
-          <div className="d-flex justify-content-between">
-            <div className="ps-0 align-self-center mb-2">
-              <Link to={`/${name}`} className="d-block text-decoration-none">
-                <h1 className="mb-0 h3">{name}</h1>
-              </Link>
-              <p className="fs-6 text-light mb-0">
-                {DateTime.fromISO(time).toFormat('MM/dd/yyyy t')}
-              </p>
-            </div>
-            <div className="d-block pe-0">
-              <CustomPopover
-                popoverOptions={popoverOptions}
-                onPopoverClick={onPopoverClick}
-                message={message}
-                id={id}
-                userId={userId}
-                userName={userName}
-                postImages={commentImg}
-              />
-            </div>
+      <div className="bg-dark mb-2 py-3 py-md-4 ps-3 rounded">
+        <div className="d-flex">
+          <div className="">
+            <Link to={`/${name}`} className="d-block rounded-circle">
+              <UserCircleImage size={`${userCircleImageSizeInRems}rem`} src={image} alt="user picture" className="rounded-circle d-flex bg-secondary" />
+            </Link>
           </div>
-          <span className="text-primary">
-            {commentMention}
-          </span>
-
-          <CommentMessage
-            className={images?.length > 0 ? 'mb-3' : ''}
-            dangerouslySetInnerHTML={
-              {
-                __html: newLineToBr(
-                  // eslint-disable-next-line max-len
-                  linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(commentMsg)), defaultLinkifyOpts),
-                ),
-              }
-            }
-          />
-          <div>
-            {images?.length > 0 && (
-              <CustomSwiper
-                context="comment"
-                images={
-                  images.map((imageData: any) => ({
-                    imageUrl: imageData.image_path,
-                    imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
-                    imageDescription: imageData.description,
-                  }))
-                }
-              />
-            )}
+          <div
+            className={`text-break px-3 w-100 ${active ? 'border border-primary' : ''}`}
+            ref={active ? highlightRef : null}
+          >
+            <div className="d-flex justify-content-between">
+              <div className="ps-0 align-self-center mb-2">
+                <Link to={`/${name}`} className="d-block text-decoration-none">
+                  <h1 className="mb-0 h3">{name}</h1>
+                </Link>
+                <p className="fs-6 text-light mb-0">
+                  {DateTime.fromISO(time).toFormat('MM/dd/yyyy t')}
+                </p>
+              </div>
+              <div className="d-block pe-0">
+                <CustomPopover
+                  popoverOptions={popoverOptions}
+                  onPopoverClick={onPopoverClick}
+                  message={message}
+                  id={id}
+                  userId={userId}
+                  userName={userName}
+                  postImages={commentImg}
+                />
+              </div>
+            </div>
+            <span className="text-primary">
+              {commentMention}
+            </span>
           </div>
-          {
-            likeCount! > 0
-            && (
-              <Likes className="d-flex position-relative justify-content-end">
-                <LikesButton onClick={handleLikeCountClick} className="py-1 btn-filter text-light me-2 mt-2 rounded-pill text-white position-absolute">
-                  <LinearIcon uniqueId="comment-like-count">
-                    <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-1" />
-                    <span className="like-count fs-5">{likeCount}</span>
-                  </LinearIcon>
-                </LikesButton>
-                <svg width="0" height="0">
-                  <linearGradient id="comment-like-count" x1="00%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
-                    <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
-                  </linearGradient>
-                </svg>
-              </Likes>
-            )
-          }
         </div>
-        <div className="mt-2 mb-3 ms-md-4 ms-4">
-          <div className="p-0 d-flex me-2" aria-hidden="true">
-            <Button variant="link" className="me-2" onClick={() => onIconClick(id)}>
-              {
-                likeIcon
-                  ? (
-                    <>
-                      <LinearIcon uniqueId="like-button-comment">
-                        <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                        <span className="fs-5">Like</span>
-                      </LinearIcon>
-                      <svg width="0" height="0" className="d-block">
-                        <linearGradient id="like-button-comment" x1="00%" y1="0%" x2="0%" y2="100%">
-                          <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
-                          <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
-                        </linearGradient>
-                      </svg>
-                    </>
-                  )
-                  : (
-                    <>
-                      <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
-                      <span className="fs-5">Like</span>
-                    </>
-                  )
+
+        <CommentMessage
+          className={images?.length > 0 ? 'mb-3 mt-2' : ''}
+          dangerouslySetInnerHTML={
+            {
+              __html: newLineToBr(
+                // eslint-disable-next-line max-len
+                linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(commentMsg)), defaultLinkifyOpts),
+              ),
+            }
+          }
+        />
+        <div className="pe-3">
+          {images?.length > 0 && (
+            <CustomSwiper
+              context="comment"
+              images={
+                images.map((imageData: any) => ({
+                  imageUrl: imageData.image_path,
+                  imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
+                  imageDescription: imageData.description,
+                }))
               }
-            </Button>
-            <Button
-              variant="link"
-              onClick={handleReply}
-              className="d-flex"
-            >
-              <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-              <span className="fs-5">Reply</span>
-            </Button>
-          </div>
+            />
+          )}
+        </div>
+        {
+          likeCount! > 0
+          && (
+            <Likes className="d-flex position-relative justify-content-end">
+              <LikesButton onClick={handleLikeCountClick} className="py-1 btn-filter text-light me-2 mt-2 rounded-pill text-white position-absolute">
+                <LinearIcon uniqueId="comment-like-count">
+                  <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-1" />
+                  <span className="like-count fs-5">{likeCount}</span>
+                </LinearIcon>
+              </LikesButton>
+              <svg width="0" height="0">
+                <linearGradient id="comment-like-count" x1="00%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
+                  <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
+                </linearGradient>
+              </svg>
+            </Likes>
+          )
+        }
+      </div>
+      <div className="mt-2 mb-30">
+        <div className="p-0 d-flex me-2" aria-hidden="true">
+          <Button variant="link" className="me-2 ps-0" onClick={() => onIconClick(id)}>
+            {
+              likeIcon
+                ? (
+                  <>
+                    <LinearIcon uniqueId="like-button-comment">
+                      <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
+                      <span className="fs-5">Like</span>
+                    </LinearIcon>
+                    <svg width="0" height="0" className="d-block">
+                      <linearGradient id="like-button-comment" x1="00%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
+                        <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
+                      </linearGradient>
+                    </svg>
+                  </>
+                )
+                : (
+                  <>
+                    <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
+                    <span className="fs-5">Like</span>
+                  </>
+                )
+            }
+          </Button>
+          <Button
+            variant="link"
+            onClick={handleReply}
+            className="d-flex"
+          >
+            <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
+            <span className="fs-5">Reply</span>
+          </Button>
         </div>
       </div>
     </div>

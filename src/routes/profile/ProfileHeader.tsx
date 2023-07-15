@@ -25,6 +25,7 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import SignInModal from '../../components/ui/SignInModal';
 import { getLastNonProfilePathname } from '../../utils/url-utils';
 import useSessionToken from '../../hooks/useSessionToken';
+import { setScrollToTabsPosition } from '../../redux/slices/scrollPositionSlice';
 
 interface Props {
   tabKey?: string;
@@ -69,12 +70,11 @@ function ProfileHeader({
   const userId = useAppSelector((state) => state.user.user.id);
   const { userName } = useParams();
   const navigate = useNavigate();
-  const param = useParams();
   const location = useLocation();
   const [clickedUserId, setClickedUserId] = useState<string>('');
   const [friendData, setFriendData] = useState<FriendType>(null);
   const positionRef = useRef<HTMLDivElement>(null);
-  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  const scrollPosition = useAppSelector((state) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const pathnameHistory = useAppSelector((state) => state.user.pathnameHistory);
   const token = useSessionToken();
@@ -111,6 +111,8 @@ function ProfileHeader({
     const isPublicProfile = location?.state?.publicProfile;
     if (isPublicProfile) { return; }
 
+    if (!scrollPosition.scrollToTab) { return; }
+
     // Scroll so that "About-Posts-Friends-Photos-Watched_list" nav-bar sticks to top of the
     // viewport.
     if (!location.pathname.includes('about')) {
@@ -119,8 +121,9 @@ function ProfileHeader({
         behavior: 'instant' as any,
       });
     }
-  }, [positionRef, friendStatus, dispatch, scrollPosition.scrollToTab,
-    param, location, token, userIsLoggedIn]);
+  }, [positionRef, friendStatus, location, token, userIsLoggedIn,
+    scrollPosition.scrollToTab,
+  ]);
 
   const onBlockYesClick = () => {
     createBlockUser(clickedUserId)
@@ -157,6 +160,7 @@ function ProfileHeader({
       setShowSignIn(!showSignIn);
     }
   };
+  const handleScrollToTab = () => dispatch(setScrollToTabsPosition(true));
   return (
     <div className="bg-dark bg-mobile-transparent rounded mb-4">
       <div className="p-md-4 g-0">
@@ -231,7 +235,7 @@ function ProfileHeader({
                 tabLink={allTabs}
                 toLink={`/${user?.userName}`}
                 selectedTab={tabKey}
-                overrideOnClick={userIsLoggedIn ? () => { } : handleSignInDialog}
+                overrideOnClick={userIsLoggedIn ? handleScrollToTab : handleSignInDialog}
               />
             </div>
           </>

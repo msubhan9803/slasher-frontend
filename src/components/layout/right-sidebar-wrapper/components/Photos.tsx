@@ -31,12 +31,12 @@ function Photos({ user }: PhotosProps) {
 
   useEffect(() => {
     if (!user._id) { return; }
-    userPhotos(user._id, '', '6')
+    userPhotos(user._id, '', '3')
       .then((res) => {
         const newPhotoList: PhotoList[] = [];
         res.data?.forEach((photosData: any) => {
           photosData.images.forEach((photo: ImageList) => {
-            if (newPhotoList.length < 6) {
+            if (newPhotoList.length < 3) {
               newPhotoList.push({
                 id: photosData._id,
                 imageId: photo._id,

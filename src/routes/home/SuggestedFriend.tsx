@@ -1,4 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import styled from '@emotion/styled';
 import { Button, Row } from 'react-bootstrap';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
@@ -48,6 +50,8 @@ function SuggestedFriend() {
   const {
     forceReload, lastRetrievalTime, suggestedFriends,
   } = useAppSelector((state) => state.suggestedFriendList);
+  const abortControllerRef = useRef<AbortController | null>();
+
   const reloadSuggestedFriends = useCallback(() => {
     setLoading(true);
     getSuggestFriends()
@@ -79,6 +83,11 @@ function SuggestedFriend() {
   }, [allowReload, forceReload, lastRetrievalTime, reloadSuggestedFriends]);
 
   const addFriendClick = (userId: string) => {
+    if (abortControllerRef.current) {
+      return;
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
     addFriend(userId).then(() => {
       const newSuggestedFriends = suggestedFriends.filter((friend: any) => friend._id !== userId);
       const friendPayload = {
@@ -90,6 +99,8 @@ function SuggestedFriend() {
       if (newSuggestedFriends.length === 0) {
         setAllowReload(true);
       }
+    }).finally(() => {
+      abortControllerRef.current = null;
     });
   };
 

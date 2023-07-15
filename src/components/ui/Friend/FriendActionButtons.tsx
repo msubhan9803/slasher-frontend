@@ -1,9 +1,9 @@
 import React from 'react';
-import RoundButton from '../RoundButton';
 import { FriendRequestReaction, FriendType, User } from '../../../types';
 import RoundButtonLink from '../RoundButtonLink';
 import { acceptFriendsRequest, addFriend, rejectFriendsRequest } from '../../../api/friends';
 import { useAppSelector } from '../../../redux/hooks';
+import useProgressButton from '../ProgressButton';
 
 const getButtonLabelForUser = (
   user: User,
@@ -46,22 +46,49 @@ function FriendActionButtons({
   buttonType,
 }: Props) {
   const loginUserId = useAppSelector((state) => state.user.user.id);
-
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const friendRequestApi = (status: number | null) => {
+    setProgressButtonStatus('loading');
     if (!status) {
       // eslint-disable-next-line no-param-reassign
       status = FriendRequestReaction.DeclinedOrCancelled;
     }
     if (user && user._id) {
       if (status === FriendRequestReaction.DeclinedOrCancelled) {
-        addFriend(user._id).then(() => setFriendshipStatus(status));
+        addFriend(user._id).then(() => {
+          setFriendshipStatus(status);
+          setProgressButtonStatus('success');
+        })
+          /* eslint-disable no-console */
+          .catch((error) => {
+            console.error(error);
+            setProgressButtonStatus('failure');
+          });
       } else if (status === FriendRequestReaction.Pending && friendData?.from !== loginUserId) {
-        acceptFriendsRequest(user._id).then(() => setFriendshipStatus(status));
+        acceptFriendsRequest(user._id).then(() => {
+          setFriendshipStatus(status);
+          setProgressButtonStatus('success');
+        })
+          /* eslint-disable no-console */
+          .catch((error) => {
+            console.error(error);
+            setProgressButtonStatus('failure');
+          });
+        setProgressButtonStatus('success');
       } else if ((
         status === FriendRequestReaction.Accepted
         || status === FriendRequestReaction.Pending
-      )) {
-        rejectFriendsRequest(user._id).then(() => setFriendshipStatus(status));
+      )
+      ) {
+        rejectFriendsRequest(user._id).then(() => {
+          setFriendshipStatus(status);
+          setProgressButtonStatus('success');
+        })
+          /* eslint-disable no-console */
+          .catch((error) => {
+            console.error(error);
+            setProgressButtonStatus('failure');
+          });
       }
     }
   };
@@ -78,9 +105,14 @@ function FriendActionButtons({
       {
         show && ButtonLabel
         && (
-          <RoundButton className="me-2 text-nowrap" variant={`${friendStatus === FriendRequestReaction.Pending || friendStatus === FriendRequestReaction.Accepted ? 'black' : 'primary'}`} onClick={() => friendRequestApi(friendStatus)}>
-            {ButtonLabel}
-          </RoundButton>
+          <ProgressButton
+            variant={`${friendStatus === FriendRequestReaction.Pending || friendStatus === FriendRequestReaction.Accepted ? 'black' : 'primary'}`}
+            id="Friend-action-button"
+            type="submit"
+            onClick={() => friendRequestApi(friendStatus)}
+            className="me-2 text-nowrap"
+            label={ButtonLabel}
+          />
         )
       }
     </>

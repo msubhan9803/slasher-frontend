@@ -132,7 +132,9 @@ describe('NotificationsService', () => {
           login_date: weekAgo,
         },
       );
-      const userData = userFactory.build();
+      const userData = userFactory.build({
+        newNotificationCount: 1,
+      });
       userData.userDevices = userDevices;
       user2 = await usersService.create(userData);
       await userSettingsService.create(userSettingFactory.build({
@@ -149,6 +151,7 @@ describe('NotificationsService', () => {
           notifyType: NotificationType.FriendMessageNotification,
         }),
         ['sample'],
+        1,
       );
     });
   });
@@ -351,7 +354,9 @@ describe('NotificationsService', () => {
           login_date: weekAgo,
         },
       );
-      const userData = userFactory.build();
+      const userData = userFactory.build({
+        newNotificationCount: 1,
+      });
       userData.userDevices = userDevices;
       user2 = await usersService.create(userData);
       await userSettingsService.create(userSettingFactory.build({
@@ -369,6 +374,7 @@ describe('NotificationsService', () => {
       expect(pushNotificationsService.sendPushNotification).toHaveBeenCalledWith(
         expect.objectContaining({ _id: notificationData._id }),
         [deviceAndAppVersionPlaceholderSignInFields.device_token],
+        2,
       );
     });
   });

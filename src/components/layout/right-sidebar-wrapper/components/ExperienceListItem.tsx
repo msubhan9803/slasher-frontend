@@ -54,7 +54,6 @@ function WatchListItem({
 
   return (
     <Link
-      className="m-1"
       to={`/app/movies/${id}`}
     >
       <div className={`${className}`}>

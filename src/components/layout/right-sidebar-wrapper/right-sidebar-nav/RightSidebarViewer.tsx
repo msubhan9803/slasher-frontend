@@ -3,6 +3,7 @@ import AdvertisementBox from '../components/AdvertisementBox';
 import Friends from '../components/Friends';
 import Photos from '../components/Photos';
 import type { User } from '../../../../types';
+import WatchedList from '../components/WatchedList';
 // import Podcasts from '../components/Podcasts';
 // import WatchedList from '../components/WatchedList';
 
@@ -12,11 +13,11 @@ function RightSidebarViewer({ user }: RightSidebarViewerType) {
   return (
     <>
       <AdvertisementBox />
-      {/* <WatchedList /> */}
       {/* <Podcasts /> */}
       {/* <BooksIhaveRead /> */}
       <Photos user={user} />
       <Friends user={user} />
+      <WatchedList user={user} />
     </>
   );
 }

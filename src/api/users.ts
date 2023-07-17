@@ -264,7 +264,7 @@ export async function getUsersFriends(userId: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.get(`${apiUrl}/api/v1/users/${userId}/friends?limit=6`, { headers });
+  return axios.get(`${apiUrl}/api/v1/users/${userId}/friends?limit=3`, { headers });
 }
 
 export async function changePassword(

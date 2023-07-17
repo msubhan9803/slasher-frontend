@@ -19,7 +19,7 @@ import { createBlockUser } from '../../api/blocks';
 import { reportData } from '../../api/report';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { StyledBorder } from '../../components/ui/StyledBorder';
-import { enableDevFeatures, BREAK_POINTS, topToDivHeight } from '../../constants';
+import { BREAK_POINTS, topToDivHeight } from '../../constants';
 import FriendActionButtons from '../../components/ui/Friend/FriendActionButtons';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import SignInModal from '../../components/ui/SignInModal';
@@ -42,7 +42,6 @@ const tabs = [
   { value: 'photos', label: 'Photos' },
   { value: 'watched-list', label: 'Watched list' },
 ];
-const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => t.label !== 'Watched list');
 const CustomCol = styled(Col)`
   margin-top: -3.938rem;
 `;
@@ -232,7 +231,7 @@ function ProfileHeader({
             <StyledBorder className="d-md-block d-none" />
             <div ref={positionRef} aria-hidden="true">
               <TabLinks
-                tabLink={allTabs}
+                tabLink={tabs}
                 toLink={`/${user?.userName}`}
                 selectedTab={tabKey}
                 overrideOnClick={userIsLoggedIn ? handleScrollToTab : handleSignInDialog}

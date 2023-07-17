@@ -50,7 +50,7 @@ export class NotificationsService {
 
   async sendPushNotification(notification) {
     // this will remove once old backend retire and update the notificationMsg value in db
-    const notificationData = notification;
+    const notificationData = JSON.parse(JSON.stringify(notification));
     const senderName = notificationData.notifyType === NotificationType.NewPostFromFollowedRssFeedProvider
       || ((NotificationType.UserSentYouAFriendRequest || NotificationType.UserAcceptedYourFriendRequest)
         && notificationData?.senderId?.userName === 'Slasher')

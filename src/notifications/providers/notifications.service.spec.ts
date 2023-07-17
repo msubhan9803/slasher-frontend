@@ -372,7 +372,7 @@ describe('NotificationsService', () => {
       const notificationData = await notificationsService.create(notificationObj);
       await notificationsService.processNotification(notificationData.id);
       expect(pushNotificationsService.sendPushNotification).toHaveBeenCalledWith(
-        expect.objectContaining({ _id: notificationData._id }),
+        expect.objectContaining({ _id: notificationData._id.toString() }),
         [deviceAndAppVersionPlaceholderSignInFields.device_token],
         2,
       );

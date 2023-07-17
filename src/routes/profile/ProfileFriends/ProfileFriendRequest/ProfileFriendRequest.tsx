@@ -11,15 +11,14 @@ import LoadingIndicator from '../../../../components/ui/LoadingIndicator';
 import TabLinks from '../../../../components/ui/Tabs/TabLinks';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { resetNewFriendRequestCountCount, setFriendListReload, setUserRecentFriendRequests } from '../../../../redux/slices/userSlice';
-import { User } from '../../../../types';
+import { ProfileSubroutesCache, User } from '../../../../types';
 import ProfileHeader from '../../ProfileHeader';
 import FriendsProfileCard from '../FriendsProfileCard';
 import { forceReloadSuggestedFriends } from '../../../../redux/slices/suggestedFriendsSlice';
 import ProfileTabContent from '../../../../components/ui/profile/ProfileTabContent';
 import socketStore from '../../../../socketStore';
-import {
-  deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
-} from '../../../../pageStateCache';
+import { hasPageStateCache, setPageStateCache } from '../../../../pageStateCache';
+import { PROFILE_SUBROUTES_DEFAULT_CACHE, getProfileSubroutesCache } from '../../profileSubRoutesCacheUtils';
 
 interface FriendProps {
   _id?: string;
@@ -45,15 +44,12 @@ function ProfileFriendRequest({ user }: Props) {
   const [additionalFriendRequest, setAdditionalFriendRequest] = useState<boolean>(false);
   const location = useLocation();
   const { socket } = socketStore;
-  type CacheType = { page: number, data: any[] };
-  const pageStateCache: CacheType = getPageStateCache(location) ?? { page: 0, data: [] };
+  const profileSubRoutesCache = getProfileSubroutesCache(location);
   const [friendsReqList, setFriendsReqList] = useState<FriendProps[]>(
-    hasPageStateCache(location)
-      ? pageStateCache?.data : [],
+    profileSubRoutesCache?.friendRequests?.data || [],
   );
   const [friendRequestPage, setFriendRequestPage] = useState<number>(
-    hasPageStateCache(location)
-      ? pageStateCache?.page : 0,
+    profileSubRoutesCache?.friendRequests?.page || 0,
   );
 
   const friendsTabs = [
@@ -88,29 +84,30 @@ function ProfileFriendRequest({ user }: Props) {
   const fetchMoreFriendReqList = useCallback(() => {
     userProfileFriendsRequest(friendRequestPage)
       .then((res) => {
-        setFriendsReqList((prev: FriendProps[]) => [
-          ...prev,
-          ...res.data,
-        ]);
+        setFriendsReqList((prev: FriendProps[]) => {
+          const newFriendReqList = [...prev, ...res.data];
+          setPageStateCache<ProfileSubroutesCache>(location, {
+            ...getProfileSubroutesCache(location),
+            friendRequests: { data: newFriendReqList, page: friendRequestPage },
+          });
+          return newFriendReqList;
+        });
         setFriendRequestPage(friendRequestPage + 1);
         if (res.data.length === 0) {
           setNoMoreData(true);
         }
         setLoadingFriendRequests(false);
-        if (hasPageStateCache(location)
-          && friendsReqList.length >= pageStateCache.data.length + 10) {
-          deletePageStateCache(location);
-        }
       })
       .catch((error) => setErrorMessage(error.response.data.message))
       .finally(
         () => { setAdditionalFriendRequest(false); setLoadingFriendRequests(false); },
       );
-  }, [friendRequestPage, location, friendsReqList.length, pageStateCache.data.length]);
+  }, [friendRequestPage, location]);
+
   useEffect(() => {
     if (additionalFriendRequest && !loadingFriendRequests) {
       if (!hasPageStateCache(location)
-        || friendsReqList.length >= pageStateCache?.data?.length
+        || friendsReqList.length >= getProfileSubroutesCache(location).friendRequests?.data?.length
         || friendsReqList.length === 0
       ) {
         setTimeout(() => {
@@ -119,8 +116,8 @@ function ProfileFriendRequest({ user }: Props) {
         }, 0);
       }
     }
-  }, [additionalFriendRequest, loadingFriendRequests, fetchMoreFriendReqList,
-    friendsReqList.length, location.pathname, location, pageStateCache?.data?.length]);
+  }, [additionalFriendRequest, loadingFriendRequests, fetchMoreFriendReqList, friendsReqList.length,
+    location.pathname, location]);
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -146,17 +143,38 @@ function ProfileFriendRequest({ user }: Props) {
         dispatch(forceReloadSuggestedFriends());
       });
   };
+
   const persistScrollPosition = () => {
-    setPageStateCache<CacheType>(location, { data: friendsReqList, page: friendRequestPage });
+    setPageStateCache<ProfileSubroutesCache>(location, {
+      ...getProfileSubroutesCache(location),
+      friendRequests: { data: friendsReqList, page: friendRequestPage },
+    });
   };
+  const deleteAllFriendsSubrouteCache = (e: any, pathname?: string) => {
+    if (pathname) {
+      if (pathname.endsWith('/')) {
+        // eslint-disable-next-line no-param-reassign
+        pathname = pathname.slice(0, -1);
+        // With above statement we fix issue of creating duplicate pathname keys with trailing `/`
+      }
+      setPageStateCache<ProfileSubroutesCache>(pathname, {
+        ...getProfileSubroutesCache(pathname),
+        // Note: We clear the cache for the target subroute only
+        // so we always fetch fresh for target subroute.
+        allFriends: PROFILE_SUBROUTES_DEFAULT_CACHE.allFriends,
+      });
+    }
+  };
+  const showAllFriendsAndFriendRequestsTabs = loginUserName === params.userName;
   return (
     <div>
       <ProfileHeader tabKey="friends" user={user} />
       <ProfileTabContent>
         <div className="mt-3">
-          <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
-            {loginUserName === user.userName
-              && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="request" />}
+          <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3 ">
+            { showAllFriendsAndFriendRequestsTabs && (
+              <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="request" overrideOnClick={deleteAllFriendsSubrouteCache} />
+            )}
             <InfiniteScroll
               threshold={3000}
               pageStart={0}

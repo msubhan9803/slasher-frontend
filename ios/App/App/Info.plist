@@ -30,6 +30,8 @@
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Allow access to find nearby events</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Allow access to Upload images in post and comment</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Allow access to Upload images in post and comment</string>
 	<key>UIApplicationSceneManifest</key>

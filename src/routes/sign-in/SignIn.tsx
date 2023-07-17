@@ -67,6 +67,7 @@ function SignIn() {
   const [errorMessage, setErrorMessage] = useState<string[]>();
 
   if (token.isLoading) { return null; }
+  if (!token.isLoading && token.value) { return null; }
 
   const handleUserSignIn = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();

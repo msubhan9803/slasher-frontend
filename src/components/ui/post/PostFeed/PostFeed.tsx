@@ -33,7 +33,8 @@ import {
 } from '../../../../utils/text-utils';
 import { MentionListProps } from '../../MessageTextarea';
 import {
-  LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT, XL_MEDIA_BREAKPOINT, XXL_MEDIA_BREAKPOINT,
+  LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT,
+  XL_MEDIA_BREAKPOINT, XXL_MEDIA_BREAKPOINT,
 } from '../../../../constants';
 import RoundButton from '../../RoundButton';
 import CustomRatingText from '../../CustomRatingText';
@@ -80,7 +81,7 @@ interface Props {
   addUpdateComment?: (addUpdateComment: CommentValue) => void;
   updateState?: boolean;
   setUpdateState?: (value: boolean) => void;
-  onSelect?: (value: string) => void;
+  onSelect?: () => void;
   postType?: string,
   handleSearch?: (val: string) => void;
   mentionList?: MentionListProps[];
@@ -368,7 +369,7 @@ function PostFeed({
     } else {
       navigate(`/${post.userName}/posts/${post.id}`, { state });
     }
-    onSelect!(post.id);
+    onSelect?.();
   };
 
   const showPopoverOption = (postDetail: any) => {
@@ -483,12 +484,13 @@ function PostFeed({
                 />
                 {(post?.images?.length > 0 || findFirstYouTubeLinkVideoId(post?.message) || showMoviePoster(post.movieId, postType)) && (
                   <CustomSwiper
-                    context="post"
+                    context={post?.movieId ? 'shareMoviePost' : 'post'}
                     images={
                       swiperDataForPost(post)
                     }
                     initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
                     onSelect={onSelect}
+                    isSinglePost={isSinglePost}
                   />
                 )}
                 <Row>

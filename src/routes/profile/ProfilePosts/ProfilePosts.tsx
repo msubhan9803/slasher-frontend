@@ -1,5 +1,7 @@
 /* eslint-disable max-lines */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { useLocation, useParams } from 'react-router-dom';
 import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
@@ -8,7 +10,7 @@ import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import ReportModal from '../../../components/ui/ReportModal';
 import { getProfilePosts } from '../../../api/users';
 import {
-  User, Post, ContentDescription, FriendRequestReaction, FriendType,
+  User, Post, ContentDescription, FriendRequestReaction, FriendType, ProfileSubroutesCache,
 } from '../../../types';
 import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
@@ -20,13 +22,12 @@ import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import EditPostModal from '../../../components/ui/post/EditPostModal';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
-import {
-  deletePageStateCache, deletedPostsCache, getPageStateCache, hasPageStateCache, setPageStateCache,
-} from '../../../pageStateCache';
+import { deletedPostsCache, hasPageStateCache, setPageStateCache } from '../../../pageStateCache';
 import useProgressButton from '../../../components/ui/ProgressButton';
 import { sleep } from '../../../utils/timer-utils';
 import FriendshipStatusModal from '../../../components/ui/friendShipCheckModal';
 import { friendship } from '../../../api/friends';
+import { getProfileSubroutesCache } from '../profileSubRoutesCacheUtils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -53,16 +54,16 @@ function ProfilePosts({ user }: Props) {
   const userId = useAppSelector((state) => state.user.user.id);
   const dispatch = useAppDispatch();
   const location = useLocation();
-  const pageStateCache = (getPageStateCache(location) ?? []).filter(removeDeletedPost);
+  const profileSubRoutesCache = getProfileSubroutesCache(location);
   const [posts, setPosts] = useState<Post[]>(
-    hasPageStateCache(location)
-      ? pageStateCache : [],
+    profileSubRoutesCache?.profilePosts?.filter(removeDeletedPost) || [],
   );
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
   const [friendData, setFriendData] = useState<FriendType>(null);
   const [friendShipStatusModal, setFriendShipStatusModal] = useState<boolean>(false);
   const { userName: userNameOrId } = useParams<string>();
+  const lastUserIdRef = useRef(user._id);
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.message) {
       setPostContent(popoverClickProps.message);
@@ -80,54 +81,74 @@ function ProfilePosts({ user }: Props) {
     setShowReportModal(true);
     setDropDownValue(value);
   };
+
+  const fetchPosts = useCallback(() => {
+    getProfilePosts(
+      user._id,
+      posts.length > 0 ? posts[posts.length - 1]._id : undefined,
+    ).then((res) => {
+      const newPosts = res.data.map((data: any) => (
+        {
+          _id: data._id,
+          id: data._id,
+          postDate: data.createdAt,
+          message: data.message,
+          images: data.images,
+          userName: data.userId.userName,
+          profileImage: data.userId.profilePic,
+          userId: data.userId._id,
+          likeIcon: data.likedByUser,
+          likeCount: data.likeCount,
+          commentCount: data.commentCount,
+          movieId: data.movieId,
+        }
+      ));
+      setPosts((prev: Post[]) => [
+        ...prev,
+        ...newPosts,
+      ]);
+      if (res.data.length === 0) { setNoMoreData(true); }
+    }).catch(
+      (error) => {
+        setNoMoreData(true);
+        setErrorMessage(error.response.data.message);
+      },
+    ).finally(
+      () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
+    );
+  }, [posts, user._id]);
+
   useEffect(() => {
+    const isUserChanged = lastUserIdRef.current !== user._id;
+    if (isUserChanged) {
+      // SD-1427: Fixed the bug: All `profilePosts` of current profile
+      // are show on the any user's profilePosts when clicked on `ProfileLink`
+      // of any user // on LikeShare modal. For example - when you're on a page say
+      // `/slasher-test-user1/posts` and you open `LikeShareModal` by clicking on
+      // `NumberOfLikes` and in the modal you click on any user's profile link.
+      lastUserIdRef.current = user._id;
+      // Cancel setting state for most recent friendList api call
+      // if (controllerRef.current) { controllerRef.current.abort(); }
+      // TODO: Incorporate below logic into `fetchPosts(true)` .... (refere - `ProfileFriends` file)
+      // Set the new user's data in comoponent state
+      setPosts(getProfileSubroutesCache(location)?.profilePosts || []);
+      // Reset infinite-loading
+      setNoMoreData(false);
+      setRequestAdditionalPosts(true);
+    }
+
     if (requestAdditionalPosts && !loadingPosts && userNameOrId === user.userName) {
       if (hasPageStateCache(location)
-        || posts.length >= pageStateCache?.length
+        || posts.length >= getProfileSubroutesCache(location).profilePosts?.length
         || posts.length === 0
       ) {
         setLoadingPosts(true);
-        getProfilePosts(
-          user._id,
-          posts.length > 0 ? posts[posts.length - 1]._id : undefined,
-        ).then((res) => {
-          const newPosts = res.data.map((data: any) => (
-            {
-              _id: data._id,
-              id: data._id,
-              postDate: data.createdAt,
-              message: data.message,
-              images: data.images,
-              userName: data.userId.userName,
-              profileImage: data.userId.profilePic,
-              userId: data.userId._id,
-              likeIcon: data.likedByUser,
-              likeCount: data.likeCount,
-              commentCount: data.commentCount,
-            }
-          ));
-          setPosts((prev: Post[]) => [
-            ...prev,
-            ...newPosts,
-          ]);
-          if (res.data.length === 0) { setNoMoreData(true); }
-          if (hasPageStateCache(location)
-            && posts.length >= pageStateCache.length + 10) {
-            deletePageStateCache(location);
-          }
-        }).catch(
-          (error) => {
-            setNoMoreData(true);
-            setErrorMessage(error.response.data.message);
-          },
-        ).finally(
-          () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
-        );
+        fetchPosts();
       }
     }
-  }, [requestAdditionalPosts, loadingPosts, userId, userNameOrId, user._id,
-    user.userName, posts, location, dispatch, pageStateCache.length,
-  ]);
+  }, [requestAdditionalPosts, loadingPosts, userId, userNameOrId, user._id, user.userName,
+    posts, location, dispatch, fetchPosts]);
+
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -288,7 +309,12 @@ function ProfilePosts({ user }: Props) {
       .catch((error) => console.error(error));
   };
 
-  const persistScrollPosition = () => { setPageStateCache(location, posts); };
+  const persistScrollPosition = () => {
+    setPageStateCache<ProfileSubroutesCache>(location, {
+      ...getProfileSubroutesCache(location),
+      profilePosts: posts,
+    });
+  };
 
   return (
     <div>

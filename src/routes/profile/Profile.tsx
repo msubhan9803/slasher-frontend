@@ -12,7 +12,9 @@ import ProfileWatchList from './ProfileWatchList/ProfileWatchList';
 import ProfileEdit from './ProfileEdit/ProfileEdit';
 import ProfileFriendRequest from './ProfileFriends/ProfileFriendRequest/ProfileFriendRequest';
 import { getUser } from '../../api/users';
-import { FriendRequestReaction, ProfileVisibility, User } from '../../types';
+import {
+  FriendRequestReaction, ProfileSubroutesCache, ProfileVisibility, User,
+} from '../../types';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { useAppSelector } from '../../redux/hooks';
 import NotFound from '../../components/NotFound';
@@ -25,6 +27,8 @@ import ProfileLimitedView from './ProfileLimitedView/ProfileLimitedView';
 import RightSidebarAdOnly from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarAdOnly';
 import ContentNotAvailable from '../../components/ContentNotAvailable';
 import useBootstrapBreakpointName from '../../hooks/useBootstrapBreakpoint';
+import { getPageStateCache, setPageStateCache } from '../../pageStateCache';
+import { getProfileSubroutesCache } from './profileSubRoutesCacheUtils';
 
 interface SharedHeaderProfilePagesProps {
   user: User;
@@ -52,7 +56,9 @@ function Profile() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [user, setUser] = useState<User>();
+  const [user, setUser] = useState<User | undefined>(
+    getPageStateCache<ProfileSubroutesCache>(location)?.user,
+  );
   const [userNotFound, setUserNotFound] = useState<boolean>(false);
   const [userIsBlocked, setUserIsBlocked] = useState<boolean>(false);
 
@@ -88,6 +94,10 @@ function Profile() {
           return;
         }
         setUser(res.data);
+        setPageStateCache<ProfileSubroutesCache>(location, {
+          ...getProfileSubroutesCache(location),
+          user: res.data,
+        });
       })
       .catch((e) => {
         // If requested user is blocked then show "This content is no longer available" page
@@ -99,7 +109,7 @@ function Profile() {
           setUserNotFound(true);
         }
       });
-  }, [location.pathname, location.search, navigate, userNameOrId]);
+  }, [location, navigate, userNameOrId]);
 
   useEffect(() => {
     const isSameKey = lastLocationKeyRef.current === location.key;

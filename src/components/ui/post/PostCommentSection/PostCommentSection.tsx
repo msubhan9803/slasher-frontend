@@ -632,7 +632,7 @@ function PostCommentSection({
                 setIsReply={setIsReply}
                 handleLikeModal={handleLikeModal}
               />
-              <div className="ms-5 ps-2">
+              <div className="ms-4">
                 <div className="ms-md-4">
                   {
                     isReply

@@ -138,11 +138,16 @@ function AuthenticatedPageWrapper({ children }: Props) {
   }, [dispatch, location.pathname]);
 
   // Reload the page if the session token changes
-  useSessionTokenMonitorAsync(
-    getSessionToken,
-    () => { window.location.reload(); },
-    5_000,
-  );
+
+  if (!isNativePlatform) {
+    // NOTE: Below hook is not called unconditionally because `isNativePlatform` is a constant value
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useSessionTokenMonitorAsync(
+      getSessionToken,
+      () => { window.location.reload(); },
+      5_000,
+    );
+  }
 
   const showOffcanvasSidebar = () => setShow(true);
   const toggleOffCanvas = () => {

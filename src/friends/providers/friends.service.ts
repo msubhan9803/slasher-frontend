@@ -193,6 +193,12 @@ export class FriendsService {
     };
   }
 
+  async getFriendsCount(userId: string) {
+    const friendIds = await this.getFriendIds(userId, [FriendRequestReaction.Accepted]);
+    const friendsCount = friendIds.length;
+    return friendsCount;
+  }
+
   async getSuggestedFriends(user: UserDocument, limit: number) {
     // TODO: Time each of the operations below to see why this method is slow to return results
     const friendIds = await this.getFriendIds(user.id, [

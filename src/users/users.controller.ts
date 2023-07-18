@@ -528,6 +528,13 @@ export class UsersController {
       && (loggedInUser.id !== user.id && (friendshipStatus as any).reaction !== FriendRequestReaction.Accepted)) {
       user.aboutMe = null;
     }
+    // Get `friendsCount`, `postsCount`, `photosCount` of the user
+    const imagesCount = await this.feedPostsService.getAllPostsImagesCountByUser(user.id);
+    const postsCount = await this.feedPostsService.getFeedPostsCountByUser(user.id);
+    console.time('friendsCount');
+    const friendsCount = await this.friendsService.getFriendsCount(user.id);
+    console.timeEnd('friendsCount');
+
     const pickFields = ['_id', 'firstName', 'userName', 'profilePic', 'coverPhoto', 'aboutMe', 'profile_status'];
 
     // expose email to loggged in user only, when logged in user requests own user record
@@ -536,7 +543,13 @@ export class UsersController {
       pickFields.push('unverifiedNewEmail');
     }
 
-    return { ...pick(user, pickFields), friendshipStatus };
+    return {
+      ...pick(user, pickFields),
+      friendshipStatus,
+      imagesCount,
+      postsCount,
+      friendsCount,
+    };
   }
 
   // eslint-disable-next-line class-methods-use-this

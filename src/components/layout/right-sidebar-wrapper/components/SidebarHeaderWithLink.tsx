@@ -27,7 +27,7 @@ function SidebarHeaderWithLink({
 }
 
 SidebarHeaderWithLink.defaultProps = {
-  headerLabelCount: 0,
+  headerLabelCount: undefined,
 };
 
 export default SidebarHeaderWithLink;

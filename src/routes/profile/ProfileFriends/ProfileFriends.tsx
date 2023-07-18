@@ -252,15 +252,11 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
           <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 my-3 py-3">
             { showAllFriendsAndFriendRequestsTabs && (
               <div>
-                <Row>
-                  <Col>
-                    <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="" overrideOnClick={deleteFriendRequestsSubrouteCache} />
-                  </Col>
+                <div className="d-flex justify-content-between">
+                  <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="" overrideOnClick={deleteFriendRequestsSubrouteCache} />
                   {/* Desktop friends count view (self profile) */}
-                  <Col className="my-auto d-none d-sm-block">
-                    <div className="fw-bold text-end">{friendsCountWithLabel}</div>
-                  </Col>
-                </Row>
+                  <div className="fw-bold text-end d-none d-sm-block my-auto">{friendsCountWithLabel}</div>
+                </div>
                 {/* Mobile friends count view (self profile) */}
                 <div className="ms-3 fw-bold text-start mt-4 d-sm-none">{friendsCountWithLabel}</div>
               </div>

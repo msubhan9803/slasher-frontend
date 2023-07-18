@@ -10,7 +10,10 @@ import ErrorMessageList from '../../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../../components/ui/LoadingIndicator';
 import TabLinks from '../../../../components/ui/Tabs/TabLinks';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
-import { resetNewFriendRequestCountCount, setFriendListReload, setUserRecentFriendRequests } from '../../../../redux/slices/userSlice';
+import {
+  resetNewFriendRequestCountCount, setFriendListReload, setProfilePageUserDetailsReload,
+  setUserRecentFriendRequests,
+} from '../../../../redux/slices/userSlice';
 import { ProfileSubroutesCache, User } from '../../../../types';
 import ProfileHeader from '../../ProfileHeader';
 import FriendsProfileCard from '../FriendsProfileCard';
@@ -133,6 +136,7 @@ function ProfileFriendRequest({ user }: Props) {
         const acceptRequest = friendsReqList.filter((req: any) => req._id !== userId);
         setFriendsReqList(acceptRequest);
         dispatch(forceReloadSuggestedFriends());
+        dispatch(setProfilePageUserDetailsReload(true));
       });
   };
   const handleRejectRequest = (userId: string) => {

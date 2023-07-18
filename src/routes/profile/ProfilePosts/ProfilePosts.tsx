@@ -29,6 +29,7 @@ import FriendshipStatusModal from '../../../components/ui/friendShipCheckModal';
 import { friendship } from '../../../api/friends';
 import { getProfileSubroutesCache } from '../profileSubRoutesCacheUtils';
 import { formatNumberWithUnits } from '../../../utils/number.utils';
+import { setProfilePageUserDetailsReload } from '../../../redux/slices/userSlice';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -215,6 +216,7 @@ function ProfilePosts({ user }: Props) {
       .then(() => {
         setShowReportModal(false);
         callLatestFeedPost();
+        dispatch(setProfilePageUserDetailsReload(true));
       })
 
       /* eslint-disable no-console */

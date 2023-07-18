@@ -16,7 +16,7 @@ import { ProfileSubroutesCache, User } from '../../../types';
 import ProfileHeader from '../ProfileHeader';
 import FriendsProfileCard from './FriendsProfileCard';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
-import { useAppSelector } from '../../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { reportData } from '../../../api/report';
 import { createBlockUser } from '../../../api/blocks';
@@ -26,6 +26,7 @@ import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent'
 import { setPageStateCache } from '../../../pageStateCache';
 import { PROFILE_SUBROUTES_DEFAULT_CACHE, getProfileSubroutesCache } from '../profileSubRoutesCacheUtils';
 import { formatNumberWithUnits } from '../../../utils/number.utils';
+import { setProfilePageUserDetailsReload } from '../../../redux/slices/userSlice';
 
 type UserProfileFriendsResponseData = AxiosResponse<{ friends: FriendProps[] }>;
 
@@ -70,6 +71,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
   const controllerRef = useRef<AbortController | null>();
   const lastUserIdRef = useRef(user._id);
   const [initialLoad] = useState((profileSubRoutesCache.allFriends?.data.length || 0) === 0);
+  const dispatch = useAppDispatch();
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
@@ -88,6 +90,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
         rejectFriendsRequest(popoverClickProps?.id!).then(() => {
           // eslint-disable-next-line max-len
           setFriendsList((prevFriendsList) => prevFriendsList.filter((friend) => friend._id !== popoverClickProps?.id));
+          dispatch(setProfilePageUserDetailsReload(true));
         });
       }
     } else if (value === 'Message') {

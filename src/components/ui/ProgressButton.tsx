@@ -15,6 +15,7 @@ type Props = {
   onClick: Function,
   id?: string,
   type?: ButtonProps['type'],
+  variant?: string,
 };
 
 type SetProgressFunction = (status: ProgressButtonStatus) => void;
@@ -33,7 +34,7 @@ const useProgressButton = (): [ProgressButtonComponentType, SetProgressFunction]
 
   const ProgessButtonComponent = React.useMemo(() => {
     function ProgessButton({
-      label, className = '', onClick = () => { }, id, type,
+      label, className = '', onClick = () => { }, id, type, variant,
     }: Props) {
       const disabled = progress !== 'default';
       return (
@@ -43,6 +44,7 @@ const useProgressButton = (): [ProgressButtonComponentType, SetProgressFunction]
           type={type}
           className={className}
           onClick={onClick}
+          variant={variant}
         >
           {progress === 'default' && label}
           {progress === 'loading' && <Spinner size="sm" animation="border" role="status" />}
@@ -54,6 +56,7 @@ const useProgressButton = (): [ProgressButtonComponentType, SetProgressFunction]
     ProgessButton.defaultProps = {
       id: undefined,
       type: 'submit',
+      variant: undefined,
     };
     return ProgessButton;
   }, [progress]);

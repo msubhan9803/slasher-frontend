@@ -26,17 +26,18 @@ function FriendsProfileCard({
       });
     }
   }, [scrollPosition, location.pathname]);
+  const to = `/${friend.userName}`;
   return (
     <Container className="d-flex p-2 justify-content-between pe-2 w-100 rounded mb-3">
       <div>
         <div className="d-flex align-items-center">
-          <Link to={`/${friend.userName}`} onClick={() => onSelect(friend.id)} className="rounded-circle me-2 text-decoration-none">
+          <Link to={to} onClick={() => { onSelect?.(); }} className="rounded-circle me-2 text-decoration-none">
             <div>
               <UserCircleImage src={friend.profilePic} alt="user picture" className="d-flex" />
             </div>
           </Link>
 
-          <Link to={`/${friend.userName}`} onClick={() => onSelect(friend.id)} className="text-decoration-none">
+          <Link to={to} onClick={() => { onSelect?.(); }} className="text-decoration-none">
             <div className="d-grid">
               <h1 className="h3 mb-0 text-truncate">{friend.firstName}</h1>
               <p className="fs-6 mb-0 text-light text-truncate">

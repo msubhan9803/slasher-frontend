@@ -9,6 +9,7 @@ import { userPhotos } from '../../../api/users';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
+import { formatNumberWithUnits } from '../../../utils/number.utils';
 
 const ProfilePhoto = styled.div`
   aspect-ratio:1;
@@ -76,9 +77,11 @@ function ProfilePhotos({ user }: Props) {
       }
     </p>
   );
+  const photosCountWithLabel = `Photos: ${formatNumberWithUnits(user.imagesCount)}`;
   return (
     <div>
       <ProfileHeader tabKey="photos" user={user} />
+      <div className="ms-3 fs-4 fw-bold my-3">{photosCountWithLabel}</div>
       <ProfileTabContent>
         <div className="bg-dark rounded px-md-4 py-3 bg-mobile-transparent mt-3">
           <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />

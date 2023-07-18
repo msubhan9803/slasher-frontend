@@ -31,12 +31,12 @@ function Photos({ user }: PhotosProps) {
 
   useEffect(() => {
     if (!user._id) { return; }
-    userPhotos(user._id, '', '6')
+    userPhotos(user._id, '', '3')
       .then((res) => {
         const newPhotoList: PhotoList[] = [];
         res.data?.forEach((photosData: any) => {
           photosData.images.forEach((photo: ImageList) => {
-            if (newPhotoList.length < 6) {
+            if (newPhotoList.length < 3) {
               newPhotoList.push({
                 id: photosData._id,
                 imageId: photo._id,
@@ -54,7 +54,7 @@ function Photos({ user }: PhotosProps) {
 
   return (
     <>
-      <SidebarHeaderWithLink headerLabel="Photos" linkLabel="See All" linkTo={`/${user?.userName}/photos`} />
+      <SidebarHeaderWithLink headerLabel="Photos" headerLabelCount={user.imagesCount} linkLabel="See All" linkTo={`/${user?.userName}/photos`} />
       <div className="p-3 bg-dark rounded-3">
         <Row>
           {!loading && photos.length === 0 && <div>No photos yet.</div>}

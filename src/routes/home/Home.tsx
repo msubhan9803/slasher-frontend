@@ -25,7 +25,7 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layou
 import EditPostModal from '../../components/ui/post/EditPostModal';
 import {
   blockedUsersCache,
-  deletePageStateCache, deletedPostsCache, getPageStateCache, hasPageStateCache, setPageStateCache,
+  deletedPostsCache, getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../pageStateCache';
 import useProgressButton from '../../components/ui/ProgressButton';
 import { sleep } from '../../utils/timer-utils';
@@ -145,10 +145,6 @@ function Home() {
         ...newPosts,
       ]);
       if (res.data.length === 0) { setNoMoreData(true); }
-      if (hasPageStateCache(location)
-        && posts.length >= pageStateCache.length + 10) {
-        deletePageStateCache(location);
-      }
     }).catch(
       (error) => {
         setNoMoreData(true);
@@ -164,7 +160,7 @@ function Home() {
         if (forceReload && (noMoreData === true)) { setNoMoreData(false); }
       },
     );
-  }, [location, noMoreData, pageStateCache.length, posts]);
+  }, [noMoreData, posts]);
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {

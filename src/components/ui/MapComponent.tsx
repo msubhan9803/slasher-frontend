@@ -27,7 +27,7 @@ const lookUpLocation = async (locationString: string) => {
   let query = locationString;
 
   // Query Correction for massachusetts search
-  if (query.toLowerCase().replaceAll(' ', '').endsWith(',ma')) {
+  if (query?.toLowerCase()?.replaceAll(' ', '')?.endsWith(',ma')) {
     query = `${query.trim()}ssachusetts`;
   }
 

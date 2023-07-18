@@ -25,6 +25,7 @@ import { rejectFriendsRequest } from '../../../api/friends';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
 import { setPageStateCache } from '../../../pageStateCache';
 import { PROFILE_SUBROUTES_DEFAULT_CACHE, getProfileSubroutesCache } from '../profileSubRoutesCacheUtils';
+import { formatNumberWithUnits } from '../../../utils/number.utils';
 
 type UserProfileFriendsResponseData = AxiosResponse<{ friends: FriendProps[] }>;
 
@@ -237,6 +238,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
     }
   };
   const showAllFriendsAndFriendRequestsTabs = loginUserName === params.userName;
+  const friendsCountWithLabel = `Friends: ${formatNumberWithUnits(user.friendsCount)}`;
   return (
     <div>
       <ProfileHeader tabKey="friends" user={user} />
@@ -249,8 +251,30 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
           </Row>
           <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 my-3 py-3">
             { showAllFriendsAndFriendRequestsTabs && (
-              <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="" overrideOnClick={deleteFriendRequestsSubrouteCache} />
+              <div>
+                <Row>
+                  <Col>
+                    <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="" overrideOnClick={deleteFriendRequestsSubrouteCache} />
+                  </Col>
+                  {/* Desktop friends count view (self profile) */}
+                  <Col className="my-auto d-none d-sm-block">
+                    <div className="fw-bold text-end">{friendsCountWithLabel}</div>
+                  </Col>
+                </Row>
+                {/* Mobile friends count view (self profile) */}
+                <div className="ms-3 fw-bold text-start mt-4 d-sm-none">{friendsCountWithLabel}</div>
+              </div>
             )}
+
+            { !isSelfProfile && (
+            <>
+              {/* Desktop friends count view (other user profile) */}
+              <div className="fw-bold text-end d-none d-sm-block">{friendsCountWithLabel}</div>
+              {/* Mobile friends count view (other user profile) */}
+              <div className="ms-3 fw-bold text-start d-sm-none">{friendsCountWithLabel}</div>
+            </>
+            )}
+
             <InfiniteScroll
               threshold={3000}
               pageStart={0}

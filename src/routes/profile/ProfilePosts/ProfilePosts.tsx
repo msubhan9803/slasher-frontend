@@ -28,6 +28,7 @@ import { sleep } from '../../../utils/timer-utils';
 import FriendshipStatusModal from '../../../components/ui/friendShipCheckModal';
 import { friendship } from '../../../api/friends';
 import { getProfileSubroutesCache } from '../profileSubRoutesCacheUtils';
+import { formatNumberWithUnits } from '../../../utils/number.utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -316,13 +317,16 @@ function ProfilePosts({ user }: Props) {
     });
   };
 
+  const postsCountWithLabel = `Posts: ${formatNumberWithUnits(user.postsCount)}`;
+
   return (
     <div>
       <ProfileHeader tabKey="posts" user={user} />
+      <div className="ms-3 fs-4 fw-bold my-3">{postsCountWithLabel}</div>
       <ProfileTabContent>
         {loginUserData.userName === user.userName
           && (
-            <div className="my-4">
+            <div className="mb-4 mt-1">
               <CustomCreatePost />
             </div>
           )}

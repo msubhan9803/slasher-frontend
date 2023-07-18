@@ -119,7 +119,7 @@ function TabLinks({
                     </>
                   )
                   : label}
-                component={Link} // TODO: Remove soon.
+                component={Link}
                 to={to}
                 className="text-decoration-none shadow-none"
                 onClick={(e: any) => {

@@ -42,7 +42,7 @@ const StyledChatMessage = styled.div`
 
   .message-content {
     display: inline-block;
-    max-width: 50%;
+    max-width: 95%;
   }
 `;
 

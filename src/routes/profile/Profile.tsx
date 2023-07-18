@@ -16,7 +16,7 @@ import {
   FriendRequestReaction, ProfileSubroutesCache, ProfileVisibility, User,
 } from '../../types';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
-import { useAppSelector } from '../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import NotFound from '../../components/NotFound';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
@@ -29,6 +29,7 @@ import ContentNotAvailable from '../../components/ContentNotAvailable';
 import useBootstrapBreakpointName from '../../hooks/useBootstrapBreakpoint';
 import { getPageStateCache, setPageStateCache } from '../../pageStateCache';
 import { getProfileSubroutesCache } from './profileSubRoutesCacheUtils';
+import { setProfilePageUserDetailsReload } from '../../redux/slices/userSlice';
 
 interface SharedHeaderProfilePagesProps {
   user: User;
@@ -63,9 +64,13 @@ function Profile() {
   const [userIsBlocked, setUserIsBlocked] = useState<boolean>(false);
 
   const loginUserData = useAppSelector((state) => state.user.user);
+  const forceProfilePageUserDetailsReload = useAppSelector(
+    (state) => state.user.forceProfilePageUserDetailsReload,
+  );
   const isSelfProfile = loginUserData.id === user?._id;
   const bp = useBootstrapBreakpointName();
   const lastLocationKeyRef = useRef(location.key);
+  const dispatch = useAppDispatch();
 
   // commented until we enable update username support
   // const checkWithPreviousUserName = useCallback(() => {
@@ -129,6 +134,13 @@ function Profile() {
 
     loadUser();
   }, [loadUser, user, userNameOrId]);
+
+  useEffect(() => {
+    if (forceProfilePageUserDetailsReload) {
+      loadUser();
+      dispatch(setProfilePageUserDetailsReload(false));
+    }
+  }, [forceProfilePageUserDetailsReload, loadUser, dispatch]);
 
   if (userNotFound) { return <NotFound />; }
 

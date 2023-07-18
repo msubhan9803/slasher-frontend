@@ -54,7 +54,7 @@ function Photos({ user }: PhotosProps) {
 
   return (
     <>
-      <SidebarHeaderWithLink headerLabel="Photos" linkLabel="See All" linkTo={`/${user?.userName}/photos`} />
+      <SidebarHeaderWithLink headerLabel="Photos" headerLabelCount={user.imagesCount} linkLabel="See All" linkTo={`/${user?.userName}/photos`} />
       <div className="p-3 bg-dark rounded-3">
         <Row>
           {!loading && photos.length === 0 && <div>No photos yet.</div>}

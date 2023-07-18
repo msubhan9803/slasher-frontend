@@ -32,6 +32,7 @@ import { moviesFactory } from '../../../test/factories/movies.factory';
 import { MovieActiveStatus } from '../../schemas/movie/movie.enums';
 import { RssFeed } from '../../schemas/rssFeed/rssFeed.schema';
 import { Movie } from '../../schemas/movie/movie.schema';
+import { Image } from '../../schemas/shared/image.schema';
 
 describe('FeedPostsService', () => {
   let app: INestApplication;
@@ -230,18 +231,18 @@ describe('FeedPostsService', () => {
         is_deleted: FeedPostDeletionState.NotDeleted,
       });
       const feedPost = await feedPostsService.create(feedPostDetails);
-      const feedPostData = await feedPostsService.findAllByUser((activeUser.id).toString(), 20, true, feedPost.id);
+      const feedPostData = await feedPostsService.findAllByUser((activeUser.id).toString(), 20, true, user0.id);
       for (let i = 1; i < feedPostData.length; i += 1) {
         expect(feedPostData[i].createdAt < feedPostData[i - 1].createdAt).toBe(true);
         expect(feedPostData[i].likeCount).toBe(2);
         expect((feedPostData[i] as any).likedByUser).toBe(true);
       }
-      expect(feedPostData).toHaveLength(10);
+      expect(feedPostData).toHaveLength(11);
       expect(feedPostData).not.toContain(feedPost.createdAt);
     });
 
     it('when earlier than post id is does not exist and active only is false then it returns the expected response', async () => {
-      const feedPost = await feedPostsService.findAllByUser((activeUser.id).toString(), 20, false);
+      const feedPost = await feedPostsService.findAllByUser((activeUser.id).toString(), 20, false, user0.id);
       for (let i = 1; i < feedPost.length; i += 1) {
         expect(feedPost[i].createdAt < feedPost[i - 1].createdAt).toBe(true);
       }
@@ -249,7 +250,7 @@ describe('FeedPostsService', () => {
     });
 
     it('when earlier than post id is does not exist but active only is true then it returns the expected response', async () => {
-      const feedPost = await feedPostsService.findAllByUser((activeUser.id).toString(), 20, true);
+      const feedPost = await feedPostsService.findAllByUser((activeUser.id).toString(), 20, true, user0.id);
       for (let i = 1; i < feedPost.length; i += 1) {
         expect(feedPost[i].createdAt < feedPost[i - 1].createdAt).toBe(true);
       }
@@ -269,11 +270,12 @@ describe('FeedPostsService', () => {
     });
     it('returns the first and second sets of paginated results', async () => {
       const limit = 6;
-      const firstResults = await feedPostsService.findAllByUser(activeUser.id, limit, true);
+      const firstResults = await feedPostsService.findAllByUser(activeUser.id, limit, true, user0.id);
       const secondResults = await feedPostsService.findAllByUser(
         activeUser.id,
         limit,
         true,
+        user0.id,
         new mongoose.Types.ObjectId(firstResults[limit - 1]._id.toString()),
       );
       expect(firstResults).toHaveLength(6);
@@ -653,6 +655,72 @@ describe('FeedPostsService', () => {
         );
       expect(firstResults).toHaveLength(6);
       expect(secondResults).toHaveLength(4);
+    });
+  });
+
+  describe('#getAllPostsImagesCountByUser', () => {
+    const sampleFeedPostImages: Image[] = [
+      {
+        image_path: '/feed/feed_sample1.jpg',
+        description: 'this is image description',
+      },
+      {
+        image_path: '/feed/feed_sample2.jpg',
+        description: 'this is image description',
+      },
+    ];
+    beforeEach(async () => {
+      // Create 5 posts with 2 images each
+      for (let i = 0; i < 5; i += 1) {
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: activeUser.id,
+            images: sampleFeedPostImages,
+          }),
+        );
+      }
+      // Note: Images of delete post should not be included in the returned count by `getAllPostsImagesCountByUser`
+      const deletedPostImage: Image = {
+        image_path: '/feed/feed_sample3.jpg',
+        description: 'this is image description',
+      };
+      await feedPostsService.create(
+        feedPostFactory.build({
+          userId: activeUser.id,
+          images: [deletedPostImage],
+          is_deleted: FeedPostDeletionState.Deleted,
+        }),
+      );
+    });
+    it('when earlier than post id is exist then it returns the expected response', async () => {
+      const allPostsImagesCount = await feedPostsService.getAllPostsImagesCountByUser((activeUser.id).toString());
+      expect(allPostsImagesCount).toBe(10);
+    });
+  });
+
+  describe('#getFeedPostsCountByUser', () => {
+    beforeEach(async () => {
+      // Create 5 posts
+      for (let i = 0; i < 5; i += 1) {
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: activeUser.id,
+            images: [],
+          }),
+        );
+      }
+      // Note: Images of delete post should not be included in the returned count by `getFeedPostsCountByUser`
+      await feedPostsService.create(
+        feedPostFactory.build({
+          userId: activeUser.id,
+          images: [],
+          is_deleted: FeedPostDeletionState.Deleted,
+        }),
+      );
+    });
+    it('when earlier than post id is exist then it returns the expected response', async () => {
+      const feedPosts = await feedPostsService.getFeedPostsCountByUser((activeUser.id).toString());
+      expect(feedPosts).toBe(5);
     });
   });
 

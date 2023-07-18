@@ -175,6 +175,27 @@ export class FriendsService {
     return processedResults;
   }
 
+  async getActiveFriendCount(userId: string, friendStatusesToInclude: FriendRequestReaction[]) {
+    const friendReactionFilter = {
+      reaction: { $in: friendStatusesToInclude },
+    };
+
+    const activeFriendCount = await this.friendsModel.find(
+      {
+        $and: [
+          {
+            $or: [
+              { from: new mongoose.Types.ObjectId(userId) },
+              { to: new mongoose.Types.ObjectId(userId) },
+            ],
+          },
+          friendReactionFilter,
+        ],
+      },
+    ).count();
+    return activeFriendCount;
+  }
+
   async getFriends(userId: string, limit: number, offset: number, userNameContains?: string) {
     const friendIds = await this.getFriendIds(userId, [FriendRequestReaction.Accepted]);
     const friendUsers = await this.usersModel.find({

@@ -50,7 +50,7 @@ export class NotificationsService {
 
   async sendPushNotification(notification) {
     // this will remove once old backend retire and update the notificationMsg value in db
-    const notificationData = notification;
+    const notificationData = JSON.parse(JSON.stringify(notification));
     const senderName = notificationData.notifyType === NotificationType.NewPostFromFollowedRssFeedProvider
       || ((NotificationType.UserSentYouAFriendRequest || NotificationType.UserAcceptedYourFriendRequest)
         && notificationData?.senderId?.userName === 'Slasher')
@@ -62,7 +62,7 @@ export class NotificationsService {
     if (isNotificationEnabled && user.userDevices.length) {
       const deviceTokens = user.userDevices.filter((device) => device.device_id !== 'browser' && device.device_token)
       .map((device) => device.device_token);
-      await this.pushNotificationsService.sendPushNotification(notificationData, deviceTokens);
+      await this.pushNotificationsService.sendPushNotification(notificationData, deviceTokens, user.newNotificationCount);
     }
   }
 
@@ -76,7 +76,7 @@ export class NotificationsService {
     if (isNotificationEnabled && receiverUser.userDevices.length) {
       const deviceTokens = receiverUser.userDevices.filter((device) => device.device_id !== 'browser' && device.device_token)
       .map((device) => device.device_token);
-      await this.pushNotificationsService.sendPushNotification(notificationData, deviceTokens);
+      await this.pushNotificationsService.sendPushNotification(notificationData, deviceTokens, receiverUser.newNotificationCount);
     }
   }
 

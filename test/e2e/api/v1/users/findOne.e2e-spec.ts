@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
@@ -17,6 +18,9 @@ import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 import { FriendsService } from '../../../../../src/friends/providers/friends.service';
+import { FeedPostsService } from '../../../../../src/feed-posts/providers/feed-posts.service';
+import { feedPostFactory } from '../../../../factories/feed-post.factory';
+import { Image } from '../../../../../src/schemas/shared/image.schema';
 
 describe('GET /users/:id (e2e)', () => {
   let app: INestApplication;
@@ -29,6 +33,7 @@ describe('GET /users/:id (e2e)', () => {
   let configService: ConfigService;
   let friendsService: FriendsService;
   let blocksModel: Model<BlockAndUnblockDocument>;
+  let feedPostsService: FeedPostsService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -40,6 +45,7 @@ describe('GET /users/:id (e2e)', () => {
     friendsService = moduleRef.get<FriendsService>(FriendsService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
+    feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
     await app.init();
@@ -99,6 +105,9 @@ describe('GET /users/:id (e2e)', () => {
             from: null,
             to: null,
           },
+          friendsCount: 0,
+          imagesCount: 0,
+          postsCount: 0,
         });
       });
 
@@ -123,6 +132,9 @@ describe('GET /users/:id (e2e)', () => {
             from: null,
             to: null,
           },
+          friendsCount: 0,
+          imagesCount: 0,
+          postsCount: 0,
         });
       });
 
@@ -160,6 +172,9 @@ describe('GET /users/:id (e2e)', () => {
             from: null,
             to: null,
           },
+          friendsCount: 0,
+          imagesCount: 0,
+          postsCount: 0,
         });
       });
     });
@@ -185,6 +200,9 @@ describe('GET /users/:id (e2e)', () => {
             from: null,
             to: null,
           },
+          friendsCount: 0,
+          imagesCount: 0,
+          postsCount: 0,
         });
       });
 
@@ -209,6 +227,9 @@ describe('GET /users/:id (e2e)', () => {
             from: null,
             to: null,
           },
+          friendsCount: 0,
+          imagesCount: 0,
+          postsCount: 0,
         });
       });
 
@@ -246,6 +267,9 @@ describe('GET /users/:id (e2e)', () => {
             from: null,
             to: null,
           },
+          friendsCount: 0,
+          imagesCount: 0,
+          postsCount: 0,
         });
       });
 
@@ -268,6 +292,9 @@ describe('GET /users/:id (e2e)', () => {
             from: null,
             to: null,
           },
+          friendsCount: 0,
+          imagesCount: 0,
+          postsCount: 0,
         });
       });
     });
@@ -313,6 +340,9 @@ describe('GET /users/:id (e2e)', () => {
             from: null,
             to: null,
           },
+          friendsCount: 0,
+          imagesCount: 0,
+          postsCount: 0,
         });
       },
     );
@@ -338,6 +368,60 @@ describe('GET /users/:id (e2e)', () => {
           from: activeUser.id,
           to: user1.id,
         },
+        friendsCount: 1,
+        imagesCount: 0,
+        postsCount: 0,
+      });
+    });
+
+    it('Get friendsCount, imagesCount and postsCount', async () => {
+      const user1 = await usersService.create(userFactory.build({ userName: 'Michael' }));
+      await friendsService.createFriendRequest(activeUser.id, user1.id);
+      await friendsService.acceptFriendRequest(activeUser.id, user1.id);
+
+      const sampleFeedPostImages: Image[] = [
+        {
+          image_path: '/feed/feed_sample1.jpg',
+          description: 'this is image description',
+        },
+        {
+          image_path: '/feed/feed_sample2.jpg',
+          description: 'this is image description',
+        },
+      ];
+
+      // Create 5 posts with 2 images each
+      for (let i = 0; i < 5; i += 1) {
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: activeUser.id,
+            images: sampleFeedPostImages,
+          }),
+        );
+      }
+
+      const response = await request(app.getHttpServer())
+        .get(`/api/v1/users/${activeUser._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        firstName: activeUser.firstName,
+        email: 'User1@Example.com',
+        userName: activeUser.userName,
+        profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+        coverPhoto: null,
+        aboutMe: activeUser.aboutMe,
+        profile_status: ProfileVisibility.Public,
+        unverifiedNewEmail: null,
+        friendshipStatus: {
+          reaction: null,
+          from: null,
+          to: null,
+        },
+        friendsCount: 1,
+        imagesCount: 10,
+        postsCount: 5,
       });
     });
   });

@@ -20,6 +20,7 @@ import { BlockAndUnblockReaction } from '../../../../../src/schemas/blockAndUnbl
 import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { WorthWatchingStatus } from '../../../../../src/types';
 
 describe('Watched List Movies (e2e)', () => {
   let app: INestApplication;
@@ -163,6 +164,7 @@ describe('Watched List Movies (e2e)', () => {
             logo: 'http://localhost:4444/placeholders/movie_poster.png',
             releaseDate: expect.any(String),
             rating: 0,
+            worthWatching: WorthWatchingStatus.NoRating,
           },
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -170,6 +172,7 @@ describe('Watched List Movies (e2e)', () => {
             logo: 'http://localhost:4444/placeholders/movie_poster.png',
             releaseDate: expect.any(String),
             rating: 0,
+            worthWatching: WorthWatchingStatus.NoRating,
           },
         ]);
       });
@@ -229,6 +232,7 @@ describe('Watched List Movies (e2e)', () => {
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           releaseDate: movie2.releaseDate.toISOString(),
           rating: 0,
+          worthWatching: WorthWatchingStatus.NoRating,
         }]);
       });
 
@@ -268,6 +272,7 @@ describe('Watched List Movies (e2e)', () => {
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           releaseDate: movie2.releaseDate.toISOString(),
           rating: 0,
+          worthWatching: WorthWatchingStatus.NoRating,
         }]);
       });
     });

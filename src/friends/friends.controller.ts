@@ -52,33 +52,33 @@ export class FriendsController {
 
     // This prevents people from being able to spam each other with notifications in response to
     // rapid friend-unfriend-friend-unfriend actions.
-      // Create notification for post creator, informing them that a comment was added to their post
-      await Promise.all(
-        [
-          this.notificationsService.create({
-            userId: createFriendRequestDto.userId as any,
-            senderId: user._id,
-            allUsers: [user._id as any], // senderId must be in allUsers for old API compatibility
-            notifyType: NotificationType.UserSentYouAFriendRequest,
-            notificationMsg: 'sent you a friend request',
-            // "data" field must have exact value below for old iOS/Android app compatibility
-            // TODO: Remove this "data" field once the old iOS/Android apps are retired
-            data: {
-              relationId: '',
-              fromUser: {
-                ...pick(user, ['userName', '_id']),
-                image: user.profilePic,
-              },
-              toUser: {
-                ...pick(toUser, ['userName', '_id']),
-                image: toUser.profilePic,
-              },
-              notificationType: NotificationType.UserSentYouAFriendRequest,
-              badgeCount: user.newNotificationCount,
+    // Create notification for post creator, informing them that a comment was added to their post
+    await Promise.all(
+      [
+        this.notificationsService.create({
+          userId: createFriendRequestDto.userId as any,
+          senderId: user._id,
+          allUsers: [user._id as any], // senderId must be in allUsers for old API compatibility
+          notifyType: NotificationType.UserSentYouAFriendRequest,
+          notificationMsg: 'sent you a friend request',
+          // "data" field must have exact value below for old iOS/Android app compatibility
+          // TODO: Remove this "data" field once the old iOS/Android apps are retired
+          data: {
+            relationId: '',
+            fromUser: {
+              ...pick(user, ['userName', '_id']),
+              image: user.profilePic,
             },
-          }),
-        ],
-      );
+            toUser: {
+              ...pick(toUser, ['userName', '_id']),
+              image: toUser.profilePic,
+            },
+            notificationType: NotificationType.UserSentYouAFriendRequest,
+            badgeCount: user.newNotificationCount,
+          },
+        }),
+      ],
+    );
     await Promise.all([this.usersService.updateNewFriendRequestCount(createFriendRequestDto.userId),
     this.friendsGateway.emitFriendRequestReceivedEvent(friend)]);
     return { success: true };
@@ -129,6 +129,12 @@ export class FriendsController {
     try {
       const user = getUserFromRequest(request);
       await this.friendsService.acceptFriendRequest(acceptFriendRequestDto.userId, user.id);
+      await this.notificationsService.create({
+        userId: acceptFriendRequestDto.userId as any,
+        senderId: user._id,
+        notifyType: NotificationType.UserAcceptedYourFriendRequest,
+        notificationMsg: 'accepted your friend request',
+      });
       return { success: true };
     } catch (error) {
       throw new HttpException('Unable to accept friend request', HttpStatus.BAD_REQUEST);

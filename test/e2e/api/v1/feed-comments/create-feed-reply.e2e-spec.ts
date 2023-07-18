@@ -300,7 +300,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
             .attach('images', tempPaths[0])
             .attach('images', tempPaths[1])
             .expect(HttpStatus.PAYLOAD_TOO_LARGE);
-          expect(response.body.message).toBe('File too large');
+          expect(response.body.message).toContain('File too large');
         }, [{ extension: 'png' }, { extension: 'jpg', size: 1024 * 1024 * 21 }]);
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)

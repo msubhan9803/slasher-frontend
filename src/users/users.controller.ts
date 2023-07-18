@@ -531,9 +531,7 @@ export class UsersController {
     // Get `friendsCount`, `postsCount`, `photosCount` of the user
     const imagesCount = await this.feedPostsService.getAllPostsImagesCountByUser(user.id);
     const postsCount = await this.feedPostsService.getFeedPostsCountByUser(user.id);
-    console.time('friendsCount');
-    const friendsCount = await this.friendsService.getFriendsCount(user.id);
-    console.timeEnd('friendsCount');
+    const friendsCount = await this.friendsService.getActiveFriendCount(user.id, [FriendRequestReaction.Accepted]);
 
     const pickFields = ['_id', 'firstName', 'userName', 'profilePic', 'coverPhoto', 'aboutMe', 'profile_status'];
 

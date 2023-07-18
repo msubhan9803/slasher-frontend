@@ -246,7 +246,7 @@ export class FeedPostsService {
         },
         { images: 1, _id: 0 },
       );
-    const imagesCount = postsWithImages.map((post) => post.images.length).reduce((acc, item) => acc + item);
+    const imagesCount = postsWithImages.map((post) => post.images.length)?.reduce((acc, item) => (acc + item), 0);
     return imagesCount;
   }
 

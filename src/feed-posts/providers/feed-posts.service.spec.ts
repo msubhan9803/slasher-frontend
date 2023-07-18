@@ -32,6 +32,7 @@ import { moviesFactory } from '../../../test/factories/movies.factory';
 import { MovieActiveStatus } from '../../schemas/movie/movie.enums';
 import { RssFeed } from '../../schemas/rssFeed/rssFeed.schema';
 import { Movie } from '../../schemas/movie/movie.schema';
+import { Image } from '../../schemas/shared/image.schema';
 
 describe('FeedPostsService', () => {
   let app: INestApplication;
@@ -654,6 +655,72 @@ describe('FeedPostsService', () => {
         );
       expect(firstResults).toHaveLength(6);
       expect(secondResults).toHaveLength(4);
+    });
+  });
+
+  describe('#getAllPostsImagesCountByUser', () => {
+    const sampleFeedPostImages: Image[] = [
+      {
+        image_path: '/feed/feed_sample1.jpg',
+        description: 'this is image description',
+      },
+      {
+        image_path: '/feed/feed_sample2.jpg',
+        description: 'this is image description',
+      },
+    ];
+    beforeEach(async () => {
+      // Create 5 posts with 2 images each
+      for (let i = 0; i < 5; i += 1) {
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: activeUser.id,
+            images: sampleFeedPostImages,
+          }),
+        );
+      }
+      // Note: Images of delete post should not be included in the returned count by `getAllPostsImagesCountByUser`
+      const deletedPostImage: Image = {
+        image_path: '/feed/feed_sample3.jpg',
+        description: 'this is image description',
+      };
+      await feedPostsService.create(
+        feedPostFactory.build({
+          userId: activeUser.id,
+          images: [deletedPostImage],
+          is_deleted: FeedPostDeletionState.Deleted,
+        }),
+      );
+    });
+    it('when earlier than post id is exist then it returns the expected response', async () => {
+      const allPostsImagesCount = await feedPostsService.getAllPostsImagesCountByUser((activeUser.id).toString());
+      expect(allPostsImagesCount).toBe(10);
+    });
+  });
+
+  describe('#getFeedPostsCountByUser', () => {
+    beforeEach(async () => {
+      // Create 5 posts
+      for (let i = 0; i < 5; i += 1) {
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: activeUser.id,
+            images: [],
+          }),
+        );
+      }
+      // Note: Images of delete post should not be included in the returned count by `getFeedPostsCountByUser`
+      await feedPostsService.create(
+        feedPostFactory.build({
+          userId: activeUser.id,
+          images: [],
+          is_deleted: FeedPostDeletionState.Deleted,
+        }),
+      );
+    });
+    it('when earlier than post id is exist then it returns the expected response', async () => {
+      const feedPosts = await feedPostsService.getFeedPostsCountByUser((activeUser.id).toString());
+      expect(feedPosts).toBe(5);
     });
   });
 

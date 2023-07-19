@@ -6,6 +6,7 @@ import ModalBodyForBlockUser from './ModalBodyForBlockUser';
 import ModalBodyForDelete from './ModalBodyForDelete';
 import ModalBodyForReportSuccess from './ModalBodyForReportSuccess';
 import RoundButton from './RoundButton';
+import ModalBodyForRemoveFriend from './ModalBodyForRemoveFreind';
 
 interface Props {
   show: boolean;
@@ -113,6 +114,14 @@ function ReportModal({
             <p className="px-3">You have successfully blocked this user.</p>
             <RoundButton className="mb-3 w-100 fs-3" onClick={afterBlockUser}>Ok</RoundButton>
           </Modal.Body>
+        )
+      }
+      {
+        slectedDropdownValue === 'Remove friend' && (
+          <ModalBodyForRemoveFriend
+            onConfirm={onConfirmClick}
+            onCancel={closeModal}
+          />
         )
       }
     </ModalContainer>

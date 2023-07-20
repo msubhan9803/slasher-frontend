@@ -275,16 +275,16 @@ function Home() {
       .catch((error) => console.error(error));
   };
 
-  const checkFriendShipStatus = (selectedFeedPostId: string) => new Promise<void>(
+  const checkFriendShipStatus = (selectedFeedPostUserId: string) => new Promise<void>(
     (resolve, reject) => {
-      if (userId === selectedFeedPostId) {
+      if (userId === selectedFeedPostUserId) {
         resolve();
       } else {
-        friendship(selectedFeedPostId).then((res) => {
+        friendship(selectedFeedPostUserId).then((res) => {
           if (res.data.reaction === FriendRequestReaction.Accepted) {
             resolve();
           } else {
-            setPostUserId(selectedFeedPostId!);
+            setPostUserId(selectedFeedPostUserId!);
             setFriendShipStatusModal(true);
             setFriendData(res.data);
             setFriendStatus(res.data.reaction);
@@ -298,14 +298,17 @@ function Home() {
     const checkLike = posts.some((post) => post.id === feedPostId
       && post.likeIcon);
 
-    const selectedFeedPostId = posts.find((post) => post.id === feedPostId)?.userId;
+    const selectedFeedPostUserId = posts.find((post) => post.id === feedPostId)?.userId;
+    const selectedRssfeedProviderIdOfFeedPost = posts.find(
+      (post) => post.id === feedPostId,
+    )?.rssfeedProviderId;
 
-    await checkFriendShipStatus(selectedFeedPostId!).then(() => {
+    const handleLikeAndUnlikeFeedPost = () => {
       if (checkLike) {
         unlikeFeedPost(feedPostId).then((res) => {
           if (res.status === 200) {
             const unLikePostData = posts.map(
-              (unLikePost: Post) => {
+              (unLikePost) => {
                 if (unLikePost._id === feedPostId) {
                   return {
                     ...unLikePost,
@@ -323,7 +326,7 @@ function Home() {
       } else {
         likeFeedPost(feedPostId).then((res) => {
           if (res.status === 201) {
-            const likePostData = posts.map((likePost: Post) => {
+            const likePostData = posts.map((likePost) => {
               if (likePost._id === feedPostId) {
                 return {
                   ...likePost,
@@ -338,7 +341,17 @@ function Home() {
           }
         });
       }
-    });
+    };
+
+    // feedPost is a user post
+    if (selectedFeedPostUserId) {
+      await checkFriendShipStatus(selectedFeedPostUserId!).then(handleLikeAndUnlikeFeedPost);
+    }
+
+    // feedPost is rssFeedPost
+    if (selectedRssfeedProviderIdOfFeedPost) {
+      handleLikeAndUnlikeFeedPost();
+    }
   };
 
   const onBlockYesClick = () => {

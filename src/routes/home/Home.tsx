@@ -345,7 +345,6 @@ function Home() {
 
     // feedPost is a user post
     if (selectedFeedPostUserId) {
-      // Call like/unlike only if the `selectedFeedPostUserId` is friends with loggedin user
       await checkFriendShipStatus(selectedFeedPostUserId!).then(handleLikeAndUnlikeFeedPost);
     }
 

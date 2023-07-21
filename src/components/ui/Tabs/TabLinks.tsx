@@ -14,7 +14,7 @@ interface TabLinksProps {
   display?: string;
   tabsClass?: string;
   tabsClassSmall?: string;
-  overrideOnClick?: (val: any) => void;
+  overrideOnClick?: (val: any, pathname?: string) => void;
 }
 interface TabProps {
   value: string;
@@ -97,34 +97,41 @@ function TabLinks({
           scrollButtons={false}
           aria-label="scrollable prevent tabs example"
         >
-          {tabLink.map(({ value, label, badge }) => (
-            <Tab
-              key={value}
-              value={value}
-              iconPosition="end"
-              label={badge
-                ? (
-                  <>
-                    {label}
-                    <StyledBadge className="h6 mb-0 d-flex justify-content-center align-items-center bg-primary ms-2 p-0 rounded-circle text-black">
-                      {badge}
-                    </StyledBadge>
-                  </>
-                )
-                : label}
-              component={Link}
-              /* eslint-disable no-nested-ternary */
-              to={!userIsLoggedIn ? '' : params ? `${toLink}/${value}${params}` : `${toLink}/${value}`}
-              className="text-decoration-none shadow-none"
-              onClick={(e: any) => {
-                e.preventDefault();
-                setTabValue(value);
-                if (overrideOnClick) {
-                  overrideOnClick(e);
-                }
-              }}
-            />
-          ))}
+          {tabLink.map(({ value, label, badge }) => {
+            let to = '';
+            if (userIsLoggedIn && params) {
+              to = `${toLink}/${value}${params}`;
+            } else if (userIsLoggedIn) {
+              to = `${toLink}/${value}`;
+            }
+            return (
+              <Tab
+                key={value}
+                value={value}
+                iconPosition="end"
+                label={badge
+                  ? (
+                    <>
+                      {label}
+                      <StyledBadge className="h6 mb-0 d-flex justify-content-center align-items-center bg-primary ms-2 p-0 rounded-circle text-black">
+                        {badge}
+                      </StyledBadge>
+                    </>
+                  )
+                  : label}
+                component={Link}
+                to={to}
+                className="text-decoration-none shadow-none"
+                onClick={(e: any) => {
+                  e.preventDefault();
+                  setTabValue(value);
+                  if (overrideOnClick) {
+                    overrideOnClick(e, to);
+                  }
+                }}
+              />
+            );
+          })}
         </Tabs>
         {display === 'underline' && <div className="tab-border" />}
       </StyleTabs>

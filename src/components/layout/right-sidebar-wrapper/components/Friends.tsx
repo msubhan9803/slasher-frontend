@@ -28,7 +28,7 @@ function Friends({ user }: FriendsProps) {
 
   return (
     <>
-      <SidebarHeaderWithLink headerLabel="Friends" linkLabel="See All" linkTo={`/${user && user.userName}/friends`} />
+      <SidebarHeaderWithLink headerLabel="Friends" headerLabelCount={user.friendsCount} linkLabel="See All" linkTo={`/${user && user.userName}/friends`} />
       <div className="p-3 bg-dark rounded-3">
         <Row>
           {!loading && friendsList.length === 0 && <div>No friends yet.</div>}

@@ -9,6 +9,8 @@ import { Device } from '@capacitor/device';
 import { getDeviceToken, getSessionToken, setDeviceToken } from '../utils/session-utils';
 import { updateUserDeviceToken } from '../api/users';
 import { urlForNotification } from '../utils/notification-url-utils';
+import { markRead } from '../api/notification';
+import { Notification, NotificationType } from '../types';
 
 function PushNotificationAndDeepLinkListener() {
   const navigate = useNavigate();
@@ -54,8 +56,14 @@ function PushNotificationAndDeepLinkListener() {
         'pushNotificationActionPerformed',
         async (notification: ActionPerformed) => {
           const { data } = notification.notification.data;
-          const notificationData = JSON.parse(data);
-          window.location.href = urlForNotification(notificationData);
+          const notificationData = JSON.parse(data) as Notification;
+          // eslint-disable-next-line max-len
+          const isMessageNotification = notificationData.notifyType === NotificationType.FriendMessageNotification;
+          if (!isMessageNotification) {
+            await markRead(notificationData._id);
+          }
+          const url = urlForNotification(notificationData);
+          window.location.href = url;
           // navigate(urlForNotification(notificationData));
         },
       );

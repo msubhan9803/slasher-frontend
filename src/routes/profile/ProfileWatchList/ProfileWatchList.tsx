@@ -80,8 +80,8 @@ function ProfileWatchList({ user }: Props) {
   useEffect(() => {
     if (requestAdditionalMovies && !loadingMovies && user._id) {
       if (hasPageStateCache(location)
-        || filteredMovies.length >= pageStateCache.length
-        || filteredMovies.length === 0
+        || filteredMovies?.length >= pageStateCache?.length
+        || filteredMovies?.length === 0
       ) {
         setNoMoreData(false);
         setLoadingMovies(true);
@@ -91,7 +91,7 @@ function ProfileWatchList({ user }: Props) {
           user._id,
           sortVal,
           key.toLowerCase(),
-          lastMovieId.length > 0 ? lastMovieId : undefined,
+          lastMovieId?.length > 0 ? lastMovieId : undefined,
         )
           .then((res) => {
             if (lastMovieId) {
@@ -100,7 +100,7 @@ function ProfileWatchList({ user }: Props) {
                 ...res.data,
               ]);
             } else { setFilteredMovies(res.data); }
-            if (res.data.length === 0) {
+            if (res.data?.length === 0) {
               setNoMoreData(true);
               setLastMovieId('');
             } else {
@@ -119,7 +119,7 @@ function ProfileWatchList({ user }: Props) {
       }
     }
   }, [requestAdditionalMovies, loadingMovies, search, sortVal, lastMovieId, filteredMovies,
-    dispatch, user._id, isKeyMoviesReady, key, location, pageStateCache.length]);
+    dispatch, user._id, isKeyMoviesReady, key, location, pageStateCache?.length]);
   const applyFilter = (keyValue: string, sortValue?: string) => {
     setCallNavigate(true);
     setKey(keyValue.toLowerCase());
@@ -128,7 +128,7 @@ function ProfileWatchList({ user }: Props) {
   const renderNoMoreDataMessage = () => (
     <p className="text-center m-0 py-3">
       {
-        filteredMovies.length === 0
+        filteredMovies?.length === 0
           ? 'No Movies available'
           : 'No more Movies'
       }
@@ -170,7 +170,7 @@ function ProfileWatchList({ user }: Props) {
           applyFilter={applyFilter}
           sortVal={sortVal}
         />
-        {key !== '' && (isKeyMoviesReady || pageStateCache.length <= filteredMovies.length)
+        {key !== '' && (isKeyMoviesReady || pageStateCache?.length <= filteredMovies?.length)
           && (
             <div className="w-100 d-flex justify-content-center mb-3">
               <RoundButton size="sm" variant="filter" className="px-3" onClick={clearKeyHandler}>

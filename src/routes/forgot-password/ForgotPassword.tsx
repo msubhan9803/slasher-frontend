@@ -41,8 +41,12 @@ function ForgotPassword() {
         <h1 className="h2">Forgot your password?</h1>
         <p>That’s ok - we’re here to help!</p>
         <p className="mt-4">
-          Enter the email address associated with your Slasher account below and
-          we’ll send you a link to reset your password. Be sure to check your spam
+          Enter the email address associated with your Slasher account and
+          we’ll send you a link to reset your password.
+          {' '}
+          <br />
+          {' '}
+          Be sure to check your spam
           folder if you don’t see the email within 15 minutes.
         </p>
         <Form className="row d-flex flex-column align-items-center mt-4">

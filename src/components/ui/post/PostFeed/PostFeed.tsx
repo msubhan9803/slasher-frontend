@@ -81,7 +81,7 @@ interface Props {
   addUpdateComment?: (addUpdateComment: CommentValue) => void;
   updateState?: boolean;
   setUpdateState?: (value: boolean) => void;
-  onSelect?: (value: string) => void;
+  onSelect?: () => void;
   postType?: string,
   handleSearch?: (val: string) => void;
   mentionList?: MentionListProps[];
@@ -369,7 +369,7 @@ function PostFeed({
     } else {
       navigate(`/${post.userName}/posts/${post.id}`, { state });
     }
-    onSelect!(post.id);
+    onSelect?.();
   };
 
   const showPopoverOption = (postDetail: any) => {
@@ -490,6 +490,7 @@ function PostFeed({
                     }
                     initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
                     onSelect={onSelect}
+                    isSinglePost={isSinglePost}
                   />
                 )}
                 <Row>

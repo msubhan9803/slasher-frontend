@@ -12,9 +12,11 @@ import ProfileWatchList from './ProfileWatchList/ProfileWatchList';
 import ProfileEdit from './ProfileEdit/ProfileEdit';
 import ProfileFriendRequest from './ProfileFriends/ProfileFriendRequest/ProfileFriendRequest';
 import { getUser } from '../../api/users';
-import { FriendRequestReaction, ProfileVisibility, User } from '../../types';
+import {
+  FriendRequestReaction, ProfileSubroutesCache, ProfileVisibility, User,
+} from '../../types';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
-import { useAppSelector } from '../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import NotFound from '../../components/NotFound';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
@@ -25,6 +27,9 @@ import ProfileLimitedView from './ProfileLimitedView/ProfileLimitedView';
 import RightSidebarAdOnly from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarAdOnly';
 import ContentNotAvailable from '../../components/ContentNotAvailable';
 import useBootstrapBreakpointName from '../../hooks/useBootstrapBreakpoint';
+import { getPageStateCache, setPageStateCache } from '../../pageStateCache';
+import { getProfileSubroutesCache } from './profileSubRoutesCacheUtils';
+import { setProfilePageUserDetailsReload } from '../../redux/slices/userSlice';
 
 interface SharedHeaderProfilePagesProps {
   user: User;
@@ -52,14 +57,20 @@ function Profile() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [user, setUser] = useState<User>();
+  const [user, setUser] = useState<User | undefined>(
+    getPageStateCache<ProfileSubroutesCache>(location)?.user,
+  );
   const [userNotFound, setUserNotFound] = useState<boolean>(false);
   const [userIsBlocked, setUserIsBlocked] = useState<boolean>(false);
 
   const loginUserData = useAppSelector((state) => state.user.user);
+  const forceProfilePageUserDetailsReload = useAppSelector(
+    (state) => state.user.forceProfilePageUserDetailsReload,
+  );
   const isSelfProfile = loginUserData.id === user?._id;
   const bp = useBootstrapBreakpointName();
   const lastLocationKeyRef = useRef(location.key);
+  const dispatch = useAppDispatch();
 
   // commented until we enable update username support
   // const checkWithPreviousUserName = useCallback(() => {
@@ -88,6 +99,10 @@ function Profile() {
           return;
         }
         setUser(res.data);
+        setPageStateCache<ProfileSubroutesCache>(location, {
+          ...getProfileSubroutesCache(location),
+          user: res.data,
+        });
       })
       .catch((e) => {
         // If requested user is blocked then show "This content is no longer available" page
@@ -99,7 +114,7 @@ function Profile() {
           setUserNotFound(true);
         }
       });
-  }, [location.pathname, location.search, navigate, userNameOrId]);
+  }, [location, navigate, userNameOrId]);
 
   useEffect(() => {
     const isSameKey = lastLocationKeyRef.current === location.key;
@@ -119,6 +134,13 @@ function Profile() {
 
     loadUser();
   }, [loadUser, user, userNameOrId]);
+
+  useEffect(() => {
+    if (forceProfilePageUserDetailsReload) {
+      loadUser();
+      dispatch(setProfilePageUserDetailsReload(false));
+    }
+  }, [forceProfilePageUserDetailsReload, loadUser, dispatch]);
 
   if (userNotFound) { return <NotFound />; }
 

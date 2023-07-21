@@ -4,6 +4,7 @@ import { INestApplication, HttpStatus } from '@nestjs/common';
 import mongoose, { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
+import { DateTime } from 'luxon';
 import { AppModule } from '../../../../../src/app.module';
 import { UsersService } from '../../../../../src/users/providers/users.service';
 import { userFactory } from '../../../../factories/user.factory';
@@ -19,6 +20,10 @@ import { BlockAndUnblockReaction } from '../../../../../src/schemas/blockAndUnbl
 import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { MoviesService } from '../../../../../src/movies/providers/movies.service';
+import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
+import { Movie } from '../../../../../src/schemas/movie/movie.schema';
+import { moviesFactory } from '../../../../factories/movies.factory';
 
 describe('All Feed Post (e2e)', () => {
   let app: INestApplication;
@@ -31,6 +36,9 @@ describe('All Feed Post (e2e)', () => {
   let feedPostsService: FeedPostsService;
   let feedPost: FeedPost;
   let blocksModel: Model<BlockAndUnblockDocument>;
+  let movie: Movie;
+  let moviesService: MoviesService;
+  let movieAsPost: FeedPost;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -39,6 +47,7 @@ describe('All Feed Post (e2e)', () => {
     connection = moduleRef.get<Connection>(getConnectionToken());
 
     usersService = moduleRef.get<UsersService>(UsersService);
+    moviesService = moduleRef.get<MoviesService>(MoviesService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
@@ -63,6 +72,16 @@ describe('All Feed Post (e2e)', () => {
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
+    movie = await moviesService.create(
+      moviesFactory.build(
+        {
+          name: 'Shawshank Redemption',
+          status: MovieActiveStatus.Active,
+          releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          logo: 'https://picsum.photos/id/237/200/300',
+        },
+      ),
+    );
     for (let i = 0; i < 5; i += 1) {
       await feedPostsService.create(
         feedPostFactory.build({
@@ -70,6 +89,7 @@ describe('All Feed Post (e2e)', () => {
           likes: [activeUser.id, user0.id],
         }),
       );
+
       await feedPostsService.create(
         feedPostFactory.build({
           userId: activeUser.id,
@@ -78,6 +98,14 @@ describe('All Feed Post (e2e)', () => {
         }),
       );
     }
+    movieAsPost = await feedPostsService.create(
+      feedPostFactory.build({
+        userId: activeUser.id,
+        likes: [activeUser.id, user0.id],
+        // Feedpost with a movie (feature: Share movie as a post)
+        movieId: movie._id,
+      }),
+    );
   });
 
   // All Feed Post Details
@@ -118,11 +146,12 @@ describe('All Feed Post (e2e)', () => {
           createdAt: expect.any(String),
           likedByUser: true,
           message: expect.any(String),
+          movieId: null,
           likeCount: 2,
           commentCount: 0,
         });
       }
-      expect(response.body).toHaveLength(5);
+      expect(response.body).toHaveLength(6);
     });
 
     it('when user is block than expected response.', async () => {
@@ -159,7 +188,7 @@ describe('All Feed Post (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(secondResponse.status).toEqual(HttpStatus.OK);
-      expect(secondResponse.body).toHaveLength(2);
+      expect(secondResponse.body).toHaveLength(3);
     });
 
     it('denies access when requesting posts for a non-friend user with a non-public profile', async () => {
@@ -220,6 +249,47 @@ describe('All Feed Post (e2e)', () => {
           .send();
         expect(response.body.message).toContain('limit must not be greater than 30');
       });
+    });
+  });
+
+  it('share movie as a post feature', async () => {
+    const limit = 10;
+    const response = await request(app.getHttpServer())
+      .get(`/api/v1/users/${activeUser.id}/posts?limit=${limit}`)
+      .auth(activeUserAuthToken, { type: 'bearer' })
+      .send();
+
+    const postFromResponse = response.body.find((post) => post._id === movieAsPost._id.toString());
+    expect(postFromResponse).toEqual({
+      _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+      images: [
+        {
+          image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+          description: 'this is test description',
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        },
+        {
+          image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+          description: 'this is test description',
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        },
+      ],
+      userId: {
+        _id: activeUser.id,
+        userName: 'Username1',
+        profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+      },
+      createdAt: expect.any(String),
+      likedByUser: true,
+      message: expect.any(String),
+      movieId: {
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        logo: 'https://picsum.photos/id/237/200/300',
+        name: 'Shawshank Redemption',
+        releaseDate: '2022-10-17T00:00:00.000Z',
+      },
+      likeCount: 2,
+      commentCount: 0,
     });
   });
 });

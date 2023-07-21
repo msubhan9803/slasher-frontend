@@ -176,6 +176,7 @@ function ProfilePosts({ user }: Props) {
           likeIcon: data.likedByUser,
           likeCount: data.likeCount,
           commentCount: data.commentCount,
+          movieId: data.movieId,
         }));
         setPosts(newPosts);
       });

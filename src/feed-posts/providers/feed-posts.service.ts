@@ -228,6 +228,48 @@ export class FeedPostsService {
       .exec();
   }
 
+  async getAllPostsImagesCountByUser(userId: string): Promise<number> {
+    const postsWithImages = await this.feedPostModel
+      .find(
+        {
+          $and: [
+            { userId },
+            { is_deleted: FeedPostDeletionState.NotDeleted },
+            { status: FeedPostStatus.Active },
+            { 'images.0': { $exists: true } },
+            {
+              $and: [
+                { postType: { $ne: PostType.MovieReview } },
+                { postType: { $ne: PostType.News } },
+              ],
+            },
+          ],
+        },
+        { images: 1, _id: 0 },
+      );
+    const imagesCount = postsWithImages.map((post) => post.images.length)?.reduce((acc, item) => (acc + item), 0);
+    return imagesCount;
+  }
+
+  async getFeedPostsCountByUser(userId: string): Promise<number> {
+    const postsCount = await this.feedPostModel.count(
+      {
+        $and: [
+          { userId },
+          { is_deleted: FeedPostDeletionState.NotDeleted },
+          { status: FeedPostStatus.Active },
+          {
+            $and: [
+              { postType: { $ne: PostType.MovieReview } },
+              { postType: { $ne: PostType.News } },
+            ],
+          },
+        ],
+      },
+    );
+    return postsCount;
+  }
+
   async findAllByRssFeedProvider(
     rssfeedProviderId: string,
     limit: number,

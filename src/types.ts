@@ -35,6 +35,7 @@ export interface Post {
   hashTag?: string[];
   userId?: string;
   postType: number;
+  rssfeedProviderId?: string;
 }
 
 export interface User {

@@ -126,9 +126,9 @@ function ProfileHeader({
         behavior: 'instant' as any,
       });
     }
-  }, [positionRef, friendStatus, location, token, userIsLoggedIn,
-    scrollPosition.scrollToTab,
-  ]);
+    dispatch(setScrollToTabsPosition(false));
+  }, [positionRef, friendStatus, location, token, userIsLoggedIn, scrollPosition.scrollToTab,
+    dispatch]);
 
   const onBlockYesClick = () => {
     createBlockUser(clickedUserId)
@@ -166,9 +166,14 @@ function ProfileHeader({
     }
   };
   const handleScrollToTab = () => dispatch(setScrollToTabsPosition(true));
+
+  // Fix bug of 1071: Use `visibility` style variable so that `ProfileHeader` details
+  // like profile-name, profile-image are not shown when we switch tabs i.e,.,Posts,
+  // Friends, Photos, etc. (bug was only replicable on capacitor app and not on mobile-web)
+  const visibility = scrollPosition.scrollToTab ? 'hidden' : 'visible';
   return (
     <div className="bg-dark bg-mobile-transparent rounded mb-4">
-      <div className="p-md-4 g-0">
+      <div style={{ visibility }} className="p-md-4 g-0">
         <div>
           <ProfileCoverImage src={user.coverPhoto || defaultCoverImage} alt="Cover picture" className="mt-3 mt-md-0 w-100 rounded" onClick={handleSignInDialog} />
         </div>

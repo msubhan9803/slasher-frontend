@@ -135,7 +135,7 @@ function CommentSection({
 
   return (
     <div key={id}>
-      <div className="bg-dark mb-2 py-3 py-md-4 ps-3 rounded">
+      <div className={`bg-dark mb-2 py-3 py-md-4 ps-3 rounded ${active ? 'border border-primary' : ''}`}>
         <div className="d-flex">
           <div className="">
             <Link to={`/${name}`} className="d-block rounded-circle">
@@ -143,7 +143,7 @@ function CommentSection({
             </Link>
           </div>
           <div
-            className={`text-break px-3 w-100 ${active ? 'border border-primary' : ''}`}
+            className="text-break px-3 w-100"
             ref={active ? highlightRef : null}
           >
             <div className="d-flex justify-content-between">

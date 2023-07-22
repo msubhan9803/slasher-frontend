@@ -47,6 +47,14 @@ const RatingDiv = styled.div`
   margin-top: -1.875rem;
 `;
 
+const MovieName = styled(Card.Text)`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; 
+  -webkit-box-orient: vertical;
+`;
+
 function PosterCard({
   name, poster, year, worthWatching, rating,
 }: PosterProps) {
@@ -76,9 +84,9 @@ function PosterCard({
             />
           )}
         </div>
-        <Card.Text className="h3 fw-bold mt-1">
+        <MovieName className="h3 fw-bold mt-1">
           {name}
-        </Card.Text>
+        </MovieName>
       </Card.Body>
     </PosterCardStyle>
   );

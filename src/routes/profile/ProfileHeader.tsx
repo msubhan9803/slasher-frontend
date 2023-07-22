@@ -19,13 +19,14 @@ import { createBlockUser } from '../../api/blocks';
 import { reportData } from '../../api/report';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { StyledBorder } from '../../components/ui/StyledBorder';
-import { enableDevFeatures, BREAK_POINTS, topToDivHeight } from '../../constants';
+import { BREAK_POINTS, topToDivHeight } from '../../constants';
 import FriendActionButtons from '../../components/ui/Friend/FriendActionButtons';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import SignInModal from '../../components/ui/SignInModal';
 import { getLastNonProfilePathname } from '../../utils/url-utils';
 import useSessionToken from '../../hooks/useSessionToken';
 import { setScrollToTabsPosition } from '../../redux/slices/scrollPositionSlice';
+import { formatNumberWithUnits } from '../../utils/number.utils';
 
 interface Props {
   tabKey?: string;
@@ -42,7 +43,6 @@ const tabs = [
   { value: 'photos', label: 'Photos' },
   { value: 'watched-list', label: 'Watched list' },
 ];
-const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => t.label !== 'Watched list');
 const CustomCol = styled(Col)`
   margin-top: -3.938rem;
 `;
@@ -56,6 +56,11 @@ const StyledPopoverContainer = styled.div`
   right: 10px;
 `;
 // type FriendType = { from: string, to: string, reaction: FriendRequestReaction } | null;
+
+const StyleDot = styled(FontAwesomeIcon)`
+  width: 0.267rem;
+  height: 0.267rem;
+`;
 
 function ProfileHeader({
   tabKey, user, showTabs,
@@ -188,16 +193,23 @@ function ProfileHeader({
           </CustomCol>
           <Col className="w-100 mt-md-4">
             <Row className="d-flex justify-content-between">
-              <Col xs={12} md={4} lg={12} xl={4} className="text-center text-md-start text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
+              <Col xs={12} md={4} lg={12} xl={5} className="text-center text-md-start text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
                 <h1 className="mb-md-0 text-nowrap">
                   {user?.firstName}
                 </h1>
-                <p className="fs-5 text-light">
+                <div className="fs-5 text-light">
                   @
                   {user?.userName}
-                </p>
+                </div>
+                <div className="text-nowrap mb-2">
+                  Friends:
+                  <span className="ps-1">{formatNumberWithUnits(user.friendsCount)}</span>
+                  <StyleDot icon={solid('circle')} size="xs" className="my-1 mx-2 text-primary" />
+                  Posts:
+                  <span className="ps-1">{formatNumberWithUnits(user.postsCount)}</span>
+                </div>
               </Col>
-              <Col xs={12} md={8} lg={12} xl={8}>
+              <Col xs={12} md={8} lg={12} xl={7}>
                 {isSelfUserProfile
                   && (
                     <div className="d-flex justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
@@ -237,7 +249,7 @@ function ProfileHeader({
             <StyledBorder className="d-md-block d-none" />
             <div ref={positionRef} aria-hidden="true">
               <TabLinks
-                tabLink={allTabs}
+                tabLink={tabs}
                 toLink={`/${user?.userName}`}
                 selectedTab={tabKey}
                 overrideOnClick={userIsLoggedIn ? handleScrollToTab : handleSignInDialog}

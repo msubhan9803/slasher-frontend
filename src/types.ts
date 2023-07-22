@@ -35,6 +35,7 @@ export interface Post {
   hashTag?: string[];
   userId?: string;
   postType: number;
+  rssfeedProviderId?: string;
 }
 
 export interface User {
@@ -48,6 +49,9 @@ export interface User {
   profile_status: number;
   friendshipStatus: FriendshipStatus;
   unverifiedNewEmail: string;
+  imagesCount: number,
+  postsCount: number,
+  friendsCount: number,
 }
 
 export interface NewsPartnerPostProps {

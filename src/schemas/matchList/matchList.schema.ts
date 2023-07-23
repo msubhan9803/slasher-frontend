@@ -68,5 +68,8 @@ export type MatchListDocument = HydratedDocument<MatchList>;
 
 // Index for ChatService#getConversations and ChatService#createOrFindPrivateDirectMessageConversationByParticipants
 MatchListSchema.index({
-  participants: 1, roomType: 1, roomCategory: 1, relationId: 1, deletefor: 1, lastMessageSentAt: -1,
+  // NOTE: It would be nice to have the `deletefor` array field in this index too, but MongoDB has a
+  // limitation where you can only have one array field in a multi-key index, and `participants` is
+  // an array field that is already in use here.
+  participants: 1, roomType: 1, roomCategory: 1, relationId: 1, lastMessageSentAt: -1,
 });

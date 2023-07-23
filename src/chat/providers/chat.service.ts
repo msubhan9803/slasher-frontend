@@ -65,11 +65,11 @@ export class ChatService {
     }
 
     const matchList = await this.matchListModel.findOne({
+      deleted: false,
       participants: { $all: participants },
-      relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
       roomType: MatchListRoomType.Match,
       roomCategory: MatchListRoomCategory.DirectMessage,
-      deleted: false,
+      relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
     });
 
     return matchList || this.createPrivateDirectMessageConversation(participants);
@@ -119,6 +119,10 @@ export class ChatService {
         $set: {
           updatedAt: currentTime, // overwrite `updatedAt`
           lastMessageSentAt: currentTime,
+          // Any new messages in a chat will remove all participants from deletefor so that
+          // everyone sees the new message.  This is fine because the deletefor value is still
+          // retained on a message by message basis.
+          deletefor: [],
         },
       },
       { timestamps: false },
@@ -182,12 +186,11 @@ export class ChatService {
     limit: number,
     before?: string,
   ): Promise<Conversation[]> {
-    let beforeUpdatedAt;
-    const conversations = [];
-    do {
+    let beforeLastMessageSentAt;
+
     if (before) {
       const beforeMatchList = await this.matchListModel.findById(before).exec();
-      beforeUpdatedAt = { $lt: beforeMatchList.updatedAt };
+      beforeLastMessageSentAt = { $lt: beforeMatchList.lastMessageSentAt };
     }
 
     // Do not return conversations of blocked users
@@ -199,17 +202,17 @@ export class ChatService {
         roomType: MatchListRoomType.Match,
         roomCategory: MatchListRoomCategory.DirectMessage,
         relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
-        ...(before ? { updatedAt: beforeUpdatedAt } : {}),
+        deletefor: { $nin: new mongoose.Types.ObjectId(userId) },
+        ...(before ? { lastMessageSentAt: beforeLastMessageSentAt } : {}),
       })
       .populate('participants', 'userName _id profilePic')
-      .sort({ updatedAt: -1 })
+      .sort({ lastMessageSentAt: -1 })
       .limit(limit)
       .lean()
       .exec();
-      if (matchLists.length === 0) {
-        break;
-      }
+
     // For each conversation, find its latest message and unread count
+    const conversations = [];
     for (const matchList of matchLists) {
       const latestMessage = await this.messageModel
         .findOne({
@@ -236,12 +239,10 @@ export class ChatService {
           unreadCount,
           latestMessage: latestMessage.message.trim().split('\n')[0],
           updatedAt: matchList.updatedAt,
+          lastMessageSentAt: latestMessage.createdAt,
         });
       }
     }
-        // eslint-disable-next-line no-param-reassign
-    before = matchLists[matchLists.length - 1]._id.toString();
-    } while (conversations.length <= 13);
 
     return conversations;
   }

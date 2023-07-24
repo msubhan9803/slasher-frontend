@@ -50,6 +50,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
   const [friendCount, setFriendCount] = useState<number>();
   const [dropDownValue, setDropDownValue] = useState('');
   const [loadingFriends, setLoadingFriends] = useState<boolean>(false);
+  const [friendRemoveId, setFriendRemoveId] = useState<string>('');
   const popoverOption = isSelfProfile
     ? ['View profile', 'Message', 'Unfriend', 'Report', 'Block user']
     : ['View profile', 'Report', 'Block user'];
@@ -77,6 +78,14 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
     { value: '', label: 'All friends' },
     { value: 'request', label: 'Friend requests', badge: friendsReqCount },
   ];
+  const onRemoveFriendClick = () => {
+    rejectFriendsRequest(friendRemoveId).then(() => {
+      // eslint-disable-next-line max-len
+      setFriendsList((prevFriendsList) => prevFriendsList.filter((friend) => friend._id !== friendRemoveId));
+      dispatch(setProfilePageUserDetailsReload(true));
+      setShow(false);
+    });
+  };
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (value === 'Report' || value === 'Block user') {
@@ -87,11 +96,9 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
       navigate(`/${popoverClickProps.userName}`);
     } else if (value === 'Unfriend') {
       if (popoverClickProps?.id) {
-        rejectFriendsRequest(popoverClickProps?.id!).then(() => {
-          // eslint-disable-next-line max-len
-          setFriendsList((prevFriendsList) => prevFriendsList.filter((friend) => friend._id !== popoverClickProps?.id));
-          dispatch(setProfilePageUserDetailsReload(true));
-        });
+        setShow(true);
+        setDropDownValue('Remove friend');
+        setFriendRemoveId(popoverClickProps?.id);
       }
     } else if (value === 'Message') {
       navigate(`/app/messages/conversation/new?userId=${popoverClickProps?.userId}`);
@@ -253,7 +260,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
             </Col>
           </Row>
           <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 my-3 py-3">
-            { showAllFriendsAndFriendRequestsTabs && (
+            {showAllFriendsAndFriendRequestsTabs && (
               <div>
                 <div className="d-flex justify-content-between">
                   <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="" overrideOnClick={deleteFriendRequestsSubrouteCache} />
@@ -265,13 +272,13 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
               </div>
             )}
 
-            { !isSelfProfile && (
-            <>
-              {/* Desktop friends count view (other user profile) */}
-              <div className="fw-bold text-end d-none d-sm-block">{friendsCountWithLabel}</div>
-              {/* Mobile friends count view (other user profile) */}
-              <div className="ms-3 fw-bold text-start d-sm-none">{friendsCountWithLabel}</div>
-            </>
+            {!isSelfProfile && (
+              <>
+                {/* Desktop friends count view (other user profile) */}
+                <div className="fw-bold text-end d-none d-sm-block">{friendsCountWithLabel}</div>
+                {/* Mobile friends count view (other user profile) */}
+                <div className="ms-3 fw-bold text-start d-sm-none">{friendsCountWithLabel}</div>
+              </>
             )}
 
             <InfiniteScroll
@@ -280,8 +287,8 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
               initialLoad={initialLoad}
               loadMore={() => { setRequestAdditionalFriends(true); }}
               hasMore={!noMoreData}
-              /* NOTE: Do not use a custom parentNode element as it leads to infinte loading.
-              of friends for some unknown reason. */
+            /* NOTE: Do not use a custom parentNode element as it leads to infinte loading.
+            of friends for some unknown reason. */
             >
               <Row className="mt-4">
                 {friendsList.map((friend: FriendProps) => (
@@ -307,6 +314,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
           slectedDropdownValue={dropDownValue}
           handleReport={reportProfileFriend}
           onBlockYesClick={onBlockYesClick}
+          onConfirmClick={onRemoveFriendClick}
         />
       </ProfileTabContent>
     </div>

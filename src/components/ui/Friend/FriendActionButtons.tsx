@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FriendRequestReaction, FriendType, User } from '../../../types';
 import RoundButtonLink from '../RoundButtonLink';
 import { acceptFriendsRequest, addFriend, rejectFriendsRequest } from '../../../api/friends';
 import { useAppSelector } from '../../../redux/hooks';
 import useProgressButton from '../ProgressButton';
+import ReportModal from '../ReportModal';
 
 const getButtonLabelForUser = (
   user: User,
@@ -47,6 +48,7 @@ function FriendActionButtons({
 }: Props) {
   const loginUserId = useAppSelector((state) => state.user.user.id);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
+  const [isFriendRemove, setFriendRemove] = useState<boolean>(false);
   const friendRequestApi = (status: number | null) => {
     setProgressButtonStatus('loading');
     if (!status) {
@@ -99,6 +101,17 @@ function FriendActionButtons({
     show = friendData?.reaction === FriendRequestReaction.DeclinedOrCancelled
       || friendData?.reaction === null;
   }
+  const handleFriendRequest = (label: string) => {
+    if (label === 'Remove friend') {
+      setFriendRemove(true);
+    } else {
+      friendRequestApi(friendStatus);
+    }
+  };
+  const onRemoveFriendClick = () => {
+    friendRequestApi(friendStatus);
+    setFriendRemove(false);
+  };
   return (
     <>
       {friendStatus === FriendRequestReaction.Accepted && <RoundButtonLink variant="black" to={`/app/messages/conversation/new?userId=${user?._id}`} className={`me-2 text-nowrap ${buttonType === 'send-message' ? '' : 'border-1 border-primary'}`}>Send message</RoundButtonLink>}
@@ -109,9 +122,22 @@ function FriendActionButtons({
             variant={`${friendStatus === FriendRequestReaction.Pending || friendStatus === FriendRequestReaction.Accepted ? 'black' : 'primary'}`}
             id="Friend-action-button"
             type="submit"
-            onClick={() => friendRequestApi(friendStatus)}
+            onClick={
+              () => handleFriendRequest(ButtonLabel)
+            }
             className="me-2 text-nowrap"
             label={ButtonLabel}
+          />
+        )
+      }
+      {
+        isFriendRemove
+        && (
+          <ReportModal
+            show={isFriendRemove}
+            setShow={setFriendRemove}
+            slectedDropdownValue="Remove friend"
+            onConfirmClick={onRemoveFriendClick}
           />
         )
       }

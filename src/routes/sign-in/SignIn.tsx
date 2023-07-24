@@ -60,7 +60,7 @@ function SignIn() {
 
   useEffect(() => {
     if (!token.isLoading && token.value) {
-      navigate('/app/home');
+      navigate('/app/home', { replace: true });
     }
   }, [navigate, token]);
 

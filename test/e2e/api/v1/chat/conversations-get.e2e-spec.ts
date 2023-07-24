@@ -109,7 +109,7 @@ describe('Conversations all / (e2e)', () => {
         // Verify that conversation (matchlist) is marked `deleted: true`
         const blockedUserMatchList = await matchListModel.findById(blockedUserMatchListId);
         expect(blockedUserMatchList.deleted).toBeTruthy();
-        
+
         // Expect message of `user1`
         expect(response1.body).toEqual(
           [
@@ -130,7 +130,7 @@ describe('Conversations all / (e2e)', () => {
               unreadCount: 1,
               latestMessage: 'Hi, test message 2.',
               updatedAt: response1.body[0].updatedAt,
-              lastMessageSentAt: response1.body[0].lastMessageSentAt
+              lastMessageSentAt: response1.body[0].lastMessageSentAt,
             },
           ],
         );

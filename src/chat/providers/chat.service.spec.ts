@@ -188,7 +188,7 @@ describe('ChatService', () => {
 
     it('successfully returns a list of convesations for a user', async () => {
       const conversations = await chatService.getConversations(user1.id, 5);
-      
+
       expect(conversations).toHaveLength(2);
 
       // Expect newest conversation in array position 0

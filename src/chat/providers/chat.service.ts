@@ -297,7 +297,7 @@ export class ChatService {
           unreadCount,
           latestMessage: latestMessage.message.trim().split('\n')[0],
           updatedAt: matchList.updatedAt,
-          lastMessageSentAt: matchList.lastMessageSentAt
+          lastMessageSentAt: matchList.lastMessageSentAt,
         });
       }
     }

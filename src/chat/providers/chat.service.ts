@@ -260,9 +260,10 @@ export class ChatService {
         roomType: MatchListRoomType.Match,
         roomCategory: MatchListRoomCategory.DirectMessage,
         relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
+        deletefor: { $nin: new mongoose.Types.ObjectId(userId) },
       })
       .populate('participants', 'userName _id profilePic')
-      .sort({ updatedAt: -1 })
+      .sort({ updatedAt: -1, lastMessageSentAt: -1 })
       .limit(50)
       .lean()
       .exec();
@@ -296,6 +297,7 @@ export class ChatService {
           unreadCount,
           latestMessage: latestMessage.message.trim().split('\n')[0],
           updatedAt: matchList.updatedAt,
+          lastMessageSentAt: matchList.lastMessageSentAt
         });
       }
     }

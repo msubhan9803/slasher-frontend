@@ -361,6 +361,13 @@ function MovieReviews({
           setGoreFactor(0);
           setPostContent('');
           setContainSpoiler(false);
+          setMovieData({
+            ...movieData,
+            userData: {
+              ...movieData.userData!,
+              reviewPostId: '',
+            },
+          });
         })
         /* eslint-disable no-console */
         .catch((error) => console.error(error));

@@ -43,7 +43,7 @@ type Props = {
 };
 
 export const StyledReviewContainer = styled.div`
-  min-height: 100vh;
+  min-height: 60vh;
 `;
 
 const loginUserPopoverOptions = ['Edit Review', 'Delete Review'] as const;

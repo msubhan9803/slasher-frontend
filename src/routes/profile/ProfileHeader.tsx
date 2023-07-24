@@ -122,7 +122,8 @@ function ProfileHeader({
     // viewport.
     if (!location.pathname.includes('about')) {
       window.scrollTo({
-        top: element.offsetTop - (window.innerWidth >= BREAK_POINTS.lg ? (topToDivHeight - 18) : 0),
+        // eslint-disable-next-line max-len
+        top: element.offsetTop - (window.innerWidth >= BREAK_POINTS.lg ? (topToDivHeight - 18) : 0) + 10,
         behavior: 'instant' as any,
       });
     }

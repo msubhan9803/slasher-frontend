@@ -8,7 +8,7 @@ interface Props {
 }
 
 const ViewportMinHeightContainer = styled.div`
-  min-height: 100vh;
+  min-height:78vh;
 `;
 
 function ProfileTabContent({ children }: Props) {

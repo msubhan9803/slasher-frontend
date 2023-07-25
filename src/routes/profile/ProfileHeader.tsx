@@ -27,6 +27,7 @@ import { getLastNonProfilePathname } from '../../utils/url-utils';
 import useSessionToken from '../../hooks/useSessionToken';
 import { setScrollToTabsPosition } from '../../redux/slices/scrollPositionSlice';
 import { formatNumberWithUnits } from '../../utils/number.utils';
+import ZoomableImageModal from '../../components/ui/ZoomingImageModal';
 
 interface Props {
   tabKey?: string;
@@ -66,6 +67,7 @@ function ProfileHeader({
   tabKey, user, showTabs,
 }: Props) {
   const [showSignIn, setShowSignIn] = useState<boolean>(false);
+  const [showProfileImage, setShowProfileImage] = useState<boolean>(false);
   const [show, setShow] = useState<boolean>(false);
   const [friendshipStatus, setFriendshipStatus] = useState<any>();
   const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
@@ -162,6 +164,7 @@ function ProfileHeader({
   const handleSignInDialog = (e: any) => {
     if (userIsLoggedIn) {
       e.preventDefault();
+      setShowProfileImage(!showProfileImage);
     } else {
       setShowSignIn(!showSignIn);
     }
@@ -270,6 +273,17 @@ function ProfileHeader({
       {
         showSignIn
         && <SignInModal show={showSignIn} setShow={setShowSignIn} isPublicProfile />
+      }
+      {
+        showProfileImage
+        && (
+          <ZoomableImageModal
+            imgSrc={user?.profilePic}
+            imgAlt="user profile pic"
+            show={showProfileImage}
+            onHide={() => setShowProfileImage(false)}
+          />
+        )
       }
     </div>
   );

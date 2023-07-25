@@ -38,8 +38,10 @@ function ChatMessageText({ message, firstLineOnly }: Props) {
     ), ignoreUsernamesLinkifyOpts),
   );
   return (
-    // eslint-disable-next-line react/no-danger
-    <span className="d-flex text-start" dangerouslySetInnerHTML={{ __html: reformattedMessage }} />
+    /* eslint-disable react/no-danger */
+    <div className="d-flex text-start">
+      <span dangerouslySetInnerHTML={{ __html: reformattedMessage }} />
+    </div>
   );
 }
 

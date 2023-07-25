@@ -83,7 +83,7 @@
     "analyze": "npm run build && source-map-explorer 'build/static/js/*.js'",
     "eject": "react-scripts eject",
     "lint": "eslint \"{src,e2e}/**/*.{ts,js,tsx, jsx}\" --max-warnings=0",
-    "start": "react-scripts --max_old_space_size=8192 start",
+    "start": "react-scripts start",
     "start-https": "HTTPS=true react-scripts start",
     "serve-build": "serve -s build",
     "test": "react-scripts test --watchAll=false --transformIgnorePatterns 'node_modules/(?!swiper)/'",

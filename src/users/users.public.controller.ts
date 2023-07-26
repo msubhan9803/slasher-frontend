@@ -9,9 +9,9 @@ import { SIMPLE_MONGODB_ID_REGEX } from '../constants';
 import { pick } from '../utils/object-utils';
 import { ProfileVisibility } from '../schemas/user/user.enums';
 import { Public } from '../app/guards/auth.guard';
-import { FeedPostsService } from './../feed-posts/providers/feed-posts.service';
-import { FriendRequestReaction } from './../schemas/friend/friend.enums';
-import { FriendsService } from './../friends/providers/friends.service';
+import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
+import { FriendRequestReaction } from '../schemas/friend/friend.enums';
+import { FriendsService } from '../friends/providers/friends.service';
 
 @Controller({ path: 'users/public', version: ['1'] })
 export class UsersPublicController {
@@ -44,7 +44,8 @@ export class UsersPublicController {
     const pickFields = ['_id', 'firstName', 'userName', 'profilePic', 'coverPhoto', 'aboutMe', 'profile_status'];
 
     return {
-      ...pick(user, pickFields), imagesCount,
+      ...pick(user, pickFields),
+      imagesCount,
       postsCount,
       friendsCount,
     };

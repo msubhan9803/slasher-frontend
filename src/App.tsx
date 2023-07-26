@@ -1,6 +1,8 @@
 /* eslint-disable no-alert */
+/* eslint-disable max-lines */
 import React from 'react';
 import {
+  Outlet,
   Route, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
 import { App as CapacitorApp } from '@capacitor/app';
@@ -55,6 +57,7 @@ import { healthCheck } from './api/health-check';
 import { store } from './redux/store';
 import { setIsServerAvailable } from './redux/slices/serverAvailableSlice';
 import { isHomePage } from './utils/url-utils';
+import CapacitorUpdateListener from './components/CapacitorAppVersionListener';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -146,6 +149,16 @@ if (isNativePlatform) {
   }, SERVER_UNAVAILABILITY_CHECK_DELAY);
 }
 
+function CapacitorListner() {
+  return (
+    <>
+      <PushNotificationAndDeepLinkListener />
+      <CapacitorUpdateListener />
+      <Outlet />
+    </>
+  );
+}
+
 function App() {
   usePubWiseAdSlots(enableADs);
   const isServerAvailable = useAppSelector((state) => state.serverAvailability.isAvailable);
@@ -154,7 +167,7 @@ function App() {
     createRoutesFromElements(
       <Route
         path="/"
-        element={<PushNotificationAndDeepLinkListener />}
+        element={<CapacitorListner />}
         errorElement={<UnauthenticatedPageWrapper><UnexpectedError /></UnauthenticatedPageWrapper>}
       >
         <Route path="/" element={<Index />} />

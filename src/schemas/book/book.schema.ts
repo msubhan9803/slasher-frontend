@@ -16,8 +16,32 @@ export class Book extends BookUnusedFields {
   @Prop()
   updatedAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration
 
-  @Prop({ default: null, required: true, trim: true })
+  @Prop({ required: true, trim: true })
   name: string;
+
+  @Prop({ default: [], trim: true })
+  author: string[];
+
+  @Prop({ default: null })
+  numberOfPages: number;
+
+  @Prop({ default: [], trim: true })
+  isbnNumber: string[];
+
+  @Prop({ default: null })
+  publishDate: string;
+
+  @Prop({ default: null })
+  description: string;
+
+  @Prop({ default: [], trim: true })
+  covers: number[];
+
+  @Prop({ required: true })
+  coverEditionKey: string;
+
+  @Prop({ default: null })
+  bookId: string;
 
   /***********
    * Methods *

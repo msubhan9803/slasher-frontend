@@ -2,7 +2,6 @@
 /* eslint-disable max-lines */
 import React from 'react';
 import {
-  Outlet,
   Route, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
 import { App as CapacitorApp } from '@capacitor/app';
@@ -49,7 +48,6 @@ import PublicProfile from './routes/public-home-page/public-profile-web/PublicPr
 import { useAppSelector } from './redux/hooks';
 import ServerUnavailable from './components/ServerUnavailable';
 import Conversation from './routes/conversation/Conversation';
-import PushNotificationAndDeepLinkListener from './components/PushNotificationAndDeepLinkListener';
 import Index from './routes/Index';
 import { onKeyboardClose, onKeyboardOpen } from './utils/styles-utils ';
 import UnexpectedError from './components/UnexpectedError';
@@ -57,7 +55,7 @@ import { healthCheck } from './api/health-check';
 import { store } from './redux/store';
 import { setIsServerAvailable } from './redux/slices/serverAvailableSlice';
 import { isHomePage } from './utils/url-utils';
-import CapacitorUpdateListener from './components/CapacitorAppVersionListener';
+import CapacitorAppListeners from './components/CapacitorAppListeners';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -149,16 +147,6 @@ if (isNativePlatform) {
   }, SERVER_UNAVAILABILITY_CHECK_DELAY);
 }
 
-function CapacitorListner() {
-  return (
-    <>
-      <PushNotificationAndDeepLinkListener />
-      <CapacitorUpdateListener />
-      <Outlet />
-    </>
-  );
-}
-
 function App() {
   usePubWiseAdSlots(enableADs);
   const isServerAvailable = useAppSelector((state) => state.serverAvailability.isAvailable);
@@ -167,7 +155,7 @@ function App() {
     createRoutesFromElements(
       <Route
         path="/"
-        element={<CapacitorListner />}
+        element={<CapacitorAppListeners />}
         errorElement={<UnauthenticatedPageWrapper><UnexpectedError /></UnauthenticatedPageWrapper>}
       >
         <Route path="/" element={<Index />} />

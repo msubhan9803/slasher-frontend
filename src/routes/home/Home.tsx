@@ -377,7 +377,6 @@ function Home() {
     };
     reportData(reportPayload).then((res) => {
       if (res.status === 200) { callLatestFeedPost(); }
-      setShow(false);
     })
       // eslint-disable-next-line no-console
       .catch((error) => console.error(error));

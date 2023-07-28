@@ -344,7 +344,6 @@ function MovieReviews({
     };
     reportData(reportPayload).then((res) => {
       if (res.status === 200) { callLatestFeedPost(); }
-      setShow(false);
     })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
@@ -381,6 +380,10 @@ function MovieReviews({
       setLocalStorage('spoilersIds', JSON.stringify(spoilerIdList));
     }
     navigate(`/app/movies/${id}/reviews/${currentPostId}`);
+  };
+
+  const afterBlockUser = () => {
+    setShow(false);
   };
 
   const onLikeClick = async (feedPostId: string) => {
@@ -499,6 +502,7 @@ function MovieReviews({
             setShow={setShow}
             slectedDropdownValue={dropDownValue}
             onBlockYesClick={onBlockYesClick}
+            afterBlockUser={afterBlockUser}
             handleReport={reportReview}
           />
         )

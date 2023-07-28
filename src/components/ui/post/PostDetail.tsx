@@ -746,10 +746,10 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     };
     reportData(reportPayload).then((res) => {
       if (res.status === 200) { getFeedPostDetail(postId!); }
-      setShow(false);
     })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
+    setDropDownValue('PostReportSuccessDialog');
   };
   const getSingleComment = useCallback(() => {
     singleComment(queryCommentId!).then((res) => {
@@ -828,8 +828,10 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
 
     setCommentData(filterUnblockUserComments);
     // Show report modal
-    setShow(true);
-  }, [commentData, selectedBlockedUserId]);
+    if (dropDownValue !== '') {
+      setShow(true);
+    }
+  }, [commentData, selectedBlockedUserId, dropDownValue]);
 
   useEffect(() => {
     if (dropDownValue === 'BlockUserSuccess') {
@@ -925,6 +927,9 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                     slectedDropdownValue={dropDownValue}
                     handleReport={reportPost}
                     onBlockYesClick={onBlockYesClick}
+                    rssfeedProviderId={postData[0]?.rssfeedProviderId}
+                    afterBlockUser={afterBlockUser}
+                    setDropDownValue={setDropDownValue}
                   />
                 )}
               {postType !== 'news' && dropDownValue === 'Edit'

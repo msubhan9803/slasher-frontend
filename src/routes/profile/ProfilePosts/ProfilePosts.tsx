@@ -84,6 +84,10 @@ function ProfilePosts({ user }: Props) {
     setDropDownValue(value);
   };
 
+  const afterBlockUser = () => {
+    setShowReportModal(false);
+  };
+
   const fetchPosts = useCallback(() => {
     getProfilePosts(
       user._id,
@@ -293,7 +297,7 @@ function ProfilePosts({ user }: Props) {
   const onBlockYesClick = () => {
     createBlockUser(postUserId)
       .then(() => {
-        setShowReportModal(false);
+        setDropDownValue('BlockUserSuccess');
         callLatestFeedPost();
       })
       /* eslint-disable no-console */
@@ -308,10 +312,10 @@ function ProfilePosts({ user }: Props) {
     };
     reportData(reportPayload).then((res) => {
       if (res.status === 200) { callLatestFeedPost(); }
-      setShowReportModal(false);
     })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
+    setDropDownValue('PostReportSuccessDialog');
   };
 
   const persistScrollPosition = () => {
@@ -371,6 +375,7 @@ function ProfilePosts({ user }: Props) {
               setShow={setShowReportModal}
               slectedDropdownValue={dropDownValue}
               onBlockYesClick={onBlockYesClick}
+              afterBlockUser={afterBlockUser}
               handleReport={reportProfilePost}
             />
           )}

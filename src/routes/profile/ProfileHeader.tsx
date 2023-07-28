@@ -152,10 +152,10 @@ function ProfileHeader({
       reportType: 'profile',
     };
     reportData(reportPayload).then(() => {
-      setShow(false);
     })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
+    setDropDownValue('PostReportSuccessDialog');
   };
 
   if (!user || (!isSelfUserProfile && typeof friendStatus === null)) {

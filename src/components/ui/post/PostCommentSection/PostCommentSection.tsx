@@ -461,10 +461,14 @@ function PostCommentSection({
       reportType: commentID ? 'comment' : 'reply',
     };
     reportData(reportPayload).then(() => {
-      setShow(false);
     })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
+    setDropDownValue('PostReportSuccessDialog');
+  };
+
+  const afterBlockUser = () => {
+    setShow(false);
   };
 
   const oldReply: any = (comment: any, replyCommentIndex: number) => (
@@ -737,6 +741,7 @@ function PostCommentSection({
         onBlockYesClick={onBlockYesClick}
         handleReport={handleCommentReplyReport}
         removeComment={removeComment}
+        afterBlockUser={afterBlockUser}
       />
       {
         isEdit

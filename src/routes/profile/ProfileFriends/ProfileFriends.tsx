@@ -204,15 +204,20 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
       reportType: 'profile',
     };
     reportData(reportPayload).then(() => {
-      setShow(false);
+      // setShow(false);
     })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
+    setDropDownValue('PostReportSuccessDialog');
+  };
+  const afterBlockUser = () => {
+    setShow(false);
   };
   const onBlockYesClick = () => {
     createBlockUser(popoverClick?.id!)
       .then((res) => {
-        setShow(false);
+        setDropDownValue('BlockUserSuccess');
+        // setShow(false);
         if (res.status === 201) {
           const updateFriendsList = friendsList.filter(
             (friend: any) => friend._id !== popoverClick?.id,
@@ -314,6 +319,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
           slectedDropdownValue={dropDownValue}
           handleReport={reportProfileFriend}
           onBlockYesClick={onBlockYesClick}
+          afterBlockUser={afterBlockUser}
           onConfirmClick={onRemoveFriendClick}
         />
       </ProfileTabContent>

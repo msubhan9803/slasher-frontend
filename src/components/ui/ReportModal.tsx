@@ -17,12 +17,13 @@ interface Props {
   handleReport?: (value: string,) => void;
   removeComment?: () => void;
   rssfeedProviderId?: string;
-  afterBlockUser?: Function;
+  afterBlockUser?: () => void;
+  setDropDownValue?: (value: string) => void;
 }
 function ReportModal({
   show, setShow, slectedDropdownValue, onConfirmClick, onBlockYesClick,
   handleReport, removeComment, rssfeedProviderId,
-  afterBlockUser,
+  afterBlockUser, setDropDownValue,
 }: Props) {
   const [reports, setReports] = useState<string>('');
   const [otherReport, setOtherReport] = useState('');
@@ -35,6 +36,9 @@ function ReportModal({
     setButtonDisabled(true);
     setOtherReport('');
     setChecked(false);
+    if (setDropDownValue) {
+      setDropDownValue('');
+    }
   };
   const removeData = () => {
     if (removeComment) { removeComment(); }
@@ -57,6 +61,17 @@ function ReportModal({
     const reason = reports === 'Other' ? otherReport : reports;
     if (reason) {
       if (handleReport) { handleReport(reason); setOtherReport(''); }
+    }
+  };
+
+  const onOkClick = () => {
+    if (afterBlockUser) {
+      afterBlockUser();
+    }
+
+    if (setDropDownValue) {
+      setDropDownValue('');
+      setShow(false);
     }
   };
 
@@ -112,7 +127,7 @@ function ReportModal({
         slectedDropdownValue === 'BlockUserSuccess' && (
           <Modal.Body className="d-flex flex-column align-items-center text-center pt-0">
             <p className="px-3">You have successfully blocked this user.</p>
-            <RoundButton className="mb-3 w-100 fs-3" onClick={afterBlockUser}>Ok</RoundButton>
+            <RoundButton className="mb-3 w-100 fs-3" onClick={() => onOkClick()}>Ok</RoundButton>
           </Modal.Body>
         )
       }
@@ -133,7 +148,8 @@ ReportModal.defaultProps = {
   handleReport: undefined,
   removeComment: undefined,
   rssfeedProviderId: undefined,
-  afterBlockUser: () => { },
+  afterBlockUser: undefined,
+  setDropDownValue: undefined,
 };
 
 export default ReportModal;

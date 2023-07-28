@@ -31,30 +31,18 @@ export class FeedLikesService {
   ) { }
 
   async createFeedPostLike(feedPostId: string, userId: string): Promise<void> {
-    const feedPostDetails = await this.feedPostsService.findById(feedPostId, false);
-    if (!feedPostDetails) {
-      throw new NotFoundError('Post not found.');
-    }
     const transactionSession = await this.connection.startSession();
     transactionSession.startTransaction();
-    await this.feedPostsService.addLike(feedPostId, userId);
-    await this.feedLikesModel.create({ feedPostId, userId });
+    await Promise.all([this.feedPostsService.addLike(feedPostId, userId),
+    this.feedLikesModel.create({ feedPostId, userId })]);
     transactionSession.endSession();
   }
 
   async findFeedPostLike(feedPostId: string, userId: string): Promise<FeedPostLikeDocument> {
-    const feedPostDetails = await this.feedPostsService.findById(feedPostId, false);
-    if (!feedPostDetails) {
-      throw new NotFoundError('Post not found');
-    }
     return this.feedLikesModel.findOne({ feedPostId, userId });
   }
 
   async deleteFeedPostLike(feedPostId: string, userId: string): Promise<void> {
-    const feedPostDetails = await this.feedPostsService.findById(feedPostId, false);
-    if (!feedPostDetails) {
-      throw new NotFoundError('Post not found.');
-    }
     const transactionSession = await this.connection.startSession();
     transactionSession.startTransaction();
     await this.feedPostsService.removeLike(feedPostId, userId);

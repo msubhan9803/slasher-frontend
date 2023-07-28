@@ -41,4 +41,10 @@ export class FeedPostLike extends FeedPostLikeUnusedFields {
 
 export const FeedPostLikeSchema = SchemaFactory.createForClass(FeedPostLike);
 
+FeedPostLikeSchema.index(
+  {
+    feedPostId: 1, userId: 1,
+  },
+);
+
 export type FeedPostLikeDocument = HydratedDocument<FeedPostLike>;

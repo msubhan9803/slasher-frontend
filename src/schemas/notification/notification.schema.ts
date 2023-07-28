@@ -84,6 +84,11 @@ NotificationSchema.index(
     createdAt: 1,
   },
 );
+NotificationSchema.index(
+  {
+    _id: 1, senderId: 1 ,feedPostId:1,rssFeedProviderId:1
+  },
+);
 
 export type NotificationDocument = HydratedDocument<Notification>;
 

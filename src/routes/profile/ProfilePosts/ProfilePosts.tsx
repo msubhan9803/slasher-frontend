@@ -308,6 +308,7 @@ function ProfilePosts({ user }: Props) {
     };
     reportData(reportPayload).then((res) => {
       if (res.status === 200) { callLatestFeedPost(); }
+      setShowReportModal(false);
     })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));

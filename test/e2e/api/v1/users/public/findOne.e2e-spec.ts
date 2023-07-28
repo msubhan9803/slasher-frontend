@@ -65,6 +65,9 @@ describe('GET /users/:id (e2e)', () => {
           coverPhoto: null,
           aboutMe: 'Hello. This is me.',
           profile_status: ProfileVisibility.Public,
+          friendsCount: 0,
+          imagesCount: 0,
+          postsCount: 0,
         });
       });
 
@@ -95,6 +98,9 @@ describe('GET /users/:id (e2e)', () => {
           coverPhoto: null,
           aboutMe: 'Hello. This is me.',
           profile_status: ProfileVisibility.Public,
+          friendsCount: 0,
+          imagesCount: 0,
+          postsCount: 0,
         });
       });
 
@@ -123,6 +129,9 @@ describe('GET /users/:id (e2e)', () => {
           coverPhoto: null,
           aboutMe: null,
           profile_status: ProfileVisibility.Private,
+          friendsCount: 0,
+          imagesCount: 0,
+          postsCount: 0,
         });
       });
     });

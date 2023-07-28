@@ -38,6 +38,11 @@ const config: CapacitorConfig = {
       resize: KeyboardResize.Native, // iOS only
       resizeOnFullScreen: true, // Android only
     },
+    SplashScreen: {
+      "launchShowDuration": 1000,
+      "launchAutoHide": true,
+      "launchFadeOutDuration": 1000,
+    }
   },
 };
 

@@ -28,7 +28,7 @@ function BooksIhaveRead() {
                 title={book.title}
                 year={book.year}
                 numericRating={book.rating}
-                thumbRating={book.thumbRating as 'up' | 'down'}
+                // thumbRating={book.thumbRating as 'up' | 'down'}
               />
             </Col>
           ))}

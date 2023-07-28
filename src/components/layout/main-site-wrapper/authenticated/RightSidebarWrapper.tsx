@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { getGlobalCssProperty, setGlobalCssProperty } from '../../../../utils/styles-utils ';
 
 interface Props {
   children: React.ReactNode;
@@ -8,7 +9,7 @@ interface Props {
 const StyledRightSidebarWrapper = styled.div`
   width: calc(320px + 0.5rem);
   height: calc(100vh - 93.75px);
-  padding: 2px 1rem 75px .25rem;
+  padding: 2px calc(1rem + var(--scroll-bar-width)) 75px .25rem;
   position: sticky;
   top: 93.75px;
   overflow-y: overlay;
@@ -18,6 +19,11 @@ const StyledRightSidebarWrapper = styled.div`
   -ms-overflow-style { display: none; }
   scrollbar-width { display: none; }
   &:hover {
+    padding-right: calc(1rem + var(--reset-padding-when-no-scroll-bar, 0px));
+    // In above we remove (--scroll-bar-width) to account for the width of scrollbar sidebar is hovered.
+    // Also, we add "--reset-padding-when-no-scroll-bar" so that when height is not enought and scrollbar
+    // is not shown when hovered we must not change the padding, and we do that by setting same value for
+    // "--reset-padding-when-no-scroll-bar" as that of "--scroll-bar-width".
     ::-webkit-scrollbar { display: block; }
     -ms-overflow-style { display: block; }
     scrollbar-width { display: block; }
@@ -25,9 +31,26 @@ const StyledRightSidebarWrapper = styled.div`
 `;
 
 function RightSidebarWrapper({ children }: Props) {
+  const rightSidebarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!rightSidebarRef.current) { return undefined; }
+
+    const intervalTimer = setInterval(() => {
+      const rightSidebarElement = rightSidebarRef.current!;
+      const hasScrollBar = rightSidebarElement?.scrollHeight > rightSidebarElement?.clientHeight;
+      if (!hasScrollBar) {
+        const scrollBarWidth = getGlobalCssProperty('--scroll-bar-width');
+        setGlobalCssProperty('--reset-padding-when-no-scroll-bar', scrollBarWidth);
+      }
+    }, 500);
+
+    return () => clearTimeout(intervalTimer);
+  }, []);
   return (
     <StyledRightSidebarWrapper
       className="d-none d-lg-block"
+      ref={rightSidebarRef}
     >
       {children}
     </StyledRightSidebarWrapper>

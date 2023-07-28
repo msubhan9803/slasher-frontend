@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
 import { createPost } from '../../../api/feed-posts';
-import { useAppSelector } from '../../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
@@ -17,6 +17,7 @@ import { ContentDescription, FormatMentionProps, PostType } from '../../../types
 import useProgressButton from '../../../components/ui/ProgressButton';
 import { sleep } from '../../../utils/timer-utils';
 import { atMentionsGlobalRegex, generateMentionReplacementMatchFunc } from '../../../utils/text-utils';
+import { setProfilePageUserDetailsReload } from '../../../redux/slices/userSlice';
 
 export interface MentionProps {
   id: string;
@@ -44,6 +45,7 @@ function CreatePost() {
   const [selectedPostType, setSelectedPostType] = useState<string>('');
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const paramsMovieId = searchParams.get('movieId');
+  const dispatch = useAppDispatch();
 
   const addPost = async () => {
     /* eslint no-useless-escape: 0 */
@@ -74,6 +76,11 @@ function CreatePost() {
         await sleep(1000);
         setErrorMessage([]);
         navigate(location.state);
+        // Delay fetching of `profilePageUserDetails` by 1.5 seconds as the component takes
+        // to mount itself.
+        setTimeout(() => {
+          dispatch(setProfilePageUserDetailsReload(true));
+        }, 1_500);
       })
       .catch((error) => {
         setProgressButtonStatus('failure');
@@ -132,6 +139,7 @@ function CreatePost() {
             selectedPostType={selectedPostType}
             setSelectedPostType={setSelectedPostType}
             placeHolder="Create a post"
+            MaxImageUserInfo="Up to 10"
             descriptionArray={descriptionArray}
             setDescriptionArray={setDescriptionArray}
             ProgressButton={ProgressButton}

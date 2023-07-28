@@ -33,7 +33,8 @@ import {
 } from '../../../../utils/text-utils';
 import { MentionListProps } from '../../MessageTextarea';
 import {
-  LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT, XL_MEDIA_BREAKPOINT, XXL_MEDIA_BREAKPOINT,
+  LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT,
+  XL_MEDIA_BREAKPOINT, XXL_MEDIA_BREAKPOINT,
 } from '../../../../constants';
 import RoundButton from '../../RoundButton';
 import CustomRatingText from '../../CustomRatingText';
@@ -44,7 +45,7 @@ import { defaultLinkifyOpts } from '../../../../utils/linkify-utils';
 import { getLocalStorage } from '../../../../utils/localstorage-utils';
 import FormatImageVideoList from '../../../../utils/video-utils';
 import useOnScreen from '../../../../hooks/useOnScreen';
-import { isHomePage, isNewsPartnerPage, isPostDetailsPage } from '../../../../utils/url-utils';
+import { isHomePage, isNewsPartnerPageSubRoutes, isPostDetailsPage } from '../../../../utils/url-utils';
 import ScrollToTop from '../../../ScrollToTop';
 import { postMovieDataToMovieDBformat, showMoviePoster } from '../../../../routes/movies/movie-utils';
 import { useAppSelector } from '../../../../redux/hooks';
@@ -80,7 +81,7 @@ interface Props {
   addUpdateComment?: (addUpdateComment: CommentValue) => void;
   updateState?: boolean;
   setUpdateState?: (value: boolean) => void;
-  onSelect?: (value: string) => void;
+  onSelect?: () => void;
   postType?: string,
   handleSearch?: (val: string, prefix: string) => void;
   mentionList?: MentionListProps[];
@@ -345,6 +346,8 @@ function PostFeed({
   const [modalResourceId, setModalResourceId] = useState('');
   const [modalLikeCount, setModalLikeCount] = useState(0);
   const { pathname } = useLocation();
+  const parentSection = useRef<HTMLDivElement>(null);
+
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
       return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
@@ -388,7 +391,7 @@ function PostFeed({
     } else {
       navigate(`/${post.userName}/posts/${post.id}`, { state });
     }
-    onSelect!(post.id);
+    onSelect?.();
   };
 
   const showPopoverOption = (postDetail: any) => {
@@ -419,7 +422,7 @@ function PostFeed({
   if (isHomePage(location.pathname)) {
     pubWiseAdDivId = HOME_WEB_DIV_ID;
   }
-  if (isNewsPartnerPage(location.pathname)) {
+  if (isNewsPartnerPageSubRoutes(location.pathname)) {
     pubWiseAdDivId = NEWS_PARTNER_POSTS_DIV_ID;
   }
 
@@ -502,12 +505,13 @@ function PostFeed({
                 />
                 {(post?.images?.length > 0 || findFirstYouTubeLinkVideoId(post?.message) || showMoviePoster(post.movieId, postType)) && (
                   <CustomSwiper
-                    context="post"
+                    context={post?.movieId ? 'shareMoviePost' : 'post'}
                     images={
                       swiperDataForPost(post)
                     }
                     initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
                     onSelect={onSelect}
+                    isSinglePost={isSinglePost}
                   />
                 )}
                 <Row>
@@ -543,7 +547,7 @@ function PostFeed({
             {
               isCommentSection
               && (
-                <div>
+                <div ref={parentSection}>
                   {/* <StyledBorder className="d-md-block d-none mb-4" /> */}
                   <InfiniteScroll
                     threshold={1000}
@@ -553,6 +557,10 @@ function PostFeed({
                       if (setRequestAdditionalPosts) { setRequestAdditionalPosts(true); }
                     }}
                     hasMore={!noMoreData}
+                    /* Using a custom parentNode element to base the scroll calulations on. */
+                    useWindow={false}
+                    getScrollParent={() => parentSection.current}
+
                   >
                     <PostCommentSection
                       postCreator={postData[0].userId}

@@ -12,8 +12,9 @@ export const RETRY_CONNECTION_BUTTON_ID = 'retry-connection-button';
 export const COMMENT_OR_REPLY_INPUT = 'comment-or-reply-input';
 export const COMMENT_SECTION_ID = 'comment-section-id';
 export const MOBILE_NAVBAR = 'mobile-navbar';
-export const CONTENT_PAGE_WRAPPER_ID = 'content-page-wrapper';
 export const AUTHENTICATED_PAGE_WRAPPER_ID = 'authenticated-page-wrapper';
+export const SEND_BUTTON_COMMENT_OR_REPLY = 'send-comment-or-reply-button';
+export const CHOOSE_FILE_CAMERA_ICON = 'choose-file-icon';
 
 export const BREAK_POINTS = {
   // NOTE: Break points below must be in ascending numeric order.
@@ -51,7 +52,7 @@ export const topStatuBarBackgroundColorAndroidOnly = '000000';
 
 // Note: This must be numeric value because we use this
 // compare against return value of `useResize` hook
-export const maxWidthForCommentOrReplyInputOnMobile: number = BREAK_POINTS.lg;
+export const maxWidthForCommentOrReplyInputOnMobile: number = BREAK_POINTS.lg - 1;
 export const bottomForCommentOrReplyInputOnMobile = '77px';
 
 export const isDevelopmentServer = process.env.NODE_ENV === 'development';

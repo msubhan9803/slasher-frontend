@@ -60,13 +60,14 @@ function SignIn() {
 
   useEffect(() => {
     if (!token.isLoading && token.value) {
-      navigate('/app/home');
+      navigate('/app/home', { replace: true });
     }
   }, [navigate, token]);
 
   const [errorMessage, setErrorMessage] = useState<string[]>();
 
   if (token.isLoading) { return null; }
+  if (!token.isLoading && token.value) { return null; }
 
   const handleUserSignIn = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();

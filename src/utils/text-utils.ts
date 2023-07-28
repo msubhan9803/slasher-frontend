@@ -3,6 +3,9 @@ import { FormatMentionProps } from '../types';
 // Finds the first YouTube link in a post and returns the YouTube ID in the 6-index capture group
 const YOUTUBE_LINK_REGEX = /((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\\-]+\?v=|embed\/|v\/)?)([\w\\-]+)(\S+)?/;
 
+/* eslint-disable no-useless-escape */
+const EMOJI_REGEX = /((\ud83c[\udde6-\uddff]){2}|([\#\*0-9]\u20e3)|(\u00a9|\u00ae|[\u2000-\u3300]|[\ud83c-\ud83e][\ud000-\udfff])((\ud83c[\udffb-\udfff])?(\ud83e[\uddb0-\uddb3])?(\ufe0f?\u200d([\u2000-\u3300]|[\ud83c-\ud83e][\ud000-\udfff])\ufe0f?)?)*)/g;
+
 export function findFirstYouTubeLinkVideoId(message: string) {
   return message?.match(YOUTUBE_LINK_REGEX)?.[6];
 }
@@ -15,12 +18,11 @@ export function escapeHtmlSpecialCharacters(
   const hashtagRegex = /(^|\s)(#[\w-]+)/g;
   const mentionRegex = /@(\w+(?:-\w+)*)/g;
 
-  let result = str
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
+  let result = str?.replaceAll('&', '&amp;')
+    ?.replaceAll('<', '&lt;')
+    ?.replaceAll('>', '&gt;')
+    ?.replaceAll('"', '&quot;')
+    ?.replaceAll("'", '&#039;');
 
   if (selectedHashtag) {
     result = result.replace(hashtagRegex, (match, p1, p2) => (p2 === selectedHashtag
@@ -43,7 +45,7 @@ export function escapeHtmlSpecialCharacters(
  * @returns
  */
 export function newLineToBr(str: string) {
-  return str.replaceAll('\n', '<br />');
+  return str?.replaceAll('\n', '<br />');
 }
 
 /**
@@ -96,8 +98,9 @@ export function cleanExternalHtmlContent(htmlString: string) {
   return containerElement.innerHTML;
 }
 
-export function decryptMessage(message: any) {
-  const found = message ? message.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '') : '';
+export function decryptMessage(message: any, isReplaced?: Boolean) {
+  const replacedContent = isReplaced ? message : message.replace(EMOJI_REGEX, '<span style="font-size: 1.375rem;">$1</span>');
+  const found = message ? replacedContent.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '') : '';
   return found;
 }
 

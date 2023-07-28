@@ -1,37 +1,57 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Row, Col } from 'react-bootstrap';
+import { DateTime } from 'luxon';
 import ExperienceListItem from './ExperienceListItem';
 import SidebarHeaderWithLink from './SidebarHeaderWithLink';
+import { User } from '../../../../types';
+import { getUserMoviesList } from '../../../../api/users';
+import LoadingIndicator from '../../../ui/LoadingIndicator';
 
-const watchListItems = [
-  {
-    image: 'https://i.pravatar.cc/300?img=56', title: 'Dreamcatcher: Get ready for a killer night out', year: 2022, rating: 3.0, thumbRating: 'up',
-  },
-  {
-    image: 'https://i.pravatar.cc/300?img=57', title: 'Short title', year: 2021, rating: 2.1, thumbRating: 'down',
-  },
-  {
-    image: 'https://i.pravatar.cc/300?img=58', title: 'Medium length title', year: 1980, rating: 4.9, thumbRating: 'up',
-  },
-];
+type WatchedListProps = { user: User };
 
-function WatchedList() {
+interface WatchedMovieList {
+  _id: string,
+  releaseDate: string,
+  rating: number,
+  worthWatching: number,
+  name: string,
+  logo: string
+}
+
+function WatchedList({ user }: WatchedListProps) {
+  const [watchListItems, setWatchListItems] = useState<WatchedMovieList[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (!user._id) { return; }
+
+    getUserMoviesList('watched-list', '', user._id, 'name', '')
+      .then((result: any) => {
+        setWatchListItems(result.data.slice(0, 3));
+        setLoading(false);
+      });
+  }, [user]);
+  if (!user._id) { return null; }
+
   return (
     <div>
-      <SidebarHeaderWithLink headerLabel="Watched list" linkLabel="See All" linkTo="/" />
+      <SidebarHeaderWithLink headerLabel="Watched list" linkLabel="See All" linkTo={`/${user && user.userName}/watched-list`} />
       <div className="p-3 bg-dark rounded-3">
         <Row>
-          {watchListItems.map((watchListItem) => (
-            <Col xs="4" key={watchListItem.title}>
-              <ExperienceListItem
-                image={watchListItem.image}
-                title={watchListItem.title}
-                year={watchListItem.year}
-                numericRating={watchListItem.rating}
-                thumbRating={watchListItem.thumbRating as 'up' | 'down'}
-              />
-            </Col>
-          ))}
+          {!loading && watchListItems.length === 0 && <div>No movies yet.</div>}
+          {loading ? <LoadingIndicator />
+            : watchListItems.map((watchListItem) => (
+              <Col xs="4" key={watchListItem.name}>
+                <ExperienceListItem
+                  image={watchListItem.logo}
+                  title={watchListItem.name}
+                  year={+DateTime.fromISO(watchListItem.releaseDate).toFormat('yyyy')}
+                  numericRating={watchListItem.rating}
+                  thumbRating={watchListItem.worthWatching}
+                  id={watchListItem._id}
+                />
+              </Col>
+            ))}
         </Row>
       </div>
     </div>

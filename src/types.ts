@@ -3,6 +3,7 @@
 // that are shared across multiple places in the app.
 
 import { LatLngLiteral } from 'leaflet';
+import { Location } from 'react-router-dom';
 import { BREAK_POINTS } from './constants';
 
 export type BreakPointName = keyof typeof BREAK_POINTS;
@@ -34,6 +35,7 @@ export interface Post {
   hashTag?: string[];
   userId?: string;
   postType: number;
+  rssfeedProviderId?: string;
 }
 
 export interface User {
@@ -47,6 +49,9 @@ export interface User {
   profile_status: number;
   friendshipStatus: FriendshipStatus;
   unverifiedNewEmail: string;
+  imagesCount: number,
+  postsCount: number,
+  friendsCount: number,
 }
 
 export interface NewsPartnerPostProps {
@@ -345,15 +350,24 @@ export interface FriendshipStatus {
   to: string;
 }
 
-// Cache for NewsPartner and NewsPartnerPosts cache (page = http://local.slasher.tv:3000/app/news/partner/:id)
+// Cache type for NewsPartner and NewsPartnerPosts cache (page = http://local.slasher.tv:3000/app/news/partner/:id)
 export type NewsPartnerAndPostsCache = { newsPartner: any, newsPosts: any };
 
-// Cache for Movie related data (page = http://localhost:3000/app/movies/64477b42b12f5efbb3468ff4/reviews)
+// Cache type for Movie related data (page = http://localhost:3000/app/movies/64477b42b12f5efbb3468ff4/reviews)
 export type MoviePageCache = {
   movieData: MovieData,
   additionalMovieData: AdditionalMovieData,
   reviews: any
 };
+
+// Cache type for profile subroutes (i.e, About, Posts, Friends, Photos, Watched list)
+export type ProfileSubroutesCache = {
+  user?: any,
+  allFriends: { page: number, data: any[], searchValue: string }
+  friendRequests: { page: number, data: any[] }
+  profilePosts: Post[],
+};
+
 export interface ConversationListItem {
   unreadCount: number;
   latestMessage: string;
@@ -383,3 +397,5 @@ export type FriendType = {
   to: string,
   reaction: FriendRequestReaction
 } | null;
+
+export type LocationOrPathname = Location | string;

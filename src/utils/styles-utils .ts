@@ -5,6 +5,12 @@ export function setGlobalCssProperty(name: string, value: any) {
   document.documentElement.style.setProperty(name, value);
 }
 
+export function getGlobalCssProperty(name: string) {
+  if (!name.startsWith('--')) { throw new Error('A CSS variable must start be prefixed with --'); }
+  const style = getComputedStyle(document.body);
+  return style.getPropertyValue('--scroll-bar-width');
+}
+
 export function removeGlobalCssProperty(name: string) {
   document.documentElement.style.removeProperty(name);
 }
@@ -22,7 +28,7 @@ export const onKeyboardOpen = () => {
 export const onKeyboardClose = () => {
   const mobileNavBarElement = document.querySelector<HTMLElement>(`#${MOBILE_NAVBAR}`);
   if (mobileNavBarElement) {
-    // Show mobile-navbar when keyboard is shown
+    // Show mobile-navbar when keyboard is closed
     mobileNavBarElement.style.display = 'flex';
     // Set botom position for the comment or rely input on post-details page when keyboard is opened
     setGlobalCssProperty('--bottomForCommentOrReplyInputOnMobile', bottomForCommentOrReplyInputOnMobile);

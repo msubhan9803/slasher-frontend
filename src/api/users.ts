@@ -2,6 +2,7 @@
 import axios from 'axios';
 import { Capacitor } from '@capacitor/core';
 import { Device } from '@capacitor/device';
+import { App } from '@capacitor/app';
 import { apiUrl } from '../constants';
 import { DeviceFields, RegisterUser } from '../types';
 import { getDeviceToken, getSessionToken, getSessionUserId } from '../utils/session-utils';
@@ -15,7 +16,7 @@ export async function signIn(emailOrUsername: string, password: string, signal?:
       device_id: deviceId.identifier,
       device_token: (await getDeviceToken())!,
       device_type: deviceInfo.platform,
-      app_version: `${deviceInfo.platform}-capacitor-${process.env.REACT_APP_VERSION}`,
+      app_version: `${deviceInfo.platform}-capacitor-${(await App.getInfo()).version}(${(await App.getInfo()).build})`,
       device_version: `${deviceInfo.manufacturer} ${deviceInfo.model} ${deviceInfo.operatingSystem} ${deviceInfo.osVersion}, Name: ${deviceInfo.name}`,
     };
   } else {
@@ -263,7 +264,7 @@ export async function getUsersFriends(userId: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.get(`${apiUrl}/api/v1/users/${userId}/friends?limit=6`, { headers });
+  return axios.get(`${apiUrl}/api/v1/users/${userId}/friends?limit=3`, { headers });
 }
 
 export async function changePassword(

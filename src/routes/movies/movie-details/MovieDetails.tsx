@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect, useLayoutEffect, useState,
+} from 'react';
 import { Container } from 'react-bootstrap';
 import { useLocation, useParams } from 'react-router-dom';
 import PlayMovie from './PlayMovie';
@@ -46,6 +48,13 @@ function MovieDetails() {
         });
     }
   }, [additionalMovieData, location, movieData]);
+
+  useLayoutEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'instant' as any,
+    });
+  }, []);
 
   if (!movieData || !additionalMovieData) {
     return <LoadingIndicator />;

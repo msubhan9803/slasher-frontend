@@ -2,6 +2,8 @@ import React from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
+import { WorthWatchingStatus } from '../../../../types';
 
 const StarLabel = styled.span`
   font-size: .6rem;
@@ -26,6 +28,12 @@ const YearAndThumbRating = styled.div`
 
 const MovieTitle = styled.div`
   font-size: 0.75rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; 
+  -webkit-box-orient: vertical;
 `;
 
 interface Props {
@@ -33,15 +41,16 @@ interface Props {
   image: string;
   title: string;
   year?: number;
-  thumbRating?: 'up' | 'down' | null;
+  thumbRating?: number;
   numericRating?: number;
+  id?:string;
 }
 
 function WatchListItem({
-  className, image, title, year, numericRating, thumbRating,
+  className, image, title, year, numericRating, thumbRating, id,
 }: Props) {
-  const renderThumbIcon = (rating: 'up' | 'down') => (
-    rating === 'up'
+  const renderThumbIcon = (rating: number) => (
+    rating === WorthWatchingStatus.Up
       ? <FontAwesomeIcon icon={regular('thumbs-up')} className="text-success rounded-circle" size="xs" />
       : <FontAwesomeIcon icon={regular('thumbs-down')} className="text-primary rounded-circle" size="xs" />
   );
@@ -49,32 +58,36 @@ function WatchListItem({
   const hasYearOrThumbRating = year || thumbRating;
 
   return (
-    <div className={`${className}`}>
-      <div className="position-relative">
-        <img alt={`Poster for ${title}`} src={image} className="img-fluid rounded-3" />
+    <Link
+      to={`/app/movies/${id}`}
+    >
+      <div className={`${className}`}>
+        <div className="position-relative">
+          <img alt={`Poster for ${title}`} src={image} className="img-fluid rounded-3" />
+          {
+            numericRating
+            && (
+              <StarLabel className="position-absolute badge rounded-pill text-black bg-white">
+                <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" size="xs" />
+                {numericRating}
+              </StarLabel>
+            )
+          }
+        </div>
         {
-          numericRating
+          (hasYearOrThumbRating)
           && (
-            <StarLabel className="position-absolute badge rounded-pill text-black bg-white">
-              <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" size="xs" />
-              {numericRating}
-            </StarLabel>
+            <YearAndThumbRating className="d-flex justify-content-between align-items-center pt-1">
+              {year && <span className="text-light">{year}</span>}
+              {thumbRating !== 0 && renderThumbIcon(thumbRating!)}
+            </YearAndThumbRating>
           )
         }
+        <MovieTitle className={hasYearOrThumbRating ? '' : 'mt-2'}>
+          {title}
+        </MovieTitle>
       </div>
-      {
-        (hasYearOrThumbRating)
-        && (
-          <YearAndThumbRating className="d-flex justify-content-between align-items-center pt-1">
-            {year && <span className="text-light">{year}</span>}
-            {thumbRating && renderThumbIcon(thumbRating!)}
-          </YearAndThumbRating>
-        )
-      }
-      <MovieTitle className={hasYearOrThumbRating ? '' : 'mt-2'}>
-        {title}
-      </MovieTitle>
-    </div>
+    </Link>
   );
 }
 
@@ -83,6 +96,7 @@ WatchListItem.defaultProps = {
   year: null,
   numericRating: null,
   thumbRating: null,
+  id: undefined,
 };
 
 export default WatchListItem;

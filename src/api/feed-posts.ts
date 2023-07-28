@@ -105,7 +105,7 @@ export async function updateFeedPost(
   if (movieReviewPostData?.goreFactorRate) {
     formData.append('moviePostFields[goreFactorRating]', movieReviewPostData.goreFactorRate);
   }
-  if (typeof movieReviewPostData.worthIt === 'number') {
+  if (typeof movieReviewPostData?.worthIt === 'number') {
     formData.append('moviePostFields[worthWatching]', movieReviewPostData.worthIt);
   }
   const headers = {

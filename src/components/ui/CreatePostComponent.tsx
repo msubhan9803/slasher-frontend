@@ -8,7 +8,9 @@ import {
   Row, Col, Button, Form, Image,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import { useLocation, useParams, useSearchParams } from 'react-router-dom';
+import {
+  useLocation, useParams, useSearchParams,
+} from 'react-router-dom';
 import { DateTime } from 'luxon';
 import { getSuggestUserName } from '../../api/users';
 import ErrorMessageList from './ErrorMessageList';
@@ -25,7 +27,7 @@ import {
 } from '../../types';
 import { getMoviesById, getMoviesDataById } from '../../api/movies';
 import { StyledMoviePoster } from '../../routes/movies/movie-details/StyledUtils';
-import { LG_MEDIA_BREAKPOINT, topToDivHeight } from '../../constants';
+import { LG_MEDIA_BREAKPOINT, isNativePlatform, topToDivHeight } from '../../constants';
 import { ProgressButtonComponentType } from './ProgressButton';
 import { getSuggestHashtag } from '../../api/searchHashtag';
 
@@ -72,13 +74,14 @@ interface Props {
   setDisLike?: (val: boolean) => void;
   isWorthIt?: number;
   placeHolder?: string;
+  MaxImageUserInfo?: string;
   descriptionArray?: ContentDescription[];
   setDescriptionArray?: (value: ContentDescription[]) => void;
   showSaveButton?: boolean;
-  reviewForm?: boolean;
   setReviewForm?: (value: boolean) => void;
   setShowReviewForm?: (value: boolean) => void;
   handleScroll?: () => void;
+  showReviewForm?: boolean;
   createEditPost?: boolean;
 }
 
@@ -98,9 +101,10 @@ function CreatePostComponent({
   imageArray, setImageArray, defaultValue, formatMention, setFormatMention,
   deleteImageIds, setDeleteImageIds, postType, titleContent, setTitleContent,
   containSpoiler, setContainSpoiler, rating, setRating, goreFactor, setGoreFactor,
-  selectedPostType, setSelectedPostType, setWorthIt, liked, setLike, reviewForm, setReviewForm,
+  selectedPostType, setSelectedPostType, setWorthIt, liked, setLike, setReviewForm,
   disLiked, setDisLike, isWorthIt, placeHolder, descriptionArray, setDescriptionArray,
-  showSaveButton, setShowReviewForm, handleScroll, createEditPost, ProgressButton,
+  showSaveButton, setShowReviewForm, handleScroll, showReviewForm, createEditPost, ProgressButton,
+  MaxImageUserInfo,
 }: Props) {
   const inputFile = useRef<HTMLInputElement>(null);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
@@ -134,6 +138,7 @@ function CreatePostComponent({
     const removePostImage = imageArray.filter((image: File) => image !== postImage);
     setDeleteImageIds([...deleteImageIds, postImage._id].filter(Boolean));
     setImageArray(removePostImage);
+    setUploadPost(removePostImage);
 
     const descriptionArrayList = descriptionArray;
     descriptionArrayList!.splice(index!, 1);
@@ -223,7 +228,7 @@ function CreatePostComponent({
 
   useEffect(() => {
     setTimeout(() => {
-      if (reviewForm || params['*'] === 'reviews' || (location.state && location.state.movieId && location.state.movieId.length)) {
+      if (showReviewForm) {
         if (movieReviewRef.current) {
           window.scrollTo({
             top: movieReviewRef.current.offsetTop - (
@@ -237,7 +242,7 @@ function CreatePostComponent({
         setReviewForm!(false);
       }
     }, 500);
-  }, [reviewForm, params, location, setReviewForm]);
+  }, [showReviewForm, params, location, setReviewForm]);
 
   return (
 
@@ -361,6 +366,7 @@ function CreatePostComponent({
       )}
       <div className="mt-3 position-relative">
         <MessageTextarea
+          showEmojiButton={!isNativePlatform}
           rows={10}
           placeholder={placeHolder}
           handleSearch={handleSearch}
@@ -458,10 +464,17 @@ function CreatePostComponent({
         {postType !== 'review'
           && (
             <Col md="auto" className="mb-3 mb-md-0 order-0 order-md-1 me-auto">
-              <AddPhotosButton size="md" disabled={uploadPost && uploadPost.length >= 10} className="mt-4 border-0 btn btn-form w-100 rounded-5" onClick={() => inputFile.current?.click()}>
-                <FontAwesomeIcon icon={regular('image')} className="me-2" />
-                <span className="h3">Add photos</span>
-              </AddPhotosButton>
+              { /** Hide `photo-uploads`  for `share-movie-as-post` feature */}
+              { !movieId
+              && (
+              <>
+                <AddPhotosButton size="md" disabled={uploadPost && uploadPost.length >= 10} className="mt-4 border-0 btn btn-form w-100 rounded-5" onClick={() => inputFile.current?.click()}>
+                  <FontAwesomeIcon icon={regular('image')} className="me-2" />
+                  <span className="h3">Add photos</span>
+                </AddPhotosButton>
+                {MaxImageUserInfo && <p className="text-center text-muted fs-5">{MaxImageUserInfo}</p>}
+              </>
+              )}
             </Col>
           )}
         <Col md="auto" className={postType === 'review' ? '' : 'order-2 ms-auto'}>
@@ -498,13 +511,14 @@ CreatePostComponent.defaultProps = {
   setDisLike: () => { },
   isWorthIt: 0,
   placeHolder: 'Write a something...',
+  MaxImageUserInfo: undefined,
   descriptionArray: [],
   setDescriptionArray: undefined,
   showSaveButton: false,
-  reviewForm: false,
   setReviewForm: undefined,
   setShowReviewForm: false,
   handleScroll: undefined,
+  showReviewForm: false,
   createEditPost: undefined,
 };
 export default CreatePostComponent;

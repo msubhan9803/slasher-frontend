@@ -269,7 +269,7 @@ function ProfileEdit({ user }: Props) {
                 />
                 <Form.Text className="text-muted fs-4">
                   This is how people will see you post and comment on Slasher.
-                  You can edit your username after July 31, 2023.
+                  You can edit your username after August 31, 2023.
                 </Form.Text>
               </Form.Group>
             </Col>

@@ -9,6 +9,8 @@ import { Device } from '@capacitor/device';
 import { getDeviceToken, getSessionToken, setDeviceToken } from '../utils/session-utils';
 import { updateUserDeviceToken } from '../api/users';
 import { urlForNotification } from '../utils/notification-url-utils';
+import { markRead } from '../api/notification';
+import { Notification, NotificationType } from '../types';
 
 function PushNotificationAndDeepLinkListener() {
   const navigate = useNavigate();
@@ -33,12 +35,14 @@ function PushNotificationAndDeepLinkListener() {
       PushNotifications.addListener('registration', async (token: Token) => {
         // Send the token to your server for further processing, if needed
         const deviceToken = token.value;
-        if (await getSessionToken() && await getDeviceToken()
-          && deviceToken !== await getDeviceToken()) {
+        const fetchedDeviceToken = await getDeviceToken();
+        const fetchedSessionToken = await getSessionToken();
+        if (!fetchedDeviceToken
+          || (fetchedSessionToken && fetchedDeviceToken && deviceToken !== fetchedDeviceToken)) {
           const deviceId = await Device.getId();
           updateUserDeviceToken(deviceId.identifier, deviceToken);
+          await setDeviceToken(deviceToken);
         }
-        await setDeviceToken(deviceToken);
       });
 
       // PushNotifications.addListener('pushNotificationReceived',
@@ -52,8 +56,14 @@ function PushNotificationAndDeepLinkListener() {
         'pushNotificationActionPerformed',
         async (notification: ActionPerformed) => {
           const { data } = notification.notification.data;
-          const notificationData = JSON.parse(data);
-          window.location.href = urlForNotification(notificationData);
+          const notificationData = JSON.parse(data) as Notification;
+          // eslint-disable-next-line max-len
+          const isMessageNotification = notificationData.notifyType === NotificationType.FriendMessageNotification;
+          if (!isMessageNotification) {
+            await markRead(notificationData._id);
+          }
+          const url = urlForNotification(notificationData);
+          window.location.href = url;
           // navigate(urlForNotification(notificationData));
         },
       );

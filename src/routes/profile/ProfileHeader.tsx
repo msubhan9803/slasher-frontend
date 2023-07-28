@@ -19,12 +19,15 @@ import { createBlockUser } from '../../api/blocks';
 import { reportData } from '../../api/report';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { StyledBorder } from '../../components/ui/StyledBorder';
-import { enableDevFeatures, BREAK_POINTS, topToDivHeight } from '../../constants';
+import { BREAK_POINTS, topToDivHeight } from '../../constants';
 import FriendActionButtons from '../../components/ui/Friend/FriendActionButtons';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import SignInModal from '../../components/ui/SignInModal';
 import { getLastNonProfilePathname } from '../../utils/url-utils';
 import useSessionToken from '../../hooks/useSessionToken';
+import { setScrollToTabsPosition } from '../../redux/slices/scrollPositionSlice';
+import { formatNumberWithUnits } from '../../utils/number.utils';
+import ZoomableImageModal from '../../components/ui/ZoomingImageModal';
 
 interface Props {
   tabKey?: string;
@@ -42,7 +45,6 @@ const tabs = [
   { value: 'watched-list', label: 'Watched list' },
   { value: 'following', label: 'Following', user: 'self' },
 ];
-const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => t.label !== 'Watched list');
 const CustomCol = styled(Col)`
   margin-top: -3.938rem;
 `;
@@ -57,10 +59,16 @@ const StyledPopoverContainer = styled.div`
 `;
 // type FriendType = { from: string, to: string, reaction: FriendRequestReaction } | null;
 
+const StyleDot = styled(FontAwesomeIcon)`
+  width: 0.267rem;
+  height: 0.267rem;
+`;
+
 function ProfileHeader({
   tabKey, user, showTabs,
 }: Props) {
   const [showSignIn, setShowSignIn] = useState<boolean>(false);
+  const [showProfileImage, setShowProfileImage] = useState<boolean>(false);
   const [show, setShow] = useState<boolean>(false);
   const [friendshipStatus, setFriendshipStatus] = useState<any>();
   const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
@@ -70,19 +78,18 @@ function ProfileHeader({
   const userId = useAppSelector((state) => state.user.user.id);
   const { userName } = useParams();
   const navigate = useNavigate();
-  const param = useParams();
   const location = useLocation();
   const [clickedUserId, setClickedUserId] = useState<string>('');
   const [friendData, setFriendData] = useState<FriendType>(null);
   const positionRef = useRef<HTMLDivElement>(null);
-  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  const scrollPosition = useAppSelector((state) => state.scrollPosition);
   const dispatch = useAppDispatch();
   const pathnameHistory = useAppSelector((state) => state.user.pathnameHistory);
   const token = useSessionToken();
 
   const isSelfUserProfile = userName === loginUserName;
   const userIsLoggedIn = !token.isLoading && token.value;
-  const customTabs = isSelfUserProfile ? allTabs : allTabs.filter((t) => t.user !== 'self');
+  const customTabs = isSelfUserProfile ? tabs : tabs.filter((t) => t.user !== 'self');
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.userId) {
@@ -113,16 +120,20 @@ function ProfileHeader({
     const isPublicProfile = location?.state?.publicProfile;
     if (isPublicProfile) { return; }
 
+    if (!scrollPosition.scrollToTab) { return; }
+
     // Scroll so that "About-Posts-Friends-Photos-Watched_list" nav-bar sticks to top of the
     // viewport.
     if (!location.pathname.includes('about')) {
       window.scrollTo({
-        top: element.offsetTop - (window.innerWidth >= BREAK_POINTS.lg ? (topToDivHeight - 18) : 0),
+        // eslint-disable-next-line max-len
+        top: element.offsetTop - (window.innerWidth >= BREAK_POINTS.lg ? (topToDivHeight - 18) : 0) + 10,
         behavior: 'instant' as any,
       });
     }
-  }, [positionRef, friendStatus, dispatch, scrollPosition.scrollToTab,
-    param, location, token, userIsLoggedIn]);
+    dispatch(setScrollToTabsPosition(false));
+  }, [positionRef, friendStatus, location, token, userIsLoggedIn, scrollPosition.scrollToTab,
+    dispatch]);
 
   const onBlockYesClick = () => {
     createBlockUser(clickedUserId)
@@ -155,13 +166,20 @@ function ProfileHeader({
   const handleSignInDialog = (e: any) => {
     if (userIsLoggedIn) {
       e.preventDefault();
+      setShowProfileImage(!showProfileImage);
     } else {
       setShowSignIn(!showSignIn);
     }
   };
+  const handleScrollToTab = () => dispatch(setScrollToTabsPosition(true));
+
+  // Fix bug of 1071: Use `visibility` style variable so that `ProfileHeader` details
+  // like profile-name, profile-image are not shown when we switch tabs i.e,.,Posts,
+  // Friends, Photos, etc. (bug was only replicable on capacitor app and not on mobile-web)
+  const visibility = scrollPosition.scrollToTab ? 'hidden' : 'visible';
   return (
     <div className="bg-dark bg-mobile-transparent rounded mb-4">
-      <div className="p-md-4 g-0">
+      <div style={{ visibility }} className="p-md-4 g-0">
         <div>
           <ProfileCoverImage src={user.coverPhoto || defaultCoverImage} alt="Cover picture" className="mt-3 mt-md-0 w-100 rounded" onClick={handleSignInDialog} />
         </div>
@@ -181,16 +199,23 @@ function ProfileHeader({
           </CustomCol>
           <Col className="w-100 mt-md-4">
             <Row className="d-flex justify-content-between">
-              <Col xs={12} md={4} lg={12} xl={4} className="text-center text-md-start text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
+              <Col xs={12} md={4} lg={12} xl={5} className="text-center text-md-start text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
                 <h1 className="mb-md-0 text-nowrap">
                   {user?.firstName}
                 </h1>
-                <p className="fs-5 text-light">
+                <div className="fs-5 text-light">
                   @
                   {user?.userName}
-                </p>
+                </div>
+                <div className="text-nowrap mb-2">
+                  Friends:
+                  <span className="ps-1">{formatNumberWithUnits(user.friendsCount)}</span>
+                  <StyleDot icon={solid('circle')} size="xs" className="my-1 mx-2 text-primary" />
+                  Posts:
+                  <span className="ps-1">{formatNumberWithUnits(user.postsCount)}</span>
+                </div>
               </Col>
-              <Col xs={12} md={8} lg={12} xl={8}>
+              <Col xs={12} md={8} lg={12} xl={7}>
                 {isSelfUserProfile
                   && (
                     <div className="d-flex justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
@@ -233,7 +258,7 @@ function ProfileHeader({
                 tabLink={customTabs}
                 toLink={`/${user?.userName}`}
                 selectedTab={tabKey}
-                overrideOnClick={userIsLoggedIn ? () => { } : handleSignInDialog}
+                overrideOnClick={userIsLoggedIn ? handleScrollToTab : handleSignInDialog}
               />
             </div>
           </>
@@ -250,6 +275,17 @@ function ProfileHeader({
       {
         showSignIn
         && <SignInModal show={showSignIn} setShow={setShowSignIn} isPublicProfile />
+      }
+      {
+        showProfileImage
+        && (
+          <ZoomableImageModal
+            imgSrc={user?.profilePic}
+            imgAlt="user profile pic"
+            show={showProfileImage}
+            onHide={() => setShowProfileImage(false)}
+          />
+        )
       }
     </div>
   );

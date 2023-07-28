@@ -27,6 +27,7 @@ interface AllNotification {
   feed_mention_on_post_comment_reply: number;
   message_board_mention_on_comment_reply: number;
   feed_post_like: number;
+  feed_comment_on_post: number;
 }
 interface RequestBody {
   [key: string]: number
@@ -167,12 +168,12 @@ function AccountNotification() {
             <div className="fs-3  d-flex justify-content-between">
               <span className="fs-4">Like on your post/comment/reply</span>
               <Switch
-                id="message_board_mention_on_comment_reply"
+                id="feed_post_like"
                 className="ms-0 ms-md-3"
-                onSwitchToggle={(e) => handleChange(e, 'message_board_mention_on_comment_reply')}
+                onSwitchToggle={(e) => handleChange(e, 'feed_post_like')}
                 isChecked={
                   !!(allNotification
-                    && allNotification.message_board_mention_on_comment_reply === 1)
+                    && allNotification.feed_post_like === 1)
                 }
               />
             </div>
@@ -181,11 +182,11 @@ function AccountNotification() {
             <div className="fs-3  d-flex justify-content-between">
               <span className="fs-4">Comment/reply on your post</span>
               <Switch
-                id="feed_post_like"
+                id="feed_comment_on_post"
                 className="ms-0 ms-md-3"
-                onSwitchToggle={(e) => handleChange(e, 'feed_post_like')}
+                onSwitchToggle={(e) => handleChange(e, 'feed_comment_on_post')}
                 isChecked={
-                  !!(allNotification && allNotification.feed_post_like === 1)
+                  !!(allNotification && allNotification.feed_comment_on_post === 1)
                 }
               />
             </div>

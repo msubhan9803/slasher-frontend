@@ -36,19 +36,25 @@ function FriendRequests() {
   };
   return (
     <div className="mt-5">
-      <SidebarHeaderWithLink headerLabel="Friend requests" linkLabel="View All" linkTo={`/${loginUserName}/friends/request`} />
       {recentFriendRequests && recentFriendRequests.length > 0
-        && recentFriendRequests.map((request: FriendRequest, i: number) => (
-          <FriendRequestItem
-            key={request._id}
-            className={i + 1 < recentFriendRequests.length ? 'mb-3' : ''}
-            image={request.profilePic}
-            userName={request.userName}
-            id={request._id}
-            onAcceptClick={handleAcceptRequest}
-            onRejectClick={handleRejectRequest}
-          />
-        ))}
+        && (
+          <>
+            <SidebarHeaderWithLink headerLabel="Friend requests" linkLabel="View All" linkTo={`/${loginUserName}/friends/request`} />
+            {
+              recentFriendRequests.map((request: FriendRequest, i: number) => (
+                <FriendRequestItem
+                  key={request._id}
+                  className={i + 1 < recentFriendRequests.length ? 'mb-3' : ''}
+                  image={request.profilePic}
+                  userName={request.userName}
+                  id={request._id}
+                  onAcceptClick={handleAcceptRequest}
+                  onRejectClick={handleRejectRequest}
+                />
+              ))
+            }
+          </>
+        )}
     </div>
   );
 }

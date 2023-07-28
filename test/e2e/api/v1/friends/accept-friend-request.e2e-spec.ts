@@ -14,6 +14,8 @@ import { Friend, FriendDocument } from '../../../../../src/schemas/friend/friend
 import { FriendRequestReaction } from '../../../../../src/schemas/friend/friend.enums';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { NotificationType } from '../../../../../src/schemas/notification/notification.enums';
+import { NotificationsService } from '../../../../../src/notifications/providers/notifications.service';
 
 describe('Accept Friend Request (e2e)', () => {
   let app: INestApplication;
@@ -25,6 +27,7 @@ describe('Accept Friend Request (e2e)', () => {
   let user2: UserDocument;
   let configService: ConfigService;
   let friendsService: FriendsService;
+  let notificationService: NotificationsService;
   let friendsModel: Model<FriendDocument>;
 
   beforeAll(async () => {
@@ -35,6 +38,7 @@ describe('Accept Friend Request (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     friendsService = moduleRef.get<FriendsService>(FriendsService);
+    notificationService = moduleRef.get<NotificationsService>(NotificationsService);
     friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
 
     app = moduleRef.createNestApplication();
@@ -68,6 +72,8 @@ describe('Accept Friend Request (e2e)', () => {
     });
 
     it('when successful, returns the expected response', async () => {
+      jest.spyOn(notificationService, 'create').mockImplementation(() => Promise.resolve(undefined));
+
       const response = await request(app.getHttpServer())
         .post('/api/v1/friends/requests/accept')
         .auth(activeUserAuthToken, { type: 'bearer' })
@@ -75,6 +81,12 @@ describe('Accept Friend Request (e2e)', () => {
         .expect(HttpStatus.CREATED);
       const friends = await friendsModel.findOne({ from: user1._id, to: activeUser.id });
       expect(friends.reaction).toEqual(FriendRequestReaction.Accepted);
+      expect(notificationService.create).toHaveBeenCalledWith({
+        userId: user1.id,
+        senderId: activeUser._id,
+        notifyType: NotificationType.UserAcceptedYourFriendRequest,
+        notificationMsg: 'accepted your friend request',
+      });
       expect(response.body).toEqual({ success: true });
     });
 

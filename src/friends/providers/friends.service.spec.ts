@@ -308,6 +308,26 @@ describe('FriendsService', () => {
     });
   });
 
+  describe('#getActiveFriendCount', () => {
+    let user4;
+    beforeEach(async () => {
+      user4 = await usersService.create(userFactory.build({ userName: 'Horror' }));
+    });
+
+    it('returns the expected response with accepted status', async () => {
+      // Create two friend requests and accept them
+      await friendsService.createFriendRequest(user1.id, user2.id);
+      await friendsService.createFriendRequest(user1.id, user3.id);
+      await friendsService.acceptFriendRequest(user1.id, user2.id);
+      await friendsService.acceptFriendRequest(user1.id, user3.id);
+      // Create one pending friend request
+      await friendsService.createFriendRequest(user1.id, user4.id);
+      // Friends count should not include pending requests
+      const friendsCount = await friendsService.getActiveFriendCount(user1.id, [FriendRequestReaction.Accepted]);
+      expect(friendsCount).toBe(2);
+    });
+  });
+
   describe('#getFriends', () => {
     beforeEach(async () => {
       const user4 = await usersService.create(userFactory.build({ userName: 'Count Dracula' }));
@@ -355,7 +375,6 @@ describe('FriendsService', () => {
         [
           'Count Dracula',
           'Count Orlok',
-          'The Count',
         ],
       );
     });
@@ -369,10 +388,10 @@ describe('FriendsService', () => {
     it('when applying limit, offset, and userName filter', async () => {
       const { friends, allFriendCount } = await friendsService.getFriends(user0.id, 5, 1, 'count');
       expect(allFriendCount).toBe(4);
+
       expect(friends.map((friend) => friend.userName)).toEqual(
         [
           'Count Orlok',
-          'The Count',
         ],
       );
     });

@@ -17,6 +17,7 @@ import { MovieUserStatus, MovieUserStatusDocument } from '../../../../../src/sch
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { WorthWatchingStatus } from '../../../../../src/types';
 
 describe('Watch List Movies (e2e)', () => {
   let app: INestApplication;
@@ -158,6 +159,7 @@ describe('Watch List Movies (e2e)', () => {
             logo: 'http://localhost:4444/placeholders/movie_poster.png',
             releaseDate: expect.any(String),
             rating: 0,
+            worthWatching: WorthWatchingStatus.NoRating,
           },
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -165,6 +167,7 @@ describe('Watch List Movies (e2e)', () => {
             logo: 'http://localhost:4444/placeholders/movie_poster.png',
             releaseDate: expect.any(String),
             rating: 0,
+            worthWatching: WorthWatchingStatus.NoRating,
           },
         ]);
       });
@@ -206,6 +209,7 @@ describe('Watch List Movies (e2e)', () => {
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           releaseDate: movie2.releaseDate.toISOString(),
           rating: 0,
+          worthWatching: WorthWatchingStatus.NoRating,
         }]);
       });
 
@@ -232,7 +236,7 @@ describe('Watch List Movies (e2e)', () => {
       });
 
       it('when startsWith and nameContains is exists than expected response', async () => {
-        const nameContains = 'li';
+        const nameContains = 'ali';
         const sortNameStartsWith = 'a';
         const limit = 3;
         const response = await request(app.getHttpServer())
@@ -245,6 +249,7 @@ describe('Watch List Movies (e2e)', () => {
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           releaseDate: movie2.releaseDate.toISOString(),
           rating: 0,
+          worthWatching: WorthWatchingStatus.NoRating,
         }]);
       });
     });

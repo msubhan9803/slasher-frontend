@@ -149,7 +149,7 @@ describe('Notifications Gateway (e2e)', () => {
           title: 'RssFeedProvider 1',
         },
         userId: activeUser.id,
-        notificationMsg: 'Username2 mentioned you in a post',
+        notificationMsg: 'mentioned you in a post',
         isRead: 0,
         createdAt: expect.any(String),
       },

@@ -43,10 +43,9 @@ export class EventsController {
 
   @Post()
   @UseInterceptors(
-    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_EVENT, {
+    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_EVENT, MAXIMUM_IMAGE_UPLOAD_SIZE, {
       fileFilter: defaultFileInterceptorFileFilter,
-      limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
-    }),
+      }),
   )
   async createEvent(
     @Req() request: Request,

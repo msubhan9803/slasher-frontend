@@ -63,7 +63,13 @@ export class FeedPostsService {
     return feedPost;
   }
 
-  async findAllByUser(userId: string, limit: number, activeOnly: boolean, before?: mongoose.Types.ObjectId): Promise<FeedPostDocument[]> {
+  async findAllByUser(
+    userId: string,
+    limit: number,
+    activeOnly: boolean,
+    loggedInUserId: mongoose.Types.ObjectId,
+    before?: mongoose.Types.ObjectId,
+    ): Promise<FeedPostDocument[]> {
     const feedPostFindAllQuery: any = {};
     const feedPostQuery = [];
     feedPostQuery.push({ userId: new mongoose.Types.ObjectId(userId) });
@@ -84,6 +90,7 @@ export class FeedPostsService {
     const feedPosts = await this.feedPostModel
       .find({ $and: feedPostQuery })
       .populate('userId', 'userName _id profilePic')
+      .populate('movieId', 'logo name releaseDate')
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();
@@ -92,7 +99,7 @@ export class FeedPostsService {
       // eslint-disable-next-line no-param-reassign
       post.likeCount = post.likes.length || 0;
       // eslint-disable-next-line no-param-reassign
-      post.likedByUser = post.likes.includes(userId);
+      post.likedByUser = post.likes.includes(loggedInUserId);
       return post;
     });
   }
@@ -269,6 +276,48 @@ export class FeedPostsService {
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();
+  }
+
+  async getAllPostsImagesCountByUser(userId: string): Promise<number> {
+    const postsWithImages = await this.feedPostModel
+      .find(
+        {
+          $and: [
+            { userId },
+            { is_deleted: FeedPostDeletionState.NotDeleted },
+            { status: FeedPostStatus.Active },
+            { 'images.0': { $exists: true } },
+            {
+              $and: [
+                { postType: { $ne: PostType.MovieReview } },
+                { postType: { $ne: PostType.News } },
+              ],
+            },
+          ],
+        },
+        { images: 1, _id: 0 },
+      );
+    const imagesCount = postsWithImages.map((post) => post.images.length)?.reduce((acc, item) => (acc + item), 0);
+    return imagesCount;
+  }
+
+  async getFeedPostsCountByUser(userId: string): Promise<number> {
+    const postsCount = await this.feedPostModel.count(
+      {
+        $and: [
+          { userId },
+          { is_deleted: FeedPostDeletionState.NotDeleted },
+          { status: FeedPostStatus.Active },
+          {
+            $and: [
+              { postType: { $ne: PostType.MovieReview } },
+              { postType: { $ne: PostType.News } },
+            ],
+          },
+        ],
+      },
+    );
+    return postsCount;
   }
 
   async findAllByRssFeedProvider(

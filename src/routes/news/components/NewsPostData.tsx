@@ -166,6 +166,7 @@ function NewsPostData({ partnerId }: Props) {
     })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
+    setDropDownValue('PostReportSuccessDialog');
   };
 
   const persistScrollPosition = () => {
@@ -204,6 +205,7 @@ function NewsPostData({ partnerId }: Props) {
         setShow={setShow}
         slectedDropdownValue={dropDownValue}
         handleReport={reportNewsPost}
+        rssfeedProviderId={postData[0]?.id}
       />
     </>
   );

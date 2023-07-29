@@ -56,8 +56,7 @@ export class ReportsController {
         }
         feedPost.reportUsers.push({ userId: user._id, reason: createReportDto.reason });
         feedPost.save();
-        // if (!feedPost.rssfeedProviderId)
-          userNameBeingReported = feedPost.rssfeedProviderId ? (feedPost.rssfeedProviderId as unknown as RssFeedProvider).title
+        userNameBeingReported = feedPost.rssfeedProviderId ? (feedPost.rssfeedProviderId as unknown as RssFeedProvider).title
           : (feedPost.userId as unknown as UserDocument).userName;
         break;
       }

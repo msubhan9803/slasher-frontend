@@ -31,14 +31,17 @@ function ReportModal({
   const [checked, setChecked] = useState(false);
 
   const closeModal = () => {
+    if (slectedDropdownValue === 'BlockUserSuccess') {
+      afterBlockUser!();
+    }
+    if (setDropDownValue) {
+      setDropDownValue('');
+    }
     setShow(false);
     setReports('');
     setButtonDisabled(true);
     setOtherReport('');
     setChecked(false);
-    if (setDropDownValue) {
-      setDropDownValue('');
-    }
   };
   const removeData = () => {
     if (removeComment) { removeComment(); }

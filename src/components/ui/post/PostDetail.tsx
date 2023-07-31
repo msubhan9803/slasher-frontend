@@ -1021,6 +1021,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                   handleReport={reportPost}
                   onBlockYesClick={onBlockYesClick}
                   afterBlockUser={afterBlockUser}
+                  setDropDownValue={setDropDownValue}
                 />
               )}
             {postType !== 'news' && dropDownValue === 'Edit'

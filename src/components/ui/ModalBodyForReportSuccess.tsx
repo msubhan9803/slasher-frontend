@@ -19,7 +19,7 @@ function ModalBodyForReportSuccess({
 
   return (
     <Modal.Body className="d-flex flex-column align-items-center text-center pt-0">
-      <h1 className="h3 mb-0 text-primary pb-3">Block</h1>
+      <h1 className="h3 mb-0 text-primary pb-3">Report sent</h1>
       <p className="px-3">Thank you for your report. We will review it as soon as possible</p>
 
       {/* Ask to block user as well (when post is not a rssFeedPost) */}

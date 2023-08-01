@@ -501,7 +501,7 @@ export class FeedPostsController {
     }
 
     const feedLikeUsers = await this.feedPostsService.getLikeUsersForPost(
-      param.id,
+      feedPost,
       query.limit,
       query.offset,
       user._id.toString(),

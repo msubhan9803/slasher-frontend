@@ -130,10 +130,6 @@ describe('FeedLikesService', () => {
       expect(feedPostData.likes).toContainEqual(activeUser._id);
       expect(feedPostData.likeCount).toBe(2);
     });
-
-    it('when feed post id is not found', async () => {
-      await expect(feedLikesService.createFeedPostLike('634fc8986a5897b88a2d971b', activeUser.id)).rejects.toThrow('Post not found.');
-    });
   });
 
   describe('#findFeedPostLike', () => {
@@ -141,10 +137,6 @@ describe('FeedLikesService', () => {
       const feedPostLikeData = await feedLikesService.findFeedPostLike(feedPost.id, activeUser.id);
       expect(feedPostLikeData.feedPostId).toEqual(feedPost._id);
       expect(feedPostLikeData.userId).toEqual(activeUser._id);
-    });
-
-    it('when feed post id is not found', async () => {
-      await expect(feedLikesService.findFeedPostLike('634fc8986a5897b88a2d971b', activeUser.id)).rejects.toThrow('Post not found');
     });
   });
 
@@ -155,10 +147,6 @@ describe('FeedLikesService', () => {
       expect(feedPostData.likes).toHaveLength(1);
       expect(feedPostData.likeCount).toBe(1);
     });
-
-    it('when feed post id is not found', async () => {
-      await expect(feedLikesService.deleteFeedPostLike('634fc8986a5897b88a2d971b', activeUser.id)).rejects.toThrow('Post not found.');
-    });
   });
 
   describe('#createFeedCommentLike', () => {
@@ -167,10 +155,6 @@ describe('FeedLikesService', () => {
       const feedCommentsData = await feedCommentsService.findFeedComment(feedComment.id);
       expect(feedCommentsData.likes).toContainEqual(activeUser._id);
     });
-
-    it('when feed comments id is not found', async () => {
-      await expect(feedLikesService.createFeedCommentLike('634fc8986a5897b88a2d971b', activeUser.id)).rejects.toThrow('Comment not found.');
-    });
   });
 
   describe('#deleteFeedCommentLike', () => {
@@ -178,10 +162,6 @@ describe('FeedLikesService', () => {
       await feedLikesService.deleteFeedCommentLike(feedComment.id, activeUser.id);
       const feedCommentsData = await feedCommentsService.findFeedComment(feedComment.id);
       expect(feedCommentsData.likes).toHaveLength(1);
-    });
-
-    it('when feed comments id is not found', async () => {
-      await expect(feedLikesService.deleteFeedCommentLike('634fc8986a5897b88a2d971b', activeUser.id)).rejects.toThrow('Comment not found.');
     });
   });
 
@@ -210,12 +190,13 @@ describe('FeedLikesService', () => {
     it('successfully return list of like users for a comment', async () => {
       const limit = 2;
       const offset = 0;
-      const likeUsers1 = await feedLikesService.getLikeUsersForFeedComment(feedComment.id, limit, offset);
+      const commentData = await feedCommentsService.findFeedComment(feedComment.id.toString());
+      const likeUsers1 = await feedLikesService.getLikeUsersForFeedComment(commentData, limit, offset);
       expect(likeUsers1.map((user) => user._id.toString())).toEqual(expect.arrayContaining([activeUser.id, user0.id]));
 
       // Pagination
       const newOffset = offset + limit;
-      const likeUsers2 = await feedLikesService.getLikeUsersForFeedComment(feedComment.id, limit, newOffset);
+      const likeUsers2 = await feedLikesService.getLikeUsersForFeedComment(commentData, limit, newOffset);
       expect(likeUsers2.map((user) => user._id.toString())).toEqual(expect.arrayContaining([user1.id, user2.id]));
     });
 
@@ -223,7 +204,8 @@ describe('FeedLikesService', () => {
       const limit = 2;
       const offset = 0;
       const requestingContextUserId = user0.id;
-      const likeUsers = await feedLikesService.getLikeUsersForFeedComment(feedComment.id, limit, offset, requestingContextUserId);
+      const commentData = await feedCommentsService.findFeedComment(feedComment.id.toString());
+      const likeUsers = await feedLikesService.getLikeUsersForFeedComment(commentData, limit, offset, requestingContextUserId);
       expect(likeUsers.map((user) => user._id.toString())).toEqual(expect.arrayContaining([activeUser.id, user0.id]));
       expect(likeUsers[0].friendship).toEqual({
         reaction: 3,
@@ -231,13 +213,6 @@ describe('FeedLikesService', () => {
         to: new mongoose.Types.ObjectId(user0.id),
       });
       expect(likeUsers[1].friendship).toBeNull();
-    });
-
-    it('when feed comments id is not found', async () => {
-      const limit = 2;
-      const offset = 0;
-      // eslint-disable-next-line max-len
-      await expect(feedLikesService.getLikeUsersForFeedComment('634fc8986a5897b88a2d971b', limit, offset)).rejects.toThrow('Comment not found.');
     });
 
     describe('should not return users blocked by `requestingContextUser`', () => {
@@ -266,10 +241,6 @@ describe('FeedLikesService', () => {
       const feedReplyData = await feedCommentsService.findFeedReply(feedReply.id);
       expect(feedReplyData.likes).toContainEqual(activeUser._id);
     });
-
-    it('when feed reply id is not found', async () => {
-      await expect(feedLikesService.createFeedReplyLike('634fc8986a5897b88a2d971b', activeUser.id)).rejects.toThrow('Reply not found.');
-    });
   });
 
   describe('#deleteFeedReplyLike', () => {
@@ -277,10 +248,6 @@ describe('FeedLikesService', () => {
       await feedLikesService.deleteFeedReplyLike(feedReply.id, activeUser.id);
       const feedReplyData = await feedCommentsService.findFeedReply(feedReply.id);
       expect(feedReplyData.likes).toHaveLength(1);
-    });
-
-    it('when feed reply id is not found', async () => {
-      await expect(feedLikesService.deleteFeedReplyLike('634fc8986a5897b88a2d971b', activeUser.id)).rejects.toThrow('Reply not found.');
     });
   });
 
@@ -309,12 +276,13 @@ describe('FeedLikesService', () => {
     it('successfully return list of like users for a reply', async () => {
       const limit = 2;
       const offset = 0;
-      const likeUsers1 = await feedLikesService.getLikeUsersForFeedReply(feedReply.id, limit, offset);
+      const replyData = await feedCommentsService.findFeedReply(feedReply.id.toString());
+      const likeUsers1 = await feedLikesService.getLikeUsersForFeedReply(replyData, limit, offset);
       expect(likeUsers1.map((user) => user._id.toString())).toEqual(expect.arrayContaining([activeUser.id, user0.id]));
 
       // Pagination
       const newOffset = offset + limit;
-      const likeUsers2 = await feedLikesService.getLikeUsersForFeedReply(feedReply.id, limit, newOffset);
+      const likeUsers2 = await feedLikesService.getLikeUsersForFeedReply(replyData, limit, newOffset);
       expect(likeUsers2.map((user) => user._id.toString())).toEqual(expect.arrayContaining([user1.id, user2.id]));
     });
 
@@ -322,7 +290,7 @@ describe('FeedLikesService', () => {
       const limit = 2;
       const offset = 0;
       const requestingContextUserId = user0.id;
-      const likeUsers = await feedLikesService.getLikeUsersForFeedReply(feedReply.id, limit, offset, requestingContextUserId);
+      const likeUsers = await feedLikesService.getLikeUsersForFeedReply(feedReply, limit, offset, requestingContextUserId);
       expect(likeUsers.map((user) => user._id.toString())).toEqual(expect.arrayContaining([activeUser.id, user0.id]));
       expect(likeUsers[0].friendship).toEqual({
         reaction: 3,
@@ -330,13 +298,6 @@ describe('FeedLikesService', () => {
         to: new mongoose.Types.ObjectId(user0.id),
       });
       expect(likeUsers[1].friendship).toBeNull();
-    });
-
-    it('when feed reply id is not found', async () => {
-      const limit = 2;
-      const offset = 0;
-      // eslint-disable-next-line max-len
-      await expect(feedLikesService.getLikeUsersForFeedReply('634fc8986a5897b88a2d971b', limit, offset)).rejects.toThrow('Reply not found.');
     });
 
     describe('should not return users blocked by `requestingContextUser`', () => {

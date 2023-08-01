@@ -4,7 +4,6 @@ import mongoose, { Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { FeedPostLike, FeedPostLikeDocument } from '../../schemas/feedPostLike/feedPostLike.schema';
 import { FeedPostsService } from '../../feed-posts/providers/feed-posts.service';
-import { NotFoundError } from '../../errors';
 import { FeedComment, FeedCommentDocument } from '../../schemas/feedComment/feedComment.schema';
 import { FeedReply, FeedReplyDocument } from '../../schemas/feedReply/feedReply.schema';
 import { FeedReplyLike, FeedReplyLikeDocument } from '../../schemas/feedReplyLike/feedReplyLike.schema';
@@ -136,7 +135,7 @@ export class FeedLikesService {
     //   throw new NotFoundError('Reply not found.');
     // }
     const feedReplyId = feedReplyDetails._id;
-    const filter: any = [{ feedReplyId}];
+    const filter: any = [{ feedReplyId }];
 
     // Do not return likes by blocked users
     if (requestingContextUserId) {

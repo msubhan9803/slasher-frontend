@@ -163,7 +163,7 @@ FeedPostSchema.index(
 
 FeedPostSchema.index(
   {
-    _id: 1, is_deleted: 1, status: 1, userId:1, rssfeedProviderId:1,rssFeedId:1,movieId:1,
+    _id: 1, is_deleted: 1, status: 1, userId: 1, rssfeedProviderId: 1, rssFeedId: 1, movieId: 1,
   },
 );
 

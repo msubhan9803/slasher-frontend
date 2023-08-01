@@ -24,50 +24,32 @@ export class NotificationsService {
   ) { }
 
   async create(notification: Partial<Notification>) {
-    console.time('f111');
-    
     const newNotification = await this.notificationModel.create(notification);
-    console.timeEnd('f111');
 
     // TODO: Eventually move this to a background job (probably using a NestJS Queue: https://docs.nestjs.com/techniques/queues)
     // This can be processed in the background instead of adding a small delay to each notification creation.
-    console.time('f222');
-   
+
     await Promise.all([this.processNotification(newNotification.id),
     this.usersService.updateNewNotificationCount((notification.userId).toString())]);
-    console.timeEnd('f222');
 
     return newNotification;
   }
 
   async processNotification(notificationId: string) {
-    console.time('process');
-    
-    console.time('f333')
     const notification = await this.findById(notificationId);
-    console.timeEnd('f333')
 
     // If the notification is already marked as processed, then there's nothing to do here
     if (notification.isProcessed) { return; }
 
     // In SD-661, confirmed that all notifications should be emitted over socket.
     this.notificationsGateway.emitMessageForNotification(notification);
-  console.time('f444')
     if (this.configService.get<boolean>('SEND_PUSH_NOTIFICATION')) {
-      console.time('f555')
       this.sendPushNotification(notification);
-      console.timeEnd('f555')
     }
-    console.timeEnd('f444')
 
     // Mark notification as processed
-    console.time('f6666')
 
     await notification.updateOne({ isProcessed: true });
-    console.timeEnd('f6666')
-
-    console.timeEnd('process');
-
   }
 
   async sendPushNotification(notification) {

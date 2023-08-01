@@ -86,7 +86,7 @@ NotificationSchema.index(
 );
 NotificationSchema.index(
   {
-    _id: 1, senderId: 1 ,feedPostId:1,rssFeedProviderId:1
+    _id: 1, senderId: 1, feedPostId: 1, rssFeedProviderId: 1,
   },
 );
 

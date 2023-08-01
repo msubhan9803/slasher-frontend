@@ -38,23 +38,15 @@ export class FeedLikesController {
 
   @Post('post/:feedPostId')
   async createFeedPostLike(@Req() request: Request, @Param() params: FeedPostsIdDto) {
-    console.time('start');
     const user = getUserFromRequest(request);
-    console.time('find post')
     const post = await this.feedPostsService.findById(params.feedPostId, true);
     if (!post) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-    console.timeEnd('find post')
-
-    console.time('find post like')
     const feedPostLikeData = await this.feedLikesService.findFeedPostLike(params.feedPostId, user.id);
     if (feedPostLikeData) {
       throw new HttpException('You already like the post', HttpStatus.BAD_REQUEST);
     }
-    console.timeEnd('find post like')
-
-    console.time('find areFriends')
     if (
       post.postType !== PostType.MovieReview && !post.rssfeedProviderId
       && user.id !== (post.userId as unknown as User)._id.toString()
@@ -64,23 +56,13 @@ export class FeedLikesController {
         throw new HttpException('You can only interact with posts of friends.', HttpStatus.FORBIDDEN);
       }
     }
-    console.timeEnd('find areFriends')
-
-    console.time('find rssfeedProviderId')
     if (!post.rssfeedProviderId) {
       const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User)._id.toString());
       if (block) {
         throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
       }
     }
-    console.timeEnd('find rssfeedProviderId')
-
-
-    console.time('find feedLikesService')
     await this.feedLikesService.createFeedPostLike(params.feedPostId, user.id);
-    console.timeEnd('find feedLikesService')
-
-    console.time('send notification')
     let postUserId;
     if (!post.rssfeedProviderId) {
       // Create notification for post creator, informing them that a like was added to their post.
@@ -93,7 +75,6 @@ export class FeedLikesController {
       || post.rssfeedProviderId
     );
     if (!skipPostCreatorNotification) {
-      console.time('createee')
       await this.notificationsService.create({
         userId: postUserId as any,
         feedPostId: { _id: post._id.toString() } as unknown as FeedPost,
@@ -102,12 +83,8 @@ export class FeedLikesController {
         notifyType: NotificationType.UserLikedYourPost,
         notificationMsg: post.postType === PostType.MovieReview ? 'liked your movie review' : 'liked your post',
       });
-      console.timeEnd('createee')
-
     }
-    console.timeEnd('send notification')
 
-    console.timeEnd("start");
     return { success: true };
   }
 

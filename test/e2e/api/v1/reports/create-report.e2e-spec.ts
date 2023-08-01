@@ -20,6 +20,10 @@ import { feedCommentsFactory } from '../../../../factories/feed-comments.factory
 import { feedRepliesFactory } from '../../../../factories/feed-reply.factory';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { RssFeedProvider } from '../../../../../src/schemas/rssFeedProvider/rssFeedProvider.schema';
+import { RssFeedProvidersService } from '../../../../../src/rss-feed-providers/providers/rss-feed-providers.service';
+import { rssFeedProviderFactory } from '../../../../factories/rss-feed-providers.factory';
+import { RssFeedProviderActiveStatus } from '../../../../../src/schemas/rssFeedProvider/rssFeedProvider.enums';
 
 describe('Report And Unreport (e2e)', () => {
   let app: INestApplication;
@@ -31,6 +35,7 @@ describe('Report And Unreport (e2e)', () => {
   let user1: UserDocument;
   let feedPost: FeedPostDocument;
   let feedCommentsService: FeedCommentsService;
+  let rssFeedProvidersService: RssFeedProvidersService;
   let reportAndUnreportService: ReportAndUnreportService;
   let activeUserAuthToken: string;
   let reportsModel: Model<ReportAndUnreportDocument>;
@@ -64,6 +69,7 @@ describe('Report And Unreport (e2e)', () => {
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     usersService = moduleRef.get<UsersService>(UsersService);
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
+    rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     reportAndUnreportService = moduleRef.get<ReportAndUnreportService>(ReportAndUnreportService);
     reportsModel = moduleRef.get<Model<ReportAndUnreportDocument>>(getModelToken(ReportAndUnreport.name));
@@ -98,6 +104,7 @@ describe('Report And Unreport (e2e)', () => {
         },
       ),
     );
+
     feedComments = await feedCommentsService.createFeedComment(
       feedCommentsFactory.build(
         {
@@ -162,6 +169,36 @@ describe('Report And Unreport (e2e)', () => {
         reportAndUnreportObject.reportType,
         activeUser.userName,
         (feedPostData.userId as unknown as UserDocument).userName,
+        reportAndUnreportObject.reason,
+      );
+      expect(response.body).toEqual({ success: true });
+    });
+
+    it('when report type is rss news feed post than expected reports response', async () => {
+      jest.spyOn(mailService, 'sendReportNotificationEmail').mockImplementation();
+      const rssFeedProviderData = await rssFeedProvidersService.create(rssFeedProviderFactory.build({
+        status: RssFeedProviderActiveStatus.Active,
+      }));
+      const rssFeedPost = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: activeUser.id,
+            rssfeedProviderId: rssFeedProviderData.id,
+          },
+        ),
+      );
+      reportAndUnreportObject.targetId = rssFeedPost.id;
+      reportAndUnreportObject.reportType = 'post';
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/reports')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send(reportAndUnreportObject);
+      const feedPostData = await feedPostsService.findById(rssFeedPost.id, false);
+      expect(feedPostData._id.toString()).toEqual(reportAndUnreportObject.targetId);
+      expect(mailService.sendReportNotificationEmail).toHaveBeenCalledWith(
+        reportAndUnreportObject.reportType,
+        activeUser.userName,
+        (feedPostData.rssfeedProviderId as unknown as RssFeedProvider).title,
         reportAndUnreportObject.reason,
       );
       expect(response.body).toEqual({ success: true });

@@ -11,8 +11,9 @@ import ImagesContainer from '../ui/ImagesContainer';
 import ErrorMessageList from '../ui/ErrorMessageList';
 import CustomEmojiPicker, { Emoji } from '../ui/Emoji/CustomEmojiPicker';
 import { isMobile } from '../../utils/browser-utils';
-import { isNativePlatform } from '../../constants';
+import { isNativePlatform, maxWidthForCommentOrReplyInputOnMobile } from '../../constants';
 import { onKeyboardClose, onKeyboardOpen } from '../../utils/styles-utils ';
+import useWindowInnerWidth from '../../hooks/useWindowInnerWidth';
 
 interface Props {
   onSubmit: (message: string, files: File[], fileDescriptions: string[]) => Promise<void>;
@@ -78,6 +79,7 @@ function ChatInput({
     // Clear out the input value so that the same image can be selected again later
     fileInputElementRef.current!.value = '';
   };
+  const windowInnerWidth = useWindowInnerWidth();
 
   useEffect(() => {
     if (isFocused) {
@@ -236,7 +238,7 @@ function ChatInput({
             />
           </label>
         </div>
-        {!isNativePlatform
+        {!isNativePlatform && (windowInnerWidth > maxWidthForCommentOrReplyInputOnMobile)
           && (
             <div className="pe-3">
               {

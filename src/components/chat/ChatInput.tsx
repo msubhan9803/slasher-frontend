@@ -1,6 +1,8 @@
 /* eslint-disable max-lines */
-import React, { useRef, useState } from 'react';
-import { Button, Form, Spinner } from 'react-bootstrap';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  Button, Form, Spinner,
+} from 'react-bootstrap';
 import styled from 'styled-components';
 import { TextareaAutosize } from '@mui/material';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
@@ -10,6 +12,7 @@ import ErrorMessageList from '../ui/ErrorMessageList';
 import CustomEmojiPicker, { Emoji } from '../ui/Emoji/CustomEmojiPicker';
 import { isMobile } from '../../utils/browser-utils';
 import { isNativePlatform } from '../../constants';
+import { onKeyboardClose, onKeyboardOpen } from '../../utils/styles-utils ';
 
 interface Props {
   onSubmit: (message: string, files: File[], fileDescriptions: string[]) => Promise<void>;
@@ -18,6 +21,8 @@ interface Props {
   onBlur: () => void;
   placeholder: string;
   errorsToDisplay: string[];
+  isFocused: boolean;
+  setIsFocused: (val: boolean) => void;
 }
 
 const StyledChatInputGroup = styled.div`
@@ -60,9 +65,8 @@ const StyledTextareaAutosize = styled(TextareaAutosize)`
 `;
 
 function ChatInput({
-  onSubmit, onFocus, onBlur, onRemoveFile, placeholder, errorsToDisplay,
+  onSubmit, onFocus, onBlur, onRemoveFile, placeholder, errorsToDisplay, isFocused, setIsFocused,
 }: Props) {
-  const [isFocused, setIsFocused] = useState<boolean>(false);
   const [message, setMessage] = useState<string>('');
   const [sending, setSending] = useState<boolean>(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -70,11 +74,18 @@ function ChatInput({
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputElementRef = useRef<HTMLInputElement>(null);
-
   const clearFileInputValue = () => {
     // Clear out the input value so that the same image can be selected again later
     fileInputElementRef.current!.value = '';
   };
+
+  useEffect(() => {
+    if (isFocused) {
+      onKeyboardOpen();
+    } else {
+      onKeyboardClose();
+    }
+  }, [isFocused]);
 
   const clearMessageAndImages = () => {
     setMessage('');

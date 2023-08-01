@@ -275,7 +275,7 @@ export class FeedLikesController {
     }
 
     const data = await this.feedLikesService.getLikeUsersForFeedComment(
-      params.feedCommentId,
+      comment,
       query.limit,
       query.offset,
       user._id.toString(),
@@ -323,7 +323,7 @@ export class FeedLikesController {
     }
 
     const data = await this.feedLikesService.getLikeUsersForFeedReply(
-      params.feedReplyId,
+      reply,
       query.limit,
       query.offset,
       user._id.toString(),

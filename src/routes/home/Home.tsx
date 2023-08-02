@@ -355,31 +355,37 @@ function Home() {
   };
 
   const onBlockYesClick = () => {
+    setProgressButtonStatus('loading');
     createBlockUser(postUserId)
       .then(() => {
         setDropDownValue('BlockUserSuccess');
+        setProgressButtonStatus('success');
         setPosts((prev) => prev.filter(
           (scrollData: any) => scrollData.userId !== postUserId,
         ));
       })
-      // eslint-disable-next-line no-console
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        // eslint-disable-next-line no-console
+        console.error(error);
+        setProgressButtonStatus('failure');
+      });
   };
   const afterBlockUser = () => {
     setShow(false);
   };
 
   const reportHomePost = (reason: string) => {
+    setProgressButtonStatus('loading');
     const reportPayload = {
       targetId: postId,
       reason,
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res.status === 200) { callLatestFeedPost(); }
+      if (res.status === 200) { callLatestFeedPost(); setProgressButtonStatus('success'); }
     })
       // eslint-disable-next-line no-console
-      .catch((error) => console.error(error));
+      .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
     // Ask to block user as well
     setDropDownValue('PostReportSuccessDialog');
   };
@@ -436,6 +442,7 @@ function Home() {
               afterBlockUser={afterBlockUser}
               handleReport={reportHomePost}
               rssfeedProviderId={rssfeedProviderId}
+              ProgressButton={ProgressButton}
             />
           )
         }

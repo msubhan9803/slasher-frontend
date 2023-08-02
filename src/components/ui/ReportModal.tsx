@@ -7,6 +7,7 @@ import ModalBodyForDelete from './ModalBodyForDelete';
 import ModalBodyForReportSuccess from './ModalBodyForReportSuccess';
 import RoundButton from './RoundButton';
 import ModalBodyForRemoveFriend from './ModalBodyForRemoveFreind';
+import { ProgressButtonComponentType } from './ProgressButton';
 
 interface Props {
   show: boolean;
@@ -19,11 +20,12 @@ interface Props {
   rssfeedProviderId?: string;
   afterBlockUser?: () => void;
   setDropDownValue?: (value: string) => void;
+  ProgressButton?: ProgressButtonComponentType;
 }
 function ReportModal({
   show, setShow, slectedDropdownValue, onConfirmClick, onBlockYesClick,
   handleReport, removeComment, rssfeedProviderId,
-  afterBlockUser, setDropDownValue,
+  afterBlockUser, setDropDownValue, ProgressButton,
 }: Props) {
   const [reports, setReports] = useState<string>('');
   const [otherReport, setOtherReport] = useState('');
@@ -112,6 +114,7 @@ function ReportModal({
             onConfirm={handleReportData}
             onCancel={closeModal}
             buttonDisabled={buttonDisabled}
+            ProgressButton={ProgressButton}
           />
         )
       }
@@ -123,6 +126,7 @@ function ReportModal({
             setChecked={setChecked}
             closeModal={closeModal}
             handleBlockUser={handleBlockUser}
+            ProgressButton={ProgressButton}
           />
         )
       }
@@ -153,6 +157,7 @@ ReportModal.defaultProps = {
   rssfeedProviderId: undefined,
   afterBlockUser: undefined,
   setDropDownValue: undefined,
+  ProgressButton: undefined,
 };
 
 export default ReportModal;

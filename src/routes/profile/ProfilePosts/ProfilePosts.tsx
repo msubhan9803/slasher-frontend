@@ -344,6 +344,7 @@ function ProfilePosts({ user }: Props) {
             posts.length > 0
             && (
               <PostFeed
+                // TODO URGENT - SAHIL: REMOVE the .slice(0,2) before merging the PR!
                 postFeedData={posts.slice(0, 2)}
                 popoverOptions={loginUserPopoverOptions}
                 isCommentSection={false}

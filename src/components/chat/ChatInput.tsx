@@ -1,6 +1,8 @@
 /* eslint-disable max-lines */
-import React, { useRef, useState } from 'react';
-import { Button, Form, Spinner } from 'react-bootstrap';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  Button, Form, Spinner,
+} from 'react-bootstrap';
 import styled from 'styled-components';
 import { TextareaAutosize } from '@mui/material';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
@@ -9,7 +11,9 @@ import ImagesContainer from '../ui/ImagesContainer';
 import ErrorMessageList from '../ui/ErrorMessageList';
 import CustomEmojiPicker, { Emoji } from '../ui/Emoji/CustomEmojiPicker';
 import { isMobile } from '../../utils/browser-utils';
-import { isNativePlatform } from '../../constants';
+import { isNativePlatform, maxWidthForCommentOrReplyInputOnMobile } from '../../constants';
+import { onKeyboardClose, onKeyboardOpen } from '../../utils/styles-utils ';
+import useWindowInnerWidth from '../../hooks/useWindowInnerWidth';
 
 interface Props {
   onSubmit: (message: string, files: File[], fileDescriptions: string[]) => Promise<void>;
@@ -18,6 +22,8 @@ interface Props {
   onBlur: () => void;
   placeholder: string;
   errorsToDisplay: string[];
+  isFocused: boolean;
+  setIsFocused: (val: boolean) => void;
 }
 
 const StyledChatInputGroup = styled.div`
@@ -31,6 +37,8 @@ const StyledChatInputGroup = styled.div`
   .message-attachments {
     border-bottom: 1px solid var(--stroke-and-line-separator-color);
     margin: .75rem 0;
+    height: 10.93rem;
+    overflow-y: scroll; 
   }
 
   .emoji-picker-wrapper {
@@ -60,9 +68,8 @@ const StyledTextareaAutosize = styled(TextareaAutosize)`
 `;
 
 function ChatInput({
-  onSubmit, onFocus, onBlur, onRemoveFile, placeholder, errorsToDisplay,
+  onSubmit, onFocus, onBlur, onRemoveFile, placeholder, errorsToDisplay, isFocused, setIsFocused,
 }: Props) {
-  const [isFocused, setIsFocused] = useState<boolean>(false);
   const [message, setMessage] = useState<string>('');
   const [sending, setSending] = useState<boolean>(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -70,11 +77,19 @@ function ChatInput({
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputElementRef = useRef<HTMLInputElement>(null);
-
   const clearFileInputValue = () => {
     // Clear out the input value so that the same image can be selected again later
     fileInputElementRef.current!.value = '';
   };
+  const windowInnerWidth = useWindowInnerWidth();
+
+  useEffect(() => {
+    if (isFocused) {
+      onKeyboardOpen();
+    } else {
+      onKeyboardClose();
+    }
+  }, [isFocused]);
 
   const clearMessageAndImages = () => {
     setMessage('');
@@ -225,7 +240,7 @@ function ChatInput({
             />
           </label>
         </div>
-        {!isNativePlatform
+        {!isNativePlatform && (windowInnerWidth > maxWidthForCommentOrReplyInputOnMobile)
           && (
             <div className="pe-3">
               {
@@ -265,7 +280,7 @@ function ChatInput({
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onFocus={() => { onFocus(); setIsFocused(true); }}
-          onBlur={() => { onBlur(); setIsFocused(false); }}
+          onBlur={() => { onBlur(); }}
           onKeyDown={handleTextareaKeyDown}
         />
         <div className="ps-3">

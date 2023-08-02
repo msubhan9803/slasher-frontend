@@ -374,16 +374,10 @@ body.modal-open .navbar{
 @import "./_public_header_and_footer";
 
 .swiper-wrapper {
-  // TESTING ONLY (below fixes the problem but hides images)
-  // display: none !important;
+  // SD-1470 Fix the irregular width of `right-sidebar` for `posts` tab when compared to
+  // other profile pages like About, Friends, Posts, Photos tabs.
+  width: 0px !important;
 
-  // (default width style - BUG)
-  // width: auto !important;
-
-  // Solution?
-  width: 10px !important;
-
-
-  // Debugging only
-  border: 2px solid red;
+  // Debugging
+  // border: 2px solid red;
 }

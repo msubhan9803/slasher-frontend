@@ -372,3 +372,18 @@ body.modal-open .navbar{
 }
 
 @import "./_public_header_and_footer";
+
+.swiper-wrapper {
+  // TESTING ONLY (below fixes the problem but hides images)
+  // display: none !important;
+
+  // (default width style - BUG)
+  // width: auto !important;
+
+  // Solution?
+  width: 10px !important;
+
+
+  // Debugging only
+  border: 2px solid red;
+}

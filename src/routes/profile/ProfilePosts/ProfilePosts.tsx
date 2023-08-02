@@ -344,7 +344,7 @@ function ProfilePosts({ user }: Props) {
             posts.length > 0
             && (
               <PostFeed
-                postFeedData={posts}
+                postFeedData={posts.slice(0, 2)}
                 popoverOptions={loginUserPopoverOptions}
                 isCommentSection={false}
                 onPopoverClick={handlePopoverOption}

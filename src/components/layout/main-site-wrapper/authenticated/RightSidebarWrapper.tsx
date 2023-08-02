@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { getGlobalCssProperty, setGlobalCssProperty } from '../../../../utils/styles-utils ';
+import { getGlobalCssProperty, removeGlobalCssProperty, setGlobalCssProperty } from '../../../../utils/styles-utils ';
 
 interface Props {
   children: React.ReactNode;
@@ -39,7 +39,9 @@ function RightSidebarWrapper({ children }: Props) {
     const intervalTimer = setInterval(() => {
       const rightSidebarElement = rightSidebarRef.current!;
       const hasScrollBar = rightSidebarElement?.scrollHeight > rightSidebarElement?.clientHeight;
-      if (!hasScrollBar) {
+      if (hasScrollBar) {
+        removeGlobalCssProperty('--reset-padding-when-no-scroll-bar');
+      } else {
         const scrollBarWidth = getGlobalCssProperty('--scroll-bar-width');
         setGlobalCssProperty('--reset-padding-when-no-scroll-bar', scrollBarWidth);
       }

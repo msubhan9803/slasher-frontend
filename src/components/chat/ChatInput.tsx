@@ -37,6 +37,8 @@ const StyledChatInputGroup = styled.div`
   .message-attachments {
     border-bottom: 1px solid var(--stroke-and-line-separator-color);
     margin: .75rem 0;
+    height: 10.93rem;
+    overflow-y: scroll; 
   }
 
   .emoji-picker-wrapper {
@@ -278,7 +280,7 @@ function ChatInput({
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onFocus={() => { onFocus(); setIsFocused(true); }}
-          onBlur={() => { onBlur(); setIsFocused(false); }}
+          onBlur={() => { onBlur(); }}
           onKeyDown={handleTextareaKeyDown}
         />
         <div className="ps-3">

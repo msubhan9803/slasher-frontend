@@ -20,6 +20,12 @@ const ImageWrapper = styled.div`
     max-width: 100vw;
   }
 `;
+const StyleDiv = styled.div`
+  .transform-component-module_wrapper__SPB86 {
+    overflow: visible !important;
+  }
+`;
+
 function ZoomableImageModal({
   imgSrc, imgAlt, show, onHide,
 }: Props) {
@@ -32,7 +38,7 @@ function ZoomableImageModal({
       <Modal.Header closeButton />
       <Modal.Body>
         <div className="w-100 h-100 d-flex align-items-center justify-content-center">
-          <div className="d-flex justify-content-center align-items-center">
+          <StyleDiv className="d-flex justify-content-center align-items-center">
             <TransformWrapper>
               {() => (
                 <ImageWrapper>
@@ -46,10 +52,11 @@ function ZoomableImageModal({
                 </ImageWrapper>
               )}
             </TransformWrapper>
-          </div>
+          </StyleDiv>
         </div>
       </Modal.Body>
     </CustomModal>
+
   );
 }
 

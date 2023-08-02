@@ -6,6 +6,8 @@ import styled from 'styled-components';
 import { AxiosError, CanceledError } from 'axios';
 import { debounce } from 'lodash';
 import InfiniteScroll from 'react-infinite-scroller';
+import { Capacitor } from '@capacitor/core';
+import { Keyboard } from '@capacitor/keyboard';
 import LoadingIndicator from '../ui/LoadingIndicator';
 import { getConversation, markAllReadForSingleConversation, sendMessageWithFiles } from '../../api/messages';
 import { Message, User } from '../../types';
@@ -13,7 +15,8 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import socketStore from '../../socketStore';
 import { getConversationMessages } from '../../api/chat';
 import {
-  bottomMobileNavHeight, topToDivHeight,
+  bottomForCommentOrReplyInputOnMobile,
+  bottomMobileNavHeight, isNativePlatform, maxWidthForCommentOrReplyInputOnMobile, topToDivHeight,
 } from '../../constants';
 import ChatOptions from './ChatOptions';
 import ChatUserStatus from './ChatUserStatus';
@@ -26,6 +29,9 @@ interface Props {
   conversationId: string;
 }
 
+interface ChatProps {
+  isFocus: boolean;
+}
 const maxChatImageHeight = 400;
 
 const StyledChatContainer = styled.div`
@@ -38,6 +44,34 @@ const StyledChatContainer = styled.div`
   }
 `;
 
+const ChatHeader = styled.div`
+@media (max-width: ${maxWidthForCommentOrReplyInputOnMobile}px) {
+  position:fixed !important;
+  top:0px !important;
+  left:0px !important;
+  right:0px !important;
+  width:100% !important;
+  height:70px !important;
+  background: black !important;
+`;
+const ChatBody = styled.div<ChatProps>`
+@media (max-width: ${maxWidthForCommentOrReplyInputOnMobile}px) {
+  margin-top:65px;
+  ${(props) => props.isFocus === false && 'margin-bottom:60px'};
+  
+}
+`;
+const ChatFooter = styled.div`
+  @media (max-width: ${maxWidthForCommentOrReplyInputOnMobile}px) {
+    position: fixed;
+    left: 0;
+    width: 100%;
+    background: black;
+    bottom: var(--bottomForCommentOrReplyInputOnMobile, ${bottomForCommentOrReplyInputOnMobile});
+    z-index: 1;
+    margin-top:10px;
+  }
+`;
 enum LoadState {
   Loading,
   LoadSuccess,
@@ -75,19 +109,42 @@ function Chat({
   const [messages, setMessages] = useState<Message[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
   const [maxHeight, setMaxHeight] = useState<number>(0);
+  const [isFocused, setIsFocused] = useState<boolean>(false);
+  const [isKeyBoardVisible, setKeyboardVisible] = useState(false);
+  const [KeyBoardHeight, setKeyboardHeight] = useState<number>(0);
   const [noEarlierMessagesAvailable, setNoEarlierMessagesAvailable] = useState<boolean>(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const chatBodyElementRef = useRef<HTMLDivElement>(null);
   const latestChatScrollDistanceFromBottom = useRef<number>(0);
   const dispatch = useAppDispatch();
+  const isIOSSafari = !!window.navigator.userAgent.match(/Version\/[\d.]+.*Safari/);
 
+  useEffect(() => {
+    Keyboard.addListener('keyboardWillShow', (info) => {
+      setKeyboardHeight(info.keyboardHeight);
+      setKeyboardVisible(true);
+    });
+    Keyboard.addListener('keyboardWillHide', () => {
+      setKeyboardVisible(false);
+      setKeyboardHeight(0);
+    });
+  }, []);
   const updateMaxHeightBasedOnCurrentWindowHeight = debounce(() => {
     let newHeight = window.innerHeight;
     if (window.innerWidth >= 960) {
       newHeight -= topToDivHeight;
+    } else if (Capacitor.getPlatform() === 'ios' && !isKeyBoardVisible) {
+      newHeight -= bottomMobileNavHeight + 50;
+    } else if (KeyBoardHeight) {
+      newHeight = window.innerHeight;
+    } else if (isFocused && window?.visualViewport?.height && isIOSSafari) {
+      // eslint-disable-next-line no-unsafe-optional-chaining
+      newHeight = window?.visualViewport?.height + window.scrollY;
+    } else if (isNativePlatform) {
+      newHeight -= bottomMobileNavHeight;
     } else {
-      // add addition spacing beyond bottomMobileNavHeight so we don't cut it too close with padding
-      newHeight -= (bottomMobileNavHeight + 15);
+      // eslint-disable-next-line max-len
+      newHeight = isIOSSafari ? (window.innerHeight - bottomMobileNavHeight + 15) : (window.innerHeight - bottomMobileNavHeight);
     }
     setMaxHeight(newHeight);
   }, 100);
@@ -319,19 +376,20 @@ function Chat({
 
   return (
     <StyledChatContainer className="d-flex flex-column" style={{ height: `${maxHeight}px` }}>
-      <div className="chat-header">
+      <ChatHeader className="chat-header">
         <div className="py-2">
           <div className="d-flex align-items-center">
             <div className="flex-fill">
               <ChatUserStatus userData={otherParticipant} />
             </div>
-            <div>
+            <div className="me-3 me-lg-0">
               <ChatOptions userData={otherParticipant} />
             </div>
           </div>
         </div>
-      </div>
-      <div
+      </ChatHeader>
+      <ChatBody
+        isFocus={isFocused}
         ref={chatBodyElementRef}
         className="chat-body flex-fill"
         onScroll={(e: UIEvent<HTMLDivElement>) => {
@@ -364,8 +422,8 @@ function Chat({
             onImageLoad={adjustScrollAfterMessageListChange}
           />
         </InfiniteScroll>
-      </div>
-      <div className="chat-footer">
+      </ChatBody>
+      <ChatFooter className="chat-footer">
         <div className="py-3">
           <NewChatInput
             placeholder="Type your message here..."
@@ -374,10 +432,13 @@ function Chat({
             onFocus={updateMaxHeightBasedOnCurrentWindowHeight}
             onBlur={updateMaxHeightBasedOnCurrentWindowHeight}
             onRemoveFile={() => setErrors([])}
+            isFocused={isFocused}
+            setIsFocused={setIsFocused}
           />
         </div>
-      </div>
+      </ChatFooter>
     </StyledChatContainer>
+
   );
 }
 

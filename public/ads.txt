@@ -153,6 +153,9 @@ appnexus.com, 13074, RESELLER, f5ab79cb980f11d1
 indexexchange.com, 184579, DIRECT, 50b1c356f2c5c8fc
 indexexchange.com, 190105, DIRECT, 50b1c356f2c5c8fc
 
+#Index Exchange Direct OB
+indexexchange.com, 206325, DIRECT, 50b1c356f2c5c8fc
+
 #Media.net
 Media.net, 8CU75OYJ3, DIRECT
 Media.net, 8CU5K9ORQ , DIRECT #ob
@@ -171,6 +174,10 @@ lemmatechnologies.com, 399, RESELLER, 7829010c5bebd1fb #LEMMA
 #OpenX
 openx.com, 540472191, DIRECT, 6a698e2ec38604c6
 openx.com, 540447782, DIRECT, 6a698e2ec38604c6
+
+#OpenX Direct OB
+openx.com, 559612437, DIRECT, 6a698e2ec38604c6
+
 
 #Pubmatic
 pubmatic.com, 157511, DIRECT, 5d62403b186f2ace
@@ -280,6 +287,8 @@ smaato.com, 1100047713, RESELLER, 07bcf65f187117b4
 yahoo.com, 59531, RESELLER, e1a5b5b6e3255540
 
 #Smart AdServer
+smartadserver.com, 4194-OB, RESELLER, 060d053dcf45cbf3
+smartadserver.com, 4194, RESELLER, 060d053dcf45cbf3
 smartadserver.com, 3706, DIRECT
 contextweb.com, 560288, RESELLER, 89ff185a4c4e857c
 pubmatic.com, 156439, RESELLER, 5d62403b186f2ace

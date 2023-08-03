@@ -58,6 +58,7 @@ function PostCommentSection({
   setSelectedBlockedUserId,
   setCommentDropDownValue,
   ProgressButton,
+  setProgressButtonStatus,
   commentOrReplySuccessAlertMessage,
   setCommentOrReplySuccessAlertMessage,
 }: any) {
@@ -443,27 +444,31 @@ function PostCommentSection({
   };
 
   const onBlockYesClick = () => {
+    setProgressButtonStatus('loading');
     createBlockUser(commentReplyUserId)
       .then(() => {
         setShow(false);
+        setProgressButtonStatus('success');
         // Set dropDownValue for parent `<ReportModal/>`
         setSelectedBlockedUserId(commentReplyUserId);
         setCommentDropDownValue('BlockUserSuccess');
       })
       /* eslint-disable no-console */
-      .catch((error) => console.error(error));
+      .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
   };
 
   const handleCommentReplyReport = (reason: string) => {
+    setProgressButtonStatus('loading');
     const reportPayload = {
       targetId: commentID || commentReplyID,
       reason,
       reportType: commentID ? 'comment' : 'reply',
     };
     reportData(reportPayload).then(() => {
+      setProgressButtonStatus('success');
     })
       /* eslint-disable no-console */
-      .catch((error) => console.error(error));
+      .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
     setDropDownValue('PostReportSuccessDialog');
   };
 
@@ -742,6 +747,7 @@ function PostCommentSection({
         handleReport={handleCommentReplyReport}
         removeComment={removeComment}
         afterBlockUser={afterBlockUser}
+        ProgressButton={ProgressButton}
       />
       {
         isEdit

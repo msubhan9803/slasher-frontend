@@ -12,7 +12,7 @@ interface ReportModal {
   onConfirm: () => void;
   onCancel: () => void;
   buttonDisabled: boolean;
-  ProgressButton: ProgressButtonComponentType | any;
+  ProgressButton?: ProgressButtonComponentType | any;
 }
 
 function ModalBodyForReport({
@@ -56,5 +56,7 @@ function ModalBodyForReport({
     </Modal.Body>
   );
 }
-
+ModalBodyForReport.defaultProps = {
+  ProgressButton: undefined,
+};
 export default ModalBodyForReport;

@@ -7,6 +7,8 @@ import ModalBodyForDeleteConversation from '../ui/ModalBodyForDeleteConversation
 import ModalBodyForReport from '../ui/ModalBodyForReport';
 import ModalBodyForBlockUser from '../ui/ModalBodyForBlockUser';
 import ModalBodyForReportSuccess from '../ui/ModalBodyForReportSuccess';
+import { ProgressButtonComponentType } from '../ui/ProgressButton';
+import RoundButton from '../ui/RoundButton';
 
 interface Props {
   show: boolean;
@@ -14,9 +16,10 @@ interface Props {
   slectedDropdownValue: string;
   handleReport?: (value: string) => void;
   onBlockYesClick?: () => void | undefined;
+  ProgressButton: ProgressButtonComponentType;
 }
 function ChatOptionDialog({
-  show, setShow, slectedDropdownValue, handleReport, onBlockYesClick,
+  show, setShow, slectedDropdownValue, handleReport, onBlockYesClick, ProgressButton,
 }: Props) {
   const { conversationId } = useParams();
   const [reports, setReports] = useState<string>('');
@@ -52,7 +55,9 @@ function ChatOptionDialog({
   const handleBlockUser = () => {
     if (onBlockYesClick) { onBlockYesClick(); }
     setChecked(false);
-    closeModal();
+  };
+  const handleRedirect = () => {
+    navigate('/app/home');
   };
   return (
     <ModalContainer
@@ -81,6 +86,7 @@ function ChatOptionDialog({
             onConfirm={handleReportData}
             onCancel={closeModal}
             buttonDisabled={buttonDisabled}
+            ProgressButton={ProgressButton}
           />
         )
       }
@@ -91,10 +97,18 @@ function ChatOptionDialog({
             setChecked={setChecked}
             closeModal={closeModal}
             handleBlockUser={handleBlockUser}
+            ProgressButton={ProgressButton}
           />
         )
       }
-
+      {
+        slectedDropdownValue === 'BlockUserSuccess' && (
+          <Modal.Body className="d-flex flex-column align-items-center text-center pt-0">
+            <p className="px-3">You have successfully blocked this user.</p>
+            <RoundButton className="mb-3 w-100 fs-3" onClick={() => handleRedirect()}>Ok</RoundButton>
+          </Modal.Body>
+        )
+      }
     </ModalContainer>
   );
 }

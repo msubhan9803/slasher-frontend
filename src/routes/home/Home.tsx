@@ -358,8 +358,8 @@ function Home() {
     setProgressButtonStatus('loading');
     createBlockUser(postUserId)
       .then(() => {
-        setDropDownValue('BlockUserSuccess');
         setProgressButtonStatus('success');
+        setDropDownValue('BlockUserSuccess');
         setPosts((prev) => prev.filter(
           (scrollData: any) => scrollData.userId !== postUserId,
         ));
@@ -382,7 +382,7 @@ function Home() {
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res.status === 200) { callLatestFeedPost(); setProgressButtonStatus('success'); }
+      if (res) { callLatestFeedPost(); setProgressButtonStatus('success'); }
     })
       // eslint-disable-next-line no-console
       .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });

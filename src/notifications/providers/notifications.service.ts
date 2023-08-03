@@ -25,10 +25,13 @@ export class NotificationsService {
 
   async create(notification: Partial<Notification>) {
     const newNotification = await this.notificationModel.create(notification);
+
     // TODO: Eventually move this to a background job (probably using a NestJS Queue: https://docs.nestjs.com/techniques/queues)
     // This can be processed in the background instead of adding a small delay to each notification creation.
+
     await Promise.all([this.processNotification(newNotification.id),
     this.usersService.updateNewNotificationCount((notification.userId).toString())]);
+
     return newNotification;
   }
 
@@ -40,11 +43,12 @@ export class NotificationsService {
 
     // In SD-661, confirmed that all notifications should be emitted over socket.
     this.notificationsGateway.emitMessageForNotification(notification);
-
     if (this.configService.get<boolean>('SEND_PUSH_NOTIFICATION')) {
       this.sendPushNotification(notification);
     }
+
     // Mark notification as processed
+
     await notification.updateOne({ isProcessed: true });
   }
 
@@ -62,7 +66,7 @@ export class NotificationsService {
     if (isNotificationEnabled && user.userDevices.length) {
       const deviceTokens = user.userDevices.filter((device) => device.device_id !== 'browser' && device.device_token)
       .map((device) => device.device_token);
-      await this.pushNotificationsService.sendPushNotification(notificationData, deviceTokens, user.newNotificationCount);
+      this.pushNotificationsService.sendPushNotification(notificationData, deviceTokens, user.newNotificationCount);
     }
   }
 

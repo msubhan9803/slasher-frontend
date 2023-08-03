@@ -43,12 +43,10 @@ export class FeedLikesController {
     if (!post) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-
     const feedPostLikeData = await this.feedLikesService.findFeedPostLike(params.feedPostId, user.id);
     if (feedPostLikeData) {
       throw new HttpException('You already like the post', HttpStatus.BAD_REQUEST);
     }
-
     if (
       post.postType !== PostType.MovieReview && !post.rssfeedProviderId
       && user.id !== (post.userId as unknown as User)._id.toString()
@@ -58,16 +56,13 @@ export class FeedLikesController {
         throw new HttpException('You can only interact with posts of friends.', HttpStatus.FORBIDDEN);
       }
     }
-
     if (!post.rssfeedProviderId) {
       const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User)._id.toString());
       if (block) {
         throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
       }
     }
-
     await this.feedLikesService.createFeedPostLike(params.feedPostId, user.id);
-
     let postUserId;
     if (!post.rssfeedProviderId) {
       // Create notification for post creator, informing them that a like was added to their post.
@@ -89,6 +84,7 @@ export class FeedLikesController {
         notificationMsg: post.postType === PostType.MovieReview ? 'liked your movie review' : 'liked your post',
       });
     }
+
     return { success: true };
   }
 
@@ -279,7 +275,7 @@ export class FeedLikesController {
     }
 
     const data = await this.feedLikesService.getLikeUsersForFeedComment(
-      params.feedCommentId,
+      comment,
       query.limit,
       query.offset,
       user._id.toString(),
@@ -327,7 +323,7 @@ export class FeedLikesController {
     }
 
     const data = await this.feedLikesService.getLikeUsersForFeedReply(
-      params.feedReplyId,
+      reply,
       query.limit,
       query.offset,
       user._id.toString(),

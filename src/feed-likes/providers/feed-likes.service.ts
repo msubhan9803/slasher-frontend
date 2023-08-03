@@ -4,7 +4,6 @@ import mongoose, { Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { FeedPostLike, FeedPostLikeDocument } from '../../schemas/feedPostLike/feedPostLike.schema';
 import { FeedPostsService } from '../../feed-posts/providers/feed-posts.service';
-import { NotFoundError } from '../../errors';
 import { FeedComment, FeedCommentDocument } from '../../schemas/feedComment/feedComment.schema';
 import { FeedReply, FeedReplyDocument } from '../../schemas/feedReply/feedReply.schema';
 import { FeedReplyLike, FeedReplyLikeDocument } from '../../schemas/feedReplyLike/feedReplyLike.schema';
@@ -31,30 +30,18 @@ export class FeedLikesService {
   ) { }
 
   async createFeedPostLike(feedPostId: string, userId: string): Promise<void> {
-    const feedPostDetails = await this.feedPostsService.findById(feedPostId, false);
-    if (!feedPostDetails) {
-      throw new NotFoundError('Post not found.');
-    }
     const transactionSession = await this.connection.startSession();
     transactionSession.startTransaction();
-    await this.feedPostsService.addLike(feedPostId, userId);
-    await this.feedLikesModel.create({ feedPostId, userId });
+    await Promise.all([this.feedPostsService.addLike(feedPostId, userId),
+    this.feedLikesModel.create({ feedPostId, userId })]);
     transactionSession.endSession();
   }
 
   async findFeedPostLike(feedPostId: string, userId: string): Promise<FeedPostLikeDocument> {
-    const feedPostDetails = await this.feedPostsService.findById(feedPostId, false);
-    if (!feedPostDetails) {
-      throw new NotFoundError('Post not found');
-    }
     return this.feedLikesModel.findOne({ feedPostId, userId });
   }
 
   async deleteFeedPostLike(feedPostId: string, userId: string): Promise<void> {
-    const feedPostDetails = await this.feedPostsService.findById(feedPostId, false);
-    if (!feedPostDetails) {
-      throw new NotFoundError('Post not found.');
-    }
     const transactionSession = await this.connection.startSession();
     transactionSession.startTransaction();
     await this.feedPostsService.removeLike(feedPostId, userId);
@@ -63,10 +50,6 @@ export class FeedLikesService {
   }
 
   async createFeedCommentLike(feedCommentId: string, userId: string): Promise<void> {
-    const feedCommentsDetails = await this.feedCommentModel.findById({ _id: feedCommentId });
-    if (!feedCommentsDetails) {
-      throw new NotFoundError('Comment not found.');
-    }
     await this.feedCommentModel.updateOne(
       { _id: new mongoose.Types.ObjectId(feedCommentId) },
       { $addToSet: { likes: new mongoose.Types.ObjectId(userId) } },
@@ -74,22 +57,13 @@ export class FeedLikesService {
   }
 
   async deleteFeedCommentLike(feedCommentId: string, userId: string): Promise<void> {
-    const feedCommentsDetails = await this.feedCommentModel.findById({ _id: feedCommentId });
-    if (!feedCommentsDetails) {
-      throw new NotFoundError('Comment not found.');
-    }
     await this.feedCommentModel.updateOne(
       { _id: new mongoose.Types.ObjectId(feedCommentId) },
       { $pull: { likes: new mongoose.Types.ObjectId(userId) } },
     );
   }
 
-  async getLikeUsersForFeedComment(feedCommentId: string, limit: number, offset = 0, requestingContextUserId?: string) {
-    const feedCommentsDetails = await this.feedCommentModel.findById({ _id: feedCommentId });
-    if (!feedCommentsDetails) {
-      throw new NotFoundError('Comment not found.');
-    }
-
+  async getLikeUsersForFeedComment(feedCommentsDetails: FeedComment, limit: number, offset = 0, requestingContextUserId?: string) {
     // Do not return likes by blocked users
     let blockUserIds = [];
     if (requestingContextUserId) {
@@ -134,10 +108,6 @@ export class FeedLikesService {
   }
 
   async createFeedReplyLike(feedReplyId: string, userId: string): Promise<void> {
-    const feedReplyDetails = await this.feedReplyModel.findById({ _id: feedReplyId });
-    if (!feedReplyDetails) {
-      throw new NotFoundError('Reply not found.');
-    }
     const transactionSession = await this.connection.startSession();
     transactionSession.startTransaction();
     await this.feedReplyModel.updateOne(
@@ -149,10 +119,6 @@ export class FeedLikesService {
   }
 
   async deleteFeedReplyLike(feedReplyId: string, userId: string): Promise<void> {
-    const feedReplyDetails = await this.feedReplyModel.findById({ _id: feedReplyId });
-    if (!feedReplyDetails) {
-      throw new NotFoundError('Reply not found.');
-    }
     const transactionSession = await this.connection.startSession();
     transactionSession.startTransaction();
     await this.feedReplyModel.updateOne(
@@ -163,12 +129,12 @@ export class FeedLikesService {
     transactionSession.endSession();
   }
 
-  async getLikeUsersForFeedReply(feedReplyId: string, limit: number, offset = 0, requestingContextUserId?: string) {
-    const feedReplyDetails = await this.feedReplyModel.findById({ _id: feedReplyId });
-    if (!feedReplyDetails) {
-      throw new NotFoundError('Reply not found.');
-    }
-
+  async getLikeUsersForFeedReply(feedReplyDetails: FeedReply, limit: number, offset = 0, requestingContextUserId?: string) {
+    // const feedReplyDetails = await this.feedReplyModel.findById({ _id: feedReplyId });
+    // if (!feedReplyDetails) {
+    //   throw new NotFoundError('Reply not found.');
+    // }
+    const feedReplyId = feedReplyDetails._id;
     const filter: any = [{ feedReplyId }];
 
     // Do not return likes by blocked users

@@ -399,8 +399,8 @@ export class FeedPostsService {
     return updatedPost;
   }
 
-  async getLikeUsersForPost(postId: string, limit: number, offset = 0, requestingContextUserId?: string) {
-    const filter: any = [{ feedPostId: postId }];
+  async getLikeUsersForPost(postData: FeedPost, limit: number, offset = 0, requestingContextUserId?: string) {
+    const filter: any = [{ feedPostId: postData._id }];
 
     // Do not return likes by blocked users
     if (requestingContextUserId) {

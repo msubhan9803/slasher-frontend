@@ -875,12 +875,12 @@ describe('FeedPostsService', () => {
     it('successfully return list of like users', async () => {
       const limit = 2;
       const offset = 0;
-      const likeUsers1 = await feedPostsService.getLikeUsersForPost(feedPost.id, limit, offset);
+      const likeUsers1 = await feedPostsService.getLikeUsersForPost(feedPost, limit, offset);
       expect(likeUsers1.map((user) => user._id.toString())).toEqual(expect.arrayContaining([activeUser.id, user0.id]));
 
       // Pagination
       const newOffset = offset + limit;
-      const likeUsers2 = await feedPostsService.getLikeUsersForPost(feedPost.id, limit, newOffset);
+      const likeUsers2 = await feedPostsService.getLikeUsersForPost(feedPost, limit, newOffset);
       expect(likeUsers2.map((user) => user._id.toString())).toEqual(expect.arrayContaining([user1.id, user2.id]));
     });
 
@@ -888,7 +888,7 @@ describe('FeedPostsService', () => {
       const limit = 2;
       const offset = 0;
       const requestingContextUserId = user0.id;
-      const likeUsers = await feedPostsService.getLikeUsersForPost(feedPost.id, limit, offset, requestingContextUserId);
+      const likeUsers = await feedPostsService.getLikeUsersForPost(feedPost, limit, offset, requestingContextUserId);
       expect(likeUsers.map((user) => user._id.toString())).toEqual(expect.arrayContaining([activeUser.id, user0.id]));
       expect(likeUsers[0].friendship).toEqual({
         reaction: 3,

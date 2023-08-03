@@ -4,7 +4,7 @@ import { firebaseInstance } from '../../app/providers/initFirebase';
 
 @Injectable()
 export class PushNotificationsService {
-  async sendPushNotification(notificationData, deviceToken, badgeCount) {
+  sendPushNotification(notificationData, deviceToken, badgeCount) {
     const convertedObjectToString = JSON.stringify(notificationData);
     const notificationStringfyObject = {
       data: convertedObjectToString,
@@ -25,7 +25,7 @@ export class PushNotificationsService {
         data: notificationStringfyObject,
         token,
       };
-      await this.triggerPushNotification(message);
+      this.triggerPushNotification(message);
     }
   }
 

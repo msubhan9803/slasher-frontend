@@ -33,6 +33,9 @@ import { MovieActiveStatus } from '../../schemas/movie/movie.enums';
 import { RssFeed } from '../../schemas/rssFeed/rssFeed.schema';
 import { Movie } from '../../schemas/movie/movie.schema';
 import { Image } from '../../schemas/shared/image.schema';
+import { HashtagFollowsService } from '../../hashtag-follows/providers/hashtag-follows.service';
+import { Hashtag, HashtagDocument } from '../../schemas/hastag/hashtag.schema';
+import { ProfileVisibility } from '../../schemas/user/user.enums';
 
 describe('FeedPostsService', () => {
   let app: INestApplication;
@@ -50,6 +53,8 @@ describe('FeedPostsService', () => {
   let user0: UserDocument;
   let blocksModel: Model<BlockAndUnblockDocument>;
   let moviesService: MoviesService;
+  let hashtagFollowsService: HashtagFollowsService;
+  let hashtagModel: Model<HashtagDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -65,7 +70,9 @@ describe('FeedPostsService', () => {
     rssFeedService = moduleRef.get<RssFeedService>(RssFeedService);
     feedLikesService = moduleRef.get<FeedLikesService>(FeedLikesService);
     moviesService = moduleRef.get<MoviesService>(MoviesService);
+    hashtagFollowsService = moduleRef.get<HashtagFollowsService>(HashtagFollowsService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
+    hashtagModel = moduleRef.get<Model<HashtagDocument>>(getModelToken(Hashtag.name));
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -567,6 +574,37 @@ describe('FeedPostsService', () => {
         );
         const feedPosts = await feedPostsService.findMainFeedPostsForUser(userData.id, 10);
         expect((feedPosts[0] as any).likedByUser).toBe(true);
+      });
+
+      it('when post user profile_status is private than expected response', async () => {
+        const user = await usersService.create(userFactory.build({
+          profile_status: ProfileVisibility.Private,
+        }));
+        const hashtag1 = await hashtagModel.create({
+          name: 'good',
+        });
+        const hashtag2 = await hashtagModel.create({
+          name: 'goodidea',
+        });
+        await hashtagFollowsService.create({
+          userId: activeUser._id,
+          hashTagId: hashtag1._id,
+        });
+        await hashtagFollowsService.create({
+          userId: activeUser._id,
+          hashTagId: hashtag2._id,
+        });
+        const post = await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user.id,
+            message: 'newPost #good #goodidea',
+          }),
+        );
+        const feedPosts = await feedPostsService.findMainFeedPostsForUser(activeUser.id, 100);
+        expect(feedPosts).toHaveLength(10);
+        for (let i = 1; i < feedPosts.length; i += 1) {
+          expect(feedPosts[i]._id).not.toEqual(post._id);
+        }
       });
     });
 

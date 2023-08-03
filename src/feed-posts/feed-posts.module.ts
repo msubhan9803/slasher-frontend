@@ -14,6 +14,8 @@ import { FriendsModule } from '../friends/friends.module';
 import { BlocksModule } from '../blocks/blocks.module';
 import { HashtagModule } from '../hashtag/hashtag.module';
 import { MovieUserStatusModule } from '../movie-user-status/movie.user.status.module';
+import { Hashtag, HashtagSchema } from '../schemas/hastag/hashtag.schema';
+import { HashtagFollowsModule } from '../hashtag-follows/hashtag-follows.module';
 
 @Global()
 @Module({
@@ -22,11 +24,13 @@ import { MovieUserStatusModule } from '../movie-user-status/movie.user.status.mo
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: FeedPostLike.name, schema: FeedPostLikeSchema }]),
     MongooseModule.forFeature([{ name: BlockAndUnblock.name, schema: BlockAndUnblockSchema }]),
+    MongooseModule.forFeature([{ name: Hashtag.name, schema: HashtagSchema }]),
     RssFeedProviderFollowsModule,
     FriendsModule,
     BlocksModule,
     HashtagModule,
     MovieUserStatusModule,
+    HashtagFollowsModule,
   ],
   providers: [FeedPostsService, BlocksService, LocalStorageService, S3StorageService],
   exports: [FeedPostsService],

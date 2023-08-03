@@ -15,6 +15,8 @@ import { pick } from '../../utils/object-utils';
 import { ProfileVisibility } from '../../schemas/user/user.enums';
 import { FriendShip, LikeUserAndFriendship } from '../../types';
 import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
+import { HashtagFollowsService } from '../../hashtag-follows/providers/hashtag-follows.service';
+import { Hashtag, HashtagDocument } from '../../schemas/hastag/hashtag.schema';
 
 @Injectable()
 export class FeedPostsService {
@@ -22,9 +24,11 @@ export class FeedPostsService {
     @InjectModel(FeedPost.name) private feedPostModel: Model<FeedPostDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(FeedPostLike.name) private feedLikesModel: Model<FeedPostLikeDocument>,
+    @InjectModel(Hashtag.name) private hashtagModel: Model<HashtagDocument>,
     private readonly rssFeedProviderFollowsService: RssFeedProviderFollowsService,
     private readonly friendsService: FriendsService,
     private readonly blocksService: BlocksService,
+    private readonly hashtagFollowsService: HashtagFollowsService,
     private configService: ConfigService,
   ) { }
 
@@ -155,6 +159,21 @@ export class FeedPostsService {
     // Get the list of friend ids
     const friendIds = await this.friendsService.getFriendIds(userId, [FriendRequestReaction.Accepted]);
 
+    const hashtagFollows = await this.hashtagFollowsService.findAllByUserId(userId);
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    const hashtagFollowIds = hashtagFollows.map((hashtagFollows) => hashtagFollows.hashTagId);
+    const hashtags = await (await this.hashtagModel.find(
+      { _id: { $in: hashtagFollowIds } },
+    )).map((hashtagName) => hashtagName.name);
+    const profileIdsToIgnore = await this.userModel.find({
+      _id: { $nin: [...friendIds, new mongoose.Types.ObjectId(userId)] },
+      $or: [
+        { profile_status: ProfileVisibility.Private },
+        { $and: [{ profile_status: ProfileVisibility.Public, deleted: true }] },
+      ],
+    });
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    const userIds = profileIdsToIgnore.map((userId) => userId._id);
     // Optionally, only include posts that are older than the given `before` post
     const beforeQuery: any = {};
     if (before) {
@@ -181,6 +200,12 @@ export class FeedPostsService {
             ],
           },
           { hideUsers: { $ne: new mongoose.Types.ObjectId(userId) } },
+          {
+            $or: [
+              { hashtags: { $in: hashtags } },
+              { userId: { $nin: userIds } },
+            ],
+          },
           beforeQuery,
         ],
       })

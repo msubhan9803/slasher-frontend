@@ -4,7 +4,7 @@ import { FormatMentionProps } from '../types';
 const YOUTUBE_LINK_REGEX = /((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\\-]+\?v=|embed\/|v\/)?)([\w\\-]+)(\S+)?/;
 
 /* eslint-disable no-useless-escape */
-const EMOJI_REGEX = /((\ud83c[\udde6-\uddff]){2}|([\#\*0-9]\u20e3)|(\u00a9|\u00ae|[\u2000-\u3300]|[\ud83c-\ud83e][\ud000-\udfff])((\ud83c[\udffb-\udfff])?(\ud83e[\uddb0-\uddb3])?(\ufe0f?\u200d([\u2000-\u3300]|[\ud83c-\ud83e][\ud000-\udfff])\ufe0f?)?)*)/g;
+const EMOJI_REGEX = /((\ud83c[\udde6-\uddff]){2}|([\#\*0-9]\u20e3)|(\u00a9|\u00ae|[\u2000-\u3300]|[\ud83c-\ud83e][\ud000-\udfff])((\ud83c[\udffb-\udfff])?(\ud83e[\uddb0-\uddb3])?(\ufe0f?\u200d([\u2000-\u3300]|[\ud83c-\ud83e][\ud000-\udfff])\ufe0f?)?)*)((?![“”]))(?![^<>]*>)/g;
 
 export function findFirstYouTubeLinkVideoId(message: string) {
   return message?.match(YOUTUBE_LINK_REGEX)?.[6];
@@ -98,12 +98,23 @@ export function cleanExternalHtmlContent(htmlString: string) {
   return containerElement.innerHTML;
 }
 
-export function decryptMessage(message: any, isReplaced?: Boolean) {
-  const replacedContent = isReplaced ? message : message.replace(EMOJI_REGEX, '<span style="font-size: 1.375rem;">$1</span>');
+function isEmoji(text: string) {
+  const emojiPattern = /(?:[\u203C-\u3299\u203C-\u303D\u00A9\u00AE\u203C\u2049\u2122\u2139\u2194-\u21AA\u231A-\u231B\u2328\u2388\u23CF\u23E9-\u23F3\u23F8-\u23FA\u24C2\u25AA-\u25AB\u25B6\u25C0\u25FB-\u25FE\u2600-\u28FF\u2934-\u29FF\u2B05-\u2B07\u2B1B\u2B1C\u2B50\u2B55\u3030\u303D\u3297\u3299]|\uD83C\uDC04|\uD83C\uDCCF|\uD83C\uDDE6-\uD83C\uDDFF|\uD83C\uDE01|\uD83C\uDE02|\uD83C\uDE1A-\uD83C\uDE2F|\uD83C\uDE32-\uD83C\uDE3A|\uD83C\uDE50|\uD83C\uDE51|\uD83C\uDF00-\uD83C\uDF21|\uD83C\uDF23-\uD83C\uDF2F|\uD83C\uDF33-\uD83C\uDF3A|\uD83C\uDF40|\uD83C\uDF41|\uD83C\uDF43-\uD83C\uDF45|\uD83C\uDF47-\uD83C\uDF4C|\uD83C\uDF4E-\uD83C\uDF50|\uD83C\uDF52-\uD83C\uDF67|\uD83C\uDF69-\uD83C\uDF6C|\uD83C\uDF70|\uD83C\uDF85-\uD83C\uDF87|\uD83C\uDFE0-\uD83C\uDFE6|\uD83C\uDFE8-\uD83C\uDFED|\uD83C\uDFF0|\uD83C\uDFF7|\uD83C\uDFF8|\uD83C\uDFF9|\uD83C\uDFFB-\uD83C\uDFFF|\uD83D\uDC00-\uD83D\uDC7F|\uD83D\uDC80-\uD83D\uDCFF|\uD83D\uDE00-\uD83D\uDE4F|\uD83D\uDE80-\uD83D\uDEFF|\uD83E\uDD10-\uD83E\uDD3A|\uD83E\uDD3C-\uD83E\uDD3E|\uD83E\uDD40-\uD83E\uDD45|\uD83E\uDD47-\uD83E\uDD4C|\uD83E\uDD50|\uD83E\uDD52-\uD83E\uDD67|\uD83E\uDD6F-\uD83E\uDD73|\uD83E\uDD76|\uD83E\uDD7A|\uD83E\uDD7E-\uD83E\uDD81|\uD83E\uDD84-\uD83E\uDD85|\uD83E\uDD87-\uD83E\uDD89|\uD83E\uDD8C-\uD83E\uDD91|\uD83E\uDD93-\uD83E\uDD94|\uD83E\uDD96|\uD83E\uDD97|\uD83E\uDD99-\uD83E\uDD9A|\uD83E\uDD9C-\uD83E\uDD9E|\uD83E\uDDA0-\uD83E\uDDA2|\uD83E\uDDA5-\uD83E\uDDA7|\uD83E\uDDA9-\uD83E\uDDAC|\uD83E\uDDAE-\uD83E\uDDD0|\uD83E\uDDD2-\uD83E\uDDD3|\uD83E\uDDD5\uD83E\uDDD7\uD83E\uDDDC-\uD83E\uDDDE\uD83E\uDDE0-\uD83E\uDDE5\uD83E\uDDE7-\uD83E\uDDFF]+|[\uD800-\uD83F][\uDC00-\uDFFF]|\uD83F[\uDC00-\uDEFF])/g;
+  return emojiPattern.test(text);
+}
+export function decryptMessage(message: string, isReplaced?: boolean) {
+  const replacedContent = isReplaced
+    ? message
+    : message.replace(EMOJI_REGEX, (match: string) => {
+      if (isEmoji(match)) {
+        return `<span style="font-size: 1.375rem;">${match}</span>`;
+      }
+      return match;
+    });
+
   const found = message ? replacedContent.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '') : '';
   return found;
 }
-
 export function sortInPlace(array: string[]) {
   return array.sort((a, b) => a.localeCompare(b));
 }

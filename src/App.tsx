@@ -1,4 +1,5 @@
 /* eslint-disable no-alert */
+/* eslint-disable max-lines */
 import React from 'react';
 import {
   Route, RouterProvider, createBrowserRouter, createRoutesFromElements,
@@ -47,7 +48,6 @@ import PublicProfile from './routes/public-home-page/public-profile-web/PublicPr
 import { useAppSelector } from './redux/hooks';
 import ServerUnavailable from './components/ServerUnavailable';
 import Conversation from './routes/conversation/Conversation';
-import PushNotificationAndDeepLinkListener from './components/PushNotificationAndDeepLinkListener';
 import Index from './routes/Index';
 import { onKeyboardClose, onKeyboardOpen } from './utils/styles-utils ';
 import UnexpectedError from './components/UnexpectedError';
@@ -55,6 +55,7 @@ import { healthCheck } from './api/health-check';
 import { store } from './redux/store';
 import { setIsServerAvailable } from './redux/slices/serverAvailableSlice';
 import { isHomePage } from './utils/url-utils';
+import CapacitorAppListeners from './components/CapacitorAppListeners';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -154,7 +155,7 @@ function App() {
     createRoutesFromElements(
       <Route
         path="/"
-        element={<PushNotificationAndDeepLinkListener />}
+        element={<CapacitorAppListeners />}
         errorElement={<UnauthenticatedPageWrapper><UnexpectedError /></UnauthenticatedPageWrapper>}
       >
         <Route path="/" element={<Index />} />

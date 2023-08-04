@@ -30,7 +30,7 @@ export class FriendsGateway {
     ]);
 
     targetUserSocketIds.forEach((socketId) => {
-      this.server.to(socketId).emit('friendRequestReceived', {
+      this.server.to(socketId).emit('friendRequestUpdated', {
         pendingFriendRequestCount,
         recentFriendRequests: receivedFriendRequestsData,
         actionUserId,

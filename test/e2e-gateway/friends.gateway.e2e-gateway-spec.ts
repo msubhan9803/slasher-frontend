@@ -87,7 +87,7 @@ describe('Friends Gateway (e2e)', () => {
   });
 
   describe('#friendRequestReceived', () => {
-    it('FriendsService#createFriendRequest calls friendRequestReceived, which emits the expected socket', async () => {
+    it('FriendsService#createFriendRequest calls friendRequestUpdated, which emits the expected socket', async () => {
       const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
       await waitForAuthSuccessMessage(client);
 
@@ -100,7 +100,7 @@ describe('Friends Gateway (e2e)', () => {
 
       let receivedPayload;
       const socketListenPromise = new Promise<void>((resolve) => {
-        receiverClient.on('friendRequestReceived', (...args) => {
+        receiverClient.on('friendRequestUpdated', (...args) => {
           // NOTE: Avoid calling expect() method inside of the on() method, or the test will hang
           // if expect() comparison fails.
           [receivedPayload] = args;

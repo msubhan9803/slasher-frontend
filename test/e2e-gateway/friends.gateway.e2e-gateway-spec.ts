@@ -15,7 +15,6 @@ import { rewindAllFactories } from '../helpers/factory-helpers.ts';
 import { FriendsService } from '../../src/friends/providers/friends.service';
 import { FriendsGateway } from '../../src/friends/providers/friends.gateway';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../src/constants';
-import { FriendRequestReaction } from '../../src/schemas/friend/friend.enums';
 
 describe('Friends Gateway (e2e)', () => {
   let app: INestApplication;
@@ -97,7 +96,7 @@ describe('Friends Gateway (e2e)', () => {
       await waitForAuthSuccessMessage(receiverClient);
 
       const friend = await friendsService.createFriendRequest(activeUser.id, user0.id);
-      await friendsGateway.emitFriendRequestReceivedEvent(friend);
+      await friendsGateway.emitFriendRequestReceivedEvent(friend.to.toString());
 
       let receivedPayload;
       const socketListenPromise = new Promise<void>((resolve) => {
@@ -120,12 +119,20 @@ describe('Friends Gateway (e2e)', () => {
       await waitForSocketUserCleanup(receiverClient, usersService);
 
       expect(receivedPayload).toEqual({
-        friend: {
+        pendingFriendRequestCount: 1,
+        recentFriendRequests: [{
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          from: activeUser.id,
-          to: user0.id,
-          reaction: FriendRequestReaction.Pending,
-        },
+          userName: 'Username1',
+          profilePic: expect.any(String),
+          firstName: 'First name 1',
+          createdAt: expect.any(String),
+        }],
+        // friend: {
+        //   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        //   from: activeUser.id,
+        //   to: user0.id,
+        //   reaction: FriendRequestReaction.Pending,
+        // },
       });
     });
   });

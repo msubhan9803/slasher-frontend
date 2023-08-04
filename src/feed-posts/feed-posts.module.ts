@@ -13,6 +13,7 @@ import { BlockAndUnblock, BlockAndUnblockSchema } from '../schemas/blockAndUnblo
 import { FriendsModule } from '../friends/friends.module';
 import { BlocksModule } from '../blocks/blocks.module';
 import { MovieUserStatusModule } from '../movie-user-status/movie.user.status.module';
+import { FriendsGateway } from '../friends/providers/friends.gateway';
 
 @Global()
 @Module({
@@ -26,8 +27,8 @@ import { MovieUserStatusModule } from '../movie-user-status/movie.user.status.mo
     BlocksModule,
     MovieUserStatusModule,
   ],
-  providers: [FeedPostsService, BlocksService, LocalStorageService, S3StorageService],
-  exports: [FeedPostsService],
+  providers: [FeedPostsService, BlocksService, LocalStorageService, S3StorageService, FriendsGateway],
+  exports: [FeedPostsService, FriendsGateway],
   controllers: [FeedPostsController],
 })
 export class FeedPostsModule { }

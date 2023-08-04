@@ -809,6 +809,28 @@ export class UsersController {
     );
   }
 
+  // TODO: Delete this after the app and website have been updated.
+  // It wil be replaced by the deleteAccount method in this class.
+  @Delete('delete-account')
+  async deleteAccountDeprecated(
+    @Req() request: Request,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: DeleteAccountQueryDto,
+  ) {
+    const user = getUserFromRequest(request);
+
+    // We check user id against the DTO data to make it harder to accidentally delete an account.
+    // This is important because users cannot undo account deletion.
+    if (user.id !== query.userId) {
+      throw new HttpException("Supplied userId param does not match current user's id.", HttpStatus.BAD_REQUEST);
+    }
+
+    await this.usersService.delete(user.id);
+
+    return {
+      success: true,
+    };
+  }
+
   @Delete(':userId')
   async deleteAccount(
     @Req() request: Request,
@@ -837,31 +859,6 @@ export class UsersController {
     }
 
     await this.usersService.delete(userToDelete.id);
-
-    return {
-      success: true,
-    };
-  }
-
-  // TODO: Delete this after the app and website have been updated.
-  // It wil be replaced by the deleteAccount method in this class.
-  @Delete('delete-account')
-  async deleteAccountDeprecated(
-    @Req() request: Request,
-    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: DeleteAccountQueryDto,
-  ) {
-    const user = getUserFromRequest(request);
-
-    // We check user id against the DTO data to make it harder to accidentally delete an account.
-    // This is important because users cannot undo account deletion.
-    if (user.id !== query.userId) {
-      throw new HttpException(
-        'Supplied userId does not match current user\'s id.',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    await this.usersService.delete(user.id);
 
     return {
       success: true,

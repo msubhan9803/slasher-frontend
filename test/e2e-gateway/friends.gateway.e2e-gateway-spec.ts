@@ -68,24 +68,6 @@ describe('Friends Gateway (e2e)', () => {
     );
   });
 
-  describe('#clearNewFriendRequestCount', () => {
-    it('when clean new friend request count', async () => {
-      const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
-      await waitForAuthSuccessMessage(client);
-
-      const response = await new Promise<any>((resolve) => {
-        client.emit('clearNewFriendRequestCount', (data) => {
-          resolve(data);
-        });
-      });
-      client.close();
-
-      expect(response).toEqual({ newFriendRequestCount: 0 });
-      // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
-      await waitForSocketUserCleanup(client, usersService);
-    });
-  });
-
   describe('#friendRequestReceived', () => {
     it('FriendsService#createFriendRequest calls friendRequestUpdated, which emits the expected socket', async () => {
       const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });

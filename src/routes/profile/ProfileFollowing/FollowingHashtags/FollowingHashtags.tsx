@@ -11,7 +11,6 @@ import FollowingHeader from '../FollowingHeader';
 import { followHashtag, getFollowedHashtags, unfollowHashtag } from '../../../../api/users';
 import { useAppSelector } from '../../../../redux/hooks';
 import LoadingIndicator from '../../../../components/ui/LoadingIndicator';
-import ErrorMessageList from '../../../../components/ui/ErrorMessageList';
 
 // const CustomHashTagButton = styled(HashtagButton)`
 //   background-color: #383838;
@@ -37,7 +36,7 @@ function FollowingHashtags() {
   const [search, setSearch] = useState<string>('');
   const [page, setPage] = useState<number>(0);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string[]>();
+  // const [errorMessage, setErrorMessage] = useState<string[]>();
   const [followedHashtag, setFollowedHastag] = useState<FollowHashtagProps[]>([]);
   const [additionalHashtag, setAdditionalHashtag] = useState<boolean>(false);
   const [loadingHashtag, setLoadingHashtag] = useState<boolean>(false);
@@ -61,7 +60,9 @@ function FollowingHashtags() {
       })
       .catch((error) => {
         setNoMoreData(true);
-        setErrorMessage(error.response.data.message);
+        /* eslint-disable no-console */
+        console.error(error);
+        // setErrorMessage(error.response.data.message);
       })
       .finally(
         // eslint-disable-next-line max-len
@@ -245,7 +246,8 @@ function FollowingHashtags() {
             )}
           {(loadingHashtag) && <LoadingIndicator className="py-3" />}
           {noMoreData && renderNoMoreDataMessage()}
-          {/* <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" /> */}
+          {/* <ErrorMessageList errorMessages={errorMessage}
+          divClass="mt-3 text-start" className="m-0" /> */}
         </InfiniteScroll>
       </div>
     </div>

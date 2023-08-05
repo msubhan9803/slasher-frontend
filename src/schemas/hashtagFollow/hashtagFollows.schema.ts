@@ -57,4 +57,10 @@ export class HashTagsFollow extends HashTagsFollowUnusedFields {
 
 export const HashTagsFollowSchema = SchemaFactory.createForClass(HashTagsFollow);
 
+HashTagsFollowSchema.index(
+  {
+    userId: 1,
+  },
+);
+
 export type HashTagsFollowDocument = HydratedDocument<HashTagsFollow>;

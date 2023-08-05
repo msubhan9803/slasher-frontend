@@ -162,7 +162,7 @@ export class FeedPostsService {
     const hashtagFollows = await this.hashtagFollowsService.findAllByUserId(userId);
     // eslint-disable-next-line @typescript-eslint/no-shadow
     const hashtagFollowIds = hashtagFollows.map((hashtagFollows) => hashtagFollows.hashTagId);
-    const hashtags = await (await this.hashtagModel.find(
+    const hashtags = (await this.hashtagModel.find(
       { _id: { $in: hashtagFollowIds } },
     )).map((hashtagName) => hashtagName.name);
     const profileIdsToIgnore = await this.userModel.find({
@@ -171,7 +171,7 @@ export class FeedPostsService {
         { profile_status: ProfileVisibility.Private },
         { $and: [{ profile_status: ProfileVisibility.Public, deleted: true }] },
       ],
-    });
+    }, { _id: 1 });
     // eslint-disable-next-line @typescript-eslint/no-shadow
     const userIds = profileIdsToIgnore.map((userId) => userId._id);
     // Optionally, only include posts that are older than the given `before` post

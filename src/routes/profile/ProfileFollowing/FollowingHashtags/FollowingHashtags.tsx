@@ -245,7 +245,7 @@ function FollowingHashtags() {
             )}
           {(loadingHashtag) && <LoadingIndicator className="py-3" />}
           {noMoreData && renderNoMoreDataMessage()}
-          <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+          {/* <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" /> */}
         </InfiniteScroll>
       </div>
     </div>

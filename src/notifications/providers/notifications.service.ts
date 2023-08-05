@@ -63,7 +63,7 @@ export class NotificationsService {
     const [user, userSetting] = await Promise.all([this.usersService.findById(notificationData.userId.toString(), true),
     this.userSettingsService.findByUserId(notificationData.userId.toString())]);
     const isNotificationEnabled = userSetting && userSetting[`${NOTIFICATION_TYPES_TO_CATEGORIES.get(notificationData.notifyType)}`];
-    if (isNotificationEnabled && user.userDevices.length) {
+    if (isNotificationEnabled && user.userDevices?.length) {
       const deviceTokens = user.userDevices.filter((device) => device.device_id !== 'browser' && device.device_token)
       .map((device) => device.device_token);
       this.pushNotificationsService.sendPushNotification(notificationData, deviceTokens, user.newNotificationCount);
@@ -77,7 +77,7 @@ export class NotificationsService {
     notificationData.notifyType = NotificationType.FriendMessageNotification;
     const userSetting = await this.userSettingsService.findByUserId(receiverUser.id.toString());
     const isNotificationEnabled = userSetting && userSetting[`${NOTIFICATION_TYPES_TO_CATEGORIES.get(126)}`];
-    if (isNotificationEnabled && receiverUser.userDevices.length) {
+    if (isNotificationEnabled && receiverUser.userDevices?.length) {
       const deviceTokens = receiverUser.userDevices.filter((device) => device.device_id !== 'browser' && device.device_token)
       .map((device) => device.device_token);
       await this.pushNotificationsService.sendPushNotification(notificationData, deviceTokens, receiverUser.newNotificationCount);

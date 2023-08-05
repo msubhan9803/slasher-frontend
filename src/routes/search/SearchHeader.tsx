@@ -25,7 +25,7 @@ interface Search {
 
 const tabs = [
   { value: 'people', label: 'People' },
-  { value: 'posts', label: 'Posts' },
+  { value: 'posts', label: 'Posts', devOnly: true },
   { value: 'hashtags', label: 'Hashtags' },
   { value: 'news', label: 'News', devOnly: true },
   { value: 'events', label: 'Events', devOnly: true },

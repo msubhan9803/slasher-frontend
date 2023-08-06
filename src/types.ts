@@ -123,6 +123,7 @@ export interface MessagesList {
   latestMessage: string;
   updatedAt: string;
   participants: UserMesssage[]
+  lastMessageSentAt: string;
 }
 
 export interface Message {
@@ -376,6 +377,7 @@ export interface ConversationListItem {
   userName: string;
   profilePic: string;
   updatedAt: string;
+  lastMessageSentAt: string;
 }
 
 export enum CommentsOrder { oldestFirst = 'oldestFirst', newestFirst = 'newestFirst' }

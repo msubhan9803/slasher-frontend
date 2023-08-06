@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { INestApplication } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
-import mongoose, { Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { createApp } from './createApp';
 import { MatchListDocument, MatchList } from '../src/schemas/matchList/matchList.schema';
 import { Message, MessageDocument } from '../src/schemas/message/message.schema';

@@ -10,7 +10,6 @@ import { RedisIoAdapter } from '../../src/adapters/redis-io.adapter';
 import { AppModule } from '../../src/app.module';
 import { ChatService } from '../../src/chat/providers/chat.service';
 import { MatchListDocument, MatchList } from '../../src/schemas/matchList/matchList.schema';
-// import { ChatDocument, Chat } from '../../src/schemas/chat/chat.schema';
 import { UserDocument } from '../../src/schemas/user/user.schema';
 import { UsersService } from '../../src/users/providers/users.service';
 import { userFactory } from '../factories/user.factory';

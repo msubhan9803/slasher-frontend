@@ -78,7 +78,7 @@ const StyledMention = styled(Mentions) <SytledMentionProps>`
       }
     `
     : '')
-}
+  }
   }
 `;
 
@@ -110,7 +110,7 @@ ${(props) => !props.iscommentinput
   border-bottom-left-radius: 0.875rem !important;
   padding: 0.625rem;
   margin-top: -0.438rem !important;`
-}
+  }
 `;
 const StyledShadowWrapper = styled.div<StyledShadowWrapperProps>`
 width: 100%;
@@ -141,6 +141,7 @@ interface MentionProps {
   placeholder?: string;
   isReply?: boolean;
   mentionLists: MentionListProps[];
+  messageContent?: string;
   setMessageContent: (val: any) => void;
   formatMentionList: FormatMentionListProps[];
   setFormatMentionList: (val: FormatMentionListProps[]) => void;
@@ -164,6 +165,7 @@ function MessageTextarea({
   isReply,
   mentionLists,
   handleSearch,
+  messageContent,
   setMessageContent,
   formatMentionList,
   setFormatMentionList,
@@ -224,9 +226,26 @@ function MessageTextarea({
     setShowPicker!(!showPicker);
   };
   const handleEmojiSelect = (emoji: any) => {
-    setSelectedEmoji([...selectedEmoji, emoji.native]);
-    setMessageContent!((prevMessage: string) => prevMessage + emoji.native);
+    const textarea = textareaRef.current?.textarea;
+
+    if (textarea) {
+      const startPos = textarea.selectionStart;
+      const endPos = textarea.selectionEnd;
+      const currentValue = messageContent || '';
+      const newValue = currentValue.substring(0, startPos)
+        + emoji.native
+        + currentValue.substring(endPos);
+      setSelectedEmoji([...selectedEmoji, emoji.native]);
+      setMessageContent!(newValue);
+      setTimeout(() => {
+        const newCursorPos = startPos + emoji.native.length;
+        textarea.selectionStart = newCursorPos;
+        textarea.selectionEnd = newCursorPos;
+        textarea.focus();
+      }, 0);
+    }
   };
+
   const closeEmojiPickerIfOpen = () => {
     if (showPicker) {
       setShowPicker!(false);
@@ -341,6 +360,7 @@ MessageTextarea.defaultProps = {
   defaultValue: '',
   id: '',
   className: '',
+  messageContent: '',
   isCommentInput: undefined,
   onFocusHandler: undefined,
   onBlurHandler: undefined,

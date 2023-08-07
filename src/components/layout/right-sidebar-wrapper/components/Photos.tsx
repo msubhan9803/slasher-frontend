@@ -6,6 +6,7 @@ import { userPhotos } from '../../../../api/users';
 import SidebarHeaderWithLink from './SidebarHeaderWithLink';
 import { User } from '../../../../types';
 import LoadingIndicator from '../../../ui/LoadingIndicator';
+import { scrollToTop } from '../../../../utils/scrollFunctions';
 
 const ProfilePhoto = styled.div`
   aspect-ratio:1;
@@ -62,7 +63,7 @@ function Photos({ user }: PhotosProps) {
             : photos.map((photo, photoIndex) => {
               return (
                 <Col xs="4" key={`${photo.id}_${photo.imageId}`}>
-                  <Link to={`/${user?.userName}/posts/${photo.id}?imageId=${photo.imageId}`}>
+                  <Link onClick={() => scrollToTop('instant')} to={`/${user?.userName}/posts/${photo.id}?imageId=${photo.imageId}`}>
                     <ProfilePhoto>
                       <img
                         alt={`${photoIndex}`}

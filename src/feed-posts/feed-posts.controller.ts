@@ -107,18 +107,21 @@ export class FeedPostsController {
 
     let hashtags;
     if (createFeedPostsDto.message && createFeedPostsDto.message.includes('#')) {
-      const hashtagRegex = /(?<=[a-zA-Z\d]|\s)(#[^\s#]+)/g;
-      const hashtag = createFeedPostsDto.message.match(hashtagRegex);
-      if (hashtag && hashtag.length > 10) {
-        throw new HttpException(
-          'you can not add more than 10 hashtags on a post',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
+      const hashtagRegex = /(?<![?#])#(?![?#])\w+\b/g;
+      const matchedHashtags = createFeedPostsDto.message.match(hashtagRegex);
+      if (matchedHashtags && matchedHashtags.length) {
+        const findHashtag = matchedHashtags.map((match) => match.slice(1).toLowerCase().replace(/([^\w\s]|_)+\d*$/, ''));
 
-      const regex = /#[^\s#]*/g;
-      const findHashtag = createFeedPostsDto.message.match(regex).map((match) => match.slice(1).toLowerCase());
-      hashtags = [...new Set(findHashtag)];
+        if (findHashtag && findHashtag.length > 10) {
+          throw new HttpException(
+            'you can not add more than 10 hashtags on a post',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+        hashtags = [...new Set(findHashtag)];
+      } else {
+        hashtags = [];
+      }
       await this.hashtagService.createOrUpdateHashtags(hashtags);
     }
 
@@ -246,7 +249,7 @@ export class FeedPostsController {
   @UseInterceptors(
     ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_POST, MAXIMUM_IMAGE_UPLOAD_SIZE, {
       fileFilter: defaultFileInterceptorFileFilter,
-      }),
+    }),
   )
   async update(
     @Req() request: Request,
@@ -357,18 +360,24 @@ export class FeedPostsController {
 
     let newHashtagNames;
     if (updateFeedPostsDto.message && updateFeedPostsDto.message.includes('#')) {
-      const hashtagRegex = /(?<!#)#[^\s#]+/g;
-      const hashtag = updateFeedPostsDto.message.match(hashtagRegex);
-      if (hashtag && hashtag.length > 10) {
-        throw new HttpException(
-          'you can not add more than 10 hashtags on a post',
-          HttpStatus.BAD_REQUEST,
+      const hashtagRegex = /(?<![?#])#(?![?#])\w+\b/g;
+      const matchedHashtags = updateFeedPostsDto.message.match(hashtagRegex);
+      if (matchedHashtags && matchedHashtags.length) {
+        const findHashtag = matchedHashtags.map(
+          (match) => match.slice(1).toLowerCase().replace(/([^\w\s]|_)+\d*$/, ''),
         );
+
+        if (findHashtag && findHashtag.length > 10) {
+          throw new HttpException(
+            'you can not add more than 10 hashtags on a post',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+        newHashtagNames = [...new Set(findHashtag)];
+      } else {
+        newHashtagNames = [];
       }
 
-      const regex = /#[^\s#]*/g;
-      const findHashtag = updateFeedPostsDto.message.match(regex).map((match) => match.slice(1).toLowerCase());
-      newHashtagNames = [...new Set(findHashtag)];
       if (JSON.stringify(newHashtagNames) !== JSON.stringify(feedPost.hashtags)) {
         const addHashtagNameOrTotalPost = newHashtagNames.filter((item) => !feedPost.hashtags.includes(item));
         const totalPostDecrement = feedPost.hashtags.filter((item) => !newHashtagNames.includes(item));
@@ -581,14 +590,13 @@ export class FeedPostsController {
       throw new HttpException('Hashtag not found', HttpStatus.NOT_FOUND);
     }
 
-    const feedPosts = await this.feedPostsService.findAllFeedPostsForHashtag(
+    const [count, feedPosts]: any = await this.feedPostsService.findAllFeedPostsForHashtag(
       params.hashtag,
       allFeedPostQueryDto.limit,
       allFeedPostQueryDto.before ? new mongoose.Types.ObjectId(allFeedPostQueryDto.before) : undefined,
       user.id,
     );
-
-    return feedPosts.map(
+    const posts = feedPosts.map(
       (feedPost) => pick(
         feedPost,
         ['_id', 'message', 'createdAt', 'lastUpdateAt',
@@ -596,6 +604,7 @@ export class FeedPostsController {
           'likeCount', 'likedByUser'],
       ),
     );
+    return { count, posts };
   }
 
   @TransformImageUrls(

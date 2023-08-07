@@ -138,60 +138,68 @@ describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
       for (let i = 1; i < response.body.length; i += 1) {
         expect(response.body[i].createdAt < response.body[i - 1].createdAt).toBe(true);
       }
-      expect(response.body).toEqual([{
-        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-        message: 'post #ok #code',
-        createdAt: expect.any(String),
-        lastUpdateAt: expect.any(String),
-        rssfeedProviderId: null,
-        images: [
-          {
-            image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            description: 'this is test description',
-          },
-          {
-            image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            description: 'this is test description',
-          },
-        ],
-        userId: {
-          _id: user6.id,
-          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-          userName: 'Username6',
+
+      expect(response.body).toEqual(
+        {
+          count: 2,
+          posts: [
+            {
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              message: 'post #ok #code',
+              createdAt: expect.any(String),
+              lastUpdateAt: expect.any(String),
+              rssfeedProviderId: null,
+              images: [
+                {
+                  image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                  _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                  description: 'this is test description',
+                },
+                {
+                  image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                  _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                  description: 'this is test description',
+                },
+              ],
+              userId: {
+                _id: user6.id,
+                profilePic: expect.any(String),
+                userName: 'Username6',
+              },
+              commentCount: 0,
+              likeCount: 0,
+              likedByUser: false,
+            },
+            {
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              message: 'post #ok #good',
+              createdAt: expect.any(String),
+              lastUpdateAt: expect.any(String),
+              rssfeedProviderId: null,
+              images: [
+                {
+                  image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                  _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                  description: 'this is test description',
+                },
+                {
+                  image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                  _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                  description: 'this is test description',
+                },
+              ],
+              userId: {
+                _id: user5.id,
+                profilePic: expect.any(String),
+                userName: 'Username5',
+              },
+              commentCount: 0,
+              likeCount: 0,
+              likedByUser: false,
+            },
+          ],
         },
-        commentCount: 0,
-        likeCount: 0,
-        likedByUser: false,
-      },
-      {
-        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-        message: 'post #ok #good',
-        createdAt: expect.any(String),
-        lastUpdateAt: expect.any(String),
-        rssfeedProviderId: null,
-        images: [
-          {
-            image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            description: 'this is test description',
-          },
-          {
-            image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            description: 'this is test description',
-          },
-        ],
-        userId: {
-          _id: user5.id,
-          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-          userName: 'Username5',
-        },
-        commentCount: 0,
-        likeCount: 0,
-        likedByUser: false,
-      }]);
+      );
     });
 
     describe('when `before` argument is supplied', () => {
@@ -225,18 +233,20 @@ describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
           .get(`/api/v1/feed-posts/hashtag/${hashtag}?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(firstResponse.body).toHaveLength(3);
-        for (let index = 1; index < firstResponse.body.length; index += 1) {
-          expect(firstResponse.body[index].createdAt < firstResponse.body[index - 1].createdAt).toBe(true);
+
+        expect(firstResponse.body.posts).toHaveLength(3);
+        for (let index = 1; index < firstResponse.body.posts.length; index += 1) {
+          expect(firstResponse.body.posts[index].createdAt < firstResponse.body.posts[index - 1].createdAt).toBe(true);
         }
 
         const secondResponse = await request(app.getHttpServer())
-          .get(`/api/v1/feed-posts/hashtag/${hashtag}?limit=${limit}&before=${firstResponse.body[limit - 1]._id}`)
+          .get(`/api/v1/feed-posts/hashtag/${hashtag}?limit=${limit}&before=${firstResponse.body.posts[limit - 1]._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(secondResponse.body).toHaveLength(2);
-        for (let index = 1; index < secondResponse.body.length; index += 1) {
-          expect(secondResponse.body[index].createdAt < secondResponse.body[index - 1].createdAt).toBe(true);
+
+        expect(secondResponse.body.posts).toHaveLength(2);
+        for (let index = 1; index < secondResponse.body.posts.length; index += 1) {
+          expect(secondResponse.body.posts[index].createdAt < secondResponse.body.posts[index - 1].createdAt).toBe(true);
         }
       });
 

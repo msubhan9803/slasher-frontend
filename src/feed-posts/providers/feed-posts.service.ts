@@ -73,7 +73,7 @@ export class FeedPostsService {
     activeOnly: boolean,
     loggedInUserId: mongoose.Types.ObjectId,
     before?: mongoose.Types.ObjectId,
-    ): Promise<FeedPostDocument[]> {
+  ): Promise<FeedPostDocument[]> {
     const feedPostFindAllQuery: any = {};
     const feedPostQuery = [];
     feedPostQuery.push({ userId: new mongoose.Types.ObjectId(userId) });
@@ -91,6 +91,7 @@ export class FeedPostsService {
       feedPostFindAllQuery.status = FeedPostStatus.Active;
       feedPostQuery.push(feedPostFindAllQuery);
     }
+
     const feedPosts = await this.feedPostModel
       .find({ $and: feedPostQuery })
       .populate('userId', 'userName _id profilePic')
@@ -242,6 +243,15 @@ export class FeedPostsService {
       ],
     }, { _id: 1 });
 
+    const totalHashtagCount:any = await this.feedPostModel.find({
+      $and: [
+        { hashtags: hashtag },
+        { status: 1 },
+        { is_deleted: 0 },
+        { userId: { $nin: profileIdsToIgnore } },
+      ],
+    }).count().exec();
+
     // Optionally, only include posts that are older than the given `before` post
     const beforeQuery: any = {};
     if (before) {
@@ -271,7 +281,8 @@ export class FeedPostsService {
       post.likeCount = post.likes.length || 0;
       return post;
     });
-    return feedPosts;
+
+    return [totalHashtagCount, feedPosts];
   }
 
   async findAllPostsWithImagesByUser(userId: string, limit: number, before?: mongoose.Types.ObjectId): Promise<FeedPostDocument[]> {

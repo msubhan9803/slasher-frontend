@@ -339,6 +339,48 @@ describe('Feed-Post / Post File (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
+    it('when # is exists on message string than it returns the response after removing punctuation marks', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'test user#okay #slasher #test12 #?ok ##good #horror1?12')
+          .field('postType', PostType.User)
+          .field('userId', activeUser._id.toString())
+          .attach('files', tempPaths[0])
+          .field('imageDescriptions[0][description]', 'this is create post description 0');
+
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'test user#okay #slasher #test12 #?ok ##good #horror1?12',
+          userId: activeUser._id.toString(),
+          postType: PostType.User,
+          spoilers: false,
+          images: [
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              description: 'this is create post description 0',
+            },
+          ],
+        });
+
+        const feedPost = await feedPostsService.findById(response.body._id, true);
+        expect(feedPost.hashtags).toEqual(['okay', 'slasher', 'test12', 'horror1']);
+
+        const hashtags = await hashtagModel.find({ name: { $in: feedPost.hashtags } });
+        expect(hashtags[0].name).toEqual(feedPost.hashtags[0]);
+        expect(hashtags[1].name).toEqual(feedPost.hashtags[1]);
+        expect(hashtags[2].name).toEqual(feedPost.hashtags[2]);
+        expect(hashtags[3].name).toEqual(feedPost.hashtags[3]);
+      }, [{ extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
     it('only allows a maximum of 10 hashtags', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
@@ -607,6 +649,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           .field('postType', PostType.User)
           .attach('files', tempPaths[0])
           .field('imageDescriptions[0][description]', 'this is create post description 0');
+
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           message: 'test user##ok ##slasher ##nothing ##okay ##best ##not ##go ##run ##fast ##good ##far',

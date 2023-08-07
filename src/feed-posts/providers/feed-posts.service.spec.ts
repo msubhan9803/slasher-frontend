@@ -1026,11 +1026,12 @@ describe('FeedPostsService', () => {
 
     it('when hashtag is "ok" than expected posts response', async () => {
       const feedPostData = await feedPostsService.findAllFeedPostsForHashtag('ok', 10);
-      for (let i = 1; i < feedPostData.length; i += 1) {
-        expect(feedPostData[i].hashtags).toContainEqual('ok');
-        expect(feedPostData[i].createdAt < feedPostData[i - 1].createdAt).toBe(true);
+      const posts: any = feedPostData[1];
+      for (let i = 1; i < posts.length; i += 1) {
+        expect(posts[i].hashtags).toContain('ok');
+        expect(posts[i].createdAt < posts[i - 1].createdAt).toBe(true);
       }
-      expect(feedPostData).toHaveLength(2);
+      expect(feedPostData[1]).toHaveLength(2);
     });
 
     it('returns the first and second sets of paginated results', async () => {
@@ -1058,14 +1059,16 @@ describe('FeedPostsService', () => {
 
       const limit = 3;
       const firstResults = await feedPostsService.findAllFeedPostsForHashtag('ok', limit);
+
       const secondResults = await feedPostsService
         .findAllFeedPostsForHashtag(
           'ok',
           limit,
-          new mongoose.Types.ObjectId(firstResults[limit - 1]._id.toString()),
+          new mongoose.Types.ObjectId(firstResults[1][limit - 1]._id.toString()),
         );
-      expect(firstResults).toHaveLength(3);
-      expect(secondResults).toHaveLength(2);
+      expect(firstResults[0]).toBe(5); // it gives the total count of hashtags
+      expect(firstResults[1]).toHaveLength(3); // it gives the count accorging to limit
+      expect(secondResults[1]).toHaveLength(2);
     });
   });
 

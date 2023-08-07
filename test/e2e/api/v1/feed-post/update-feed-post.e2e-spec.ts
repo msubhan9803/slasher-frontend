@@ -486,13 +486,13 @@ describe('Update Feed Post (e2e)', () => {
           .patch(`/api/v1/feed-posts/${feedPost4._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
-          .field('message', 'test user#ok #Slasher post #nothing #ok #good')
+          .field('message', '"test user#ok #Slasher post #nothing12 #ok1?12 #!1good2"')
           .field('userId', activeUser._id.toString())
           .attach('files', tempPaths[0])
           .field('imageDescriptions[0][description]', 'this is update post description 0');
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          message: 'test user#ok #Slasher post #nothing #ok #good',
+          message: '"test user#ok #Slasher post #nothing12 #ok1?12 #!1good2"',
           spoilers: false,
           userId: activeUser._id.toString(),
           images: [
@@ -515,7 +515,7 @@ describe('Update Feed Post (e2e)', () => {
         });
 
         const post = await feedPostsService.findById(response.body._id, true);
-        expect(post.hashtags).toEqual(['ok', 'slasher', 'nothing', 'good']);
+        expect(post.hashtags).toEqual(['ok', 'slasher', 'nothing12', 'ok1']);
 
         const hashtags = await hashtagModel.find({ name: { $in: post.hashtags } });
         expect(hashtags[0].name).toEqual(post.hashtags[0]);

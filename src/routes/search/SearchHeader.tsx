@@ -85,7 +85,8 @@ function SearchHeader({
                 <div className="d-flex align-items-center justify-content-center justify-content-md-end">
                   {following && (
                     <Button aria-label="notificatio bell" size="sm" className="me-2 pe-2" variant="link" onClick={onOffNotificationClick}>
-                      <FontAwesomeIcon size="lg" className={`${notificationToggle ? 'me-0' : 'me-1'} `} icon={notificationToggle ? regular('bell-slash') : regular('bell')} />
+                      <FontAwesomeIcon size="lg" className={`${notificationToggle ? 'me-0 text-primary' : 'me-1 text-success'} `} icon={notificationToggle ? regular('bell-slash') : regular('bell')} />
+                      <span>{notificationToggle ? 'Off' : 'On'}</span>
                     </Button>
                   )}
                   <BorderButton

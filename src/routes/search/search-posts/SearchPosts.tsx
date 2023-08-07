@@ -41,6 +41,7 @@ function SearchPosts() {
     hasPageStateCache(location)
       ? pageStateCache : [],
   );
+  const [totalPost, setTotalPost] = useState<number>(0);
   const [followingHashtag, setFollowingHashtag] = useState<boolean>(false);
   const [notificationToggle, setNotificationToggle] = useState<boolean>(false);
   const userData = useAppSelector((state) => state.user);
@@ -82,7 +83,7 @@ function SearchPosts() {
         query.toLowerCase(),
         forceReload ? undefined : lastHashtagId,
       ).then((res) => {
-        const newPosts: any = res.data.map((data: any) => {
+        const newPosts: any = res.data.posts.map((data: any) => {
           const setPost = {
             _id: data._id,
             id: data._id,
@@ -99,6 +100,7 @@ function SearchPosts() {
           return setPost;
         });
         setSearchPosts((prev: Post[]) => [...prev, ...newPosts]);
+        setTotalPost(res.data.count);
         if (res.data.length === 0) {
           setNoMoreData(true);
           setLastHashtagId('');
@@ -317,7 +319,7 @@ function SearchPosts() {
         followUnfollowClick={followUnfollowClick}
         following={followingHashtag}
         notificationToggle={notificationToggle}
-        totalHashtagPosts={searchPosts.length}
+        totalHashtagPosts={totalPost}
       />
       <InfiniteScroll
         threshold={3000}

@@ -78,7 +78,7 @@ const StyledMention = styled(Mentions) <SytledMentionProps>`
       }
     `
     : '')
-  }
+}
   }
 `;
 
@@ -110,7 +110,7 @@ ${(props) => !props.iscommentinput
   border-bottom-left-radius: 0.875rem !important;
   padding: 0.625rem;
   margin-top: -0.438rem !important;`
-  }
+}
 `;
 const StyledShadowWrapper = styled.div<StyledShadowWrapperProps>`
 width: 100%;

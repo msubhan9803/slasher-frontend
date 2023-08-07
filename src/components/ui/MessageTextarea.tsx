@@ -280,7 +280,7 @@ function MessageTextarea({
           className={isCommentInput ? className : ''}
           autoSize={{ minRows: rows, maxRows: isCommentInput ? 4 : rows }}
           rows={rows}
-          onChange={(e) => handleMessage(e)}
+          onChange={(e) => (e.endsWith('#@') ? null : handleMessage(e))}
           placeholder={placeholder}
           onSearch={handleSearch}
           onSelect={handleSelect}
@@ -291,29 +291,29 @@ function MessageTextarea({
           aria-label="message"
         >
           {mentionLists
-          && mentionLists.map((mentionList: MentionListProps) => (
-            <Option
-              value={mentionList.userName || mentionList.name}
-              key={mentionList.id || mentionList._id}
-              style={{ zIndex: '100' }}
-            >
-              <div ref={optionRef} className="list--hover soft-half cursor-pointer">
-                <div>
-                  {mentionList.userName && (
-                    <UserCircleImage
-                      size="2rem"
-                      src={mentionList?.profilePic}
-                      className="ms-0 me-3 bg-secondary"
-                    />
-                  )}
-                  <span>
-                    {mentionList.name ? ' #' : ' @'}
-                    {mentionList.userName || mentionList.name}
-                  </span>
+            && mentionLists.map((mentionList: MentionListProps) => (
+              <Option
+                value={mentionList.userName || mentionList.name}
+                key={mentionList.id || mentionList._id}
+                style={{ zIndex: '100' }}
+              >
+                <div ref={optionRef} className="list--hover soft-half cursor-pointer">
+                  <div>
+                    {mentionList.userName && (
+                      <UserCircleImage
+                        size="2rem"
+                        src={mentionList?.profilePic}
+                        className="ms-0 me-3 bg-secondary"
+                      />
+                    )}
+                    <span>
+                      {mentionList.name ? ' #' : ' @'}
+                      {mentionList.userName || mentionList.name}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </Option>
-          ))}
+              </Option>
+            ))}
         </StyledMention>
 
         {showEmojiButton

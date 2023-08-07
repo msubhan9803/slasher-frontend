@@ -17,8 +17,10 @@ export enum NotificationType {
   // In the old API 101 is used for multiple notification types.
   // It would be good if we could change this, and separate these into different types,
   // once the old API is retired.
-  UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost = 101,
-
+  UserMentionedYouInAComment = 201,
+  UserMentionedYouInACommentReply = 202,
+  UserLikedYourReply = 203,
+  UserRepliedOnYourPost = 204,
   Type102 = 102,
   Type103 = 103,
   UserMentionedYouInACommentOnANewsPost = 121,
@@ -49,9 +51,9 @@ export const NOTIFICATION_TYPES_TO_CATEGORIES = new Map([
   [NotificationType.UserCommentedOnYourPost, 'feed_comment_on_post'],
   [NotificationType.UserLikedYourPost, 'feed_post_like'],
   [NotificationType.UserLikedYourComment, 'feed_post_like'],
-  [
-    NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
-    'feed_mention_on_post_comment_reply',
-  ],
+  [NotificationType.UserMentionedYouInACommentOnANewsPost, 'feed_mention_on_post_comment_reply'],
+  [NotificationType.UserMentionedYouInACommentReply, 'feed_mention_on_post_comment_reply'],
+  [NotificationType.UserLikedYourReply, 'feed_post_like'],
+  [NotificationType.UserRepliedOnYourPost, 'feed_mention_on_post_comment_reply'],
   [NotificationType.FriendMessageNotification, 'friends_message_received'],
 ]);

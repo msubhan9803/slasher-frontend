@@ -65,6 +65,7 @@ function Messages() {
             userName: userDetail!.userName,
             profilePic: userDetail!.profilePic,
             updatedAt: data.updatedAt,
+            lastMessageSentAt: data.lastMessageSentAt,
           };
           return conversation;
         });
@@ -109,6 +110,7 @@ function Messages() {
             userName: userDetail!.userName,
             profilePic: userDetail!.profilePic,
             updatedAt: data.updatedAt,
+            lastMessageSentAt: data.lastMessageSentAt,
           };
           return conversation;
         });
@@ -169,7 +171,7 @@ function Messages() {
                   userName={conversation.userName}
                   message={conversation.latestMessage}
                   count={conversation.unreadCount}
-                  timeStamp={DateTime.fromISO(conversation.updatedAt).toFormat('MM/dd/yyyy t')}
+                  timeStamp={DateTime.fromISO(conversation.lastMessageSentAt).toFormat('MM/dd/yyyy t')}
                   handleDropdownOption={handleMessagesOption(conversation)}
                   matchListId={conversation._id}
                 />

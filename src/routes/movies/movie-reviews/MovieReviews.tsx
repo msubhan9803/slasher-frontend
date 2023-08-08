@@ -432,7 +432,7 @@ function MovieReviews({
               movieData={movieData}
               errorMessage={errorMessage}
               setPostMessageContent={setPostContent}
-              defaultValue={decryptMessage(postContent, true)}
+              defaultValue={decryptMessage(postContent, true, true)}
               formatMention={formatMention}
               setFormatMention={setFormatMention}
               postType="review"

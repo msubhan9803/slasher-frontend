@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { FRIEND_RELATION_ID } from '../../constants';
-import { Chat, ChatDocument } from '../../schemas/chat/chat.schema';
 import {
   MatchListRoomCategory,
   MatchListRoomType,
@@ -29,7 +28,6 @@ export class ChatService {
     @InjectConnection() private readonly connection: mongoose.Connection,
     @InjectModel(Message.name) private messageModel: Model<MessageDocument>,
     @InjectModel(MatchList.name) private matchListModel: Model<MatchListDocument>,
-    @InjectModel(Chat.name) private chatModel: Model<ChatDocument>,
     private usersService: UsersService,
     private readonly blocksService: BlocksService,
   ) { }
@@ -58,8 +56,6 @@ export class ChatService {
 
     // For compatibility with the old API, whenever a matchList is created, we also need to create a
     // corresponding Chat record with the same fields
-    await this.chatModel.create({ ...insertData, matchId: matchList._id });
-
     return matchList;
   }
 
@@ -69,11 +65,11 @@ export class ChatService {
     }
 
     const matchList = await this.matchListModel.findOne({
+      deleted: false,
       participants: { $all: participants },
-      relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
       roomType: MatchListRoomType.Match,
       roomCategory: MatchListRoomCategory.DirectMessage,
-      deleted: false,
+      relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
     });
 
     return matchList || this.createPrivateDirectMessageConversation(participants);
@@ -123,13 +119,12 @@ export class ChatService {
         $set: {
           updatedAt: currentTime, // overwrite `updatedAt`
           lastMessageSentAt: currentTime,
+          // Any new messages in a chat will remove all participants from deletefor so that
+          // everyone sees the new message.  This is fine because the deletefor value is still
+          // retained on a message by message basis.
+          deletefor: [],
         },
       },
-      { timestamps: false },
-    );
-    await this.chatModel.updateOne(
-      { matchId: matchList._id },
-      { $set: { updatedAt: currentTime } }, // overwrite `updatedAt`
       { timestamps: false },
     );
     messageSession.endSession();
@@ -191,16 +186,15 @@ export class ChatService {
     limit: number,
     before?: string,
   ): Promise<Conversation[]> {
-    let beforeUpdatedAt;
+    let beforeLastMessageSentAt;
 
     if (before) {
       const beforeMatchList = await this.matchListModel.findById(before).exec();
-      beforeUpdatedAt = { $lt: beforeMatchList.updatedAt };
+      beforeLastMessageSentAt = { $lt: beforeMatchList.lastMessageSentAt };
     }
 
     // Do not return conversations of blocked users
     const blockUserIds = (await this.blocksService.getUserIdsForBlocksToOrFromUser(userId)).map((id) => new mongoose.Types.ObjectId(id));
-
     const matchLists = await this.matchListModel
       .find({
         deleted: false,
@@ -208,10 +202,11 @@ export class ChatService {
         roomType: MatchListRoomType.Match,
         roomCategory: MatchListRoomCategory.DirectMessage,
         relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
-        ...(before ? { updatedAt: beforeUpdatedAt } : {}),
+        deletefor: { $nin: new mongoose.Types.ObjectId(userId) },
+        ...(before ? { lastMessageSentAt: beforeLastMessageSentAt } : {}),
       })
       .populate('participants', 'userName _id profilePic')
-      .sort({ updatedAt: -1 })
+      .sort({ lastMessageSentAt: -1 })
       .limit(limit)
       .lean()
       .exec();
@@ -244,9 +239,11 @@ export class ChatService {
           unreadCount,
           latestMessage: latestMessage.message.trim().split('\n')[0],
           updatedAt: matchList.updatedAt,
+          lastMessageSentAt: latestMessage.createdAt,
         });
       }
     }
+
     return conversations;
   }
 
@@ -263,9 +260,10 @@ export class ChatService {
         roomType: MatchListRoomType.Match,
         roomCategory: MatchListRoomCategory.DirectMessage,
         relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
+        deletefor: { $nin: new mongoose.Types.ObjectId(userId) },
       })
       .populate('participants', 'userName _id profilePic')
-      .sort({ updatedAt: -1 })
+      .sort({ updatedAt: -1, lastMessageSentAt: -1 })
       .limit(50)
       .lean()
       .exec();
@@ -299,6 +297,7 @@ export class ChatService {
           unreadCount,
           latestMessage: latestMessage.message.trim().split('\n')[0],
           updatedAt: matchList.updatedAt,
+          lastMessageSentAt: matchList.lastMessageSentAt,
         });
       }
     }
@@ -369,15 +368,6 @@ export class ChatService {
       { $set: { deleted: true } },
     );
 
-    await this.chatModel.updateOne(
-      {
-        participants: { $all: participants },
-        relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
-        roomType: MatchListRoomType.Match,
-        roomCategory: MatchListRoomCategory.DirectMessage,
-      },
-      { $set: { deleted: true } },
-    );
     await this.messageModel.updateMany(
       {
         $or: [

@@ -10,7 +10,6 @@ import { RedisIoAdapter } from '../../src/adapters/redis-io.adapter';
 import { AppModule } from '../../src/app.module';
 import { ChatService } from '../../src/chat/providers/chat.service';
 import { MatchListDocument, MatchList } from '../../src/schemas/matchList/matchList.schema';
-import { ChatDocument, Chat } from '../../src/schemas/chat/chat.schema';
 import { UserDocument } from '../../src/schemas/user/user.schema';
 import { UsersService } from '../../src/users/providers/users.service';
 import { userFactory } from '../factories/user.factory';
@@ -35,7 +34,6 @@ describe('Chat Gateway (e2e)', () => {
   let activeUserAuthToken: string;
   let matchListModel: Model<MatchListDocument>;
   let messageModel: Model<MessageDocument>;
-  let chatModel: Model<ChatDocument>;
   let friendsService: FriendsService;
   let chatGateway: ChatGateway;
 
@@ -51,7 +49,6 @@ describe('Chat Gateway (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     messageModel = moduleRef.get<Model<MessageDocument>>(getModelToken(Message.name));
     matchListModel = moduleRef.get<Model<MatchListDocument>>(getModelToken(MatchList.name));
-    chatModel = moduleRef.get<Model<ChatDocument>>(getModelToken(Chat.name));
 
     app = moduleRef.createNestApplication();
 
@@ -128,8 +125,6 @@ describe('Chat Gateway (e2e)', () => {
         });
 
         const matchList = await matchListModel.findById(chatMessageResponse.message.matchId);
-        const chat = await chatModel.findOne({ matchId: chatMessageResponse.message.matchId });
-
         expect(chatMessageResponse.success).toBe(true);
         expect(chatMessageResponse.message.message).toBe(encodeURIComponent(payload.message));
 
@@ -138,7 +133,6 @@ describe('Chat Gateway (e2e)', () => {
           new Date(chatMessageResponse.message.createdAt).getTime(),
           new Date(matchList.updatedAt).getTime(),
           new Date(matchList.lastMessageSentAt).getTime(),
-          new Date(chat.updatedAt).getTime(),
         ].forEach((time) => {
           expect(time).toBe(messageCreated);
         });

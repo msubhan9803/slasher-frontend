@@ -300,8 +300,12 @@ export class UsersService {
     // TODO: Mark all comments by the deleted user as deleted
     // TODO: Mark all replies by the deleted user as deleted
     // TODO: Mark all messages by the deleted user as deleted
-    // TODO: For any MatchListRoomCategory.DirectMessage MatchList that include the deleted user, mark those MatchLists as deleted.
-    // TODO: Delete all likes by the deleted user (including likes on post, comments, and replies)
+    // TODO: For any matchList where roomCategory equals MatchListRoomCategory.DirectMessage AND
+    // that matchList has the deleted user in the participants array, mark the matchList as deleted.
+    // TODO: Delete all likes by the deleted user.  This includes: feedpostlikes, feedreplylikes,
+    // likes by the user on posts, comments, and replies.
+    // TODO: As part of this, also update like and comment counts for any affected posts, and like
+    // counts for any affected comments and replies.
 
     // Now we'll modify the user object:
     // 1. Mark user as deleted

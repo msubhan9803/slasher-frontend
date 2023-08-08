@@ -98,6 +98,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   const [postUserId, setPostUserId] = useState<string>('');
   const [notFound, setNotFound] = useState<boolean>(false);
   const [commentNotFound, setCommentNotFound] = useState<boolean>(false);
+  const [pastPostId, setPastPostId] = useState<any>('');
 
   const [commentOrReplySuccessAlertMessage, setCommentOrReplySuccessAlertMessage] = useState('');
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
@@ -535,10 +536,21 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     location.pathname]);
 
   useEffect(() => {
+    if (postId && pastPostId !== postId) {
+      setCommentData([]);
+      setRequestAdditionalPosts(true);
+      setPastPostId(postId);
+    }
+  }, [pastPostId, postId]);
+
+  useEffect(() => {
     if (postId) {
       getFeedPostDetail(postId);
+      if (!pastPostId) {
+        setPastPostId(postId);
+      }
     }
-  }, [postId, getFeedPostDetail]);
+  }, [postId, pastPostId, getFeedPostDetail]);
 
   const onUpdatePost = (
     message: string,

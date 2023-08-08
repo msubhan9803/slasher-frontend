@@ -809,88 +809,6 @@ export class UsersController {
     );
   }
 
-  // TODO: Delete this after the app and website have been updated.
-  // It wil be replaced by the deleteAccount method in this class.
-  @Delete('delete-account')
-  async deleteAccountDeprecated(
-    @Req() request: Request,
-    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: DeleteAccountQueryDto,
-  ) {
-    const user = getUserFromRequest(request);
-
-    // We check user id against the DTO data to make it harder to accidentally delete an account.
-    // This is important because users cannot undo account deletion.
-    if (user.id !== query.userId) {
-      throw new HttpException("Supplied userId param does not match current user's id.", HttpStatus.BAD_REQUEST);
-    }
-
-    await this.usersService.delete(user.id);
-
-    return {
-      success: true,
-    };
-  }
-
-  @Delete(':userId')
-  async deleteAccount(
-    @Req() request: Request,
-    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
-    param: ParamUserIdDto,
-    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
-    query: ConfirmDeleteAccountQueryDto,
-  ) {
-    const requestingUser = getUserFromRequest(request);
-    let userToDelete;
-
-    if (requestingUser.id === param.userId) {
-      // User is deleting their own account
-      userToDelete = requestingUser;
-    } else if (requestingUser.userType === UserType.Admin) {
-      // Admin is deleting any user's account
-      userToDelete = await this.usersService.findById(param.userId, true);
-    } else {
-      throw new HttpException('You are not allowed to perform this action.', HttpStatus.FORBIDDEN);
-    }
-
-    // We check user id against an additional DTO query param to make it harder to accidentally
-    // delete an account. This is important because account deletion is NOT reversible.
-    if (userToDelete.id !== query.confirmUserId) {
-      throw new HttpException("Supplied confirmUserId param does not match user's id.", HttpStatus.BAD_REQUEST);
-    }
-
-    await this.usersService.delete(userToDelete.id);
-
-    return {
-      success: true,
-    };
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  @TransformImageUrls('$.profilePic')
-  @Delete('profile-image')
-  async deleteProfileImage(
-    @Req() request: Request,
-  ) {
-    const user = getUserFromRequest(request);
-    // TODO: Would be good to delete old image before replacing it (if previous value exists), to save storage space.
-    user.profilePic = 'noUser.jpg';
-    await user.save();
-    return { profilePic: user.profilePic };
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  @TransformImageUrls('$.profilePic')
-  @Delete('cover-image')
-  async deleteCoverImage(
-    @Req() request: Request,
-  ) {
-    const user = getUserFromRequest(request);
-    // TODO: Would be good to delete old image before replacing it (if previous value exists), to save storage space.
-    user.coverPhoto = null;
-    await user.save();
-    return { coverPhoto: user.coverPhoto };
-  }
-
   @Get(':userId/watched-list')
   async watchedListMovies(
     @Req() request: Request,
@@ -1080,5 +998,87 @@ export class UsersController {
       throw new HttpException('Device id is not found', HttpStatus.BAD_REQUEST);
     }
     return { success: true };
+  }
+
+  // TODO: Delete this after the app and website have been updated.
+  // It wil be replaced by the deleteAccount method in this class.
+  @Delete('delete-account')
+  async deleteAccountDeprecated(
+    @Req() request: Request,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: DeleteAccountQueryDto,
+  ) {
+    const user = getUserFromRequest(request);
+
+    // We check user id against the DTO data to make it harder to accidentally delete an account.
+    // This is important because users cannot undo account deletion.
+    if (user.id !== query.userId) {
+      throw new HttpException("Supplied userId param does not match current user's id.", HttpStatus.BAD_REQUEST);
+    }
+
+    await this.usersService.delete(user.id);
+
+    return {
+      success: true,
+    };
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  @TransformImageUrls('$.profilePic')
+  @Delete('profile-image')
+  async deleteProfileImage(
+    @Req() request: Request,
+  ) {
+    const user = getUserFromRequest(request);
+    // TODO: Would be good to delete old image before replacing it (if previous value exists), to save storage space.
+    user.profilePic = 'noUser.jpg';
+    await user.save();
+    return { profilePic: user.profilePic };
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  @TransformImageUrls('$.profilePic')
+  @Delete('cover-image')
+  async deleteCoverImage(
+    @Req() request: Request,
+  ) {
+    const user = getUserFromRequest(request);
+    // TODO: Would be good to delete old image before replacing it (if previous value exists), to save storage space.
+    user.coverPhoto = null;
+    await user.save();
+    return { coverPhoto: user.coverPhoto };
+  }
+
+  @Delete(':userId')
+  async deleteAccount(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: ConfirmDeleteAccountQueryDto,
+  ) {
+    const requestingUser = getUserFromRequest(request);
+    let userToDelete;
+
+    if (requestingUser.id === param.userId) {
+      // User is deleting their own account
+      userToDelete = requestingUser;
+    } else if (requestingUser.userType === UserType.Admin) {
+      // Admin is deleting any user's account
+      userToDelete = await this.usersService.findById(param.userId, true);
+    } else {
+      throw new HttpException('You are not allowed to perform this action.', HttpStatus.FORBIDDEN);
+    }
+
+    // We check user id against an additional DTO query param to make it harder to accidentally
+    // delete an account. This is important because account deletion is NOT reversible.
+    if (userToDelete.id !== query.confirmUserId) {
+      throw new HttpException("Supplied confirmUserId param does not match user's id.", HttpStatus.BAD_REQUEST);
+    }
+
+    await this.usersService.delete(userToDelete.id);
+
+    return {
+      success: true,
+    };
   }
 }

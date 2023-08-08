@@ -11,7 +11,6 @@ import { userFactory } from '../../../test/factories/user.factory';
 import { MatchList, MatchListDocument } from '../../schemas/matchList/matchList.schema';
 import { Message, MessageDocument } from '../../schemas/message/message.schema';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
-import { Chat, ChatDocument } from '../../schemas/chat/chat.schema';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 import { BlockAndUnblockDocument, BlockAndUnblock } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
@@ -36,7 +35,6 @@ describe('ChatService', () => {
   let activeUser: UserDocument;
   let messageModel: Model<MessageDocument>;
   let matchListModel: Model<MatchListDocument>;
-  let chatModel: Model<ChatDocument>;
   let blocksModel: Model<BlockAndUnblockDocument>;
 
   beforeAll(async () => {
@@ -48,7 +46,6 @@ describe('ChatService', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     messageModel = moduleRef.get<Model<MessageDocument>>(getModelToken(Message.name));
     matchListModel = moduleRef.get<Model<MatchListDocument>>(getModelToken(MatchList.name));
-    chatModel = moduleRef.get<Model<ChatDocument>>(getModelToken(Chat.name));
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
@@ -107,14 +104,11 @@ describe('ChatService', () => {
       + '`matchList.lastMessageSentAt`, and `chat.updatedAt`', async () => {
         const messageData = await messageModel.findById(message._id);
         const matchList = await matchListModel.findById(messageData.matchId);
-        const chat = await chatModel.findOne({ matchId: messageData.matchId });
-
         const messageCreated = Number(message.created);
         [
           message.createdAt.getTime(),
           matchList.updatedAt.getTime(),
           matchList.lastMessageSentAt.getTime(),
-          chat.updatedAt.getTime(),
         ].forEach((time) => {
           expect(time).toBe(messageCreated);
         });
@@ -136,15 +130,6 @@ describe('ChatService', () => {
     it('successfully creates the expected MatchList', async () => {
       expect(matchList).toBeTruthy();
       expect(matchList.participants).toEqual([users[0]._id, users[1]._id]);
-    });
-
-    it('creates a corresponding Chat record (for old API compatibility)', async () => {
-      const chat = await chatModel.findOne({ matchId: matchList._id });
-      expect(chat).toBeTruthy();
-      expect(chat.participants).toEqual(matchList.participants);
-      expect(chat.relationId).toEqual(matchList.relationId);
-      expect(chat.roomType).toEqual(matchList.roomType);
-      expect(chat.roomCategory).toEqual(matchList.roomCategory);
     });
   });
 

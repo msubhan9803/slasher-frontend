@@ -36,7 +36,7 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { MailService } from '../providers/mail.service';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { getUserFromRequest } from '../utils/request-utils';
-import { ActiveStatus, ProfileVisibility } from '../schemas/user/user.enums';
+import { ActiveStatus, ProfileVisibility, UserType } from '../schemas/user/user.enums';
 import { VerificationEmailNotReceivedDto } from './dto/verification-email-not-recevied.dto';
 import { UpdateUserDto } from './dto/update-user-data.dto';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
@@ -72,6 +72,7 @@ import { FriendRequestReaction } from '../schemas/friend/friend.enums';
 import { Public } from '../app/guards/auth.guard';
 import { UpdateDeviceTokenDto } from './dto/update-device-token.dto';
 import { SignOutDto } from './dto/sign-out.dto';
+import { ConfirmDeleteAccountQueryDto } from './dto/confirm-delete-account-query.dto';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -808,74 +809,6 @@ export class UsersController {
     );
   }
 
-  @Delete('delete-account')
-  async deleteAccount(
-    @Req() request: Request,
-    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: DeleteAccountQueryDto,
-  ) {
-    const user = getUserFromRequest(request);
-
-    // We check user id against the DTO data to make it harder to accidentally delete an account.
-    // This is important because users cannot undo account deletion.
-    if (user.id !== query.userId) {
-      throw new HttpException(
-        'Supplied userId does not match current user\'s id.',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    // This is to remove all friendships and pending friend requests related to this user.
-    await this.friendsService.deleteAllByUserId(user.id);
-
-    // No need to keep suggested friend blocks to or from this user when their account is deleted.
-    await this.friendsService.deleteAllSuggestBlocksByUserId(user.id);
-
-    // No need to keep blocks from or to the user.  It's especially important to delete
-    // blocks to the user because we don't want this now-deleted user showing up in other
-    // users' block lists in the UI.
-    await this.blocksService.deleteAllByUserId(user.id);
-
-    // Mark user as deleted
-    user.deleted = true;
-
-    // Change user's password to a new random value, to ensure that current session is invalidated
-    // and that they cannot log in again if admins ever need to temporarily reactivate their account.
-    user.setUnhashedPassword(uuidv4());
-
-    // Save changes to user object
-    await user.save();
-
-    return {
-      success: true,
-    };
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  @TransformImageUrls('$.profilePic')
-  @Delete('profile-image')
-  async deleteProfileImage(
-    @Req() request: Request,
-  ) {
-    const user = getUserFromRequest(request);
-    // TODO: Would be good to delete old image before replacing it (if previous value exists), to save storage space.
-    user.profilePic = 'noUser.jpg';
-    await user.save();
-    return { profilePic: user.profilePic };
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  @TransformImageUrls('$.profilePic')
-  @Delete('cover-image')
-  async deleteCoverImage(
-    @Req() request: Request,
-  ) {
-    const user = getUserFromRequest(request);
-    // TODO: Would be good to delete old image before replacing it (if previous value exists), to save storage space.
-    user.coverPhoto = null;
-    await user.save();
-    return { coverPhoto: user.coverPhoto };
-  }
-
   @Get(':userId/watched-list')
   async watchedListMovies(
     @Req() request: Request,
@@ -1065,5 +998,87 @@ export class UsersController {
       throw new HttpException('Device id is not found', HttpStatus.BAD_REQUEST);
     }
     return { success: true };
+  }
+
+  // TODO: Delete this after the app and website have been updated.
+  // It wil be replaced by the deleteAccount method in this class.
+  @Delete('delete-account')
+  async deleteAccountDeprecated(
+    @Req() request: Request,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: DeleteAccountQueryDto,
+  ) {
+    const user = getUserFromRequest(request);
+
+    // We check user id against the DTO data to make it harder to accidentally delete an account.
+    // This is important because users cannot undo account deletion.
+    if (user.id !== query.userId) {
+      throw new HttpException("Supplied userId param does not match current user's id.", HttpStatus.BAD_REQUEST);
+    }
+
+    await this.usersService.delete(user.id);
+
+    return {
+      success: true,
+    };
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  @TransformImageUrls('$.profilePic')
+  @Delete('profile-image')
+  async deleteProfileImage(
+    @Req() request: Request,
+  ) {
+    const user = getUserFromRequest(request);
+    // TODO: Would be good to delete old image before replacing it (if previous value exists), to save storage space.
+    user.profilePic = 'noUser.jpg';
+    await user.save();
+    return { profilePic: user.profilePic };
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  @TransformImageUrls('$.profilePic')
+  @Delete('cover-image')
+  async deleteCoverImage(
+    @Req() request: Request,
+  ) {
+    const user = getUserFromRequest(request);
+    // TODO: Would be good to delete old image before replacing it (if previous value exists), to save storage space.
+    user.coverPhoto = null;
+    await user.save();
+    return { coverPhoto: user.coverPhoto };
+  }
+
+  @Delete(':userId')
+  async deleteAccount(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: ConfirmDeleteAccountQueryDto,
+  ) {
+    const requestingUser = getUserFromRequest(request);
+    let userToDelete;
+
+    if (requestingUser.id === param.userId) {
+      // User is deleting their own account
+      userToDelete = requestingUser;
+    } else if (requestingUser.userType === UserType.Admin) {
+      // Admin is deleting any user's account
+      userToDelete = await this.usersService.findById(param.userId, true);
+    } else {
+      throw new HttpException('You are not allowed to perform this action.', HttpStatus.FORBIDDEN);
+    }
+
+    // We check user id against an additional DTO query param to make it harder to accidentally
+    // delete an account. This is important because account deletion is NOT reversible.
+    if (userToDelete.id !== query.confirmUserId) {
+      throw new HttpException("Supplied confirmUserId param does not match user's id.", HttpStatus.BAD_REQUEST);
+    }
+
+    await this.usersService.delete(userToDelete.id);
+
+    return {
+      success: true,
+    };
   }
 }

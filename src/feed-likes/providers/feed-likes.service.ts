@@ -177,4 +177,12 @@ export class FeedLikesService {
 
     return likeUsersForReply;
   }
+
+  async deleteAllFeedPostLikeByUserId(id: string): Promise<void> {
+    await this.feedLikesModel.deleteMany({ userId: id }).exec();
+  }
+
+  async deleteAllFeedReplyLikeByUserId(id: string): Promise<void> {
+    await this.feedReplyLikeModel.deleteMany({ userId: id }).exec();
+  }
 }

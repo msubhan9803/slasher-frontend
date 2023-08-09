@@ -68,7 +68,7 @@ export class FeedPostsService {
     activeOnly: boolean,
     loggedInUserId: mongoose.Types.ObjectId,
     before?: mongoose.Types.ObjectId,
-    ): Promise<FeedPostDocument[]> {
+  ): Promise<FeedPostDocument[]> {
     const feedPostFindAllQuery: any = {};
     const feedPostQuery = [];
     feedPostQuery.push({ userId: new mongoose.Types.ObjectId(userId) });
@@ -410,5 +410,12 @@ export class FeedPostsService {
     return this.feedPostModel
       .findOneAndUpdate({ _id: id }, { $set: { lastUpdateAt: Date.now() } }, { new: true })
       .exec();
+  }
+
+  async deleteAllPostByUserId(id: string): Promise<void> {
+    await Promise.all([
+      this.feedPostModel.updateMany({ $in: { likes: id } }, { $pull: { likes: id }, $inc: { likeCount: -1 } }, { multi: true }),
+      this.feedPostModel.deleteMany({ userId: id }).exec(),
+    ]);
   }
 }

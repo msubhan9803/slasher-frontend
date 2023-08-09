@@ -418,4 +418,19 @@ export class ChatService {
 
     return matchList;
   }
+
+  async deleteAllMessageByUserId(id: string): Promise<void> {
+    await this.messageModel.deleteMany({
+      $or: [{ fromId: new mongoose.Types.ObjectId(id) }, { senderId: new mongoose.Types.ObjectId(id) }],
+    }).exec();
+  }
+
+  async deleteAllMatchlistByUserId(id: string): Promise<void> {
+    await this.matchListModel.deleteMany({
+      $and: [
+        { roomCategory: MatchListRoomCategory.DirectMessage },
+        { $in: { participants: new mongoose.Types.ObjectId(id) } },
+      ],
+    }).exec();
+  }
 }

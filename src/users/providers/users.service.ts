@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import mongoose, { Model, Types } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { Injectable } from '@nestjs/common';
@@ -12,6 +13,10 @@ import { ActiveStatus } from '../../schemas/user/user.enums';
 import { FriendsService } from '../../friends/providers/friends.service';
 import { BlocksService } from '../../blocks/providers/blocks.service';
 import { NotFoundError } from '../../errors';
+import { FeedPostsService } from '../../feed-posts/providers/feed-posts.service';
+import { FeedCommentsService } from '../../feed-comments/providers/feed-comments.service';
+import { FeedLikesService } from '../../feed-likes/providers/feed-likes.service';
+import { ChatService } from '../../chat/providers/chat.service';
 
 export interface UserNameSuggestion {
   userName: string;
@@ -24,6 +29,10 @@ export class UsersService {
     @InjectModel(SocketUser.name) private socketUserModel: Model<SocketUserDocument>,
     private friendsService: FriendsService,
     private blocksService: BlocksService,
+    private feedPostsService: FeedPostsService,
+    private feedCommentsService: FeedCommentsService,
+    private feedLikesService: FeedLikesService,
+    private chatService: ChatService,
   ) { }
 
   async create(user: Partial<User>) {
@@ -297,13 +306,21 @@ export class UsersService {
     await this.blocksService.deleteAllByUserId(user.id);
 
     // TODO: Mark all posts by the deleted user as deleted
+    await this.feedPostsService.deleteAllPostByUserId(user.id);
     // TODO: Mark all comments by the deleted user as deleted
+    await this.feedCommentsService.deleteAllCommentByUserId(user.id);
     // TODO: Mark all replies by the deleted user as deleted
+    await this.feedCommentsService.deleteAllReplyByUserId(user.id);
+
     // TODO: Mark all messages by the deleted user as deleted
+    await this.chatService.deleteAllMessageByUserId(user.id);
     // TODO: For any matchList where roomCategory equals MatchListRoomCategory.DirectMessage AND
     // that matchList has the deleted user in the participants array, mark the matchList as deleted.
+    await this.chatService.deleteAllMatchlistByUserId(user.id);
     // TODO: Delete all likes by the deleted user.  This includes: feedpostlikes, feedreplylikes,
     // likes by the user on posts, comments, and replies.
+    await this.feedLikesService.deleteAllFeedPostLikeByUserId(user.id);
+    await this.feedLikesService.deleteAllFeedReplyLikeByUserId(user.id);
     // TODO: As part of this, also update like and comment counts for any affected posts, and like
     // counts for any affected comments and replies.
 

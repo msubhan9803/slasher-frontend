@@ -196,4 +196,12 @@ export class FeedCommentsService {
     feedCommentData.replies = feedReplyData;
     return feedCommentData;
   }
+
+  async deleteAllCommentByUserId(id: string): Promise<void> {
+    await this.feedCommentModel.deleteMany({ userId: id }).exec();
+  }
+
+  async deleteAllReplyByUserId(id: string): Promise<void> {
+    await this.feedReplyModel.deleteMany({ userId: id }).exec();
+  }
 }

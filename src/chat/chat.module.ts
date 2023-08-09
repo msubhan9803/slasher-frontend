@@ -1,5 +1,6 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { UsersModule } from 'src/users/users.module';
 import { ChatService } from './providers/chat.service';
 import { ChatController } from './chat.controller';
 import { MatchList, MatchListSchema } from '../schemas/matchList/matchList.schema';
@@ -8,11 +9,13 @@ import { LocalStorageService } from '../local-storage/providers/local-storage.se
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { User, UserSchema } from '../schemas/user/user.schema';
 
+@Global()
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: MatchList.name, schema: MatchListSchema }]),
     MongooseModule.forFeature([{ name: Message.name, schema: MessageSchema }]),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    UsersModule,
   ],
   providers: [ChatService, LocalStorageService, S3StorageService],
   controllers: [ChatController],

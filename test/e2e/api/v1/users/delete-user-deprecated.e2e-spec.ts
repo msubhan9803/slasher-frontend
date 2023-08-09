@@ -18,7 +18,7 @@ import { SuggestBlockReaction } from '../../../../../src/schemas/suggestBlock/su
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
-describe('Users / delete account (e2e)', () => {
+describe('Users / delete user (deprecated) (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
@@ -143,7 +143,7 @@ describe('Users / delete account (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('Supplied userId does not match current user\'s id.');
+        expect(response.body.message).toContain("Supplied userId param does not match current user's id.");
       });
     });
 
@@ -151,7 +151,7 @@ describe('Users / delete account (e2e)', () => {
       it('userId should not be empty', async () => {
         const userId = '';
         const response = await request(app.getHttpServer())
-          .delete(`/api/v1/friends?userId=${userId}`)
+          .delete(`/api/v1/users/delete-account?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
@@ -163,7 +163,7 @@ describe('Users / delete account (e2e)', () => {
       it('userId must be a mongodb id', async () => {
         const userId = '634912b2@2c2f4f5e0e6228#';
         const response = await request(app.getHttpServer())
-          .delete(`/api/v1/friends?userId=${userId}`)
+          .delete(`/api/v1/users/delete-account?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);

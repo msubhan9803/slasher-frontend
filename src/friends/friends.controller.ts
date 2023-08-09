@@ -29,8 +29,8 @@ export class FriendsController {
     private readonly blocksService: BlocksService,
     private readonly notificationsService: NotificationsService,
     private readonly usersService: UsersService,
-    private readonly friendsGateway: FriendsGateway,
     private readonly chatService: ChatService,
+    private friendsGateway: FriendsGateway,
   ) { }
 
   @Post()
@@ -80,7 +80,7 @@ export class FriendsController {
       ],
     );
     await Promise.all([this.usersService.updateNewFriendRequestCount(createFriendRequestDto.userId),
-    this.friendsGateway.emitFriendRequestReceivedEvent(friend)]);
+    this.friendsGateway.emitFriendRequestReceivedEvent(friend.to.toString())]);
     return { success: true };
   }
 
@@ -113,11 +113,19 @@ export class FriendsController {
     cancelFriendshipOrDeclineRequestDto: CancelFriendshipOrDeclineRequestDto,
   ) {
     const user = getUserFromRequest(request);
-    await this.friendsService.cancelFriendshipOrDeclineRequest(user.id, cancelFriendshipOrDeclineRequestDto.userId);
-    await this.chatService.deletePrivateDirectMessageConversation([
-      new mongoose.Types.ObjectId(user.id),
-      new mongoose.Types.ObjectId(cancelFriendshipOrDeclineRequestDto.userId),
+
+    await Promise.all([
+      await this.friendsService.cancelFriendshipOrDeclineRequest(user.id, cancelFriendshipOrDeclineRequestDto.userId),
+      await this.chatService.deletePrivateDirectMessageConversation([
+        new mongoose.Types.ObjectId(user.id),
+        new mongoose.Types.ObjectId(cancelFriendshipOrDeclineRequestDto.userId),
+      ]),
     ]);
+
+    const friendship = await this.friendsService.findFriendship(user.id, cancelFriendshipOrDeclineRequestDto.userId);
+    if (friendship) {
+      this.friendsGateway.emitFriendRequestReceivedEvent(friendship.to.toString(), friendship.from.toString());
+    }
     return { success: true };
   }
 
@@ -128,13 +136,16 @@ export class FriendsController {
   ) {
     try {
       const user = getUserFromRequest(request);
-      await this.friendsService.acceptFriendRequest(acceptFriendRequestDto.userId, user.id);
-      await this.notificationsService.create({
-        userId: acceptFriendRequestDto.userId as any,
-        senderId: user._id,
-        notifyType: NotificationType.UserAcceptedYourFriendRequest,
-        notificationMsg: 'accepted your friend request',
-      });
+      await Promise.all([
+        await this.friendsService.acceptFriendRequest(acceptFriendRequestDto.userId, user.id),
+        await this.notificationsService.create({
+          userId: acceptFriendRequestDto.userId as any,
+          senderId: user._id,
+          notifyType: NotificationType.UserAcceptedYourFriendRequest,
+          notificationMsg: 'accepted your friend request',
+        }),
+        await this.friendsGateway.emitFriendRequestReceivedEvent(user.id),
+      ]);
       return { success: true };
     } catch (error) {
       throw new HttpException('Unable to accept friend request', HttpStatus.BAD_REQUEST);

@@ -216,7 +216,7 @@ export class FeedLikesController {
         feedReplyId: reply._id,
         senderId: user._id,
         allUsers: [user._id as any], // senderId must be in allUsers for old API compatibility
-        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        notifyType: NotificationType.UserLikedYourReply,
         notificationMsg: 'liked your reply',
       });
     }

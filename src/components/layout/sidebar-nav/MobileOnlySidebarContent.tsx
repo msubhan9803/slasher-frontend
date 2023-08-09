@@ -17,6 +17,11 @@ const SpecificHeightLink = styled(Link)`
   align-items: center;
 `;
 
+const BadgeSpan = styled.span`
+  font-size: xx-small;
+  padding-top: 5px;
+`;
+
 interface Props {
   className?: string;
   onToggleCanvas: () => void;
@@ -30,6 +35,7 @@ const redirectHelpClick = (e: React.MouseEvent) => {
 function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
   const loggedinUserName = useAppSelector((state) => state.user.user.userName);
   const userProfilePic = useAppSelector((state) => state.user.user.profilePic);
+  const userData = useAppSelector((state) => state.user);
 
   const handleRefresh = (to: string) => {
     // Similarly we clear pageStateCache on desktop navItem `onClick` too: file:///./../main-site-wrapper/authenticated/IconWithTextNavLink.tsx:
@@ -51,9 +57,12 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
             </SpecificHeightLink>
           </Col>
           <Col xs={3}>
-            <SpecificHeightLink to={friendsPagePath} className="btn btn-dark btn-sidebar w-100 pt-2" onClick={() => { onToggleCanvas(); handleRefresh(friendsPagePath); }}>
+            <SpecificHeightLink to={friendsPagePath} className="btn btn-dark btn-sidebar w-100 pt-2 position-relative" onClick={() => { onToggleCanvas(); handleRefresh(friendsPagePath); }}>
               <FontAwesomeIcon icon={solid('user-group')} size="lg" className="mb-1" />
               Friends
+              <BadgeSpan className="text-black top-0 start-50 translate-middle-y badge rounded-pill bg-primary position-absolute">
+                {userData.friendRequestCount}
+              </BadgeSpan>
             </SpecificHeightLink>
           </Col>
           <Col xs={3}>

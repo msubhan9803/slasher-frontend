@@ -156,7 +156,26 @@ function ChatInput({
   };
 
   const handleEmojiSelect = (emoji: Emoji) => {
-    setMessage((prevMessage: string) => prevMessage + emoji.native);
+    if (!textareaRef.current) { return; }
+
+    const input = textareaRef.current;
+    const { selectionStart, value } = input;
+
+    const startText = value.substring(0, selectionStart);
+    const endText = value.substring(selectionStart);
+
+    const newText = startText + emoji.native + endText;
+
+    setMessage(newText);
+
+    const newCursorPos = selectionStart + emoji.native.length;
+
+    setTimeout(() => {
+      input.value = newText;
+      input.selectionStart = newCursorPos;
+      input.selectionEnd = newCursorPos;
+      input.focus();
+    }, 0);
   };
 
   const closeEmojiPickerIfOpen = () => {
@@ -194,7 +213,13 @@ function ChatInput({
       </div>
     </div>
   );
-
+  const handleMessage = (e: any) => {
+    setMessage(e.target.value);
+  };
+  const handleCursorChange = () => {
+    if (!textareaRef.current) { return; }
+    textareaRef.current.selectionStart = textareaRef.current.selectionEnd;
+  };
   return (
     <StyledChatInputGroup className={`bg-dark rounded-5 py-2 px-3 ${isFocused ? 'focused' : ''}`}>
       {
@@ -278,7 +303,8 @@ function ChatInput({
           maxRows={4}
           placeholder={placeholder}
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          onChange={handleMessage}
+          onMouseUp={handleCursorChange}
           onFocus={() => { onFocus(); setIsFocused(true); }}
           onBlur={() => { onBlur(); }}
           onKeyDown={handleTextareaKeyDown}

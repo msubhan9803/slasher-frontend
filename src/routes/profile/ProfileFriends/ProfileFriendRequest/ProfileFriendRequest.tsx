@@ -11,7 +11,7 @@ import LoadingIndicator from '../../../../components/ui/LoadingIndicator';
 import TabLinks from '../../../../components/ui/Tabs/TabLinks';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import {
-  resetNewFriendRequestCountCount, setFriendListReload, setProfilePageUserDetailsReload,
+  setFriendListReload, setProfilePageUserDetailsReload,
   setUserRecentFriendRequests,
 } from '../../../../redux/slices/userSlice';
 import { ProfileSubroutesCache, User } from '../../../../types';
@@ -41,7 +41,7 @@ function ProfileFriendRequest({ user }: Props) {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const loginUserName = useAppSelector((state) => state.user.user.userName);
-  const friendsReqCount = useAppSelector((state) => state.user.user.newFriendRequestCount);
+  const friendsReqCount = useAppSelector((state) => state.user.friendRequestCount);
   const friendRequestContainerElementRef = useRef<any>(null);
   const [loadingFriendRequests, setLoadingFriendRequests] = useState<boolean>(false);
   const [additionalFriendRequest, setAdditionalFriendRequest] = useState<boolean>(false);
@@ -54,7 +54,6 @@ function ProfileFriendRequest({ user }: Props) {
   const [friendRequestPage, setFriendRequestPage] = useState<number>(
     profileSubRoutesCache?.friendRequests?.page || 0,
   );
-
   const friendsTabs = [
     { value: '', label: 'All friends' },
     { value: 'request', label: 'Friend requests', badge: friendsReqCount },
@@ -67,11 +66,6 @@ function ProfileFriendRequest({ user }: Props) {
   };
 
   useEffect(() => {
-    socket?.emit('clearNewFriendRequestCount', {});
-    dispatch(resetNewFriendRequestCountCount());
-  }, [dispatch, socket]);
-
-  useEffect(() => {
     if (isFriendReLoad) {
       initalFriendRequest();
       dispatch(setFriendListReload(false));
@@ -79,6 +73,22 @@ function ProfileFriendRequest({ user }: Props) {
       setNoMoreData(false);
     }
   }, [isFriendReLoad, dispatch]);
+
+  const onFriendRequestChangeHandler = useCallback((responsePayload: any) => {
+    // eslint-disable-next-line max-len
+    const removeRequest = friendsReqList.filter((req: any) => req._id !== responsePayload.actionUserId);
+    setFriendsReqList(removeRequest);
+  }, [friendsReqList]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('friendRequestUpdated', onFriendRequestChangeHandler);
+      return () => {
+        socket.off('friendRequestUpdated', onFriendRequestChangeHandler);
+      };
+    }
+    return () => { };
+  }, [socket, onFriendRequestChangeHandler]);
 
   useEffect(() => {
     dispatch(setUserRecentFriendRequests(friendsReqList.slice(0, 3)));
@@ -176,7 +186,7 @@ function ProfileFriendRequest({ user }: Props) {
       <ProfileTabContent>
         <div className="mt-3">
           <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3 ">
-            { showAllFriendsAndFriendRequestsTabs && (
+            {showAllFriendsAndFriendRequestsTabs && (
               <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="request" overrideOnClick={deleteAllFriendsSubrouteCache} />
             )}
             <InfiniteScroll

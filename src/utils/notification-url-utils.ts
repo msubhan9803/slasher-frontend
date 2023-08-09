@@ -30,6 +30,11 @@ export const urlForNotification = (notification: Notification) => {
         return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
       }
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
+    case NotificationType.UserLikedYourReply:
+      if (notification.feedPostId.postType === PostType.MovieReview) {
+        return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}?commentId=${notification.feedCommentId}&replyId=${notification.feedReplyId}`;
+      }
+      return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}&replyId=${notification.feedReplyId}`;
     /*
           NOTE: Not handling the case below right now because RSS Feed Post comments are handled
           in a non-standard way by the old app. So we're temporary omitting them on the server side.
@@ -44,19 +49,35 @@ export const urlForNotification = (notification: Notification) => {
             return '';
           */
     case NotificationType.UserCommentedOnYourPost:
+    case NotificationType.UserRepliedOnYourPost:
       if (notification.feedPostId.postType === PostType.MovieReview) {
+        if (notification.feedReplyId) {
+          return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}?commentId=${notification.feedCommentId}&replyId=${notification.feedReplyId}`;
+        }
         return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
       }
+      if (notification.feedReplyId) {
+        return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}&replyId=${notification.feedReplyId}`;
+      }
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
+
     case NotificationType.UserMentionedYouInPost:
       if (notification.feedPostId.postType === PostType.MovieReview) {
         return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}`;
       }
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}`;
-    // eslint-disable-next-line max-len
+    case NotificationType.UserMentionedYouInAComment:
+      if (notification.feedPostId.postType === PostType.MovieReview) {
+        return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
+      }
+      return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
+    case NotificationType.UserMentionedYouInACommentReply:
+      if (notification.feedPostId.postType === PostType.MovieReview) {
+        return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}?commentId=${notification.feedCommentId}&replyId=${notification.feedReplyId}`;
+      }
+      return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}&replyId=${notification.feedReplyId}`;
+      // eslint-disable-next-line max-len
     case NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost:
-      // This enum is very long because the old API has too many things associated with the same
-      // notification type id on the backend. We will change this after retiring the old API.
       if (notification.feedPostId.postType === PostType.MovieReview) {
         if (notification.feedReplyId) {
           return `/app/movies/${notification.feedPostId.movieId}/reviews/${notification.feedPostId._id}?commentId=${notification.feedCommentId}&replyId=${notification.feedReplyId}`;

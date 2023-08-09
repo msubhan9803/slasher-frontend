@@ -17,7 +17,7 @@ export const WELCOME_MSG = `Welcome to Slasher! 🔪🔪🔪 It's nice to have y
 Here's some helpful info I share with everyone new. Hopefully you find it useful and it helps you enjoy your time with us!
 
 If you have something to promote, that's cool!
-You're absolutely welcome to do that on the feed or in the relevant groups.
+You're absolutely welcome to create posts on the home feed.
 *** Please don't promote in messages (see rules below) ***. 💯
 
 You can learn about the features here: https://pages.slasher.tv/help

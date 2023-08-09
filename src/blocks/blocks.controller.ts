@@ -24,13 +24,18 @@ export class BlocksController {
   @Post()
   async createBlock(@Req() request: Request, @Body() createBlockDto: CreateBlockDto) {
     const user = getUserFromRequest(request);
-    await this.blocksService.createBlock(user.id, createBlockDto.userId);
-    await this.friendsService.cancelFriendshipOrDeclineRequest(user.id, createBlockDto.userId);
-    await this.chatService.deletePrivateDirectMessageConversations(user.id, createBlockDto.userId);
-    await this.chatService.deletePrivateDirectMessageConversation([
-      new mongoose.Types.ObjectId(user.id),
-      new mongoose.Types.ObjectId(createBlockDto.userId),
+    console.time('aaa')
+    await Promise.all([
+      this.blocksService.createBlock(user.id, createBlockDto.userId),
+      this.friendsService.cancelFriendshipOrDeclineRequest(user.id, createBlockDto.userId),
+      this.chatService.deletePrivateDirectMessageConversations(user.id, createBlockDto.userId),
+      this.chatService.deletePrivateDirectMessageConversation([
+        new mongoose.Types.ObjectId(user.id),
+        new mongoose.Types.ObjectId(createBlockDto.userId),
+      ]),
     ]);
+    console.timeEnd('aaa')
+
     return { success: true };
   }
 

@@ -170,6 +170,12 @@ FeedPostSchema.index(
   },
 );
 
+FeedPostSchema.index(
+  {
+    hashtags: 1, status: 1, is_deleted: 1, userId: 1, createdAt: 1,
+  },
+);
+
 export type FeedPostDocument = HydratedDocument<FeedPost>;
 
 // export type FeedPostDocument = FeedPost & Document;

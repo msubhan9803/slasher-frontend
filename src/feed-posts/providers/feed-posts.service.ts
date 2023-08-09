@@ -242,8 +242,15 @@ export class FeedPostsService {
         { $and: [{ profile_status: ProfileVisibility.Public, deleted: true }] },
       ],
     }, { _id: 1 });
+    const [totalHashtagCount, feedPosts] = await Promise.all([
+      this.fetchTotalHashTagPostCount(hashtag, profileIdsToIgnore),
+      this.fetchPostByHashTag(before, hashtag, profileIdsToIgnore, limit, userId),
+    ]);
+    return [totalHashtagCount, feedPosts];
+  }
 
-    const totalHashtagCount:any = await this.feedPostModel.find({
+  async fetchTotalHashTagPostCount(hashtag, profileIdsToIgnore) {
+    return this.feedPostModel.find({
       $and: [
         { hashtags: hashtag },
         { status: 1 },
@@ -251,8 +258,9 @@ export class FeedPostsService {
         { userId: { $nin: profileIdsToIgnore } },
       ],
     }).count().exec();
+  }
 
-    // Optionally, only include posts that are older than the given `before` post
+  async fetchPostByHashTag(before, hashtag, profileIdsToIgnore, limit, userId) {
     const beforeQuery: any = {};
     if (before) {
       const feedPost = await this.feedPostModel.findById(before).exec();
@@ -274,15 +282,13 @@ export class FeedPostsService {
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();
-    const feedPosts = JSON.parse(JSON.stringify(query)).map((post) => {
+    return JSON.parse(JSON.stringify(query)).map((post) => {
       // eslint-disable-next-line no-param-reassign
       post.likedByUser = post.likes.includes(userId);
       // eslint-disable-next-line no-param-reassign
       post.likeCount = post.likes.length || 0;
       return post;
     });
-
-    return [totalHashtagCount, feedPosts];
   }
 
   async findAllPostsWithImagesByUser(userId: string, limit: number, before?: mongoose.Types.ObjectId): Promise<FeedPostDocument[]> {

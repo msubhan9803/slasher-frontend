@@ -44,4 +44,10 @@ export class Hashtag {
 
 export const HashtagSchema = SchemaFactory.createForClass(Hashtag);
 
+HashtagSchema.index(
+  {
+    name: 1,
+  },
+);
+
 export type HashtagDocument = HydratedDocument<Hashtag>;

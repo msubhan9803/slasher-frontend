@@ -241,6 +241,16 @@ UserSchema.index(
 );
 UserSchema.index(
   {
+    _id: 1, deleted: 1, status: 1, profile_status: 1,
+  },
+);
+UserSchema.index(
+  {
+    _id: 1, deleted: 1, profile_status: 1,
+  },
+);
+UserSchema.index(
+  {
     email: 1, resetPasswordToken: 1,
   },
 );

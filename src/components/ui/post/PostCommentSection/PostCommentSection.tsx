@@ -18,6 +18,7 @@ import EditCommentModal from '../../editCommentModal';
 import ErrorMessageList from '../../ErrorMessageList';
 import { CHOOSE_FILE_CAMERA_ICON, COMMENT_SECTION_ID, SEND_BUTTON_COMMENT_OR_REPLY } from '../../../../constants';
 import { onKeyboardClose, onKeyboardOpen } from '../../../../utils/styles-utils ';
+import { decryptMessage, replyMentionFormat } from '../../../../utils/text-utils';
 
 const LoadMoreCommentsWrapper = styled.div.attrs({ className: 'text-center' })`
   margin: -1rem 0 1rem;
@@ -72,6 +73,7 @@ function PostCommentSection({
   const [replyImageArray, setReplyImageArray] = useState<any>([]);
   const [message, setMessage] = useState<string>('');
   const [replyMessage, setReplyMessage] = useState<string>('');
+  const [decReplyMessage, setDecReplyMessage] = useState<string>('');
   const [isReply, setIsReply] = useState<boolean>(false);
   const [selectedReplyCommentId, setSelectedReplyCommentId] = useState<string>('');
   const [replyUserName, setReplyUserName] = useState<string>('');
@@ -270,7 +272,10 @@ function PostCommentSection({
 
     if (isReply && selectedReplyUserID !== loginUserId) {
       const mentionString = `@${replyUserName}`;
-      setReplyMessage(mentionString);
+      const encMsg = replyMentionFormat(mentionString, selectedReplyUserID);
+      const decMsg = decryptMessage(encMsg, true, true);
+      setDecReplyMessage(`${decMsg} `);
+      setReplyMessage(encMsg);
     }
   }, [replyUserName, isReply, selectedReplyCommentId,
     loginUserId, selectedReplyUserID, setCommentReplyErrorMessage]);
@@ -516,6 +521,7 @@ function PostCommentSection({
     <div id={scrollId} ref={tabsRef}>
       {/* This `CommentInput` is the ``reply-on-a-comment``. */}
       <CommentInput
+        decryptEditMessage={decReplyMessage}
         message={replyMessage}
         inputFile={replyInputFile}
         handleFileChange={handleFileChange}
@@ -572,6 +578,7 @@ function PostCommentSection({
     <div id={COMMENT_SECTION_ID} ref={commentSectionRef}>
       {/* This `CommentInput` is the ``comment-on-post``. */}
       <CommentInput
+        decryptEditMessage={decReplyMessage}
         message={message}
         setIsReply={setIsReply}
         inputFile={inputFile}

@@ -27,6 +27,7 @@ import useWindowInnerWidth from '../../../../hooks/useWindowInnerWidth';
 import { onKeyboardClose, setGlobalCssProperty } from '../../../../utils/styles-utils ';
 
 interface CommentInputProps {
+  decryptEditMessage: string;
   message: string;
   setIsReply?: (value: boolean) => void;
   inputFile: any;
@@ -115,7 +116,7 @@ const StyledCommentInputGroup = styled(InputGroup) <InputProps>`
 
 `;
 function CommentInput({
-  message, setIsReply, inputFile,
+  decryptEditMessage, message, setIsReply, inputFile,
   handleFileChange, sendComment, imageArray, handleRemoveFile, dataId,
   handleSearch, mentionList, addUpdateComment, replyImageArray, isReply,
   addUpdateReply, commentID, commentReplyID, checkCommnt, commentError, commentReplyError,
@@ -126,6 +127,7 @@ function CommentInput({
   commentOrReplySuccessAlertMessage, setCommentOrReplySuccessAlertMessage, setHasReplyMessage,
 }: CommentInputProps) {
   const [editMessage, setEditMessage] = useState<string>('');
+  const [decEditMessage, setDecryptEditMessage] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const [isFocosInput, setIsFocusInput] = useState<boolean>(false);
   const [showPicker, setShowPicker] = useState<boolean>(false);
@@ -141,12 +143,14 @@ function CommentInput({
   useEffect(() => {
     if (message && message.length > 0) {
       setEditMessage(`${message} `);
+      setDecryptEditMessage(decryptEditMessage);
     } else {
       setEditMessage('');
+      setDecryptEditMessage('');
       handleSetCommentReplyErrorMessage([]);
       handleSetReplyImageArray([]);
     }
-  }, [message, commentID, isReply, commentReplyID,
+  }, [message, decryptEditMessage, commentID, isReply, commentReplyID,
     handleSetCommentReplyErrorMessage, handleSetReplyImageArray, selectedReplyUserId]);
   useEffect(() => {
     if (editMessage) {
@@ -173,16 +177,20 @@ function CommentInput({
   useEffect(() => {
     if (commentError! && commentError.length) {
       setEditMessage((prevEditMessage) => prevEditMessage);
+      setDecryptEditMessage((prevEditMessage) => prevEditMessage);
     } else if (message === '') {
       setEditMessage('');
+      setDecryptEditMessage('');
     }
   }, [commentError, message]);
 
   useEffect(() => {
     if (commentReplyError! && commentReplyError.length) {
       setEditMessage((prevEditMessage) => prevEditMessage);
+      setDecryptEditMessage((prevEditMessage) => prevEditMessage);
     } else if (message === '') {
       setEditMessage('');
+      setDecryptEditMessage('');
     }
   }, [commentReplyError, message]);
 
@@ -223,7 +231,7 @@ function CommentInput({
 
   const handleMessage = () => {
     onKeyboardClose();
-    const postContentWithMentionReplacements = (editMessage!.replace(
+    const postContentWithMentionReplacements = (decEditMessage!.replace(
       atMentionsGlobalRegex,
       generateMentionReplacementMatchFunc(formatMention),
     ));
@@ -287,10 +295,10 @@ function CommentInput({
                   handleSearch={handleSearch}
                   mentionLists={mentionList}
                   messageContent={editMessage}
-                  setMessageContent={setEditMessage}
+                  setMessageContent={setDecryptEditMessage}
                   formatMentionList={formatMention}
                   setFormatMentionList={setFormatMention}
-                  defaultValue={editMessage}
+                  defaultValue={decEditMessage}
                   isCommentInput="true"
                   onFocusHandler={onFocusHandler}
                   onBlurHandler={onBlurHandler}

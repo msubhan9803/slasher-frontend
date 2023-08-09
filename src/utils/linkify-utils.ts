@@ -15,6 +15,9 @@ const sharedLinkifyOpts: LinkifyOpts = {
     }
     return '_blank';
   },
+  validate: {
+    mention: false,
+  },
 };
 
 export const defaultLinkifyOpts: LinkifyOpts = { ...sharedLinkifyOpts };

@@ -18,7 +18,7 @@ import MobileOnlySidebarContent from '../../sidebar-nav/MobileOnlySidebarContent
 import { userInitialData } from '../../../../api/users';
 import {
   setUserInitialData, handleUpdatedUnreadConversationCount, resetUnreadNotificationCount,
-  resetNewFriendRequestCountCount, incrementUnreadNotificationCount,
+  incrementUnreadNotificationCount,
   incrementFriendRequestCount,
   appendToPathnameHistory,
   updateRecentMessage,
@@ -192,16 +192,12 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const onNotificationReceivedHandler = useCallback(() => {
     dispatch(incrementUnreadNotificationCount());
   }, [dispatch]);
-  const onFriendRequestReceivedHandler = useCallback(() => {
-    dispatch(incrementFriendRequestCount());
+  const onFriendRequestReceivedHandler = useCallback((data: any) => {
+    dispatch(incrementFriendRequestCount(data));
   }, [dispatch]);
 
   const onClearNewNotificationCount = useCallback(() => {
     dispatch(resetUnreadNotificationCount());
-  }, [dispatch]);
-
-  const onClearNewFriendRequestCount = useCallback(() => {
-    dispatch(resetNewFriendRequestCountCount());
   }, [dispatch]);
 
   const onUnreadConversationCountUpdate = useCallback((count: any) => {
@@ -248,20 +244,18 @@ function AuthenticatedPageWrapper({ children }: Props) {
     if (!socket) { return () => { }; }
 
     socket.on('notificationReceived', onNotificationReceivedHandler);
-    socket.on('friendRequestReceived', onFriendRequestReceivedHandler);
+    socket.on('friendRequestUpdated', onFriendRequestReceivedHandler);
     socket.on('unreadConversationCountUpdate', onUnreadConversationCountUpdate);
     socket.on('clearNewNotificationCount', onClearNewNotificationCount);
-    socket.on('clearNewFriendRequestCount', onClearNewFriendRequestCount);
     socket.on('chatMessageReceived', onChatMessageReceivedHandler);
     return () => {
       socket.off('notificationReceived', onNotificationReceivedHandler);
-      socket.off('friendRequestReceived', onFriendRequestReceivedHandler);
+      socket.off('friendRequestUpdated', onFriendRequestReceivedHandler);
       socket.off('unreadMessageCountUpdate', onUnreadConversationCountUpdate);
       socket.off('clearNewNotificationCount', onClearNewNotificationCount);
-      socket.off('clearNewFriendRequestCount', onClearNewFriendRequestCount);
       socket.off('chatMessageReceived', onChatMessageReceivedHandler);
     };
-  }, [onClearNewFriendRequestCount, onClearNewNotificationCount, onFriendRequestReceivedHandler,
+  }, [onClearNewNotificationCount, onFriendRequestReceivedHandler,
     onNotificationReceivedHandler, onUnreadConversationCountUpdate, socket,
     onChatMessageReceivedHandler]);
 

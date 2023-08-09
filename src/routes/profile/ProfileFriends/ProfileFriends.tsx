@@ -56,7 +56,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
   const popoverOption = isSelfProfile
     ? ['View profile', 'Message', 'Unfriend', 'Report', 'Block user']
     : ['View profile', 'Report', 'Block user'];
-  const friendsReqCount = useAppSelector((state) => state.user.user.newFriendRequestCount);
+  const friendsReqCount = useAppSelector((state) => state.user.friendRequestCount);
   const loginUserName = useAppSelector((state) => state.user.user.userName);
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
   const [requestAdditionalFriends, setRequestAdditionalFriends] = useState<boolean>(false);

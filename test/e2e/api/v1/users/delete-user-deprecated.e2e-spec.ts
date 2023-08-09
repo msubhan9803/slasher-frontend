@@ -18,7 +18,7 @@ import { SuggestBlockReaction } from '../../../../../src/schemas/suggestBlock/su
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
-describe('Users / delete account (e2e)', () => {
+describe('Users / delete user (deprecated) (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;

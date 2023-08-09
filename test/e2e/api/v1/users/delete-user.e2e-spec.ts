@@ -2,7 +2,7 @@ import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../../../src/app.module';
 import { userFactory } from '../../../../factories/user.factory';
@@ -13,13 +13,14 @@ import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-se
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 import { UserType } from '../../../../../src/schemas/user/user.enums';
 
-describe('Users / delete account (e2e)', () => {
+describe('Users / delete user (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
   let activeUserAuthToken: string;
   let activeUser: UserDocument;
   let user1: UserDocument;
+  let alreadyDeletedUser: UserDocument;
   let nonAdminUser: UserDocument;
   let adminUser: UserDocument;
   let configService: ConfigService;
@@ -50,6 +51,7 @@ describe('Users / delete account (e2e)', () => {
 
     activeUser = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build());
+    alreadyDeletedUser = await usersService.create(userFactory.build({ deleted: true }));
     nonAdminUser = await usersService.create(userFactory.build());
     adminUser = await usersService.create(userFactory.build({ userType: UserType.Admin }));
     activeUserAuthToken = activeUser.generateNewJwtToken(
@@ -94,7 +96,30 @@ describe('Users / delete account (e2e)', () => {
         expect(response.body).toEqual({ success: true });
       });
 
-      it('if query parameter userId different than activeUser then it returns expected response', async () => {
+      it('returns the expected response if admin tries to delete a non-existent user', async () => {
+        const adminUserAuthToken = adminUser.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
+
+        const nonExistentId = new mongoose.Types.ObjectId().toString();
+        const response = await request(app.getHttpServer())
+          .delete(`/api/v1/users/${nonExistentId}?confirmUserId=${nonExistentId}`)
+          .auth(adminUserAuthToken, { type: 'bearer' })
+          .send()
+          .expect(HttpStatus.NOT_FOUND);
+        expect(response.body).toEqual({ statusCode: HttpStatus.NOT_FOUND, message: 'User not found.' });
+      });
+
+      it('succeeds if an admin user tries to delete an already deleted user', async () => {
+        const adminUserAuthToken = adminUser.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
+
+        const response = await request(app.getHttpServer())
+          .delete(`/api/v1/users/${alreadyDeletedUser.id}?confirmUserId=${alreadyDeletedUser.id}`)
+          .auth(adminUserAuthToken, { type: 'bearer' })
+          .send()
+          .expect(HttpStatus.OK);
+        expect(response.body).toEqual({ success: true });
+      });
+
+      it('returns the expected error if query parameter confirmUserId different than the userId user param', async () => {
         const userId = user1._id;
         const response = await request(app.getHttpServer())
           .delete(`/api/v1/users/${activeUser.id}?confirmUserId=${userId}`)

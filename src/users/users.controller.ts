@@ -1057,16 +1057,20 @@ export class UsersController {
     query: ConfirmDeleteAccountQueryDto,
   ) {
     const requestingUser = getUserFromRequest(request);
-    let userToDelete;
+    let userToDelete: UserDocument;
 
     if (requestingUser.id === param.userId) {
       // User is deleting their own account
       userToDelete = requestingUser;
     } else if (requestingUser.userType === UserType.Admin) {
       // Admin is deleting any user's account
-      userToDelete = await this.usersService.findById(param.userId, true);
+      userToDelete = await this.usersService.findById(param.userId, false);
     } else {
       throw new HttpException('You are not allowed to perform this action.', HttpStatus.FORBIDDEN);
+    }
+
+    if (!userToDelete) {
+      throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
     }
 
     // We check user id against an additional DTO query param to make it harder to accidentally
@@ -1075,7 +1079,9 @@ export class UsersController {
       throw new HttpException("Supplied confirmUserId param does not match user's id.", HttpStatus.BAD_REQUEST);
     }
 
-    await this.usersService.delete(userToDelete.id);
+    if (!userToDelete.deleted) {
+      await this.usersService.delete(userToDelete.id);
+    }
 
     return {
       success: true,

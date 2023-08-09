@@ -70,7 +70,6 @@ function SearchPosts() {
 
   useEffect(() => {
     getHashtagDetail();
-    setSearchPosts([]);
     setRequestAdditionalPosts(false);
     setLastHashtagId('');
   }, [query, getHashtagDetail]);
@@ -101,11 +100,11 @@ function SearchPosts() {
         });
         setSearchPosts((prev: Post[]) => [...prev, ...newPosts]);
         setTotalPost(res.data.count);
-        if (res.data.length === 0) {
+        if (res.data.posts.length === 0) {
           setNoMoreData(true);
           setLastHashtagId('');
         } else {
-          setLastHashtagId(res.data[res.data.length - 1]._id);
+          setLastHashtagId(res.data.posts[res.data.posts.length - 1]._id);
         }
         if (hasPageStateCache(location)
           && searchPosts.length >= pageStateCache.length + 10) {

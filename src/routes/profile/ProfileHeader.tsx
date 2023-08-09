@@ -28,6 +28,7 @@ import useSessionToken from '../../hooks/useSessionToken';
 import { setScrollToTabsPosition } from '../../redux/slices/scrollPositionSlice';
 import { formatNumberWithUnits } from '../../utils/number.utils';
 import ZoomableImageModal from '../../components/ui/ZoomingImageModal';
+import useProgressButton from '../../components/ui/ProgressButton';
 
 interface Props {
   tabKey?: string;
@@ -72,6 +73,7 @@ function ProfileHeader({
   const [friendshipStatus, setFriendshipStatus] = useState<any>();
   const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
   const [dropDownValue, setDropDownValue] = useState<string>('');
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const popoverOption = ['Report', 'Block user'];
   const loginUserName = useAppSelector((state) => state.user.user.userName);
   const userId = useAppSelector((state) => state.user.user.id);
@@ -134,10 +136,14 @@ function ProfileHeader({
     dispatch]);
 
   const onBlockYesClick = () => {
+    setProgressButtonStatus('loading');
     createBlockUser(clickedUserId)
-      .then(() => setDropDownValue('BlockUserSuccess'))
+      .then(() => {
+        setProgressButtonStatus('success');
+        setDropDownValue('BlockUserSuccess');
+      })
       /* eslint-disable no-console */
-      .catch((error) => console.error(error));
+      .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
   };
 
   const afterBlockUser = () => {
@@ -146,16 +152,18 @@ function ProfileHeader({
   };
 
   const reportUserProfile = (reason: string) => {
+    setProgressButtonStatus('loading');
     const reportPayload = {
       targetId: clickedUserId,
       reason,
       reportType: 'profile',
     };
     reportData(reportPayload).then(() => {
-      setShow(false);
+      setProgressButtonStatus('success');
     })
       /* eslint-disable no-console */
-      .catch((error) => console.error(error));
+      .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
+    setDropDownValue('PostReportSuccessDialog');
   };
 
   if (!user || (!isSelfUserProfile && typeof friendStatus === null)) {
@@ -269,6 +277,7 @@ function ProfileHeader({
         onBlockYesClick={onBlockYesClick}
         afterBlockUser={afterBlockUser}
         handleReport={reportUserProfile}
+        ProgressButton={ProgressButton}
       />
       {
         showSignIn

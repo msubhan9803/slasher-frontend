@@ -84,6 +84,10 @@ function ProfilePosts({ user }: Props) {
     setDropDownValue(value);
   };
 
+  const afterBlockUser = () => {
+    setShowReportModal(false);
+  };
+
   const fetchPosts = useCallback(() => {
     getProfilePosts(
       user._id,
@@ -291,26 +295,30 @@ function ProfilePosts({ user }: Props) {
   };
 
   const onBlockYesClick = () => {
+    setProgressButtonStatus('loading');
     createBlockUser(postUserId)
       .then(() => {
-        setShowReportModal(false);
+        setProgressButtonStatus('success');
+        setDropDownValue('BlockUserSuccess');
         callLatestFeedPost();
       })
       /* eslint-disable no-console */
-      .catch((error) => console.error(error));
+      .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
   };
 
   const reportProfilePost = (reason: string) => {
+    setProgressButtonStatus('loading');
     const reportPayload = {
       targetId: postId!,
       reason,
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res.status === 200) { callLatestFeedPost(); }
+      if (res) { callLatestFeedPost(); setProgressButtonStatus('success'); }
     })
       /* eslint-disable no-console */
-      .catch((error) => console.error(error));
+      .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
+    setDropDownValue('PostReportSuccessDialog');
   };
 
   const persistScrollPosition = () => {
@@ -357,12 +365,7 @@ function ProfilePosts({ user }: Props) {
         </InfiniteScroll>
         {loadingPosts && <LoadingIndicator />}
         {noMoreData && renderNoMoreDataMessage()}
-        <ReportModal
-          show={showReportModal}
-          setShow={setShowReportModal}
-          slectedDropdownValue={dropDownValue}
-        />
-        {dropDownValue !== 'Edit'
+        {['Block user', 'Report', 'Delete', 'PostReportSuccessDialog', 'BlockUserSuccess'].includes(dropDownValue)
           && (
             <ReportModal
               onConfirmClick={deletePostClick}
@@ -370,7 +373,9 @@ function ProfilePosts({ user }: Props) {
               setShow={setShowReportModal}
               slectedDropdownValue={dropDownValue}
               onBlockYesClick={onBlockYesClick}
+              afterBlockUser={afterBlockUser}
               handleReport={reportProfilePost}
+              ProgressButton={ProgressButton}
             />
           )}
         {dropDownValue === 'Edit'

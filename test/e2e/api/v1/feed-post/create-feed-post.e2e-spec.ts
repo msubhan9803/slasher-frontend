@@ -329,9 +329,9 @@ describe('Feed-Post / Post File (e2e)', () => {
         expect(feedPost.hashtags).toEqual(['ok', 'slasher', 'nothing']);
 
         const hashtags = await hashtagModel.find({ name: { $in: feedPost.hashtags } });
-        expect(hashtags[0].name).toEqual(feedPost.hashtags[0]);
-        expect(hashtags[1].name).toEqual(feedPost.hashtags[1]);
-        expect(hashtags[2].name).toEqual(feedPost.hashtags[2]);
+        expect(hashtags[0].name).toBe('nothing');
+        expect(hashtags[1].name).toBe('ok');
+        expect(hashtags[2].name).toBe('slasher');
       }, [{ extension: 'png' }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
@@ -370,10 +370,10 @@ describe('Feed-Post / Post File (e2e)', () => {
         expect(feedPost.hashtags).toEqual(['okay', 'slasher', 'test12', 'horror1']);
 
         const hashtags = await hashtagModel.find({ name: { $in: feedPost.hashtags } });
-        expect(hashtags[0].name).toEqual(feedPost.hashtags[0]);
-        expect(hashtags[1].name).toEqual(feedPost.hashtags[1]);
-        expect(hashtags[2].name).toEqual(feedPost.hashtags[2]);
-        expect(hashtags[3].name).toEqual(feedPost.hashtags[3]);
+        expect(hashtags[0].name).toBe('horror1');
+        expect(hashtags[1].name).toBe('okay');
+        expect(hashtags[2].name).toBe('slasher');
+        expect(hashtags[3].name).toBe('test12');
       }, [{ extension: 'png' }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)

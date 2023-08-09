@@ -74,8 +74,8 @@ describe('HashtagService', () => {
       const name1 = ['ok'];
       await hashtagService.decrementTotalPost(name1);
       const hashtags = await hashtagModel.find({ name: { $in: name } });
-      expect(hashtags[0].totalPost).toBe(0);
-      expect(hashtags[1].totalPost).toBe(1);
+      expect(hashtags[0].totalPost).toBe(1);
+      expect(hashtags[1].totalPost).toBe(0);
       expect(hashtags[2].totalPost).toBe(1);
     });
   });

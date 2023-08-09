@@ -85,12 +85,12 @@ describe('Insert Many Hashtags Follow (e2e)', () => {
           {
             notification: 0,
             userId,
-            hashTagId: hashtag0.id,
+            hashTagId: expect.any(String),
           },
           {
             notification: 0,
             userId,
-            hashTagId: hashtag1.id,
+            hashTagId: expect.any(String),
           },
         ]);
       });

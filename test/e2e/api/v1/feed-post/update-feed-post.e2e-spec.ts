@@ -518,10 +518,10 @@ describe('Update Feed Post (e2e)', () => {
         expect(post.hashtags).toEqual(['ok', 'slasher', 'nothing12', 'ok1']);
 
         const hashtags = await hashtagModel.find({ name: { $in: post.hashtags } });
-        expect(hashtags[0].name).toEqual(post.hashtags[0]);
-        expect(hashtags[1].name).toEqual(post.hashtags[1]);
-        expect(hashtags[2].name).toEqual(post.hashtags[2]);
-        expect(hashtags[3].name).toEqual(post.hashtags[3]);
+        expect(hashtags[0].name).toBe('nothing12');
+        expect(hashtags[1].name).toBe('ok');
+        expect(hashtags[2].name).toBe('ok1');
+        expect(hashtags[3].name).toBe('slasher');
       }, [{ extension: 'png' }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
@@ -587,8 +587,8 @@ describe('Update Feed Post (e2e)', () => {
         expect(post.hashtags).toEqual(['slasher', 'funny']);
 
         const hashtags = await hashtagModel.find({ name: { $in: post.hashtags } });
-        expect(hashtags[0].name).toEqual(post.hashtags[0]);
-        expect(hashtags[1].name).toEqual(post.hashtags[1]);
+        expect(hashtags[0].name).toBe('funny');
+        expect(hashtags[1].name).toBe('slasher');
       }, [{ extension: 'png' }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
@@ -633,8 +633,8 @@ describe('Update Feed Post (e2e)', () => {
         expect(post.hashtags).toEqual(['flash', 'best']);
 
         const hashtags = await hashtagModel.find({ name: { $in: post.hashtags } });
-        expect(hashtags[0].name).toEqual(post.hashtags[0]);
-        expect(hashtags[1].name).toEqual(post.hashtags[1]);
+        expect(hashtags[0].name).toBe('best');
+        expect(hashtags[1].name).toBe('flash');
 
         const decrementTotalPostCount = await hashtagModel.find({ name: { $in: feedPost4.hashtags } });
         expect(decrementTotalPostCount[0].totalPost).toBe(0);

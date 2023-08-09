@@ -62,5 +62,10 @@ HashTagsFollowSchema.index(
     userId: 1,
   },
 );
+HashTagsFollowSchema.index(
+  {
+    userId: 1, hashTagId: 1,
+  },
+);
 
 export type HashTagsFollowDocument = HydratedDocument<HashTagsFollow>;

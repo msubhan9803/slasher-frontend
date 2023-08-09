@@ -14,6 +14,7 @@ import { FriendsModule } from '../friends/friends.module';
 import { BlocksModule } from '../blocks/blocks.module';
 import { HashtagModule } from '../hashtag/hashtag.module';
 import { MovieUserStatusModule } from '../movie-user-status/movie.user.status.module';
+import { FriendsGateway } from '../friends/providers/friends.gateway';
 import { Hashtag, HashtagSchema } from '../schemas/hastag/hashtag.schema';
 import { HashtagFollowsModule } from '../hashtag-follows/hashtag-follows.module';
 
@@ -32,8 +33,8 @@ import { HashtagFollowsModule } from '../hashtag-follows/hashtag-follows.module'
     MovieUserStatusModule,
     HashtagFollowsModule,
   ],
-  providers: [FeedPostsService, BlocksService, LocalStorageService, S3StorageService],
-  exports: [FeedPostsService],
+  providers: [FeedPostsService, BlocksService, LocalStorageService, S3StorageService, FriendsGateway],
+  exports: [FeedPostsService, FriendsGateway],
   controllers: [FeedPostsController],
 })
 export class FeedPostsModule { }

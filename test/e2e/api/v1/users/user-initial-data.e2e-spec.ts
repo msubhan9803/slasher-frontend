@@ -246,6 +246,7 @@ describe('Users suggested friends (e2e)', () => {
             ],
             unreadNotificationCount: 5,
             newConversationIdsCount: 0,
+            friendRequestCount: 5,
           },
         );
       });

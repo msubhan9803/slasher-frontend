@@ -642,7 +642,7 @@ export class FeedCommentsController {
           feedCommentId: { _id: comment._id.toString() } as unknown as FeedComment,
           senderId: commentCreatorUser._id,
           allUsers: [commentCreatorUser._id as any], // senderId must be in allUsers for old API compatibility
-          notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          notifyType: NotificationType.UserMentionedYouInAComment,
           notificationMsg: 'mentioned you in a comment',
         });
       }
@@ -667,7 +667,7 @@ export class FeedCommentsController {
         feedCommentId: { _id: comment._id } as unknown as FeedComment,
         senderId: commentUpdateUser._id,
         allUsers: [commentUpdateUser._id as any], // senderId must be in allUsers for old API compatibility
-        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        notifyType: NotificationType.UserMentionedYouInAComment,
         notificationMsg: 'mentioned you in a comment',
       });
     }
@@ -696,7 +696,7 @@ export class FeedCommentsController {
         feedReplyId: reply._id,
         senderId: replyCreatorUser._id,
         allUsers: [replyCreatorUser._id as any], // senderId must be in allUsers for old API compatibility
-        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        notifyType: NotificationType.UserMentionedYouInACommentReply,
         notificationMsg: post.postType === PostType.MovieReview ? commmentOnMovieReview : 'replied to a comment on your post',
       });
     }
@@ -718,7 +718,7 @@ export class FeedCommentsController {
         feedReplyId: reply._id.toString() as any,
         senderId: replyCreatorUser.id,
         allUsers: [replyCreatorUser._id as any], // senderId must be in allUsers for old API compatibility
-        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        notifyType: NotificationType.UserMentionedYouInACommentReply,
         notificationMsg: 'replied to your comment',
       });
     }
@@ -734,7 +734,7 @@ export class FeedCommentsController {
           feedReplyId: reply._id.toString() as any,
           senderId: replyCreatorUser.id,
           allUsers: [replyCreatorUser._id as any], // senderId must be in allUsers for old API compatibility
-          notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          notifyType: NotificationType.UserMentionedYouInAComment,
           notificationMsg: 'mentioned you in a comment',
         });
       }
@@ -760,7 +760,7 @@ export class FeedCommentsController {
         feedReplyId: feedReply._id,
         senderId: replyUpdateUser._id,
         allUsers: [replyUpdateUser._id as any], // senderId must be in allUsers for old API compatibility
-        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        notifyType: NotificationType.UserMentionedYouInAComment,
         notificationMsg: 'mentioned you in a comment',
       });
     }

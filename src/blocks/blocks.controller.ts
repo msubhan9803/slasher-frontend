@@ -24,7 +24,6 @@ export class BlocksController {
   @Post()
   async createBlock(@Req() request: Request, @Body() createBlockDto: CreateBlockDto) {
     const user = getUserFromRequest(request);
-    console.time('aaa')
     await Promise.all([
       this.blocksService.createBlock(user.id, createBlockDto.userId),
       this.friendsService.cancelFriendshipOrDeclineRequest(user.id, createBlockDto.userId),
@@ -34,8 +33,6 @@ export class BlocksController {
         new mongoose.Types.ObjectId(createBlockDto.userId),
       ]),
     ]);
-    console.timeEnd('aaa')
-
     return { success: true };
   }
 

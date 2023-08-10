@@ -5,7 +5,6 @@ import {
   Route, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
 import { App as CapacitorApp } from '@capacitor/app';
-import { Capacitor } from '@capacitor/core';
 import { StatusBar } from '@capacitor/status-bar';
 import { Keyboard } from '@capacitor/keyboard';
 import VerificationEmailNotReceived from './routes/verification-email-not-received/VerificationEmailNotReceived';
@@ -116,14 +115,6 @@ if (enableDevFeatures) {
   // routes['places/*'] = { wrapper: AuthenticatedPageWrapper, component: Places };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-Keyboard.addListener('keyboardWillShow', (info) => {
-  onKeyboardOpen();
-});
-Keyboard.addListener('keyboardWillHide', () => {
-  onKeyboardClose();
-});
-
 CapacitorApp.addListener('backButton', () => {
   if (isHomePage(window.location.pathname)) {
     CapacitorApp.exitApp();
@@ -132,12 +123,6 @@ CapacitorApp.addListener('backButton', () => {
   }
 });
 
-// Display content under transparent status bar (Android only)
-if (Capacitor.isNativePlatform()) {
-  StatusBar.setOverlaysWebView({ overlay: false });
-  StatusBar.setBackgroundColor({ color: topStatuBarBackgroundColorAndroidOnly });
-}
-
 if (isNativePlatform) {
   const SERVER_UNAVAILABILITY_CHECK_DELAY = 3_000;
   setTimeout(() => {
@@ -145,6 +130,18 @@ if (isNativePlatform) {
       store.dispatch(setIsServerAvailable(false));
     });
   }, SERVER_UNAVAILABILITY_CHECK_DELAY);
+
+  // Display content under transparent status bar (Android only)
+  StatusBar.setOverlaysWebView({ overlay: false });
+  StatusBar.setBackgroundColor({ color: topStatuBarBackgroundColorAndroidOnly });
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Keyboard.addListener('keyboardWillShow', (info) => {
+    onKeyboardOpen();
+  });
+  Keyboard.addListener('keyboardWillHide', () => {
+    onKeyboardClose();
+  });
 }
 
 function App() {

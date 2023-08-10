@@ -227,7 +227,7 @@ function FollowingHashtags() {
                       <div className="d-flex align-items-center justify-content-center justify-content-sm-end">
                         {hashtag.followed && (
                           <Button aria-label="notificatio bell" size="sm" className="me-2 pe-2" variant="link" onClick={() => onOffNotificationClick(hashtag)}>
-                            <FontAwesomeIcon size="lg" className={`${hashtag.notification === 1 ? 'me-0' : 'me-1'} `} icon={hashtag.notification === 1 ? regular('bell-slash') : regular('bell')} />
+                            <FontAwesomeIcon size="lg" className={`${hashtag.notification ? 'me-1 text-success' : 'me-0 text-primary'} `} icon={hashtag.notification ? regular('bell') : regular('bell-slash')} />
                           </Button>
                         )}
                         <BorderButton

@@ -73,6 +73,7 @@ function EditPostModal({
       centered
       onHide={closeModal}
       size="lg"
+      enforceFocus={false}
     >
       <Modal.Header className="bg-dark border-0 shadow-none justify-content-end" closeButton />
       <Modal.Body className="bg-dark d-flex flex-column pt-0">
@@ -83,7 +84,7 @@ function EditPostModal({
           createUpdatePost={updatePost}
           imageArray={postImages}
           setImageArray={setPostImages}
-          defaultValue={decryptMessage(postContent, true)}
+          defaultValue={decryptMessage(postContent, true, true)}
           formatMention={formatMention}
           setFormatMention={setFormatMention}
           deleteImageIds={deleteImageIds}

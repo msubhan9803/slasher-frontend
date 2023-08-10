@@ -94,8 +94,12 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
   const [versionNumber, setVersionNumber] = useState<string>();
 
   const getAppVersion = async () => {
-    setVersionNumber((await App.getInfo()).version);
-    setBuildNumber((await App.getInfo()).build);
+    if (isNativePlatform) {
+      setVersionNumber((await App.getInfo()).version);
+      setBuildNumber((await App.getInfo()).build);
+    } else {
+      setVersionNumber(process.env.REACT_APP_VERSION);
+    }
   };
 
   useEffect(() => {
@@ -103,20 +107,7 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
   }, []);
 
   return (
-    <Nav>
-      {menuListItems.map((menuItem) => (
-        <SidebarNavItem
-          id={menuItem.id}
-          key={menuItem.id}
-          label={menuItem.label}
-          icon={menuItem.icon}
-          iconColor={menuItem.iconColor}
-          to={menuItem.to}
-          className={menuItem.desktopOnly ? 'd-none d-lg-flex' : ''}
-          comingSoon={menuItem.comingSoon || false}
-          onToggleCanvas={menuItem.comingSoon ? undefined : onToggleCanvas}
-        />
-      ))}
+    <>
       <RoundButtonLink
         usePlainAnchorTag
         to="mailto:help@slasher.tv?subject=Slasher%20Bug%20Report"
@@ -126,8 +117,22 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
       >
         Report a bug
       </RoundButtonLink>
-      <ul className="list-inline mt-4 link-hover-underline fs-6">
-        {
+      <Nav>
+        {menuListItems.map((menuItem) => (
+          <SidebarNavItem
+            id={menuItem.id}
+            key={menuItem.id}
+            label={menuItem.label}
+            icon={menuItem.icon}
+            iconColor={menuItem.iconColor}
+            to={menuItem.to}
+            className={menuItem.desktopOnly ? 'd-none d-lg-flex' : ''}
+            comingSoon={menuItem.comingSoon || false}
+            onToggleCanvas={menuItem.comingSoon ? undefined : onToggleCanvas}
+          />
+        ))}
+        <ul className="list-inline mt-4 link-hover-underline fs-6">
+          {
             enableDevFeatures
             && (
               <>
@@ -136,29 +141,22 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
               </>
             )
           }
-        <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/advertise`} target="_blank" rel="noreferrer">Advertise on Slasher</a></li>
-        <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/policies`} target="_blank" rel="noreferrer">Terms &amp; Policies</a></li>
-        <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/about`} target="_blank" rel="noreferrer">About</a></li>
-        <li className="text-light text-decoration-none">
-          &copy;
-          {' '}
-          {new Date().getFullYear()}
-          {' '}
-          Slasher Corp
-        </li>
-        {isNativePlatform && (
-          <li className="mt-4 text-light text-decoration-none">
-            v
-            {versionNumber}
+          <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/advertise`} target="_blank" rel="noreferrer">Advertise on Slasher</a></li>
+          <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/policies`} target="_blank" rel="noreferrer">Terms &amp; Policies</a></li>
+          <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/about`} target="_blank" rel="noreferrer">About</a></li>
+          <li className="text-light text-decoration-none">
+            &copy;
             {' '}
-            (
-            {buildNumber}
-            )
+            {new Date().getFullYear()}
+            {' '}
+            Slasher Corp
+            {versionNumber && ` • v${versionNumber}`}
+            {buildNumber && ` (${buildNumber})`}
           </li>
-        )}
-      </ul>
-      <br />
-    </Nav>
+        </ul>
+        <br />
+      </Nav>
+    </>
   );
 }
 SidebarNavContent.defaultProps = {

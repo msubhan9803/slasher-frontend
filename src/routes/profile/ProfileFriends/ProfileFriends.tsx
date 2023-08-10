@@ -27,6 +27,7 @@ import { setPageStateCache } from '../../../pageStateCache';
 import { PROFILE_SUBROUTES_DEFAULT_CACHE, getProfileSubroutesCache } from '../profileSubRoutesCacheUtils';
 import { formatNumberWithUnits } from '../../../utils/number.utils';
 import { setProfilePageUserDetailsReload } from '../../../redux/slices/userSlice';
+import useProgressButton from '../../../components/ui/ProgressButton';
 
 type UserProfileFriendsResponseData = AxiosResponse<{ friends: FriendProps[] }>;
 
@@ -51,6 +52,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
   const [dropDownValue, setDropDownValue] = useState('');
   const [loadingFriends, setLoadingFriends] = useState<boolean>(false);
   const [friendRemoveId, setFriendRemoveId] = useState<string>('');
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const popoverOption = isSelfProfile
     ? ['View profile', 'Message', 'Unfriend', 'Report', 'Block user']
     : ['View profile', 'Report', 'Block user'];
@@ -198,31 +200,40 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
     setPage(0);
   };
   const reportProfileFriend = (reason: string) => {
+    setProgressButtonStatus('loading');
     const reportPayload = {
       targetId: popoverClick?.id,
       reason,
       reportType: 'profile',
     };
     reportData(reportPayload).then(() => {
-      setShow(false);
+      // setShow(false);
+      setProgressButtonStatus('success');
     })
       /* eslint-disable no-console */
-      .catch((error) => console.error(error));
+      .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
+    setDropDownValue('PostReportSuccessDialog');
+  };
+  const afterBlockUser = () => {
+    setShow(false);
   };
   const onBlockYesClick = () => {
+    setProgressButtonStatus('loading');
     createBlockUser(popoverClick?.id!)
       .then((res) => {
-        setShow(false);
-        if (res.status === 201) {
+        setDropDownValue('BlockUserSuccess');
+        // setShow(false);
+        if (res) {
           const updateFriendsList = friendsList.filter(
             (friend: any) => friend._id !== popoverClick?.id,
           );
+          setProgressButtonStatus('success');
           setFriendsList(updateFriendsList);
           setFriendCount(friendCount ? friendCount - 1 : 0);
         }
       })
       /* eslint-disable no-console */
-      .catch((error) => console.error(error));
+      .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
   };
   const persistScrollPosition = () => {
     setPageStateCache<ProfileSubroutesCache>(location, {
@@ -314,7 +325,9 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
           slectedDropdownValue={dropDownValue}
           handleReport={reportProfileFriend}
           onBlockYesClick={onBlockYesClick}
+          afterBlockUser={afterBlockUser}
           onConfirmClick={onRemoveFriendClick}
+          ProgressButton={ProgressButton}
         />
       </ProfileTabContent>
     </div>

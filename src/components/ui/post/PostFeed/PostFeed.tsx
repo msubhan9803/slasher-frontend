@@ -96,7 +96,8 @@ interface Props {
   showPubWiseAdAtPageBottom?: boolean;
   setSelectedBlockedUserId?: (value: string) => void;
   setDropDownValue?: (value: string) => void;
-  ProgressButton?: ProgressButtonComponentType,
+  ProgressButton?: ProgressButtonComponentType;
+  setProgressButtonStatus?: any;
   commentOrReplySuccessAlertMessage?: string;
   setCommentOrReplySuccessAlertMessage?: React.Dispatch<React.SetStateAction<string>>;
   commentsOrder?: string;
@@ -328,7 +329,7 @@ function PostFeed({
   commentReplyError, postType, onSpoilerClick,
   commentSent, setCommentReplyErrorMessage, setCommentErrorMessage,
   showPubWiseAdAtPageBottom, setSelectedBlockedUserId, setDropDownValue, ProgressButton,
-  commentOrReplySuccessAlertMessage, setCommentOrReplySuccessAlertMessage,
+  setProgressButtonStatus, commentOrReplySuccessAlertMessage, setCommentOrReplySuccessAlertMessage,
   commentsOrder, handleCommentsOrder,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
@@ -598,6 +599,7 @@ function PostFeed({
                       setSelectedBlockedUserId={setSelectedBlockedUserId}
                       setCommentDropDownValue={setDropDownValue}
                       ProgressButton={ProgressButton}
+                      setProgressButtonStatus={setProgressButtonStatus}
                       commentOrReplySuccessAlertMessage={commentOrReplySuccessAlertMessage}
                       setCommentOrReplySuccessAlertMessage={setCommentOrReplySuccessAlertMessage}
                     />
@@ -683,6 +685,7 @@ PostFeed.defaultProps = {
   setSelectedBlockedUserId: undefined,
   setDropDownValue: undefined,
   ProgressButton: undefined,
+  setProgressButtonStatus: undefined,
   commentOrReplySuccessAlertMessage: '',
   setCommentOrReplySuccessAlertMessage: undefined,
   commentsOrder: '',

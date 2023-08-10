@@ -32,12 +32,14 @@ import { FriendsGateway } from '../friends/providers/friends.gateway';
     if (friendship && friendship.reaction === FriendRequestReaction.Pending) {
       await this.friendsGateway.emitFriendRequestReceivedEvent(friendship.to.toString(), friendship.from.toString());
     }
-    await this.blocksService.createBlock(user.id, createBlockDto.userId);
-    await this.friendsService.cancelFriendshipOrDeclineRequest(user.id, createBlockDto.userId);
-    await this.chatService.deletePrivateDirectMessageConversations(user.id, createBlockDto.userId);
-    await this.chatService.deletePrivateDirectMessageConversation([
-      new mongoose.Types.ObjectId(user.id),
-      new mongoose.Types.ObjectId(createBlockDto.userId),
+    await Promise.all([
+      this.blocksService.createBlock(user.id, createBlockDto.userId),
+      this.friendsService.cancelFriendshipOrDeclineRequest(user.id, createBlockDto.userId),
+      this.chatService.deletePrivateDirectMessageConversations(user.id, createBlockDto.userId),
+      this.chatService.deletePrivateDirectMessageConversation([
+        new mongoose.Types.ObjectId(user.id),
+        new mongoose.Types.ObjectId(createBlockDto.userId),
+      ]),
     ]);
     return { success: true };
   }

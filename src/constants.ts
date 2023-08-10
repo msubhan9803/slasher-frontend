@@ -16,23 +16,27 @@ export const WELCOME_MSG = `Welcome to Slasher! 🔪🔪🔪 It's nice to have y
 
 Here's some helpful info I share with everyone new. Hopefully you find it useful and it helps you enjoy your time with us!
 
-If you have something to promote, that's cool! 
-You're absolutely welcome to do that on the feed or in the relevant groups.
+If you have something to promote, that's cool!
+You're absolutely welcome to create posts on the home feed.
 *** Please don't promote in messages (see rules below) ***. 💯
 
-You can learn about the features here: slasher.tv/help
+You can learn about the features here: https://pages.slasher.tv/help
 
-IMPORTANT: for the few rules we have: slasher.tv/rules - please be sure to read them.
+IMPORTANT: for the few rules we have: https://pages.slasher.tv/rules - please be sure to read them.
 
 TIP: the more friends you add, the more stuff you'll see on your feed and the more people there are to see yours.
 
 BONUS TIP: explore all the areas of Slasher - you may find some cool features!
 
-Popular features include: * Movie info * Events * News *
+Popular features include: * Movies * Events * News *
 
 If you have any questions or suggestions to improve Slasher, I'm here to help and love feedback! 🤘😊
 
-Enjoy!`;
+Enjoy!
+
+P.S. - If you love Slasher, here’s a 15% discount code you can use to get some cool stuff in our shop!
+Code: welcome15
+Shop: https://pages.slasher.tv/shop/`;
 
 export const SHARED_GATEWAY_OPTS = {
   cors: {

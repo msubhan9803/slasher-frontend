@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { FRIEND_RELATION_ID } from '../../constants';
@@ -28,8 +28,9 @@ export class ChatService {
     @InjectConnection() private readonly connection: mongoose.Connection,
     @InjectModel(Message.name) private messageModel: Model<MessageDocument>,
     @InjectModel(MatchList.name) private matchListModel: Model<MatchListDocument>,
-    private usersService: UsersService,
     private readonly blocksService: BlocksService,
+    @Inject(forwardRef(() => UsersService))
+    private usersService: UsersService,
   ) { }
 
   async createPrivateDirectMessageConversation(participants: mongoose.Types.ObjectId[]) {
@@ -420,17 +421,17 @@ export class ChatService {
   }
 
   async deleteAllMessageByUserId(id: string): Promise<void> {
-    await this.messageModel.deleteMany({
+    await this.messageModel.updateMany({
       $or: [{ fromId: new mongoose.Types.ObjectId(id) }, { senderId: new mongoose.Types.ObjectId(id) }],
-    }).exec();
+    }, { $set: { deleted: true } }, { multi: true });
   }
 
   async deleteAllMatchlistByUserId(id: string): Promise<void> {
-    await this.matchListModel.deleteMany({
+    await this.matchListModel.updateMany({
       $and: [
         { roomCategory: MatchListRoomCategory.DirectMessage },
         { $in: { participants: new mongoose.Types.ObjectId(id) } },
       ],
-    }).exec();
+    }, { $set: { deleted: true } }, { multi: true });
   }
 }

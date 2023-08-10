@@ -414,8 +414,8 @@ export class FeedPostsService {
 
   async deleteAllPostByUserId(id: string): Promise<void> {
     await Promise.all([
-      this.feedPostModel.updateMany({ $in: { likes: id } }, { $pull: { likes: id }, $inc: { likeCount: -1 } }, { multi: true }),
-      this.feedPostModel.deleteMany({ userId: id }).exec(),
+      this.feedPostModel.updateMany({ likes: { $in: [id] } }, { $pull: { likes: id }, $inc: { likeCount: -1 } }, { multi: true }),
+      this.feedPostModel.updateMany({ userId: id }, { $set: { is_deleted: FeedPostDeletionState.Deleted } }, { multi: true }),
     ]);
   }
 }

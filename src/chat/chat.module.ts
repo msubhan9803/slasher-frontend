@@ -1,6 +1,6 @@
-import { Global, Module } from '@nestjs/common';
+import { Global, Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UsersModule } from 'src/users/users.module';
+import { UsersModule } from '../users/users.module';
 import { ChatService } from './providers/chat.service';
 import { ChatController } from './chat.controller';
 import { MatchList, MatchListSchema } from '../schemas/matchList/matchList.schema';
@@ -15,7 +15,7 @@ import { User, UserSchema } from '../schemas/user/user.schema';
     MongooseModule.forFeature([{ name: MatchList.name, schema: MatchListSchema }]),
     MongooseModule.forFeature([{ name: Message.name, schema: MessageSchema }]),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    UsersModule,
+    forwardRef(() => UsersModule),
   ],
   providers: [ChatService, LocalStorageService, S3StorageService],
   controllers: [ChatController],

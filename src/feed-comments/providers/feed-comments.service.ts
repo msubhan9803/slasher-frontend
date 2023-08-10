@@ -7,6 +7,7 @@ import { FeedReplyDeletionState } from '../../schemas/feedReply/feedReply.enums'
 import { FeedReply, FeedReplyDocument } from '../../schemas/feedReply/feedReply.schema';
 import { FeedPostsService } from '../../feed-posts/providers/feed-posts.service';
 import { CommentsSortByType } from '../../types';
+import { FeedPost, FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 
 export interface FeedCommentWithReplies extends FeedComment {
   replies: FeedReply[];
@@ -17,6 +18,7 @@ export class FeedCommentsService {
   constructor(
     @InjectModel(FeedComment.name) private feedCommentModel: Model<FeedCommentDocument>,
     @InjectModel(FeedReply.name) private feedReplyModel: Model<FeedReplyDocument>,
+    @InjectModel(FeedPost.name) private feedPostModel: Model<FeedPostDocument>,
     private feedPostService: FeedPostsService,
   ) { }
 
@@ -36,7 +38,7 @@ export class FeedCommentsService {
   async deleteFeedComment(feedCommentId: string): Promise<void> {
     await Promise.all([
       this.feedCommentModel
-        .updateOne({ _id: feedCommentId }, { $set: { is_deleted: FeedCommentDeletionState.Deleted } }, { new: true })
+      .updateOne({ _id: feedCommentId }, { $set: { is_deleted: FeedCommentDeletionState.Deleted } }, { new: true })
         .exec(),
       this.feedReplyModel
         .updateMany({ feedCommentId }, { $set: { deleted: FeedReplyDeletionState.Deleted } })
@@ -198,10 +200,25 @@ export class FeedCommentsService {
   }
 
   async deleteAllCommentByUserId(id: string): Promise<void> {
-    await this.feedCommentModel.deleteMany({ userId: id }).exec();
+    const commentArray = await this.feedCommentModel.aggregate([
+      { $match: { userId: new mongoose.Types.ObjectId(id) } },
+      {
+        $group: {
+          _id: '$feedPostId',
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    for (const doc of commentArray) {
+      const postId = doc._id;
+      const commentCount = doc.count;
+      await this.feedPostModel.updateOne({ _id: postId }, { $inc: { commentCount: -commentCount } }, { multi: true });
+    }
+    await this.feedCommentModel.updateMany({ userId: id }, { $set: { is_deleted: FeedCommentDeletionState.Deleted } }, { multi: true });
   }
 
   async deleteAllReplyByUserId(id: string): Promise<void> {
-    await this.feedReplyModel.deleteMany({ userId: id }).exec();
+    await this.feedReplyModel.updateMany({ userId: id }, { $set: { deleted: FeedReplyDeletionState.Deleted } }, { multi: true });
   }
 }

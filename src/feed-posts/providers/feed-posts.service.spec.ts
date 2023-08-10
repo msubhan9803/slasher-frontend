@@ -955,4 +955,44 @@ describe('FeedPostsService', () => {
       expect(reloadedPost.lastUpdateAt > postBeforeUpdate.lastUpdateAt).toBeTruthy();
     });
   });
+
+  describe('#deleteAllPostByUserId', () => {
+    let feedPost;
+    let feedPost1;
+    let feedPost2;
+    let feedPost3;
+    beforeEach(async () => {
+      feedPost = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: activeUser.id,
+        }),
+      );
+     await feedPostsService.create(
+        feedPostFactory.build({
+          userId: activeUser.id,
+        }),
+      );
+      feedPost2 = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: user0.id,
+          likes: [activeUser.id],
+          likeCount: 1,
+        }),
+      );
+      feedPost3 = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: user0.id,
+          likes: [activeUser.id, user0.id],
+          likeCount: 2,
+        }),
+      );
+    });
+
+    it('deletes all data of given user id and gave the expected resposne', async () => {
+      await feedPostsService.deleteAllPostByUserId(activeUser.id);
+      expect(await feedPostsService.findMainFeedPostsForUser(feedPost.id, 5)).toHaveLength(0);
+      expect((await feedPostsService.findById(feedPost2.id, true)).likeCount).toBe(0);
+      expect((await feedPostsService.findById(feedPost3.id, true)).likeCount).toBe(1);
+    });
+  });
 });

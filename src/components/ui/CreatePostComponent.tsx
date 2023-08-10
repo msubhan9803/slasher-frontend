@@ -227,6 +227,15 @@ function CreatePostComponent({
     }, 500);
   }, [showReviewForm, params, location, setReviewForm]);
 
+  const onAddPhotoClick = () => {
+    // Clear input
+    if (inputFile.current) {
+      inputFile.current.value = '';
+    }
+    // Click on input
+    inputFile.current?.click();
+  };
+
   return (
 
     <div ref={movieReviewRef} className={postType === 'review' ? 'bg-dark mb-3 px-4 pb-4 rounded-2' : ''}>
@@ -451,7 +460,7 @@ function CreatePostComponent({
               {!movieId
                 && (
                   <>
-                    <AddPhotosButton size="md" disabled={uploadPost && uploadPost.length >= 10} className="mt-4 border-0 btn btn-form w-100 rounded-5" onClick={() => inputFile.current?.click()}>
+                    <AddPhotosButton size="md" disabled={uploadPost && uploadPost.length >= 10} className="mt-4 border-0 btn btn-form w-100 rounded-5" onClick={onAddPhotoClick}>
                       <FontAwesomeIcon icon={regular('image')} className="me-2" />
                       <span className="h3">Add photos</span>
                     </AddPhotosButton>

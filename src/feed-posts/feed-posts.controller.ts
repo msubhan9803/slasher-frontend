@@ -574,7 +574,7 @@ export class FeedPostsController {
 
   @TransformImageUrls(
     '$[*].images[*].image_path',
-    '$[*].userId.profilePic',
+    '$.posts[*].userId.profilePic',
     '$[*].rssfeedProviderId.logo',
   )
   @Get('hashtag/:hashtag')

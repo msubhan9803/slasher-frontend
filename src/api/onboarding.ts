@@ -1,5 +1,4 @@
 import axios from 'axios';
-import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
 import { getSessionToken, getSessionUserId } from '../utils/session-utils';
 
@@ -35,7 +34,7 @@ export async function onboardingAboutMe(message: string) {
 }
 
 export async function getOnboardingSuggestedHashtag() {
-  const token = Cookies.get('sessionToken');
+  const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };

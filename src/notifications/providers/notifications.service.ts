@@ -25,10 +25,13 @@ export class NotificationsService {
 
   async create(notification: Partial<Notification>) {
     const newNotification = await this.notificationModel.create(notification);
+
     // TODO: Eventually move this to a background job (probably using a NestJS Queue: https://docs.nestjs.com/techniques/queues)
     // This can be processed in the background instead of adding a small delay to each notification creation.
+
     await Promise.all([this.processNotification(newNotification.id),
     this.usersService.updateNewNotificationCount((notification.userId).toString())]);
+
     return newNotification;
   }
 
@@ -40,11 +43,12 @@ export class NotificationsService {
 
     // In SD-661, confirmed that all notifications should be emitted over socket.
     this.notificationsGateway.emitMessageForNotification(notification);
-
     if (this.configService.get<boolean>('SEND_PUSH_NOTIFICATION')) {
       this.sendPushNotification(notification);
     }
+
     // Mark notification as processed
+
     await notification.updateOne({ isProcessed: true });
   }
 
@@ -59,10 +63,10 @@ export class NotificationsService {
     const [user, userSetting] = await Promise.all([this.usersService.findById(notificationData.userId.toString(), true),
     this.userSettingsService.findByUserId(notificationData.userId.toString())]);
     const isNotificationEnabled = userSetting && userSetting[`${NOTIFICATION_TYPES_TO_CATEGORIES.get(notificationData.notifyType)}`];
-    if (isNotificationEnabled && user.userDevices.length) {
+    if (isNotificationEnabled && user.userDevices?.length) {
       const deviceTokens = user.userDevices.filter((device) => device.device_id !== 'browser' && device.device_token)
       .map((device) => device.device_token);
-      await this.pushNotificationsService.sendPushNotification(notificationData, deviceTokens, user.newNotificationCount);
+      this.pushNotificationsService.sendPushNotification(notificationData, deviceTokens, user.newNotificationCount);
     }
   }
 
@@ -73,7 +77,7 @@ export class NotificationsService {
     notificationData.notifyType = NotificationType.FriendMessageNotification;
     const userSetting = await this.userSettingsService.findByUserId(receiverUser.id.toString());
     const isNotificationEnabled = userSetting && userSetting[`${NOTIFICATION_TYPES_TO_CATEGORIES.get(126)}`];
-    if (isNotificationEnabled && receiverUser.userDevices.length) {
+    if (isNotificationEnabled && receiverUser.userDevices?.length) {
       const deviceTokens = receiverUser.userDevices.filter((device) => device.device_id !== 'browser' && device.device_token)
       .map((device) => device.device_token);
       await this.pushNotificationsService.sendPushNotification(notificationData, deviceTokens, receiverUser.newNotificationCount);

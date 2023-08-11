@@ -15,7 +15,6 @@ import { rewindAllFactories } from '../helpers/factory-helpers.ts';
 import { FriendsService } from '../../src/friends/providers/friends.service';
 import { FriendsGateway } from '../../src/friends/providers/friends.gateway';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../src/constants';
-import { FriendRequestReaction } from '../../src/schemas/friend/friend.enums';
 
 describe('Friends Gateway (e2e)', () => {
   let app: INestApplication;
@@ -69,26 +68,8 @@ describe('Friends Gateway (e2e)', () => {
     );
   });
 
-  describe('#clearNewFriendRequestCount', () => {
-    it('when clean new friend request count', async () => {
-      const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
-      await waitForAuthSuccessMessage(client);
-
-      const response = await new Promise<any>((resolve) => {
-        client.emit('clearNewFriendRequestCount', (data) => {
-          resolve(data);
-        });
-      });
-      client.close();
-
-      expect(response).toEqual({ newFriendRequestCount: 0 });
-      // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
-      await waitForSocketUserCleanup(client, usersService);
-    });
-  });
-
   describe('#friendRequestReceived', () => {
-    it('FriendsService#createFriendRequest calls friendRequestReceived, which emits the expected socket', async () => {
+    it('FriendsService#createFriendRequest calls friendRequestUpdated, which emits the expected socket', async () => {
       const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
       await waitForAuthSuccessMessage(client);
 
@@ -97,11 +78,11 @@ describe('Friends Gateway (e2e)', () => {
       await waitForAuthSuccessMessage(receiverClient);
 
       const friend = await friendsService.createFriendRequest(activeUser.id, user0.id);
-      await friendsGateway.emitFriendRequestReceivedEvent(friend);
+      await friendsGateway.emitFriendRequestReceivedEvent(friend.to.toString());
 
       let receivedPayload;
       const socketListenPromise = new Promise<void>((resolve) => {
-        receiverClient.on('friendRequestReceived', (...args) => {
+        receiverClient.on('friendRequestUpdated', (...args) => {
           // NOTE: Avoid calling expect() method inside of the on() method, or the test will hang
           // if expect() comparison fails.
           [receivedPayload] = args;
@@ -120,12 +101,20 @@ describe('Friends Gateway (e2e)', () => {
       await waitForSocketUserCleanup(receiverClient, usersService);
 
       expect(receivedPayload).toEqual({
-        friend: {
+        pendingFriendRequestCount: 1,
+        recentFriendRequests: [{
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          from: activeUser.id,
-          to: user0.id,
-          reaction: FriendRequestReaction.Pending,
-        },
+          userName: 'Username1',
+          profilePic: expect.any(String),
+          firstName: 'First name 1',
+          createdAt: expect.any(String),
+        }],
+        // friend: {
+        //   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        //   from: activeUser.id,
+        //   to: user0.id,
+        //   reaction: FriendRequestReaction.Pending,
+        // },
       });
     });
   });

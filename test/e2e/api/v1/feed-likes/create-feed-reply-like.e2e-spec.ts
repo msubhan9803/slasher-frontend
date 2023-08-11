@@ -162,7 +162,7 @@ describe('Create Feed Reply Like (e2e)', () => {
         feedReplyId: reloadedFeedReply._id,
         senderId: activeUser._id,
         allUsers: [activeUser._id as any], // senderId must be in allUsers for old API compatibility
-        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        notifyType: NotificationType.UserLikedYourReply,
         notificationMsg: 'liked your reply',
       });
     });

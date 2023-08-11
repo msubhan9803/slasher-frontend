@@ -12,24 +12,34 @@ import { CreateBlockDto } from './dto/create-lock.dto';
 import { DeleteBlockQueryDto } from './dto/delete.block.query.dto';
 import { BlocksLimitOffSetDto } from './dto/blocks-limit-offset.dto';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
+import { FriendRequestReaction } from '../schemas/friend/friend.enums';
+import { FriendsGateway } from '../friends/providers/friends.gateway';
 
-@Controller({ path: 'blocks', version: ['1'] })
-export class BlocksController {
+@Controller({ path: 'blocks', version: ['1'] }) export class BlocksController {
   constructor(
     private readonly blocksService: BlocksService,
     private readonly friendsService: FriendsService,
     private readonly chatService: ChatService,
+    private friendsGateway: FriendsGateway,
+
   ) { }
 
   @Post()
   async createBlock(@Req() request: Request, @Body() createBlockDto: CreateBlockDto) {
     const user = getUserFromRequest(request);
-    await this.blocksService.createBlock(user.id, createBlockDto.userId);
-    await this.friendsService.cancelFriendshipOrDeclineRequest(user.id, createBlockDto.userId);
-    await this.chatService.deletePrivateDirectMessageConversations(user.id, createBlockDto.userId);
-    await this.chatService.deletePrivateDirectMessageConversation([
-      new mongoose.Types.ObjectId(user.id),
-      new mongoose.Types.ObjectId(createBlockDto.userId),
+
+    const friendship = await this.friendsService.findFriendship(user.id, createBlockDto.userId);
+    if (friendship && friendship.reaction === FriendRequestReaction.Pending) {
+      await this.friendsGateway.emitFriendRequestReceivedEvent(friendship.to.toString(), friendship.from.toString());
+    }
+    await Promise.all([
+      this.blocksService.createBlock(user.id, createBlockDto.userId),
+      this.friendsService.cancelFriendshipOrDeclineRequest(user.id, createBlockDto.userId),
+      this.chatService.deletePrivateDirectMessageConversations(user.id, createBlockDto.userId),
+      this.chatService.deletePrivateDirectMessageConversation([
+        new mongoose.Types.ObjectId(user.id),
+        new mongoose.Types.ObjectId(createBlockDto.userId),
+      ]),
     ]);
     return { success: true };
   }

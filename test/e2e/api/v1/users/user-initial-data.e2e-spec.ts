@@ -152,6 +152,7 @@ describe('Users suggested friends (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
+
         expect(response.body).toEqual(
           {
             user: {
@@ -179,6 +180,7 @@ describe('Users suggested friends (e2e)', () => {
                 unreadCount: 1,
                 latestMessage: 'Hi, test reply 5.',
                 updatedAt: expect.any(String),
+                lastMessageSentAt: expect.any(String),
               },
               {
                 _id: expect.any(String),
@@ -197,6 +199,7 @@ describe('Users suggested friends (e2e)', () => {
                 unreadCount: 1,
                 latestMessage: 'Hi, test reply 4.',
                 updatedAt: expect.any(String),
+                lastMessageSentAt: expect.any(String),
               },
               {
                 _id: expect.any(String),
@@ -215,6 +218,7 @@ describe('Users suggested friends (e2e)', () => {
                 unreadCount: 1,
                 latestMessage: 'Hi, test reply 2.',
                 updatedAt: expect.any(String),
+                lastMessageSentAt: expect.any(String),
               },
             ],
             recentFriendRequests: [
@@ -242,6 +246,7 @@ describe('Users suggested friends (e2e)', () => {
             ],
             unreadNotificationCount: 5,
             newConversationIdsCount: 0,
+            friendRequestCount: 5,
           },
         );
       });

@@ -39,8 +39,14 @@ export class MatchList extends MatchListUnusedFields {
   @Prop({ required: true, default: MatchListStatus.Accepted })
   status: MatchListStatus;
 
+  // Since deletefor field exists, this might not be used. It is possible only one of two
+  // users in a conversation to delete the conversation. So the idea of an entire conversation
+  // being deleted does not make sense.
   @Prop({ default: false })
   deleted: boolean;
+
+  @Prop({ default: [], ref: User.name })
+  deletefor: mongoose.Schema.Types.ObjectId[];
 
   /***********
    * Methods *
@@ -62,5 +68,8 @@ export type MatchListDocument = HydratedDocument<MatchList>;
 
 // Index for ChatService#getConversations and ChatService#createOrFindPrivateDirectMessageConversationByParticipants
 MatchListSchema.index({
+  // NOTE: It would be nice to have the `deletefor` array field in this index too, but MongoDB has a
+  // limitation where you can only have one array field in a multi-key index, and `participants` is
+  // an array field that is already in use here.
   participants: 1, roomType: 1, roomCategory: 1, relationId: 1, lastMessageSentAt: -1,
 });

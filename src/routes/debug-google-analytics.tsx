@@ -4,7 +4,11 @@ import { analyticsId } from '../constants';
 
 function DebugGoogleAnalytics() {
   const [text, setText] = useState('some event text here...');
-  const handleSendEvent = () => sendDebugTexttToGoogleAnalytics(text);
+  const [count, setCount] = useState(0);
+  const handleSendEvent = () => {
+    setCount((current) => current + 1);
+    sendDebugTexttToGoogleAnalytics(text);
+  };
   return (
     <div>
       <b>
@@ -16,8 +20,15 @@ function DebugGoogleAnalytics() {
       {analyticsId
         && (
           <>
-            <input value={text} onChange={(e) => setText(e.target.value)} />
-            <button onClick={handleSendEvent} type="button">Send event</button>
+            <p>
+              <input value={text} onChange={(e) => setText(e.target.value)} />
+              <button onClick={handleSendEvent} type="button">Send event</button>
+            </p>
+            <p>
+              {' '}
+              Events Sent:
+              {count}
+            </p>
           </>
         )}
     </div>

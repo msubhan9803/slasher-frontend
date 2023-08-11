@@ -20,3 +20,19 @@ export const sendAdUnitEventToGoogleAnalytics = (ad_unit_id: string) => {
 
   sendEvent();
 };
+
+export const sendDebugTexttToGoogleAnalytics = (debugText: string) => {
+  if (!analyticsId) { return; }
+
+  const sendEvent = async () => {
+    const isGoogleAnalyticsReady = store.getState().googleAnalytics.isReady;
+    if (isGoogleAnalyticsReady) {
+      gtag('event', 'debug_text', { debugText });
+    } else {
+      await sleep(1_000);
+      await sendEvent();
+    }
+  };
+
+  sendEvent();
+};

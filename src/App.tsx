@@ -56,6 +56,7 @@ import { store } from './redux/store';
 import { setIsServerAvailable } from './redux/slices/serverAvailableSlice';
 import { isHomePage } from './utils/url-utils';
 import CapacitorAppListeners from './components/CapacitorAppListeners';
+import DebugGoogleAnalytics from './routes/debug-google-analytics';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -105,6 +106,7 @@ const routes: Record<string, TopLevelRoute> = {
   'app/activate-account': { wrapper: UnauthenticatedPageWrapper, component: ActivateAccount },
   'app/account-activated': { wrapper: UnauthenticatedPageWrapper, component: AccountActivated },
   'app/sign-in': { wrapper: UnauthenticatedPageWrapper, component: SignIn, wrapperProps: { hideTopLogo: true, isSignIn: true } },
+  'app/debug-google-analytics': { wrapper: UnauthenticatedPageWrapper, component: DebugGoogleAnalytics },
 };
 
 if (enableDevFeatures) {

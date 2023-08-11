@@ -27,7 +27,18 @@ function DebugGoogleAnalytics() {
             <p>
               {' '}
               Events Sent:
+              {' '}
               {count}
+            </p>
+            <p className="mt-5">
+              <div>
+                <i>
+                  {' '}
+                  Tip: You can find these event count in Google Analytics Dashboard:
+                  <br />
+                  <b>{`debug_text > debugText > ${text}`}</b>
+                </i>
+              </div>
             </p>
           </>
         )}

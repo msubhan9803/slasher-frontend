@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import useScript from './useScript';
+import { useAppDispatch } from '../redux/hooks';
+import { setIsGoogleAnalyticsReady } from '../redux/slices/googleAnalyticsSlice';
 
 declare global {
   interface Window {
@@ -8,25 +10,31 @@ declare global {
   }
 }
 
+export function gtag(...args: any): any;
+export function gtag(): any {
+  // eslint-disable-next-line prefer-rest-params
+  window.dataLayer.push(arguments);
+}
+
 const useGoogleAnalytics = (analyticsId?: string) => {
   const location = useLocation();
   const isLoaded = useScript(`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`, Boolean(!analyticsId));
   const previousPathRef = useRef<string>();
+  const dispatch = useAppDispatch();
 
   const { pathname, search, hash } = location;
 
   const DISABLE_HOOK = typeof analyticsId === 'undefined';
 
   useEffect(() => {
+    if (isLoaded) { dispatch(setIsGoogleAnalyticsReady()); }
+  }, [dispatch, isLoaded]);
+
+  useEffect(() => {
     if (DISABLE_HOOK) { return; }
     if (!isLoaded) { return; }
 
     window.dataLayer = window.dataLayer || [];
-    function gtag(...args: any): any;
-    function gtag(): any {
-      // eslint-disable-next-line prefer-rest-params
-      window.dataLayer.push(arguments);
-    }
 
     const currentPath = pathname + search + hash;
     if (previousPathRef.current === currentPath) { return; }

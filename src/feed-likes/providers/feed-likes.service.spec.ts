@@ -140,6 +140,14 @@ describe('FeedLikesService', () => {
     });
   });
 
+  describe('#findFeedReplyLike', () => {
+    it('successfully find a feedPostLikeData', async () => {
+      const feedReplyLikeData = await feedLikesService.findFeedReplyLike(feedReply.id, activeUser.id);
+      expect(feedReplyLikeData._id).toEqual(feedReply._id);
+      expect(feedReplyLikeData.userId).toEqual(activeUser._id);
+    });
+  });
+
   describe('#deleteFeedPostLike', () => {
     it('successfully delete a feed post likes.', async () => {
       await feedLikesService.deleteFeedPostLike(feedPost.id, activeUser.id);
@@ -317,6 +325,44 @@ describe('FeedLikesService', () => {
         const allLikeUsers = likeUsers.map((user) => user._id.toString());
         expect(allLikeUsers).not.toContain(user0.id);
       });
+    });
+  });
+
+  describe('#deleteAllFeedPostLikeByUserId', () => {
+    it('deletes all the likes of given userId', async () => {
+      const feedPost1 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: activeUser.id,
+          },
+        ),
+      );
+      await feedLikesService.createFeedPostLike(feedPost.id, user0.id);
+      await feedLikesService.createFeedPostLike(feedPost1.id, user0.id);
+      await feedLikesService.deleteAllFeedPostLikeByUserId(user0.id);
+      expect(await feedLikesService.findFeedPostLike(feedPost.id, user0.id)).toBeNull();
+      expect(await feedLikesService.findFeedPostLike(feedPost1.id, user0.id)).toBeNull();
+    });
+  });
+
+  describe('#deleteAllFeedReplyLikeByUserId', () => {
+    it('deletes all the replies of given userId', async () => {
+      const feedReply1 = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser._id,
+            feedCommentId: feedComment.id,
+            message: feedCommentsAndReplyObject.message,
+            images: feedCommentsAndReplyObject.images,
+          },
+        ),
+      );
+
+      await feedLikesService.createFeedReplyLike(feedReply.id, user0.id);
+      await feedLikesService.createFeedReplyLike(feedReply1.id, user0.id);
+      await feedLikesService.deleteAllFeedReplyLikeByUserId(user0.id);
+      expect(await feedLikesService.findFeedReplyLike(feedReply.id, user0.id)).toBeNull();
+      expect(await feedLikesService.findFeedReplyLike(feedReply1.id, user0.id)).toBeNull();
     });
   });
 });

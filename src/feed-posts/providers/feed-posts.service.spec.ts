@@ -958,7 +958,6 @@ describe('FeedPostsService', () => {
 
   describe('#deleteAllPostByUserId', () => {
     let feedPost;
-    let feedPost1;
     let feedPost2;
     let feedPost3;
     beforeEach(async () => {

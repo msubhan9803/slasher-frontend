@@ -1,3 +1,4 @@
+/*eslint-disable import/no-cycle*/
 import { Module, Global, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CaptchaModule } from '../captcha/captcha.module';
@@ -26,7 +27,6 @@ import { FriendsModule } from '../friends/friends.module';
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: SocketUser.name, schema: SocketUserSchema }]),
-    forwardRef(() => ChatModule),
     UserSettingModule,
     EmailRevertTokensModule,
     RssFeedProviderFollowsModule,
@@ -37,6 +37,7 @@ import { FriendsModule } from '../friends/friends.module';
     FeedCommentsModule,
     FeedLikesModule,
     FriendsModule,
+    forwardRef(() => ChatModule),
   ],
   controllers: [UsersEmailChangeController, UsersPublicController, UsersController],
   providers: [UsersService, LocalStorageService, S3StorageService],

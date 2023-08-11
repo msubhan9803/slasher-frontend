@@ -41,6 +41,10 @@ export class FeedLikesService {
     return this.feedLikesModel.findOne({ feedPostId, userId });
   }
 
+  async findFeedReplyLike(feedReplyId: string, userId: string): Promise<FeedPostLikeDocument> {
+    return this.feedReplyModel.findOne({ feedReplyId, userId });
+  }
+
   async deleteFeedPostLike(feedPostId: string, userId: string): Promise<void> {
     const transactionSession = await this.connection.startSession();
     transactionSession.startTransaction();

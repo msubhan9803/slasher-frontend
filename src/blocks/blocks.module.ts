@@ -1,3 +1,4 @@
+/*eslint-disable import/no-cycle*/
 import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BlocksController } from './blocks.controller';

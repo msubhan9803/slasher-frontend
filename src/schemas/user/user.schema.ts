@@ -81,7 +81,7 @@ export class User extends UserUnusedFields {
   dob: Date;
 
   @Prop({ default: null })
-  previousUserName: string[];
+  previousUserName: string;
 
   // TODO: Eventually make the field required (@Prop({required: true})), once the old API has been retired.
   // Can't make it required now because that would stop users of the old API from logging in.

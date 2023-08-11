@@ -38,7 +38,7 @@ export class FeedCommentsService {
   async deleteFeedComment(feedCommentId: string): Promise<void> {
     await Promise.all([
       this.feedCommentModel
-      .updateOne({ _id: feedCommentId }, { $set: { is_deleted: FeedCommentDeletionState.Deleted } }, { new: true })
+        .updateOne({ _id: feedCommentId }, { $set: { is_deleted: FeedCommentDeletionState.Deleted } }, { new: true })
         .exec(),
       this.feedReplyModel
         .updateMany({ feedCommentId }, { $set: { deleted: FeedReplyDeletionState.Deleted } })
@@ -201,7 +201,16 @@ export class FeedCommentsService {
 
   async deleteAllCommentByUserId(id: string): Promise<void> {
     const commentArray = await this.feedCommentModel.aggregate([
-      { $match: { userId: new mongoose.Types.ObjectId(id) } },
+      {
+        $match:
+        {
+          $and:
+            [
+              { userId: new mongoose.Types.ObjectId(id) },
+              { is_deleted: FeedCommentDeletionState.NotDeleted },
+            ],
+        },
+      },
       {
         $group: {
           _id: '$feedPostId',

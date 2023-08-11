@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+/*eslint-disable import/no-cycle*/
+import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FeedCommentsController } from './feed-comments.controller';
 import { FeedCommentsService } from './providers/feed-comments.service';
@@ -9,6 +10,7 @@ import { S3StorageService } from '../local-storage/providers/s3-storage.service'
 import { FriendsModule } from '../friends/friends.module';
 import { FeedPost, FeedPostSchema } from '../schemas/feedPost/feedPost.schema';
 
+@Global()
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: FeedComment.name, schema: FeedCommentSchema }]),

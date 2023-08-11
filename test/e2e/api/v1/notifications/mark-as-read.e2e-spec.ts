@@ -127,5 +127,20 @@ describe('Patch Notifications Mark As Read(e2e)', () => {
         expect(response.body).toEqual({ message: 'Permission denied.', statusCode: 401 });
       });
     });
+
+    describe('Validation', () => {
+      it('id must be a mongodb id', async () => {
+        const notificationId = 'not-a-mongo-id';
+        // const notificationId = 'nope';
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/notifications/${notificationId}/mark-as-read`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'id must be a mongodb id',
+        );
+      });
+    });
   });
 });

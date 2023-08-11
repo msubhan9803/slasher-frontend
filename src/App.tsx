@@ -106,7 +106,6 @@ const routes: Record<string, TopLevelRoute> = {
   'app/activate-account': { wrapper: UnauthenticatedPageWrapper, component: ActivateAccount },
   'app/account-activated': { wrapper: UnauthenticatedPageWrapper, component: AccountActivated },
   'app/sign-in': { wrapper: UnauthenticatedPageWrapper, component: SignIn, wrapperProps: { hideTopLogo: true, isSignIn: true } },
-  'app/debug-google-analytics': { wrapper: UnauthenticatedPageWrapper, component: DebugGoogleAnalytics },
 };
 
 if (enableDevFeatures) {
@@ -116,6 +115,7 @@ if (enableDevFeatures) {
   // routes['books/*'] = { wrapper: AuthenticatedPageWrapper, component: Books };
   // routes['shopping/*'] = { wrapper: AuthenticatedPageWrapper, component: Shopping };
   // routes['places/*'] = { wrapper: AuthenticatedPageWrapper, component: Places };
+  routes['app/debug-google-analytics'] = { wrapper: UnauthenticatedPageWrapper, component: DebugGoogleAnalytics };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

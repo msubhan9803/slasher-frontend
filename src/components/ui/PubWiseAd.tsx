@@ -109,12 +109,14 @@ export default function PubWiseAd({ id, style, className, autoSequencer }: PubWi
     if (isFirstLoadRef.current) {
       isFirstLoadRef.current = false;
 
-      sendAdUnitEventToGoogleAnalytics(id);
-
       // Disable loading ad and show a placeholder ad instead for development server
       if (!enableADs) {
         return;
       }
+
+      // Only send google analytics events when ads are enabled
+      sendAdUnitEventToGoogleAnalytics(id);
+
       if (autoSequencer) {
         if (!window.slasherAds) {
           window.slasherAds = {};

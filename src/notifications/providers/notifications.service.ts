@@ -62,16 +62,20 @@ export class NotificationsService {
     notificationData.notificationMsg = senderName + notificationData.notificationMsg;
     const [user, userSetting] = await Promise.all([this.usersService.findById(notificationData.userId.toString(), true),
     this.userSettingsService.findByUserId(notificationData.userId.toString())]);
+    if (!user) {
+      // User may be inactive or deleted.  If so, user will not be found, so we will return immediately from the function.
+      return;
+    }
     const isNotificationEnabled = userSetting && userSetting[`${NOTIFICATION_TYPES_TO_CATEGORIES.get(notificationData.notifyType)}`];
     if (isNotificationEnabled && user.userDevices?.length) {
       const deviceTokens = user.userDevices.filter((device) => device.device_id !== 'browser' && device.device_token)
-      .map((device) => device.device_token);
+        .map((device) => device.device_token);
       this.pushNotificationsService.sendPushNotification(notificationData, deviceTokens, user.newNotificationCount);
     }
   }
 
   async sendChatMsgPushNotification(matchId, receiverUser, senderUser) {
-    const notificationData:any = {};
+    const notificationData: any = {};
     notificationData.notificationMsg = `${senderUser.userName} sent you a message`;
     notificationData.matchId = matchId;
     notificationData.notifyType = NotificationType.FriendMessageNotification;
@@ -79,7 +83,7 @@ export class NotificationsService {
     const isNotificationEnabled = userSetting && userSetting[`${NOTIFICATION_TYPES_TO_CATEGORIES.get(126)}`];
     if (isNotificationEnabled && receiverUser.userDevices?.length) {
       const deviceTokens = receiverUser.userDevices.filter((device) => device.device_id !== 'browser' && device.device_token)
-      .map((device) => device.device_token);
+        .map((device) => device.device_token);
       await this.pushNotificationsService.sendPushNotification(notificationData, deviceTokens, receiverUser.newNotificationCount);
     }
   }

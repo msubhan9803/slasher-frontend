@@ -60,9 +60,11 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
             <SpecificHeightLink to={friendsPagePath} className="btn btn-dark btn-sidebar w-100 pt-2 position-relative" onClick={() => { onToggleCanvas(); handleRefresh(friendsPagePath); }}>
               <FontAwesomeIcon icon={solid('user-group')} size="lg" className="mb-1" />
               Friends
+              {userData.friendRequestCount !== 0 && (
               <BadgeSpan className="text-black top-0 start-50 translate-middle-y badge rounded-pill bg-primary position-absolute">
                 {userData.friendRequestCount}
               </BadgeSpan>
+              )}
             </SpecificHeightLink>
           </Col>
           <Col xs={3}>

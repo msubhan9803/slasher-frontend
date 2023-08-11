@@ -43,7 +43,6 @@ import { friendship } from '../../../api/friends';
 import FriendshipStatusModal from '../friendShipCheckModal';
 import ContentNotAvailable from '../../ContentNotAvailable';
 import CheckCommentModal from '../checkCommentModal';
-import { decryptMessage } from '../../../utils/text-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -483,7 +482,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             postDate: res.data.createdAt,
             rssFeedTitle: res.data.rssFeedId.title,
             title: res.data.rssfeedProviderId?.title,
-            message: decryptMessage(res.data.rssFeedId.content),
+            message: res.data.rssFeedId.content,
             images: res.data.images,
             rssFeedProviderLogo: res.data.rssfeedProviderId?.logo,
             commentCount: res.data.commentCount,
@@ -498,7 +497,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             _id: res.data._id,
             id: res.data._id,
             postDate: res.data.createdAt,
-            message: decryptMessage(res.data.message, true, true),
+            message: res.data.message,
             images: res.data.images,
             userName: res.data.userId.userName,
             profileImage: res.data.userId.profilePic,
@@ -521,7 +520,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             _id: res.data._id,
             id: res.data._id,
             postDate: res.data.createdAt,
-            message: decryptMessage(res.data.message, true, true),
+            message: res.data.message,
             userName: res.data.userId.userName,
             profileImage: res.data.userId.profilePic,
             userId: res.data.userId._id,

@@ -226,7 +226,7 @@ function PostCommentSection({
               profilePic: replies.userId?.profilePic,
               name: replies.userId?.userName,
               time: replies.createdAt,
-              commentMsg: decryptMessage(replies.message, true, true),
+              commentMsg: replies.message,
               commentImg: replies.images,
               feedCommentId: replies.feedCommentId,
               userId: replies.userId,
@@ -500,7 +500,7 @@ function PostCommentSection({
         }
         onPopoverClick={handleReplyPopover}
         feedCommentId={comment.feedCommentId}
-        message={decryptMessage(comment.commentMsg, true, true)}
+        message={comment.commentMsg}
         userName={comment.name}
         handleSeeCompleteList={handleSeeCompleteList}
         likeCount={comment.likeCount}
@@ -633,7 +633,7 @@ function PostCommentSection({
                 name={data.name}
                 time={data.time}
                 likeIcon={data.likeIcon}
-                commentMsg={decryptMessage(data.commentMsg, true, true)}
+                commentMsg={data.commentMsg}
                 commentImg={data.commentImg}
                 onIconClick={() => onLikeClick(data.id)}
                 popoverOptions={

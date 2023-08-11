@@ -32,7 +32,6 @@ import { sleep } from '../../utils/timer-utils';
 import { useAppSelector } from '../../redux/hooks';
 import { friendship } from '../../api/friends';
 import FriendshipStatusModal from '../../components/ui/friendShipCheckModal';
-import { decryptMessage } from '../../utils/text-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
@@ -115,7 +114,7 @@ function Home() {
             _id: data._id,
             id: data._id,
             postDate: data.createdAt,
-            message: decryptMessage(data.message, true, true),
+            message: data.message,
             images: data.images,
             userName: data.userId.userName,
             profileImage: data.userId.profilePic,
@@ -131,7 +130,7 @@ function Home() {
           _id: data._id,
           id: data._id,
           postDate: data.createdAt,
-          message: decryptMessage(data.message, true),
+          message: data.message,
           images: data.images,
           userName: data.rssfeedProviderId?.title,
           profileImage: data.rssfeedProviderId?.logo,

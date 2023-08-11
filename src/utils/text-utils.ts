@@ -16,7 +16,6 @@ export function escapeHtmlSpecialCharacters(
   isComment?: boolean,
 ) {
   const hashtagRegex = /(^|\s)(#[\w-]+)/g;
-  const mentionRegex = /@(\w+(?:-\w+)*)/g;
 
   let result = str?.replaceAll('&', '&amp;')
     ?.replaceAll('<', '&lt;')
@@ -33,8 +32,6 @@ export function escapeHtmlSpecialCharacters(
   } else {
     result = result.replace(hashtagRegex, (match, p1, p2) => `${p1}<a href="/app/search/posts?hashtag=${p2.slice(1)}" style="text-decoration:underline;">${p2}</a>`);
   }
-
-  result = result.replace(mentionRegex, '<a href="/$1">@$1</a>');
 
   return result;
 }

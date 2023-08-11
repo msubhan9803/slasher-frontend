@@ -27,6 +27,8 @@ import { getLastNonProfilePathname } from '../../utils/url-utils';
 import useSessionToken from '../../hooks/useSessionToken';
 import { setScrollToTabsPosition } from '../../redux/slices/scrollPositionSlice';
 import { formatNumberWithUnits } from '../../utils/number.utils';
+import ZoomableImageModal from '../../components/ui/ZoomingImageModal';
+import useProgressButton from '../../components/ui/ProgressButton';
 
 interface Props {
   tabKey?: string;
@@ -66,10 +68,12 @@ function ProfileHeader({
   tabKey, user, showTabs,
 }: Props) {
   const [showSignIn, setShowSignIn] = useState<boolean>(false);
+  const [showProfileImage, setShowProfileImage] = useState<boolean>(false);
   const [show, setShow] = useState<boolean>(false);
   const [friendshipStatus, setFriendshipStatus] = useState<any>();
   const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
   const [dropDownValue, setDropDownValue] = useState<string>('');
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const popoverOption = ['Report', 'Block user'];
   const loginUserName = useAppSelector((state) => state.user.user.userName);
   const userId = useAppSelector((state) => state.user.user.id);
@@ -122,19 +126,24 @@ function ProfileHeader({
     // viewport.
     if (!location.pathname.includes('about')) {
       window.scrollTo({
-        top: element.offsetTop - (window.innerWidth >= BREAK_POINTS.lg ? (topToDivHeight - 18) : 0),
+        // eslint-disable-next-line max-len
+        top: element.offsetTop - (window.innerWidth >= BREAK_POINTS.lg ? (topToDivHeight - 18) : 0) + 10,
         behavior: 'instant' as any,
       });
     }
-  }, [positionRef, friendStatus, location, token, userIsLoggedIn,
-    scrollPosition.scrollToTab,
-  ]);
+    dispatch(setScrollToTabsPosition(false));
+  }, [positionRef, friendStatus, location, token, userIsLoggedIn, scrollPosition.scrollToTab,
+    dispatch]);
 
   const onBlockYesClick = () => {
+    setProgressButtonStatus('loading');
     createBlockUser(clickedUserId)
-      .then(() => setDropDownValue('BlockUserSuccess'))
+      .then(() => {
+        setProgressButtonStatus('success');
+        setDropDownValue('BlockUserSuccess');
+      })
       /* eslint-disable no-console */
-      .catch((error) => console.error(error));
+      .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
   };
 
   const afterBlockUser = () => {
@@ -143,16 +152,18 @@ function ProfileHeader({
   };
 
   const reportUserProfile = (reason: string) => {
+    setProgressButtonStatus('loading');
     const reportPayload = {
       targetId: clickedUserId,
       reason,
       reportType: 'profile',
     };
     reportData(reportPayload).then(() => {
-      setShow(false);
+      setProgressButtonStatus('success');
     })
       /* eslint-disable no-console */
-      .catch((error) => console.error(error));
+      .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
+    setDropDownValue('PostReportSuccessDialog');
   };
 
   if (!user || (!isSelfUserProfile && typeof friendStatus === null)) {
@@ -161,14 +172,20 @@ function ProfileHeader({
   const handleSignInDialog = (e: any) => {
     if (userIsLoggedIn) {
       e.preventDefault();
+      setShowProfileImage(!showProfileImage);
     } else {
       setShowSignIn(!showSignIn);
     }
   };
   const handleScrollToTab = () => dispatch(setScrollToTabsPosition(true));
+
+  // Fix bug of 1071: Use `visibility` style variable so that `ProfileHeader` details
+  // like profile-name, profile-image are not shown when we switch tabs i.e,.,Posts,
+  // Friends, Photos, etc. (bug was only replicable on capacitor app and not on mobile-web)
+  const visibility = scrollPosition.scrollToTab ? 'hidden' : 'visible';
   return (
     <div className="bg-dark bg-mobile-transparent rounded mb-4">
-      <div className="p-md-4 g-0">
+      <div style={{ visibility }} className="p-md-4 g-0">
         <div>
           <ProfileCoverImage src={user.coverPhoto || defaultCoverImage} alt="Cover picture" className="mt-3 mt-md-0 w-100 rounded" onClick={handleSignInDialog} />
         </div>
@@ -260,10 +277,22 @@ function ProfileHeader({
         onBlockYesClick={onBlockYesClick}
         afterBlockUser={afterBlockUser}
         handleReport={reportUserProfile}
+        ProgressButton={ProgressButton}
       />
       {
         showSignIn
         && <SignInModal show={showSignIn} setShow={setShowSignIn} isPublicProfile />
+      }
+      {
+        showProfileImage
+        && (
+          <ZoomableImageModal
+            imgSrc={user?.profilePic}
+            imgAlt="user profile pic"
+            show={showProfileImage}
+            onHide={() => setShowProfileImage(false)}
+          />
+        )
       }
     </div>
   );

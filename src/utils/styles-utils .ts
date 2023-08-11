@@ -5,6 +5,12 @@ export function setGlobalCssProperty(name: string, value: any) {
   document.documentElement.style.setProperty(name, value);
 }
 
+export function getGlobalCssProperty(name: string) {
+  if (!name.startsWith('--')) { throw new Error('A CSS variable must start be prefixed with --'); }
+  const style = getComputedStyle(document.body);
+  return style.getPropertyValue('--scroll-bar-width');
+}
+
 export function removeGlobalCssProperty(name: string) {
   document.documentElement.style.removeProperty(name);
 }

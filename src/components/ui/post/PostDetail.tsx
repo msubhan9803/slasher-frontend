@@ -98,6 +98,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   const [postUserId, setPostUserId] = useState<string>('');
   const [notFound, setNotFound] = useState<boolean>(false);
   const [commentNotFound, setCommentNotFound] = useState<boolean>(false);
+  const [pastPostId, setPastPostId] = useState<any>('');
 
   const [commentOrReplySuccessAlertMessage, setCommentOrReplySuccessAlertMessage] = useState('');
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
@@ -535,10 +536,21 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     location.pathname]);
 
   useEffect(() => {
+    if (postId && pastPostId !== postId) {
+      setCommentData([]);
+      setRequestAdditionalPosts(true);
+      setPastPostId(postId);
+    }
+  }, [pastPostId, postId]);
+
+  useEffect(() => {
     if (postId) {
       getFeedPostDetail(postId);
+      if (!pastPostId) {
+        setPastPostId(postId);
+      }
     }
-  }, [postId, getFeedPostDetail]);
+  }, [postId, pastPostId, getFeedPostDetail]);
 
   const onUpdatePost = (
     message: string,
@@ -739,17 +751,18 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   };
 
   const reportPost = (reason: string) => {
+    setProgressButtonStatus('loading');
     const reportPayload = {
       targetId: popoverClick?.id,
       reason,
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res.status === 200) { getFeedPostDetail(postId!); }
-      setShow(false);
+      if (res) { getFeedPostDetail(postId!); setProgressButtonStatus('success'); }
     })
       /* eslint-disable no-console */
-      .catch((error) => console.error(error));
+      .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
+    setDropDownValue('PostReportSuccessDialog');
   };
   const getSingleComment = useCallback(() => {
     singleComment(queryCommentId!).then((res) => {
@@ -792,16 +805,19 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   };
 
   const onBlockYesClick = () => {
+    setProgressButtonStatus('loading');
     createBlockUser(popoverClick?.userId!)
       .then(() => {
         if (postType === 'news') {
+          setProgressButtonStatus('success');
           setShow(false);
         } else {
+          setProgressButtonStatus('success');
           setDropDownValue('BlockUserSuccess');
         }
       })
       /* eslint-disable no-console */
-      .catch((error) => console.error(error));
+      .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
   };
 
   const afterBlockUser = useCallback(() => {
@@ -828,8 +844,10 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
 
     setCommentData(filterUnblockUserComments);
     // Show report modal
-    setShow(true);
-  }, [commentData, selectedBlockedUserId]);
+    if (dropDownValue !== '') {
+      setShow(true);
+    }
+  }, [commentData, selectedBlockedUserId, dropDownValue]);
 
   useEffect(() => {
     if (dropDownValue === 'BlockUserSuccess') {
@@ -911,6 +929,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                 setSelectedBlockedUserId={setSelectedBlockedUserId}
                 setDropDownValue={setDropDownValue}
                 ProgressButton={ProgressButton}
+                setProgressButtonStatus={setProgressButtonStatus}
                 commentOrReplySuccessAlertMessage={commentOrReplySuccessAlertMessage}
                 setCommentOrReplySuccessAlertMessage={setCommentOrReplySuccessAlertMessage}
                 commentsOrder={commentsOrder}
@@ -925,6 +944,10 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                     slectedDropdownValue={dropDownValue}
                     handleReport={reportPost}
                     onBlockYesClick={onBlockYesClick}
+                    rssfeedProviderId={postData[0]?.rssfeedProviderId}
+                    afterBlockUser={afterBlockUser}
+                    setDropDownValue={setDropDownValue}
+                    ProgressButton={ProgressButton}
                   />
                 )}
               {postType !== 'news' && dropDownValue === 'Edit'
@@ -1001,6 +1024,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
               setSelectedBlockedUserId={setSelectedBlockedUserId}
               setDropDownValue={setDropDownValue}
               ProgressButton={ProgressButton}
+              setProgressButtonStatus={setProgressButtonStatus}
               commentOrReplySuccessAlertMessage={commentOrReplySuccessAlertMessage}
               setCommentOrReplySuccessAlertMessage={setCommentOrReplySuccessAlertMessage}
               commentsOrder={commentsOrder}
@@ -1016,6 +1040,8 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                   handleReport={reportPost}
                   onBlockYesClick={onBlockYesClick}
                   afterBlockUser={afterBlockUser}
+                  setDropDownValue={setDropDownValue}
+                  ProgressButton={ProgressButton}
                 />
               )}
             {postType !== 'news' && dropDownValue === 'Edit'

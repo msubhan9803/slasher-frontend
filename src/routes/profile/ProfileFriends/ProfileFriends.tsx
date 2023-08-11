@@ -27,6 +27,7 @@ import { setPageStateCache } from '../../../pageStateCache';
 import { PROFILE_SUBROUTES_DEFAULT_CACHE, getProfileSubroutesCache } from '../profileSubRoutesCacheUtils';
 import { formatNumberWithUnits } from '../../../utils/number.utils';
 import { setProfilePageUserDetailsReload } from '../../../redux/slices/userSlice';
+import useProgressButton from '../../../components/ui/ProgressButton';
 
 type UserProfileFriendsResponseData = AxiosResponse<{ friends: FriendProps[] }>;
 
@@ -50,10 +51,12 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
   const [friendCount, setFriendCount] = useState<number>();
   const [dropDownValue, setDropDownValue] = useState('');
   const [loadingFriends, setLoadingFriends] = useState<boolean>(false);
+  const [friendRemoveId, setFriendRemoveId] = useState<string>('');
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const popoverOption = isSelfProfile
     ? ['View profile', 'Message', 'Unfriend', 'Report', 'Block user']
     : ['View profile', 'Report', 'Block user'];
-  const friendsReqCount = useAppSelector((state) => state.user.user.newFriendRequestCount);
+  const friendsReqCount = useAppSelector((state) => state.user.friendRequestCount);
   const loginUserName = useAppSelector((state) => state.user.user.userName);
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
   const [requestAdditionalFriends, setRequestAdditionalFriends] = useState<boolean>(false);
@@ -77,6 +80,14 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
     { value: '', label: 'All friends' },
     { value: 'request', label: 'Friend requests', badge: friendsReqCount },
   ];
+  const onRemoveFriendClick = () => {
+    rejectFriendsRequest(friendRemoveId).then(() => {
+      // eslint-disable-next-line max-len
+      setFriendsList((prevFriendsList) => prevFriendsList.filter((friend) => friend._id !== friendRemoveId));
+      dispatch(setProfilePageUserDetailsReload(true));
+      setShow(false);
+    });
+  };
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (value === 'Report' || value === 'Block user') {
@@ -87,11 +98,9 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
       navigate(`/${popoverClickProps.userName}`);
     } else if (value === 'Unfriend') {
       if (popoverClickProps?.id) {
-        rejectFriendsRequest(popoverClickProps?.id!).then(() => {
-          // eslint-disable-next-line max-len
-          setFriendsList((prevFriendsList) => prevFriendsList.filter((friend) => friend._id !== popoverClickProps?.id));
-          dispatch(setProfilePageUserDetailsReload(true));
-        });
+        setShow(true);
+        setDropDownValue('Remove friend');
+        setFriendRemoveId(popoverClickProps?.id);
       }
     } else if (value === 'Message') {
       navigate(`/app/messages/conversation/new?userId=${popoverClickProps?.userId}`);
@@ -191,31 +200,40 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
     setPage(0);
   };
   const reportProfileFriend = (reason: string) => {
+    setProgressButtonStatus('loading');
     const reportPayload = {
       targetId: popoverClick?.id,
       reason,
       reportType: 'profile',
     };
     reportData(reportPayload).then(() => {
-      setShow(false);
+      // setShow(false);
+      setProgressButtonStatus('success');
     })
       /* eslint-disable no-console */
-      .catch((error) => console.error(error));
+      .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
+    setDropDownValue('PostReportSuccessDialog');
+  };
+  const afterBlockUser = () => {
+    setShow(false);
   };
   const onBlockYesClick = () => {
+    setProgressButtonStatus('loading');
     createBlockUser(popoverClick?.id!)
       .then((res) => {
-        setShow(false);
-        if (res.status === 201) {
+        setDropDownValue('BlockUserSuccess');
+        // setShow(false);
+        if (res) {
           const updateFriendsList = friendsList.filter(
             (friend: any) => friend._id !== popoverClick?.id,
           );
+          setProgressButtonStatus('success');
           setFriendsList(updateFriendsList);
           setFriendCount(friendCount ? friendCount - 1 : 0);
         }
       })
       /* eslint-disable no-console */
-      .catch((error) => console.error(error));
+      .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
   };
   const persistScrollPosition = () => {
     setPageStateCache<ProfileSubroutesCache>(location, {
@@ -253,7 +271,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
             </Col>
           </Row>
           <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 my-3 py-3">
-            { showAllFriendsAndFriendRequestsTabs && (
+            {showAllFriendsAndFriendRequestsTabs && (
               <div>
                 <div className="d-flex justify-content-between">
                   <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="" overrideOnClick={deleteFriendRequestsSubrouteCache} />
@@ -265,13 +283,13 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
               </div>
             )}
 
-            { !isSelfProfile && (
-            <>
-              {/* Desktop friends count view (other user profile) */}
-              <div className="fw-bold text-end d-none d-sm-block">{friendsCountWithLabel}</div>
-              {/* Mobile friends count view (other user profile) */}
-              <div className="ms-3 fw-bold text-start d-sm-none">{friendsCountWithLabel}</div>
-            </>
+            {!isSelfProfile && (
+              <>
+                {/* Desktop friends count view (other user profile) */}
+                <div className="fw-bold text-end d-none d-sm-block">{friendsCountWithLabel}</div>
+                {/* Mobile friends count view (other user profile) */}
+                <div className="ms-3 fw-bold text-start d-sm-none">{friendsCountWithLabel}</div>
+              </>
             )}
 
             <InfiniteScroll
@@ -280,8 +298,8 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
               initialLoad={initialLoad}
               loadMore={() => { setRequestAdditionalFriends(true); }}
               hasMore={!noMoreData}
-              /* NOTE: Do not use a custom parentNode element as it leads to infinte loading.
-              of friends for some unknown reason. */
+            /* NOTE: Do not use a custom parentNode element as it leads to infinte loading.
+            of friends for some unknown reason. */
             >
               <Row className="mt-4">
                 {friendsList.map((friend: FriendProps) => (
@@ -307,6 +325,9 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
           slectedDropdownValue={dropDownValue}
           handleReport={reportProfileFriend}
           onBlockYesClick={onBlockYesClick}
+          afterBlockUser={afterBlockUser}
+          onConfirmClick={onRemoveFriendClick}
+          ProgressButton={ProgressButton}
         />
       </ProfileTabContent>
     </div>

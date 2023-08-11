@@ -94,8 +94,12 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
   const [versionNumber, setVersionNumber] = useState<string>();
 
   const getAppVersion = async () => {
-    setVersionNumber((await App.getInfo()).version);
-    setBuildNumber((await App.getInfo()).build);
+    if (isNativePlatform) {
+      setVersionNumber((await App.getInfo()).version);
+      setBuildNumber((await App.getInfo()).build);
+    } else {
+      setVersionNumber(process.env.REACT_APP_VERSION);
+    }
   };
 
   useEffect(() => {
@@ -146,17 +150,9 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
             {new Date().getFullYear()}
             {' '}
             Slasher Corp
+            {versionNumber && ` • v${versionNumber}`}
+            {buildNumber && ` (${buildNumber})`}
           </li>
-          {isNativePlatform && (
-          <li className="mt-4 text-light text-decoration-none">
-            v
-            {versionNumber}
-            {' '}
-            (
-            {buildNumber}
-            )
-          </li>
-          )}
         </ul>
         <br />
       </Nav>

@@ -43,7 +43,7 @@ type Props = {
 };
 
 export const StyledReviewContainer = styled.div`
-  min-height: 100vh;
+  min-height: 60vh;
 `;
 
 const loginUserPopoverOptions = ['Edit Review', 'Delete Review'] as const;
@@ -328,25 +328,32 @@ function MovieReviews({
     </p>
   );
   const onBlockYesClick = () => {
+    setProgressButtonStatus('loading');
     createBlockUser(postUserId)
       .then(() => {
+        setProgressButtonStatus('success');
         setShow(false);
         setDropDownValue('BlockUserSuccess');
       })
       /* eslint-disable no-console */
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        // eslint-disable-next-line no-console
+        console.error(error);
+        setProgressButtonStatus('failure');
+      });
   };
   const reportReview = (reason: string) => {
+    setProgressButtonStatus('loading');
     const reportPayload = {
       targetId: postId,
       reason,
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res.status === 200) { callLatestFeedPost(); }
+      if (res) { callLatestFeedPost(); setProgressButtonStatus('success'); }
     })
       /* eslint-disable no-console */
-      .catch((error) => console.error(error));
+      .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
     // Ask to block user as well
     setDropDownValue('PostReportSuccessDialog');
   };
@@ -361,6 +368,13 @@ function MovieReviews({
           setGoreFactor(0);
           setPostContent('');
           setContainSpoiler(false);
+          setMovieData({
+            ...movieData,
+            userData: {
+              ...movieData.userData!,
+              reviewPostId: '',
+            },
+          });
         })
         /* eslint-disable no-console */
         .catch((error) => console.error(error));
@@ -373,6 +387,10 @@ function MovieReviews({
       setLocalStorage('spoilersIds', JSON.stringify(spoilerIdList));
     }
     navigate(`/app/movies/${id}/reviews/${currentPostId}`);
+  };
+
+  const afterBlockUser = () => {
+    setShow(false);
   };
 
   const onLikeClick = async (feedPostId: string) => {
@@ -425,7 +443,7 @@ function MovieReviews({
               movieData={movieData}
               errorMessage={errorMessage}
               setPostMessageContent={setPostContent}
-              defaultValue={decryptMessage(postContent, true)}
+              defaultValue={decryptMessage(postContent, true, true)}
               formatMention={formatMention}
               setFormatMention={setFormatMention}
               postType="review"
@@ -491,7 +509,9 @@ function MovieReviews({
             setShow={setShow}
             slectedDropdownValue={dropDownValue}
             onBlockYesClick={onBlockYesClick}
+            afterBlockUser={afterBlockUser}
             handleReport={reportReview}
+            ProgressButton={ProgressButton}
           />
         )
       }

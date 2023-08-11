@@ -44,14 +44,17 @@ function TabLinks({
     setTabValue(selectedTab);
   }, [selectedTab]);
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
-    const url = newValue ? `${toLink}/${newValue}` : toLink;
-    navigate(url);
-  };
   const color = 'var(--bs-link-color)';
   const token = useSessionToken();
   const userIsLoggedIn = !token.isLoading && token.value;
+
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+    if (userIsLoggedIn) {
+      const url = newValue ? `${toLink}/${newValue}` : toLink;
+      navigate(url);
+    }
+  };
 
   const theme = createTheme({
     components: {

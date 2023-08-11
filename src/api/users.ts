@@ -287,7 +287,7 @@ export async function userAccountDelete() {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.delete(`${apiUrl}/api/v1/users/delete-account?userId=${userId}`, { headers });
+  return axios.delete(`${apiUrl}/api/v1/users/${userId}?confirmUserId=${userId}`, { headers });
 }
 
 export async function updateUserAbout(

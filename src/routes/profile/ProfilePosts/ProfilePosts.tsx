@@ -30,6 +30,7 @@ import { friendship } from '../../../api/friends';
 import { getProfileSubroutesCache } from '../profileSubRoutesCacheUtils';
 import { formatNumberWithUnits } from '../../../utils/number.utils';
 import { setProfilePageUserDetailsReload } from '../../../redux/slices/userSlice';
+import { decryptMessage } from '../../../utils/text-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -100,7 +101,7 @@ function ProfilePosts({ user }: Props) {
           _id: data._id,
           id: data._id,
           postDate: data.createdAt,
-          message: data.message,
+          message: decryptMessage(data.message, true, true),
           images: data.images,
           userName: data.userId.userName,
           profileImage: data.userId.profilePic,
@@ -175,7 +176,7 @@ function ProfilePosts({ user }: Props) {
           _id: data._id,
           id: data._id,
           postDate: data.createdAt,
-          message: data.message,
+          message: decryptMessage(data.message, true, true),
           images: data.images,
           userName: data.userId.userName,
           profileImage: data.userId.profilePic,

@@ -114,6 +114,18 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
     });
 
     describe('validations', () => {
+      it('id must be a mongodb id', async () => {
+        const feedPostId = 'not-a-mongo-id';
+        const response = await request(app.getHttpServer())
+          .post(`/api/v1/feed-posts/${feedPostId}/hide`)
+          .auth(user1AuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'id must be a mongodb id',
+        );
+      });
+
       it('should *not* be able to mark post hidden which is created by user', async () => {
         const response = await request(app.getHttpServer())
           .post(`/api/v1/feed-posts/${feedPost._id.toString()}/hide`)

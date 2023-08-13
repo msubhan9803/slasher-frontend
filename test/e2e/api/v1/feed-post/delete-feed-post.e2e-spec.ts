@@ -105,5 +105,19 @@ describe('Feed-Post / Delete Feed Post (e2e)', () => {
       expect(response.status).toEqual(HttpStatus.NOT_FOUND);
       expect(response.body.message).toBe('Post not found');
     });
+
+    describe('Validation', () => {
+      it('id must be a mongodb id', async () => {
+        const feedPostId = 'not-a-mongo-id';
+        const response = await request(app.getHttpServer())
+          .delete(`/api/v1/feed-posts/${feedPostId}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body.message).toContain(
+          'id must be a mongodb id',
+        );
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+      });
+    });
   });
 });

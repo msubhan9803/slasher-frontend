@@ -8,7 +8,7 @@ import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils'
 import { BlocksService } from './providers/blocks.service';
 import { FriendsService } from '../friends/providers/friends.service';
 import { ChatService } from '../chat/providers/chat.service';
-import { CreateBlockDto } from './dto/create-lock.dto';
+import { CreateBlockDto } from './dto/create-block.dto';
 import { DeleteBlockQueryDto } from './dto/delete.block.query.dto';
 import { BlocksLimitOffSetDto } from './dto/blocks-limit-offset.dto';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';

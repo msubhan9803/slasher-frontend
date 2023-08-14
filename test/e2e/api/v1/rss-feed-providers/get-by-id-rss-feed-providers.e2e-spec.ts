@@ -96,5 +96,19 @@ describe('rssFeedProviders / :id (e2e)', () => {
         expect(response.body).toEqual({ message: 'RssFeedProvider not found', statusCode: 404 });
       });
     });
+
+    describe('Validation', () => {
+      it('id must be a mongodb id', async () => {
+        const rssReedProviderId = 'not-a-mongo-id';
+        const response = await request(app.getHttpServer())
+          .get(`/api/v1/rss-feed-providers/${rssReedProviderId}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'id must be a mongodb id',
+        );
+      });
+    });
   });
 });

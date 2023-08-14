@@ -1,6 +1,7 @@
 {
   "name": "slasher-web-frontend",
-  "version": "4.6.3",
+  "version": "4.6.4-rc.1",
+  "capacitorAppBuildNumber": 191,
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
@@ -80,7 +81,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "build": "CI=false react-scripts build",
+    "build": "CI=false react-scripts build && npm run sync-version-and-build-number",
+    "sync-version-and-build-number": "node ./scripts/sync-version-and-build-number.js",
     "analyze": "npm run build && source-map-explorer 'build/static/js/*.js'",
     "eject": "react-scripts eject",
     "lint": "eslint \"{src,e2e}/**/*.{ts,js,tsx, jsx}\" --max-warnings=0",

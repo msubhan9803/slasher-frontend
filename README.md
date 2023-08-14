@@ -65,7 +65,7 @@ So when building for Android, locally, you'll probably often run this:
 
 For a production build, make sure to read in the correct production environment variables.  This may look something like this:
 
-`set -o allexport && source .env.production && npm run build && npx cap sync android && say 'done building'`
+`set -o allexport && source .env.production && npm run build && npx cap sync && npx cap update`
 
 And then go into Android Studio, run a Gradle Sync and then create a build there.
 

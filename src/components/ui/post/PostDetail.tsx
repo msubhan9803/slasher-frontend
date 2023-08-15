@@ -426,8 +426,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     setProgressButtonStatus('loading');
     if (commentID) {
       return removeFeedComments(commentID).then(async () => {
-        setProgressButtonStatus('success');
-        await sleep(500);
+        setProgressButtonStatus('default');
         setCommentID('');
         callLatestFeedComments();
         setPostData([{
@@ -439,8 +438,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
 
     if (commentReplyID) {
       return removeFeedCommentReply(commentReplyID).then(async () => {
-        setProgressButtonStatus('success');
-        await sleep(500);
+        setProgressButtonStatus('default');
         setCommentReplyID('');
         callLatestFeedComments();
       });
@@ -575,7 +573,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         null,
         descriptionArray,
       ).then(async () => {
-        setProgressButtonStatus('success');
+        setProgressButtonStatus('default');
         await sleep(1000);
         setShow(false);
         getFeedPostDetail(postId);
@@ -595,8 +593,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       setProgressButtonStatus('loading');
       return deleteFeedPost(postId)
         .then(async () => {
-          setProgressButtonStatus('success');
-          await sleep(500);
+          setProgressButtonStatus('default');
           setShow(false);
           deletedPostsCache.add(postId);
           navigate(-1); // act as if browser back icon is pressed
@@ -774,7 +771,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res) { getFeedPostDetail(postId!); setProgressButtonStatus('success'); }
+      if (res) { getFeedPostDetail(postId!); setProgressButtonStatus('default'); }
     })
       /* eslint-disable no-console */
       .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
@@ -825,10 +822,10 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     createBlockUser(popoverClick?.userId!)
       .then(() => {
         if (postType === 'news') {
-          setProgressButtonStatus('success');
+          setProgressButtonStatus('default');
           setShow(false);
         } else {
-          setProgressButtonStatus('success');
+          setProgressButtonStatus('default');
           setDropDownValue('BlockUserSuccess');
         }
       })

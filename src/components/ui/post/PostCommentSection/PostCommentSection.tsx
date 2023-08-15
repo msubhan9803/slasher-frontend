@@ -453,7 +453,7 @@ function PostCommentSection({
     createBlockUser(commentReplyUserId)
       .then(() => {
         setShow(false);
-        setProgressButtonStatus('success');
+        setProgressButtonStatus('default');
         // Set dropDownValue for parent `<ReportModal/>`
         setSelectedBlockedUserId(commentReplyUserId);
         setCommentDropDownValue('BlockUserSuccess');
@@ -470,7 +470,7 @@ function PostCommentSection({
       reportType: commentID ? 'comment' : 'reply',
     };
     reportData(reportPayload).then(() => {
-      setProgressButtonStatus('success');
+      setProgressButtonStatus('default');
     })
       /* eslint-disable no-console */
       .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });

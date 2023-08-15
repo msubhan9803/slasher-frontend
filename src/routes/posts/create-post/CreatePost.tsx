@@ -15,7 +15,6 @@ import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/r
 import CreatePostComponent from '../../../components/ui/CreatePostComponent';
 import { ContentDescription, FormatMentionProps, PostType } from '../../../types';
 import useProgressButton from '../../../components/ui/ProgressButton';
-import { sleep } from '../../../utils/timer-utils';
 import { atMentionsGlobalRegex, generateMentionReplacementMatchFunc } from '../../../utils/text-utils';
 import { setProfilePageUserDetailsReload } from '../../../redux/slices/userSlice';
 import { deletePageStateCache } from '../../../pageStateCache';
@@ -71,8 +70,7 @@ function CreatePost() {
     };
     return createPost(createPostData, imageArray, descriptionArray!)
       .then(async () => {
-        setProgressButtonStatus('success');
-        await sleep(1000);
+        setProgressButtonStatus('default');
         setErrorMessage([]);
         deletePageStateCache(location.state);
         navigate(location.state);

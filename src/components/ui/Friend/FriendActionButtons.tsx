@@ -61,7 +61,7 @@ function FriendActionButtons({
       if (status === FriendRequestReaction.DeclinedOrCancelled) {
         return addFriend(user._id).then(() => {
           setFriendshipStatus(status);
-          setProgressButtonStatus('success');
+          setProgressButtonStatus('default');
         })
           /* eslint-disable no-console */
           .catch((error) => {
@@ -72,14 +72,14 @@ function FriendActionButtons({
       if (status === FriendRequestReaction.Pending && friendData?.from !== loginUserId) {
         return acceptFriendsRequest(user._id).then(() => {
           setFriendshipStatus(status);
-          setProgressButtonStatus('success');
+          setProgressButtonStatus('default');
         })
           /* eslint-disable no-console */
           .catch((error) => {
             console.error(error);
             setProgressButtonStatus('failure');
           });
-        setProgressButtonStatus('success');
+        setProgressButtonStatus('default');
       }
       if ((
         status === FriendRequestReaction.Accepted
@@ -88,7 +88,7 @@ function FriendActionButtons({
       ) {
         return rejectFriendsRequest(user._id).then(async () => {
           setFriendshipStatus(status);
-          setProgressButtonStatus('success');
+          setProgressButtonStatus('default');
           await sleep(500);
           setShow(false);
         })

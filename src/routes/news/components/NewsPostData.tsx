@@ -164,7 +164,7 @@ function NewsPostData({ partnerId }: Props) {
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res) { callLatestFeedPost(); setProgressButtonStatus('success'); }
+      if (res) { callLatestFeedPost(); setProgressButtonStatus('default'); }
       setShow(false);
     })
       /* eslint-disable no-console */

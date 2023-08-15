@@ -238,7 +238,7 @@ function Home() {
     setProgressButtonStatus('loading');
     updateFeedPost(postId, message, images, imageDelete, null, descriptionArray)
       .then(async (res) => {
-        setProgressButtonStatus('success');
+        setProgressButtonStatus('default');
         await sleep(500);
         setShow(false);
         const updatePost = posts.map((post: any) => {
@@ -261,11 +261,10 @@ function Home() {
   };
   const deletePostClickAsync = async () => {
     setProgressButtonStatus('loading');
+    setPosts((prevPosts) => prevPosts.filter(((post) => post._id !== postId)));
     return deleteFeedPost(postId)
-      .then(async () => {
-        setProgressButtonStatus('success');
-        setPosts((prevPosts) => prevPosts.filter(((post) => post._id !== postId)));
-        await sleep(500);
+      .then(() => {
+        setProgressButtonStatus('default');
       })
       .catch(async (error) => {
         // eslint-disable-next-line no-console
@@ -358,7 +357,7 @@ function Home() {
     setProgressButtonStatus('loading');
     createBlockUser(postUserId)
       .then(() => {
-        setProgressButtonStatus('success');
+        setProgressButtonStatus('default');
         setDropDownValue('BlockUserSuccess');
         setPosts((prev) => prev.filter(
           (scrollData: any) => scrollData.userId !== postUserId,
@@ -382,7 +381,7 @@ function Home() {
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res) { callLatestFeedPost(); setProgressButtonStatus('success'); }
+      if (res) { callLatestFeedPost(); setProgressButtonStatus('default'); }
     })
       // eslint-disable-next-line no-console
       .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });

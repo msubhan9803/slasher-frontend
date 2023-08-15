@@ -49,7 +49,7 @@ function ProfileAbout({ user }: Props) {
     updateUserAbout(id, updatedAboutMeText).then((res) => {
       setAboutMeText(res.data.aboutMe);
       setCharCount(updatedAboutMeText.length);
-      setProgressButtonStatus('success');
+      setProgressButtonStatus('default');
       setEdit(!isEdit);
     }).catch(() => {
       setProgressButtonStatus('failure');

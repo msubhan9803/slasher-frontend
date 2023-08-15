@@ -84,7 +84,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
   const onRemoveFriendClickAsync = async () => {
     setProgressButtonStatus('loading');
     return rejectFriendsRequest(friendRemoveId).then(async () => {
-      setProgressButtonStatus('success');
+      setProgressButtonStatus('default');
       // eslint-disable-next-line max-len
       setFriendsList((prevFriendsList) => prevFriendsList.filter((friend) => friend._id !== friendRemoveId));
       await sleep(500);
@@ -217,7 +217,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
     };
     reportData(reportPayload).then(() => {
       // setShow(false);
-      setProgressButtonStatus('success');
+      setProgressButtonStatus('default');
     })
       /* eslint-disable no-console */
       .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
@@ -236,7 +236,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
           const updateFriendsList = friendsList.filter(
             (friend: any) => friend._id !== popoverClick?.id,
           );
-          setProgressButtonStatus('success');
+          setProgressButtonStatus('default');
           setFriendsList(updateFriendsList);
           setFriendCount(friendCount ? friendCount - 1 : 0);
         }

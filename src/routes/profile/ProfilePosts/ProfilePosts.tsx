@@ -189,8 +189,7 @@ function ProfilePosts({ user }: Props) {
   ) => {
     setProgressButtonStatus('loading');
     updateFeedPost(postId, message, images, imageDelete, null, descriptionArray).then(async () => {
-      setProgressButtonStatus('success');
-      await sleep(1000);
+      setProgressButtonStatus('default');
       setShowReportModal(false);
       const updatePost = posts.map((post: any) => {
         if (post._id === postId) {
@@ -215,9 +214,8 @@ function ProfilePosts({ user }: Props) {
     setProgressButtonStatus('loading');
     return deleteFeedPost(postId)
       .then(async () => {
-        setProgressButtonStatus('success');
+        setProgressButtonStatus('default');
         setPosts((prevPosts) => prevPosts.filter(((post) => post._id !== postId)));
-        await sleep(500);
         dispatch(setProfilePageUserDetailsReload(true));
       })
 
@@ -295,7 +293,7 @@ function ProfilePosts({ user }: Props) {
     setProgressButtonStatus('loading');
     createBlockUser(postUserId)
       .then(() => {
-        setProgressButtonStatus('success');
+        setProgressButtonStatus('default');
         setDropDownValue('BlockUserSuccess');
         callLatestFeedPost();
       })
@@ -311,7 +309,7 @@ function ProfilePosts({ user }: Props) {
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res) { callLatestFeedPost(); setProgressButtonStatus('success'); }
+      if (res) { callLatestFeedPost(); setProgressButtonStatus('default'); }
     })
       /* eslint-disable no-console */
       .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });

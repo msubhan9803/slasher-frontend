@@ -186,8 +186,7 @@ function MovieReviews({
     setProgressButtonStatus('loading');
     createPost(movieReviewPostData, '')
       .then(async () => {
-        setProgressButtonStatus('success');
-        await sleep(1000);
+        setProgressButtonStatus('default');
         setMovieData({
           ...movieData,
           userData: {
@@ -221,8 +220,7 @@ function MovieReviews({
       movieReviewPostData,
     )
       .then(async () => {
-        setProgressButtonStatus('success');
-        await sleep(1000);
+        setProgressButtonStatus('default');
         setMovieData({
           ...movieData,
           userData: {
@@ -331,7 +329,7 @@ function MovieReviews({
     setProgressButtonStatus('loading');
     createBlockUser(postUserId)
       .then(() => {
-        setProgressButtonStatus('success');
+        setProgressButtonStatus('default');
         setShow(false);
         setDropDownValue('BlockUserSuccess');
       })
@@ -350,7 +348,7 @@ function MovieReviews({
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res) { callLatestFeedPost(); setProgressButtonStatus('success'); }
+      if (res) { callLatestFeedPost(); setProgressButtonStatus('default'); }
     })
       /* eslint-disable no-console */
       .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
@@ -363,10 +361,8 @@ function MovieReviews({
     if (deletePostId) {
       return deleteFeedPost(deletePostId)
         .then(async () => {
-          setProgressButtonStatus('success');
+          setProgressButtonStatus('default');
           callLatestFeedPost();
-          await sleep(500);
-
           setShow(false);
           setRating(0);
           setGoreFactor(0);

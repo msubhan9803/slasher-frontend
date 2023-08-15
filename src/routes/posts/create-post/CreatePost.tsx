@@ -18,6 +18,7 @@ import useProgressButton from '../../../components/ui/ProgressButton';
 import { sleep } from '../../../utils/timer-utils';
 import { atMentionsGlobalRegex, generateMentionReplacementMatchFunc } from '../../../utils/text-utils';
 import { setProfilePageUserDetailsReload } from '../../../redux/slices/userSlice';
+import { deletePageStateCache } from '../../../pageStateCache';
 
 export interface MentionProps {
   id: string;
@@ -73,6 +74,7 @@ function CreatePost() {
         setProgressButtonStatus('success');
         await sleep(1000);
         setErrorMessage([]);
+        deletePageStateCache(location.state);
         navigate(location.state);
         // Delay fetching of `profilePageUserDetails` by 1.5 seconds as the component takes
         // to mount itself.

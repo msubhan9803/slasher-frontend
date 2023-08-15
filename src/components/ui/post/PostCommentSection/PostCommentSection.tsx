@@ -28,7 +28,7 @@ function PostCommentSection({
   postCreator,
   commentSectionData,
   popoverOption,
-  removeComment,
+  removeCommentAsync,
   setCommentID,
   setCommentReplyID,
   commentID,
@@ -752,7 +752,7 @@ function PostCommentSection({
         slectedDropdownValue={dropDownValue}
         onBlockYesClick={onBlockYesClick}
         handleReport={handleCommentReplyReport}
-        removeComment={removeComment}
+        removeCommentAsync={removeCommentAsync}
         afterBlockUser={afterBlockUser}
         ProgressButton={ProgressButton}
       />

@@ -28,6 +28,7 @@ import { PROFILE_SUBROUTES_DEFAULT_CACHE, getProfileSubroutesCache } from '../pr
 import { formatNumberWithUnits } from '../../../utils/number.utils';
 import { setProfilePageUserDetailsReload } from '../../../redux/slices/userSlice';
 import useProgressButton from '../../../components/ui/ProgressButton';
+import { sleep } from '../../../utils/timer-utils';
 
 type UserProfileFriendsResponseData = AxiosResponse<{ friends: FriendProps[] }>;
 
@@ -80,12 +81,20 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
     { value: '', label: 'All friends' },
     { value: 'request', label: 'Friend requests', badge: friendsReqCount },
   ];
-  const onRemoveFriendClick = () => {
-    rejectFriendsRequest(friendRemoveId).then(() => {
+  const onRemoveFriendClickAsync = async () => {
+    setProgressButtonStatus('loading');
+    return rejectFriendsRequest(friendRemoveId).then(async () => {
+      setProgressButtonStatus('success');
       // eslint-disable-next-line max-len
       setFriendsList((prevFriendsList) => prevFriendsList.filter((friend) => friend._id !== friendRemoveId));
+      await sleep(500);
       dispatch(setProfilePageUserDetailsReload(true));
       setShow(false);
+    }).catch(async (error) => {
+      // eslint-disable-next-line no-console
+      console.error(error);
+      setProgressButtonStatus('failure');
+      await sleep(500);
     });
   };
 
@@ -326,7 +335,7 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
           handleReport={reportProfileFriend}
           onBlockYesClick={onBlockYesClick}
           afterBlockUser={afterBlockUser}
-          onConfirmClick={onRemoveFriendClick}
+          onConfirmClickAsync={onRemoveFriendClickAsync}
           ProgressButton={ProgressButton}
         />
       </ProfileTabContent>

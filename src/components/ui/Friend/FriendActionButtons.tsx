@@ -5,6 +5,7 @@ import { acceptFriendsRequest, addFriend, rejectFriendsRequest } from '../../../
 import { useAppSelector } from '../../../redux/hooks';
 import useProgressButton from '../ProgressButton';
 import ReportModal from '../ReportModal';
+import { sleep } from '../../../utils/timer-utils';
 
 const getButtonLabelForUser = (
   user: User,
@@ -48,8 +49,9 @@ function FriendActionButtons({
 }: Props) {
   const loginUserId = useAppSelector((state) => state.user.user.id);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
-  const [isFriendRemove, setFriendRemove] = useState<boolean>(false);
-  const friendRequestApi = (status: number | null) => {
+  const [show, setShow] = useState<boolean>(false);
+
+  const friendRequestApi = async (status: number | null) => {
     setProgressButtonStatus('loading');
     if (!status) {
       // eslint-disable-next-line no-param-reassign
@@ -57,32 +59,7 @@ function FriendActionButtons({
     }
     if (user && user._id) {
       if (status === FriendRequestReaction.DeclinedOrCancelled) {
-        addFriend(user._id).then(() => {
-          setFriendshipStatus(status);
-          setProgressButtonStatus('success');
-        })
-          /* eslint-disable no-console */
-          .catch((error) => {
-            console.error(error);
-            setProgressButtonStatus('failure');
-          });
-      } else if (status === FriendRequestReaction.Pending && friendData?.from !== loginUserId) {
-        acceptFriendsRequest(user._id).then(() => {
-          setFriendshipStatus(status);
-          setProgressButtonStatus('success');
-        })
-          /* eslint-disable no-console */
-          .catch((error) => {
-            console.error(error);
-            setProgressButtonStatus('failure');
-          });
-        setProgressButtonStatus('success');
-      } else if ((
-        status === FriendRequestReaction.Accepted
-        || status === FriendRequestReaction.Pending
-      )
-      ) {
-        rejectFriendsRequest(user._id).then(() => {
+        return addFriend(user._id).then(() => {
           setFriendshipStatus(status);
           setProgressButtonStatus('success');
         })
@@ -92,31 +69,62 @@ function FriendActionButtons({
             setProgressButtonStatus('failure');
           });
       }
+      if (status === FriendRequestReaction.Pending && friendData?.from !== loginUserId) {
+        return acceptFriendsRequest(user._id).then(() => {
+          setFriendshipStatus(status);
+          setProgressButtonStatus('success');
+        })
+          /* eslint-disable no-console */
+          .catch((error) => {
+            console.error(error);
+            setProgressButtonStatus('failure');
+          });
+        setProgressButtonStatus('success');
+      }
+      if ((
+        status === FriendRequestReaction.Accepted
+        || status === FriendRequestReaction.Pending
+      )
+      ) {
+        return rejectFriendsRequest(user._id).then(async () => {
+          setFriendshipStatus(status);
+          setProgressButtonStatus('success');
+          await sleep(500);
+          setShow(false);
+        })
+          /* eslint-disable no-console */
+          .catch(async (error) => {
+            console.error(error);
+            setProgressButtonStatus('failure');
+            await sleep(500);
+            setShow(false);
+          });
+      }
     }
+    return undefined;
   };
   const ButtonLabel = getButtonLabelForUser(user, friendData, loginUserId);
 
-  let show = true;
+  let showFriendActionButtons = true;
   if (showOnlyAddAndSend) {
-    show = friendData?.reaction === FriendRequestReaction.DeclinedOrCancelled
+    showFriendActionButtons = friendData?.reaction === FriendRequestReaction.DeclinedOrCancelled
       || friendData?.reaction === null;
   }
   const handleFriendRequest = (label: string) => {
     if (label === 'Remove friend') {
-      setFriendRemove(true);
+      setShow(true);
     } else {
       friendRequestApi(friendStatus);
     }
   };
-  const onRemoveFriendClick = () => {
-    friendRequestApi(friendStatus);
-    setFriendRemove(false);
+  const onRemoveFriendClickAsync = async () => {
+    await friendRequestApi(friendStatus);
   };
   return (
     <>
       {friendStatus === FriendRequestReaction.Accepted && <RoundButtonLink variant="black" to={`/app/messages/conversation/new?userId=${user?._id}`} className={`me-2 text-nowrap ${buttonType === 'send-message' ? '' : 'border-1 border-primary'}`}>Send message</RoundButtonLink>}
       {
-        show && ButtonLabel
+        showFriendActionButtons && ButtonLabel
         && (
           <ProgressButton
             variant={`${friendStatus === FriendRequestReaction.Pending || friendStatus === FriendRequestReaction.Accepted ? 'black' : 'primary'}`}
@@ -131,13 +139,14 @@ function FriendActionButtons({
         )
       }
       {
-        isFriendRemove
+        show
         && (
           <ReportModal
-            show={isFriendRemove}
-            setShow={setFriendRemove}
+            show={show}
+            setShow={setShow}
             slectedDropdownValue="Remove friend"
-            onConfirmClick={onRemoveFriendClick}
+            onConfirmClickAsync={onRemoveFriendClickAsync}
+            ProgressButton={ProgressButton}
           />
         )
       }

@@ -22,7 +22,7 @@ import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import EditPostModal from '../../../components/ui/post/EditPostModal';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
-import { deletedPostsCache, hasPageStateCache, setPageStateCache } from '../../../pageStateCache';
+import { deletedPostsCache, setPageStateCache } from '../../../pageStateCache';
 import useProgressButton from '../../../components/ui/ProgressButton';
 import { sleep } from '../../../utils/timer-utils';
 import FriendshipStatusModal from '../../../components/ui/friendShipCheckModal';
@@ -89,6 +89,7 @@ function ProfilePosts({ user }: Props) {
   };
 
   const fetchPosts = useCallback(() => {
+    setLoadingPosts(true);
     getProfilePosts(
       user._id,
       posts.length > 0 ? posts[posts.length - 1]._id : undefined,
@@ -144,13 +145,7 @@ function ProfilePosts({ user }: Props) {
     }
 
     if (requestAdditionalPosts && !loadingPosts && userNameOrId === user.userName) {
-      if (hasPageStateCache(location)
-        || posts.length >= getProfileSubroutesCache(location).profilePosts?.length
-        || posts.length === 0
-      ) {
-        setLoadingPosts(true);
-        fetchPosts();
-      }
+      fetchPosts();
     }
   }, [requestAdditionalPosts, loadingPosts, userId, userNameOrId, user._id, user.userName,
     posts, location, dispatch, fetchPosts]);
@@ -216,11 +211,13 @@ function ProfilePosts({ user }: Props) {
         setEditModalErrorMessage(msg);
       });
   };
-  const deletePostClick = () => {
-    deleteFeedPost(postId)
-      .then(() => {
-        setShowReportModal(false);
-        callLatestFeedPost();
+  const deletePostClickAsync = async () => {
+    setProgressButtonStatus('loading');
+    return deleteFeedPost(postId)
+      .then(async () => {
+        setProgressButtonStatus('success');
+        setPosts((prevPosts) => prevPosts.filter(((post) => post._id !== postId)));
+        await sleep(500);
         dispatch(setProfilePageUserDetailsReload(true));
       })
 
@@ -368,7 +365,7 @@ function ProfilePosts({ user }: Props) {
         {['Block user', 'Report', 'Delete', 'PostReportSuccessDialog', 'BlockUserSuccess'].includes(dropDownValue)
           && (
             <ReportModal
-              onConfirmClick={deletePostClick}
+              onConfirmClickAsync={deletePostClickAsync}
               show={showReportModal}
               setShow={setShowReportModal}
               slectedDropdownValue={dropDownValue}

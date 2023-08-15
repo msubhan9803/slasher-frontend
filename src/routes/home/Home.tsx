@@ -164,13 +164,7 @@ function Home() {
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
-      if (
-        !hasPageStateCache(location)
-        || posts.length >= pageStateCache.length
-        || posts.length === 0
-      ) {
-        fetchFeedPosts();
-      }
+      fetchFeedPosts();
     }
   }, [
     fetchFeedPosts, loadingPosts, location, pageStateCache.length,
@@ -245,7 +239,7 @@ function Home() {
     updateFeedPost(postId, message, images, imageDelete, null, descriptionArray)
       .then(async (res) => {
         setProgressButtonStatus('success');
-        await sleep(1000);
+        await sleep(500);
         setShow(false);
         const updatePost = posts.map((post: any) => {
           if (post._id === postId) {
@@ -265,14 +259,20 @@ function Home() {
         setErrorMessage(msg);
       });
   };
-  const deletePostClick = () => {
-    deleteFeedPost(postId)
-      .then(() => {
-        setShow(false);
-        callLatestFeedPost();
+  const deletePostClickAsync = async () => {
+    setProgressButtonStatus('loading');
+    return deleteFeedPost(postId)
+      .then(async () => {
+        setProgressButtonStatus('success');
+        setPosts((prevPosts) => prevPosts.filter(((post) => post._id !== postId)));
+        await sleep(500);
       })
-      // eslint-disable-next-line no-console
-      .catch((error) => console.error(error));
+      .catch(async (error) => {
+        // eslint-disable-next-line no-console
+        console.error(error);
+        setProgressButtonStatus('failure');
+        await sleep(500);
+      });
   };
 
   const checkFriendShipStatus = (selectedFeedPostUserId: string) => new Promise<void>(
@@ -434,7 +434,7 @@ function Home() {
           ['Block user', 'Report', 'Delete', 'PostReportSuccessDialog', 'BlockUserSuccess'].includes(dropDownValue)
           && (
             <ReportModal
-              onConfirmClick={deletePostClick}
+              onConfirmClickAsync={deletePostClickAsync}
               show={show}
               setShow={setShow}
               slectedDropdownValue={dropDownValue}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { FriendRequestReaction, FriendType, User } from '../../../types';
 import RoundButtonLink from '../RoundButtonLink';
 import { acceptFriendsRequest, addFriend, rejectFriendsRequest } from '../../../api/friends';
@@ -49,6 +49,7 @@ function FriendActionButtons({
   const loginUserId = useAppSelector((state) => state.user.user.id);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const [isFriendRemove, setFriendRemove] = useState<boolean>(false);
+  const abortControllerRef = useRef<AbortController | null>();
   const friendRequestApi = (status: number | null) => {
     setProgressButtonStatus('loading');
     if (!status) {
@@ -67,6 +68,11 @@ function FriendActionButtons({
             setProgressButtonStatus('failure');
           });
       } else if (status === FriendRequestReaction.Pending && friendData?.from !== loginUserId) {
+        if (abortControllerRef.current) {
+          return;
+        }
+        const controller = new AbortController();
+        abortControllerRef.current = controller;
         acceptFriendsRequest(user._id).then(() => {
           setFriendshipStatus(status);
           setProgressButtonStatus('success');
@@ -75,6 +81,8 @@ function FriendActionButtons({
           .catch((error) => {
             console.error(error);
             setProgressButtonStatus('failure');
+          }).finally(() => {
+            abortControllerRef.current = null;
           });
         setProgressButtonStatus('success');
       } else if ((

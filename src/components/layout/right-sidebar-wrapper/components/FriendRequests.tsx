@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { acceptFriendsRequest, rejectFriendsRequest } from '../../../../api/friends';
 import { userInitialData } from '../../../../api/users';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
@@ -17,14 +17,22 @@ function FriendRequests() {
   const recentFriendRequests = useAppSelector((state) => state.user.recentFriendRequests);
   const loginUserName = useAppSelector((state) => state.user.user.userName);
   const dispatch = useAppDispatch();
+  const abortControllerRef = useRef<AbortController | null>();
 
   const handleAcceptRequest = (userId: string) => {
+    if (abortControllerRef.current) {
+      return;
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
     acceptFriendsRequest(userId)
       .then(() => userInitialData().then((res) => {
         dispatch(setUserInitialData(res.data));
         dispatch(forceReloadSuggestedFriends());
         dispatch(setFriendListReload(true));
-      }));
+      })).finally(() => {
+        abortControllerRef.current = null;
+      });
   };
   const handleRejectRequest = (userId: string) => {
     rejectFriendsRequest(userId)

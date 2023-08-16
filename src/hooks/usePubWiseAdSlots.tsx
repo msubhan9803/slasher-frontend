@@ -109,7 +109,9 @@ const usePubWiseAdSlots = (enableADs: boolean) => {
             ],
             adUnitDivId,
           )
-          .addService(window.googletag.pubads());
+          .addService(window.googletag.pubads())
+          .setTargeting('os', Capacitor.getPlatform()) // android | web | ios
+          .setTargeting('env', isStagingSite ? 'dev' : 'prod');
       });
 
       // ENBLE GOOGLE TAG SERVICES

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Capacitor } from '@capacitor/core';
 import useLoadScriptsInOrder from './useLoadScriptsInOrder';
 import { setAdBlockerDetected, setPubWiseSlots } from '../redux/slices/pubWiseSlice';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
@@ -51,6 +52,8 @@ const SINGLES_ADS = [
   [GLOBAL_RIGHT_NAV, GLOBAL_RIGHT_NAV_DIV_ID],
 ];
 
+const isStagingSite = window.location.host === 'staging.slasher.tv';
+
 const usePubWiseAdSlots = (enableADs: boolean) => {
   const dispatch = useAppDispatch();
   const isServerAvailable = useAppSelector((state) => state.serverAvailability.isAvailable);
@@ -91,7 +94,9 @@ const usePubWiseAdSlots = (enableADs: boolean) => {
               ],
               id,
             )
-            .addService(window.googletag.pubads());
+            .addService(window.googletag.pubads())
+            .setTargeting('os', Capacitor.getPlatform()) // android | web | ios
+            .setTargeting('env', isStagingSite ? 'dev' : 'prod');
         }
       });
 

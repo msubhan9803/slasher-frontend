@@ -5,6 +5,7 @@ import {
   IsBoolean,
   IsIn,
   IsInt,
+  IsMongoId,
   IsNotEmpty,
   IsNumber,
   IsOptional, Max, MaxLength, Min, ValidateNested,
@@ -13,6 +14,7 @@ import { WorthWatchingStatus } from '../../types';
 import { MAX_ALLOWED_UPLOAD_FILES_FOR_POST } from '../../constants';
 
 export class UpdateImageDescriptionsDto {
+  @IsMongoId()
   @IsOptional()
   _id: string;
 

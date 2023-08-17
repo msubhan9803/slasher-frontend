@@ -210,6 +210,18 @@ describe('All Feed Post (e2e)', () => {
     });
 
     describe('Validation', () => {
+      it('userId must be a mongodb id', async () => {
+        const userId = 'not-a-mongo-id';
+        const response = await request(app.getHttpServer())
+          .get(`/api/v1/users/${userId}/posts?limit=10`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'userId must be a mongodb id',
+        );
+      });
+
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
           .get(`/api/v1/users/${activeUser.id}/posts`)

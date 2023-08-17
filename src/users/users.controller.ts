@@ -1062,10 +1062,10 @@ export class UsersController {
   @Delete(':userId')
   async deleteAccount(
     @Req() request: Request,
-    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
-    param: ParamUserIdDto,
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     query: ConfirmDeleteAccountQueryDto,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
   ) {
     const requestingUser = getUserFromRequest(request);
     let userToDelete: UserDocument;

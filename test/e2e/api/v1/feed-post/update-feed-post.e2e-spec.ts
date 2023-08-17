@@ -1069,6 +1069,19 @@ describe('Update Feed Post (e2e)', () => {
   });
 
   describe('Validation', () => {
+    it('id must be a mongodb id', async () => {
+      const feedPostId = 'not-a-mongo-id';
+      const response = await request(app.getHttpServer())
+        .patch(`/api/v1/feed-posts/${feedPostId}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', sampleFeedPostObject.message);
+      expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+      expect(response.body.message).toContain(
+        'id must be a mongodb id',
+      );
+    });
+
     it('check message length validation', async () => {
       const message = new Array(20_002).join('z');
       const response = await request(app.getHttpServer())

@@ -248,7 +248,7 @@ function SearchPosts() {
   const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
     setProgressButtonStatus('loading');
     updateFeedPost(postId, message, images, imageDelete).then((res) => {
-      setProgressButtonStatus('success');
+      setProgressButtonStatus('default');
       setShow(false);
       const updatePost = searchPosts.map((post: any) => {
         if (post._id === postId) {
@@ -367,7 +367,7 @@ function SearchPosts() {
         (dropDownValue === 'Block user' || dropDownValue === 'Report' || dropDownValue === 'Delete' || dropDownValue === 'PostReportSuccessDialog')
         && (
           <ReportModal
-            onConfirmClick={deletePostClick}
+            onConfirmClickAsync={deletePostClick}
             show={show}
             setShow={setShow}
             slectedDropdownValue={dropDownValue}

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Button, Col, Row } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
 import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
+import styled from 'styled-components';
 import BorderButton from '../../components/ui/BorderButton';
 import CustomSearchInput from '../../components/ui/CustomSearchInput';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
-import { enableDevFeatures } from '../../constants';
+import { MD_MEDIA_BREAKPOINT, enableDevFeatures } from '../../constants';
 import { StyledHastagsCircle } from './component/Hashtags';
 import CustomPopover from '../../components/ui/CustomPopover';
 import ReportModal from '../../components/ui/ReportModal';
@@ -32,7 +33,23 @@ const tabs = [
   { value: 'movies', label: 'Movies', devOnly: true },
   { value: 'books', label: 'Books', devOnly: true },
 ];
-
+const StyledButtonIcon = styled.div`  
+  min-height:2.356rem;
+  .main {
+    width:25.8px;
+  }
+  .toggle {
+    line-height: 0.625;
+  }
+  .res-div {
+    width : 100%;
+  }
+  @media (min-width: ${MD_MEDIA_BREAKPOINT}) {
+    .res-div {
+      width : auto;
+    }
+  }
+`;
 const popoverOptions = ['Report'];
 function SearchHeader({
   tabKey, setSearch, search, label = '', onOffNotificationClick, followUnfollowClick,
@@ -58,14 +75,14 @@ function SearchHeader({
       {query && query.length > 0
         ? (
           <div>
-            <div className="text-end d-md-none">
+            <div className="text-end d-md-none me-2">
               <CustomPopover
                 popoverOptions={popoverOptions}
                 onPopoverClick={handlePopoverOption}
               />
             </div>
-            <Row className="align-items-center px-4 px-md-0">
-              <Col md={8} lg={7} xl={8}>
+            <div className="d-md-flex d-block align-items-center px-4 px-md-0 justify-content-between">
+              <div>
                 <span className="d-md-flex align-items-center">
                   <StyledHastagsCircle className="mx-auto ms-md-2 me-md-4 bg-black align-items-center d-flex fs-1 justify-content-around fw-light">#</StyledHastagsCircle>
                   <div className="text-center text-md-start">
@@ -80,32 +97,36 @@ function SearchHeader({
                     </small>
                   </div>
                 </span>
-              </Col>
-              <Col md={4} lg={5} xl={4} className="mt-4 mt-md-0">
-                <div className="d-flex align-items-center justify-content-center justify-content-md-end">
-                  {following && (
-                    <Button aria-label="notificatio bell" size="sm" className="me-2 pe-2" variant="link" onClick={onOffNotificationClick}>
-                      <FontAwesomeIcon size="lg" className={`${notificationToggle ? 'me-1 text-success' : 'me-0 text-primary'} `} icon={notificationToggle ? regular('bell') : regular('bell-slash')} />
-                      <span>{notificationToggle ? 'On' : 'Off'}</span>
-                    </Button>
-                  )}
+              </div>
+              <StyledButtonIcon className="d-flex align-items-center mt-3 mt-md-0 me-md-3">
+                {following && (
+                  <div className="main me-3">
+                    <div className="text-center text-md-start d-flex flex-wrap justify-content-center align-items-center align-items-md-start">
+                      <Button aria-label="notification bell" size="sm" className="p-0" variant="link" onClick={onOffNotificationClick}>
+                        <FontAwesomeIcon size="lg" className={`${notificationToggle ? 'text-success' : 'text-primary'} `} icon={notificationToggle ? regular('bell') : regular('bell-slash')} />
+                      </Button>
+                      <p className="fs-6 text-center  toggle  mb-0">{notificationToggle ? 'On' : 'Off'}</p>
+                    </div>
+                  </div>
+                )}
+                <div className="res-div">
                   <BorderButton
-                    buttonClass={`${following ? 'text-white' : 'text-black'} py-2 w-100`}
+                    buttonClass={`${following ? 'text-white' : 'text-black'} py-2 px-5 w-100`}
                     variant="sm"
                     toggleBgColor={following}
                     handleClick={followUnfollowClick}
                     toggleButton
                   />
-                  <div className="d-none d-md-block mx-4">
-                    <CustomPopover
-                      isHashtag
-                      popoverOptions={popoverOptions}
-                      onPopoverClick={handlePopoverOption}
-                    />
-                  </div>
                 </div>
-              </Col>
-            </Row>
+                <div className="d-none d-md-block">
+                  <CustomPopover
+                    isHashtag
+                    popoverOptions={popoverOptions}
+                    onPopoverClick={handlePopoverOption}
+                  />
+                </div>
+              </StyledButtonIcon>
+            </div>
           </div>
         ) : (
           <>

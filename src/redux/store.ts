@@ -11,6 +11,7 @@ import podcastsReducer from './slices/podcastsSlice';
 import scrollPositionReducer from './slices/scrollPositionSlice';
 import socketReducer from './slices/socketSlice';
 import serverAvailabilityReducer from './slices/serverAvailableSlice';
+import googleAnalyticsReducer from './slices/googleAnalyticsSlice';
 
 export const store = configureStore({
   reducer: {
@@ -26,6 +27,7 @@ export const store = configureStore({
     scrollPosition: scrollPositionReducer,
     socket: socketReducer,
     serverAvailability: serverAvailabilityReducer,
+    googleAnalytics: googleAnalyticsReducer,
   },
 });
 

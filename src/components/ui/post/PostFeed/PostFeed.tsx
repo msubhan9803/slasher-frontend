@@ -59,7 +59,7 @@ interface Props {
   isCommentSection?: boolean;
   onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void;
   isSinglePost?: boolean;
-  removeComment?: () => void;
+  removeCommentAsync?: () => void;
   setCommentID?: (value: string) => void;
   setCommentReplyID?: (value: string) => void;
   commentID?: string;
@@ -319,7 +319,7 @@ function PostContent({
 
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, isSinglePost,
-  commentsData, removeComment, setCommentID, setCommentReplyID, commentID,
+  commentsData, removeCommentAsync, setCommentID, setCommentReplyID, commentID,
   commentReplyID, otherUserPopoverOptions, postCreaterPopoverOptions,
   loginUserMoviePopoverOptions, setIsEdit, setRequestAdditionalPosts,
   noMoreData, isEdit, loadingPosts, onLikeClick, newsPostPopoverOptions,
@@ -567,7 +567,7 @@ function PostFeed({
                       postCreator={postData[0].userId}
                       commentSectionData={commentsData}
                       popoverOption={popoverOptions}
-                      removeComment={removeComment}
+                      removeCommentAsync={removeCommentAsync}
                       setCommentID={setCommentID}
                       setCommentReplyID={setCommentReplyID}
                       commentID={commentID}
@@ -647,7 +647,7 @@ PostFeed.defaultProps = {
   isCommentSection: false,
   isSinglePost: false,
   commentsData: [],
-  removeComment: undefined,
+  removeCommentAsync: undefined,
   setCommentID: undefined,
   setCommentReplyID: undefined,
   commentID: '',

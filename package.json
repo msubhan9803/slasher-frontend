@@ -1,14 +1,15 @@
 {
   "name": "slasher-web-frontend",
-  "version": "0.9.0",
+  "version": "4.6.4-rc.1",
+  "capacitorAppBuildNumber": 191,
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
-    "@capacitor/android": "^5.2.2",
+    "@capacitor/android": "^5.2.3",
     "@capacitor/app": "^5.0.6",
-    "@capacitor/core": "^5.2.2",
+    "@capacitor/core": "^5.2.3",
     "@capacitor/device": "^5.0.6",
-    "@capacitor/ios": "^5.2.2",
+    "@capacitor/ios": "^5.2.3",
     "@capacitor/keyboard": "^5.0.6",
     "@capacitor/preferences": "^5.0.6",
     "@capacitor/push-notifications": "^5.0.6",
@@ -80,7 +81,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "build": "CI=false react-scripts build",
+    "build": "CI=false react-scripts build && npm run sync-version-and-build-number",
+    "sync-version-and-build-number": "node ./scripts/sync-version-and-build-number.js",
     "analyze": "npm run build && source-map-explorer 'build/static/js/*.js'",
     "eject": "react-scripts eject",
     "lint": "eslint \"{src,e2e}/**/*.{ts,js,tsx, jsx}\" --max-warnings=0",
@@ -129,7 +131,7 @@
   },
   "devDependencies": {
     "@capacitor/assets": "^2.0.4",
-    "@capacitor/cli": "^5.2.2",
+    "@capacitor/cli": "^5.2.3",
     "@playwright/test": "^1.21.1",
     "@storybook/addon-actions": "^6.5.13",
     "@storybook/addon-essentials": "^6.5.13",

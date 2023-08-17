@@ -58,7 +58,7 @@ function RegistrationTerms({ activeStep }: Props) {
         reCaptchaToken!,
       );
 
-      setProgressButtonStatus('success');
+      setProgressButtonStatus('default');
       setErrorMessages([]);
       navigate('/app/registration/final');
     } catch (error: any) {

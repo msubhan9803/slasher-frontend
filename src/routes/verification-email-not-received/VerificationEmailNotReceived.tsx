@@ -19,7 +19,7 @@ function VerificationEmailNotReceived() {
     verificationEmailNotReceived(
       email,
     ).then(() => {
-      setProgressButtonStatus('success');
+      setProgressButtonStatus('default');
       setSuccessMessage(
         `If a user with email address ${email} has registered for Slasher and the account has not been activated, a verification email will be re-sent.`,
       );

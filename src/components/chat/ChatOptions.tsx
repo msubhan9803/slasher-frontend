@@ -25,7 +25,7 @@ function ChatOptions({ userData }: any) {
       reportType: 'profile',
     };
     reportData(reportPayload).then(() => {
-      setProgressButtonStatus('success');
+      setProgressButtonStatus('default');
     })
       /* eslint-disable no-console */
       .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
@@ -36,7 +36,7 @@ function ChatOptions({ userData }: any) {
     setProgressButtonStatus('loading');
     createBlockUser(userData._id)
       .then(() => {
-        setProgressButtonStatus('success');
+        setProgressButtonStatus('default');
         setDropDownValue('BlockUserSuccess');
       })
       /* eslint-disable no-console */

@@ -96,7 +96,7 @@ function RegistrationSecurity({ activeStep }: Props) {
       setProgressButtonStatus('failure');
       setErrorMessages(errorList);
     } else {
-      setProgressButtonStatus('success');
+      setProgressButtonStatus('default');
       navigate('/app/registration/terms');
     }
   };

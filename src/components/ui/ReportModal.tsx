@@ -13,18 +13,18 @@ interface Props {
   show: boolean;
   setShow: (value: boolean) => void;
   slectedDropdownValue: string;
-  onConfirmClick?: () => void | undefined;
+  onConfirmClickAsync?: () => any;
   onBlockYesClick?: () => void | undefined;
   handleReport?: (value: string,) => void;
-  removeComment?: () => void;
+  removeCommentAsync?: () => Promise<void>;
   rssfeedProviderId?: string;
   afterBlockUser?: () => void;
   setDropDownValue?: (value: string) => void;
   ProgressButton?: ProgressButtonComponentType;
 }
 function ReportModal({
-  show, setShow, slectedDropdownValue, onConfirmClick, onBlockYesClick,
-  handleReport, removeComment, rssfeedProviderId,
+  show, setShow, slectedDropdownValue, onConfirmClickAsync, onBlockYesClick,
+  handleReport, removeCommentAsync, rssfeedProviderId,
   afterBlockUser, setDropDownValue, ProgressButton,
 }: Props) {
   const [reports, setReports] = useState<string>('');
@@ -45,10 +45,14 @@ function ReportModal({
     setOtherReport('');
     setChecked(false);
   };
-  const removeData = () => {
-    if (removeComment) { removeComment(); }
-    if (onConfirmClick) { onConfirmClick(); }
-    closeModal();
+  const handleDelete = async () => {
+    try {
+      if (removeCommentAsync) { await removeCommentAsync(); }
+      if (onConfirmClickAsync) { await onConfirmClickAsync(); }
+    } catch (error: any) {
+      // eslint-disable-next-line no-console
+      console.error(`Error name: ${error.name}, message: ${error.message}`);
+    } finally { closeModal(); }
   };
 
   const reportChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,8 +96,9 @@ function ReportModal({
         slectedDropdownValue === 'Delete' || slectedDropdownValue === 'Delete Review')
         && (
           <ModalBodyForDelete
-            onConfirm={removeData}
+            onConfirm={handleDelete}
             onCancel={closeModal}
+            ProgressButton={ProgressButton}
           />
         )}
       {
@@ -141,8 +146,9 @@ function ReportModal({
       {
         slectedDropdownValue === 'Remove friend' && (
           <ModalBodyForRemoveFriend
-            onConfirm={onConfirmClick}
+            onConfirm={onConfirmClickAsync as any}
             onCancel={closeModal}
+            ProgressButton={ProgressButton}
           />
         )
       }
@@ -150,10 +156,10 @@ function ReportModal({
   );
 }
 ReportModal.defaultProps = {
-  onConfirmClick: undefined,
+  onConfirmClickAsync: undefined,
   onBlockYesClick: undefined,
   handleReport: undefined,
-  removeComment: undefined,
+  removeCommentAsync: undefined,
   rssfeedProviderId: undefined,
   afterBlockUser: undefined,
   setDropDownValue: undefined,

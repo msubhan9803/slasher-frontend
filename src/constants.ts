@@ -56,3 +56,6 @@ export const maxWidthForCommentOrReplyInputOnMobile: number = BREAK_POINTS.lg - 
 export const bottomForCommentOrReplyInputOnMobile = '77px';
 
 export const isDevelopmentServer = process.env.NODE_ENV === 'development';
+
+export const envValueForPubWiseAndGoogleAnalytics = window.location.host === 'staging.slasher.tv' ? 'dev' : 'prod';
+export const osValueForPubWiseAndGoogleAnalytics = Capacitor.getPlatform(); // android | web | ios

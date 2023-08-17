@@ -24,7 +24,6 @@ import EditPostModal from '../../../components/ui/post/EditPostModal';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
 import { deletedPostsCache, setPageStateCache } from '../../../pageStateCache';
 import useProgressButton from '../../../components/ui/ProgressButton';
-import { sleep } from '../../../utils/timer-utils';
 import FriendshipStatusModal from '../../../components/ui/friendShipCheckModal';
 import { friendship } from '../../../api/friends';
 import { getProfileSubroutesCache } from '../profileSubRoutesCacheUtils';

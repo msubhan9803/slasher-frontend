@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import useScript from './useScript';
 import { useAppDispatch } from '../redux/hooks';
 import { setIsGoogleAnalyticsReady } from '../redux/slices/googleAnalyticsSlice';
+import { getAppVersion } from '../utils/version-utils';
 
 declare global {
   interface Window {
@@ -27,7 +28,12 @@ const useGoogleAnalytics = (analyticsId?: string) => {
   const DISABLE_HOOK = typeof analyticsId === 'undefined';
 
   useEffect(() => {
-    if (isLoaded) { dispatch(setIsGoogleAnalyticsReady()); }
+    if (isLoaded) {
+      dispatch(setIsGoogleAnalyticsReady());
+      gtag('set', 'user_properties', {
+        slasher_app_version: getAppVersion(),
+      });
+    }
   }, [dispatch, isLoaded]);
 
   useEffect(() => {

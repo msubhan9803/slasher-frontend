@@ -57,5 +57,7 @@ export const bottomForCommentOrReplyInputOnMobile = '77px';
 
 export const isDevelopmentServer = process.env.NODE_ENV === 'development';
 
-export const envValueForPubWiseAndGoogleAnalytics = window.location.host === 'staging.slasher.tv' ? 'dev' : 'prod';
+export const isBrowser = typeof window !== 'undefined';
+// eslint-disable-next-line no-nested-ternary
+export const envValueForPubWiseAndGoogleAnalytics = isBrowser ? (window.location.host === 'staging.slasher.tv' ? 'dev' : 'prod') : 'dev';
 export const osValueForPubWiseAndGoogleAnalytics = Capacitor.getPlatform(); // android | web | ios

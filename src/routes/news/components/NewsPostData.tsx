@@ -14,6 +14,7 @@ import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
 import {
   getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../../pageStateCache';
+import useProgressButton from '../../../components/ui/ProgressButton';
 
 interface Props {
   partnerId: string;
@@ -28,6 +29,7 @@ function NewsPostData({ partnerId }: Props) {
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const dispatch = useAppDispatch();
   const location = useLocation();
   const newsPostsCache = getPageStateCache<NewsPartnerAndPostsCache>(location)?.newsPosts ?? [];
@@ -155,17 +157,20 @@ function NewsPostData({ partnerId }: Props) {
   };
 
   const reportNewsPost = (reason: string) => {
+    setProgressButtonStatus('loading');
     const reportPayload = {
       targetId: popoverClick?.id,
       reason,
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res.status === 200) { callLatestFeedPost(); }
+      if (res) { callLatestFeedPost(); setProgressButtonStatus('default'); }
       setShow(false);
     })
       /* eslint-disable no-console */
-      .catch((error) => console.error(error));
+      .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
+
+    setDropDownValue('PostReportSuccessDialog');
   };
 
   const persistScrollPosition = () => {
@@ -204,6 +209,8 @@ function NewsPostData({ partnerId }: Props) {
         setShow={setShow}
         slectedDropdownValue={dropDownValue}
         handleReport={reportNewsPost}
+        rssfeedProviderId={postData[0]?.id}
+        ProgressButton={ProgressButton}
       />
     </>
   );

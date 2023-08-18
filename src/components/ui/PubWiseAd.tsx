@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useAppSelector } from '../../redux/hooks';
 import { enableADs } from '../../constants';
 import SlasherDisableAdblocker from '../../images/slasher-disable-adblocker.jpg';
+import { sendAdUnitEventToGoogleAnalytics } from '../../utils/google-analytics-utils';
 
 declare global {
   interface Window {
@@ -10,6 +11,7 @@ declare global {
     googletag: any;
     gptadslots: any;
     slasherAds: any;
+    gtag: any;
   }
 }
 interface PubWiseAdTypes {
@@ -106,10 +108,15 @@ export default function PubWiseAd({ id, style, className, autoSequencer }: PubWi
   useEffect(() => {
     if (isFirstLoadRef.current) {
       isFirstLoadRef.current = false;
+
       // Disable loading ad and show a placeholder ad instead for development server
       if (!enableADs) {
         return;
       }
+
+      // Only send google analytics events when ads are enabled
+      sendAdUnitEventToGoogleAnalytics(id);
+
       if (autoSequencer) {
         if (!window.slasherAds) {
           window.slasherAds = {};

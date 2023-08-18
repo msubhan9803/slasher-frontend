@@ -67,7 +67,7 @@ function LikeUsers({
         <div className="pb-4 pt-1 ps-1 py-3 d-flex align-items-center justify-content-between" key={likeUser._id}>
           <Link
             onClick={() => { onSelect?.(); setShow(false); setTimeout(() => scrollToTop('instant'), 500); }}
-            to={`/${likeUser.userName}/posts`}
+            to={`/${likeUser.userName}`}
             className="text-decoration-none rounded"
           >
             <div className="d-flex align-items-center">

@@ -123,6 +123,7 @@ export interface MessagesList {
   latestMessage: string;
   updatedAt: string;
   participants: UserMesssage[]
+  lastMessageSentAt: string;
 }
 
 export interface Message {
@@ -206,6 +207,10 @@ export enum NotificationType {
   UserCommentedOnYourPost = 15,
   UserMentionedYouInPost = 99,
   UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost = 101,
+  UserMentionedYouInAComment = 201,
+  UserMentionedYouInACommentReply = 202,
+  UserLikedYourReply = 203,
+  UserRepliedOnYourPost = 204,
   UserMentionedYouInACommentOnANewsPost = 121,
   UserLikedYourCommentOnANewsPost = 122,
   NewPostFromFollowedRssFeedProvider = 125,
@@ -376,6 +381,7 @@ export interface ConversationListItem {
   userName: string;
   profilePic: string;
   updatedAt: string;
+  lastMessageSentAt: string;
 }
 
 export enum CommentsOrder { oldestFirst = 'oldestFirst', newestFirst = 'newestFirst' }

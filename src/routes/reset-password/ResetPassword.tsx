@@ -28,7 +28,7 @@ function ResetPassword() {
       newPassword,
       newPasswordConfirmation,
     ).then(() => {
-      setProgressButtonStatus('success');
+      setProgressButtonStatus('default');
       navigate('/app/password-reset-success');
     }).catch((requestError: any) => {
       setProgressButtonStatus('failure');

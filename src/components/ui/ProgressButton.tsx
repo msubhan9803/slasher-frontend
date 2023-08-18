@@ -4,7 +4,7 @@ import React, { ReactElement, useEffect, useState } from 'react';
 import { ButtonProps, Spinner } from 'react-bootstrap';
 import RoundButton from './RoundButton';
 
-type ProgressButtonStatus = 'default' | 'loading' | 'success' | 'failure';
+type ProgressButtonStatus = 'default' | 'loading' | 'failure';
 
 // eslint-disable-next-line max-len
 export type ProgressButtonComponentType = ({ label, className, onClick }: Props) => ReactElement<any>;
@@ -24,7 +24,7 @@ const useProgressButton = (): [ProgressButtonComponentType, SetProgressFunction]
   const [progress, setProgress] = useState<ProgressButtonStatus>('default');
 
   useEffect(() => {
-    if (progress === 'loading' || progress === 'default') { return () => { }; }
+    if (progress !== 'failure') { return undefined; }
 
     const restoreDefaultStatusTimeout = setTimeout(() => {
       setProgress('default');
@@ -48,7 +48,6 @@ const useProgressButton = (): [ProgressButtonComponentType, SetProgressFunction]
         >
           {progress === 'default' && label}
           {progress === 'loading' && <Spinner size="sm" animation="border" role="status" />}
-          {progress === 'success' && <FontAwesomeIcon icon={solid('check')} size="1x" style={{ paddingTop: 3 }} />}
           {progress === 'failure' && <FontAwesomeIcon icon={solid('x')} size="1x" style={{ paddingTop: 3 }} />}
         </RoundButton>
       );

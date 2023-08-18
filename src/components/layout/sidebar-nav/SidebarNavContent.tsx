@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Nav } from 'react-bootstrap';
-import { App } from '@capacitor/app';
 import SidebarNavItem from './SidebarNavItem';
 import {
   enableDevFeatures, GOOGLE_PLAY_DOWNLOAD_URL, APP_STORE_DOWNLOAD_URL, WORDPRESS_SITE_URL,
-  isNativePlatform,
 } from '../../../constants';
 import RoundButtonLink from '../../ui/RoundButtonLink';
+import { getAppVersion } from '../../../utils/version-utils';
 
 const MAX_ALLOWED_COMING_SOON_ITEMS_IN_MENU = 1;
 
@@ -90,33 +89,8 @@ for (let i = 0; i < numberOfComingSoonItemsToShow; i += 1) {
 menuListItems = menuListItems.concat(bottomMenuListItems);
 
 function SidebarNavContent({ onToggleCanvas }: Props) {
-  const [buildNumber, setBuildNumber] = useState<string>();
-  const [versionNumber, setVersionNumber] = useState<string>();
-
-  const getAppVersion = async () => {
-    setVersionNumber((await App.getInfo()).version);
-    setBuildNumber((await App.getInfo()).build);
-  };
-
-  useEffect(() => {
-    getAppVersion();
-  }, []);
-
   return (
-    <Nav>
-      {menuListItems.map((menuItem) => (
-        <SidebarNavItem
-          id={menuItem.id}
-          key={menuItem.id}
-          label={menuItem.label}
-          icon={menuItem.icon}
-          iconColor={menuItem.iconColor}
-          to={menuItem.to}
-          className={menuItem.desktopOnly ? 'd-none d-lg-flex' : ''}
-          comingSoon={menuItem.comingSoon || false}
-          onToggleCanvas={menuItem.comingSoon ? undefined : onToggleCanvas}
-        />
-      ))}
+    <>
       <RoundButtonLink
         usePlainAnchorTag
         to="mailto:help@slasher.tv?subject=Slasher%20Bug%20Report"
@@ -126,8 +100,22 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
       >
         Report a bug
       </RoundButtonLink>
-      <ul className="list-inline mt-4 link-hover-underline fs-6">
-        {
+      <Nav>
+        {menuListItems.map((menuItem) => (
+          <SidebarNavItem
+            id={menuItem.id}
+            key={menuItem.id}
+            label={menuItem.label}
+            icon={menuItem.icon}
+            iconColor={menuItem.iconColor}
+            to={menuItem.to}
+            className={menuItem.desktopOnly ? 'd-none d-lg-flex' : ''}
+            comingSoon={menuItem.comingSoon || false}
+            onToggleCanvas={menuItem.comingSoon ? undefined : onToggleCanvas}
+          />
+        ))}
+        <ul className="list-inline mt-4 link-hover-underline fs-6">
+          {
             enableDevFeatures
             && (
               <>
@@ -136,29 +124,23 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
               </>
             )
           }
-        <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/advertise`} target="_blank" rel="noreferrer">Advertise on Slasher</a></li>
-        <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/policies`} target="_blank" rel="noreferrer">Terms &amp; Policies</a></li>
-        <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/about`} target="_blank" rel="noreferrer">About</a></li>
-        <li className="text-light text-decoration-none">
-          &copy;
-          {' '}
-          {new Date().getFullYear()}
-          {' '}
-          Slasher Corp
-        </li>
-        {isNativePlatform && (
-          <li className="mt-4 text-light text-decoration-none">
-            v
-            {versionNumber}
+          <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/advertise`} target="_blank" rel="noreferrer">Advertise on Slasher</a></li>
+          <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/policies`} target="_blank" rel="noreferrer">Terms &amp; Policies</a></li>
+          <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/about`} target="_blank" rel="noreferrer">About</a></li>
+          <li className="mb-4 text-light text-decoration-none">
+            &copy;
             {' '}
-            (
-            {buildNumber}
-            )
+            {new Date().getFullYear()}
+            {' '}
+            Slasher Corp
           </li>
-        )}
-      </ul>
-      <br />
-    </Nav>
+          <li className="text-light text-decoration-none">
+            {`${getAppVersion()}`}
+          </li>
+        </ul>
+        <br />
+      </Nav>
+    </>
   );
 }
 SidebarNavContent.defaultProps = {

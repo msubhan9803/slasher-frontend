@@ -40,9 +40,9 @@ const StyledMention = styled(Mentions) <SytledMentionProps>`
   border-top-right-radius: 0.875rem !important;
   border-top-left-radius: 0.875rem !important;
   padding: 0;
-  
+
   `)}
-  
+
   textarea {
     border-radius: 0.875rem !important;
     cursor: auto;
@@ -62,24 +62,28 @@ const StyledMention = styled(Mentions) <SytledMentionProps>`
 
     ${(props) => (props.iscommentinput && !isNativePlatform && 'margin-left :0.875rem')}
   }
-  ${(props) => (props.iscommentinput
-    ? `&.form-control{
-        overflow: unset !important;
-        border: 1px solid #3A3B46 !important;
-        border-radius: 1.875rem !important;
-        border-bottom-right-radius: 0rem !important;
-        border-top-right-radius: 0rem !important;
-        border-right: 0 !important;
-        textarea {
-          background: transparent !important;
-          border: none !important;
-          box-shadow: none !important;
-        }
-      }
-    `
-    : '')
-}
+
+  ${(props) => (
+    props.iscommentinput
+      ? ` &.form-control {
+            overflow: unset !important;
+            border: 1px solid #3A3B46 !important;
+            border-radius: 1.875rem !important;
+            border-bottom-right-radius: 0rem !important;
+            border-top-right-radius: 0rem !important;
+            border-right: 0 !important;
+            textarea {
+              background: transparent !important;
+              border: none !important;
+              box-shadow: none !important;
+            }
+          }
+        `
+      : ''
+  )
+  // eslint-disable-next-line @typescript-eslint/indent
   }
+}
 `;
 
 const StyledEmoji = styled(Button)`
@@ -88,11 +92,11 @@ const StyledEmoji = styled(Button)`
   ${(props) => (props.createpost
     ? `
     left: 0.75rem;
-    bottom: 7%; 
+    bottom: 7%;
     `
-    : `  
+    : `
     left: 0.438rem;
-    bottom: 30%; 
+    bottom: 30%;
     `)}
 `;
 
@@ -103,14 +107,15 @@ const EmojiPicker = styled.div<PickerProp>`
 `;
 
 const StyledEmojiButton = styled.div<EmojiButtonProps>`
-${(props) => !props.iscommentinput
+  ${(props) => !props.iscommentinput
     && `background-color: black;
-  border-bottom-radius: 1.875rem !important;
-  border-bottom-right-radius: 0.875rem !important;
-  border-bottom-left-radius: 0.875rem !important;
-  padding: 0.625rem;
-  margin-top: -0.438rem !important;`
-}
+    border-bottom-radius: 1.875rem !important;
+    border-bottom-right-radius: 0.875rem !important;
+    border-bottom-left-radius: 0.875rem !important;
+    padding: 0.625rem;
+    margin-top: -0.438rem !important;`
+  // eslint-disable-next-line @typescript-eslint/indent
+  }
 `;
 const StyledShadowWrapper = styled.div<StyledShadowWrapperProps>`
 width: 100%;
@@ -120,7 +125,7 @@ ${(props) => (!props.iscommentinput
       ? `
     box-shadow: 0 0 0 2px var(--stroke-and-line-separator-color) !important;
     `
-      : `  
+      : `
     box-shadow: none !important;
     `}`
   )}
@@ -141,6 +146,7 @@ interface MentionProps {
   placeholder?: string;
   isReply?: boolean;
   mentionLists: MentionListProps[];
+  messageContent?: string;
   setMessageContent: (val: any) => void;
   formatMentionList: FormatMentionListProps[];
   setFormatMentionList: (val: FormatMentionListProps[]) => void;
@@ -164,6 +170,7 @@ function MessageTextarea({
   isReply,
   mentionLists,
   handleSearch,
+  messageContent,
   setMessageContent,
   formatMentionList,
   setFormatMentionList,
@@ -224,9 +231,26 @@ function MessageTextarea({
     setShowPicker!(!showPicker);
   };
   const handleEmojiSelect = (emoji: any) => {
-    setSelectedEmoji([...selectedEmoji, emoji.native]);
-    setMessageContent!((prevMessage: string) => prevMessage + emoji.native);
+    const textarea = textareaRef.current?.textarea;
+
+    if (textarea) {
+      const startPos = textarea.selectionStart;
+      const endPos = textarea.selectionEnd;
+      const currentValue = messageContent || '';
+      const newValue = currentValue.substring(0, startPos)
+        + emoji.native
+        + currentValue.substring(endPos);
+      setSelectedEmoji([...selectedEmoji, emoji.native]);
+      setMessageContent!(newValue);
+      setTimeout(() => {
+        const newCursorPos = startPos + emoji.native.length;
+        textarea.selectionStart = newCursorPos;
+        textarea.selectionEnd = newCursorPos;
+        textarea.focus();
+      }, 0);
+    }
   };
+
   const closeEmojiPickerIfOpen = () => {
     if (showPicker) {
       setShowPicker!(false);
@@ -248,6 +272,7 @@ function MessageTextarea({
   };
   const changeEmojiPickerPosition: () => void = useCallback(() => {
     const textArea = document.getElementById(id!);
+    if (!textArea) { return; }
     const viewportOffset = textArea!.getBoundingClientRect();
     const { top } = viewportOffset;
     if (top > 350) {
@@ -341,6 +366,7 @@ MessageTextarea.defaultProps = {
   defaultValue: '',
   id: '',
   className: '',
+  messageContent: '',
   isCommentInput: undefined,
   onFocusHandler: undefined,
   onBlurHandler: undefined,

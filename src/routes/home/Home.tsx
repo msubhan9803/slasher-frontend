@@ -164,13 +164,7 @@ function Home() {
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
-      if (
-        !hasPageStateCache(location)
-        || posts.length >= pageStateCache.length
-        || posts.length === 0
-      ) {
-        fetchFeedPosts();
-      }
+      fetchFeedPosts();
     }
   }, [
     fetchFeedPosts, loadingPosts, location, pageStateCache.length,
@@ -244,8 +238,8 @@ function Home() {
     setProgressButtonStatus('loading');
     updateFeedPost(postId, message, images, imageDelete, null, descriptionArray)
       .then(async (res) => {
-        setProgressButtonStatus('success');
-        await sleep(1000);
+        setProgressButtonStatus('default');
+        await sleep(500);
         setShow(false);
         const updatePost = posts.map((post: any) => {
           if (post._id === postId) {
@@ -265,14 +259,19 @@ function Home() {
         setErrorMessage(msg);
       });
   };
-  const deletePostClick = () => {
-    deleteFeedPost(postId)
+  const deletePostClickAsync = async () => {
+    setProgressButtonStatus('loading');
+    setPosts((prevPosts) => prevPosts.filter(((post) => post._id !== postId)));
+    return deleteFeedPost(postId)
       .then(() => {
-        setShow(false);
-        callLatestFeedPost();
+        setProgressButtonStatus('default');
       })
-      // eslint-disable-next-line no-console
-      .catch((error) => console.error(error));
+      .catch(async (error) => {
+        // eslint-disable-next-line no-console
+        console.error(error);
+        setProgressButtonStatus('failure');
+        await sleep(500);
+      });
   };
 
   const checkFriendShipStatus = (selectedFeedPostUserId: string) => new Promise<void>(
@@ -355,31 +354,37 @@ function Home() {
   };
 
   const onBlockYesClick = () => {
+    setProgressButtonStatus('loading');
     createBlockUser(postUserId)
       .then(() => {
+        setProgressButtonStatus('default');
         setDropDownValue('BlockUserSuccess');
         setPosts((prev) => prev.filter(
           (scrollData: any) => scrollData.userId !== postUserId,
         ));
       })
-      // eslint-disable-next-line no-console
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        // eslint-disable-next-line no-console
+        console.error(error);
+        setProgressButtonStatus('failure');
+      });
   };
   const afterBlockUser = () => {
     setShow(false);
   };
 
   const reportHomePost = (reason: string) => {
+    setProgressButtonStatus('loading');
     const reportPayload = {
       targetId: postId,
       reason,
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res.status === 200) { callLatestFeedPost(); }
+      if (res) { callLatestFeedPost(); setProgressButtonStatus('default'); }
     })
       // eslint-disable-next-line no-console
-      .catch((error) => console.error(error));
+      .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
     // Ask to block user as well
     setDropDownValue('PostReportSuccessDialog');
   };
@@ -428,7 +433,7 @@ function Home() {
           ['Block user', 'Report', 'Delete', 'PostReportSuccessDialog', 'BlockUserSuccess'].includes(dropDownValue)
           && (
             <ReportModal
-              onConfirmClick={deletePostClick}
+              onConfirmClickAsync={deletePostClickAsync}
               show={show}
               setShow={setShow}
               slectedDropdownValue={dropDownValue}
@@ -436,6 +441,7 @@ function Home() {
               afterBlockUser={afterBlockUser}
               handleReport={reportHomePost}
               rssfeedProviderId={rssfeedProviderId}
+              ProgressButton={ProgressButton}
             />
           )
         }

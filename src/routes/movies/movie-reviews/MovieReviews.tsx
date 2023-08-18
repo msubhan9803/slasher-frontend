@@ -186,8 +186,7 @@ function MovieReviews({
     setProgressButtonStatus('loading');
     createPost(movieReviewPostData, '')
       .then(async () => {
-        setProgressButtonStatus('success');
-        await sleep(1000);
+        setProgressButtonStatus('default');
         setMovieData({
           ...movieData,
           userData: {
@@ -221,8 +220,7 @@ function MovieReviews({
       movieReviewPostData,
     )
       .then(async () => {
-        setProgressButtonStatus('success');
-        await sleep(1000);
+        setProgressButtonStatus('default');
         setMovieData({
           ...movieData,
           userData: {
@@ -328,35 +326,44 @@ function MovieReviews({
     </p>
   );
   const onBlockYesClick = () => {
+    setProgressButtonStatus('loading');
     createBlockUser(postUserId)
       .then(() => {
+        setProgressButtonStatus('default');
         setShow(false);
         setDropDownValue('BlockUserSuccess');
       })
       /* eslint-disable no-console */
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        // eslint-disable-next-line no-console
+        console.error(error);
+        setProgressButtonStatus('failure');
+      });
   };
   const reportReview = (reason: string) => {
+    setProgressButtonStatus('loading');
     const reportPayload = {
       targetId: postId,
       reason,
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res.status === 200) { callLatestFeedPost(); }
+      if (res) { callLatestFeedPost(); setProgressButtonStatus('default'); }
     })
       /* eslint-disable no-console */
-      .catch((error) => console.error(error));
+      .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
     // Ask to block user as well
     setDropDownValue('PostReportSuccessDialog');
   };
 
-  const deletePostClick = () => {
+  const deletePostClickAsync = () => {
+    setProgressButtonStatus('loading');
     if (deletePostId) {
-      deleteFeedPost(deletePostId)
-        .then(() => {
-          setShow(false);
+      return deleteFeedPost(deletePostId)
+        .then(async () => {
+          setProgressButtonStatus('default');
           callLatestFeedPost();
+          setShow(false);
           setRating(0);
           setGoreFactor(0);
           setPostContent('');
@@ -370,8 +377,13 @@ function MovieReviews({
           });
         })
         /* eslint-disable no-console */
-        .catch((error) => console.error(error));
+        .catch(async (error) => {
+          console.error(error);
+          setProgressButtonStatus('failure');
+          await sleep(500);
+        });
     }
+    return undefined;
   };
   const handleSpoiler = (currentPostId: string) => {
     const spoilerIdList = getLocalStorage('spoilersIds');
@@ -380,6 +392,10 @@ function MovieReviews({
       setLocalStorage('spoilersIds', JSON.stringify(spoilerIdList));
     }
     navigate(`/app/movies/${id}/reviews/${currentPostId}`);
+  };
+
+  const afterBlockUser = () => {
+    setShow(false);
   };
 
   const onLikeClick = async (feedPostId: string) => {
@@ -432,7 +448,7 @@ function MovieReviews({
               movieData={movieData}
               errorMessage={errorMessage}
               setPostMessageContent={setPostContent}
-              defaultValue={decryptMessage(postContent, true)}
+              defaultValue={decryptMessage(postContent, true, true)}
               formatMention={formatMention}
               setFormatMention={setFormatMention}
               postType="review"
@@ -493,12 +509,14 @@ function MovieReviews({
         (['Delete Review', 'Block user', 'Report', 'PostReportSuccessDialog'].includes(dropDownValue))
         && (
           <ReportModal
-            onConfirmClick={deletePostClick}
+            onConfirmClickAsync={deletePostClickAsync}
             show={show}
             setShow={setShow}
             slectedDropdownValue={dropDownValue}
             onBlockYesClick={onBlockYesClick}
+            afterBlockUser={afterBlockUser}
             handleReport={reportReview}
+            ProgressButton={ProgressButton}
           />
         )
       }

@@ -1,11 +1,10 @@
 /* eslint-disable no-alert */
 /* eslint-disable max-lines */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Route, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
 import { App as CapacitorApp } from '@capacitor/app';
-import { Capacitor } from '@capacitor/core';
 import { StatusBar } from '@capacitor/status-bar';
 import { Keyboard } from '@capacitor/keyboard';
 import VerificationEmailNotReceived from './routes/verification-email-not-received/VerificationEmailNotReceived';
@@ -56,6 +55,8 @@ import { store } from './redux/store';
 import { setIsServerAvailable } from './redux/slices/serverAvailableSlice';
 import { isHomePage } from './utils/url-utils';
 import CapacitorAppListeners from './components/CapacitorAppListeners';
+import DebugGoogleAnalytics from './routes/debug-google-analytics';
+import { detectAppVersion } from './utils/version-utils';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -114,15 +115,8 @@ if (enableDevFeatures) {
   // routes['books/*'] = { wrapper: AuthenticatedPageWrapper, component: Books };
   // routes['shopping/*'] = { wrapper: AuthenticatedPageWrapper, component: Shopping };
   // routes['places/*'] = { wrapper: AuthenticatedPageWrapper, component: Places };
+  routes['app/debug-google-analytics'] = { wrapper: UnauthenticatedPageWrapper, component: DebugGoogleAnalytics };
 }
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-Keyboard.addListener('keyboardWillShow', (info) => {
-  onKeyboardOpen();
-});
-Keyboard.addListener('keyboardWillHide', () => {
-  onKeyboardClose();
-});
 
 CapacitorApp.addListener('backButton', () => {
   if (isHomePage(window.location.pathname)) {
@@ -132,12 +126,6 @@ CapacitorApp.addListener('backButton', () => {
   }
 });
 
-// Display content under transparent status bar (Android only)
-if (Capacitor.isNativePlatform()) {
-  StatusBar.setOverlaysWebView({ overlay: false });
-  StatusBar.setBackgroundColor({ color: topStatuBarBackgroundColorAndroidOnly });
-}
-
 if (isNativePlatform) {
   const SERVER_UNAVAILABILITY_CHECK_DELAY = 3_000;
   setTimeout(() => {
@@ -145,11 +133,33 @@ if (isNativePlatform) {
       store.dispatch(setIsServerAvailable(false));
     });
   }, SERVER_UNAVAILABILITY_CHECK_DELAY);
+
+  // Display content under transparent status bar (Android only)
+  StatusBar.setOverlaysWebView({ overlay: false });
+  StatusBar.setBackgroundColor({ color: topStatuBarBackgroundColorAndroidOnly });
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Keyboard.addListener('keyboardWillShow', (info) => {
+    onKeyboardOpen();
+  });
+  Keyboard.addListener('keyboardWillHide', () => {
+    onKeyboardClose();
+  });
 }
 
 function App() {
   usePubWiseAdSlots(enableADs);
+  const [appVersionDetected, setAppVersionDetected] = useState<boolean>(false);
   const isServerAvailable = useAppSelector((state) => state.serverAvailability.isAvailable);
+
+  useEffect(() => {
+    (async () => {
+      await detectAppVersion();
+      setAppVersionDetected(true);
+    })();
+  }, []);
+
+  if (!appVersionDetected) { return <div />; }
 
   const router = createBrowserRouter(
     createRoutesFromElements(

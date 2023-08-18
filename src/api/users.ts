@@ -2,10 +2,10 @@
 import axios from 'axios';
 import { Capacitor } from '@capacitor/core';
 import { Device } from '@capacitor/device';
-import { App } from '@capacitor/app';
 import { apiUrl } from '../constants';
 import { DeviceFields, RegisterUser } from '../types';
 import { getDeviceToken, getSessionToken, getSessionUserId } from '../utils/session-utils';
+import { getAppVersion } from '../utils/version-utils';
 
 export async function signIn(emailOrUsername: string, password: string, signal?: AbortSignal) {
   let deviceFields: DeviceFields;
@@ -16,7 +16,7 @@ export async function signIn(emailOrUsername: string, password: string, signal?:
       device_id: deviceId.identifier,
       device_token: (await getDeviceToken())!,
       device_type: deviceInfo.platform,
-      app_version: `${deviceInfo.platform}-capacitor-${(await App.getInfo()).version}(${(await App.getInfo()).build})`,
+      app_version: getAppVersion(),
       device_version: `${deviceInfo.manufacturer} ${deviceInfo.model} ${deviceInfo.operatingSystem} ${deviceInfo.osVersion}, Name: ${deviceInfo.name}`,
     };
   } else {
@@ -24,7 +24,7 @@ export async function signIn(emailOrUsername: string, password: string, signal?:
       device_id: 'browser',
       device_token: 'browser',
       device_type: 'browser',
-      app_version: `web-${process.env.REACT_APP_VERSION}`,
+      app_version: getAppVersion(),
       device_version: window.navigator.userAgent,
     };
   }
@@ -287,7 +287,7 @@ export async function userAccountDelete() {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.delete(`${apiUrl}/api/v1/users/delete-account?userId=${userId}`, { headers });
+  return axios.delete(`${apiUrl}/api/v1/users/${userId}?confirmUserId=${userId}`, { headers });
 }
 
 export async function updateUserAbout(

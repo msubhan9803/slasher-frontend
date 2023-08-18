@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { createBlockUser } from '../../api/blocks';
 import { reportData } from '../../api/report';
 import CustomPopover, { PopoverClickProps } from '../ui/CustomPopover';
 import ChatOptionDialog from './ChatOptionDialog';
+import useProgressButton from '../ui/ProgressButton';
 
 function ChatOptions({ userData }: any) {
   const [show, setShow] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const popoverOption = ['Delete', 'Block user', 'Report'];
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
-  const navigate = useNavigate();
-
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     setShow(true);
     setDropDownValue(value);
@@ -19,25 +18,29 @@ function ChatOptions({ userData }: any) {
   };
 
   const reportChatUser = (reason: string) => {
+    setProgressButtonStatus('loading');
     const reportPayload = {
       targetId: popoverClick?.id,
       reason,
       reportType: 'profile',
     };
-    reportData(reportPayload)
+    reportData(reportPayload).then(() => {
+      setProgressButtonStatus('default');
+    })
       /* eslint-disable no-console */
-      .catch((error) => console.error(error));
+      .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
     // Ask to block user as well
     setDropDownValue('PostReportSuccessDialog');
   };
   const onBlockYesClick = () => {
+    setProgressButtonStatus('loading');
     createBlockUser(userData._id)
       .then(() => {
-        setShow(false);
-        navigate('/app/home');
+        setProgressButtonStatus('default');
+        setDropDownValue('BlockUserSuccess');
       })
       /* eslint-disable no-console */
-      .catch((error) => console.error(error));
+      .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
   };
   return (
     <>
@@ -52,6 +55,7 @@ function ChatOptions({ userData }: any) {
         slectedDropdownValue={dropDownValue}
         handleReport={reportChatUser}
         onBlockYesClick={onBlockYesClick}
+        ProgressButton={ProgressButton}
       />
     </>
 

@@ -6,6 +6,7 @@ export const userSlice = createSlice({
   initialState: {
     recentFriendRequests: [],
     unreadNotificationCount: 0,
+    friendRequestCount: 0,
     unreadMessageCount: 0,
     recentMessages: [] as Array<MessagesList>,
     newConversationIdsCount: 0,
@@ -25,6 +26,7 @@ export const userSlice = createSlice({
       ...state,
       recentFriendRequests: action.payload.recentFriendRequests,
       unreadNotificationCount: action.payload.unreadNotificationCount,
+      friendRequestCount: action.payload.friendRequestCount,
       unreadMessageCount: action.payload.unreadMessageCount,
       recentMessages: action.payload.recentMessages,
       user: action.payload.user,
@@ -95,14 +97,12 @@ export const userSlice = createSlice({
     incrementUnreadNotificationCount: (state) => {
       state.user.newNotificationCount += 1;
     },
-    incrementFriendRequestCount: (state) => {
-      state.user.newFriendRequestCount += 1;
+    incrementFriendRequestCount: (state, payload) => {
+      state.friendRequestCount = payload.payload.pendingFriendRequestCount;
+      state.recentFriendRequests = payload.payload.recentFriendRequests;
     },
     resetUnreadNotificationCount: (state) => {
       state.user.newNotificationCount = 0;
-    },
-    resetNewFriendRequestCountCount: (state) => {
-      state.user.newFriendRequestCount = 0;
     },
     resetUnreadConversationCount: (state) => {
       state.newConversationIdsCount = 0;
@@ -146,7 +146,6 @@ export const {
   incrementUnreadNotificationCount,
   resetUnreadConversationCount,
   resetUnreadNotificationCount,
-  resetNewFriendRequestCountCount,
   handleUpdatedUnreadConversationCount,
   updateUserProfilePic,
   updateUserUserName,

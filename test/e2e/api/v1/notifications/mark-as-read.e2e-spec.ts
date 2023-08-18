@@ -131,7 +131,6 @@ describe('Patch Notifications Mark As Read(e2e)', () => {
     describe('Validation', () => {
       it('id must be a mongodb id', async () => {
         const notificationId = 'not-a-mongo-id';
-        // const notificationId = 'nope';
         const response = await request(app.getHttpServer())
           .patch(`/api/v1/notifications/${notificationId}/mark-as-read`)
           .auth(activeUserAuthToken, { type: 'bearer' })

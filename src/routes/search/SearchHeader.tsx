@@ -105,7 +105,7 @@ function SearchHeader({
                       <Button aria-label="notification bell" size="sm" className="p-0" variant="link" onClick={onOffNotificationClick}>
                         <FontAwesomeIcon size="lg" className={`${notificationToggle ? 'text-success' : 'text-primary'} `} icon={notificationToggle ? regular('bell') : regular('bell-slash')} />
                       </Button>
-                      <p className="fs-6 text-center  toggle  mb-0">{notificationToggle ? 'On' : 'Off'}</p>
+                      <p className="fs-6 text-center toggle mt-1 mb-0">{notificationToggle ? 'On' : 'Off'}</p>
                     </div>
                   </div>
                 )}

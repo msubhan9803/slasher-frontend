@@ -4,6 +4,7 @@ import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, Col, Row } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
+import styled from 'styled-components';
 import BorderButton from '../../../../components/ui/BorderButton';
 import { StyledBorder } from '../../../../components/ui/StyledBorder';
 import { StyledHastagsCircle } from '../../../search/component/Hashtags';
@@ -11,6 +12,7 @@ import FollowingHeader from '../FollowingHeader';
 import { followHashtag, getFollowedHashtags, unfollowHashtag } from '../../../../api/users';
 import { useAppSelector } from '../../../../redux/hooks';
 import LoadingIndicator from '../../../../components/ui/LoadingIndicator';
+import { MD_MEDIA_BREAKPOINT } from '../../../../constants';
 
 // const CustomHashTagButton = styled(HashtagButton)`
 //   background-color: #383838;
@@ -24,7 +26,23 @@ interface FollowHashtagProps {
   totalPost: number,
   followed: boolean,
 }
-
+const StyledButtonIcon = styled.div`  
+  min-height:2.356rem;
+  .main {
+    width:25.8px;
+  }
+  .toggle {
+    line-height: 0.625;
+  }
+  .res-div {
+    width : 100%;
+  }
+  @media (min-width: ${MD_MEDIA_BREAKPOINT}) {
+    .res-div {
+      width : auto;
+    }
+  }
+`;
 // const hashTags = [
 //   { title: 'Trending',
 // tags: ['onlinebusiness', 'slasher', 'follow4follow', 'slashershop', 'follow4follow'] },
@@ -224,11 +242,16 @@ function FollowingHashtags() {
                       </span>
                     </Col>
                     <Col sm={5} md={4} lg={5} xl={4} className="mt-4 mt-sm-0">
-                      <div className="d-flex align-items-center justify-content-center justify-content-sm-end">
+                      <StyledButtonIcon className="d-flex align-items-center justify-content-center justify-content-sm-end">
                         {hashtag.followed && (
-                          <Button aria-label="notificatio bell" size="sm" className="me-2 pe-2" variant="link" onClick={() => onOffNotificationClick(hashtag)}>
-                            <FontAwesomeIcon size="lg" className={`${hashtag.notification ? 'me-1 text-success' : 'me-0 text-primary'} `} icon={hashtag.notification ? regular('bell') : regular('bell-slash')} />
-                          </Button>
+                          <div className="main me-3">
+                            <div className="text-center text-md-start d-flex flex-wrap justify-content-center align-items-center align-items-md-start">
+                              <Button aria-label="notification bell" size="sm" className="p-0" variant="link" onClick={() => onOffNotificationClick(hashtag)}>
+                                <FontAwesomeIcon size="lg" className={`${hashtag.notification ? 'text-success' : 'text-primary'} `} icon={hashtag.notification ? regular('bell') : regular('bell-slash')} />
+                              </Button>
+                              <p className="fs-6 text-center toggle mt-1 mb-0">{hashtag.notification ? 'On' : 'Off'}</p>
+                            </div>
+                          </div>
                         )}
                         <BorderButton
                           buttonClass={'hashtag.followed? \'text-white\' : \'text-black\'} py-2 w-100'}
@@ -237,7 +260,7 @@ function FollowingHashtags() {
                           handleClick={() => followUnfollowClick(hashtag)}
                           toggleButton
                         />
-                      </div>
+                      </StyledButtonIcon>
                     </Col>
                   </Row>
                   {(index !== (followedHashtag.length - 1)) && <StyledBorder />}

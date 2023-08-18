@@ -11,8 +11,9 @@ import CopyLinkIcon from '../../images/share-links-modal-copy-links.png';
 import FacebookIcon from '../../images/share-links-modal-facebook.png';
 import InstagramIcon from '../../images/share-links-modal-instagram.png';
 import TwitterIcon from '../../images/share-links-modal-twitter.png';
-import { MD_MEDIA_BREAKPOINT, enableDevFeatures, isNativePlatform } from '../../constants';
+import { MD_MEDIA_BREAKPOINT, isNativePlatform } from '../../constants';
 import { isMovieDetailsPageSubRoutes } from '../../utils/url-utils';
+import { enableDevFeatures } from '../../env';
 
 const FRONTEND_URL = isNativePlatform
   ? 'https://slasher.tv'

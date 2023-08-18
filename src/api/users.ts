@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { Capacitor } from '@capacitor/core';
 import { Device } from '@capacitor/device';
-import { apiUrl } from '../constants';
+import { apiUrl } from '../env';
 import { DeviceFields, RegisterUser } from '../types';
 import { getDeviceToken, getSessionToken, getSessionUserId } from '../utils/session-utils';
 import { getAppVersion } from '../utils/version-utils';

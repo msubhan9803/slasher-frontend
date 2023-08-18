@@ -5,9 +5,10 @@ import { Link } from 'react-router-dom';
 import UnauthenticatedPageFooter from './UnauthenticatedPageFooter';
 import signInImage from '../../../../images/sign-in-background-desktop.jpg';
 import HeaderLogo from '../../../ui/HeaderLogo';
-import { LG_MEDIA_BREAKPOINT, analyticsId, MAIN_CONTENT_ID } from '../../../../constants';
+import { LG_MEDIA_BREAKPOINT, MAIN_CONTENT_ID } from '../../../../constants';
 import useGoogleAnalytics from '../../../../hooks/useGoogleAnalytics';
 import SkipToMainContent from '../../sidebar-nav/SkipToMainContent';
+import { analyticsId } from '../../../../env';
 
 interface Props {
   hideTopLogo?: boolean,

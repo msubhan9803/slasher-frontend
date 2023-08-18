@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { apiUrl } from '../constants';
+import { apiUrl } from '../env';
 import { getSessionToken } from '../utils/session-utils';
 
 export default async function getEventDetails(eventId: string) {

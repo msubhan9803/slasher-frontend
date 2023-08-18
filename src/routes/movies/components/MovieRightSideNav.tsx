@@ -5,7 +5,7 @@ import FriendRequests from '../../../components/layout/right-sidebar-wrapper/com
 import NotificationSetting from '../../../components/layout/right-sidebar-wrapper/components/NotificationSetting';
 import RecentMessages from '../../../components/layout/right-sidebar-wrapper/components/RecentMessages';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
-import { enableDevFeatures } from '../../../constants';
+import { enableDevFeatures } from '../../../env';
 
 function MovieRightSideNav() {
   const params = useParams();

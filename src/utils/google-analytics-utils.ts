@@ -1,4 +1,5 @@
-import { analyticsId, envValueForPubWiseAndGoogleAnalytics, osValueForPubWiseAndGoogleAnalytics } from '../constants';
+import { envValueForPubWiseAndGoogleAnalytics, osValueForPubWiseAndGoogleAnalytics } from '../constants';
+import { analyticsId } from '../env';
 import { store } from '../redux/store';
 import { sleep } from './timer-utils';
 import { getAppVersion } from './version-utils';

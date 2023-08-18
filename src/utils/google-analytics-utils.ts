@@ -1,6 +1,7 @@
 import { analyticsId, envValueForPubWiseAndGoogleAnalytics, osValueForPubWiseAndGoogleAnalytics } from '../constants';
 import { store } from '../redux/store';
 import { sleep } from './timer-utils';
+import { getAppVersion } from './version-utils';
 
 export function gtag(...args: any): any;
 export function gtag(): any {
@@ -36,9 +37,10 @@ export const sendDebugTexttToGoogleAnalytics = (debugText: string) => {
   });
 };
 
-export const sendOsAndEnvEventToGoogleAnalytics = () => {
+export const sendUserPropertiesToGoogleAnalyticsOnPageLoad = () => {
   sendEventHelper(() => {
-    gtag('event', 'os_and_environment', {
+    gtag('set', 'user_properties', {
+      slasher_app_version: getAppVersion(),
       os: osValueForPubWiseAndGoogleAnalytics,
       env: envValueForPubWiseAndGoogleAnalytics,
     });

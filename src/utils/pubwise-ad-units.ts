@@ -43,8 +43,8 @@ export const MOVIE_INDIE = '/22756418014/Movie-detail_web';
 export const MOVIE_INDIE_DIV = 'Movie-detail_web';
 
 // 12
-export const MOVIE_FAVOURITE = '/22756418014/Movie-favorites_web';
-export const MOVIE_FAVOURITE_DIV = 'Movie-favorites_web';
+export const MOVIE_FAVORITE = '/22756418014/Movie-favorites_web';
+export const MOVIE_FAVORITE_DIV = 'Movie-favorites_web';
 
 // 13
 export const MOVIE_WATCHLIST = '/22756418014/Movie-watchlst_web';

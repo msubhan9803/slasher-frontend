@@ -17,8 +17,8 @@ import {
   HOME_WEB, HOME_WEB_DIV_ID,
   MOVIE_BUY_LIST,
   MOVIE_BUY_LIST_DIV_ID,
-  MOVIE_FAVOURITE,
-  MOVIE_FAVOURITE_DIV,
+  MOVIE_FAVORITE,
+  MOVIE_FAVORITE_DIV,
   MOVIE_INDIE,
   MOVIE_INDIE_DIV,
   MOVIE_WATCHED_LIST,
@@ -29,6 +29,7 @@ import {
   NEWS_PARTNER_DETAILS, NEWS_PARTNER_DETAILS_DIV_ID,
   NEWS_PARTNER_POSTS, NEWS_PARTNER_POSTS_DIV_ID,
 } from '../utils/pubwise-ad-units';
+import { envValueForPubWiseAndGoogleAnalytics, osValueForPubWiseAndGoogleAnalytics } from '../constants';
 
 const INFINITE_ADS = [
   [HOME_WEB, HOME_WEB_DIV_ID],
@@ -39,7 +40,7 @@ const INFINITE_ADS = [
   [EVENTS_FAVOURITES, EVENTS_FAVOURITES_DIV_ID],
   [EVENT_DETAIL, EVENT_DETAIL_DIV_ID],
   [ALL_MOVIES, ALL_MOVIES_DIV_ID],
-  [MOVIE_FAVOURITE, MOVIE_FAVOURITE_DIV],
+  [MOVIE_FAVORITE, MOVIE_FAVORITE_DIV],
   [MOVIE_WATCHLIST, MOVIE_WATCHLIST_DIV_ID],
   [MOVIE_WATCHED_LIST, MOVIE_WATCHED_LIST_DIV_ID],
   [MOVIE_BUY_LIST, MOVIE_BUY_LIST_DIV_ID],
@@ -49,6 +50,22 @@ const INFINITE_ADS = [
 
 const SINGLES_ADS = [
   [GLOBAL_RIGHT_NAV, GLOBAL_RIGHT_NAV_DIV_ID],
+];
+
+const IABs = [
+  'IAB1-5',
+  'IAB1-6',
+  'IAB1-7',
+  'IAB9-5',
+  'IAB9-7',
+  'IAB9-11',
+  'IAB9-25',
+  'IAB9-26',
+  'IAB9-30',
+  'IAB10-6',
+  'IAB18-2',
+  'IAB19-17',
+  'IAB19-29',
 ];
 
 const usePubWiseAdSlots = (enableADs: boolean) => {
@@ -79,6 +96,8 @@ const usePubWiseAdSlots = (enableADs: boolean) => {
     window.gptadslots = [];
     window.googletag ||= { cmd: [] };
 
+    window.googletag.pubads().setTargeting('iab_category', IABs);
+
     window.googletag.cmd.push(() => {
       INFINITE_ADS.forEach(([adUnitName, adUnitDivId]) => {
         for (let i = 0; i < 100; i += 1) {
@@ -91,7 +110,9 @@ const usePubWiseAdSlots = (enableADs: boolean) => {
               ],
               id,
             )
-            .addService(window.googletag.pubads());
+            .addService(window.googletag.pubads())
+            .setTargeting('os', osValueForPubWiseAndGoogleAnalytics)
+            .setTargeting('env', envValueForPubWiseAndGoogleAnalytics);
         }
       });
 
@@ -104,7 +125,9 @@ const usePubWiseAdSlots = (enableADs: boolean) => {
             ],
             adUnitDivId,
           )
-          .addService(window.googletag.pubads());
+          .addService(window.googletag.pubads())
+          .setTargeting('os', osValueForPubWiseAndGoogleAnalytics)
+          .setTargeting('env', envValueForPubWiseAndGoogleAnalytics);
       });
 
       // ENBLE GOOGLE TAG SERVICES

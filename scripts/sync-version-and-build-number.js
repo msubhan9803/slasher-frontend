@@ -16,5 +16,5 @@ fs.writeFileSync(androidBuildGradleFilePath, androidBuildGradleContent);
 const iosAppXcodeProjectFilePath = __dirname + '/../ios/App/App.xcodeproj/project.pbxproj';
 let iosAppXcodeProjContent = fs.readFileSync(iosAppXcodeProjectFilePath).toString();
 iosAppXcodeProjContent = iosAppXcodeProjContent.replace(/CURRENT_PROJECT_VERSION = \d+;/g, `CURRENT_PROJECT_VERSION = ${capacitorAppBuildNumber};`);
-iosAppXcodeProjContent = iosAppXcodeProjContent.replace(/MARKETING_VERSION = [^;]+;/g, `MARKETING_VERSION = ${version};`);
+iosAppXcodeProjContent = iosAppXcodeProjContent.replace(/MARKETING_VERSION = [^;]+;/g, `MARKETING_VERSION = "${version}";`);
 fs.writeFileSync(iosAppXcodeProjectFilePath, iosAppXcodeProjContent);

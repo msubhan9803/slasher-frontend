@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { sendDebugTexttToGoogleAnalytics } from '../utils/google-analytics-utils';
-import { analyticsId } from '../constants';
+import { analyticsId } from '../env';
 
 function DebugGoogleAnalytics() {
   const [text, setText] = useState('some event text here...');

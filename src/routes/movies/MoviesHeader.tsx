@@ -6,7 +6,7 @@ import CustomSelect from '../../components/filter-sort/CustomSelect';
 import CustomSearchInput from '../../components/ui/CustomSearchInput';
 import RoundButton from '../../components/ui/RoundButton';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
-import { enableDevFeatures } from '../../constants';
+import { enableDevFeatures } from '../../env';
 
 interface MovisHeaderProps {
   tabKey: string;

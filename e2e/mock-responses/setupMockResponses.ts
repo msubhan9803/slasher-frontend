@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import { Page } from '@playwright/test';
-import { apiUrl } from '../../src/constants';
+import { apiUrl } from '../../src/env';
 
 const USER = {
   id: '638ef1b71164457367491b3c',

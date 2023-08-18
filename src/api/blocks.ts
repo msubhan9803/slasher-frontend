@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { apiUrl } from '../constants';
+import { apiUrl } from '../env';
 import { getSessionToken } from '../utils/session-utils';
 import { store } from '../redux/store';
 import { forceReloadSuggestedFriends } from '../redux/slices/suggestedFriendsSlice';

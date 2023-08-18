@@ -24,11 +24,11 @@ import CustomGroupIcons from '../../../components/ui/CustomGroupIcons';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
 import { MOVIE_INDIE_DIV } from '../../../utils/pubwise-ad-units';
 import PubWiseAd from '../../../components/ui/PubWiseAd';
-import { enableDevFeatures } from '../../../constants';
 import MovieReviews from '../movie-reviews/MovieReviews';
 import { addMovieUserStatus, deleteMovieUserStatus, getMoviesIdList } from '../../../api/movies';
 import MovieReviewDetails from '../movie-reviews/MovieReviewDetails';
 import { StyledMoviePoster } from './StyledUtils';
+import { enableDevFeatures } from '../../../env';
 
 interface MovieIconProps {
   label: string;

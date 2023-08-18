@@ -12,7 +12,8 @@ import useProgressButton from '../../../components/ui/ProgressButton';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 import { useAppSelector } from '../../../redux/hooks';
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
-import { WORDPRESS_SITE_URL, captchaSiteKey } from '../../../constants';
+import { captchaSiteKey } from '../../../env';
+import { WORDPRESS_SITE_URL } from '../../../constants';
 
 interface Props {
   activeStep: number;

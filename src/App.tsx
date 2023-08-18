@@ -31,7 +31,7 @@ import ResetPassword from './routes/reset-password/ResetPassword';
 import AccountActivated from './routes/account-activated/AccountActivated';
 import usePubWiseAdSlots from './hooks/usePubWiseAdSlots';
 import {
-  enableDevFeatures, enableADs, topStatuBarBackgroundColorAndroidOnly, isNativePlatform,
+  topStatuBarBackgroundColorAndroidOnly, isNativePlatform,
 } from './constants';
 import Books from './routes/books/Books';
 import Artists from './routes/artists/Artists';
@@ -57,6 +57,7 @@ import { isHomePage } from './utils/url-utils';
 import CapacitorAppListeners from './components/CapacitorAppListeners';
 import DebugGoogleAnalytics from './routes/debug-google-analytics';
 import { detectAppVersion } from './utils/version-utils';
+import { enableADs, enableDevFeatures } from './env';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';

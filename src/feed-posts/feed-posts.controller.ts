@@ -573,7 +573,7 @@ export class FeedPostsController {
   }
 
   @TransformImageUrls(
-    '$[*].images[*].image_path',
+    '$.posts[*].images[*].image_path',
     '$.posts[*].userId.profilePic',
     '$[*].rssfeedProviderId.logo',
   )

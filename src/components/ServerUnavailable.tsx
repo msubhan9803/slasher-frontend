@@ -18,7 +18,7 @@ export default function ServerUnavailable() {
     setProgressButtonStatus('loading');
     healthCheck().then((res) => {
       if (res.data.status === 'ok') {
-        setProgressButtonStatus('success');
+        setProgressButtonStatus('default');
         setTimeout(() => dispatch(setIsServerAvailable(true)), 500);
       }
     }).catch(() => {

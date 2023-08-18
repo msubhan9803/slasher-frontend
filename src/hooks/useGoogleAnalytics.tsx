@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import useScript from './useScript';
 import { useAppDispatch } from '../redux/hooks';
 import { setIsGoogleAnalyticsReady } from '../redux/slices/googleAnalyticsSlice';
-import { gtag, sendOsAndEnvEventToGoogleAnalytics } from '../utils/google-analytics-utils';
+import { gtag, sendUserPropertiesToGoogleAnalyticsOnPageLoad } from '../utils/google-analytics-utils';
 
 declare global {
   interface Window {
@@ -22,13 +22,11 @@ const useGoogleAnalytics = (analyticsId?: string) => {
   const DISABLE_HOOK = typeof analyticsId === 'undefined';
 
   useEffect(() => {
-    if (isLoaded) { dispatch(setIsGoogleAnalyticsReady()); }
+    if (isLoaded) {
+      dispatch(setIsGoogleAnalyticsReady());
+      sendUserPropertiesToGoogleAnalyticsOnPageLoad();
+    }
   }, [dispatch, isLoaded]);
-
-  // We should send `os` and `env` value only once on page load only.
-  useEffect(() => {
-    sendOsAndEnvEventToGoogleAnalytics();
-  }, []);
 
   useEffect(() => {
     if (DISABLE_HOOK) { return; }

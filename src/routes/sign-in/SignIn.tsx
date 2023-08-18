@@ -11,7 +11,6 @@ import signInImageMobile from '../../images/sign-in-background-beta-mobile.jpg';
 import { LG_MEDIA_BREAKPOINT, SERVER_UNAVAILABLE_TIMEOUT, isDevelopmentServer } from '../../constants';
 import SigninComponent from '../../components/ui/SigninComponent';
 import useSessionToken from '../../hooks/useSessionToken';
-import { sleep } from '../../utils/timer-utils';
 import { setIsServerAvailable } from '../../redux/slices/serverAvailableSlice';
 import { useAppDispatch } from '../../redux/hooks';
 import useProgressButton from '../../components/ui/ProgressButton';
@@ -86,8 +85,6 @@ function SignIn() {
 
     // eslint-disable-next-line max-len
     signIn(credentials.emailOrUsername, credentials.password, abortControllerRef.current.signal).then(async (res) => {
-      setProgressButtonStatus('success');
-      await sleep(1000);
       setErrorMessage([]);
       setSignInCookies(res.data.token, res.data.id, res.data.userName).finally(() => {
         const targetPath = searchParams.get('path');

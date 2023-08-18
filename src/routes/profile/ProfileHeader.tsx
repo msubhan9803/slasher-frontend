@@ -139,7 +139,7 @@ function ProfileHeader({
     setProgressButtonStatus('loading');
     createBlockUser(clickedUserId)
       .then(() => {
-        setProgressButtonStatus('success');
+        setProgressButtonStatus('default');
         setDropDownValue('BlockUserSuccess');
       })
       /* eslint-disable no-console */
@@ -159,7 +159,7 @@ function ProfileHeader({
       reportType: 'profile',
     };
     reportData(reportPayload).then(() => {
-      setProgressButtonStatus('success');
+      setProgressButtonStatus('default');
     })
       /* eslint-disable no-console */
       .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });

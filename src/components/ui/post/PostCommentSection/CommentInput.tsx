@@ -294,7 +294,7 @@ function CommentInput({
                   isReply={isReply}
                   handleSearch={handleSearch}
                   mentionLists={mentionList}
-                  messageContent={editMessage}
+                  messageContent={decEditMessage}
                   setMessageContent={setDecryptEditMessage}
                   formatMentionList={formatMention}
                   setFormatMentionList={setFormatMention}

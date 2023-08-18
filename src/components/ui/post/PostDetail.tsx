@@ -422,9 +422,11 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     }).catch(() => { });
   };
 
-  const removeComment = () => {
+  const removeCommentAsync = async () => {
+    setProgressButtonStatus('loading');
     if (commentID) {
-      removeFeedComments(commentID).then(() => {
+      return removeFeedComments(commentID).then(async () => {
+        setProgressButtonStatus('default');
         setCommentID('');
         callLatestFeedComments();
         setPostData([{
@@ -432,12 +434,16 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           commentCount: postData[0].commentCount - 1,
         }]);
       });
-    } else if (commentReplyID) {
-      removeFeedCommentReply(commentReplyID).then(() => {
+    }
+
+    if (commentReplyID) {
+      return removeFeedCommentReply(commentReplyID).then(async () => {
+        setProgressButtonStatus('default');
         setCommentReplyID('');
         callLatestFeedComments();
       });
     }
+    return undefined;
   };
 
   const handleSearch = (text: string) => {
@@ -567,7 +573,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         null,
         descriptionArray,
       ).then(async () => {
-        setProgressButtonStatus('success');
+        setProgressButtonStatus('default');
         await sleep(1000);
         setShow(false);
         getFeedPostDetail(postId);
@@ -582,17 +588,24 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       setShow(false);
     }
   };
-  const deletePostClick = () => {
+  const deletePostClickAsync = async () => {
     if (postId) {
-      deleteFeedPost(postId)
-        .then(() => {
+      setProgressButtonStatus('loading');
+      return deleteFeedPost(postId)
+        .then(async () => {
+          setProgressButtonStatus('default');
           setShow(false);
           deletedPostsCache.add(postId);
           navigate(-1); // act as if browser back icon is pressed
         })
         /* eslint-disable no-console */
-        .catch((error) => console.error(error));
+        .catch(async (error) => {
+          console.error(error);
+          setProgressButtonStatus('failure');
+          await sleep(500);
+        });
     }
+    return undefined;
   };
 
   const onPostLikeClick = async (feedPostId: string) => {
@@ -758,7 +771,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res) { getFeedPostDetail(postId!); setProgressButtonStatus('success'); }
+      if (res) { getFeedPostDetail(postId!); setProgressButtonStatus('default'); }
     })
       /* eslint-disable no-console */
       .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
@@ -809,10 +822,10 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     createBlockUser(popoverClick?.userId!)
       .then(() => {
         if (postType === 'news') {
-          setProgressButtonStatus('success');
+          setProgressButtonStatus('default');
           setShow(false);
         } else {
-          setProgressButtonStatus('success');
+          setProgressButtonStatus('default');
           setDropDownValue('BlockUserSuccess');
         }
       })
@@ -897,7 +910,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                 postCreaterPopoverOptions={postCreaterPopoverOptions}
                 isCommentSection
                 commentsData={commentData}
-                removeComment={removeComment}
+                removeCommentAsync={removeCommentAsync}
                 setCommentID={setCommentID}
                 setCommentReplyID={setCommentReplyID}
                 commentID={commentID}
@@ -938,7 +951,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
               {dropDownValue !== 'Edit'
                 && (
                   <ReportModal
-                    onConfirmClick={deletePostClick}
+                    onConfirmClickAsync={deletePostClickAsync}
                     show={show}
                     setShow={setShow}
                     slectedDropdownValue={dropDownValue}
@@ -991,7 +1004,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
               loginUserMoviePopoverOptions={loginUserMoviePopoverOptions}
               isCommentSection
               commentsData={commentData}
-              removeComment={removeComment}
+              removeCommentAsync={removeCommentAsync}
               setCommentID={setCommentID}
               setCommentReplyID={setCommentReplyID}
               commentID={commentID}
@@ -1033,7 +1046,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             {dropDownValue !== 'Edit'
               && (
                 <ReportModal
-                  onConfirmClick={deletePostClick}
+                  onConfirmClickAsync={deletePostClickAsync}
                   show={show}
                   setShow={setShow}
                   slectedDropdownValue={dropDownValue}

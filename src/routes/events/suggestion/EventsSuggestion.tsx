@@ -185,7 +185,7 @@ function EventSuggestion() {
     setProgressButtonStatus('loading');
     setIsEventSuggestionSuccessful(false);
     suggestEvent(name, userId || '', eventType, country, state, city, eventInfo, url || '', file, startDate, endDate, address).then(() => {
-      setProgressButtonStatus('success');
+      setProgressButtonStatus('default');
       setErrors([]);
       resetFormData();
       setIsEventSuggestionSuccessful(true);

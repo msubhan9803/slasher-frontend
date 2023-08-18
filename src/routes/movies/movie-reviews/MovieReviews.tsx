@@ -186,8 +186,7 @@ function MovieReviews({
     setProgressButtonStatus('loading');
     createPost(movieReviewPostData, '')
       .then(async () => {
-        setProgressButtonStatus('success');
-        await sleep(1000);
+        setProgressButtonStatus('default');
         setMovieData({
           ...movieData,
           userData: {
@@ -221,8 +220,7 @@ function MovieReviews({
       movieReviewPostData,
     )
       .then(async () => {
-        setProgressButtonStatus('success');
-        await sleep(1000);
+        setProgressButtonStatus('default');
         setMovieData({
           ...movieData,
           userData: {
@@ -331,7 +329,7 @@ function MovieReviews({
     setProgressButtonStatus('loading');
     createBlockUser(postUserId)
       .then(() => {
-        setProgressButtonStatus('success');
+        setProgressButtonStatus('default');
         setShow(false);
         setDropDownValue('BlockUserSuccess');
       })
@@ -350,7 +348,7 @@ function MovieReviews({
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res) { callLatestFeedPost(); setProgressButtonStatus('success'); }
+      if (res) { callLatestFeedPost(); setProgressButtonStatus('default'); }
     })
       /* eslint-disable no-console */
       .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
@@ -358,12 +356,14 @@ function MovieReviews({
     setDropDownValue('PostReportSuccessDialog');
   };
 
-  const deletePostClick = () => {
+  const deletePostClickAsync = () => {
+    setProgressButtonStatus('loading');
     if (deletePostId) {
-      deleteFeedPost(deletePostId)
-        .then(() => {
-          setShow(false);
+      return deleteFeedPost(deletePostId)
+        .then(async () => {
+          setProgressButtonStatus('default');
           callLatestFeedPost();
+          setShow(false);
           setRating(0);
           setGoreFactor(0);
           setPostContent('');
@@ -377,8 +377,13 @@ function MovieReviews({
           });
         })
         /* eslint-disable no-console */
-        .catch((error) => console.error(error));
+        .catch(async (error) => {
+          console.error(error);
+          setProgressButtonStatus('failure');
+          await sleep(500);
+        });
     }
+    return undefined;
   };
   const handleSpoiler = (currentPostId: string) => {
     const spoilerIdList = getLocalStorage('spoilersIds');
@@ -504,7 +509,7 @@ function MovieReviews({
         (['Delete Review', 'Block user', 'Report', 'PostReportSuccessDialog'].includes(dropDownValue))
         && (
           <ReportModal
-            onConfirmClick={deletePostClick}
+            onConfirmClickAsync={deletePostClickAsync}
             show={show}
             setShow={setShow}
             slectedDropdownValue={dropDownValue}

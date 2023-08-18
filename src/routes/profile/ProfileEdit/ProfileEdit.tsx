@@ -137,7 +137,7 @@ function ProfileEdit({ user }: Props) {
           { replace: true },
         );
       });
-      setProgressButtonStatus('success');
+      setProgressButtonStatus('default');
       setTimeout(() => {
         setProfileUpdate(false);
       }, 5000);

@@ -1,6 +1,6 @@
 /* eslint-disable no-alert */
 /* eslint-disable max-lines */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Route, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
@@ -55,6 +55,8 @@ import { store } from './redux/store';
 import { setIsServerAvailable } from './redux/slices/serverAvailableSlice';
 import { isHomePage } from './utils/url-utils';
 import CapacitorAppListeners from './components/CapacitorAppListeners';
+import DebugGoogleAnalytics from './routes/debug-google-analytics';
+import { detectAppVersion } from './utils/version-utils';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -113,6 +115,7 @@ if (enableDevFeatures) {
   // routes['books/*'] = { wrapper: AuthenticatedPageWrapper, component: Books };
   // routes['shopping/*'] = { wrapper: AuthenticatedPageWrapper, component: Shopping };
   // routes['places/*'] = { wrapper: AuthenticatedPageWrapper, component: Places };
+  routes['app/debug-google-analytics'] = { wrapper: UnauthenticatedPageWrapper, component: DebugGoogleAnalytics };
 }
 
 CapacitorApp.addListener('backButton', () => {
@@ -146,7 +149,17 @@ if (isNativePlatform) {
 
 function App() {
   usePubWiseAdSlots(enableADs);
+  const [appVersionDetected, setAppVersionDetected] = useState<boolean>(false);
   const isServerAvailable = useAppSelector((state) => state.serverAvailability.isAvailable);
+
+  useEffect(() => {
+    (async () => {
+      await detectAppVersion();
+      setAppVersionDetected(true);
+    })();
+  }, []);
+
+  if (!appVersionDetected) { return <div />; }
 
   const router = createBrowserRouter(
     createRoutesFromElements(

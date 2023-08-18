@@ -22,7 +22,7 @@ function ChangeEmailRevert() {
       userId!,
       token!,
     ).then((response) => {
-      setProgressButtonStatus('success');
+      setProgressButtonStatus('default');
       setSuccessMessage(response.data.message);
     }).catch((requestError: any) => {
       setProgressButtonStatus('failure');

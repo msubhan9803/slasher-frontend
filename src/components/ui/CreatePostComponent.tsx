@@ -420,9 +420,7 @@ function CreatePostComponent({
         className="d-none"
         // eslint-disable-next-line no-useless-concat
         accept={'image/' + '*'}
-        onChange={(post) => {
-          handleFileChange(post);
-        }}
+        onChange={(post) => { handleFileChange(post); }}
         multiple
         ref={inputFile}
         aria-label="image"

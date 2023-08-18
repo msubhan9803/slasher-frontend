@@ -1009,7 +1009,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
             feedReplyId: new mongoose.Types.ObjectId(response.body._id),
             senderId: otherUser1._id,
             allUsers: [otherUser1._id],
-            notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+            notifyType: NotificationType.UserMentionedYouInACommentReply,
             notificationMsg: 'replied to a comment on your movie review',
           });
           expect(notificationsService.create).toHaveBeenCalledWith({
@@ -1019,7 +1019,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
             feedReplyId: response.body._id,
             senderId: otherUser1._id.toString(),
             allUsers: [otherUser1._id],
-            notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+            notifyType: NotificationType.UserMentionedYouInACommentReply,
             notificationMsg: 'replied to your comment',
           });
         });

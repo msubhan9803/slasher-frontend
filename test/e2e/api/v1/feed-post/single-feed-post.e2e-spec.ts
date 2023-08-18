@@ -311,5 +311,19 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         reviewData: { rating: 5, goreFactorRating: 4, worthWatching: 1 },
       });
     });
+
+    describe('Validation', () => {
+      it('id must be a mongodb id', async () => {
+        const feedPostId = 'not-a-mongo-id';
+        const response = await request(app.getHttpServer())
+          .get(`/api/v1/feed-posts/${feedPostId}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'id must be a mongodb id',
+        );
+      });
+    });
   });
 });

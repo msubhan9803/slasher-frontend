@@ -360,7 +360,7 @@ export class ChatService {
       new mongoose.Types.ObjectId(fromUserId),
       new mongoose.Types.ObjectId(toUserId),
     ];
-    await this.matchListModel.updateOne(
+    await Promise.all([this.matchListModel.updateOne(
       {
         participants: { $all: participants },
         relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
@@ -368,9 +368,9 @@ export class ChatService {
         roomCategory: MatchListRoomCategory.DirectMessage,
       },
       { $set: { deleted: true } },
-    );
+    ),
 
-    await this.messageModel.updateMany(
+    this.messageModel.updateMany(
       {
         $or: [
           { fromId: new mongoose.Types.ObjectId(fromUserId), senderId: new mongoose.Types.ObjectId(toUserId) },
@@ -378,7 +378,7 @@ export class ChatService {
         ],
       },
       { $set: { deleted: true } },
-    );
+    )]);
   }
 
   async deleteConversationMessages(userId: string, matchListId: string) {

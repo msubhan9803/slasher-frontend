@@ -152,5 +152,19 @@ describe('Events / :id (e2e)', () => {
         expect(response.body.message).toContain('Event not found');
       });
     });
+
+    describe('Validation', () => {
+      it('id must be a mongodb id', async () => {
+        const eventId = 'not-a-mongo-id';
+        const response = await request(app.getHttpServer())
+          .get(`/api/v1/events/${eventId}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'id must be a mongodb id',
+        );
+      });
+    });
   });
 });

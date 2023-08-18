@@ -131,6 +131,18 @@ describe('Users / delete user (e2e)', () => {
     });
 
     describe('Validation', () => {
+      it('userId must be a mongodb id', async () => {
+        const userId = 'not-a-mongo-id';
+        const response = await request(app.getHttpServer())
+          .delete(`/api/v1/users/${userId}?confirmUserId=${userId}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'userId must be a mongodb id',
+        );
+      });
+
       it('confirmUserId should not be empty', async () => {
         const userId = '';
         const response = await request(app.getHttpServer())

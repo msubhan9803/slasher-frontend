@@ -72,7 +72,7 @@ function FriendActionButtons({
       }
       if (status === FriendRequestReaction.Pending && friendData?.from !== loginUserId) {
         if (abortControllerRef.current) {
-          return;
+          abortControllerRef.current.abort();
         }
         const controller = new AbortController();
         abortControllerRef.current = controller;
@@ -87,7 +87,6 @@ function FriendActionButtons({
           }).finally(() => {
             abortControllerRef.current = null;
           });
-        setProgressButtonStatus('default');
       }
       if ((
         status === FriendRequestReaction.Accepted

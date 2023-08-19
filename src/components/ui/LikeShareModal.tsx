@@ -6,9 +6,9 @@ import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import LikeShareModalContent from './LikeShareModalContent';
-import { enableDevFeatures } from '../../constants';
 import { LikeShareModalResourceName, LikeShareModalTabName } from '../../types';
 import { disableScrollOnWindow, enableScrollOnWindow } from '../../utils/scrollFunctions';
+import { enableDevFeatures } from '../../env';
 
 interface Props {
   modaResourceName: LikeShareModalResourceName | null;

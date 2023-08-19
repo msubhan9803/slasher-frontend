@@ -49,7 +49,7 @@ function RegistrationIdentity({ activeStep }: Props) {
       return;
     }
 
-    setProgressButtonStatus('success');
+    setProgressButtonStatus('default');
     navigate('/app/registration/security');
   };
   return (

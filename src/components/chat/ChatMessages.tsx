@@ -4,8 +4,9 @@ import styled from 'styled-components';
 import ChatMessageText from './ChatMessageText';
 import ChatTimestamp from './ChatTimestamp';
 import { Message } from '../../types';
-import { DEFAULT_USER_UPLOADED_CONTENT_ALT_TEXT, enableDevFeatures } from '../../constants';
+import { DEFAULT_USER_UPLOADED_CONTENT_ALT_TEXT } from '../../constants';
 import ZoomableImage from '../ui/ZoomableImage';
+import { enableDevFeatures } from '../../env';
 
 interface Props {
   messages: Message[];

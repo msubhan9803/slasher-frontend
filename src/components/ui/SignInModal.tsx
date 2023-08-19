@@ -58,7 +58,7 @@ function SignInModal({ show, setShow, isPublicProfile }: SignInProps) {
 
     // eslint-disable-next-line max-len
     signIn(credentials.emailOrUsername, credentials.password, abortControllerRef.current.signal).then((res) => {
-      setProgressButtonStatus('success');
+      setProgressButtonStatus('default');
       setErrorMessage([]);
       setSignInCookies(res.data.token, res.data.id, res.data.userName);
       const stateObj = { publicProfile: true };

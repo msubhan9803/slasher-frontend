@@ -3,17 +3,12 @@ import { useLocation } from 'react-router-dom';
 import useScript from './useScript';
 import { useAppDispatch } from '../redux/hooks';
 import { setIsGoogleAnalyticsReady } from '../redux/slices/googleAnalyticsSlice';
+import { gtag, sendUserPropertiesToGoogleAnalyticsOnPageLoad } from '../utils/google-analytics-utils';
 
 declare global {
   interface Window {
     dataLayer: any;
   }
-}
-
-export function gtag(...args: any): any;
-export function gtag(): any {
-  // eslint-disable-next-line prefer-rest-params
-  window.dataLayer.push(arguments);
 }
 
 const useGoogleAnalytics = (analyticsId?: string) => {
@@ -27,7 +22,10 @@ const useGoogleAnalytics = (analyticsId?: string) => {
   const DISABLE_HOOK = typeof analyticsId === 'undefined';
 
   useEffect(() => {
-    if (isLoaded) { dispatch(setIsGoogleAnalyticsReady()); }
+    if (isLoaded) {
+      dispatch(setIsGoogleAnalyticsReady());
+      sendUserPropertiesToGoogleAnalyticsOnPageLoad();
+    }
   }, [dispatch, isLoaded]);
 
   useEffect(() => {

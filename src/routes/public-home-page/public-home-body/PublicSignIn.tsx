@@ -5,7 +5,7 @@ import {
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import ReCAPTCHA from 'react-google-recaptcha';
-import { captchaSiteKey } from '../../../constants';
+import { captchaSiteKey } from '../../../env';
 
 const StyledContainer = styled.div`
   background-color: #1B1B1B;

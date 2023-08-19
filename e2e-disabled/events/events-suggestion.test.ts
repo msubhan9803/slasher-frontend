@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { apiUrl } from '../../src/constants';
+import { apiUrl } from '../../src/env';
 
 const pagePath = '/app/events/suggestion';
 

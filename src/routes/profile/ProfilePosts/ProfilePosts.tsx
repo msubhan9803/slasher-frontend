@@ -22,9 +22,8 @@ import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import EditPostModal from '../../../components/ui/post/EditPostModal';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
-import { deletedPostsCache, hasPageStateCache, setPageStateCache } from '../../../pageStateCache';
+import { deletedPostsCache, setPageStateCache } from '../../../pageStateCache';
 import useProgressButton from '../../../components/ui/ProgressButton';
-import { sleep } from '../../../utils/timer-utils';
 import FriendshipStatusModal from '../../../components/ui/friendShipCheckModal';
 import { friendship } from '../../../api/friends';
 import { getProfileSubroutesCache } from '../profileSubRoutesCacheUtils';
@@ -89,6 +88,7 @@ function ProfilePosts({ user }: Props) {
   };
 
   const fetchPosts = useCallback(() => {
+    setLoadingPosts(true);
     getProfilePosts(
       user._id,
       posts.length > 0 ? posts[posts.length - 1]._id : undefined,
@@ -144,13 +144,7 @@ function ProfilePosts({ user }: Props) {
     }
 
     if (requestAdditionalPosts && !loadingPosts && userNameOrId === user.userName) {
-      if (hasPageStateCache(location)
-        || posts.length >= getProfileSubroutesCache(location).profilePosts?.length
-        || posts.length === 0
-      ) {
-        setLoadingPosts(true);
-        fetchPosts();
-      }
+      fetchPosts();
     }
   }, [requestAdditionalPosts, loadingPosts, userId, userNameOrId, user._id, user.userName,
     posts, location, dispatch, fetchPosts]);
@@ -194,8 +188,7 @@ function ProfilePosts({ user }: Props) {
   ) => {
     setProgressButtonStatus('loading');
     updateFeedPost(postId, message, images, imageDelete, null, descriptionArray).then(async () => {
-      setProgressButtonStatus('success');
-      await sleep(1000);
+      setProgressButtonStatus('default');
       setShowReportModal(false);
       const updatePost = posts.map((post: any) => {
         if (post._id === postId) {
@@ -216,11 +209,12 @@ function ProfilePosts({ user }: Props) {
         setEditModalErrorMessage(msg);
       });
   };
-  const deletePostClick = () => {
-    deleteFeedPost(postId)
-      .then(() => {
-        setShowReportModal(false);
-        callLatestFeedPost();
+  const deletePostClickAsync = async () => {
+    setProgressButtonStatus('loading');
+    return deleteFeedPost(postId)
+      .then(async () => {
+        setProgressButtonStatus('default');
+        setPosts((prevPosts) => prevPosts.filter(((post) => post._id !== postId)));
         dispatch(setProfilePageUserDetailsReload(true));
       })
 
@@ -298,7 +292,7 @@ function ProfilePosts({ user }: Props) {
     setProgressButtonStatus('loading');
     createBlockUser(postUserId)
       .then(() => {
-        setProgressButtonStatus('success');
+        setProgressButtonStatus('default');
         setDropDownValue('BlockUserSuccess');
         callLatestFeedPost();
       })
@@ -314,7 +308,7 @@ function ProfilePosts({ user }: Props) {
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res) { callLatestFeedPost(); setProgressButtonStatus('success'); }
+      if (res) { callLatestFeedPost(); setProgressButtonStatus('default'); }
     })
       /* eslint-disable no-console */
       .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
@@ -368,7 +362,7 @@ function ProfilePosts({ user }: Props) {
         {['Block user', 'Report', 'Delete', 'PostReportSuccessDialog', 'BlockUserSuccess'].includes(dropDownValue)
           && (
             <ReportModal
-              onConfirmClick={deletePostClick}
+              onConfirmClickAsync={deletePostClickAsync}
               show={showReportModal}
               setShow={setShowReportModal}
               slectedDropdownValue={dropDownValue}

@@ -7,10 +7,11 @@ import styled from 'styled-components';
 import BorderButton from '../../components/ui/BorderButton';
 import CustomSearchInput from '../../components/ui/CustomSearchInput';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
-import { MD_MEDIA_BREAKPOINT, enableDevFeatures } from '../../env';
+import { enableDevFeatures } from '../../env';
 import { StyledHastagsCircle } from './component/Hashtags';
 import CustomPopover from '../../components/ui/CustomPopover';
 import ReportModal from '../../components/ui/ReportModal';
+import { MD_MEDIA_BREAKPOINT } from '../../constants';
 
 interface Search {
   tabKey: string;

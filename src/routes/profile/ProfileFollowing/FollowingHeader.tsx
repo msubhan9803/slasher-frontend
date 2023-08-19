@@ -4,7 +4,7 @@ import Cookies from 'js-cookie';
 import { useNavigate, useParams } from 'react-router-dom';
 import CustomSearchInput from '../../../components/ui/CustomSearchInput';
 import TabLinks from '../../../components/ui/Tabs/TabLinks';
-import { enableDevFeatures } from '../../../constants';
+import { enableDevFeatures } from '../../../env';
 
 const tabs = [
   { value: 'people', label: 'People', devOnly: true },

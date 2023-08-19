@@ -40,6 +40,7 @@ import { MovieUserStatusService } from '../movie-user-status/providers/movie-use
 import { User } from '../schemas/user/user.schema';
 import { getPostType } from '../utils/post-utils';
 import { UsersService } from '../users/providers/users.service';
+import { HashtagFollowsService } from '../hashtag-follows/providers/hashtag-follows.service';
 
 @Controller({ path: 'feed-posts', version: ['1'] })
 export class FeedPostsController {
@@ -56,6 +57,7 @@ export class FeedPostsController {
     private readonly moviesService: MoviesService,
     private readonly movieUserStatusService: MovieUserStatusService,
     private readonly usersService: UsersService,
+    private readonly hashtagFollowsService: HashtagFollowsService,
   ) { }
 
   @TransformImageUrls('$.images[*].image_path')
@@ -105,7 +107,8 @@ export class FeedPostsController {
       images.push({ image_path: storageLocation, description: imageDescriptions });
     }
 
-    let hashtags;
+    let hashtags; let message; let
+allUserIds;
     if (createFeedPostsDto.message && createFeedPostsDto.message.includes('#')) {
       const hashtagRegex = /(?<![?#])#(?![?#])\w+\b/g;
       const matchedHashtags = createFeedPostsDto.message.match(hashtagRegex);
@@ -122,7 +125,11 @@ export class FeedPostsController {
       } else {
         hashtags = [];
       }
-      await this.hashtagService.createOrUpdateHashtags(hashtags);
+      const allHashTags = await this.hashtagService.createOrUpdateHashtags(hashtags);
+      const hashtagIds = allHashTags.map((i) => i._id);
+      allUserIds = await this.hashtagFollowsService.sendNotificationOfHashtagFollows(hashtagIds);
+      const hashTagNames = allHashTags.map((hashTag) => `#${hashTag.name}`).join(' ');
+      message = `added a new post with ${hashTagNames}`;
     }
 
     const feedPost = new FeedPost(createFeedPostsDto);
@@ -164,6 +171,18 @@ export class FeedPostsController {
     }
 
     const createFeedPost = await this.feedPostsService.create(feedPost);
+
+    if (allUserIds && allUserIds.length) {
+      for (let i = 0; i < allUserIds.length; i += 1) {
+        await this.notificationsService.create({
+          userId: allUserIds[i]._id,
+          feedPostId: createFeedPost.id,
+          senderId: user.id,
+          notifyType: NotificationType.HashTagPostNotification,
+          notificationMsg: message,
+        });
+      }
+    }
 
     // Create notifications if any users were mentioned
     const mentionedUserIds = extractUserMentionIdsFromMessage(createFeedPost?.message);

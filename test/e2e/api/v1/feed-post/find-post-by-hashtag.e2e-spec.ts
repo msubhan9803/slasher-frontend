@@ -138,10 +138,9 @@ describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
       for (let i = 1; i < response.body.length; i += 1) {
         expect(response.body[i].createdAt < response.body[i - 1].createdAt).toBe(true);
       }
-
       expect(response.body).toEqual(
         {
-          count: 2,
+          count: 1,
           posts: [
             {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),

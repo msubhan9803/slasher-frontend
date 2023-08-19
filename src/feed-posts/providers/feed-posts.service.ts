@@ -243,21 +243,14 @@ export class FeedPostsService {
       ],
     }, { _id: 1 });
     const [totalHashtagCount, feedPosts] = await Promise.all([
-      this.fetchTotalHashTagPostCount(hashtag, profileIdsToIgnore),
+      this.fetchTotalHashTagPostCount(hashtag),
       this.fetchPostByHashTag(before, hashtag, profileIdsToIgnore, limit, userId),
     ]);
     return [totalHashtagCount, feedPosts];
   }
 
-  async fetchTotalHashTagPostCount(hashtag, profileIdsToIgnore) {
-    return this.feedPostModel.find({
-      $and: [
-        { hashtags: hashtag },
-        { status: 1 },
-        { is_deleted: 0 },
-        { userId: { $nin: profileIdsToIgnore } },
-      ],
-    }).count().exec();
+  async fetchTotalHashTagPostCount(name) {
+    return (await this.hashtagModel.findOne({ name })).totalPost;
   }
 
   async fetchPostByHashTag(before, hashtag, profileIdsToIgnore, limit, userId) {

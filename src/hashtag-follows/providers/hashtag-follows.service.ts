@@ -38,8 +38,8 @@ export class HashtagFollowsService {
   async findAllByUserId(userId: string): Promise<HashTagsFollow[]> {
     return this.hashtagFollowModel
       .find({ userId }, {
- hashTagId: 1, userId: 1, notification: 1, _id: 0,
-})
+        hashTagId: 1, userId: 1, notification: 1, _id: 0,
+      })
       .exec();
   }
 
@@ -50,5 +50,23 @@ export class HashtagFollowsService {
         .create({ userId, hashTagId: hashTagId[i] }));
     }
     return hastags;
+  }
+
+  async sendNotificationOfHashtagFollows(hashtagIdsArr: string[]) {
+    return this.hashtagFollowModel.aggregate([
+      {
+        $match: {
+          $and: [
+            { hashTagId: { $in: hashtagIdsArr } },
+            { notification: 1 },
+          ],
+        },
+      },
+      {
+        $group: {
+          _id: '$userId',
+        },
+      },
+    ]);
   }
 }

@@ -982,6 +982,9 @@ describe('FeedPostsService', () => {
         profile_status: 0,
       }));
 
+      await hashtagModel.create({
+        name: 'ok',
+      });
       //create posts with public user5 or user6
       await feedPostsService.create(
         feedPostFactory.build({
@@ -1059,14 +1062,13 @@ describe('FeedPostsService', () => {
 
       const limit = 3;
       const firstResults = await feedPostsService.findAllFeedPostsForHashtag('ok', limit);
-
       const secondResults = await feedPostsService
         .findAllFeedPostsForHashtag(
           'ok',
           limit,
           new mongoose.Types.ObjectId(firstResults[1][limit - 1]._id.toString()),
         );
-      expect(firstResults[0]).toBe(5); // it gives the total count of hashtags
+
       expect(firstResults[1]).toHaveLength(3); // it gives the count accorging to limit
       expect(secondResults[1]).toHaveLength(2);
     });

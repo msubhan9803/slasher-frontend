@@ -1,6 +1,6 @@
 /* eslint-disable no-alert */
 /* eslint-disable max-lines */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Route, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
@@ -31,7 +31,7 @@ import ResetPassword from './routes/reset-password/ResetPassword';
 import AccountActivated from './routes/account-activated/AccountActivated';
 import usePubWiseAdSlots from './hooks/usePubWiseAdSlots';
 import {
-  enableDevFeatures, enableADs, topStatuBarBackgroundColorAndroidOnly, isNativePlatform,
+  topStatuBarBackgroundColorAndroidOnly, isNativePlatform,
 } from './constants';
 import Books from './routes/books/Books';
 import Artists from './routes/artists/Artists';
@@ -56,6 +56,8 @@ import { setIsServerAvailable } from './redux/slices/serverAvailableSlice';
 import { isHomePage } from './utils/url-utils';
 import CapacitorAppListeners from './components/CapacitorAppListeners';
 import DebugGoogleAnalytics from './routes/debug-google-analytics';
+import { detectAppVersion } from './utils/version-utils';
+import { enableADs, enableDevFeatures } from './env';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -148,7 +150,17 @@ if (isNativePlatform) {
 
 function App() {
   usePubWiseAdSlots(enableADs);
+  const [appVersionDetected, setAppVersionDetected] = useState<boolean>(false);
   const isServerAvailable = useAppSelector((state) => state.serverAvailability.isAvailable);
+
+  useEffect(() => {
+    (async () => {
+      await detectAppVersion();
+      setAppVersionDetected(true);
+    })();
+  }, []);
+
+  if (!appVersionDetected) { return <div />; }
 
   const router = createBrowserRouter(
     createRoutesFromElements(

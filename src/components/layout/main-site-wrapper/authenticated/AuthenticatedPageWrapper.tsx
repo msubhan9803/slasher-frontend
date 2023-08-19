@@ -26,7 +26,7 @@ import {
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { clearUserSession, getSessionToken } from '../../../../utils/session-utils';
 import {
-  LG_MEDIA_BREAKPOINT, analyticsId, MAIN_CONTENT_ID, apiUrl, RETRY_CONNECTION_BUTTON_ID,
+  LG_MEDIA_BREAKPOINT, MAIN_CONTENT_ID, RETRY_CONNECTION_BUTTON_ID,
   AUTHENTICATED_PAGE_WRAPPER_ID,
   isNativePlatform,
 } from '../../../../constants';
@@ -45,6 +45,7 @@ import { Message } from '../../../../types';
 import { showBackButtonInIos } from '../../../../utils/url-utils';
 import { onKeyboardClose, removeGlobalCssProperty, setGlobalCssProperty } from '../../../../utils/styles-utils ';
 import { enableScrollOnWindow } from '../../../../utils/scrollFunctions';
+import { analyticsId, apiUrl } from '../../../../env';
 
 interface Props {
   children: React.ReactNode;

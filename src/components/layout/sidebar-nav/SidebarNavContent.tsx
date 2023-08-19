@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Nav } from 'react-bootstrap';
-import { App } from '@capacitor/app';
 import SidebarNavItem from './SidebarNavItem';
 import {
-  enableDevFeatures, GOOGLE_PLAY_DOWNLOAD_URL, APP_STORE_DOWNLOAD_URL, WORDPRESS_SITE_URL,
-  isNativePlatform,
+  GOOGLE_PLAY_DOWNLOAD_URL, APP_STORE_DOWNLOAD_URL, WORDPRESS_SITE_URL,
 } from '../../../constants';
 import RoundButtonLink from '../../ui/RoundButtonLink';
+import { getAppVersion } from '../../../utils/version-utils';
+import { enableDevFeatures } from '../../../env';
 
 const MAX_ALLOWED_COMING_SOON_ITEMS_IN_MENU = 1;
 
@@ -90,22 +90,6 @@ for (let i = 0; i < numberOfComingSoonItemsToShow; i += 1) {
 menuListItems = menuListItems.concat(bottomMenuListItems);
 
 function SidebarNavContent({ onToggleCanvas }: Props) {
-  const [buildNumber, setBuildNumber] = useState<string>();
-  const [versionNumber, setVersionNumber] = useState<string>();
-
-  const getAppVersion = async () => {
-    if (isNativePlatform) {
-      setVersionNumber((await App.getInfo()).version);
-      setBuildNumber((await App.getInfo()).build);
-    } else {
-      setVersionNumber(process.env.REACT_APP_VERSION);
-    }
-  };
-
-  useEffect(() => {
-    getAppVersion();
-  }, []);
-
   return (
     <>
       <RoundButtonLink
@@ -144,14 +128,15 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
           <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/advertise`} target="_blank" rel="noreferrer">Advertise on Slasher</a></li>
           <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/policies`} target="_blank" rel="noreferrer">Terms &amp; Policies</a></li>
           <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/about`} target="_blank" rel="noreferrer">About</a></li>
-          <li className="text-light text-decoration-none">
+          <li className="mb-4 text-light text-decoration-none">
             &copy;
             {' '}
             {new Date().getFullYear()}
             {' '}
             Slasher Corp
-            {versionNumber && ` • v${versionNumber}`}
-            {buildNumber && ` (${buildNumber})`}
+          </li>
+          <li className="text-light text-decoration-none">
+            {`${getAppVersion()}`}
           </li>
         </ul>
         <br />

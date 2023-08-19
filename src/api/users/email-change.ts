@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import axios from 'axios';
-import { apiUrl } from '../../constants';
+import { apiUrl } from '../../env';
 
 export async function emailChangeConfirm(userId: string, token: string) {
   return axios.post(`${apiUrl}/api/v1/users/email-change/confirm`, { userId, token });

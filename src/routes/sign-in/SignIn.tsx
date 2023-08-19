@@ -8,12 +8,13 @@ import { signIn } from '../../api/users';
 import { setSignInCookies } from '../../utils/session-utils';
 import slasherLogo from '../../images/slasher-beta-logo-medium.png';
 import signInImageMobile from '../../images/sign-in-background-beta-mobile.jpg';
-import { LG_MEDIA_BREAKPOINT, SERVER_UNAVAILABLE_TIMEOUT, isDevelopmentServer } from '../../constants';
+import { LG_MEDIA_BREAKPOINT, SERVER_UNAVAILABLE_TIMEOUT } from '../../constants';
 import SigninComponent from '../../components/ui/SigninComponent';
 import useSessionToken from '../../hooks/useSessionToken';
 import { setIsServerAvailable } from '../../redux/slices/serverAvailableSlice';
 import { useAppDispatch } from '../../redux/hooks';
 import useProgressButton from '../../components/ui/ProgressButton';
+import { isDevelopmentServer } from '../../env';
 
 export interface UserCredentials {
   emailOrUsername: string;

@@ -16,9 +16,9 @@ import { EVENT_DETAIL_DIV_ID } from '../../../utils/pubwise-ad-units';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
 import { LinearIcon } from '../../../components/ui/FavoriteLinearIcon';
 import ShareLinksModal from '../../../components/ui/ShareLinksModal';
-import { enableDevFeatures } from '../../../constants';
 import { defaultLinkifyOpts } from '../../../utils/linkify-utils';
 import { urlForEvent } from '../../../utils/url-utils';
+import { enableDevFeatures } from '../../../env';
 
 const EventBanner = styled.div`
   aspect-ratio : 1.78;

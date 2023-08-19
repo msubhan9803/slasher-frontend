@@ -11,6 +11,7 @@ import { deletePageStateCache } from '../../../pageStateCache';
 
 interface PosterCardProps {
   dataList: CardListProps[] | [];
+  type?: string;
   pubWiseAdUnitDivId?: string;
   onSelect?: (value?: string) => void;
 }
@@ -24,9 +25,12 @@ interface CardListProps {
   logo?: string;
   releaseDate?: string;
   worthWatching?: number;
+  isDeactivate?: boolean;
 }
 
-function PosterCardList({ dataList, pubWiseAdUnitDivId, onSelect }: PosterCardProps) {
+function PosterCardList({
+  dataList, type, pubWiseAdUnitDivId, onSelect,
+}: PosterCardProps) {
   const bp = useBootstrapBreakpointName();
   const scrollPosition: any = useAppSelector((state) => state.scrollPosition);
   const location = useLocation();
@@ -48,17 +52,19 @@ function PosterCardList({ dataList, pubWiseAdUnitDivId, onSelect }: PosterCardPr
           <React.Fragment key={listDetail._id}>
             <Col xs={4} md={3} lg={4} xl={3} key={listDetail._id}>
               <Link
-                className="m-1"
+                className="m-1 text-decoration-none"
                 // eslint-disable-next-line max-len
                 onClick={() => { deletePageStateCache(`/app/movies/${listDetail._id}`); onSelect!(listDetail._id!); }}
-                to={`/app/movies/${listDetail._id}`}
+                to={type === 'book' ? `/app/books/${listDetail.id}` : `/app/movies/${listDetail._id}`}
               >
                 <PosterCard
+                  type={type}
                   name={listDetail.name}
                   poster={listDetail.logo}
                   year={listDetail.releaseDate ? DateTime.fromISO(listDetail.releaseDate).toFormat('yyyy') : listDetail.year}
                   worthWatching={listDetail.worthWatching}
                   rating={listDetail.rating}
+                  deactivate={listDetail.isDeactivate}
                 />
               </Link>
             </Col>
@@ -73,6 +79,7 @@ function PosterCardList({ dataList, pubWiseAdUnitDivId, onSelect }: PosterCardPr
 PosterCardList.defaultProps = {
   pubWiseAdUnitDivId: '',
   onSelect: undefined,
+  type: 'movies',
 };
 
 export default PosterCardList;

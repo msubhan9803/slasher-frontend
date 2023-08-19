@@ -10,7 +10,7 @@ import BooksRightSideNav from '../components/BooksRightSideNav';
 function ReadingListBooks() {
   const [showKeys, setShowKeys] = useState(false);
   const [search, setSearch] = useState<string>('');
-  const [filteredBooks, setFilteredBooks] = useState<BooksProps[]>(readingListBooks);
+  const [filteredBooks, setFilteredBooks] = useState<BooksProps[] | any>(readingListBooks);
 
   const searchData = useCallback(() => {
     let searchResult;
@@ -38,8 +38,9 @@ function ReadingListBooks() {
           search={search}
         />
         <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
-          <div className="m-md-2">
-            <PosterCardList dataList={filteredBooks} />
+          <p className="h2 mb-0">Reading list</p>
+          <div>
+            <PosterCardList dataList={filteredBooks} type="book" />
           </div>
         </div>
       </ContentPageWrapper>

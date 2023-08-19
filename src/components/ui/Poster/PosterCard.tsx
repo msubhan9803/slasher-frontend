@@ -8,16 +8,21 @@ import LikeIconButton from './LikeIconButton';
 import { WorthWatchingStatus } from '../../../types';
 
 interface PosterProps {
+  type?: string;
   name: string;
   year: string;
   worthWatching?: number;
   rating?: number;
   poster?: string;
+  deactivate?: boolean;
 }
-const PosterCardStyle = styled(Card)`
+interface Props {
+  type?: string;
+}
+const PosterCardStyle = styled(Card) <Props>`
   .poster {
-    aspect-ratio: 0.67;
     img {
+      // ${(props) => props.type === 'book' && 'width:9.563rem !important'} ;
       object-fit: cover;
       box-shadow: 0 0 0 1px var(--poster-border-color);
     }
@@ -56,10 +61,10 @@ const MovieName = styled(Card.Text)`
 `;
 
 function PosterCard({
-  name, poster, year, worthWatching, rating,
+  type, name, poster, year, worthWatching, rating, deactivate,
 }: PosterProps) {
   return (
-    <PosterCardStyle className="bg-transparent border-0">
+    <PosterCardStyle className="bg-transparent border-0" type={type}>
       <div className="poster">
         <LazyLoadImage src={poster} alt={`${name} poster`} className="w-100 h-100 rounded-4" />
       </div>
@@ -72,6 +77,7 @@ function PosterCard({
         </RatingDiv>
       )}
       <Card.Body className="px-0 pb-4">
+        {deactivate && <h3 className="text-uppercase text-primary text-decoration-none fw-bold">deactivated</h3>}
         <div className="fs-5 d-flex justify-content-between align-items-center m-0 text-light">
           {year}
           {worthWatching !== WorthWatchingStatus.NoRating && (
@@ -84,7 +90,7 @@ function PosterCard({
             />
           )}
         </div>
-        <MovieName className="h3 fw-bold mt-1">
+        <MovieName className="h3 fw-bold mt-1 ">
           {name}
         </MovieName>
       </Card.Body>
@@ -93,9 +99,11 @@ function PosterCard({
 }
 
 PosterCard.defaultProps = {
+  type: '',
   rating: null,
   poster: null,
   worthWatching: null,
+  deactivate: false,
 };
 
 export default PosterCard;

@@ -10,7 +10,7 @@ import BooksRightSideNav from '../components/BooksRightSideNav';
 function FavoriteBooks() {
   const [showKeys, setShowKeys] = useState(false);
   const [search, setSearch] = useState<string>('');
-  const [filteredBooks, setFilteredBooks] = useState<BooksProps[]>(favoriteBooks);
+  const [filteredBooks, setFilteredBooks] = useState<BooksProps[] | any>(favoriteBooks);
   const searchData = useCallback(() => {
     let searchResult;
     const newFilter = favoriteBooks;
@@ -37,8 +37,9 @@ function FavoriteBooks() {
           search={search}
         />
         <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
-          <div className="m-md-2">
-            <PosterCardList dataList={filteredBooks} />
+          <p className="h2 mb-0">Favorites list</p>
+          <div>
+            <PosterCardList dataList={filteredBooks} type="book" />
           </div>
         </div>
       </ContentPageWrapper>

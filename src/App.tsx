@@ -90,7 +90,7 @@ const routes: Record<string, TopLevelRoute> = {
   'app/podcasts/*': { wrapper: AuthenticatedPageWrapper, component: Podcasts },
   // 'app/shopping/*': { wrapper: AuthenticatedPageWrapper, component: Shopping },
   // 'app/places/*': { wrapper: AuthenticatedPageWrapper, component: Places },
-  'app/books/*': { wrapper: AuthenticatedPageWrapper, component: Books },
+  // 'app/books/*': { wrapper: AuthenticatedPageWrapper, component: Books },
   'app/music/*': { wrapper: AuthenticatedPageWrapper, component: Music },
   'app/art/*': { wrapper: AuthenticatedPageWrapper, component: Artists },
   'app/forgot-password': { wrapper: UnauthenticatedPageWrapper, component: ForgotPassword },
@@ -113,7 +113,7 @@ if (enableDevFeatures) {
   routes['app/dating/*'] = { wrapper: AuthenticatedPageWrapper, component: Dating };
   routes['app/groups/*'] = { wrapper: AuthenticatedPageWrapper, component: SocialGroups };
   // routes['podcasts/*'] = { wrapper: AuthenticatedPageWrapper, component: Podcasts };
-  // routes['books/*'] = { wrapper: AuthenticatedPageWrapper, component: Books };
+  routes['app/books/*'] = { wrapper: AuthenticatedPageWrapper, component: Books };
   // routes['shopping/*'] = { wrapper: AuthenticatedPageWrapper, component: Shopping };
   // routes['places/*'] = { wrapper: AuthenticatedPageWrapper, component: Places };
   routes['app/debug-google-analytics'] = { wrapper: UnauthenticatedPageWrapper, component: DebugGoogleAnalytics };

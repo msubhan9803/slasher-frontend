@@ -1,6 +1,6 @@
 import { Process, Processor } from '@nestjs/bull';
 import { Job } from 'bull';
-import { NotificationsService } from 'src/notifications/providers/notifications.service';
+import { NotificationsService } from '../../notifications/providers/notifications.service';
 
 @Processor('hashtag-follow-post')
 export class NotificatationOfHashtagFollowPost {

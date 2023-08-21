@@ -31,12 +31,10 @@ export class FriendsGateway {
       this.friendsService.getReceivedFriendRequestCount(userId),
       await this.friendsService.getReceivedFriendRequests(userId, 3),
     ]);
-    const updatedFriendRequests = receivedFriendRequestsData.map((friendReq) => {
-      return {
+    const updatedFriendRequests = receivedFriendRequestsData.map((friendReq) => ({
         ...friendReq,
-        profilePic: relativeToFullImagePath(this.config, friendReq.profilePic)
-      };
-    });
+        profilePic: relativeToFullImagePath(this.config, friendReq.profilePic),
+      }));
     targetUserSocketIds.forEach((socketId) => {
       this.server.to(socketId).emit('friendRequestUpdated', {
         pendingFriendRequestCount,

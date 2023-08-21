@@ -1,11 +1,18 @@
 import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import * as _ from 'lodash';
 import { HashTagsFollow, HashTagsFollowDocument } from '../../schemas/hashtagFollow/hashtagFollows.schema';
+import { ProfileVisibility } from '../../schemas/user/user.enums';
+import { FriendsService } from '../../friends/providers/friends.service';
+import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
 
 @Injectable()
 export class HashtagFollowsService {
-  constructor(@InjectModel(HashTagsFollow.name) private hashtagFollowModel: Model<HashTagsFollowDocument>) { }
+  constructor(
+    @InjectModel(HashTagsFollow.name) private hashtagFollowModel: Model<HashTagsFollowDocument>,
+    private friendsService: FriendsService,
+  ) { }
 
   async create(hashtagFollowData: Partial<HashTagsFollow>) {
     return this.hashtagFollowModel.create(hashtagFollowData);
@@ -52,8 +59,8 @@ export class HashtagFollowsService {
     return hastags;
   }
 
-  async sendNotificationOfHashtagFollows(hashtagIdsArr: string[]) {
-    return this.hashtagFollowModel.aggregate([
+  async sendNotificationOfHashtagFollows(hashtagIdsArr: string[], user: object) {
+    const allUserIds = await this.hashtagFollowModel.aggregate([
       {
         $match: {
           $and: [
@@ -68,5 +75,14 @@ export class HashtagFollowsService {
         },
       },
     ]);
+
+    let userIds;
+    if ((user as any).profile_status === ProfileVisibility.Private) {
+      const allFriendIds = await this.friendsService.getFriendIds((user as any)._id, [FriendRequestReaction.Accepted]);
+      userIds = allUserIds.map(({ _id }) => _id.toString());
+      const friendIds = _.intersection(userIds, allFriendIds.map((userId) => userId.toString()));
+      return friendIds;
+    }
+    return userIds;
   }
 }

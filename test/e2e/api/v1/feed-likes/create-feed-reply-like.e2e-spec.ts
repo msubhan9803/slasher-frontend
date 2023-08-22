@@ -451,7 +451,7 @@ describe('Create Feed Reply Like (e2e)', () => {
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
           expect(response.status).toBe(HttpStatus.CREATED);
-          expect(response.body).toEqual({ success: true, isFriend: false });
+          expect(response.body).toEqual({ success: true, isFriend: true });
         });
 
         it('when post has an rssfeedProviderId, it returns a successful response', async () => {

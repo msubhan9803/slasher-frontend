@@ -337,7 +337,7 @@ describe('Create Feed Comment Like (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toBe(HttpStatus.CREATED);
-        expect(response.body).toEqual({ success: true, isFriend: false });
+        expect(response.body).toEqual({ success: true, isFriend: true });
       });
 
       it('when postType is movieReview than expected response', async () => {

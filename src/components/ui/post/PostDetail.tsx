@@ -163,7 +163,6 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       () => { setRequestAdditionalPosts(false); setLoadingComments(false); },
     );
   }, [commentData, postId]);
-
   const checkFriendShipStatus = () => new Promise<void>((resolve, reject) => {
     if (postType === 'news' || postType === 'review' || userData.user.id === postData[0].userId) {
       resolve();
@@ -176,6 +175,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           setFriendShipStatusModal(true);
           setFriendData(res.data);
           setFriendStatus(res.data.reaction);
+          setFriendShipStatusModal(true);
         }
       }).catch(() => reject());
     }
@@ -617,45 +617,50 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     const checkLike = postData.some((post) => post.id === feedPostId
       && post.likedByUser);
 
-    await checkFriendShipStatus().then(() => {
-      if (checkLike) {
-        unlikeFeedPost(feedPostId).then((res) => {
-          if (res.status === 200) {
-            const unLikePostData = postData.map(
-              (unLikePost: any) => { // NewsPartnerPostProps || Post type check
-                if (unLikePost._id === feedPostId) {
-                  return {
-                    ...unLikePost,
-                    likeIcon: false,
-                    likedByUser: false,
-                    likeCount: unLikePost.likeCount - 1,
-                  };
-                }
-                return unLikePost;
-              },
-            );
-            setPostData(unLikePostData);
-          }
-        });
-      } else {
-        likeFeedPost(feedPostId).then((res) => {
-          if (res.status === 201) {
-            const likePostData = postData.map((likePost: Post) => {
-              if (likePost._id === feedPostId) {
+    // await checkFriendShipStatus().then(() => {
+    if (checkLike) {
+      unlikeFeedPost(feedPostId).then((res) => {
+        if (res.status === 200) {
+          const unLikePostData = postData.map(
+            (unLikePost: any) => { // NewsPartnerPostProps || Post type check
+              if (unLikePost._id === feedPostId) {
                 return {
-                  ...likePost,
-                  likeIcon: true,
-                  likedByUser: true,
-                  likeCount: likePost.likeCount + 1,
+                  ...unLikePost,
+                  likeIcon: false,
+                  likedByUser: false,
+                  likeCount: unLikePost.likeCount - 1,
                 };
               }
-              return likePost;
-            });
-            setPostData(likePostData);
+              return unLikePost;
+            },
+          );
+          setPostData(unLikePostData);
+        }
+      });
+    } else {
+      likeFeedPost(feedPostId).then((res) => {
+        if (res.status === 201 && res.data.isFriend === false) {
+          setFriendShipStatusModal(true);
+        }
+        const likePostData = postData.map((likePost: Post) => {
+          if (likePost._id === feedPostId) {
+            return {
+              ...likePost,
+              likeIcon: true,
+              likedByUser: true,
+              likeCount: likePost.likeCount + 1,
+            };
           }
+          return likePost;
         });
-      }
-    }).catch(() => { });
+        setPostData(likePostData);
+      }).catch((err) => {
+        if (err.response.status === 403) {
+          checkFriendShipStatus();
+        }
+      });
+    }
+    // }).catch(() => { });
   };
 
   const onCommentLike = async (feedCommentId: string) => {

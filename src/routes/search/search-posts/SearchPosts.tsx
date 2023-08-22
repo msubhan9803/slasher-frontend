@@ -4,7 +4,7 @@ import { useLocation, useSearchParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
 import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import ReportModal from '../../../components/ui/ReportModal';
-import { Post } from '../../../types';
+import { FriendRequestReaction, Post } from '../../../types';
 import SearchHeader from '../SearchHeader';
 import {
   deleteFeedPost, getHashtagPostList, hideFeedPost, updateFeedPost,
@@ -21,6 +21,8 @@ import {
   deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../../pageStateCache';
 import useProgressButton from '../../../components/ui/ProgressButton';
+import FriendshipStatusModal from '../../../components/ui/friendShipCheckModal';
+import { friendship } from '../../../api/friends';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
@@ -53,6 +55,10 @@ function SearchPosts() {
   const [lastHashtagId, setLastHashtagId] = useState<string>('');
   const persistScrollPosition = () => { setPageStateCache(location, searchPosts); };
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
+  const [friendShipStatusModal, setFriendShipStatusModal] = useState<boolean>(false);
+  const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
+  const userId = useAppSelector((state) => state.user.user.id);
+
   useEffect(() => {
     setQueryParam(searchParams.get('hashtag'));
   }, [searchParams]);
@@ -165,32 +171,55 @@ function SearchPosts() {
     setShow(true);
     setDropDownValue(value);
   };
+  const checkFriendShipStatus = (selectedFeedPostId: string) => new Promise<void>(
+    (resolve, reject) => {
+      if (userId === selectedFeedPostId) {
+        resolve();
+      } else {
+        friendship(selectedFeedPostId).then((res) => {
+          if (res.data.reaction === FriendRequestReaction.Accepted) {
+            resolve();
+          } else {
+            setPostUserId(selectedFeedPostId);
+            setFriendShipStatusModal(true);
+            setSearchPosts(res.data);
+            setFriendStatus(res.data.reaction);
+          }
+        }).catch(() => reject());
+      }
+    },
+  );
 
-  const onLikeClick = (feedPostId: string) => {
+  const onLikeClick = async (feedPostId: string) => {
     const checkLike = searchPosts.some((post) => post.id === feedPostId
       && post.likeIcon);
-    if (checkLike) {
-      unlikeFeedPost(feedPostId).then((res) => {
-        if (res.status === 200) {
-          const unLikePostData = searchPosts.map(
-            (unLikePost: Post) => {
-              if (unLikePost._id === feedPostId) {
-                return {
-                  ...unLikePost,
-                  likeIcon: false,
-                  likedByUser: false,
-                  likeCount: unLikePost.likeCount - 1,
-                };
-              }
-              return unLikePost;
-            },
-          );
-          setSearchPosts(unLikePostData);
-        }
-      });
-    } else {
-      likeFeedPost(feedPostId).then((res) => {
-        if (res.status === 201) {
+    const selectedFeedPostId = searchPosts.find((post) => post.id === feedPostId)?.userId;
+
+    await checkFriendShipStatus(selectedFeedPostId!).then(() => {
+      if (checkLike) {
+        unlikeFeedPost(feedPostId).then((res) => {
+          if (res.status === 200) {
+            const unLikePostData = searchPosts.map(
+              (unLikePost: Post) => {
+                if (unLikePost._id === feedPostId) {
+                  return {
+                    ...unLikePost,
+                    likeIcon: false,
+                    likedByUser: false,
+                    likeCount: unLikePost.likeCount - 1,
+                  };
+                }
+                return unLikePost;
+              },
+            );
+            setSearchPosts(unLikePostData);
+          }
+        });
+      } else {
+        likeFeedPost(feedPostId).then((res) => {
+          if (res.status === 201 && res.data.isFriend === false) {
+            setFriendShipStatusModal(true);
+          }
           const likePostData = searchPosts.map((likePost: Post) => {
             if (likePost._id === feedPostId) {
               return {
@@ -203,9 +232,13 @@ function SearchPosts() {
             return likePost;
           });
           setSearchPosts(likePostData);
-        }
-      });
-    }
+        }).catch((err) => {
+          if (err.response.status === 403) {
+            setFriendShipStatusModal(true);
+          }
+        });
+      }
+    }).catch(() => { });
   };
 
   const renderNoMoreDataMessage = () => {
@@ -376,6 +409,17 @@ function SearchPosts() {
           />
         )
       }
+      {friendShipStatusModal && (
+        <FriendshipStatusModal
+          friendShipStatusModal={friendShipStatusModal}
+          setFriendShipStatusModal={setFriendShipStatusModal}
+          friendStatus={friendStatus}
+          setFriendStatus={setFriendStatus}
+          setFriendData={setSearchPosts}
+          friendData={searchPosts}
+          userId={postUserId}
+        />
+      )}
     </div>
   );
 }

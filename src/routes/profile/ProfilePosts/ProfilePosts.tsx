@@ -272,19 +272,24 @@ function ProfilePosts({ user }: Props) {
         });
       } else {
         likeFeedPost(feedPostId).then((res) => {
-          if (res.status === 201) {
-            const likePostData = posts.map((likePost: Post) => {
-              if (likePost._id === feedPostId) {
-                return {
-                  ...likePost,
-                  likeIcon: true,
-                  likedByUser: true,
-                  likeCount: likePost.likeCount + 1,
-                };
-              }
-              return likePost;
-            });
-            setPosts(likePostData);
+          if (res.status === 201 && res.data.isFriend === false) {
+            setFriendShipStatusModal(true);
+          }
+          const likePostData = posts.map((likePost: Post) => {
+            if (likePost._id === feedPostId) {
+              return {
+                ...likePost,
+                likeIcon: true,
+                likedByUser: true,
+                likeCount: likePost.likeCount + 1,
+              };
+            }
+            return likePost;
+          });
+          setPosts(likePostData);
+        }).catch((err) => {
+          if (err.response.status === 403) {
+            setFriendShipStatusModal(true);
           }
         });
       }

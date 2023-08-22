@@ -174,7 +174,7 @@ export class FeedPostsController {
 
     const createFeedPost = await this.feedPostsService.create(feedPost);
 
-    if (allUserIds && allUserIds.length) {
+    if (createFeedPost.hashtags && createFeedPost.hashtags.length && allUserIds && allUserIds.length) {
       await this.sendNotificationOfHashtagFollowPost.add('send-notification-of-hashtagfollow-post', {
         userId: allUserIds,
         feedPostId: createFeedPost.id,

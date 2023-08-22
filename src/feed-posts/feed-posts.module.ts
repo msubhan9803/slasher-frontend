@@ -17,6 +17,7 @@ import { MovieUserStatusModule } from '../movie-user-status/movie.user.status.mo
 import { FriendsGateway } from '../friends/providers/friends.gateway';
 import { Hashtag, HashtagSchema } from '../schemas/hastag/hashtag.schema';
 import { HashtagFollowsModule } from '../hashtag-follows/hashtag-follows.module';
+import { PostAccessService } from './providers/post-access.service';
 
 @Global()
 @Module({
@@ -33,8 +34,8 @@ import { HashtagFollowsModule } from '../hashtag-follows/hashtag-follows.module'
     MovieUserStatusModule,
     HashtagFollowsModule,
   ],
-  providers: [FeedPostsService, BlocksService, LocalStorageService, S3StorageService, FriendsGateway],
-  exports: [FeedPostsService, FriendsGateway],
+  providers: [FeedPostsService, PostAccessService, BlocksService, LocalStorageService, S3StorageService, FriendsGateway],
+  exports: [FeedPostsService, PostAccessService, FriendsGateway],
   controllers: [FeedPostsController],
 })
 export class FeedPostsModule { }

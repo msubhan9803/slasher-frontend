@@ -46,7 +46,7 @@ export class HashtagFollowsService {
     return this.hashtagFollowModel
       .find({ userId }, {
         hashTagId: 1, userId: 1, notification: 1, _id: 0,
-      })
+      }).populate('hashTagId')
       .exec();
   }
 

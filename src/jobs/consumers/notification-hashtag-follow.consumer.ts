@@ -1,6 +1,6 @@
 import { Process, Processor } from '@nestjs/bull';
 import { Job } from 'bull';
-import { NotificationsService } from 'src/notifications/providers/notifications.service';
+import { NotificationsService } from '../../notifications/providers/notifications.service';
 
 @Processor('hashtag-follow-post')
 export class NotificatationOfHashtagFollowPost {
@@ -10,7 +10,6 @@ export class NotificatationOfHashtagFollowPost {
 
     @Process('send-notification-of-hashtagfollow-post')
     async sendNotificationOfHashtagFollowPost(job: Job<any>) {
-        // console.log('job.data.allUserIds',job.data.allUserIds);
         const {
  userId, feedPostId, senderId, notifyType, notificationMsg,
 } = job.data;

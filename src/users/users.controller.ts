@@ -1111,18 +1111,17 @@ export class UsersController {
     if (user.id !== params.userId) { throw new HttpException('Not authorized', HttpStatus.UNAUTHORIZED); }
 
     const hashtagFollowsData = await this.hashtagFollowsService.findAllByUserId(params.userId);
-
     if (!(hashtagFollowsData && hashtagFollowsData.length)) {
       throw new HttpException('Hashtag follow not found', HttpStatus.NOT_FOUND);
     }
 
-    const hashtagId: any = hashtagFollowsData.map((hashtag) => hashtag.hashTagId);
+    const hashtagId: any = hashtagFollowsData.map((hashtag) => (hashtag.hashTagId as any)._id);
 
     const hashtagsData = await this.hashtagService.findAllHashtagById(hashtagId, query.limit, query.query, query.offset);
 
     const hashtagFollows = [];
     for (const follow of hashtagFollowsData) {
-      const hashtag = hashtagsData.find((id) => id._id.toString() === follow.hashTagId.toString());
+      const hashtag = hashtagsData.find(({ _id }) => _id.toString() === (follow.hashTagId as any)._id.toString());
       if (hashtag) {
         const hashtags: any = {};
         hashtags.notification = follow.notification;

@@ -92,7 +92,6 @@ describe('Followed Hashtags (e2e)', () => {
         .get(`/api/v1/users/${activeUser._id.toString()}/hashtag-follows?limit=${limit}&offset=${offset}&query=${query}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-
       expect(response.body).toEqual([
         {
           notification: 0,

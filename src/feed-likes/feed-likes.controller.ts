@@ -22,6 +22,7 @@ import { UsersService } from '../users/providers/users.service';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { LikesLimitOffSetDto } from './dto/likes-limit-offset-query.dto';
 import { PostType } from '../schemas/feedPost/feedPost.enums';
+import { PostAccessService } from '../feed-posts/providers/post-access.service';
 
 @Controller({ path: 'feed-likes', version: ['1'] })
 export class FeedLikesController {
@@ -33,7 +34,7 @@ export class FeedLikesController {
     private readonly blocksService: BlocksService,
     private readonly friendsService: FriendsService,
     private readonly usersService: UsersService,
-
+    private readonly postAccessService: PostAccessService,
   ) { }
 
   @Post('post/:feedPostId')
@@ -47,13 +48,15 @@ export class FeedLikesController {
     if (feedPostLikeData) {
       throw new HttpException('You already like the post', HttpStatus.BAD_REQUEST);
     }
+    let isFriend = false;
     if (
       post.postType !== PostType.MovieReview && !post.rssfeedProviderId
       && user.id !== (post.userId as unknown as User)._id.toString()
     ) {
-      const areFriends = await this.friendsService.areFriends(user.id, (post.userId as unknown as User)._id.toString());
-      if (!areFriends) {
-        throw new HttpException('You can only interact with posts of friends.', HttpStatus.FORBIDDEN);
+      isFriend = await this.friendsService.areFriends(user.id, (post.userId as unknown as User)._id.toString()) || false;
+
+      if (!isFriend) {
+        await this.postAccessService.checkAccessPostService(user, post.hashtags);
       }
     }
     if (!post.rssfeedProviderId) {
@@ -85,7 +88,7 @@ export class FeedLikesController {
       });
     }
 
-    return { success: true };
+    return { success: true, isFriend };
   }
 
   @Delete('post/:feedPostId')
@@ -122,14 +125,15 @@ export class FeedLikesController {
         throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
       }
     }
-
+    let isFriend = false;
     if (
       feedPost.postType !== PostType.MovieReview && !feedPost.rssfeedProviderId
       && user.id !== (feedPost.userId as unknown as User)._id.toString()
     ) {
-      const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString());
-      if (!areFriends) {
-        throw new HttpException('You can only interact with posts of friends.', HttpStatus.FORBIDDEN);
+      isFriend = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString()) || false;
+
+      if (!isFriend) {
+        await this.postAccessService.checkAccessPostService(user, feedPost.hashtags);
       }
     }
 
@@ -152,7 +156,7 @@ export class FeedLikesController {
         notificationMsg: 'liked your comment',
       });
     }
-    return { success: true };
+    return { success: true, isFriend };
   }
 
   @Delete('comment/:feedCommentId')
@@ -189,14 +193,14 @@ export class FeedLikesController {
         throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
       }
     }
-
+    let isFriend = false;
     if (
       feedPost.postType !== PostType.MovieReview && !feedPost.rssfeedProviderId
       && user.id !== (feedPost.userId as unknown as User)._id.toString()
     ) {
-      const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString());
-      if (!areFriends) {
-        throw new HttpException('You can only interact with posts of friends.', HttpStatus.FORBIDDEN);
+      isFriend = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString());
+      if (!isFriend) {
+        await this.postAccessService.checkAccessPostService(user, feedPost.hashtags);
       }
     }
 
@@ -221,7 +225,7 @@ export class FeedLikesController {
       });
     }
 
-    return { success: true };
+    return { success: true, isFriend };
   }
 
   @Delete('reply/:feedReplyId')

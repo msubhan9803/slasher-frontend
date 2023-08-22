@@ -118,6 +118,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             feedPostId: feedPost._id.toString(),
             message: 'hello test user',
+            isFriend: false,
             userId: activeUser._id.toString(),
             images: [
               {
@@ -183,6 +184,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           feedPostId: feedPost._id.toString(),
           message: 'This is a test message',
+          isFriend: false,
           userId: activeUser._id.toString(),
           images: [],
         });
@@ -237,6 +239,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             feedPostId: feedPost._id.toString(),
             message: 'hello test user',
+            isFriend: false,
             userId: activeUser._id.toString(),
             images: [
               {
@@ -293,6 +296,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
           expect(response.body).toEqual({
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             feedPostId: feedPost._id.toString(),
+            isFriend: false,
             message: null,
             userId: activeUser._id.toString(),
             images: [
@@ -440,6 +444,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           feedPostId: feedPost._id.toString(),
           message: 'this is new post comment',
+          isFriend: false,
           userId: activeUser._id.toString(),
           images: [],
         });
@@ -649,6 +654,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               feedPostId: feedPost4._id.toString(),
               message: 'hello test user',
+              isFriend: true,
               userId: activeUser._id.toString(),
               images: [
                 {
@@ -684,6 +690,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               feedPostId: feedPost2._id.toString(),
               message: 'hello test user',
+              isFriend: false,
               userId: activeUser._id.toString(),
               images: [
                 {
@@ -725,6 +732,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
               feedPostId: feedPost5._id.toString(),
               message: 'hello test user',
               userId: activeUser._id.toString(),
+              isFriend: false,
               images: [
                 {
                   image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -764,6 +772,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               feedPostId: feedPost6._id.toString(),
               message: 'hello test user',
+              isFriend: false,
               userId: activeUser._id.toString(),
               images: [
                 {

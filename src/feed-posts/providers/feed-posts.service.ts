@@ -162,7 +162,7 @@ export class FeedPostsService {
 
     const hashtagFollows = await this.hashtagFollowsService.findAllByUserId(userId);
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    const hashtagFollowIds = hashtagFollows.map((hashtagFollows) => hashtagFollows.hashTagId);
+    const hashtagFollowIds = hashtagFollows.map((hashtagFollows) => (hashtagFollows.hashTagId as any)._id);
     const hashtags = (await this.hashtagModel.find(
       { _id: { $in: hashtagFollowIds } },
     )).map((hashtagName) => hashtagName.name);

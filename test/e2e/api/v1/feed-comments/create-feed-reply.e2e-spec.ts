@@ -149,7 +149,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
             feedPostId: feedPost._id.toString(),
             feedCommentId: feedComment._id.toString(),
             message: 'hello test user',
-            isFriend: false,
+            isFriend: true,
             userId: activeUser._id.toString(),
             images: [
               {
@@ -217,7 +217,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           feedPostId: feedPost._id.toString(),
           feedCommentId: feedComment._id.toString(),
           message: 'This is a test message',
-          isFriend: false,
+          isFriend: true,
           userId: activeUser._id.toString(),
           images: [],
         });
@@ -239,7 +239,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
             feedCommentId: feedComment._id.toString(),
             feedPostId: feedPost._id.toString(),
             message: null,
-            isFriend: false,
+            isFriend: true,
             userId: activeUser._id.toString(),
             images: [
               {
@@ -430,7 +430,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           feedCommentId: feedComment._id.toString(),
           feedPostId: feedPost._id.toString(),
           message: 'This is a test reply message',
-          isFriend: false,
+          isFriend: true,
           userId: activeUser._id.toString(),
           images: [],
         });
@@ -489,7 +489,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
             feedPostId: feedPost._id.toString(),
             feedCommentId: feedComment._id.toString(),
             message: 'hello test user',
-            isFriend: false,
+            isFriend: true,
             userId: activeUser._id.toString(),
             images: [
               {
@@ -704,7 +704,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
               feedCommentId: feedComment2._id.toString(),
               feedPostId: feedPost2._id.toString(),
               message: 'hello test user',
-              isFriend: false,
+              isFriend: true,
               userId: activeUser._id.toString(),
               images: [
                 {
@@ -756,7 +756,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
               feedCommentId: feedComment5._id.toString(),
               feedPostId: feedPost5._id.toString(),
               message: 'hello test user',
-              isFriend: false,
+              isFriend: true,
               userId: activeUser._id.toString(),
               images: [
                 {
@@ -808,7 +808,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
               feedCommentId: feedComment6._id.toString(),
               feedPostId: feedPost6._id.toString(),
               message: 'hello test user',
-              isFriend: false,
+              isFriend: true,
               userId: activeUser._id.toString(),
               images: [
                 {

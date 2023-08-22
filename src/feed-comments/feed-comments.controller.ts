@@ -79,7 +79,7 @@ export class FeedCommentsController {
     if (!post) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-    let isFriend = false;
+    let isFriend = true;
     const user = getUserFromRequest(request);
     if (
       post.postType !== PostType.MovieReview && !post.rssfeedProviderId
@@ -303,12 +303,12 @@ export class FeedCommentsController {
         throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
       }
     }
-    let isFriend = false;
+    let isFriend = true;
     if (
       feedPost.postType !== PostType.MovieReview && !feedPost.rssfeedProviderId
       && user.id !== (feedPost.userId as unknown as User)._id.toString()
     ) {
-      isFriend = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString());
+      isFriend = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString()) || false;
       if (!isFriend) {
         await this.postAccessService.checkAccessPostService(user, feedPost.hashtags);
       }

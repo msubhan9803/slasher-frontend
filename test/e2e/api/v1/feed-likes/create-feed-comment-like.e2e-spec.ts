@@ -131,7 +131,7 @@ describe('Create Feed Comment Like (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.CREATED);
-      expect(response.body).toEqual({ success: true, isFriend: false });
+      expect(response.body).toEqual({ success: true, isFriend: true });
 
       const reloadedFeedComment = await feedCommentsService.findFeedComment(feedComment.id);
       expect(reloadedFeedComment.likes).toContainEqual(activeUser._id);
@@ -364,7 +364,7 @@ describe('Create Feed Comment Like (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
           expect(response.status).toBe(HttpStatus.CREATED);
-          expect(response.body).toEqual({ success: true, isFriend: false });
+          expect(response.body).toEqual({ success: true, isFriend: true });
       });
 
       it('when postType is movieReview and comment liking user is a friend of the post creator', async () => {
@@ -403,7 +403,7 @@ describe('Create Feed Comment Like (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
           expect(response.status).toBe(HttpStatus.CREATED);
-          expect(response.body).toEqual({ success: true, isFriend: false });
+          expect(response.body).toEqual({ success: true, isFriend: true });
       });
     });
 

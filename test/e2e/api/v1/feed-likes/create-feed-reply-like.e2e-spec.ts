@@ -151,7 +151,7 @@ describe('Create Feed Reply Like (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.CREATED);
-      expect(response.body).toEqual({ success: true, isFriend: false });
+      expect(response.body).toEqual({ success: true, isFriend: true });
       const reloadedFeedReply = await feedCommentsService.findFeedReply(feedReply.id);
       expect(reloadedFeedReply.likes).toContainEqual(activeUser._id);
 
@@ -486,7 +486,7 @@ describe('Create Feed Reply Like (e2e)', () => {
             .post(`/api/v1/feed-likes/reply/${feedReply6._id}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
-          expect(response.body).toEqual({ success: true, isFriend: false });
+          expect(response.body).toEqual({ success: true, isFriend: true });
         });
 
         it('when postType is movieReview than expected response', async () => {
@@ -524,7 +524,7 @@ describe('Create Feed Reply Like (e2e)', () => {
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
           expect(response.status).toBe(HttpStatus.CREATED);
-          expect(response.body).toEqual({ success: true, isFriend: false });
+          expect(response.body).toEqual({ success: true, isFriend: true });
         });
 
         it('when postType is movieReview and reply liking user is a friend of the post creator', async () => {
@@ -567,7 +567,7 @@ describe('Create Feed Reply Like (e2e)', () => {
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
           expect(response.status).toBe(HttpStatus.CREATED);
-          expect(response.body).toEqual({ success: true, isFriend: false });
+          expect(response.body).toEqual({ success: true, isFriend: true });
         });
       });
     });

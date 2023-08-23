@@ -128,9 +128,9 @@ export class FeedLikesController {
     let isFriend = true;
     if (
       feedPost.postType !== PostType.MovieReview && !feedPost.rssfeedProviderId
-      && user.id !== (feedPost.userId as unknown as User)._id.toString()
+      && user.id !== (comment.userId as unknown as User)._id.toString()
     ) {
-      isFriend = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString()) || false;
+      isFriend = await this.friendsService.areFriends(user.id, (comment.userId as unknown as User)._id.toString()) || false;
 
       if (!isFriend) {
         await this.postAccessService.checkAccessPostService(user, feedPost.hashtags);
@@ -188,7 +188,7 @@ export class FeedLikesController {
     }
 
     if (!feedPost.rssfeedProviderId) {
-      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (reply.userId as unknown as User)._id.toString());
       if (block) {
         throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
       }
@@ -196,9 +196,10 @@ export class FeedLikesController {
     let isFriend = true;
     if (
       feedPost.postType !== PostType.MovieReview && !feedPost.rssfeedProviderId
-      && user.id !== (feedPost.userId as unknown as User)._id.toString()
+      && user.id !== (reply.userId as unknown as User)._id.toString()
     ) {
-      isFriend = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString()) || false;
+      isFriend = await this.friendsService.areFriends(user.id, (reply.userId as unknown as User)._id.toString()) || false;
+
       if (!isFriend) {
         await this.postAccessService.checkAccessPostService(user, feedPost.hashtags);
       }

@@ -124,8 +124,10 @@ describe('Create Feed Comment Like (e2e)', () => {
     });
 
     it('successfully creates a feed comment like, and sends the expected notification', async () => {
-      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
+      await friendsService.createFriendRequest(activeUser._id.toString(), user0._id.toString());
+      await friendsService.acceptFriendRequest(activeUser._id.toString(), user0._id.toString());
 
+      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
       const response = await request(app.getHttpServer())
         .post(`/api/v1/feed-likes/comment/${feedComment._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
@@ -409,7 +411,6 @@ describe('Create Feed Comment Like (e2e)', () => {
 
     describe('notifications', () => {
       it('when notification is create for createFeedCommentLike than check newNotificationCount is increment in user', async () => {
-        const user3 = await usersService.create(userFactory.build({ userName: 'Divine' }));
         const commentCreatorUser = await usersService.create(userFactory.build({ userName: 'Divine' }));
         await userSettingsService.create(
           userSettingFactory.build(
@@ -418,7 +419,7 @@ describe('Create Feed Comment Like (e2e)', () => {
             },
           ),
         );
-        const post = await feedPostsService.create(feedPostFactory.build({ userId: user3._id }));
+        const post = await feedPostsService.create(feedPostFactory.build({ userId: activeUser._id }));
         const comment = await feedCommentsService.createFeedComment(
           feedCommentsFactory.build(
             {
@@ -429,8 +430,8 @@ describe('Create Feed Comment Like (e2e)', () => {
             },
           ),
         );
-        await friendsService.createFriendRequest(activeUser._id.toString(), user3.id);
-        await friendsService.acceptFriendRequest(activeUser._id.toString(), user3.id);
+        await friendsService.createFriendRequest(activeUser._id.toString(), commentCreatorUser.id);
+        await friendsService.acceptFriendRequest(activeUser._id.toString(), commentCreatorUser.id);
         await request(app.getHttpServer())
           .post(`/api/v1/feed-likes/comment/${comment._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })

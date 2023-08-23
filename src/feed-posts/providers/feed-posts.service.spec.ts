@@ -606,6 +606,119 @@ describe('FeedPostsService', () => {
           expect(feedPosts[i]._id).not.toEqual(post._id);
         }
       });
+
+      it('return the expected post when both user are friends', async () => {
+        const user1 = await usersService.create(userFactory.build());
+        const user2 = await usersService.create(userFactory.build());
+        await friendsService.createFriendRequest(user1.id, user2.id);
+        await friendsService.acceptFriendRequest(user1.id, user2.id);
+        const limit = 6;
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user1.id,
+          }),
+        );
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user1.id,
+          }),
+        );
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user2.id,
+          }),
+        );
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user2.id,
+          }),
+        );
+        const response = await feedPostsService.findMainFeedPostsForUser(user1.id, limit);
+        expect(response).toHaveLength(4);
+      });
+
+      //public profile of user2
+      it(`returns the expected response when both users are not friends and user follows
+       the hashtag which is in hashtags of other users post`, async () => {
+        const user1 = await usersService.create(userFactory.build());
+        const user2 = await usersService.create(userFactory.build());
+        const limit = 6;
+        const feedPost1 = await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user1.id,
+          }),
+        );
+        const feedPost2 = await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user2.id,
+            hashtags: ['horror', 'dark'],
+          }),
+        );
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user2.id,
+            hashtags: ['test', 'nature'],
+          }),
+        );
+        const feedPost4 = await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user2.id,
+            hashtags: ['dark', 'nature'],
+          }),
+        );
+        const hashtag1 = await hashtagModel.create({
+          name: 'dark',
+        });
+        await hashtagFollowsService.create({
+          userId: user1._id,
+          hashTagId: hashtag1._id,
+        });
+        const response = await feedPostsService.findMainFeedPostsForUser(user1.id, limit);
+        expect(response).toHaveLength(3);
+        expect(response.map(({ _id }) => _id).sort()).toEqual([feedPost1.id, feedPost2.id, feedPost4.id].sort());
+      });
+
+      //private profile of user2
+      it(`returns the expected response when both users are not friends and
+       user follows the hashtag which is in hashtags of other users privte post`, async () => {
+        const user1 = await usersService.create(userFactory.build());
+        const user2 = await usersService.create(userFactory.build(
+          { profile_status: ProfileVisibility.Private },
+        ));
+        const limit = 6;
+        const feedPost1 = await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user1.id,
+          }),
+        );
+        const feedPost2 = await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user1.id,
+          }),
+        );
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user2.id,
+            hashtags: ['test', 'good'],
+          }),
+        );
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user2.id,
+            hashtags: ['horror', 'dark'],
+          }),
+        );
+        const hashtag1 = await hashtagModel.create({
+          name: 'dark',
+        });
+        await hashtagFollowsService.create({
+          userId: user1._id,
+          hashTagId: hashtag1._id,
+        });
+        const response = await feedPostsService.findMainFeedPostsForUser(user1.id, limit);
+        expect(response).toHaveLength(2);
+        expect(response.map(({ _id }) => _id).sort()).toEqual([feedPost1.id, feedPost2.id].sort());
+      });
     });
 
     describe('should not include posts hidden for current user', () => {

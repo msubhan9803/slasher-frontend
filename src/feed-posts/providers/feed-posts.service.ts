@@ -162,10 +162,8 @@ export class FeedPostsService {
 
     const hashtagFollows = await this.hashtagFollowsService.findAllByUserId(userId);
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    const hashtagFollowIds = hashtagFollows.map((hashtagFollows) => (hashtagFollows.hashTagId as any)._id);
-    const hashtags = (await this.hashtagModel.find(
-      { _id: { $in: hashtagFollowIds } },
-    )).map((hashtagName) => hashtagName.name);
+    const hashtags = hashtagFollows.map((hashtagFollows) => (hashtagFollows.hashTagId as any).name);
+
     const profileIdsToIgnore = await this.userModel.find({
       _id: { $nin: [...friendIds, new mongoose.Types.ObjectId(userId)] },
       $or: [
@@ -189,9 +187,9 @@ export class FeedPostsService {
           { is_deleted: 0 },
           {
             $or: [
-              { userId: { $eq: userId } },
               { userId: { $in: [...friendIds, new mongoose.Types.ObjectId(userId)] } },
               { rssfeedProviderId: { $in: rssFeedProviderIds } },
+              { $and: [{ hashtags: { $in: hashtags } }, { userId: { $nin: userIds } }] },
             ],
           },
           {
@@ -201,12 +199,6 @@ export class FeedPostsService {
             ],
           },
           { hideUsers: { $ne: new mongoose.Types.ObjectId(userId) } },
-          {
-            $or: [
-              { hashtags: { $in: hashtags } },
-              { userId: { $nin: userIds } },
-            ],
-          },
           beforeQuery,
         ],
       })

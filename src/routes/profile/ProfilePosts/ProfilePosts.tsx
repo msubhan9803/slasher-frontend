@@ -250,50 +250,48 @@ function ProfilePosts({ user }: Props) {
 
     const selectedFeedPostId = posts.find((post) => post.id === feedPostId)?.userId;
 
-    await checkFriendShipStatus(selectedFeedPostId!).then(() => {
-      if (checkLike) {
-        unlikeFeedPost(feedPostId).then((res) => {
-          if (res.status === 200) {
-            const unLikePostData = posts.map(
-              (unLikePost: Post) => {
-                if (unLikePost._id === feedPostId) {
-                  return {
-                    ...unLikePost,
-                    likeIcon: false,
-                    likedByUser: false,
-                    likeCount: unLikePost.likeCount - 1,
-                  };
-                }
-                return unLikePost;
-              },
-            );
-            setPosts(unLikePostData);
+    if (checkLike) {
+      unlikeFeedPost(feedPostId).then((res) => {
+        if (res.status === 200) {
+          const unLikePostData = posts.map(
+            (unLikePost: Post) => {
+              if (unLikePost._id === feedPostId) {
+                return {
+                  ...unLikePost,
+                  likeIcon: false,
+                  likedByUser: false,
+                  likeCount: unLikePost.likeCount - 1,
+                };
+              }
+              return unLikePost;
+            },
+          );
+          setPosts(unLikePostData);
+        }
+      });
+    } else {
+      likeFeedPost(feedPostId).then((res) => {
+        if (res.status === 201 && res.data.isFriend === false) {
+          checkFriendShipStatus(selectedFeedPostId!);
+        }
+        const likePostData = posts.map((likePost: Post) => {
+          if (likePost._id === feedPostId) {
+            return {
+              ...likePost,
+              likeIcon: true,
+              likedByUser: true,
+              likeCount: likePost.likeCount + 1,
+            };
           }
+          return likePost;
         });
-      } else {
-        likeFeedPost(feedPostId).then((res) => {
-          if (res.status === 201 && res.data.isFriend === false) {
-            setFriendShipStatusModal(true);
-          }
-          const likePostData = posts.map((likePost: Post) => {
-            if (likePost._id === feedPostId) {
-              return {
-                ...likePost,
-                likeIcon: true,
-                likedByUser: true,
-                likeCount: likePost.likeCount + 1,
-              };
-            }
-            return likePost;
-          });
-          setPosts(likePostData);
-        }).catch((err) => {
-          if (err.response.status === 403) {
-            setFriendShipStatusModal(true);
-          }
-        });
-      }
-    }).catch(() => { });
+        setPosts(likePostData);
+      }).catch((err) => {
+        if (err.response.status === 403) {
+          checkFriendShipStatus(selectedFeedPostId!);
+        }
+      });
+    }
   };
 
   const onBlockYesClick = () => {

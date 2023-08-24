@@ -35,7 +35,11 @@ export default function FriendshipStatusModal({
           <CustomModal show={friendShipStatusModal} centered size="sm" onHide={() => setFriendShipStatusModal(false)}>
             <Modal.Header className="border-0 shadow-none justify-content-end" closeButton />
             <Modal.Body className="d-flex flex-column align-items-center text-center pt-0">
-              <p className="px-3">You can only interact with posts of friends</p>
+              <p className="px-3">
+                You can only interact with posts that contain hashtags you follow
+                or if you&apos;re friends with the person. Would you like to add this person
+                as a friend?
+              </p>
               <FriendActionButtons
                 user={user}
                 friendData={friendData}

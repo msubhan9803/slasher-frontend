@@ -36,9 +36,17 @@ export default function FriendshipStatusModal({
             <Modal.Header className="border-0 shadow-none justify-content-end" closeButton />
             <Modal.Body className="d-flex flex-column align-items-center text-center pt-0">
               <p className="px-3">
-                You can only interact with posts that contain hashtags you follow
-                or if you&apos;re friends with the person. Would you like to add this person
-                as a friend?
+                Would you like to add this person as a friend?
+                {' '}
+                <br />
+                <br />
+                You can interact with posts:
+                <br />
+                If they contain hashtags you follow
+                <br />
+                or
+                <br />
+                If you&apos;re friends with that person
               </p>
               <FriendActionButtons
                 user={user}

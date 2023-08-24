@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { FriendsService } from '../../friends/providers/friends.service';
 import { RssFeedProviderFollowsService } from '../../rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
 import {
- FeedPostDeletionState, FeedPostPrivacyType, FeedPostStatus, PostType,
+  FeedPostDeletionState, FeedPostPrivacyType, FeedPostStatus, PostType,
 } from '../../schemas/feedPost/feedPost.enums';
 import { FeedPost, FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 import { User, UserDocument } from '../../schemas/user/user.schema';
@@ -226,19 +226,11 @@ export class FeedPostsService {
     before?: mongoose.Types.ObjectId,
     userId?: string,
   ): Promise<FeedPostDocument[]> {
-    const friendIds = await this.friendsService.getFriendIds(userId, [
-      FriendRequestReaction.Accepted,
-    ]);
-    const profileIdsToIgnore = await this.userModel.find({
-      _id: { $nin: [...friendIds, new mongoose.Types.ObjectId(userId)] },
-      $or: [
-        { profile_status: ProfileVisibility.Private },
-        { $and: [{ profile_status: ProfileVisibility.Public, deleted: true }] },
-      ],
-    }, { _id: 1 });
+    const blockUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(userId);
+
     const [totalHashtagCount, feedPosts] = await Promise.all([
       this.fetchTotalHashTagPostCount(hashtag),
-      this.fetchPostByHashTag(before, hashtag, profileIdsToIgnore, limit, userId),
+      this.fetchPostByHashTag(before, hashtag, blockUserIds, limit, userId),
     ]);
     return [totalHashtagCount, feedPosts];
   }
@@ -247,7 +239,7 @@ export class FeedPostsService {
     return (await this.hashtagModel.findOne({ name })).totalPost;
   }
 
-  async fetchPostByHashTag(before, hashtag, profileIdsToIgnore, limit, userId) {
+  async fetchPostByHashTag(before, hashtag, blockUserIds, limit, userId) {
     const beforeQuery: any = {};
     if (before) {
       const feedPost = await this.feedPostModel.findById(before).exec();
@@ -260,7 +252,8 @@ export class FeedPostsService {
           { hashtags: hashtag },
           { status: 1 },
           { is_deleted: 0 },
-          { userId: { $nin: profileIdsToIgnore } },
+          { userId: { $nin: blockUserIds } },
+          { privacyType: FeedPostPrivacyType.Public },
           beforeQuery,
         ],
       })

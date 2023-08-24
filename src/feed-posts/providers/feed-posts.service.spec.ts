@@ -1070,123 +1070,82 @@ describe('FeedPostsService', () => {
   });
 
   describe('#findAllFeedPostsForHashtag', () => {
+    let user1;
+    let user2;
+    let user3;
     let user4;
     let user5;
-    let user6;
     beforeEach(async () => {
-      //create private user
-      const user2 = await usersService.create(userFactory.build({
-        profile_status: 1,
-      }));
-
-      //create public user with deleted
-      const user3 = await usersService.create(userFactory.build({
-        profile_status: 0, deleted: true,
-      }));
-
-      //create 3 public users with not deleted
-      user4 = await usersService.create(userFactory.build({
-        profile_status: 0,
-      }));
-      user5 = await usersService.create(userFactory.build({
-        profile_status: 0,
-      }));
-      user6 = await usersService.create(userFactory.build({
-        profile_status: 0,
-      }));
-
-      await hashtagModel.create({
-        name: 'ok',
-      });
-      //create posts with public user5 or user6
+      user1 = await usersService.create(userFactory.build());
+      user2 = await usersService.create(userFactory.build());
+      user3 = await usersService.create(userFactory.build());
+      user4 = await usersService.create(userFactory.build());
+      user5 = await usersService.create(userFactory.build());
       await feedPostsService.create(
         feedPostFactory.build({
-          message: 'post #ok #good',
-          userId: user5.id,
-          hashtags: ['ok', 'good'],
+          message: 'user1 post #horror #test',
+          userId: user1.id,
+          hashtags: ['horror', 'test'],
+          privacyType: FeedPostPrivacyType.Public,
         }),
       );
       await feedPostsService.create(
         feedPostFactory.build({
-          message: 'post #ok #code',
-          userId: user6.id,
-          hashtags: ['ok', 'code'],
-        }),
-      );
-
-      //create posts with private user2 or deleted public user3
-      await feedPostsService.create(
-        feedPostFactory.build({
-          message: 'post #ok #buddy',
+          message: 'user2 post #horror #evil',
           userId: user2.id,
-          hashtags: ['ok', 'buddy'],
+          hashtags: ['horror', 'evil'],
+          privacyType: FeedPostPrivacyType.Private,
         }),
       );
       await feedPostsService.create(
         feedPostFactory.build({
-          message: 'post #code #flash',
+          message: 'user3 post test #horror',
           userId: user3.id,
-          hashtags: ['code', 'flash'],
+          hashtags: ['horror'],
+          privacyType: FeedPostPrivacyType.Public,
         }),
       );
-
-      //create posts with public user4 but #ok is not exists
       await feedPostsService.create(
         feedPostFactory.build({
-          message: 'post#fan #follow',
+          message: 'user4 post #horror',
           userId: user4.id,
-          hashtags: ['fan', 'follow'],
+          hashtags: ['horror'],
+          privacyType: FeedPostPrivacyType.Public,
         }),
       );
-    });
-
-    it('when hashtag is "ok" than expected posts response', async () => {
-      const feedPostData = await feedPostsService.findAllFeedPostsForHashtag('ok', 10);
-      const posts: any = feedPostData[1];
-      for (let i = 1; i < posts.length; i += 1) {
-        expect(posts[i].hashtags).toContain('ok');
-        expect(posts[i].createdAt < posts[i - 1].createdAt).toBe(true);
-      }
-      expect(feedPostData[1]).toHaveLength(2);
-    });
-
-    it('returns the first and second sets of paginated results', async () => {
       await feedPostsService.create(
         feedPostFactory.build({
-          message: 'post #ok #good',
+          message: 'user5 post #horror',
           userId: user5.id,
-          hashtags: ['ok', 'good'],
+          hashtags: ['horror'],
+          privacyType: FeedPostPrivacyType.Public,
         }),
       );
-      await feedPostsService.create(
-        feedPostFactory.build({
-          message: 'post #ok #code',
-          userId: user6.id,
-          hashtags: ['ok', 'code'],
-        }),
-      );
-      await feedPostsService.create(
-        feedPostFactory.build({
-          message: 'post #ok #code',
-          userId: user4.id,
-          hashtags: ['ok', 'code'],
-        }),
-      );
+      await hashtagModel.create({
+        name: 'horror',
+      });
+    });
 
-      const limit = 3;
-      const firstResults = await feedPostsService.findAllFeedPostsForHashtag('ok', limit);
-      const secondResults = await feedPostsService
-        .findAllFeedPostsForHashtag(
-          'ok',
-          limit,
-          new mongoose.Types.ObjectId(firstResults[1][limit - 1]._id.toString()),
-        );
+    it('when hashtag is "horror" than expected posts response', async () => {
+      const feedPost = await feedPostsService.findAllFeedPostsForHashtag('horror', 5);
+      expect((feedPost[1] as any)).toHaveLength(4);
+    });
 
-      expect(firstResults[1]).toHaveLength(3); // it gives the count accorging to limit
-      expect(secondResults[1]).toHaveLength(2);
+    it('when hashtag is "horror" and limit is exists than expected posts response', async () => {
+      const feedPost = await feedPostsService.findAllFeedPostsForHashtag('horror', 2);
+      expect((feedPost[1] as any)).toHaveLength(2);
+    });
+
+    it('returns the expected response when block status is existing between two users', async () => {
+      await blocksModel.create({
+        from: activeUser.id,
+        to: user1.id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      const feedPost = await feedPostsService.findAllFeedPostsForHashtag('horror', 5, null, activeUser.id);
+      expect((feedPost[1] as any)).toHaveLength(3);
     });
   });
-
   describe('#findPostsByDays', () => {
     beforeEach(async () => {
       await feedPostsService.create(
@@ -1323,14 +1282,14 @@ describe('FeedPostsService', () => {
 
     it('updates the privacyPost according to user profile visibility', async () => {
       //update private to public
-       await feedPostsService.updatePostPrivacyType(user.id, 0);
-       expect((await feedPostsService.findById(feedPost1, true)).privacyType).toEqual(FeedPostPrivacyType.Public);
-       expect((await feedPostsService.findById(feedPost2, true)).privacyType).toEqual(FeedPostPrivacyType.Public);
+      await feedPostsService.updatePostPrivacyType(user.id, 0);
+      expect((await feedPostsService.findById(feedPost1, true)).privacyType).toEqual(FeedPostPrivacyType.Public);
+      expect((await feedPostsService.findById(feedPost2, true)).privacyType).toEqual(FeedPostPrivacyType.Public);
 
-       //update public to private
-       await feedPostsService.updatePostPrivacyType(user1.id, 1);
-       expect((await feedPostsService.findById(feedPost3, true)).privacyType).toEqual(FeedPostPrivacyType.Private);
-       expect((await feedPostsService.findById(feedPost4, true)).privacyType).toEqual(FeedPostPrivacyType.Private);
+      //update public to private
+      await feedPostsService.updatePostPrivacyType(user1.id, 1);
+      expect((await feedPostsService.findById(feedPost3, true)).privacyType).toEqual(FeedPostPrivacyType.Private);
+      expect((await feedPostsService.findById(feedPost4, true)).privacyType).toEqual(FeedPostPrivacyType.Private);
     });
   });
 });

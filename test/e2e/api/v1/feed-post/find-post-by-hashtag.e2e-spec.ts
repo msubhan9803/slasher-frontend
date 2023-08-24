@@ -15,6 +15,7 @@ import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-se
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 import { HashtagService } from '../../../../../src/hashtag/providers/hashtag.service';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
+import { FeedPostPrivacyType } from '../../../../../src/schemas/feedPost/feedPost.enums';
 
 describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
   let app: INestApplication;
@@ -87,6 +88,7 @@ describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
         message: 'post #ok #good',
         userId: user5.id,
         hashtags: ['ok', 'good'],
+        privacyType: FeedPostPrivacyType.Public,
       }),
     );
     await feedPostsService.create(
@@ -94,6 +96,7 @@ describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
         message: 'post #ok #code',
         userId: user6.id,
         hashtags: ['ok', 'code'],
+        privacyType: FeedPostPrivacyType.Public,
       }),
     );
 
@@ -103,6 +106,7 @@ describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
         message: 'post #ok #buddy',
         userId: user2.id,
         hashtags: ['ok', 'buddy'],
+        privacyType: FeedPostPrivacyType.Public,
       }),
     );
     await feedPostsService.create(
@@ -110,6 +114,7 @@ describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
         message: 'post #code #flash',
         userId: user3.id,
         hashtags: ['code', 'flash'],
+        privacyType: FeedPostPrivacyType.Public,
       }),
     );
 
@@ -119,6 +124,7 @@ describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
         message: 'post#fan #follow',
         userId: user4.id,
         hashtags: ['fan', 'follow'],
+        privacyType: FeedPostPrivacyType.Public,
       }),
     );
   });
@@ -144,6 +150,33 @@ describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
           posts: [
             {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              message: 'post #ok #buddy',
+              createdAt: expect.any(String),
+              lastUpdateAt: expect.any(String),
+              rssfeedProviderId: null,
+              images: [
+                {
+                  image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                  _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                  description: 'this is test description',
+                },
+                {
+                  image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                  _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                  description: 'this is test description',
+                },
+              ],
+              userId: {
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                profilePic: expect.any(String),
+                userName: 'Username2',
+              },
+              commentCount: 0,
+              likeCount: 0,
+              likedByUser: false,
+            },
+            {
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               message: 'post #ok #code',
               createdAt: expect.any(String),
               lastUpdateAt: expect.any(String),
@@ -161,7 +194,7 @@ describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
                 },
               ],
               userId: {
-                _id: user6.id,
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                 profilePic: expect.any(String),
                 userName: 'Username6',
               },
@@ -188,7 +221,7 @@ describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
                 },
               ],
               userId: {
-                _id: user5.id,
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                 profilePic: expect.any(String),
                 userName: 'Username5',
               },
@@ -208,6 +241,7 @@ describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
             message: 'post #ok #good',
             userId: user5.id,
             hashtags: ['ok', 'good'],
+            privacyType: FeedPostPrivacyType.Public,
           }),
         );
         await feedPostsService.create(
@@ -215,6 +249,7 @@ describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
             message: 'post #ok #code',
             userId: user6.id,
             hashtags: ['ok', 'code'],
+            privacyType: FeedPostPrivacyType.Public,
           }),
         );
         await feedPostsService.create(
@@ -222,6 +257,7 @@ describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
             message: 'post #ok #code',
             userId: user4.id,
             hashtags: ['ok', 'code'],
+            privacyType: FeedPostPrivacyType.Public,
           }),
         );
       });
@@ -243,7 +279,7 @@ describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
 
-        expect(secondResponse.body.posts).toHaveLength(2);
+        expect(secondResponse.body.posts).toHaveLength(3);
         for (let index = 1; index < secondResponse.body.posts.length; index += 1) {
           expect(secondResponse.body.posts[index].createdAt < secondResponse.body.posts[index - 1].createdAt).toBe(true);
         }

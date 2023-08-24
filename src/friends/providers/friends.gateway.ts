@@ -8,15 +8,18 @@ import {
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io-client';
 import { Server } from 'socket.io';
+import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../../users/providers/users.service';
 import { SHARED_GATEWAY_OPTS } from '../../constants';
 import { FriendsService } from './friends.service';
+import { relativeToFullImagePath } from '../../utils/image-utils';
 
 @WebSocketGateway(SHARED_GATEWAY_OPTS)
 export class FriendsGateway {
   constructor(
     private readonly usersService: UsersService,
     private readonly friendsService: FriendsService,
+    private readonly config: ConfigService,
   ) { }
 
   @WebSocketServer()
@@ -28,11 +31,14 @@ export class FriendsGateway {
       this.friendsService.getReceivedFriendRequestCount(userId),
       await this.friendsService.getReceivedFriendRequests(userId, 3),
     ]);
-
+    const updatedFriendRequests = receivedFriendRequestsData.map((friendReq) => ({
+        ...friendReq,
+        profilePic: relativeToFullImagePath(this.config, friendReq.profilePic),
+      }));
     targetUserSocketIds.forEach((socketId) => {
       this.server.to(socketId).emit('friendRequestUpdated', {
         pendingFriendRequestCount,
-        recentFriendRequests: receivedFriendRequestsData,
+        recentFriendRequests: updatedFriendRequests,
         actionUserId,
       });
     });

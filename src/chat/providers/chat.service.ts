@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 /*eslint-disable import/no-cycle*/
-import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { FRIEND_RELATION_ID } from '../../constants';
@@ -30,7 +30,6 @@ export class ChatService {
     @InjectModel(Message.name) private messageModel: Model<MessageDocument>,
     @InjectModel(MatchList.name) private matchListModel: Model<MatchListDocument>,
     private readonly blocksService: BlocksService,
-    @Inject(forwardRef(() => UsersService))
     private usersService: UsersService,
   ) { }
 

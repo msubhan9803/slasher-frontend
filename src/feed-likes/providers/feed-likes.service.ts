@@ -183,10 +183,10 @@ export class FeedLikesService {
   }
 
   async deleteAllFeedPostLikeByUserId(id: string): Promise<void> {
-    await this.feedLikesModel.deleteMany({ userId: id }).exec();
+    await this.feedLikesModel.deleteMany({ userId: new mongoose.Types.ObjectId(id) }).exec();
   }
 
   async deleteAllFeedReplyLikeByUserId(id: string): Promise<void> {
-    await this.feedReplyLikeModel.deleteMany({ userId: id }).exec();
+    await this.feedReplyLikeModel.deleteMany({ userId: new mongoose.Types.ObjectId(id) }).exec();
   }
 }

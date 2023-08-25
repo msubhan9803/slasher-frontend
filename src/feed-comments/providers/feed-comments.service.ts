@@ -222,12 +222,38 @@ export class FeedCommentsService {
     for (const doc of commentArray) {
       const postId = doc._id;
       const commentCount = doc.count;
-      await this.feedPostModel.updateOne({ _id: postId }, { $inc: { commentCount: -commentCount } }, { multi: true });
+      await this.feedPostModel.updateOne(
+        { _id: new mongoose.Types.ObjectId(postId) },
+        { $inc: { commentCount: -commentCount } },
+        { multi: true },
+      );
     }
-    await this.feedCommentModel.updateMany({ userId: id }, { $set: { is_deleted: FeedCommentDeletionState.Deleted } }, { multi: true });
+    await Promise.all([
+      this.feedCommentModel.updateMany(
+        { likes: { $in: [new mongoose.Types.ObjectId(id)] } },
+        { $pull: { likes: new mongoose.Types.ObjectId(id) } },
+        { multi: true },
+      ),
+      this.feedCommentModel.updateMany(
+        { userId: new mongoose.Types.ObjectId(id) },
+        { $set: { is_deleted: FeedCommentDeletionState.Deleted } },
+        { multi: true },
+      ),
+    ]);
   }
 
   async deleteAllReplyByUserId(id: string): Promise<void> {
-    await this.feedReplyModel.updateMany({ userId: id }, { $set: { deleted: FeedReplyDeletionState.Deleted } }, { multi: true });
+    await Promise.all([
+      this.feedReplyModel.updateMany(
+        { likes: { $in: [new mongoose.Types.ObjectId(id)] } },
+        { $pull: { likes: new mongoose.Types.ObjectId(id) } },
+        { multi: true },
+      ),
+      this.feedReplyModel.updateMany(
+        { userId: new mongoose.Types.ObjectId(id) },
+        { $set: { deleted: FeedReplyDeletionState.Deleted } },
+        { multi: true },
+      ),
+    ]);
   }
 }

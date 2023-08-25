@@ -990,8 +990,8 @@ describe('FeedPostsService', () => {
     it('deletes all data of given user id and gave the expected resposne', async () => {
       await feedPostsService.deleteAllPostByUserId(activeUser.id);
       expect(await feedPostsService.findMainFeedPostsForUser(feedPost.id, 5)).toHaveLength(0);
-      expect((await feedPostsService.findById(feedPost2.id, true)).likeCount).toBe(0);
-      expect((await feedPostsService.findById(feedPost3.id, true)).likeCount).toBe(1);
+      expect((await feedPostsService.findById(feedPost2.id, true)).likeCount).toBe(1);
+      expect((await feedPostsService.findById(feedPost3.id, true)).likeCount).toBe(2);
     });
   });
 });

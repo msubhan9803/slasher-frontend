@@ -1,23 +1,18 @@
 /* eslint-disable max-lines */
-/*eslint-disable import/no-cycle*/
 import mongoose, { Model, Types } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as EmailValidator from 'email-validator';
 import { isMongoId } from 'class-validator';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 import { User, UserDocument } from '../../schemas/user/user.schema';
 import { escapeStringForRegex } from '../../utils/escape-utils';
 import { SocketUser, SocketUserDocument } from '../../schemas/socketUser/socketUser.schema';
 import { sleep } from '../../utils/timer-utils';
 import { ActiveStatus } from '../../schemas/user/user.enums';
-import { FriendsService } from '../../friends/providers/friends.service';
-import { BlocksService } from '../../blocks/providers/blocks.service';
 import { NotFoundError } from '../../errors';
-import { FeedPostsService } from '../../feed-posts/providers/feed-posts.service';
-import { FeedCommentsService } from '../../feed-comments/providers/feed-comments.service';
-import { FeedLikesService } from '../../feed-likes/providers/feed-likes.service';
-import { ChatService } from '../../chat/providers/chat.service';
 
 export interface UserNameSuggestion {
   userName: string;
@@ -26,15 +21,9 @@ export interface UserNameSuggestion {
 @Injectable()
 export class UsersService {
   constructor(
+    @InjectQueue('delete-user-data') private deleteUserData: Queue,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(SocketUser.name) private socketUserModel: Model<SocketUserDocument>,
-    private readonly friendsService: FriendsService,
-    private blocksService: BlocksService,
-    private feedPostsService: FeedPostsService,
-    private feedCommentsService: FeedCommentsService,
-    private feedLikesService: FeedLikesService,
-    @Inject(forwardRef(() => ChatService))
-    private chatService: ChatService,
   ) { }
 
   async create(user: Partial<User>) {
@@ -296,41 +285,15 @@ export class UsersService {
       throw new NotFoundError(`Cannot find user with id: ${userId}`);
     }
 
-      await Promise.all([
-        // Remove all friendships and pending friend requests related to this user.
-        this.friendsService.deleteAllByUserId(user.id),
+    await this.deleteUserData.add('delete-user-all-data', { userId: user.id });
+    // TODO: As part of this, also update like and comment counts for any affected posts, and like
+    // counts for any affected comments and replies.
+    // TODO: As part of this, also update like and comment counts for any affected posts, and like
+    // counts for any affected comments and replies.
 
-        // Remove all suggested friend blocks to or from this user.
-        this.friendsService.deleteAllSuggestBlocksByUserId(user.id),
-
-        // Remove all blocks to or from the user.  It's especially important to delete
-        // blocks to the user because we don't want this now-deleted user showing up in other
-        // users' block lists in the UI.
-        this.blocksService.deleteAllByUserId(user.id),
-
-        // TODO: Mark all posts by the deleted user as deleted
-        this.feedPostsService.deleteAllPostByUserId(user.id),
-        // TODO: Mark all comments by the deleted user as deleted
-        this.feedCommentsService.deleteAllCommentByUserId(user.id),
-        // TODO: Mark all replies by the deleted user as deleted
-        this.feedCommentsService.deleteAllReplyByUserId(user.id),
-
-        // TODO: Mark all messages by the deleted user as deleted
-        this.chatService.deleteAllMessageByUserId(user.id),
-        // TODO: For any matchList where roomCategory equals MatchListRoomCategory.DirectMessage AND
-        // that matchList has the deleted user in the participants array, mark the matchList as deleted.
-        this.chatService.deleteAllMatchlistByUserId(user.id),
-        // TODO: Delete all likes by the deleted user.  This includes: feedpostlikes, feedreplylikes,
-        // likes by the user on posts, comments, and replies.
-        this.feedLikesService.deleteAllFeedPostLikeByUserId(user.id),
-        this.feedLikesService.deleteAllFeedReplyLikeByUserId(user.id),
-      ]);
-      // TODO: As part of this, also update like and comment counts for any affected posts, and like
-      // counts for any affected comments and replies.
-
-      // Now we'll modify the user object:
-      // 1. Mark user as deleted
-      user.deleted = true;
+    // Now we'll modify the user object:
+    // 1. Mark user as deleted
+    user.deleted = true;
     // 2. Change user's password to a new random value, to ensure that current session is invalidated
     // and that they cannot log in again if admins ever need to temporarily reactivate their account.
     user.setUnhashedPassword(uuidv4());

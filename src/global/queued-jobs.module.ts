@@ -6,6 +6,7 @@ import { MessageCountUpdateConsumer } from '../jobs/consumers/message-count-upda
 import { ChatModule } from '../chat/chat.module';
 import { ChatGateway } from '../chat/providers/chat.gateway';
 import { Message, MessageSchema } from '../schemas/message/message.schema';
+import { DeleteUserDataConsumer } from '../jobs/consumers/user-delete-data.consumer';
 
 @Global()
 @Module({
@@ -22,10 +23,13 @@ import { Message, MessageSchema } from '../schemas/message/message.schema';
     BullModule.registerQueue({
       name: 'message-count-update',
     }),
+    BullModule.registerQueue({
+      name: 'delete-user-data',
+    }),
     ChatModule,
     MongooseModule.forFeature([{ name: Message.name, schema: MessageSchema }]),
   ],
-  providers: [MessageCountUpdateConsumer, ChatGateway],
+  providers: [MessageCountUpdateConsumer, DeleteUserDataConsumer, ChatGateway],
   exports: [BullModule, ChatGateway],
 })
 export class QueuedJobsModule { }

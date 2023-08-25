@@ -1,11 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 
-// eslint-disable-next-line import/prefer-default-export
-export const apiUrl = process.env.REACT_APP_API_URL;
-export const captchaSiteKey = process.env.REACT_APP_CAPTCHA_SITE_KEY || '';
-export const analyticsId = process.env.REACT_APP_GOOGLE_ANALYTICS_PROPERTY_ID;
 export const isNativePlatform = Capacitor.isNativePlatform();
-export const enableDevFeatures = process.env.REACT_APP_ENABLE_DEV_ELEMENTS === 'true';
 
 export const MAIN_CONTENT_ID = 'main-content';
 export const RETRY_CONNECTION_BUTTON_ID = 'retry-connection-button';
@@ -28,8 +23,6 @@ export const MD_MEDIA_BREAKPOINT = `${BREAK_POINTS.md}px`;
 export const LG_MEDIA_BREAKPOINT = `${BREAK_POINTS.lg}px`;
 export const XL_MEDIA_BREAKPOINT = `${BREAK_POINTS.xl}px`;
 export const XXL_MEDIA_BREAKPOINT = `${BREAK_POINTS.xxl}px`;
-
-export const enableADs = process.env.REACT_APP_ENABLE_ADS === 'true';
 
 // 11 Sand Pond Rd, Hardwick Township, NJ
 export const DEFAULT_EVENTS_USER_LOCATION = { lat: 41.055877, lng: -74.95479 };
@@ -54,8 +47,6 @@ export const topStatuBarBackgroundColorAndroidOnly = '000000';
 // compare against return value of `useResize` hook
 export const maxWidthForCommentOrReplyInputOnMobile: number = BREAK_POINTS.lg - 1;
 export const bottomForCommentOrReplyInputOnMobile = '77px';
-
-export const isDevelopmentServer = process.env.NODE_ENV === 'development';
 
 export const isBrowser = typeof window !== 'undefined';
 // eslint-disable-next-line no-nested-ternary

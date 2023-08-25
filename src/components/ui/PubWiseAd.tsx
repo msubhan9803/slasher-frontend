@@ -1,9 +1,9 @@
 /* eslint-disable object-curly-newline */
 import React, { useEffect, useRef, useState } from 'react';
 import { useAppSelector } from '../../redux/hooks';
-import { enableADs } from '../../constants';
 import SlasherDisableAdblocker from '../../images/slasher-disable-adblocker.jpg';
 import { sendAdUnitEventToGoogleAnalytics } from '../../utils/google-analytics-utils';
+import { enableADs } from '../../env';
 
 declare global {
   interface Window {

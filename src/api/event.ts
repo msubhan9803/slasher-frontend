@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { toUtcStartOfDay, toUtcEndOfDay } from '../utils/date-utils';
-import { apiUrl } from '../constants';
+import { apiUrl } from '../env';
 import { getSessionToken } from '../utils/session-utils';
 
 export async function getEventCategoriesOption() {

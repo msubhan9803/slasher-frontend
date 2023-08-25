@@ -4,7 +4,7 @@ import NowAvailableSection from './NowAvailableSection';
 import HeroSection from './HeroSection';
 import PublicSignIn from './PublicSignIn';
 import UserReview from './UserReview';
-import { enableDevFeatures } from '../../../constants';
+import { enableDevFeatures } from '../../../env';
 
 function PublicHomeBody({ children }: any) {
   return (

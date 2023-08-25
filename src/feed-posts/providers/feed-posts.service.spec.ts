@@ -140,13 +140,13 @@ describe('FeedPostsService', () => {
 
     // TODO: Probably delete this test after the old iOS/Android apps are retired, since the
     // privacyType field won't be used anymore.
-    it('sets the post privacyType value to private by default', async () => {
+    it('sets the post privacyType value to public by default', async () => {
       const feedPostData = feedPostFactory.build({
         userId: activeUser.id,
       });
       const feedPost = await feedPostsService.create(feedPostData);
       const reloadedFeedPost = await feedPostsService.findById(feedPost.id, false);
-      expect(reloadedFeedPost.privacyType).toEqual(FeedPostPrivacyType.Private);
+      expect(reloadedFeedPost.privacyType).toEqual(FeedPostPrivacyType.Public);
     });
   });
 

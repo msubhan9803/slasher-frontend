@@ -21,7 +21,7 @@ import {
   MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_POST, UPLOAD_PARAM_NAME_FOR_FILES,
 } from '../constants';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
-import { FeedPostDeletionState, PostType } from '../schemas/feedPost/feedPost.enums';
+import { FeedPostDeletionState, FeedPostPrivacyType, PostType } from '../schemas/feedPost/feedPost.enums';
 import { NotificationType } from '../schemas/notification/notification.enums';
 import { NotificationsService } from '../notifications/providers/notifications.service';
 import { StorageLocationService } from '../global/providers/storage-location.service';
@@ -139,6 +139,9 @@ export class FeedPostsController {
     feedPost.userId = user._id;
     feedPost.hashtags = hashtags;
     feedPost.postType = createFeedPostsDto.postType;
+    if (user.profile_status === ProfileVisibility.Private) {
+      feedPost.privacyType = FeedPostPrivacyType.Private;
+    }
 
     if (createFeedPostsDto.moviePostFields) {
       if (createFeedPostsDto.postType !== PostType.MovieReview) {

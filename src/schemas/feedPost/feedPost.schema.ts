@@ -90,7 +90,7 @@ export class FeedPost extends FeedPostUnusedFields {
       FeedPostPrivacyType.Public,
       FeedPostPrivacyType.Private,
     ],
-    default: FeedPostPrivacyType.Private,
+    default: FeedPostPrivacyType.Public,
   })
   privacyType: FeedPostPrivacyType;
 

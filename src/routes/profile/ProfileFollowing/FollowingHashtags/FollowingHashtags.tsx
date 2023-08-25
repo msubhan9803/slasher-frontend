@@ -13,6 +13,7 @@ import { followHashtag, getFollowedHashtags, unfollowHashtag } from '../../../..
 import { useAppSelector } from '../../../../redux/hooks';
 import LoadingIndicator from '../../../../components/ui/LoadingIndicator';
 import { MD_MEDIA_BREAKPOINT } from '../../../../constants';
+import ProfileTabContent from '../../../../components/ui/profile/ProfileTabContent';
 
 // const CustomHashTagButton = styled(HashtagButton)`
 //   background-color: #383838;
@@ -179,7 +180,7 @@ function FollowingHashtags() {
     setPage(0);
   };
   return (
-    <div>
+    <ProfileTabContent>
       <FollowingHeader
         tabKey="hashtags"
         setSearch={handleSearch}
@@ -273,7 +274,7 @@ function FollowingHashtags() {
           divClass="mt-3 text-start" className="m-0" /> */}
         </InfiniteScroll>
       </div>
-    </div>
+    </ProfileTabContent>
   );
 }
 

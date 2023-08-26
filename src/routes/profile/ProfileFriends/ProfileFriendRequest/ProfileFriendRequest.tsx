@@ -54,6 +54,7 @@ function ProfileFriendRequest({ user }: Props) {
   const [friendRequestPage, setFriendRequestPage] = useState<number>(
     profileSubRoutesCache?.friendRequests?.page || 0,
   );
+  const abortControllerRef = useRef<AbortController | null>();
   const friendsTabs = [
     { value: '', label: 'All friends' },
     { value: 'request', label: 'Friend requests', badge: friendsReqCount },
@@ -141,20 +142,34 @@ function ProfileFriendRequest({ user }: Props) {
     </p>
   );
   const handleAcceptRequest = (userId: string) => {
+    if (abortControllerRef.current) {
+      return;
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
     acceptFriendsRequest(userId)
       .then(() => {
         const acceptRequest = friendsReqList.filter((req: any) => req._id !== userId);
         setFriendsReqList(acceptRequest);
         dispatch(forceReloadSuggestedFriends());
         dispatch(setProfilePageUserDetailsReload(true));
+      }).finally(() => {
+        abortControllerRef.current = null;
       });
   };
   const handleRejectRequest = (userId: string) => {
+    if (abortControllerRef.current) {
+      return;
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
     rejectFriendsRequest(userId)
       .then(() => {
         const removeRequest = friendsReqList.filter((req: any) => req._id !== userId);
         setFriendsReqList(removeRequest);
         dispatch(forceReloadSuggestedFriends());
+      }).finally(() => {
+        abortControllerRef.current = null;
       });
   };
 

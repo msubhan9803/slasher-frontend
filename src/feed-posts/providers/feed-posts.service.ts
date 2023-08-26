@@ -17,7 +17,6 @@ import { pick } from '../../utils/object-utils';
 import { ProfileVisibility } from '../../schemas/user/user.enums';
 import { FriendShip, LikeUserAndFriendship } from '../../types';
 import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
-import { ProfileVisibility } from '../../schemas/user/user.enums';
 import { HashtagFollowsService } from '../../hashtag-follows/providers/hashtag-follows.service';
 import { Hashtag, HashtagDocument } from '../../schemas/hastag/hashtag.schema';
 

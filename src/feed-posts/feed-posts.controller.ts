@@ -143,6 +143,10 @@ export class FeedPostsController {
       feedPost.privacyType = FeedPostPrivacyType.Private;
     }
 
+    if (user.profile_status === ProfileVisibility.Private) {
+      feedPost.privacyType = FeedPostPrivacyType.Private;
+    }
+
     if (createFeedPostsDto.moviePostFields) {
       if (createFeedPostsDto.postType !== PostType.MovieReview) {
         throw new HttpException('When submitting moviePostFields, post type must be MovieReview.', HttpStatus.BAD_REQUEST);

@@ -5,7 +5,9 @@ import mongoose, { Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { FriendsService } from '../../friends/providers/friends.service';
 import { RssFeedProviderFollowsService } from '../../rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
-import { FeedPostDeletionState, FeedPostStatus, PostType } from '../../schemas/feedPost/feedPost.enums';
+import {
+ FeedPostDeletionState, FeedPostPrivacyType, FeedPostStatus, PostType,
+} from '../../schemas/feedPost/feedPost.enums';
 import { FeedPost, FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 import { User, UserDocument } from '../../schemas/user/user.schema';
 import { relativeToFullImagePath } from '../../utils/image-utils';
@@ -14,6 +16,7 @@ import { BlocksService } from '../../blocks/providers/blocks.service';
 import { pick } from '../../utils/object-utils';
 import { FriendShip, LikeUserAndFriendship } from '../../types';
 import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
+import { ProfileVisibility } from '../../schemas/user/user.enums';
 
 @Injectable()
 export class FeedPostsService {
@@ -410,5 +413,14 @@ export class FeedPostsService {
     return this.feedPostModel
       .findOneAndUpdate({ _id: id }, { $set: { lastUpdateAt: Date.now() } }, { new: true })
       .exec();
+  }
+
+  async updatePostPrivacyType(userId: string, status: number): Promise<any> {
+    const updateFeedPostData = {
+      privacyType: status === ProfileVisibility.Private
+        ? FeedPostPrivacyType.Private
+        : FeedPostPrivacyType.Public,
+    };
+    await this.feedPostModel.updateMany({ userId }, { $set: updateFeedPostData }, { multi: true });
   }
 }

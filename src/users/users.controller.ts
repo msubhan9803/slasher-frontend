@@ -639,6 +639,10 @@ export class UsersController {
       // additionalFieldsToUpdate.previousUserName = user.userName;
     }
 
+    if (updateUserDto.profile_status !== undefined && user.profile_status !== updateUserDto.profile_status) {
+      await this.feedPostsService.updatePostPrivacyType(user.id, updateUserDto.profile_status);
+    }
+
     const userData = await this.usersService.update(id, { ...updateUserDto, ...additionalFieldsToUpdate });
     return {
       _id: user.id,

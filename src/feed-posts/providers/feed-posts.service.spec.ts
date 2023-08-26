@@ -33,6 +33,7 @@ import { MovieActiveStatus } from '../../schemas/movie/movie.enums';
 import { RssFeed } from '../../schemas/rssFeed/rssFeed.schema';
 import { Movie } from '../../schemas/movie/movie.schema';
 import { Image } from '../../schemas/shared/image.schema';
+import { ProfileVisibility } from '../../schemas/user/user.enums';
 
 describe('FeedPostsService', () => {
   let app: INestApplication;
@@ -133,13 +134,13 @@ describe('FeedPostsService', () => {
 
     // TODO: Probably delete this test after the old iOS/Android apps are retired, since the
     // privacyType field won't be used anymore.
-    it('sets the post privacyType value to private by default', async () => {
+    it('sets the post privacyType value to public by default', async () => {
       const feedPostData = feedPostFactory.build({
         userId: activeUser.id,
       });
       const feedPost = await feedPostsService.create(feedPostData);
       const reloadedFeedPost = await feedPostsService.findById(feedPost.id, false);
-      expect(reloadedFeedPost.privacyType).toEqual(FeedPostPrivacyType.Private);
+      expect(reloadedFeedPost.privacyType).toEqual(FeedPostPrivacyType.Public);
     });
   });
 
@@ -953,6 +954,53 @@ describe('FeedPostsService', () => {
       const updatedPost = await feedPostsService.updateLastUpdateAt(feedPost.id);
       const reloadedPost = await feedPostsService.findById(updatedPost.id, false);
       expect(reloadedPost.lastUpdateAt > postBeforeUpdate.lastUpdateAt).toBeTruthy();
+    });
+  });
+
+  describe('#updatePostPrivacyType', () => {
+    let user;
+    let user1;
+    let feedPost1;
+    let feedPost2;
+    let feedPost3;
+    let feedPost4;
+    beforeEach(async () => {
+      user = await usersService.create(userFactory.build({ profile_status: ProfileVisibility.Private }));
+      user1 = await usersService.create(userFactory.build({ profile_status: ProfileVisibility.Public }));
+      feedPost1 = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: user.id,
+          privacyType: 2,
+        }),
+      );
+      feedPost2 = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: user.id,
+          privacyType: 2,
+        }),
+      );
+      feedPost3 = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: user1.id,
+          privacyType: 1,
+        }),
+      );
+      feedPost4 = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: user1.id,
+          privacyType: 1,
+        }),
+      );
+    });
+    it('updates the privacyPost according to user profile visibility', async () => {
+      //update private to public
+       await feedPostsService.updatePostPrivacyType(user.id, 0);
+       expect((await feedPostsService.findById(feedPost1, true)).privacyType).toEqual(FeedPostPrivacyType.Public);
+       expect((await feedPostsService.findById(feedPost2, true)).privacyType).toEqual(FeedPostPrivacyType.Public);
+       //update public to private
+       await feedPostsService.updatePostPrivacyType(user1.id, 1);
+       expect((await feedPostsService.findById(feedPost3, true)).privacyType).toEqual(FeedPostPrivacyType.Private);
+       expect((await feedPostsService.findById(feedPost4, true)).privacyType).toEqual(FeedPostPrivacyType.Private);
     });
   });
 

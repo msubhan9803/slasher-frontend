@@ -1,5 +1,4 @@
 /* eslint-disable max-lines */
-/*eslint-disable import/no-cycle*/
 import { Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';

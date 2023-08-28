@@ -1,4 +1,3 @@
-/*eslint-disable import/no-cycle*/
 import { Module, Global } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CaptchaModule } from '../captcha/captcha.module';

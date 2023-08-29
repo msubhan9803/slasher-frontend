@@ -588,34 +588,26 @@ export class UsersController {
     const additionalFieldsToUpdate: Partial<User> = {};
 
     if (changingUserName) {
-      // TODO (SD-1336): When user is allowed to update username, remove `throw` below
-      // throw new HttpException(
-      //   'You can edit your username after July 31, 2023',
-      //   HttpStatus.BAD_REQUEST,
-      // );
-      // TODO (SD-1336): When user is allowed to update username, uncomment lines below
-      const currentDate = new Date();
-      const lastDate = user.lastUserNameUpdatedAt;
-      const diffTime = Math.abs(currentDate.getTime() - lastDate.getTime());
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      if (diffDays < 30) {
-        throw new HttpException(
-          `You can update userName after ${30 - diffDays} days`,
-          HttpStatus.BAD_REQUEST,
-        );
+      if (user.lastUserNameUpdatedAt) {
+        const currentDate = new Date();
+        const lastDate = user.lastUserNameUpdatedAt;
+        const diffTime = Math.abs(currentDate.getTime() - lastDate.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays < 30) {
+          throw new HttpException(
+            `You can update userName after ${30 - diffDays} days`,
+            HttpStatus.BAD_REQUEST,
+          );
+        }
       }
       const existingUserName = await this.usersService.findExistingUserName(updateUserDto.userName);
-        if (existingUserName.length) {
-          if (existingUserName[0].id === id) {
-            await this.usersService.findAndUpdatePreviousUserName(existingUserName[0].userName, updateUserDto.userName);
-          } else {
-            throw new HttpException('Username is already taken', HttpStatus.BAD_REQUEST);
-          }
-        } else {
-          additionalFieldsToUpdate.userName = updateUserDto.userName;
-          additionalFieldsToUpdate.previousUserName = user.previousUserName;
-          additionalFieldsToUpdate.previousUserName.push(user.userName);
-        }
+      if (existingUserName.length) {
+        await this.usersService.findAndUpdatePreviousUserName(existingUserName[0].userName, updateUserDto.userName);
+      } else {
+        additionalFieldsToUpdate.userName = updateUserDto.userName;
+        additionalFieldsToUpdate.previousUserName = user.previousUserName;
+        additionalFieldsToUpdate.previousUserName.push(user.userName);
+      }
     }
     additionalFieldsToUpdate.lastUserNameUpdatedAt = new Date();
 

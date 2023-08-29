@@ -246,7 +246,7 @@ UserSchema.index(
 );
 UserSchema.index(
   {
-    previousUserName: 1
+    previousUserName: 1,
   },
 );
 UserSchema.index(

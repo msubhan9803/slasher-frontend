@@ -104,21 +104,15 @@ export class UsersService {
   }
 
   async findAndUpdatePreviousUserName(currentUserName: string, newUserName: string) {
-    await Promise.all([this.userModel.findOneAndUpdate(
-      { userName: currentUserName },
-      {
-        $pull: { previousUserName: newUserName },
-      },
-      { new: true },
-    ).exec(),
-    this.userModel.findOneAndUpdate(
-      { userName: currentUserName },
-      {
-        $set: { userName: newUserName },
-        $push: { previousUserName: currentUserName },
-      },
-      { new: true },
-    ).exec()]);
+    await
+      this.userModel.findOneAndUpdate(
+        { userName: currentUserName },
+        {
+          $set: { userName: newUserName },
+          $push: { previousUserName: currentUserName },
+        },
+        { new: true },
+      ).exec();
   }
 
   async findNonDeletedUserByEmailOrUsername(emailOrUsername: string): Promise<UserDocument> {

@@ -602,7 +602,7 @@ export class UsersController {
       }
       const existingUserName = await this.usersService.findExistingUserName(updateUserDto.userName);
       if (existingUserName.length) {
-        await this.usersService.findAndUpdatePreviousUserName(existingUserName[0].userName, updateUserDto.userName);
+        await this.usersService.findAndUpdatePreviousUserName(user.userName, updateUserDto.userName);
       } else {
         additionalFieldsToUpdate.userName = updateUserDto.userName;
         additionalFieldsToUpdate.previousUserName = user.previousUserName;

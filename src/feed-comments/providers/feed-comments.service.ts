@@ -33,6 +33,34 @@ export class FeedCommentsService {
       .exec();
   }
 
+  async updateMessageInFeedcomments(id: string, newUserName: string): Promise<void> {
+    const updatedMsgInComments = await this.feedCommentModel.aggregate([
+      {
+        $match: {
+          message: {
+            $regex: `##LINK_ID##${id}@[^#]+##LINK_END##`,
+          },
+          is_deleted: 0,
+        },
+      },
+    ]);
+
+    const bulkUpdateOperations = updatedMsgInComments.map((comment) => ({
+      updateOne: {
+        filter: { _id: comment._id },
+        update: {
+          $set: {
+            message: comment.message.replace(
+              new RegExp(`##LINK_ID##${id}@[^#]+##LINK_END##`, 'i'),
+              `##LINK_ID##${id}@${newUserName}##LINK_END##`,
+            ),
+          },
+        },
+      },
+    }));
+    await this.feedCommentModel.bulkWrite(bulkUpdateOperations);
+  }
+
   async deleteFeedComment(feedCommentId: string): Promise<void> {
     await Promise.all([
       this.feedCommentModel
@@ -66,6 +94,34 @@ export class FeedCommentsService {
     return this.feedReplyModel
       .findOneAndUpdate({ _id: feedReplyId }, feedReplyData, { new: true })
       .exec();
+  }
+
+  async updateMessageInFeedreplies(id: string, newUserName: string): Promise<void> {
+    const updatedMsgInReply = await this.feedReplyModel.aggregate([
+      {
+        $match: {
+          message: {
+            $regex: `##LINK_ID##${id}@[^#]+##LINK_END##`,
+          },
+          deleted: 0,
+        },
+      },
+    ]);
+
+    const bulkUpdateOperations = updatedMsgInReply.map((reply) => ({
+      updateOne: {
+        filter: { _id: reply._id },
+        update: {
+          $set: {
+            message: reply.message.replace(
+              new RegExp(`##LINK_ID##${id}@[^#]+##LINK_END##`, 'i'),
+              `##LINK_ID##${id}@${newUserName}##LINK_END##`,
+            ),
+          },
+        },
+      },
+    }));
+    await this.feedReplyModel.bulkWrite(bulkUpdateOperations);
   }
 
   async deleteFeedReply(feedReplyId: string): Promise<void> {

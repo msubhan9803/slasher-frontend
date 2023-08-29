@@ -605,7 +605,7 @@ export class UsersController {
         await this.usersService.findAndUpdatePreviousUserName(user.userName, updateUserDto.userName);
       } else {
         additionalFieldsToUpdate.userName = updateUserDto.userName;
-        additionalFieldsToUpdate.previousUserName = user.previousUserName;
+        additionalFieldsToUpdate.previousUserName = user.previousUserName ? user.previousUserName : [];
         additionalFieldsToUpdate.previousUserName.push(user.userName);
       }
     }

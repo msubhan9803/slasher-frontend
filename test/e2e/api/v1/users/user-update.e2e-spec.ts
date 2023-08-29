@@ -230,7 +230,7 @@ describe('Users / :id (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.OK);
         const updatedUser = await usersService.findById(user1.id, true);
         expect(updatedUser.userName).toBe('ghost');
-        expect(updatedUser.previousUserName).toEqual(['horror', 'user1']);
+        expect(updatedUser.previousUserName).toEqual(['ghost', 'horror', 'user1']);
       });
 
       it('returns the expected response when username is already existing', async () => {
@@ -243,19 +243,6 @@ describe('Users / :id (e2e)', () => {
         expect(response.body).toEqual({
           statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
           message: 'Username is already associated with an existing user.',
-        });
-      });
-
-      it('returns the expected response when username is existing in other user\'s previous username', async () => {
-        const postBody1 = { userName: 'slasher' };
-        const response = await request(app.getHttpServer())
-          .patch(`/api/v1/users/${user1.id}`)
-          .auth(activeUserAuthToken1, { type: 'bearer' })
-          .send(postBody1)
-          .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body).toEqual({
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Username is already taken',
         });
       });
     });

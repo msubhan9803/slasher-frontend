@@ -83,6 +83,6 @@ export class HashtagFollowsService {
       const friendIds = _.intersection(userIds, allFriendIds.map((userId) => userId.toString()));
       return friendIds;
     }
-    return userIds;
+    return allUserIds;
   }
 }

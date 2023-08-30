@@ -4,6 +4,7 @@ import React, {
 } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { useLocation } from 'react-router-dom';
+import { AdvertisingId } from '@capacitor-community/advertising-id';
 import CustomCreatePost from '../../components/ui/CustomCreatePost';
 import PostFeed from '../../components/ui/post/PostFeed/PostFeed';
 import SuggestedFriend from './SuggestedFriend';
@@ -389,9 +390,29 @@ function Home() {
     setDropDownValue('PostReportSuccessDialog');
   };
 
+  const handleCheckTrackingStatus = async () => {
+    const { status } = await AdvertisingId.getAdvertisingStatus();
+    // eslint-disable-next-line no-alert
+    alert(`Advertising Status: ${status}`);
+  };
+  const handleGetAdvertisingId = async () => {
+    const advertisingId = await AdvertisingId.getAdvertisingId();
+    // eslint-disable-next-line no-alert
+    alert(`Advertising Id: ${advertisingId.id}, Advertising Status: ${advertisingId.status}`);
+  };
+  const handleRequestTracing = async () => {
+    const { value } = await AdvertisingId.requestTracking();
+    // eslint-disable-next-line no-alert
+    alert(`Request for tracking successful: ${value}`);
+  };
+
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
+        <h1>Testing AdvertisingId</h1>
+        <button className="mb-4 d-block" type="button" onClick={handleCheckTrackingStatus}>Check status advertisingId tracking status</button>
+        <button className="mb-4 d-block" type="button" onClick={handleGetAdvertisingId}>Get advertisingId</button>
+        <button className="mb-4 d-block" type="button" onClick={handleRequestTracing}>Request AdvertisingId tracking</button>
         <CustomCreatePost className="mt-3 mt-lg-0" />
         <h1 className="h2 my-3 ms-3 ms-md-0">Suggested friends</h1>
         <SuggestedFriend />

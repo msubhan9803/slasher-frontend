@@ -846,4 +846,36 @@ describe('FeedCommentsService', () => {
    expect((await feedCommentsModel.findById(feedComment3._id)).is_deleted).toEqual(FeedCommentDeletionState.Deleted);
     });
   });
+
+  describe('#deleteAllFeedReplyLikeByUserId', () => {
+    it('deleted all feedreply likes of given userId', async () => {
+      const user1 = await usersService.create(userFactory.build());
+      const feedReply1 = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser.id,
+            feedCommentId: feedComments.id,
+            message: 'Hello Test Reply Message 1',
+            images: sampleFeedCommentsObject.images,
+            likes: [user1._id],
+          },
+        ),
+      );
+      const feedReply2 = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser.id,
+            feedCommentId: feedComments.id,
+            message: 'Hello Test Reply Message 2',
+            images: sampleFeedCommentsObject.images,
+            likes: [user1._id],
+          },
+        ),
+      );
+
+      await feedCommentsService.deleteAllFeedReplyLikeByUserId(user1.id);
+      expect((await feedReplyModel.findOne({ _id: feedReply1._id })).likes).toEqual([]);
+      expect((await feedReplyModel.findOne({ _id: feedReply2._id })).likes).toEqual([]);
+    });
+  });
 });

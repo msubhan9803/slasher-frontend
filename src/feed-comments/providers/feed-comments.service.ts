@@ -243,17 +243,18 @@ export class FeedCommentsService {
   }
 
   async deleteAllReplyByUserId(id: string): Promise<void> {
-    await Promise.all([
-      this.feedReplyModel.updateMany(
-        { likes: { $in: [new mongoose.Types.ObjectId(id)] } },
-        { $pull: { likes: new mongoose.Types.ObjectId(id) } },
-        { multi: true },
-      ),
-      this.feedReplyModel.updateMany(
-        { userId: new mongoose.Types.ObjectId(id) },
-        { $set: { deleted: FeedReplyDeletionState.Deleted } },
-        { multi: true },
-      ),
-    ]);
+    await this.feedReplyModel.updateMany(
+      { userId: new mongoose.Types.ObjectId(id) },
+      { $set: { deleted: FeedReplyDeletionState.Deleted } },
+      { multi: true },
+    );
+  }
+
+  async deleteAllFeedReplyLikeByUserId(id: string): Promise<void> {
+    await this.feedReplyModel.updateMany(
+      { likes: { $in: [new mongoose.Types.ObjectId(id)] } },
+      { $pull: { likes: new mongoose.Types.ObjectId(id) } },
+      { multi: true },
+    );
   }
 }

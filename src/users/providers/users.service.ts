@@ -21,7 +21,7 @@ export interface UserNameSuggestion {
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectQueue('delete-user-data') private deleteUserData: Queue,
+    @InjectQueue('delete-user-data') private deleteUserDataQueue: Queue,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(SocketUser.name) private socketUserModel: Model<SocketUserDocument>,
   ) { }
@@ -285,19 +285,9 @@ export class UsersService {
       throw new NotFoundError(`Cannot find user with id: ${userId}`);
     }
 
-    await this.deleteUserData.add('delete-user-all-data', { userId: user.id });
-    // TODO: As part of this, also update like and comment counts for any affected posts, and like
-    // counts for any affected comments and replies.
-    // TODO: As part of this, also update like and comment counts for any affected posts, and like
-    // counts for any affected comments and replies.
-
-    // Now we'll modify the user object:
-    // 1. Mark user as deleted
+    await this.deleteUserDataQueue.add('delete-user-all-data', { userId: user.id });
     user.deleted = true;
-    // 2. Change user's password to a new random value, to ensure that current session is invalidated
-    // and that they cannot log in again if admins ever need to temporarily reactivate their account.
     user.setUnhashedPassword(uuidv4());
-    // 3. Save changes to user object
     await user.save();
   }
 }

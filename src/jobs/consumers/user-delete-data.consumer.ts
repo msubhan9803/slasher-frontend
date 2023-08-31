@@ -38,11 +38,15 @@ export class DeleteUserDataConsumer {
 
             // TODO: Mark all posts by the deleted user as deleted
             this.feedPostsService.deleteAllPostByUserId(user.id),
+            // TODO: Mark all post likes by the deleted user as deleted
+            this.feedPostsService.deleteAllFeedPostLikeByUserId(user.id),
             // TODO: Mark all comments by the deleted user as deleted
             this.feedCommentsService.deleteAllCommentByUserId(user.id),
             // TODO: Mark all replies by the deleted user as deleted
             this.feedCommentsService.deleteAllReplyByUserId(user.id),
 
+            // TODO: Mark all reply likes by the deleted user as deleted
+            this.feedCommentsService.deleteAllFeedReplyLikeByUserId(user.id),
             // TODO: Mark all messages by the deleted user as deleted
             this.chatService.deleteAllMessageByUserId(user.id),
             // TODO: For any matchList where roomCategory equals MatchListRoomCategory.DirectMessage AND

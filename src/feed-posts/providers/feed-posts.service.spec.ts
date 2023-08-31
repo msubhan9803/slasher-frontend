@@ -994,52 +994,61 @@ describe('FeedPostsService', () => {
     });
     it('updates the privacyPost according to user profile visibility', async () => {
       //update private to public
-       await feedPostsService.updatePostPrivacyType(user.id, 0);
-       expect((await feedPostsService.findById(feedPost1, true)).privacyType).toEqual(FeedPostPrivacyType.Public);
-       expect((await feedPostsService.findById(feedPost2, true)).privacyType).toEqual(FeedPostPrivacyType.Public);
-       //update public to private
-       await feedPostsService.updatePostPrivacyType(user1.id, 1);
-       expect((await feedPostsService.findById(feedPost3, true)).privacyType).toEqual(FeedPostPrivacyType.Private);
-       expect((await feedPostsService.findById(feedPost4, true)).privacyType).toEqual(FeedPostPrivacyType.Private);
+      await feedPostsService.updatePostPrivacyType(user.id, 0);
+      expect((await feedPostsService.findById(feedPost1, true)).privacyType).toEqual(FeedPostPrivacyType.Public);
+      expect((await feedPostsService.findById(feedPost2, true)).privacyType).toEqual(FeedPostPrivacyType.Public);
+      //update public to private
+      await feedPostsService.updatePostPrivacyType(user1.id, 1);
+      expect((await feedPostsService.findById(feedPost3, true)).privacyType).toEqual(FeedPostPrivacyType.Private);
+      expect((await feedPostsService.findById(feedPost4, true)).privacyType).toEqual(FeedPostPrivacyType.Private);
     });
   });
 
   describe('#deleteAllPostByUserId', () => {
-    let feedPost;
-    let feedPost2;
-    let feedPost3;
     beforeEach(async () => {
-      feedPost = await feedPostsService.create(
+      await feedPostsService.create(
         feedPostFactory.build({
           userId: activeUser.id,
         }),
       );
-     await feedPostsService.create(
+      await feedPostsService.create(
         feedPostFactory.build({
           userId: activeUser.id,
-        }),
-      );
-      feedPost2 = await feedPostsService.create(
-        feedPostFactory.build({
-          userId: user0.id,
-          likes: [activeUser.id],
-          likeCount: 1,
-        }),
-      );
-      feedPost3 = await feedPostsService.create(
-        feedPostFactory.build({
-          userId: user0.id,
-          likes: [activeUser.id, user0.id],
-          likeCount: 2,
         }),
       );
     });
 
-    it('deletes all data of given user id and gave the expected resposne', async () => {
+    it('deletes all posts of given user id', async () => {
       await feedPostsService.deleteAllPostByUserId(activeUser.id);
-      expect(await feedPostsService.findMainFeedPostsForUser(feedPost.id, 5)).toHaveLength(0);
+      expect(await feedPostsService.findMainFeedPostsForUser(activeUser.id, 5)).toHaveLength(0);
+    });
+  });
+
+  describe('#deleteAllFeedPostLikeByUserId', () => {
+    it('delete all feedpost likes of given user id', async () => {
+      const user1 = await usersService.create(userFactory.build());
+      const user2 = await usersService.create(userFactory.build());
+      const feedPost1 = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: user1.id,
+          likes: [user2._id, user1._id],
+          likeCount: 2,
+        }),
+      );
+
+      const feedPost2 = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: user1.id,
+          likes: [user2._id, user1._id],
+          likeCount: 2,
+        }),
+      );
+
+      await feedPostsService.deleteAllFeedPostLikeByUserId(user2.id);
+      expect((await feedPostsService.findById(feedPost1.id, true)).likeCount).toBe(1);
       expect((await feedPostsService.findById(feedPost2.id, true)).likeCount).toBe(1);
-      expect((await feedPostsService.findById(feedPost3.id, true)).likeCount).toBe(2);
+      expect((await feedPostsService.findById(feedPost1.id, true)).likes).not.toContain(user2.id);
+      expect((await feedPostsService.findById(feedPost2.id, true)).likes).not.toContain(user2.id);
     });
   });
 });

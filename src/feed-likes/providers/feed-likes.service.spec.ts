@@ -19,6 +19,7 @@ import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 import { FriendsService } from '../../friends/providers/friends.service';
 import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndUnblock.enums';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
+import { FeedReplyLike, FeedReplyLikeDocument } from '../../schemas/feedReplyLike/feedReplyLike.schema';
 
 describe('FeedLikesService', () => {
   let app: INestApplication;
@@ -34,6 +35,7 @@ describe('FeedLikesService', () => {
   let feedCommentsService: FeedCommentsService;
   let friendsService: FriendsService;
   let blocksModel: Model<BlockAndUnblockDocument>;
+  let feedReplyLikeModel: Model<FeedReplyLikeDocument>;
 
   const feedCommentsAndReplyObject = {
     images: [
@@ -60,6 +62,7 @@ describe('FeedLikesService', () => {
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
     friendsService = moduleRef.get<FriendsService>(FriendsService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
+    feedReplyLikeModel = moduleRef.get<Model<FeedReplyLikeDocument>>(getModelToken(FeedReplyLike.name));
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -137,14 +140,6 @@ describe('FeedLikesService', () => {
       const feedPostLikeData = await feedLikesService.findFeedPostLike(feedPost.id, activeUser.id);
       expect(feedPostLikeData.feedPostId).toEqual(feedPost._id);
       expect(feedPostLikeData.userId).toEqual(activeUser._id);
-    });
-  });
-
-  describe('#findFeedReplyLike', () => {
-    it('successfully find a feedPostLikeData', async () => {
-      const feedReplyLikeData = await feedLikesService.findFeedReplyLike(feedReply.id, activeUser.id);
-      expect(feedReplyLikeData._id).toEqual(feedReply._id);
-      expect(feedReplyLikeData.userId).toEqual(activeUser._id);
     });
   });
 
@@ -351,9 +346,7 @@ describe('FeedLikesService', () => {
         feedRepliesFactory.build(
           {
             userId: activeUser._id,
-            feedCommentId: feedComment.id,
-            message: feedCommentsAndReplyObject.message,
-            images: feedCommentsAndReplyObject.images,
+            feedCommentId: feedComment._id,
           },
         ),
       );
@@ -361,8 +354,8 @@ describe('FeedLikesService', () => {
       await feedLikesService.createFeedReplyLike(feedReply.id, user0.id);
       await feedLikesService.createFeedReplyLike(feedReply1.id, user0.id);
       await feedLikesService.deleteAllFeedReplyLikeByUserId(user0.id);
-      expect(await feedLikesService.findFeedReplyLike(feedReply.id, user0.id)).toBeNull();
-      expect(await feedLikesService.findFeedReplyLike(feedReply1.id, user0.id)).toBeNull();
+      expect(await feedReplyLikeModel.findOne({ _id: feedReply.id })).toBeNull();
+      expect(await feedReplyLikeModel.findOne({ _id: feedReply1.id })).toBeNull();
     });
   });
 });

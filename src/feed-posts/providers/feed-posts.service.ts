@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { FriendsService } from '../../friends/providers/friends.service';
 import { RssFeedProviderFollowsService } from '../../rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
 import {
- FeedPostDeletionState, FeedPostPrivacyType, FeedPostStatus, PostType,
+  FeedPostDeletionState, FeedPostPrivacyType, FeedPostStatus, PostType,
 } from '../../schemas/feedPost/feedPost.enums';
 import { FeedPost, FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 import { User, UserDocument } from '../../schemas/user/user.schema';
@@ -425,17 +425,18 @@ export class FeedPostsService {
   }
 
   async deleteAllPostByUserId(id: string): Promise<void> {
-    await Promise.all([
-      this.feedPostModel.updateMany(
-        { likes: { $in: [new mongoose.Types.ObjectId(id)] } },
-        { $inc: { likeCount: -1 }, $pull: { likes: new mongoose.Types.ObjectId(id) } },
-        { multi: true },
-      ),
-      this.feedPostModel.updateMany(
-        { userId: new mongoose.Types.ObjectId(id) },
-        { $set: { is_deleted: FeedPostDeletionState.Deleted } },
-        { multi: true },
-      ),
-    ]);
+    await this.feedPostModel.updateMany(
+      { userId: new mongoose.Types.ObjectId(id) },
+      { $set: { is_deleted: FeedPostDeletionState.Deleted } },
+      { multi: true },
+    );
+  }
+
+  async deleteAllFeedPostLikeByUserId(id: string): Promise<void> {
+    await this.feedPostModel.updateMany(
+      { likes: { $in: [new mongoose.Types.ObjectId(id)] } },
+      { $inc: { likeCount: -1 }, $pull: { likes: new mongoose.Types.ObjectId(id) } },
+      { multi: true },
+    );
   }
 }

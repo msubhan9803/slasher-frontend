@@ -21,6 +21,7 @@ import { NotificationsService } from '../notifications/providers/notifications.s
 import { UsersService } from '../users/providers/users.service';
 import { FriendsGateway } from './providers/friends.gateway';
 import { ChatService } from '../chat/providers/chat.service';
+import { UserFollowService } from '../user-follow/providers/userFollow.service';
 
 @Controller({ path: 'friends', version: ['1'] })
 export class FriendsController {
@@ -30,7 +31,9 @@ export class FriendsController {
     private readonly notificationsService: NotificationsService,
     private readonly usersService: UsersService,
     private readonly chatService: ChatService,
+    private readonly userFollowService: UserFollowService,
     private friendsGateway: FriendsGateway,
+
   ) { }
 
   @Post()
@@ -116,6 +119,7 @@ export class FriendsController {
 
     await Promise.all([
       await this.friendsService.cancelFriendshipOrDeclineRequest(user.id, cancelFriendshipOrDeclineRequestDto.userId),
+      await this.userFollowService.deleteFollowDataOnUnfriend(user.id, cancelFriendshipOrDeclineRequestDto.userId),
       await this.chatService.deletePrivateDirectMessageConversation([
         new mongoose.Types.ObjectId(user.id),
         new mongoose.Types.ObjectId(cancelFriendshipOrDeclineRequestDto.userId),

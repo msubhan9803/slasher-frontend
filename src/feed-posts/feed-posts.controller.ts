@@ -11,7 +11,7 @@ import { getUserFromRequest } from '../utils/request-utils';
 import { FeedPostsService } from './providers/feed-posts.service';
 import { CreateFeedPostsDto } from './dto/create-feed-post.dto';
 import { UpdateFeedPostsDto } from './dto/update-feed-posts.dto';
-import { FeedPost } from '../schemas/feedPost/feedPost.schema';
+import { FeedPost, FeedPostDocument } from '../schemas/feedPost/feedPost.schema';
 import { SingleFeedPostsDto } from './dto/find-single-feed-post.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { MainFeedPostQueryDto } from './dto/main-feed-post-query.dto';
@@ -35,9 +35,10 @@ import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-
 import { AllFeedPostQueryDto } from './dto/all-feed-posts-query.dto';
 import { MovieIdDto } from './dto/movie-id.dto';
 import { MovieUserStatusService } from '../movie-user-status/providers/movie-user-status.service';
-import { User } from '../schemas/user/user.schema';
+import { User, UserDocument } from '../schemas/user/user.schema';
 import { getPostType } from '../utils/post-utils';
 import { UsersService } from '../users/providers/users.service';
+import { UserFollowService } from '../user-follow/providers/userFollow.service';
 
 @Controller({ path: 'feed-posts', version: ['1'] })
 export class FeedPostsController {
@@ -53,6 +54,7 @@ export class FeedPostsController {
     private readonly moviesService: MoviesService,
     private readonly movieUserStatusService: MovieUserStatusService,
     private readonly usersService: UsersService,
+    private readonly userFollowService: UserFollowService,
   ) { }
 
   @TransformImageUrls('$.images[*].image_path')
@@ -142,11 +144,15 @@ export class FeedPostsController {
         );
       }
     }
+    const allFollowedUsers = await this.userFollowService.findAllUsersForFollowNotification(user.id);
+    const userIds = allFollowedUsers.map((i) => i.userId.toString());
 
     const createFeedPost = await this.feedPostsService.create(feedPost);
 
     // Create notifications if any users were mentioned
     const mentionedUserIds = extractUserMentionIdsFromMessage(createFeedPost?.message);
+    await this.sendFollowPostNotification(mentionedUserIds, userIds, createFeedPost, user);
+
     for (const mentionedUserId of mentionedUserIds) {
       await this.notificationsService.create({
         userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
@@ -229,7 +235,7 @@ export class FeedPostsController {
   @UseInterceptors(
     ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_POST, MAXIMUM_IMAGE_UPLOAD_SIZE, {
       fileFilter: defaultFileInterceptorFileFilter,
-      }),
+    }),
   )
   async update(
     @Req() request: Request,
@@ -562,5 +568,25 @@ export class FeedPostsController {
         ],
       ),
     );
+  }
+
+  async sendFollowPostNotification(
+    mentionedUserIds: string[],
+    allFollowedUsers: string[],
+    createFeedPost: FeedPostDocument,
+postCreator: UserDocument,
+  ) {
+    const allNewUser = allFollowedUsers.filter((userId) => !mentionedUserIds.includes(userId));
+
+    for (const user of allNewUser) {
+      await this.notificationsService.create({
+        userId: new mongoose.Types.ObjectId(user) as any,
+        feedPostId: createFeedPost.id,
+        senderId: postCreator._id,
+        allUsers: [postCreator._id as any], // senderId must be in allUsers for old API compatibility
+        notifyType: NotificationType.NewPostFromFollowedUser,
+        notificationMsg: 'created a new post',
+      });
+    }
   }
 }

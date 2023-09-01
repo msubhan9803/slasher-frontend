@@ -298,63 +298,47 @@ function Home() {
       && post.likeIcon);
 
     const selectedFeedPostUserId = posts.find((post) => post.id === feedPostId)?.userId;
-    const selectedRssfeedProviderIdOfFeedPost = posts.find(
-      (post) => post.id === feedPostId,
-    )?.rssfeedProviderId;
-
-    const handleLikeAndUnlikeFeedPost = () => {
-      if (checkLike) {
-        unlikeFeedPost(feedPostId).then((res) => {
-          if (res.status === 200) {
-            const unLikePostData = posts.map(
-              (unLikePost) => {
-                if (unLikePost._id === feedPostId) {
-                  return {
-                    ...unLikePost,
-                    likeIcon: false,
-                    likedByUser: false,
-                    likeCount: unLikePost.likeCount - 1,
-                  };
-                }
-                return unLikePost;
-              },
-            );
-            setPosts(unLikePostData);
+    if (checkLike) {
+      unlikeFeedPost(feedPostId).then((res) => {
+        if (res.status === 200) {
+          const unLikePostData = posts.map(
+            (unLikePost) => {
+              if (unLikePost._id === feedPostId) {
+                return {
+                  ...unLikePost,
+                  likeIcon: false,
+                  likedByUser: false,
+                  likeCount: unLikePost.likeCount - 1,
+                };
+              }
+              return unLikePost;
+            },
+          );
+          setPosts(unLikePostData);
+        }
+      });
+    } else {
+      likeFeedPost(feedPostId).then((res) => {
+        if (res.status === 201 && res.data.isFriend === false) {
+          checkFriendShipStatus(selectedFeedPostUserId!);
+        }
+        const likePostData = posts.map((likePost) => {
+          if (likePost._id === feedPostId) {
+            return {
+              ...likePost,
+              likeIcon: true,
+              likedByUser: true,
+              likeCount: likePost.likeCount + 1,
+            };
           }
+          return likePost;
         });
-      } else {
-        likeFeedPost(feedPostId).then((res) => {
-          if (res.status === 201 && res.data.isFriend === false) {
-            setFriendShipStatusModal(true);
-          }
-          const likePostData = posts.map((likePost) => {
-            if (likePost._id === feedPostId) {
-              return {
-                ...likePost,
-                likeIcon: true,
-                likedByUser: true,
-                likeCount: likePost.likeCount + 1,
-              };
-            }
-            return likePost;
-          });
-          setPosts(likePostData);
-        }).catch((err) => {
-          if (err.response.status === 403) {
-            setFriendShipStatusModal(true);
-          }
-        });
-      }
-    };
-
-    // feedPost is a user post
-    if (selectedFeedPostUserId) {
-      await checkFriendShipStatus(selectedFeedPostUserId!).then(handleLikeAndUnlikeFeedPost);
-    }
-
-    // feedPost is rssFeedPost
-    if (selectedRssfeedProviderIdOfFeedPost) {
-      handleLikeAndUnlikeFeedPost();
+        setPosts(likePostData);
+      }).catch((err) => {
+        if (err.response.status === 403) {
+          checkFriendShipStatus(selectedFeedPostUserId!);
+        }
+      });
     }
   };
 

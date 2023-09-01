@@ -34,9 +34,11 @@ export class UserFollowService {
         });
     }
 
-    async findAllFollowUser(id: string): Promise<UserFollowDocument[]> {
+    async findAllFollowUser(id: string, limit:number, offset?:number): Promise<UserFollowDocument[]> {
         return this.userFollowModel.find({ userId: id })
             .populate('followUserId', '_id userName profilePic firstName')
+            .limit(limit)
+            .skip(offset)
             .exec();
     }
 

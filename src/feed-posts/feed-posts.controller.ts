@@ -19,7 +19,9 @@ import {
   MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_POST, UPLOAD_PARAM_NAME_FOR_FILES,
 } from '../constants';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
-import { FeedPostDeletionState, FeedPostPrivacyType, PostType } from '../schemas/feedPost/feedPost.enums';
+import {
+ FeedPostDeletionState, FeedPostPrivacyType, PostType,
+} from '../schemas/feedPost/feedPost.enums';
 import { NotificationType } from '../schemas/notification/notification.enums';
 import { NotificationsService } from '../notifications/providers/notifications.service';
 import { StorageLocationService } from '../global/providers/storage-location.service';
@@ -151,18 +153,7 @@ export class FeedPostsController {
 
     // Create notifications if any users were mentioned
     const mentionedUserIds = extractUserMentionIdsFromMessage(createFeedPost?.message);
-    await this.sendFollowPostNotification(mentionedUserIds, userIds, createFeedPost, user);
-
-    for (const mentionedUserId of mentionedUserIds) {
-      await this.notificationsService.create({
-        userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
-        feedPostId: createFeedPost.id,
-        senderId: user._id,
-        allUsers: [user._id as any], // senderId must be in allUsers for old API compatibility
-        notifyType: NotificationType.UserMentionedYouInPost,
-        notificationMsg: 'mentioned you in a post',
-      });
-    }
+    await this.sendFeedPostCreateNotification(mentionedUserIds, userIds, createFeedPost, user);
 
     return {
       _id: createFeedPost.id,
@@ -570,13 +561,24 @@ export class FeedPostsController {
     );
   }
 
-  async sendFollowPostNotification(
+  async sendFeedPostCreateNotification(
     mentionedUserIds: string[],
     allFollowedUsers: string[],
     createFeedPost: FeedPostDocument,
-postCreator: UserDocument,
+    postCreator: UserDocument,
   ) {
     const allNewUser = allFollowedUsers.filter((userId) => !mentionedUserIds.includes(userId));
+
+    for (const mentionedUserId of mentionedUserIds) {
+      await this.notificationsService.create({
+        userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
+        feedPostId: createFeedPost.id,
+        senderId: postCreator._id,
+        allUsers: [postCreator._id as any], // senderId must be in allUsers for old API compatibility
+        notifyType: NotificationType.UserMentionedYouInPost,
+        notificationMsg: 'mentioned you in a post',
+      });
+    }
 
     for (const user of allNewUser) {
       await this.notificationsService.create({
@@ -585,7 +587,7 @@ postCreator: UserDocument,
         senderId: postCreator._id,
         allUsers: [postCreator._id as any], // senderId must be in allUsers for old API compatibility
         notifyType: NotificationType.NewPostFromFollowedUser,
-        notificationMsg: 'created a new post',
+        notificationMsg: createFeedPost.postType === PostType.MovieReview ? 'has written a movie review ' : 'created a new post',
       });
     }
   }

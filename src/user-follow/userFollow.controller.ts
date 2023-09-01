@@ -1,5 +1,5 @@
 import {
-    Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Put, Req,
+    Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Put, Query, Req, ValidationPipe,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { CreateUserFollowDTO } from './dto/validate-user-follow.dto';
@@ -8,6 +8,8 @@ import { UserFollowService } from './providers/userFollow.service';
 import { pick } from '../utils/object-utils';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { FriendsService } from '../friends/providers/friends.service';
+import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
+import { FollowUserListDto } from './dto/get-all-follow-user-dto';
 
 @Controller({ path: 'user-follow', version: ['1'] })
 export class UserFollowController {
@@ -47,9 +49,12 @@ export class UserFollowController {
         '$[*].followUserId.profilePic',
     )
     @Get('fetch-all-follow-user')
-    async findAll(@Req() request: Request) {
+    async findAll(
+@Req() request: Request, @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: FollowUserListDto,
+) {
         const user = getUserFromRequest(request);
-        const allFollowUser = await this.userFollowService.findAllFollowUser(user._id.toString());
+        const allFollowUser = await this.userFollowService.findAllFollowUser(user._id.toString(), query.limit, query.offset);
         const response = allFollowUser.map((userFollow) => ({
             ...pick(userFollow, [
                 'userId',

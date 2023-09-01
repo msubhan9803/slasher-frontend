@@ -23,6 +23,7 @@ describe('User-Follow / get-all-user-follow (e2e)', () => {
     let user1: User;
     let user2: User;
     let user3: User;
+    let user4: User;
     let configService: ConfigService;
     let usersService: UsersService;
     let userFollowService: UserFollowService;
@@ -58,6 +59,7 @@ describe('User-Follow / get-all-user-follow (e2e)', () => {
             user1 = await usersService.create(userFactory.build());
             user2 = await usersService.create(userFactory.build());
             user3 = await usersService.create(userFactory.build());
+            user4 = await usersService.create(userFactory.build());
             activeUserAuthToken = activeUser.generateNewJwtToken(
                 configService.get<string>('JWT_SECRET_KEY'),
             );
@@ -72,14 +74,16 @@ describe('User-Follow / get-all-user-follow (e2e)', () => {
 
         describe('Successfully gets all the users', () => {
             it('can successfully gets the all users', async () => {
+                const limit = 5;
                 await userFollowService.createOrUpdate(activeUser._id.toString(), user1._id.toString(), true);
                 await userFollowService.createOrUpdate(activeUser._id.toString(), user2._id.toString(), true);
                 await userFollowService.createOrUpdate(activeUser._id.toString(), user3._id.toString(), true);
+                await userFollowService.createOrUpdate(activeUser._id.toString(), user4._id.toString(), true);
                 const response = await request(app.getHttpServer())
-                    .get('/api/v1/user-follow/fetch-all-follow-user')
+                    .get(`/api/v1/user-follow/fetch-all-follow-user?limit=${limit}`)
                     .auth(activeUserAuthToken, { type: 'bearer' })
                     .send();
-                expect((response.body)).toHaveLength(3);
+                expect((response.body)).toHaveLength(4);
                 expect(response.body).toEqual(
                     [
                         {
@@ -112,17 +116,66 @@ describe('User-Follow / get-all-user-follow (e2e)', () => {
                             },
                             pushNotifications: true,
                         },
+                        {
+                            userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                            followUserId: {
+                                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                                userName: 'Username5',
+                                firstName: 'First name 5',
+                                profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+                            },
+                            pushNotifications: true,
+                        },
                     ],
                 );
             });
 
             it('gives the expected response when no one follows to user2', async () => {
+                const limit = 5;
                 const response = await request(app.getHttpServer())
-                    .get('/api/v1/user-follow/fetch-all-follow-user')
+                    .get(`/api/v1/user-follow/fetch-all-follow-user?limit=${limit}`)
                     .auth(user2AuthToken, { type: 'bearer' })
                     .send();
                 expect(response.body).toEqual([]);
             });
         });
+
+        describe('Validation', () => {
+            it('limit should not be empty', async () => {
+              const response = await request(app.getHttpServer())
+                .get('/api/v1/user-follow/fetch-all-follow-user')
+                .auth(activeUserAuthToken, { type: 'bearer' })
+                .send();
+              expect(response.body.message).toContain('limit should not be empty');
+            });
+
+            it('limit should be a number', async () => {
+              const limit = 'a';
+              const response = await request(app.getHttpServer())
+                .get(`/api/v1/user-follow/fetch-all-follow-user?limit=${limit}`)
+                .auth(activeUserAuthToken, { type: 'bearer' })
+                .send();
+              expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
+            });
+
+            it('returns an error if the limit is higher than allowed', async () => {
+              const limit = 61;
+              const response = await request(app.getHttpServer())
+                .get(`/api/v1/user-follow/fetch-all-follow-user?limit=${limit}`)
+                .auth(activeUserAuthToken, { type: 'bearer' })
+                .send();
+              expect(response.body.message).toContain('limit must not be greater than 30');
+            });
+
+            it('offset should be a number', async () => {
+                const limit = 10;
+                const offset = 'a';
+                const response = await request(app.getHttpServer())
+                  .get(`/api/v1/user-follow/fetch-all-follow-user?limit=${limit}&offset=${offset}`)
+                  .auth(activeUserAuthToken, { type: 'bearer' })
+                  .send();
+                expect(response.body.message).toContain('offset must be a number conforming to the specified constraints');
+              });
+          });
     });
 });

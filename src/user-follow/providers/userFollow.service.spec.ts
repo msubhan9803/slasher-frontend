@@ -83,8 +83,18 @@ describe('UserFollowService', () => {
             await userFollowService.createOrUpdate(user2._id.toString(), user3._id.toString(), true);
             await userFollowService.createOrUpdate(user2._id.toString(), user4._id.toString(), true);
             await userFollowService.createOrUpdate(user1._id.toString(), user4._id.toString(), true);
-            expect((await userFollowService.findAllFollowUser(user1.id))).toHaveLength(2);
-            expect((await userFollowService.findAllFollowUser(user2.id))).toHaveLength(2);
+            expect((await userFollowService.findAllFollowUser(user1.id, 5))).toHaveLength(2);
+            expect((await userFollowService.findAllFollowUser(user2.id, 5))).toHaveLength(2);
+        });
+
+        it('returns the expected response for applied limit and offset', async () => {
+            await userFollowService.createOrUpdate(user1._id.toString(), user2._id.toString(), true);
+            await userFollowService.createOrUpdate(user1._id.toString(), user3._id.toString(), true);
+            await userFollowService.createOrUpdate(user1._id.toString(), user4._id.toString(), true);
+            const response = await userFollowService.findAllFollowUser(user1.id, 2);
+            expect(response.map((i) => (i.followUserId as any)._id).sort()).toEqual([user3._id, user2._id].sort());
+            const response1 = await userFollowService.findAllFollowUser(user1.id, 2, 1);
+            expect(response1.map((i) => (i.followUserId as any)._id).sort()).toEqual([user4._id, user3._id].sort());
         });
     });
 

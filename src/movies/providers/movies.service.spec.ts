@@ -441,7 +441,7 @@ describe('MoviesService', () => {
       );
       const limit = 5;
       const moviesList = await moviesService.findAll(limit, true, 'name', null, 'alive', null, null);
-      expect(moviesList).toHaveLength(2);
+      expect(moviesList).toHaveLength(3);
     });
 
     it('when movies is sort by rating than expected response', async () => {

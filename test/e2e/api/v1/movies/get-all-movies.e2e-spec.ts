@@ -494,6 +494,12 @@ describe('All Movies (e2e)', () => {
           status: MovieActiveStatus.Active,
         }),
       );
+      const movie1 = await moviesService.create(
+        moviesFactory.build({
+          name: 'The alive',
+          status: MovieActiveStatus.Active,
+        }),
+      );
       const nameContains = 'ali';
       const sortNameStartsWith = 'a';
       const limit = 3;
@@ -506,6 +512,14 @@ describe('All Movies (e2e)', () => {
         name: movie0.name,
         logo: 'http://localhost:4444/placeholders/movie_poster.png',
         releaseDate: movie0.releaseDate.toISOString(),
+        rating: 0,
+        worthWatching: 0,
+      },
+      {
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        name: movie1.name,
+        logo: 'http://localhost:4444/placeholders/movie_poster.png',
+        releaseDate: movie1.releaseDate.toISOString(),
         rating: 0,
         worthWatching: 0,
       }]);

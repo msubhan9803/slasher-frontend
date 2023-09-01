@@ -132,8 +132,6 @@ describe('FeedPostsService', () => {
         expect(reloadedFeedPost.userId).toEqual(rssFeedProvider._id);
       });
 
-    // TODO: Probably delete this test after the old iOS/Android apps are retired, since the
-    // privacyType field won't be used anymore.
     it('sets the post privacyType value to public by default', async () => {
       const feedPostData = feedPostFactory.build({
         userId: activeUser.id,

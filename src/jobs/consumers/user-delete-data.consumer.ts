@@ -36,23 +36,23 @@ export class DeleteUserDataConsumer {
             // users' block lists in the UI.
             this.blocksService.deleteAllByUserId(user.id),
 
-            // TODO: Mark all posts by the deleted user as deleted
+            // Mark all posts by the deleted user as deleted
             this.feedPostsService.deleteAllPostByUserId(user.id),
-            // TODO: Mark all post likes by the deleted user as deleted
+            // Mark all post likes by the deleted user as deleted
             this.feedPostsService.deleteAllFeedPostLikeByUserId(user.id),
-            // TODO: Mark all comments by the deleted user as deleted
+            // Mark all comments by the deleted user as deleted
             this.feedCommentsService.deleteAllCommentByUserId(user.id),
-            // TODO: Mark all replies by the deleted user as deleted
+            // Mark all replies by the deleted user as deleted
             this.feedCommentsService.deleteAllReplyByUserId(user.id),
 
-            // TODO: Mark all reply likes by the deleted user as deleted
+            // Mark all reply likes by the deleted user as deleted
             this.feedCommentsService.deleteAllFeedReplyLikeByUserId(user.id),
-            // TODO: Mark all messages by the deleted user as deleted
+            // Mark all messages by the deleted user as deleted
             this.chatService.deleteAllMessageByUserId(user.id),
-            // TODO: For any matchList where roomCategory equals MatchListRoomCategory.DirectMessage AND
+            // For any matchList where roomCategory equals MatchListRoomCategory.DirectMessage AND
             // that matchList has the deleted user in the participants array, mark the matchList as deleted.
             this.chatService.deleteAllMatchlistByUserId(user.id),
-            // TODO: Delete all likes by the deleted user.  This includes: feedpostlikes, feedreplylikes,
+            // Delete all likes by the deleted user.  This includes: feedpostlikes, feedreplylikes,
             // likes by the user on posts, comments, and replies.
             this.feedLikesService.deleteAllFeedPostLikeByUserId(user.id),
             this.feedLikesService.deleteAllFeedReplyLikeByUserId(user.id),

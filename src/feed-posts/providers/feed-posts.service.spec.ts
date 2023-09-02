@@ -992,11 +992,11 @@ describe('FeedPostsService', () => {
     });
     it('updates the privacyPost according to user profile visibility', async () => {
       //update private to public
-      await feedPostsService.updatePostPrivacyType(user.id, 0);
+      await feedPostsService.updatePostPrivacyType(user.id, ProfileVisibility.Public);
       expect((await feedPostsService.findById(feedPost1, true)).privacyType).toEqual(FeedPostPrivacyType.Public);
       expect((await feedPostsService.findById(feedPost2, true)).privacyType).toEqual(FeedPostPrivacyType.Public);
       //update public to private
-      await feedPostsService.updatePostPrivacyType(user1.id, 1);
+      await feedPostsService.updatePostPrivacyType(user1.id, ProfileVisibility.Private);
       expect((await feedPostsService.findById(feedPost3, true)).privacyType).toEqual(FeedPostPrivacyType.Private);
       expect((await feedPostsService.findById(feedPost4, true)).privacyType).toEqual(FeedPostPrivacyType.Private);
     });

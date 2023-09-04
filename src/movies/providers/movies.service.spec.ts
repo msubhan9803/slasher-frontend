@@ -322,36 +322,6 @@ describe('MoviesService', () => {
       expect(moviesList).toHaveLength(5);
     });
 
-    it('when name contains supplied than expected response', async () => {
-      const movieData = await moviesService.create(
-        moviesFactory.build(
-          {
-            status: MovieActiveStatus.Active,
-            name: 'a',
-          },
-        ),
-      );
-      await moviesService.create(
-        moviesFactory.build(
-          {
-            status: MovieActiveStatus.Active,
-            name: 'b',
-          },
-        ),
-      );
-      await moviesService.create(
-        moviesFactory.build(
-          {
-            status: MovieActiveStatus.Active,
-            name: 'c',
-          },
-        ),
-      );
-      const limit = 5;
-      const moviesList = await moviesService.findAll(limit, true, 'name', movieData.id, 'c');
-      expect(moviesList).toHaveLength(1);
-    });
-
     it('when sort_name startsWith supplied than expected response', async () => {
       await moviesService.create(
         moviesFactory.build(

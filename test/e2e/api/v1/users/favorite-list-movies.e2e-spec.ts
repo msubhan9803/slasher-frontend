@@ -189,7 +189,7 @@ describe('Favorite List Movies (e2e)', () => {
 
       it('when name contains supplied than expected all movies response', async () => {
         const limit = 5;
-        const nameContains = 'c';
+        const nameContains = 'cat';
         const response = await request(app.getHttpServer())
           .get(`/api/v1/users/${activeUser.id}/favorite-list?limit=${limit}&sortBy=${'rating'}&nameContains=${nameContains}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
@@ -222,7 +222,7 @@ describe('Favorite List Movies (e2e)', () => {
           .get(`/api/v1/users/${activeUser.id}/favorite-list?limit=${limit}&sortBy=${'name'}&nameContains=${nameContains}&startsWith=${sortNameStartsWith}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body).toEqual([]);
+        expect(response.body).toHaveLength(1);
       });
 
       it('when startsWith is exist and nameContains is not exist than expected response', async () => {

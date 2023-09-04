@@ -401,7 +401,7 @@ describe('All Movies (e2e)', () => {
         moviesFactory.build(
           {
             status: MovieActiveStatus.Active,
-            name: 'a',
+            name: 'alive',
           },
         ),
       );
@@ -409,7 +409,7 @@ describe('All Movies (e2e)', () => {
         moviesFactory.build(
           {
             status: MovieActiveStatus.Active,
-            name: 'b',
+            name: 'horror',
           },
         ),
       );
@@ -417,12 +417,12 @@ describe('All Movies (e2e)', () => {
         moviesFactory.build(
           {
             status: MovieActiveStatus.Active,
-            name: 'c',
+            name: 'cat-die',
           },
         ),
       );
       const limit = 5;
-      const nameContains = 'c';
+      const nameContains = 'li';
       const response = await request(app.getHttpServer())
         .get(`/api/v1/movies?limit=${limit}&sortBy=${'rating'}&nameContains=${nameContains}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
@@ -467,7 +467,7 @@ describe('All Movies (e2e)', () => {
         .get(`/api/v1/movies?limit=${limit}&sortBy=${'name'}&nameContains=${nameContains}&startsWith=${sortNameStartsWith}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      expect(response.body).toEqual([]);
+      expect(response.body).toHaveLength(1);
     });
 
     it('when startsWith is exist and nameContains is not exist than expected response', async () => {

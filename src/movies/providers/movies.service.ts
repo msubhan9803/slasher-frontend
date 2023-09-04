@@ -326,8 +326,7 @@ export class MoviesService {
       movieFindAllQuery.sortRating = { $lt: afterMovie.sortRating };
     }
     if (nameContains) {
-      const movieName = nameContains.replace(/^(a|an|the)\s+/i, '');
-      movieFindAllQuery.name = new RegExp(`${escapeStringForRegex(movieName)}`, 'i');
+      movieFindAllQuery.sort_name = new RegExp(`${escapeStringForRegex(nameContains)}`, 'i');
     }
     if (sortNameStartsWith) {
       movieFindAllQuery.sort_name = movieFindAllQuery.sort_name || {};

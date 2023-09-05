@@ -9,7 +9,7 @@ export class NotificationCreationConsumer {
     ) { }
 
     @Process('create-notification')
-    async sendUpdateIfMessageUnread(job: Job<any>) {
+    async sendNotification(job: Job<any>) {
         await this.notificationService.create(job.data);
         return { success: true };
     }

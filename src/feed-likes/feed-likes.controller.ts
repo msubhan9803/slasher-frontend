@@ -87,6 +87,7 @@ export class FeedLikesController {
       notification.allUsers = [user._id as any];
       notification.notifyType = NotificationType.UserLikedYourPost;
       notification.notificationMsg = post.postType === PostType.MovieReview ? 'liked your movie review' : 'liked your post';
+
       await this.createNotificationQueue.add('create-notification', notification);
     }
     return { success: true };
@@ -146,15 +147,16 @@ export class FeedLikesController {
       user.id === comment.userId.toString()
     );
     if (!skipCommentCreatorNotification) {
-      await this.notificationsService.create({
-        userId: comment.userId as any,
-        feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
-        feedCommentId: { _id: comment._id } as unknown as FeedComment,
-        senderId: user._id,
-        allUsers: [user._id as any], // senderId must be in allUsers for old API compatibility
-        notifyType: NotificationType.UserLikedYourComment,
-        notificationMsg: 'liked your comment',
-      });
+      const notification: any = {};
+      notification.userId = comment.userId as any;
+      notification.feedPostId = { _id: comment.feedPostId } as unknown as FeedPost;
+      notification.feedCommentId = { _id: comment._id } as unknown as FeedComment;
+      notification.senderId = user._id;
+      notification.allUsers = [user._id as any];
+      notification.notifyType = NotificationType.UserLikedYourComment;
+      notification.notificationMsg = 'liked your comment';
+
+      await this.createNotificationQueue.add('create-notification', notification);
     }
     return { success: true };
   }
@@ -213,16 +215,17 @@ export class FeedLikesController {
       user.id === reply.userId.toString()
     );
     if (!skipCommentCreatorNotification) {
-      await this.notificationsService.create({
-        userId: reply.userId as any,
-        feedPostId: { _id: reply.feedPostId } as unknown as FeedPost,
-        feedCommentId: { _id: reply.feedCommentId } as unknown as FeedComment,
-        feedReplyId: reply._id,
-        senderId: user._id,
-        allUsers: [user._id as any], // senderId must be in allUsers for old API compatibility
-        notifyType: NotificationType.UserLikedYourReply,
-        notificationMsg: 'liked your reply',
-      });
+      const notification: any = {};
+      notification.userId = reply.userId as any;
+      notification.feedPostId = { _id: reply.feedPostId } as unknown as FeedPost;
+      notification.feedCommentId = { _id: reply.feedCommentId } as unknown as FeedComment;
+      notification.feedReplyId = reply._id;
+      notification.senderId = user._id;
+      notification.allUsers = [user._id as any];
+      notification.notifyType = NotificationType.UserLikedYourReply;
+      notification.notificationMsg = 'liked your reply';
+
+      await this.createNotificationQueue.add('create-notification', notification);
     }
 
     return { success: true };

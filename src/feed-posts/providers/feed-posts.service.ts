@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { FriendsService } from '../../friends/providers/friends.service';
 import { RssFeedProviderFollowsService } from '../../rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
 import {
- FeedPostDeletionState, FeedPostPrivacyType, FeedPostStatus, PostType,
+  FeedPostDeletionState, FeedPostPrivacyType, FeedPostStatus, PostType,
 } from '../../schemas/feedPost/feedPost.enums';
 import { FeedPost, FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 import { User, UserDocument } from '../../schemas/user/user.schema';
@@ -43,8 +43,23 @@ export class FeedPostsService {
   async findById(
     id: string,
     activeOnly: boolean,
+  ): Promise<any> {
+    const feedPostFindQuery: any = { _id: id };
+    if (activeOnly) {
+      feedPostFindQuery.is_deleted = false;
+      feedPostFindQuery.status = FeedPostStatus.Active;
+    }
+    const feedPost = await this.feedPostModel
+      .findOne(feedPostFindQuery)
+      .exec();
+    return feedPost;
+  }
+
+  async findByIdWithPopulatedFields(
+    id: string,
+    activeOnly: boolean,
     identifyLikesForUser?: mongoose.Schema.Types.ObjectId,
-  ): Promise<FeedPostDocument> {
+  ): Promise<any> {
     const feedPostFindQuery: any = { _id: id };
     if (activeOnly) {
       feedPostFindQuery.is_deleted = false;
@@ -71,7 +86,7 @@ export class FeedPostsService {
     activeOnly: boolean,
     loggedInUserId: mongoose.Types.ObjectId,
     before?: mongoose.Types.ObjectId,
-    ): Promise<FeedPostDocument[]> {
+  ): Promise<FeedPostDocument[]> {
     const feedPostFindAllQuery: any = {};
     const feedPostQuery = [];
     feedPostQuery.push({ userId: new mongoose.Types.ObjectId(userId) });

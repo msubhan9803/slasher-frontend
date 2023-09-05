@@ -233,6 +233,11 @@ UserSchema.index(
 );
 UserSchema.index(
   {
+    _id: 1, userName: 1, profilePic: 1, profile_status: 1,
+  },
+);
+UserSchema.index(
+  {
     _id: 1, deleted: 1, status: 1,
   },
 );

@@ -59,7 +59,7 @@ export class FeedCommentsController {
   @UseInterceptors(
     ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_IMAGES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, MAXIMUM_IMAGE_UPLOAD_SIZE, {
       fileFilter: defaultFileInterceptorFileFilter,
-      }),
+    }),
   )
   async createFeedComment(
     @Req() request: Request,
@@ -81,16 +81,16 @@ export class FeedCommentsController {
     const user = getUserFromRequest(request);
     if (
       post.postType !== PostType.MovieReview && !post.rssfeedProviderId
-      && user.id !== (post.userId as unknown as User)._id.toString()
+      && user.id !== (post.userId as unknown as User).toString()
     ) {
-      const areFriends = await this.friendsService.areFriends(user.id, (post.userId as unknown as User)._id.toString());
+      const areFriends = await this.friendsService.areFriends(user.id, (post.userId as unknown as User).toString());
       if (!areFriends) {
         throw new HttpException('You can only interact with posts of friends.', HttpStatus.FORBIDDEN);
       }
     }
 
     if (!post.rssfeedProviderId) {
-      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User)._id.toString());
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User).toString());
       if (block) {
         throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
       }
@@ -139,7 +139,7 @@ export class FeedCommentsController {
   @UseInterceptors(
     ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, MAXIMUM_IMAGE_UPLOAD_SIZE, {
       fileFilter: defaultFileInterceptorFileFilter,
-      }),
+    }),
   )
   async updateFeedComment(
     @Req() request: Request,
@@ -253,7 +253,7 @@ export class FeedCommentsController {
     }
 
     const feedPost = await this.feedPostsService.findById(feedComment.feedPostId.toString(), true);
-    if (feedComment.userId.toString() !== user.id && (feedPost.userId as unknown as User)._id.toString() !== user.id) {
+    if (feedComment.userId.toString() !== user.id && (feedPost.userId as unknown as User).toString() !== user.id) {
       throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
     }
     await this.feedCommentsService.deleteFeedComment(params.feedCommentId);
@@ -265,7 +265,7 @@ export class FeedCommentsController {
   @UseInterceptors(
     ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_IMAGES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, MAXIMUM_IMAGE_UPLOAD_SIZE, {
       fileFilter: defaultFileInterceptorFileFilter,
-      }),
+    }),
   )
   async createFeedReply(
     @Req() request: Request,
@@ -294,7 +294,7 @@ export class FeedCommentsController {
     }
 
     if (!feedPost.rssfeedProviderId) {
-      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User).toString());
       if (block) {
         throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
       }
@@ -302,9 +302,9 @@ export class FeedCommentsController {
 
     if (
       feedPost.postType !== PostType.MovieReview && !feedPost.rssfeedProviderId
-      && user.id !== (feedPost.userId as unknown as User)._id.toString()
+      && user.id !== (feedPost.userId as unknown as User).toString()
     ) {
-      const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString());
+      const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User).toString());
       if (!areFriends) {
         throw new HttpException('You can only interact with posts of friends.', HttpStatus.FORBIDDEN);
       }
@@ -355,7 +355,7 @@ export class FeedCommentsController {
   @UseInterceptors(
     ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, MAXIMUM_IMAGE_UPLOAD_SIZE, {
       fileFilter: defaultFileInterceptorFileFilter,
-      }),
+    }),
   )
   async updateFeedReply(
     @Req() request: Request,
@@ -464,7 +464,7 @@ export class FeedCommentsController {
     }
 
     const feedPost = await this.feedPostsService.findById(feedReply.feedPostId.toString(), true);
-    if (feedReply.userId.toString() !== user.id && (feedPost.userId as unknown as User)._id.toString() !== user.id) {
+    if (feedReply.userId.toString() !== user.id && (feedPost.userId as unknown as User).toString() !== user.id) {
       throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
     }
     await this.feedCommentsService.deleteFeedReply(params.feedReplyId);
@@ -483,7 +483,7 @@ export class FeedCommentsController {
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: GetFeedCommentsDto,
   ) {
     const user = getUserFromRequest(request);
-    const feedPost = await this.feedPostsService.findById(query.feedPostId, true);
+    const feedPost = await this.feedPostsService.findByIdWithPopulatedFields(query.feedPostId, true);
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
@@ -564,7 +564,7 @@ export class FeedCommentsController {
     if (!feedCommentWithReplies) {
       throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
     }
-    const feedPost = await this.feedPostsService.findById(feedCommentWithReplies.feedPostId.toString(), true);
+    const feedPost = await this.feedPostsService.findByIdWithPopulatedFields(feedCommentWithReplies.feedPostId.toString(), true);
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
@@ -679,7 +679,7 @@ export class FeedCommentsController {
 
     // Create notification for post creator, informing them that a reply was added to their post
     const post = await this.feedPostsService.findById(reply.feedPostId.toString(), true);
-    const postCreatorUserId: string = (post.userId as any)._id.toString();
+    const postCreatorUserId: string = (post.userId as any).toString();
     const skipPostCreatorNotification = (
       // Don't send a "replied on your post" notification to the post creator if any of
       // the following conditions apply:
@@ -690,7 +690,7 @@ export class FeedCommentsController {
     if (!skipPostCreatorNotification) {
       userIdsToSkip.push(postCreatorUserId);
       await this.notificationsService.create({
-        userId: (post.userId as unknown as User)._id,
+        userId: post.userId,
         feedPostId: reply.feedPostId as any,
         feedCommentId: reply.feedCommentId as any,
         feedReplyId: reply._id,

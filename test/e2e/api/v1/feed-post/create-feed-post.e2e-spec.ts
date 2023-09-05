@@ -312,7 +312,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           .field('imageDescriptions[0][description]', 'this is create post description 0')
           .field('imageDescriptions[1][description]', 'this is create post description 1');
         const post = await feedPostsService.findById(response.body._id, true);
-        expect((post.movieId as any)._id).toEqual(movie._id);
+        expect(post.movieId as any).toEqual(movie._id);
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)

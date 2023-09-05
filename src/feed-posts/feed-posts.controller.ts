@@ -176,7 +176,7 @@ export class FeedPostsController {
     param: SingleFeedPostsDto,
   ) {
     const user = getUserFromRequest(request);
-    const feedPost = await this.feedPostsService.findById(param.id, true, user.id);
+    const feedPost = await this.feedPostsService.findByIdWithPopulatedFields(param.id, true, user.id);
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
@@ -433,7 +433,7 @@ export class FeedPostsController {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
     const user = getUserFromRequest(request);
-    if ((feedPost.userId as any)._id.toString() !== user._id.toString()) {
+    if ((feedPost.userId as any).toString() !== user._id.toString()) {
       throw new HttpException(
         'You can only delete a post that you created.',
         HttpStatus.FORBIDDEN,
@@ -459,7 +459,7 @@ export class FeedPostsController {
       );
     }
 
-    const postCreatedByDifferentUser = feedPost.rssfeedProviderId || (feedPost.userId as any)._id.toString() !== user._id.toString();
+    const postCreatedByDifferentUser = feedPost.rssfeedProviderId || (feedPost.userId as any).toString() !== user._id.toString();
 
     if (!postCreatedByDifferentUser) {
       throw new HttpException(
@@ -480,7 +480,7 @@ export class FeedPostsController {
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: LikesLimitOffSetDto,
   ) {
     const user = getUserFromRequest(request);
-    const feedPost = await this.feedPostsService.findById(param.id, true);
+    const feedPost = await this.feedPostsService.findByIdWithPopulatedFields(param.id, true);
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }

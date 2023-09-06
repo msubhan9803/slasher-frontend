@@ -80,8 +80,11 @@ export class User extends UserUnusedFields {
   @Prop({ default: null })
   dob: Date;
 
-  @Prop({ default: null })
-  previousUserName: string;
+  @Prop({ default: [] })
+  previousUserName: string[];
+
+  @Prop()
+  lastUserNameUpdatedAt: Date;
 
   // TODO: Eventually make the field required (@Prop({required: true})), once the old API has been retired.
   // Can't make it required now because that would stop users of the old API from logging in.
@@ -239,6 +242,11 @@ UserSchema.index(
 UserSchema.index(
   {
     email: 1, resetPasswordToken: 1,
+  },
+);
+UserSchema.index(
+  {
+    previousUserName: 1,
   },
 );
 UserSchema.index(

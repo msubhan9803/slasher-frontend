@@ -17,7 +17,7 @@ import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
-import { PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
+import { FeedPostPrivacyType, PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
 import { MoviesService } from '../../../../../src/movies/providers/movies.service';
 import { moviesFactory } from '../../../../factories/movies.factory';
 import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
@@ -26,6 +26,7 @@ import { MovieUserStatusService } from '../../../../../src/movie-user-status/pro
 import { WorthWatchingStatus } from '../../../../../src/types';
 import { UserSettingsService } from '../../../../../src/settings/providers/user-settings.service';
 import { userSettingFactory } from '../../../../factories/user-setting.factory';
+import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 
 describe('Feed-Post / Post File (e2e)', () => {
   let app: INestApplication;
@@ -517,6 +518,39 @@ describe('Feed-Post / Post File (e2e)', () => {
         .field('imageDescriptions[10][description]', 'this is create feed post description 10');
       expect(response.body.statusCode).toEqual(HttpStatus.BAD_REQUEST);
       expect(response.body.message).toContain('Only allow maximum of 10 description');
+    });
+
+    it('sets the privacyPost type to public by default when user profile is public', async () => {
+      const user = await usersService.create(userFactory.build());
+      const userAuthToken = user.generateNewJwtToken(
+        configService.get<string>('JWT_SECRET_KEY'),
+      );
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/feed-posts')
+        .auth(userAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', 'hello test user')
+        .field('postType', PostType.User)
+        .field('userId', user._id.toString())
+        .expect(HttpStatus.CREATED);
+      expect((await feedPostsService.findById(response.body._id, true)).privacyType).toEqual(FeedPostPrivacyType.Public);
+    });
+    it('sets the privacyPost type to private when user profile is private', async () => {
+      const user = await usersService.create(userFactory.build(
+        { profile_status: ProfileVisibility.Private },
+      ));
+      const userAuthToken = user.generateNewJwtToken(
+        configService.get<string>('JWT_SECRET_KEY'),
+      );
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/feed-posts')
+        .auth(userAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', 'hello test user')
+        .field('postType', PostType.User)
+        .field('userId', user._id.toString())
+        .expect(HttpStatus.CREATED);
+      expect((await feedPostsService.findById(response.body._id, true)).privacyType).toEqual(FeedPostPrivacyType.Private);
     });
 
     describe('notifications', () => {

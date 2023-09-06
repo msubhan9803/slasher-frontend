@@ -87,6 +87,9 @@ function RegistrationIdentity({ activeStep }: Props) {
             <p>
               This is how your username will appear when you post and comment on Slasher.
             </p>
+            <p>
+              You can only update your username once every 30 days.
+            </p>
           </Form.Group>
 
           <Form.Group className="col-md-4 mb-3 text-start">

@@ -268,6 +268,7 @@ function ProfileEdit({ user }: Props) {
                 />
                 <Form.Text className="text-muted fs-4">
                   This is how people will see you post and comment on Slasher.
+                  You can only update your username once every 30 days.
                 </Form.Text>
               </Form.Group>
             </Col>

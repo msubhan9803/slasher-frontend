@@ -88,7 +88,7 @@ function RegistrationIdentity({ activeStep }: Props) {
               This is how your username will appear when you post and comment on Slasher.
             </p>
             <p>
-              You will not be able to change your username until after August 31, 2023.
+              You can only update your username once every 30 days.
             </p>
           </Form.Group>
 

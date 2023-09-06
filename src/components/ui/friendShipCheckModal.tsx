@@ -33,9 +33,9 @@ export default function FriendshipStatusModal({
       {user
         && (
           <CustomModal show={friendShipStatusModal} centered size="sm" onHide={() => setFriendShipStatusModal(false)}>
-            <Modal.Header className="border-0 shadow-none justify-content-end mt-3" closeButton />
-            <Modal.Body className="d-flex flex-column align-items-center text-center pt-0 mb-3">
-              <p className="px-3">
+            <Modal.Header className="border-0 shadow-none justify-content-end" closeButton />
+            <Modal.Body className="d-flex flex-column align-items-center text-center pt-0 p-4">
+              <p>
                 Would you like to add this person as a friend?
                 {' '}
                 <br />

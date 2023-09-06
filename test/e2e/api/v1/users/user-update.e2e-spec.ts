@@ -153,7 +153,7 @@ describe('Users / :id (e2e)', () => {
           .expect(HttpStatus.BAD_REQUEST);
         expect(response.body).toEqual({
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'You can update userName after 19 days',
+          message: 'You can update username after 19 days',
         });
         const updatedActiveUser = await usersService.findById(activeUser.id, true);
         expect(updatedActiveUser.userName).toEqual(activeUser.userName);

@@ -595,7 +595,7 @@ export class UsersController {
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         if (diffDays < 30) {
           throw new HttpException(
-            `You can update userName after ${30 - diffDays} days`,
+            `You can update username after ${30 - diffDays} days`,
             HttpStatus.BAD_REQUEST,
           );
         }

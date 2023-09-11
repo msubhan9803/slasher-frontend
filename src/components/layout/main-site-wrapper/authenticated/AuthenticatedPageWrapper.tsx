@@ -116,7 +116,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
     return () => window.removeEventListener('click', showUnreachableServerModalIfDisconnected, true);
   }, [showUnreachableServerModalIfDisconnected]);
 
-  useGoogleAnalytics(analyticsId);
+  useGoogleAnalytics();
 
   const previousPathRef = useRef<string>();
   useEffect(() => {

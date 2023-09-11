@@ -1,9 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
-import useScript from './useScript';
-import { useAppDispatch } from '../redux/hooks';
-import { setIsGoogleAnalyticsReady } from '../redux/slices/googleAnalyticsSlice';
-import { gtag, sendUserPropertiesToGoogleAnalyticsOnPageLoad } from '../utils/google-analytics-utils';
+import { useEffect } from 'react';
+import { FirebaseAnalytics } from '@capacitor-community/firebase-analytics';
 
 declare global {
   interface Window {
@@ -11,41 +7,32 @@ declare global {
   }
 }
 
-const useGoogleAnalytics = (analyticsId?: string) => {
-  const location = useLocation();
-  const isLoaded = useScript(`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`, Boolean(!analyticsId));
-  const previousPathRef = useRef<string>();
-  const dispatch = useAppDispatch();
-
-  const { pathname, search, hash } = location;
-
-  const DISABLE_HOOK = typeof analyticsId === 'undefined';
-
+const useGoogleAnalytics = () => {
   useEffect(() => {
-    if (isLoaded) {
-      dispatch(setIsGoogleAnalyticsReady());
-      sendUserPropertiesToGoogleAnalyticsOnPageLoad();
-    }
-  }, [dispatch, isLoaded]);
+    alert('iniiit');
 
-  useEffect(() => {
-    if (DISABLE_HOOK) { return; }
-    if (!isLoaded) { return; }
+    const init = async () => {
+      FirebaseAnalytics.initializeFirebase({
+        apiKey: 'AIzaSyBOZ14-DVQ36zvoyGfVg49E9OyJeTlXrLk',
+        authDomain: 'slasher-2023-fe951.firebaseapp.com',
+        projectId: 'slasher-2023-fe951',
+        storageBucket: 'slasher-2023-fe951.appspot.com',
+        messagingSenderId: 'slasher-2023-fe951.appspot.com',
+        appId: '1:399218252615:web:aee9373b0ba680e0068a62',
+        measurementId: 'G-CR0V42WEMF',
+      });
+    };
 
-    window.dataLayer = window.dataLayer || [];
+    init();
+  }, []);
 
-    const currentPath = pathname + search + hash;
-    if (previousPathRef.current === currentPath) { return; }
-    previousPathRef.current = currentPath;
-
-    gtag('js', new Date()); // necessary
-    gtag('config', analyticsId); // necessary
-
-    gtag('event', 'page_view', {
-      page_location: window.location.href,
-      page_title: document.title,
-    });
-  }, [location, isLoaded, analyticsId, hash, pathname, search, DISABLE_HOOK]);
+  FirebaseAnalytics.logEvent({
+    name: 'avadh_test',
+    params: {
+      page_location: 'test-location',
+      page_title: 'test-title',
+    },
+  });
 };
 
 export default useGoogleAnalytics;

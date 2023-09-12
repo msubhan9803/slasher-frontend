@@ -12,6 +12,9 @@ declare global {
 }
 
 const useGoogleAnalytics = (analyticsId?: string) => {
+  if (!document.location.protocol.startsWith('http')) {
+    document.location.protocol.replaceAll('http:', 'capacitor:');
+  }
   const location = useLocation();
   const isLoaded = useScript(`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`, Boolean(!analyticsId));
   const previousPathRef = useRef<string>();

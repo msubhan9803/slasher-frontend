@@ -12,9 +12,11 @@ import { updateUserDeviceToken } from '../api/users';
 import { urlForNotification } from '../utils/notification-url-utils';
 import { markRead } from '../api/notification';
 import { Notification, NotificationType } from '../types';
+import useGoogleAnalytics from '../hooks/useGoogleAnalytics';
 
 function CapacitorAppListeners() {
   const navigate = useNavigate();
+  useGoogleAnalytics();
 
   useEffect(() => {
     CapacitorApp.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {

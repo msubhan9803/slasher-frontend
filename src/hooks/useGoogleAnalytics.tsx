@@ -1,38 +1,41 @@
-import { useEffect } from 'react';
-import { FirebaseAnalytics } from '@capacitor-community/firebase-analytics';
-
-declare global {
-  interface Window {
-    dataLayer: any;
-  }
-}
+import { useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
+import { initializeFirebase } from '../utils/initFirebaseAnalytics';
 
 const useGoogleAnalytics = () => {
-  useEffect(() => {
-    alert('iniiit');
+  const location = useLocation();
+  const previousPathRef = useRef<string>();
 
-    const init = async () => {
-      FirebaseAnalytics.initializeFirebase({
-        apiKey: 'AIzaSyBOZ14-DVQ36zvoyGfVg49E9OyJeTlXrLk',
-        authDomain: 'slasher-2023-fe951.firebaseapp.com',
-        projectId: 'slasher-2023-fe951',
-        storageBucket: 'slasher-2023-fe951.appspot.com',
-        messagingSenderId: 'slasher-2023-fe951.appspot.com',
-        appId: '1:399218252615:web:aee9373b0ba680e0068a62',
-        measurementId: 'G-CR0V42WEMF',
-      });
+  const { pathname, search, hash } = location;
+
+  useEffect(() => {
+    const logAnalyticsEvent = async () => {
+      try {
+        // Initialize Firebase Analytics
+        const firebaseApp = await initializeFirebase();
+
+        const currentPath = pathname + search + hash;
+        if (previousPathRef.current === currentPath) {
+          return;
+        }
+        previousPathRef.current = currentPath;
+
+        // Now, you can use the firebaseApp instance for logging events
+        firebaseApp.logEvent({
+          name: 'page_view',
+          params: {
+            page_location: window.location.href,
+            page_title: 'Avadh',
+          },
+        });
+      } catch (error) {
+      // eslint-disable-next-line no-console
+        console.error('Error initializing Firebase Analytics:', error);
+      }
     };
 
-    init();
-  }, []);
-
-  FirebaseAnalytics.logEvent({
-    name: 'avadh_test',
-    params: {
-      page_location: 'test-location',
-      page_title: 'test-title',
-    },
-  });
+    logAnalyticsEvent();
+  }, [location, hash, pathname, search]);
 };
 
 export default useGoogleAnalytics;

@@ -6,9 +6,7 @@ import UnauthenticatedPageFooter from './UnauthenticatedPageFooter';
 import signInImage from '../../../../images/sign-in-background-desktop.jpg';
 import HeaderLogo from '../../../ui/HeaderLogo';
 import { LG_MEDIA_BREAKPOINT, MAIN_CONTENT_ID } from '../../../../constants';
-import useGoogleAnalytics from '../../../../hooks/useGoogleAnalytics';
 import SkipToMainContent from '../../sidebar-nav/SkipToMainContent';
-import { analyticsId } from '../../../../env';
 
 interface Props {
   hideTopLogo?: boolean,
@@ -38,8 +36,6 @@ const StyledMain = styled.main<StyledMainProps>`
 function UnauthenticatedPageWrapper({
   children, hideTopLogo, hideFooter, valign, isSignIn,
 }: Props) {
-  useGoogleAnalytics();
-
   return (
     <div className="page-wrapper nonav">
       <SkipToMainContent />

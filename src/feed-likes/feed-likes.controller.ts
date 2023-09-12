@@ -54,9 +54,10 @@ export class FeedLikesController {
 
     if (
       post.postType !== PostType.MovieReview && !post.rssfeedProviderId
-      && user.id !== (post.userId as unknown as User)
+      && user.id !== (post.userId as unknown as User).toString()
     ) {
       const areFriends = await this.friendsService.areFriends(user.id, (post.userId as unknown as User).toString());
+
       if (!areFriends) {
         throw new HttpException('You can only interact with posts of friends.', HttpStatus.FORBIDDEN);
       }

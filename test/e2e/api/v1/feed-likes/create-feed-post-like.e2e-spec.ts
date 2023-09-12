@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
@@ -114,7 +115,7 @@ describe('Create Feed Post Like (e2e)', () => {
       expect(reloadedFeedPost.likeCount).toBe(2);
 
       const feedPostDataObject = reloadedFeedPost.userId as unknown as User;
-      const notificationData:any = {
+      const notificationData: any = {
         feedPostId: { _id: reloadedFeedPost._id.toString() },
         senderId: activeUser._id,
         allUsers: [activeUser._id as any], // senderId must be in allUsers for old API compatibility
@@ -133,6 +134,36 @@ describe('Create Feed Post Like (e2e)', () => {
         .send()
         .expect(HttpStatus.NOT_FOUND);
       expect(response.body.message).toBe('Post not found');
+    });
+
+    it('successfully creates the feedpost like when user likes own post', async () => {
+      const feedPost1 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: activeUser._id,
+          },
+        ),
+      );
+      const response = await request(app.getHttpServer())
+        .post(`/api/v1/feed-likes/post/${feedPost1.id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send()
+        .expect(HttpStatus.CREATED);
+      expect(response.body).toEqual({ success: true });
+      const reloadedFeedPost = await feedPostsService.findByIdWithPopulatedFields(feedPost.id, false);
+      expect(reloadedFeedPost.likes).toHaveLength(1);
+      expect(reloadedFeedPost.likeCount).toBe(1);
+
+      const feedPostDataObject = reloadedFeedPost.userId as unknown as User;
+      const notificationData: any = {
+        feedPostId: { _id: reloadedFeedPost._id.toString() },
+        senderId: activeUser._id,
+        allUsers: [activeUser._id as any], // senderId must be in allUsers for old API compatibility
+        notifyType: NotificationType.UserLikedYourPost,
+        notificationMsg: 'liked your post',
+        userId: feedPostDataObject._id.toString(),
+      };
+      jest.spyOn(notificationsService, 'create').mockResolvedValue(notificationData);
     });
 
     it('when user already liked the post then it returns the expected response', async () => {

@@ -161,6 +161,7 @@ describe('Users suggested friends (e2e)', () => {
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
               newNotificationCount: 6,
               newFriendRequestCount: 0,
+              ignoreFriendSuggestionDialog: false,
             },
             recentMessages: [
               {

@@ -476,7 +476,7 @@ export class UsersController {
     const unreadNotificationCount = await this.notificationsService.getUnreadNotificationCount(user.id);
     const friendRequestCount = await this.friendsService.getReceivedFriendRequestCount(user.id);
     return {
-      user: pick(user, ['id', 'userName', 'profilePic', 'newNotificationCount', 'newFriendRequestCount']),
+      user: pick(user, ['id', 'userName', 'profilePic', 'newNotificationCount', 'newFriendRequestCount', 'ignoreFriendSuggestionDialog']),
       recentMessages,
       recentFriendRequests: receivedFriendRequestsData,
       unreadNotificationCount,
@@ -1219,5 +1219,12 @@ export class UsersController {
     return hashtagFollows.map(
       (follow) => pick(follow, ['notification', 'userId', 'hashTagId']),
     );
+  }
+
+  @Put('ignoreFriendSuggestionDialog')
+  async hideFriendShipModel(@Req() request: Request) {
+    const user = getUserFromRequest(request);
+    await this.usersService.ignoreFriendSuggestionDialog(user.id);
+    return { success: true };
   }
 }

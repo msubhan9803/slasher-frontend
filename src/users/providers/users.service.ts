@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import mongoose, { Model, Types } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { Injectable } from '@nestjs/common';
@@ -270,6 +271,14 @@ export class UsersService {
       { new: true },
     ).exec();
     return user;
+  }
+
+  async ignoreFriendSuggestionDialog(id: string): Promise<UserDocument> {
+    return this.userModel.findOneAndUpdate(
+      { _id: id },
+      { $set: { ignoreFriendSuggestionDialog: true } },
+      { new: true },
+    );
   }
 
   /**

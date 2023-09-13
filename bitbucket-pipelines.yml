@@ -69,6 +69,8 @@ definitions:
         caches:
           - node
         script:
+          # Read package version into $npm_package_version variable so it's picked up by the build
+          - export npm_package_version=$(node ./scripts/output-version-number.js)
           # Load environment variables from appropriate deployment env file
           - set -o allexport; source ./deploy-cloudflare/.env.${BITBUCKET_BRANCH}
           # Install NPM dependencies

@@ -147,7 +147,7 @@ const StyledContentContainer = styled.div<StyledProps>`
   `;
 type PostContentPropsType = {
   post: any, postType: string | undefined, generateReadMoreLink: any,
-  escapeHtml: boolean | undefined, onPostContentClick: (post: any) => void,
+  escapeHtml: boolean | undefined, onPostContentClick: (post: any, event?: any) => void,
   handlePostContentKeyDown: (e: React.KeyboardEvent, post: any) => void,
   loginUserId: string | undefined, spoilerId: any,
   onSpoilerClick: ((value: string) => void) | undefined, isSinglePost: boolean | undefined,
@@ -292,7 +292,7 @@ function PostContent({
               }
               onClick={(e: any) => {
                 if (e.target.tagName !== 'A' && !isSinglePost) {
-                  onPostContentClick(post);
+                  onPostContentClick(e, post);
                 }
               }}
               aria-label="post-content"
@@ -383,16 +383,21 @@ function PostFeed({
     return `/${post.userName}/posts/${post.id}?imageId=${imageId}`;
   };
 
-  const onPostContentClick = (post: any) => {
+  const onPostContentClick = (event: any, post: any) => {
     const state = { pathname };
-    if (post.rssfeedProviderId) {
-      navigate(`/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`, { state });
-    } else if (postType === 'review') {
-      navigate(`/app/movies/${post.movieId}/reviews/${post.id}#comments`, { state });
-    } else {
-      navigate(`/${post.userName}/posts/${post.id}`, { state });
+    const clickedElement = event.target;
+    if (
+      clickedElement.tagName === 'DIV'
+    ) {
+      if (post.rssfeedProviderId) {
+        navigate(`/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`, { state });
+      } else if (postType === 'review') {
+        navigate(`/app/movies/${post.movieId}/reviews/${post.id}#comments`, { state });
+      } else {
+        navigate(`/${post.userName}/posts/${post.id}`, { state });
+      }
+      onSelect?.();
     }
-    onSelect?.();
   };
 
   const showPopoverOption = (postDetail: any) => {
@@ -414,7 +419,7 @@ function PostFeed({
     if (event.key === 'Enter') {
       const shouldCallPostContentClick = !isSinglePost;
       if (shouldCallPostContentClick) {
-        onPostContentClick(post);
+        onPostContentClick(event, post);
       }
     }
   };

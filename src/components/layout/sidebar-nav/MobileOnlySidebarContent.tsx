@@ -7,9 +7,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import UserCircleImage from '../../ui/UserCircleImage';
-import { useAppSelector } from '../../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { deletePageStateCache } from '../../../pageStateCache';
 import { scrollToTop } from '../../../utils/scrollFunctions';
+import { setScrollToTabsPosition } from '../../../redux/slices/scrollPositionSlice';
 
 const SpecificHeightLink = styled(Link)`
   display: flex;
@@ -36,11 +37,17 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
   const loggedinUserName = useAppSelector((state) => state.user.user.userName);
   const userProfilePic = useAppSelector((state) => state.user.user.profilePic);
   const userData = useAppSelector((state) => state.user);
+  const dispatch = useAppDispatch();
 
   const handleRefresh = (to: string) => {
     // Similarly we clear pageStateCache on desktop navItem `onClick` too: file:///./../main-site-wrapper/authenticated/IconWithTextNavLink.tsx:
     deletePageStateCache(to);
-    scrollToTop('instant');
+    const isProfileFriendsPage = to.endsWith('/friends');
+    if (isProfileFriendsPage) {
+      dispatch(setScrollToTabsPosition(true));
+    } else {
+      scrollToTop('instant');
+    }
   };
 
   const mePagePath = `/${loggedinUserName}`;

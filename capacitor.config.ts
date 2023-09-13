@@ -42,6 +42,9 @@ const config: CapacitorConfig = {
       "launchShowDuration": 1000,
       "launchAutoHide": true,
       "launchFadeOutDuration": 1000,
+    },
+    CapacitorCookies: {
+      "enabled": true
     }
   },
 };

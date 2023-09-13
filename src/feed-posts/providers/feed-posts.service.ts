@@ -44,6 +44,34 @@ export class FeedPostsService {
       .exec();
   }
 
+  async updateMessageInFeedposts(id: string, newUserName: string): Promise<void> {
+    const updatedMsgInPosts = await this.feedPostModel.aggregate([
+      {
+        $match: {
+          message: {
+            $regex: `##LINK_ID##${id}@[^#]+##LINK_END##`,
+          },
+          is_deleted: 0,
+        },
+      },
+    ]);
+
+    const bulkUpdateOperations = updatedMsgInPosts.map((post) => ({
+      updateOne: {
+        filter: { _id: post._id },
+        update: {
+          $set: {
+            message: post.message.replace(
+              new RegExp(`##LINK_ID##${id}@[^#]+##LINK_END##`, 'i'),
+              `##LINK_ID##${id}@${newUserName}##LINK_END##`,
+            ),
+          },
+        },
+      },
+    }));
+    await this.feedPostModel.bulkWrite(bulkUpdateOperations);
+  }
+
   async findById(
     id: string,
     activeOnly: boolean,

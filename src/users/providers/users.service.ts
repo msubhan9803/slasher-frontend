@@ -99,16 +99,20 @@ export class UsersService {
       .exec();
   }
 
-  async removePreviousUsernameEntry(previousUserName: string): Promise<UserDocument> {
-    return this.userModel.findOneAndUpdate(
-      { previousUserName },
-      { $set: { previousUserName: null } },
-      { new: true },
-    );
+  async findExistingUserName(userName: string): Promise<UserDocument[]> {
+    return this.userModel.find({ previousUserName: { $in: userName } }).exec();
   }
 
-  async findByPreviousUsername(userName: string): Promise<UserDocument> {
-    return this.userModel.findOne({ previousUserName: userName }, { userName: 1, previousUserName: 1, _id: 0 }).exec();
+  async findAndUpdatePreviousUserName(currentUserName: string, newUserName: string) {
+    await
+      this.userModel.findOneAndUpdate(
+        { userName: currentUserName },
+        {
+          $set: { userName: newUserName },
+          $push: { previousUserName: currentUserName },
+        },
+        { new: true },
+      ).exec();
   }
 
   async findNonDeletedUserByEmailOrUsername(emailOrUsername: string): Promise<UserDocument> {

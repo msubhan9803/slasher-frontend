@@ -80,8 +80,11 @@ export class User extends UserUnusedFields {
   @Prop({ default: null })
   dob: Date;
 
-  @Prop({ default: null })
-  previousUserName: string;
+  @Prop({ default: [] })
+  previousUserName: string[];
+
+  @Prop()
+  lastUserNameUpdatedAt: Date;
 
   @Prop({ default: false })
   ignoreFriendSuggestionDialog: boolean;
@@ -255,6 +258,11 @@ UserSchema.index(
 UserSchema.index(
   {
     email: 1, resetPasswordToken: 1,
+  },
+);
+UserSchema.index(
+  {
+    previousUserName: 1,
   },
 );
 UserSchema.index(

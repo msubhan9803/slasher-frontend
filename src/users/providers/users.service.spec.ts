@@ -242,24 +242,46 @@ describe('UsersService', () => {
     });
   });
 
-  describe('#removePreviousUsernameEntry', () => {
-    it('finds the user with the given previousUserName and removes that previousUserName value', async () => {
-      const user1 = await usersService.create(
-        userFactory.build({ userName: 'user1', previousUserName: 'slasher' }),
+  describe('#findExistingUserName', () => {
+    let user1: UserDocument;
+    let user2: UserDocument;
+    beforeEach(async () => {
+      user1 = await usersService.create(
+        userFactory.build({
+          previousUserName: ['slasher1', 'john', 'tom'],
+        }),
       );
-      const updatedUser = await usersService.removePreviousUsernameEntry(user1.previousUserName);
-      expect(updatedUser.previousUserName).toBeNull();
+      user2 = await usersService.create(
+        userFactory.build({
+          previousUserName: ['devid', 'slasher2'],
+        }),
+      );
+    });
+
+    it('finds the username which exists in previousUserName array', async () => {
+      const user = await usersService.findExistingUserName('john');
+      const otherUser = await usersService.findExistingUserName('slasher2');
+      const otherUser1 = await usersService.findExistingUserName('slasher3');
+      expect(user[0]._id).toEqual(user1._id);
+      expect(otherUser[0]._id).toEqual(user2._id);
+      expect(otherUser1).toEqual([]);
     });
   });
 
-  describe('#findByPreviousUsername', () => {
-    it('finds the expected response by previousUserName', async () => {
-      const user1 = await usersService.create(userFactory.build({
-        userName: 'slasher1',
-        previousUserName: 'John',
+  describe('#findAndUpdatePreviousUserName', () => {
+    let user: UserDocument;
+    beforeEach(async () => {
+      user = await usersService.create(userFactory.build({
+        userName: 'horror',
+        previousUserName: ['slasher', 'john', 'tom'],
       }));
-      const response = await usersService.findByPreviousUsername(user1.previousUserName);
-      expect(response.previousUserName).toEqual(user1.previousUserName);
+    });
+
+    it('finds the expected response', async () => {
+      await usersService.findAndUpdatePreviousUserName('horror', 'slasher');
+      const updatedUser = await usersService.findById(user.id, true);
+      expect(updatedUser.userName).toBe('slasher');
+      expect(updatedUser.previousUserName).toContain('horror');
     });
   });
 

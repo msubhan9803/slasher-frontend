@@ -16,6 +16,7 @@ export const userSlice = createSlice({
       profilePic: '',
       newFriendRequestCount: 0,
       newNotificationCount: 0,
+      ignoreFriendSuggestionDialog: false,
     },
     forceFriendListReload: false,
     forceProfilePageUserDetailsReload: false,

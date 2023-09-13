@@ -1006,7 +1006,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                   />
                 )}
 
-              {friendShipStatusModal && (
+              {friendShipStatusModal && !userData.ignoreFriendSuggestionDialog && (
                 <FriendshipStatusModal
                   friendShipStatusModal={friendShipStatusModal}
                   setFriendShipStatusModal={setFriendShipStatusModal}
@@ -1103,7 +1103,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                 />
               )}
 
-            {friendShipStatusModal && (
+            {friendShipStatusModal && !userData.user.ignoreFriendSuggestionDialog && (
               <FriendshipStatusModal
                 friendShipStatusModal={friendShipStatusModal}
                 setFriendShipStatusModal={setFriendShipStatusModal}

@@ -59,6 +59,7 @@ function Home() {
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const location = useLocation();
   const userId = useAppSelector((state: any) => state.user.user.id);
+  const userData = useAppSelector((state) => state.user.user);
   const pageStateCache = (getPageStateCache(location) ?? [])
     .filter(removeDeletedPost)
     .filter(removeBlockedUserPosts);
@@ -454,7 +455,7 @@ function Home() {
           )
         }
 
-        {friendShipStatusModal && (
+        {friendShipStatusModal && !userData.ignoreFriendSuggestionDialog && (
           <FriendshipStatusModal
             friendShipStatusModal={friendShipStatusModal}
             setFriendShipStatusModal={setFriendShipStatusModal}

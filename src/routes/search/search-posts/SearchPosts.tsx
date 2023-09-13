@@ -409,7 +409,7 @@ function SearchPosts() {
           />
         )
       }
-      {friendShipStatusModal && (
+      {friendShipStatusModal && !userData.user.ignoreFriendSuggestionDialog && (
         <FriendshipStatusModal
           friendShipStatusModal={friendShipStatusModal}
           setFriendShipStatusModal={setFriendShipStatusModal}

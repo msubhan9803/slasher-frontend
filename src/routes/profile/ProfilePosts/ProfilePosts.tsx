@@ -395,7 +395,7 @@ function ProfilePosts({ user }: Props) {
             />
           )}
 
-        {friendShipStatusModal && (
+        {friendShipStatusModal && !loginUserData.ignoreFriendSuggestionDialog && (
           <FriendshipStatusModal
             friendShipStatusModal={friendShipStatusModal}
             setFriendShipStatusModal={setFriendShipStatusModal}

@@ -31,6 +31,7 @@ import useProgressButton from '../../../components/ui/ProgressButton';
 import { sleep } from '../../../utils/timer-utils';
 import { atMentionsGlobalRegex, decryptMessage, generateMentionReplacementMatchFunc } from '../../../utils/text-utils';
 import FriendshipStatusModal from '../../../components/ui/friendShipCheckModal';
+import { useAppSelector } from '../../../redux/hooks';
 
 type Props = {
   movieData: MovieData;
@@ -88,6 +89,8 @@ function MovieReviews({
     hasPageStateCache(location)
       ? ReviewsCache : [],
   );
+  const userData = useAppSelector((state) => state.user.user);
+
   const navigate = useNavigate();
   const handleCreateInput = () => {
     setShowReviewForm(true);
@@ -521,7 +524,7 @@ function MovieReviews({
         )
       }
 
-      {friendShipStatusModal && (
+      {friendShipStatusModal && !userData.ignoreFriendSuggestionDialog && (
         <FriendshipStatusModal
           friendShipStatusModal={friendShipStatusModal}
           setFriendShipStatusModal={setFriendShipStatusModal}

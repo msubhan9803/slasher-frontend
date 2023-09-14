@@ -392,6 +392,8 @@ function Home() {
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
+        {/* <DebugAdvertisingId /> */}
+
         <CustomCreatePost className="mt-3 mt-lg-0" />
         <h1 className="h2 my-3 ms-3 ms-md-0">Suggested friends</h1>
         <SuggestedFriend />

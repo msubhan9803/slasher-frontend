@@ -35,8 +35,8 @@ function CapacitorAppListeners() {
       await AppUpdate.openAppStore();
     }
     if (currentVersion !== appVersion) {
-      window.location.reload();
       await Preferences.set({ key: 'app-version', value: currentVersion });
+      window.location.reload();
     }
   };
 

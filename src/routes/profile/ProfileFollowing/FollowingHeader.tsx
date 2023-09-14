@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { Col, Row } from 'react-bootstrap';
-import Cookies from 'js-cookie';
 import { useNavigate, useParams } from 'react-router-dom';
 import CustomSearchInput from '../../../components/ui/CustomSearchInput';
 import TabLinks from '../../../components/ui/Tabs/TabLinks';
 import { enableDevFeatures } from '../../../env';
+import { getSessionUserName } from '../../../utils/session-utils';
 
 const tabs = [
   { value: 'people', label: 'People', devOnly: true },
@@ -20,12 +20,15 @@ function FollowingHeader({
 }: any) {
   const { userName } = useParams();
   const navigate = useNavigate();
-  const loginUserName = Cookies.get('userName');
+  const loginUserName = getSessionUserName();
   const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => !t.devOnly);
   useEffect(() => {
-    if (userName !== loginUserName) {
-      navigate(`/${userName}/posts`);
-    }
+    const naviGator = async () => {
+      if (userName !== await getSessionUserName()) {
+        navigate(`/${userName}/posts`);
+      }
+    };
+    naviGator();
   }, [loginUserName, userName, navigate]);
 
   const handleSearch = (value: any) => {

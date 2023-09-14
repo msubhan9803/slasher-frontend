@@ -73,6 +73,7 @@ import { Public } from '../app/guards/auth.guard';
 import { UpdateDeviceTokenDto } from './dto/update-device-token.dto';
 import { SignOutDto } from './dto/sign-out.dto';
 import { ConfirmDeleteAccountQueryDto } from './dto/confirm-delete-account-query.dto';
+import { FeedCommentsService } from '../feed-comments/providers/feed-comments.service';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -84,6 +85,7 @@ export class UsersController {
     private readonly s3StorageService: S3StorageService,
     private readonly storageLocationService: StorageLocationService,
     private readonly feedPostsService: FeedPostsService,
+    private readonly feedCommentsService: FeedCommentsService,
     private readonly friendsService: FriendsService,
     private readonly userSettingsService: UserSettingsService,
     private readonly chatService: ChatService,
@@ -489,15 +491,6 @@ export class UsersController {
     return this.usersService.suggestUserName(query.query, query.limit, true, excludedUserIds);
   }
 
-  @Get('previous-username/:userName')
-  async findByPreviousUserName(@Param('userName') userName: string) {
-    const user = await this.usersService.findByPreviousUsername(userName);
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-    return user;
-  }
-
   @TransformImageUrls('$.profilePic', '$.coverPhoto')
   @Get(':userNameOrId')
   async findOne(@Req() request: Request, @Param('userNameOrId') userNameOrId: string) {
@@ -593,6 +586,31 @@ export class UsersController {
     }
 
     const additionalFieldsToUpdate: Partial<User> = {};
+
+    if (changingUserName) {
+      if (user.lastUserNameUpdatedAt) {
+        const currentDate = new Date();
+        const lastDate = user.lastUserNameUpdatedAt;
+        const diffTime = Math.abs(currentDate.getTime() - lastDate.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays < 30) {
+          throw new HttpException(
+            `You can update username after ${30 - diffDays} days`,
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+      }
+      const existingUserName = await this.usersService.findExistingUserName(updateUserDto.userName);
+      if (existingUserName.length) {
+        await this.usersService.findAndUpdatePreviousUserName(user.userName, updateUserDto.userName);
+      } else {
+        additionalFieldsToUpdate.userName = updateUserDto.userName;
+        additionalFieldsToUpdate.previousUserName = user.previousUserName ? user.previousUserName : [];
+        additionalFieldsToUpdate.previousUserName.push(user.userName);
+      }
+    }
+    additionalFieldsToUpdate.lastUserNameUpdatedAt = new Date();
+
     if (updateUserDto.email && updateUserDto.email !== user.email) {
       // Check if new email address is already used by another account. If so, throw exception.
       if (!await this.usersService.emailAvailable(updateUserDto.email)) {
@@ -627,23 +645,29 @@ export class UsersController {
       additionalFieldsToUpdate.unverifiedNewEmail = null;
     }
 
-    if (changingUserName) {
-      // TODO (SD-1336): When user is allowed to update username, remove `throw` below
-      throw new HttpException(
-        'You can edit your username after July 31, 2023',
-        HttpStatus.BAD_REQUEST,
-      );
+    // if (changingUserName) {
+    //   // TODO (SD-1336): When user is allowed to update username, remove `throw` below
+    //   throw new HttpException(
+    //     'You can edit your username after July 31, 2023',
+    //     HttpStatus.BAD_REQUEST,
+    //   );
 
-      // TODO (SD-1336): When user is allowed to update username, uncomment lines below
-      // await this.usersService.removePreviousUsernameEntry(updateUserDto.userName);
-      // additionalFieldsToUpdate.previousUserName = user.userName;
-    }
+    //   // TODO (SD-1336): When user is allowed to update username, uncomment lines below
+    //   // await this.usersService.removePreviousUsernameEntry(updateUserDto.userName);
+    //   // additionalFieldsToUpdate.previousUserName = user.userName;
+    // }
 
     if (updateUserDto.profile_status !== undefined && user.profile_status !== updateUserDto.profile_status) {
       await this.feedPostsService.updatePostPrivacyType(user.id, updateUserDto.profile_status);
     }
 
     const userData = await this.usersService.update(id, { ...updateUserDto, ...additionalFieldsToUpdate });
+    await Promise.all([
+      this.feedPostsService.updateMessageInFeedposts(userData.id, userData.userName),
+      this.feedCommentsService.updateMessageInFeedcomments(userData.id, userData.userName),
+      this.feedCommentsService.updateMessageInFeedreplies(userData.id, userData.userName),
+    ]);
+
     return {
       _id: user.id,
       ...pick(userData, Object.keys(updateUserDto)),

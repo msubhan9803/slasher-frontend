@@ -287,64 +287,84 @@ function Home() {
             setFriendShipStatusModal(true);
             setFriendData(res.data);
             setFriendStatus(res.data.reaction);
+            reject();
           }
         }).catch(() => reject());
       }
     },
   );
 
+  const handlePostDislike = useCallback((feedPostId: string) => {
+    setPosts((prevPosts) => prevPosts.map(
+      (prevPost) => {
+        if (prevPost._id === feedPostId) {
+          return {
+            ...prevPost,
+            likeIcon: false,
+            likedByUser: false,
+            likeCount: prevPost.likeCount - 1,
+          };
+        }
+        return prevPost;
+      },
+    ));
+  }, []);
+
+  const handlePostLike = useCallback((feedPostId: string) => {
+    setPosts((prevPosts) => prevPosts.map((prevPost) => {
+      if (prevPost._id === feedPostId) {
+        return {
+          ...prevPost,
+          likeIcon: true,
+          likedByUser: true,
+          likeCount: prevPost.likeCount + 1,
+        };
+      }
+      return prevPost;
+    }));
+  }, []);
+
   const onLikeClick = async (feedPostId: string) => {
     const checkLike = posts.some((post) => post.id === feedPostId
       && post.likeIcon);
+
+    // Dislike/Like optimistically
+    if (checkLike) {
+      handlePostDislike(feedPostId);
+    } else {
+      handlePostLike(feedPostId);
+    }
+
+    const revertOptimisticUpdate = () => {
+      if (checkLike) {
+        handlePostLike(feedPostId);
+      } else {
+        handlePostDislike(feedPostId);
+      }
+    };
 
     const selectedFeedPostUserId = posts.find((post) => post.id === feedPostId)?.userId;
     const selectedRssfeedProviderIdOfFeedPost = posts.find(
       (post) => post.id === feedPostId,
     )?.rssfeedProviderId;
 
-    const handleLikeAndUnlikeFeedPost = () => {
-      if (checkLike) {
-        unlikeFeedPost(feedPostId).then((res) => {
-          if (res.status === 200) {
-            const unLikePostData = posts.map(
-              (unLikePost) => {
-                if (unLikePost._id === feedPostId) {
-                  return {
-                    ...unLikePost,
-                    likeIcon: false,
-                    likedByUser: false,
-                    likeCount: unLikePost.likeCount - 1,
-                  };
-                }
-                return unLikePost;
-              },
-            );
-            setPosts(unLikePostData);
-          }
-        });
-      } else {
-        likeFeedPost(feedPostId).then((res) => {
-          if (res.status === 201) {
-            const likePostData = posts.map((likePost) => {
-              if (likePost._id === feedPostId) {
-                return {
-                  ...likePost,
-                  likeIcon: true,
-                  likedByUser: true,
-                  likeCount: likePost.likeCount + 1,
-                };
-              }
-              return likePost;
-            });
-            setPosts(likePostData);
-          }
-        });
+    const handleLikeAndUnlikeFeedPost = async () => {
+      try {
+        if (checkLike) {
+          await unlikeFeedPost(feedPostId);
+        } else {
+          await likeFeedPost(feedPostId);
+        }
+      } catch (error) {
+        revertOptimisticUpdate();
       }
     };
 
     // feedPost is a user post
     if (selectedFeedPostUserId) {
-      await checkFriendShipStatus(selectedFeedPostUserId!).then(handleLikeAndUnlikeFeedPost);
+      checkFriendShipStatus(selectedFeedPostUserId!)
+        .then(handleLikeAndUnlikeFeedPost)
+        .catch(revertOptimisticUpdate);
     }
 
     // feedPost is rssFeedPost

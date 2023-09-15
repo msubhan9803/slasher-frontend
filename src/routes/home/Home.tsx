@@ -274,7 +274,7 @@ function Home() {
       });
   };
 
-  const checkFriendShipStatus = (selectedFeedPostUserId: string) => new Promise<void>(
+  const checkFriendShipStatus = useCallback((selectedFeedPostUserId: string) => new Promise<void>(
     (resolve, reject) => {
       if (userId === selectedFeedPostUserId) {
         resolve();
@@ -292,7 +292,7 @@ function Home() {
         }).catch(() => reject());
       }
     },
-  );
+  ), [userId]);
 
   const handlePostDislike = useCallback((feedPostId: string) => {
     setPosts((prevPosts) => prevPosts.map(
@@ -324,7 +324,7 @@ function Home() {
     }));
   }, []);
 
-  const onLikeClick = async (feedPostId: string) => {
+  const onLikeClick = useCallback(async (feedPostId: string) => {
     const checkLike = posts.some((post) => post.id === feedPostId
       && post.likeIcon);
 
@@ -371,7 +371,7 @@ function Home() {
     if (selectedRssfeedProviderIdOfFeedPost) {
       handleLikeAndUnlikeFeedPost();
     }
-  };
+  }, [checkFriendShipStatus, handlePostDislike, handlePostLike, posts]);
 
   const onBlockYesClick = () => {
     setProgressButtonStatus('loading');

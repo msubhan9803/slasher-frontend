@@ -222,7 +222,7 @@ function ProfilePosts({ user }: Props) {
       .catch((error) => console.error(error));
   };
 
-  const checkFriendShipStatus = (selectedFeedPostId: string) => new Promise<void>(
+  const checkFriendShipStatus = useCallback((selectedFeedPostId: string) => new Promise<void>(
     (resolve, reject) => {
       if (userId === selectedFeedPostId) {
         resolve();
@@ -242,7 +242,7 @@ function ProfilePosts({ user }: Props) {
         });
       }
     },
-  );
+  ), [userId]);
 
   const handlePostDislike = useCallback((feedPostId: string) => {
     setPosts((prevPosts) => prevPosts.map(
@@ -274,7 +274,7 @@ function ProfilePosts({ user }: Props) {
     }));
   }, []);
 
-  const onLikeClick = async (feedPostId: string) => {
+  const onLikeClick = useCallback(async (feedPostId: string) => {
     const checkLike = posts.some((post) => post.id === feedPostId
       && post.likeIcon);
 
@@ -310,7 +310,7 @@ function ProfilePosts({ user }: Props) {
     checkFriendShipStatus(selectedFeedPostId!)
       .then(handleLikeAndUnlikeFeedPost)
       .catch(revertOptimisticUpdate);
-  };
+  }, [checkFriendShipStatus, handlePostDislike, handlePostLike, posts]);
 
   const onBlockYesClick = () => {
     setProgressButtonStatus('loading');

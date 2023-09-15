@@ -163,7 +163,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     );
   }, [commentData, postId]);
 
-  const checkFriendShipStatus = () => new Promise<void>((resolve, reject) => {
+  const checkFriendShipStatus = useCallback(() => new Promise<void>((resolve, reject) => {
     if (postType === 'news' || postType === 'review' || userData.user.id === postData[0].userId) {
       resolve();
     } else {
@@ -179,7 +179,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         }
       }).catch(() => reject());
     }
-  });
+  }), [postData, postType, userData?.user?.id]);
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingComments && (commentData.length || !queryCommentId)) {
@@ -639,7 +639,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     }));
   }, []);
 
-  const onPostLikeClick = async (feedPostId: string) => {
+  const onPostLikeClick = useCallback(async (feedPostId: string) => {
     const checkLike = postData.some((post) => post.id === feedPostId
       && post.likedByUser);
 
@@ -673,7 +673,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     await checkFriendShipStatus()
       .then(handleLikeAndUnlikeFeedPost)
       .catch(revertOptimisticUpdate);
-  };
+  }, [checkFriendShipStatus, handlePostDislike, handlePostLike, postData]);
 
   const handleLikeComment = (checkCommentId: FeedComments) => {
     setCommentData((prevCommentData) => prevCommentData.map(
@@ -692,7 +692,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     setUpdateState(true);
   };
 
-  const handleLikeFeedReply = (checkReplyId: any) => {
+  const handleLikeFeedReply = useCallback((checkReplyId: any) => {
     const updatedCommentData: any = [];
     commentData.map((commentLike: any) => {
       if (commentLike._id === checkReplyId[0].feedCommentId) {
@@ -713,9 +713,9 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     });
     setCommentData(updatedCommentData);
     setUpdateState(true);
-  };
+  }, [commentData]);
 
-  const handleUnLikeFeedReply = (checkReplyId: any) => {
+  const handleUnLikeFeedReply = useCallback((checkReplyId: any) => {
     const updatedCommentData: any = [];
     commentData.map((commentLike: any) => {
       if (commentLike._id === checkReplyId[0].feedCommentId) {
@@ -736,9 +736,9 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     });
     setCommentData(updatedCommentData);
     setUpdateState(true);
-  };
+  }, [commentData]);
 
-  const onCommentLike = async (feedCommentId: string) => {
+  const onCommentLike = useCallback(async (feedCommentId: string) => {
     const checkCommentId = commentData.find((comment) => comment._id === feedCommentId);
     const checkReplyId: any = commentData.map(
       (comment) => comment.replies.find((reply) => reply._id === feedCommentId),
@@ -803,15 +803,15 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         revertOptimisticUpdate();
       }
     }).catch(revertOptimisticUpdate);
-  };
+  }, [checkFriendShipStatus, commentData, handleLikeFeedReply, handleUnLikeFeedReply]);
 
-  const onLikeClick = (feedId: string) => {
+  const onLikeClick = useCallback((feedId: string) => {
     if (feedId === postId) {
       onPostLikeClick(feedId);
     } else {
       onCommentLike(feedId);
     }
-  };
+  }, [onCommentLike, onPostLikeClick, postId]);
 
   const handleSpoiler = (spoilerPostId: string) => {
     const spoilerIdList = getLocalStorage('spoilersIds');

@@ -108,45 +108,64 @@ function NewsPostData({ partnerId }: Props) {
     });
   };
 
-  const onLikeClick = (likeId: string) => {
+  const handlePostDislike = (likeId: string) => {
+    setPostData((prevPostData) => prevPostData.map(
+      (unLikePost: NewsPartnerPostProps) => {
+        if (unLikePost._id === likeId) {
+          return {
+            ...unLikePost,
+            likeIcon: false,
+            likedByUser: false,
+            likeCount: unLikePost.likeCount - 1,
+          };
+        }
+        return unLikePost;
+      },
+    ));
+  };
+
+  const handlePostLike = (likeId: string) => {
+    const likePostData = postData.map((likePost: NewsPartnerPostProps) => {
+      if (likePost._id === likeId) {
+        return {
+          ...likePost,
+          likeIcon: true,
+          likedByUser: true,
+          likeCount: likePost.likeCount + 1,
+        };
+      }
+      return likePost;
+    });
+    setPostData(likePostData);
+  };
+
+  const onLikeClick = async (likeId: string) => {
     const checkLike = postData.some((post: any) => post.id === likeId
       && post.likeIcon);
+
+    // Dislike/Like optimistically
     if (checkLike) {
-      unlikeFeedPost(likeId).then((res) => {
-        if (res.status === 200) {
-          const unLikePostData = postData.map(
-            (unLikePost: NewsPartnerPostProps) => {
-              if (unLikePost._id === likeId) {
-                return {
-                  ...unLikePost,
-                  likeIcon: false,
-                  likedByUser: false,
-                  likeCount: unLikePost.likeCount - 1,
-                };
-              }
-              return unLikePost;
-            },
-          );
-          setPostData(unLikePostData);
-        }
-      });
+      handlePostDislike(likeId);
     } else {
-      likeFeedPost(likeId).then((res) => {
-        if (res.status === 201) {
-          const likePostData = postData.map((likePost: NewsPartnerPostProps) => {
-            if (likePost._id === likeId) {
-              return {
-                ...likePost,
-                likeIcon: true,
-                likedByUser: true,
-                likeCount: likePost.likeCount + 1,
-              };
-            }
-            return likePost;
-          });
-          setPostData(likePostData);
-        }
-      });
+      handlePostLike(likeId);
+    }
+
+    const revertOptimisticUpdate = () => {
+      if (checkLike) {
+        handlePostLike(likeId);
+      } else {
+        handlePostDislike(likeId);
+      }
+    };
+
+    try {
+      if (checkLike) {
+        await unlikeFeedPost(likeId);
+      } else {
+        await likeFeedPost(likeId);
+      }
+    } catch (error) {
+      revertOptimisticUpdate();
     }
   };
 

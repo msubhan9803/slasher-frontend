@@ -175,7 +175,6 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           setFriendShipStatusModal(true);
           setFriendData(res.data);
           setFriendStatus(res.data.reaction);
-          setFriendShipStatusModal(true);
         }
       }).catch(() => reject());
     }
@@ -623,55 +622,128 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     return undefined;
   };
 
+  const handlePostDislike = useCallback((feedPostId: string) => {
+    setPostData((prevPosts) => prevPosts.map(
+      (prevPost) => {
+        if (prevPost._id === feedPostId) {
+          return {
+            ...prevPost,
+            likeIcon: false,
+            likedByUser: false,
+            likeCount: prevPost.likeCount - 1,
+          };
+        }
+        return prevPost;
+      },
+    ));
+  }, []);
+
+  const handlePostLike = useCallback((feedPostId: string) => {
+    setPostData((prevPosts) => prevPosts.map((prevPost) => {
+      if (prevPost._id === feedPostId) {
+        return {
+          ...prevPost,
+          likeIcon: true,
+          likedByUser: true,
+          likeCount: prevPost.likeCount + 1,
+        };
+      }
+      return prevPost;
+    }));
+  }, []);
+
   const onPostLikeClick = async (feedPostId: string) => {
     const checkLike = postData.some((post) => post.id === feedPostId
       && post.likedByUser);
 
-    // await checkFriendShipStatus().then(() => {
+    // Dislike/Like optimistically
     if (checkLike) {
-      unlikeFeedPost(feedPostId).then((res) => {
-        if (res.status === 200) {
-          const unLikePostData = postData.map(
-            (unLikePost: any) => { // NewsPartnerPostProps || Post type check
-              if (unLikePost._id === feedPostId) {
-                return {
-                  ...unLikePost,
-                  likeIcon: false,
-                  likedByUser: false,
-                  likeCount: unLikePost.likeCount - 1,
-                };
-              }
-              return unLikePost;
-            },
-          );
-          setPostData(unLikePostData);
-        }
-      });
+      handlePostDislike(feedPostId);
     } else {
-      likeFeedPost(feedPostId).then((res) => {
-        if (res.status === 201 && res.data.isFriend === false) {
-          checkFriendShipStatus();
-        }
-        const likePostData = postData.map((likePost: Post) => {
-          if (likePost._id === feedPostId) {
-            return {
-              ...likePost,
-              likeIcon: true,
-              likedByUser: true,
-              likeCount: likePost.likeCount + 1,
-            };
-          }
-          return likePost;
-        });
-        setPostData(likePostData);
-      }).catch((err) => {
-        if (err.response.status === 403) {
-          checkFriendShipStatus();
-        }
-      });
+      handlePostLike(feedPostId);
     }
-    // }).catch(() => { });
+
+    const revertOptimisticUpdate = () => {
+      if (checkLike) {
+        handlePostLike(feedPostId);
+      } else {
+        handlePostDislike(feedPostId);
+      }
+    };
+
+    try {
+      if (checkLike) {
+        await unlikeFeedPost(feedPostId);
+      } else {
+        await likeFeedPost(feedPostId);
+      }
+    } catch (error) {
+      revertOptimisticUpdate();
+    }
   };
+
+  const handleLikeComment = (checkCommentId: FeedComments) => {
+    setCommentData((prevCommentData) => prevCommentData.map(
+      (prevComment) => (prevComment?._id === checkCommentId?._id
+        ? { ...prevComment, likedByUser: true, likeCount: prevComment.likeCount + 1 }
+        : prevComment),
+    ));
+    setUpdateState(true);
+  };
+  const handleUnLikeComment = (checkCommentId: FeedComments) => {
+    setCommentData((prevCommentData) => prevCommentData.map(
+      (prevComment) => (prevComment?._id === checkCommentId?._id
+        ? { ...prevComment, likedByUser: false, likeCount: prevComment.likeCount - 1 }
+        : prevComment),
+    ));
+    setUpdateState(true);
+  };
+
+  const handleLikeFeedReply = useCallback((checkReplyId: any) => {
+    const updatedCommentData: any = [];
+    commentData.map((commentLike: any) => {
+      if (commentLike._id === checkReplyId[0].feedCommentId) {
+        commentLike.replies.map((reply: any) => {
+          if (reply._id === checkReplyId[0]._id) {
+            /* eslint-disable no-param-reassign */
+            reply.likeCount += 1;
+            reply.likedByUser = true;
+            return reply;
+          }
+          return reply;
+        });
+        updatedCommentData.push(commentLike);
+      } else {
+        updatedCommentData.push(commentLike);
+      }
+      return null;
+    });
+    setCommentData(updatedCommentData);
+    setUpdateState(true);
+  }, [commentData]);
+
+  const handleUnLikeFeedReply = useCallback((checkReplyId: any) => {
+    const updatedCommentData: any = [];
+    commentData.map((commentLike: any) => {
+      if (commentLike._id === checkReplyId[0].feedCommentId) {
+        commentLike.replies.map((reply: any) => {
+          if (reply._id === checkReplyId[0]._id) {
+            /* eslint-disable no-param-reassign */
+            reply.likeCount -= 1;
+            reply.likedByUser = false;
+            return reply;
+          }
+          return reply;
+        });
+        updatedCommentData.push(commentLike);
+      } else {
+        updatedCommentData.push(commentLike);
+      }
+      return null;
+    });
+    setCommentData(updatedCommentData);
+    setUpdateState(true);
+  }, [commentData]);
 
   const onCommentLike = async (feedCommentId: string) => {
     const checkCommentId = commentData.find((comment: any) => comment._id === feedCommentId);
@@ -679,97 +751,68 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       (comment: any) => comment.replies.find((reply: any) => reply._id === feedCommentId),
     ).filter(Boolean);
 
-    if (feedCommentId === checkCommentId?._id) {
-      const checkCommentLike = checkCommentId?.likedByUser;
+    const isComment = feedCommentId === checkCommentId?._id;
+    const checkCommentLike = checkCommentId?.likedByUser;
 
+    const isReply = feedCommentId === checkReplyId[0]?._id;
+    const checkReplyLike = checkReplyId[0]?.likedByUser;
+
+    // Dislike/Like comment/reply optimistically
+    if (isComment) {
       if (checkCommentLike) {
-        unlikeFeedComment(feedCommentId).then((res) => {
-          if (res.status === 200) {
-            const unLikeCommentData = commentData.map(
-              (commentLike: any) => (commentLike === checkCommentId
-                ? { ...commentLike, likedByUser: false, likeCount: commentLike.likeCount - 1 }
-                : commentLike),
-            );
-            setCommentData(unLikeCommentData);
-            setUpdateState(true);
-          }
-        });
+        handleUnLikeComment(checkCommentId);
       } else {
-        likeFeedComment(feedCommentId).then((res) => {
-          if (res.status === 201 && res.data.isFriend === false) {
-            checkFriendShipStatus();
-          }
-          const likeCommentData = commentData.map(
-            (commentLike: any) => (commentLike === checkCommentId
-              ? { ...commentLike, likedByUser: true, likeCount: commentLike.likeCount + 1 }
-              : commentLike),
-          );
-          setCommentData(likeCommentData);
-          setUpdateState(true);
-        }).catch((err) => {
-          if (err.response.status === 403) {
-            checkFriendShipStatus();
-          }
-        });
+        handleLikeComment(checkCommentId);
       }
     }
-    if (feedCommentId === checkReplyId[0]?._id) {
-      const checkReplyLike = checkReplyId[0].likedByUser;
+    if (isReply) {
       if (checkReplyLike) {
-        unlikeFeedReply(feedCommentId).then((res) => {
-          if (res.status === 200) {
-            const updatedCommentData: any = [];
-            commentData.map((commentLike: any) => {
-              if (commentLike._id === checkReplyId[0].feedCommentId) {
-                commentLike.replies.map((reply: any) => {
-                  if (reply._id === checkReplyId[0]._id) {
-                    /* eslint-disable no-param-reassign */
-                    reply.likeCount -= 1;
-                    reply.likedByUser = false;
-                    return reply;
-                  }
-                  return reply;
-                });
-                updatedCommentData.push(commentLike);
-              } else {
-                updatedCommentData.push(commentLike);
-              }
-              return null;
-            });
-            setCommentData(updatedCommentData);
-            setUpdateState(true);
-          }
-        });
+        handleUnLikeFeedReply(checkReplyId);
       } else {
-        likeFeedReply(feedCommentId).then((res) => {
-          if (res.status === 201 && res.data.isFriend === false) {
+        handleLikeFeedReply(checkReplyId);
+      }
+    }
+
+    const revertOptimisticUpdate = () => {
+      if (isComment) {
+        if (checkCommentLike) {
+          handleLikeComment(checkCommentId);
+        } else {
+          handleUnLikeComment(checkCommentId);
+        }
+      }
+      if (isReply) {
+        if (checkReplyLike) {
+          handleLikeFeedReply(checkReplyId);
+        } else {
+          handleUnLikeFeedReply(checkReplyId);
+        }
+      }
+    };
+
+    try {
+      if (isComment) {
+        if (checkCommentLike) {
+          await unlikeFeedComment(feedCommentId);
+        } else {
+          const res = await likeFeedComment(feedCommentId);
+          if (!res.data.isFriend) {
             checkFriendShipStatus();
           }
-          const updatedCommentData: any = [];
-          commentData.map((commentLike: any) => {
-            if (commentLike._id === checkReplyId[0].feedCommentId) {
-              commentLike.replies.map((reply: any) => {
-                if (reply._id === checkReplyId[0]._id) {
-                  /* eslint-disable no-param-reassign */
-                  reply.likeCount += 1;
-                  reply.likedByUser = true;
-                  return reply;
-                }
-                return reply;
-              });
-              updatedCommentData.push(commentLike);
-            } else {
-              updatedCommentData.push(commentLike);
-            }
-            return null;
-          });
-          setCommentData(updatedCommentData);
-          setUpdateState(true);
-        }).catch((err) => {
-          if (err.response.status === 403) {
-            checkFriendShipStatus();
-          }
-        });
+        }
+      }
+      if (isReply) {
+        if (checkReplyLike) {
+          await unlikeFeedReply(feedCommentId);
+        } else {
+          await likeFeedReply(feedCommentId);
+        }
+      }
+    } catch (error: any) {
+      revertOptimisticUpdate();
+
+      if (error.response.status === 403) {
+        checkFriendShipStatus();
       }
     }
   };

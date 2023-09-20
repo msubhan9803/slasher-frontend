@@ -46,6 +46,7 @@ const clearSignInCookies = async () => {
     Cookies.remove('userName');
   } else {
     await Preferences.remove({ key: 'sessionToken' });
+    cachedSessionToken = null;
     await Preferences.remove({ key: 'userId' });
     await Preferences.remove({ key: 'userName' });
   }

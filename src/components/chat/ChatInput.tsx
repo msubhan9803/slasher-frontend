@@ -306,7 +306,7 @@ function ChatInput({
           onChange={handleMessage}
           onMouseUp={handleCursorChange}
           onFocus={() => { onFocus(); setIsFocused(true); }}
-          onBlur={() => { onBlur(); }}
+          onBlur={() => { onBlur(); setIsFocused(false); }}
           onKeyDown={handleTextareaKeyDown}
         />
         <div className="ps-3">

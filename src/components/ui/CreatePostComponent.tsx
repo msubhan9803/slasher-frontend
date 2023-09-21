@@ -358,7 +358,7 @@ function CreatePostComponent({
       )}
       <div className="mt-3 position-relative">
         <MessageTextarea
-          showEmojiButton={!isNativePlatform}
+          showemojibutton={!isNativePlatform}
           rows={10}
           placeholder={placeHolder}
           handleSearch={handleSearch}

@@ -5,6 +5,12 @@ import socketStore from '../socketStore';
 import { isNativePlatform } from '../constants';
 import { sleep } from './timer-utils';
 
+// Fix for SD-1542: https://slasher.atlassian.net/browse/SD-1542
+// Because the api `await Preferences.get` is too slow and it causes the app the slow
+// when we go back from post-posts -> post-details -> profile-posts page, thus it makes
+// scroll-restore not possilbe
+let cachedSessionToken: string | null = null;
+
 const onlySendCookieOverHttps = !['development', 'test'].includes(process.env.NODE_ENV);
 const DEFAULT_COOKIE_OPTIONS = {
   expires: 400, // Expire cookie in 400 days (400 is maximum allowed by google-chrome)
@@ -40,6 +46,7 @@ const clearSignInCookies = async () => {
     Cookies.remove('userName');
   } else {
     await Preferences.remove({ key: 'sessionToken' });
+    cachedSessionToken = null;
     await Preferences.remove({ key: 'userId' });
     await Preferences.remove({ key: 'userName' });
   }
@@ -57,7 +64,11 @@ export const getSessionToken = async () => {
     const sessionToken = Cookies.get('sessionToken');
     if (sessionToken) { return sessionToken; }
   } else {
+    if (cachedSessionToken) {
+      return cachedSessionToken;
+    }
     const token = (await Preferences.get({ key: 'sessionToken' })).value;
+    cachedSessionToken = token;
     if (token) { return token; }
   }
   return null;

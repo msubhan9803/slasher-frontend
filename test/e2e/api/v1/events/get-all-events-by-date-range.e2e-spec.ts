@@ -126,6 +126,7 @@ describe('Events all by date range / (e2e)', () => {
               'http://localhost:4444/placeholders/default_user_icon.png',
               'http://localhost:4444/placeholders/default_user_icon.png',
             ],
+            name: expect.any(String),
             startDate: activeEventData[i].start.toISOString(),
             endDate: activeEventData[i].end.toISOString(),
             event_type: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -181,6 +182,7 @@ describe('Events all by date range / (e2e)', () => {
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             images: ['http://localhost:4444/placeholders/no_image_available.png'],
+            name: 'Event name 7',
             startDate: '2022-10-24T00:00:00.000Z',
             endDate: '2022-10-25T23:59:59.000Z',
             event_type: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -192,6 +194,7 @@ describe('Events all by date range / (e2e)', () => {
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             images: ['http://localhost:4444/placeholders/no_image_available.png'],
+            name: 'Event name 8',
             startDate: '2022-10-25T00:00:00.000Z',
             endDate: '2022-10-26T23:59:59.000Z',
             event_type: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),

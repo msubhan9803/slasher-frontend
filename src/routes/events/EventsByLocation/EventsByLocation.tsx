@@ -126,7 +126,7 @@ function EventsByLocation() {
               <React.Fragment key={eventDetail.id}>
                 <Col md={6}>
                   <EventsPosterCard
-                    listDetail={eventDetail}
+                    listDetail={eventDetail as any}
                   />
                 </Col>
                 {show && <PubWiseAd className="my-3" id={EVENTS_BY_LOCATION_DIV_ID} autoSequencer />}

@@ -48,7 +48,7 @@ function PostHeader({
         <Row className="d-flex">
           <Col className="my-auto rounded-circle" xs="auto">
             <Link
-              onClick={() => onSelect!(rssfeedProviderId || id)}
+              onClick={() => onSelect?.(rssfeedProviderId || id)}
               to={rssfeedProviderId
                 ? `/app/news/partner/${rssfeedProviderId}`
                 : `/${userName}`}

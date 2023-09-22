@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { Button, Row } from 'react-bootstrap';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { DateTime } from 'luxon';
 import { useMediaQuery } from 'react-responsive';
 import RoundButton from '../../components/ui/RoundButton';
@@ -54,7 +54,7 @@ function SuggestedFriend() {
   } = useAppSelector((state) => state.suggestedFriendList);
   const abortControllerRef = useRef<AbortController | null>();
   const isDesktopResponsiveSize = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` });
-
+  const location = useLocation();
   const reloadSuggestedFriends = useCallback(() => {
     setLoading(true);
     getSuggestFriends()
@@ -70,6 +70,12 @@ function SuggestedFriend() {
         setLoading(false);
       });
   }, [dispatch]);
+
+  useEffect(() => {
+    if (location.pathname === '/app/home') {
+      reloadSuggestedFriends();
+    }
+  }, [location, reloadSuggestedFriends]);
 
   useEffect(() => {
     if (

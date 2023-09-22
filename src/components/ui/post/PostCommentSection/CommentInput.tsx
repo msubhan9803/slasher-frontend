@@ -64,7 +64,7 @@ interface CommentInputProps {
 
 interface InputProps {
   focus: boolean;
-  showEmojiButton: boolean;
+  showemojibutton: boolean;
 }
 
 const CommentForm = styled(Form)`
@@ -96,7 +96,7 @@ const StyledCommentInputGroup = styled(InputGroup) <InputProps>`
     border-top-left-radius: 0rem !important;
   }
 
-  ${(props) => props.showEmojiButton && `
+  ${(props) => props.showemojibutton && `
     textarea { padding-left: 1.5rem !important; }
   `}
   
@@ -277,14 +277,14 @@ function CommentInput({
     setCommentOrReplySuccessAlertMessage?.('');
   };
 
-  const showEmojiButton = windowInnerWidth > maxWidthForCommentOrReplyInputOnMobile;
+  const showemojibutton = windowInnerWidth > maxWidthForCommentOrReplyInputOnMobile;
 
   return (
     <CommentForm id={COMMENT_OR_REPLY_INPUT}>
       <Row className="pt-2 order-last order-sm-0 gx-0">
         <Col className="ps-0">
           <div className="d-flex align-items-end mb-2">
-            <StyledCommentInputGroup focus={isFocosInput} showEmojiButton={showEmojiButton} className="mx-1">
+            <StyledCommentInputGroup focus={isFocosInput} showemojibutton={showemojibutton || undefined} className="mx-1">
               <div className="position-relative d-flex w-100">
                 <MessageTextarea
                   rows={1}
@@ -305,7 +305,7 @@ function CommentInput({
                   isMainPostCommentClick={isMainPostCommentClick}
                   showPicker={showPicker}
                   setShowPicker={setShowPicker}
-                  showEmojiButton={showEmojiButton}
+                  showemojibutton={showemojibutton}
                 />
                 <InputGroup.Text className="position-relative px-3 border-start-0" id={CHOOSE_FILE_CAMERA_ICON}>
                   <FontAwesomeIcon

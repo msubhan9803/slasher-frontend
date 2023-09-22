@@ -9,5 +9,5 @@ ADD_NOINDEX_ROBOTS_TXT=true
 REACT_APP_API_URL="https://api-staging.slasher.tv"
 REACT_APP_VERSION=$npm_package_version
 # Temporarily include google analytics in staging config until we have prod up and running
-REACT_APP_GOOGLE_ANALYTICS_PROPERTY_ID=G-NWPS6ZB302
+REACT_APP_GOOGLE_ANALYTICS_PROPERTY_ID=G-CR0V42WEMF
 REACT_APP_ENABLE_ADS=true

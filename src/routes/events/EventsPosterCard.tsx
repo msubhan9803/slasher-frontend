@@ -15,6 +15,9 @@ interface EventCardProps {
   location: string;
   eventName: string;
   date: string;
+  city: string;
+  state: string;
+  country: string;
 }
 
 const EventsCardStyle = styled(Card)`
@@ -38,14 +41,17 @@ function EventsPosterCard({ listDetail }: Props) {
               {listDetail.date}
             </p>
           </div>
-          {listDetail?.location?.length
-            && (
-              <div>
-                <FontAwesomeIcon icon={solid('location-dot')} className="text-primary me-2" size="sm" />
-                <span className="fs-3">{listDetail.location}</span>
-              </div>
-            )}
-          {listDetail.eventName && <h2 className="my-3">{listDetail.eventName}</h2>}
+          {listDetail.eventName && <h2 className="my-1">{listDetail.eventName}</h2>}
+          <div className="fs-3">
+            <FontAwesomeIcon icon={solid('location-dot')} className="text-primary me-2" size="sm" />
+            {listDetail?.city}
+            ,
+            {' '}
+            {listDetail?.state}
+            ,
+            {' '}
+            {listDetail?.country}
+          </div>
         </Card.Body>
       </EventsCardStyle>
     </Link>

@@ -109,7 +109,7 @@ export class EventsController {
     return eventData.map(
       (event) => pick(
         event,
-        ['_id', 'images', 'startDate', 'endDate', 'event_type', 'city', 'state', 'address', 'country'],
+        ['_id', 'images', 'startDate', 'endDate', 'event_type', 'city', 'state', 'address', 'country', 'name'],
       ),
     );
   }
@@ -208,7 +208,7 @@ export class EventsController {
       '_id', 'images', 'startDate',
       'endDate', 'event_type', 'city',
       'state', 'address', 'country',
-      'url', 'event_info',
+      'url', 'event_info', 'name',
     ];
     return pick(eventData, pickConversationFields);
   }

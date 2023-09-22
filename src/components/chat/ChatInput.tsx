@@ -67,6 +67,8 @@ const StyledTextareaAutosize = styled(TextareaAutosize)`
   cursor: auto
 `;
 
+const SEND_MESSAGE_BUTTON_ID = 'send-message-button-id';
+
 function ChatInput({
   onSubmit, onFocus, onBlur, onRemoveFile, placeholder, errorsToDisplay, isFocused, setIsFocused,
 }: Props) {
@@ -247,7 +249,8 @@ function ChatInput({
               ref={fileInputElementRef}
               type="file"
               name="files"
-              accept="image/*"
+              // eslint-disable-next-line no-useless-concat
+              accept={'image/' + '*'}
               onChange={
                 (e) => {
                   const newFiles = Array.from(e.target.files as Iterable<File>);
@@ -306,12 +309,19 @@ function ChatInput({
           onChange={handleMessage}
           onMouseUp={handleCursorChange}
           onFocus={() => { onFocus(); setIsFocused(true); }}
-          onBlur={() => { onBlur(); setIsFocused(false); }}
+          onBlur={(e) => {
+            onBlur();
+            const isMessageSendButton = (e.relatedTarget as any)?.id === SEND_MESSAGE_BUTTON_ID;
+            if (!isMessageSendButton) {
+              setIsFocused(false);
+            }
+          }}
           onKeyDown={handleTextareaKeyDown}
         />
         <div className="ps-3">
           <Button
             type="submit"
+            id={SEND_MESSAGE_BUTTON_ID}
             variant="link"
             aria-label="submit"
             className="submit-button"

@@ -404,7 +404,7 @@ function Chat({
           threshold={500}
           initialLoad
           loader={(
-            <div>
+            <div key="loader">
               {!noEarlierMessagesAvailable && <div key="loader"><LoadingIndicator /></div>}
             </div>
           )}

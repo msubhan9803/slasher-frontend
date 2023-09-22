@@ -161,7 +161,7 @@ interface MentionProps {
   showPicker?: boolean;
   setShowPicker?: (val: any) => void;
   createEditPost?: boolean;
-  showEmojiButton?: boolean;
+  showemojibutton?: boolean;
 }
 
 function MessageTextarea({
@@ -184,7 +184,7 @@ function MessageTextarea({
   showPicker,
   setShowPicker,
   createEditPost,
-  showEmojiButton,
+  showemojibutton,
 }: MentionProps) {
   const { Option } = Mentions;
   const textareaRef = useRef<MentionsRef>(null);
@@ -295,7 +295,7 @@ function MessageTextarea({
       <StyledShadowWrapper isMentionsFocused={isMentionsFocused} iscommentinput={isCommentInput!}>
         <StyledMention
           ref={textareaRef}
-          placement={showEmojiButton ? 'bottom' : 'top'} // (default = "bottom")
+          placement={showemojibutton ? 'bottom' : 'top'} // (default = "bottom")
           iscommentinput={isCommentInput!}
           id={id}
           className={isCommentInput ? className : ''}
@@ -326,7 +326,7 @@ function MessageTextarea({
           ))}
         </StyledMention>
 
-        {showEmojiButton
+        {showemojibutton
           && (
             <StyledEmojiButton iscommentinput={isCommentInput!}>
               <StyledEmoji
@@ -374,6 +374,6 @@ MessageTextarea.defaultProps = {
   showPicker: undefined,
   setShowPicker: undefined,
   createEditPost: undefined,
-  showEmojiButton: true,
+  showemojibutton: true,
 };
 export default MessageTextarea;

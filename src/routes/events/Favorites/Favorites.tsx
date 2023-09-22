@@ -62,7 +62,9 @@ function Favorites() {
             return (
               <React.Fragment key={eventDetail.id}>
                 <Col md={6}>
-                  <EventsPosterCard listDetail={eventDetail} />
+                  {/* TODO: Fix this any later when we want to use `Favorites` component  */}
+                  {/* with real data from API. */}
+                  <EventsPosterCard listDetail={eventDetail as any} />
                 </Col>
                 {show && <PubWiseAd className="my-3" id={EVENTS_FAVOURITES_DIV_ID} autoSequencer />}
               </React.Fragment>

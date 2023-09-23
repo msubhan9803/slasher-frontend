@@ -11,7 +11,7 @@ import { getUserFromRequest } from '../utils/request-utils';
 import { FeedPostsService } from './providers/feed-posts.service';
 import { CreateFeedPostsDto } from './dto/create-feed-post.dto';
 import { UpdateFeedPostsDto } from './dto/update-feed-posts.dto';
-import { FeedPost } from '../schemas/feedPost/feedPost.schema';
+import { FeedPost, FeedPostDocument } from '../schemas/feedPost/feedPost.schema';
 import { SingleFeedPostsDto } from './dto/find-single-feed-post.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { MainFeedPostQueryDto } from './dto/main-feed-post-query.dto';
@@ -19,7 +19,9 @@ import {
   MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_POST, UPLOAD_PARAM_NAME_FOR_FILES,
 } from '../constants';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
-import { FeedPostDeletionState, FeedPostPrivacyType, PostType } from '../schemas/feedPost/feedPost.enums';
+import {
+ FeedPostDeletionState, FeedPostPrivacyType, PostType,
+} from '../schemas/feedPost/feedPost.enums';
 import { NotificationType } from '../schemas/notification/notification.enums';
 import { NotificationsService } from '../notifications/providers/notifications.service';
 import { StorageLocationService } from '../global/providers/storage-location.service';
@@ -35,9 +37,10 @@ import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-
 import { AllFeedPostQueryDto } from './dto/all-feed-posts-query.dto';
 import { MovieIdDto } from './dto/movie-id.dto';
 import { MovieUserStatusService } from '../movie-user-status/providers/movie-user-status.service';
-import { User } from '../schemas/user/user.schema';
+import { User, UserDocument } from '../schemas/user/user.schema';
 import { getPostType } from '../utils/post-utils';
 import { UsersService } from '../users/providers/users.service';
+import { UserFollowService } from '../user-follow/providers/userFollow.service';
 
 @Controller({ path: 'feed-posts', version: ['1'] })
 export class FeedPostsController {
@@ -53,6 +56,7 @@ export class FeedPostsController {
     private readonly moviesService: MoviesService,
     private readonly movieUserStatusService: MovieUserStatusService,
     private readonly usersService: UsersService,
+    private readonly userFollowService: UserFollowService,
   ) { }
 
   @TransformImageUrls('$.images[*].image_path')
@@ -142,21 +146,14 @@ export class FeedPostsController {
         );
       }
     }
+    const allFollowedUsers = await this.userFollowService.findAllUsersForFollowNotification(user.id);
+    const userIds = allFollowedUsers.map((i) => i.userId.toString());
 
     const createFeedPost = await this.feedPostsService.create(feedPost);
 
     // Create notifications if any users were mentioned
     const mentionedUserIds = extractUserMentionIdsFromMessage(createFeedPost?.message);
-    for (const mentionedUserId of mentionedUserIds) {
-      await this.notificationsService.create({
-        userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
-        feedPostId: createFeedPost.id,
-        senderId: user._id,
-        allUsers: [user._id as any], // senderId must be in allUsers for old API compatibility
-        notifyType: NotificationType.UserMentionedYouInPost,
-        notificationMsg: 'mentioned you in a post',
-      });
-    }
+    await this.sendFeedPostCreateNotification(mentionedUserIds, userIds, createFeedPost, user);
 
     return {
       _id: createFeedPost.id,
@@ -229,7 +226,7 @@ export class FeedPostsController {
   @UseInterceptors(
     ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_POST, MAXIMUM_IMAGE_UPLOAD_SIZE, {
       fileFilter: defaultFileInterceptorFileFilter,
-      }),
+    }),
   )
   async update(
     @Req() request: Request,
@@ -562,5 +559,36 @@ export class FeedPostsController {
         ],
       ),
     );
+  }
+
+  async sendFeedPostCreateNotification(
+    mentionedUserIds: string[],
+    allFollowedUsers: string[],
+    createFeedPost: FeedPostDocument,
+    postCreator: UserDocument,
+  ) {
+    const allNewUser = allFollowedUsers.filter((userId) => !mentionedUserIds.includes(userId));
+
+    for (const mentionedUserId of mentionedUserIds) {
+      await this.notificationsService.create({
+        userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
+        feedPostId: createFeedPost.id,
+        senderId: postCreator._id,
+        allUsers: [postCreator._id as any], // senderId must be in allUsers for old API compatibility
+        notifyType: NotificationType.UserMentionedYouInPost,
+        notificationMsg: 'mentioned you in a post',
+      });
+    }
+
+    for (const user of allNewUser) {
+      await this.notificationsService.create({
+        userId: new mongoose.Types.ObjectId(user) as any,
+        feedPostId: createFeedPost.id,
+        senderId: postCreator._id,
+        allUsers: [postCreator._id as any], // senderId must be in allUsers for old API compatibility
+        notifyType: NotificationType.NewPostFromFollowedUser,
+        notificationMsg: createFeedPost.postType === PostType.MovieReview ? 'has written a movie review ' : 'created a new post',
+      });
+    }
   }
 }

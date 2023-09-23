@@ -140,16 +140,18 @@ export class FriendsController {
   ) {
     try {
       const user = getUserFromRequest(request);
-      await Promise.all([
-        await this.friendsService.acceptFriendRequest(acceptFriendRequestDto.userId, user.id),
-        await this.notificationsService.create({
-          userId: acceptFriendRequestDto.userId as any,
-          senderId: user._id,
-          notifyType: NotificationType.UserAcceptedYourFriendRequest,
-          notificationMsg: 'accepted your friend request',
-        }),
-        await this.friendsGateway.emitFriendRequestReceivedEvent(user.id),
-      ]);
+      const friendship = await this.friendsService.acceptFriendRequest(acceptFriendRequestDto.userId, user.id);
+      if (friendship) {
+        await Promise.all([
+          this.notificationsService.create({
+            userId: acceptFriendRequestDto.userId as any,
+            senderId: user._id,
+            notifyType: NotificationType.UserAcceptedYourFriendRequest,
+            notificationMsg: 'accepted your friend request',
+          }),
+          this.friendsGateway.emitFriendRequestReceivedEvent(user.id),
+        ]);
+      }
       return { success: true };
     } catch (error) {
       throw new HttpException('Unable to accept friend request', HttpStatus.BAD_REQUEST);

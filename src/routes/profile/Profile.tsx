@@ -30,6 +30,7 @@ import useBootstrapBreakpointName from '../../hooks/useBootstrapBreakpoint';
 import { getPageStateCache, setPageStateCache } from '../../pageStateCache';
 import { getProfileSubroutesCache } from './profileSubRoutesCacheUtils';
 import { setProfilePageUserDetailsReload } from '../../redux/slices/userSlice';
+import ProfileFollowing from './ProfileFollowing/ProfileFollowing';
 
 interface SharedHeaderProfilePagesProps {
   user: User;
@@ -47,6 +48,7 @@ function SharedHeaderProfilePages({ user, isSelfProfile }: SharedHeaderProfilePa
       <Route path="/friends/request" element={<ProfileFriendRequest user={user} />} />
       <Route path="/photos" element={<ProfilePhotos user={user} />} />
       <Route path="/watched-list" element={<ProfileWatchList user={user} />} />
+      <Route path="/following/*" element={<ProfileFollowing user={user} />} />
       <Route path="/edit" element={<ProfileEdit user={user} />} />
     </Routes>
   );

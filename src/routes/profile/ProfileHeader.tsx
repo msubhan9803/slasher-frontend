@@ -309,7 +309,7 @@ function ProfileHeader({
                           </StyledButtonIcon>
                         </NotificationBellWrapper>
                       )}
-                      <StyledPopoverContainer className="d-none d-md-block d-lg-none d-xl-block mt-3">
+                      <StyledPopoverContainer className="d-none d-md-block d-lg-none d-xl-block">
                         <CustomPopover
                           popoverOptions={popoverOption}
                           onPopoverClick={handlePopoverOption}

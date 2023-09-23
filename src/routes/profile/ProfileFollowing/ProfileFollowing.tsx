@@ -14,7 +14,7 @@ function ProfileFollowing({ user }: Props) {
       <ProfileHeader tabKey="following" user={user} />
       <Routes>
         <Route path="/*" element={<Navigate to="people" replace />} />
-        <Route path="people" element={<FollowingPeople />} />
+        <Route path="/people" element={<FollowingPeople />} />
       </Routes>
     </div>
   );

@@ -67,6 +67,7 @@ const StyledTextareaAutosize = styled(TextareaAutosize)`
   cursor: auto
 `;
 
+const CAMERA_BUTTON_ID = 'upload-button';
 const SEND_MESSAGE_BUTTON_ID = 'send-message-button-id';
 
 function ChatInput({
@@ -236,6 +237,7 @@ function ChatInput({
             type="button"
             variant="link"
             className="upload-button"
+            id={CAMERA_BUTTON_ID}
             onClick={(e) => { e.preventDefault(); fileInputElementRef.current?.click(); }}
           >
             <FontAwesomeIcon icon={solid('camera')} size="lg" />
@@ -311,8 +313,12 @@ function ChatInput({
           onFocus={() => { onFocus(); setIsFocused(true); }}
           onBlur={(e) => {
             onBlur();
-            const isMessageSendButton = (e.relatedTarget as any)?.id === SEND_MESSAGE_BUTTON_ID;
-            if (!isMessageSendButton) {
+            const el = e.relatedTarget as any;
+            const isCameraButtonClick = el?.id === CAMERA_BUTTON_ID;
+            const isMessageSendButtonClick = el?.id === SEND_MESSAGE_BUTTON_ID;
+
+            const isButtonClick = isCameraButtonClick || isMessageSendButtonClick;
+            if (!isButtonClick) {
               setIsFocused(false);
             }
           }}

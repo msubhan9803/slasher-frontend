@@ -204,7 +204,8 @@ function CommentInput({
 
   // Note: We use `windowInnerWidth` as dependency to set css variable only when necessary
   useEffect(() => {
-    const heightOfCommentOrReplyInputOnMobile = document.querySelector<HTMLElement>(`#${COMMENT_OR_REPLY_INPUT}`)?.offsetHeight;
+    // eslint-disable-next-line max-len
+    const heightOfCommentOrReplyInputOnMobile = document.getElementById(COMMENT_OR_REPLY_INPUT)?.offsetHeight;
     setGlobalCssProperty('--heightOfCommentOrReplyInputOnMobile', `${heightOfCommentOrReplyInputOnMobile ?? 0}px`);
   }, [windowInnerWidth]);
 

@@ -80,10 +80,7 @@ const StyledMention = styled(Mentions) <SytledMentionProps>`
           }
         `
       : ''
-  )
-  // eslint-disable-next-line @typescript-eslint/indent
-  }
-}
+  )}
 `;
 
 const StyledEmoji = styled(Button)`

@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { FriendsService } from '../../friends/providers/friends.service';
 import { RssFeedProviderFollowsService } from '../../rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
 import {
- FeedPostDeletionState, FeedPostPrivacyType, FeedPostStatus, PostType,
+  FeedPostDeletionState, FeedPostPrivacyType, FeedPostStatus, PostType,
 } from '../../schemas/feedPost/feedPost.enums';
 import { FeedPost, FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 import { User, UserDocument } from '../../schemas/user/user.schema';
@@ -443,9 +443,9 @@ export class FeedPostsService {
       .exec();
   }
 
-  async updatePostPrivacyType(userId: string, status: number): Promise<any> {
+  async updatePostPrivacyType(userId: string, visibility: ProfileVisibility): Promise<any> {
     const updateFeedPostData = {
-      privacyType: status === ProfileVisibility.Private
+      privacyType: visibility === ProfileVisibility.Private
         ? FeedPostPrivacyType.Private
         : FeedPostPrivacyType.Public,
     };

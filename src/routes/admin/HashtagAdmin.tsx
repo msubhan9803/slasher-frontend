@@ -119,7 +119,6 @@ const rowsPerPage = 10;
 // then we shw full size table too. Also, 10 * 63px = 630px on desktop
 const tableHeight = (rowsPerPage * 63) + 0.5;
 
-// Reference - `TestTable2`
 // Docs: https://mui.com/material-ui/react-table/
 // Docs: https://mui.com/x/react-data-grid
 function HashtagAdmin() {

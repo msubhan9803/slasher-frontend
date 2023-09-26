@@ -5,6 +5,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import mongoose, { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
+import { DateTime } from 'luxon';
 import { AppModule } from '../../../../../src/app.module';
 import { UsersService } from '../../../../../src/users/providers/users.service';
 import { userFactory } from '../../../../factories/user.factory';
@@ -63,7 +64,7 @@ describe('Users / :id (e2e)', () => {
 
     activeUser = await usersService.create(userFactory.build({
       userName: 'TestUser',
-      previousUserName: 'TestUserPreviousUserName',
+      lastUserNameUpdatedAt: DateTime.now().minus({ days: 10 }).toJSDate(),
     }));
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -142,42 +143,21 @@ describe('Users / :id (e2e)', () => {
 
       // TODO (SD-1336): When user is allowed to update username, remove test below
       it('returns the expected error when a user tries to update their userName', async () => {
-        const userUpdatePostBody = { userName: `${activeUser.userName}-updated` };
+        const userUpdatePostBody = {
+          userName: `${activeUser.userName}-updated`,
+        };
         const response = await request(app.getHttpServer())
           .patch(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
-          .send(userUpdatePostBody);
-        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+          .send(userUpdatePostBody)
+          .expect(HttpStatus.BAD_REQUEST);
         expect(response.body).toEqual({
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'You can edit your username after July 31, 2023',
+          message: 'You can update username after 19 days',
         });
         const updatedActiveUser = await usersService.findById(activeUser.id, true);
         expect(updatedActiveUser.userName).toEqual(activeUser.userName);
       });
-
-      // TODO (SD-1336): When user is allowed to update username, uncomment test below
-      // eslint-disable-next-line jest/no-commented-out-tests
-      // it("upates user's userName and clears out previousUserName for different user if user's new userName equals "
-      //   + "different user's previousUserName", async () => {
-      //     const otherUser = await usersService.create(userFactory.build({ userName: 'Slasher' }));
-      //     const otherUserAuthToken = otherUser.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
-
-      //     const userUpdatePostBody = { userName: activeUser.previousUserName };
-      //     const response = await request(app.getHttpServer())
-      //       .patch(`/api/v1/users/${otherUser.id}`)
-      //       .auth(otherUserAuthToken, { type: 'bearer' })
-      //       .send(userUpdatePostBody);
-      //     expect(response.status).toEqual(HttpStatus.OK);
-      //     expect(response.body).toEqual({
-      //       _id: otherUser.id,
-      //       userName: activeUser.previousUserName,
-      //     });
-      //     const updatedActiveUser = await usersService.findById(activeUser.id, true);
-      //     const updatedOtherUser = await usersService.findById(otherUser.id, true);
-      //     expect(updatedActiveUser.previousUserName).toBeNull();
-      //     expect(updatedOtherUser.userName).toEqual(userUpdatePostBody.userName);
-      //   });
 
       it('when the profile_status is not provided, updates to other fields are still successful', async () => {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -201,6 +181,69 @@ describe('Users / :id (e2e)', () => {
         expect(user.email).not.toEqual(postBody.email);
         expect(user.unverifiedNewEmail).toEqual(postBody.email);
         expect(user.firstName).toEqual(postBody.firstName);
+      });
+    });
+
+    describe('successfully updates username along with previousUserName', () => {
+      let user1: UserDocument;
+      let activeUserAuthToken1: string;
+
+      beforeEach(async () => {
+        user1 = await usersService.create(userFactory.build({
+          userName: 'user1',
+          previousUserName: ['ghost', 'horror'],
+          lastUserNameUpdatedAt: DateTime.now().minus({ days: 40 }).toJSDate(),
+        }));
+        await usersService.create(userFactory.build({
+          userName: 'user2',
+          previousUserName: ['hunter', 'slasher'],
+          lastUserNameUpdatedAt: DateTime.now().minus({ days: 40 }).toJSDate(),
+        }));
+        await usersService.create(userFactory.build({
+          userName: 'user3',
+          previousUserName: ['evil', 'scary'],
+          lastUserNameUpdatedAt: DateTime.now().minus({ days: 40 }).toJSDate(),
+        }));
+        activeUserAuthToken1 = user1.generateNewJwtToken(
+          configService.get<string>('JWT_SECRET_KEY'),
+        );
+      });
+
+      it('successfully updates the username when user enters new username which is not existing', async () => {
+        const postBody1 = { userName: 'devil' };
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/users/${user1.id}`)
+          .auth(activeUserAuthToken1, { type: 'bearer' })
+          .send(postBody1);
+        expect(response.status).toEqual(HttpStatus.OK);
+        const updatedUser = await usersService.findById(user1.id, true);
+        expect(updatedUser.userName).toBe('devil');
+        expect(updatedUser.previousUserName).toEqual(['ghost', 'horror', 'user1']);
+      });
+
+      it('returns the expected response when user enters username which is already existing in user\'s previousUsername', async () => {
+        const postBody1 = { userName: 'ghost' };
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/users/${user1.id}`)
+          .auth(activeUserAuthToken1, { type: 'bearer' })
+          .send(postBody1);
+        expect(response.status).toEqual(HttpStatus.OK);
+        const updatedUser = await usersService.findById(user1.id, true);
+        expect(updatedUser.userName).toBe('ghost');
+        expect(updatedUser.previousUserName).toEqual(['ghost', 'horror', 'user1']);
+      });
+
+      it('returns the expected response when username is already existing', async () => {
+        const postBody1 = { userName: 'user2' };
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/users/${user1.id}`)
+          .auth(activeUserAuthToken1, { type: 'bearer' })
+          .send(postBody1)
+          .expect(HttpStatus.UNPROCESSABLE_ENTITY);
+        expect(response.body).toEqual({
+          statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+          message: 'Username is already associated with an existing user.',
+        });
       });
     });
 

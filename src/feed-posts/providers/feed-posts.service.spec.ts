@@ -204,6 +204,52 @@ describe('FeedPostsService', () => {
     });
   });
 
+  describe('#updateMessageInFeedposts', () => {
+    it('updates the username in message key and returns the expected response', async () => {
+      const feedPost = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: activeUser.id,
+            rssFeedId: rssFeed.id,
+            likes: [activeUser._id, user0._id],
+            message: `test #ok check #not ##LINK_ID##${activeUser.id}@slasher1##LINK_END##  #hehe #hashtag`,
+            is_deleted: 0,
+          },
+        ),
+      );
+      const feedPost1 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: activeUser.id,
+            rssFeedId: rssFeed.id,
+            likes: [activeUser._id, user0._id],
+            message: `test #ok check #not ##LINK_ID##${activeUser.id}@devid##LINK_END##  #natural #hashtag`,
+            is_deleted: 0,
+          },
+        ),
+      );
+      await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: user0.id,
+            rssFeedId: rssFeed.id,
+            likes: [activeUser._id, user0._id],
+            message: `test #ok check #not ##LINK_ID##${user0.id}@horror##LINK_END##  #nature #hashtag`,
+            is_deleted: 0,
+          },
+        ),
+      );
+
+      await feedPostsService.updateMessageInFeedposts(activeUser.id, 'john');
+      expect(
+        ((await feedPostsService.findById(feedPost.id, true))).message,
+      ).toBe(`test #ok check #not ##LINK_ID##${activeUser.id}@john##LINK_END##  #hehe #hashtag`);
+      expect(
+        ((await feedPostsService.findById(feedPost1.id, true))).message,
+      ).toBe(`test #ok check #not ##LINK_ID##${activeUser.id}@john##LINK_END##  #natural #hashtag`);
+    });
+  });
+
   describe('#findAllByUser', () => {
     beforeEach(async () => {
       for (let i = 0; i < 10; i += 1) {

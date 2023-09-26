@@ -161,6 +161,38 @@ describe('FeedCommentsService', () => {
     });
   });
 
+  describe('#updateMessageInFeedcomments', () => {
+    it('updates the username in message key and returns the expected response', async () => {
+      const user = await usersService.create(userFactory.build());
+      const feedComment = await feedCommentsService.createFeedComment(feedCommentsFactory.build({
+        userId: activeUser.id,
+        feedPostId: feedPost1.id,
+        message: `new comment 1 ##LINK_ID##${activeUser.id}@slasher##LINK_END## new comment`,
+        is_deleted: 0,
+      }));
+      const feedComment1 = await feedCommentsService.createFeedComment(feedCommentsFactory.build({
+        userId: activeUser.id,
+        feedPostId: feedPost1.id,
+        message: `new comment 3 ##LINK_ID##${activeUser.id}@devid##LINK_END## comments`,
+        is_deleted: 0,
+      }));
+      await feedCommentsService.createFeedComment(feedCommentsFactory.build({
+        userId: user.id,
+        feedPostId: feedPost1.id,
+        message: `new comment 2 ##LINK_ID##${user.id}@john##LINK_END## comments`,
+        is_deleted: 0,
+      }));
+
+      await feedCommentsService.updateMessageInFeedcomments(activeUser.id, 'horror');
+      expect(
+        ((await feedCommentsModel.findById(feedComment.id))).message,
+      ).toBe(`new comment 1 ##LINK_ID##${activeUser.id}@horror##LINK_END## new comment`);
+      expect(
+        ((await feedCommentsModel.findById(feedComment1.id))).message,
+      ).toBe(`new comment 3 ##LINK_ID##${activeUser.id}@horror##LINK_END## comments`);
+    });
+  });
+
   describe('#deleteFeedComment', () => {
     it('finds the expected comments and delete the details', async () => {
       await feedCommentsService.deleteFeedComment(feedComments.id);
@@ -241,6 +273,38 @@ describe('FeedCommentsService', () => {
       const feedReplyData = await feedReplyModel.findById(updatedReply._id);
       expect(feedReplyData.message).toEqual(feedReplyJson.message);
       expect(feedReplyData.images.map((el) => el.image_path)).toEqual(feedReplyJson.images.map((el) => el.image_path));
+    });
+  });
+
+  describe('#updateMessageInFeedreplies', () => {
+    it('updates the username in message key and returns the expected response', async () => {
+      const user = await usersService.create(userFactory.build());
+      const feedReply1 = await feedCommentsService.createFeedReply(feedRepliesFactory.build({
+        feedCommentId: feedComments.id,
+        userId: activeUser.id,
+        message: `new reply ##LINK_ID##${activeUser.id}@slasher##LINK_END##  #reply`,
+        deleted: 0,
+      }));
+      const feedReply2 = await feedCommentsService.createFeedReply(feedRepliesFactory.build({
+        feedCommentId: feedComments.id,
+        userId: activeUser.id,
+        message: `new reply 1 ##LINK_ID##${activeUser.id}@horror##LINK_END##  #reply1`,
+        deleted: 0,
+      }));
+      await feedCommentsService.createFeedReply(feedRepliesFactory.build({
+        feedCommentId: feedComments.id,
+        userId: user.id,
+        message: `new reply 2 ##LINK_ID##${user.id}@john##LINK_END##  #reply`,
+        deleted: 0,
+      }));
+
+      await feedCommentsService.updateMessageInFeedreplies(activeUser.id, 'ghost');
+      expect(
+        ((await feedReplyModel.findById(feedReply1.id))).message,
+      ).toBe(`new reply ##LINK_ID##${activeUser.id}@ghost##LINK_END##  #reply`);
+      expect(
+        ((await feedReplyModel.findById(feedReply2.id))).message,
+      ).toBe(`new reply 1 ##LINK_ID##${activeUser.id}@ghost##LINK_END##  #reply1`);
     });
   });
 

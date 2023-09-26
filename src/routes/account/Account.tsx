@@ -22,6 +22,7 @@ function Account() {
           <Route path="/change-password" element={<AccountChangePassword />} />
           <Route path="/sign-out" element={<AccountSettings />} />
           <Route path="/delete-account" element={<AccountDelete />} />
+          <Route path="/admin" element={<Navigate to="/app/admin" />} />
         </Routes>
       </ContentPageWrapper>
 

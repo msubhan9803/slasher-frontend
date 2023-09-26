@@ -3,17 +3,31 @@ import styled from '@emotion/styled';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import Switch from '../../components/ui/Switch';
 
+const commonHeaderClass = 'hashtag-common--header';
+
 const StyledContainer = styled.div`
 height: 400;
 width: 100%;
 
+.MuiDataGrid-root, .MuiDataGrid-main{
+  border-radius: 10px;
+}
+
 .hashtag--header {
-  /* Background color of a column */
+  /* Background color of a column (not needed as we use columnHeaders instead) */
   /* background-color: green; */
   border-right: 1px solid black;
 }
 .MuiDataGrid-columnHeaders {
   background-color: var(--bs-primary);
+}
+.MuiDataGrid-columnHeaderTitle{
+  font-weight: bold;
+}
+
+/* Set outline to none so mouse click does not highlight the cell */
+.MuiDataGrid-cell{
+  outline: none !important;
 }
 `;
 
@@ -32,19 +46,51 @@ type CellType = {
 };
 
 // Common header class
-const headerClassName = 'hashtag--header';
+
+type StatusCompProps = {
+  params: {
+    row: CellType;
+  }
+};
+function StatusComp({ params }: StatusCompProps) {
+  const { row } = params;
+  const [switchState, setSwitchState] = useState(row.status);
+  const hashTagId = row?.id;
+
+  const handleChange = (e: any) => {
+    setSwitchState(e.target.checked);
+  };
+  return (
+    <div>
+      <Switch
+        id={`switch-${hashTagId}`}
+        className="ms-0 ms-md-3"
+        onSwitchToggle={(e: any) => handleChange(e)}
+        isChecked={switchState}
+      />
+    </div>
+  );
+}
 
 // Dummy data for table
 const columns: GridColDef[] = [
   { field: ColumnField.id, headerName: 'ID', width: 10 },
   {
-    field: ColumnField.hashtagName, headerName: 'HASHTAG NAME', width: 160, headerClassName,
+    field: ColumnField.hashtagName,
+    headerName: 'HASHTAG NAME',
+    width: 160,
+    headerClassName: commonHeaderClass,
+    renderCell: (params: any) => <strong className="text-black">{(params.row as CellType).hashtagName}</strong>,
   },
   {
-    field: ColumnField.createdDate, headerName: 'CREATED DATE', width: 180, headerClassName,
+    field: ColumnField.createdDate, headerName: 'CREATED DATE', width: 180, headerClassName: commonHeaderClass,
   },
   {
-    field: ColumnField.status, headerName: 'STATUS', width: 130, headerClassName,
+    field: ColumnField.status,
+    headerName: 'STATUS',
+    width: 130,
+    headerClassName: commonHeaderClass,
+    renderCell: (params: any) => <StatusComp params={params} />,
   },
 ];
 
@@ -76,24 +122,16 @@ const tableHeight = (rowsPerPage * 63) + 0.5;
 // Reference - `TestTable2`
 // Docs: https://mui.com/material-ui/react-table/
 // Docs: https://mui.com/x/react-data-grid
-function HashtagTable() {
-  const [switchState, setSwitchState] = useState(!!0);
-  const handleChange = (e: any, name: string) => {
-    // eslint-disable-next-line no-console
-    console.log('name?', name);
-    setSwitchState(e.target.checked);
-  };
-
+function HashtagAdmin() {
   return (
     <StyledContainer>
-      <Switch
-        id="some-id-here"
-        className="ms-0 ms-md-3"
-        onSwitchToggle={(e: any) => handleChange(e, 'item1')}
-        isChecked={switchState}
-      />
+      <h1 className="mb-3">Hashtag Admin</h1>
       <DataGrid
-        style={{ background: 'white', height: tableHeight, border: '1px solid black' }}
+        style={{
+          background: 'white',
+          height: tableHeight,
+          border: '1px solid black',
+        }}
         rows={rows}
         columns={columns}
         initialState={{
@@ -119,4 +157,4 @@ function HashtagTable() {
     </StyledContainer>
   );
 }
-export default HashtagTable;
+export default HashtagAdmin;

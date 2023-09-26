@@ -10,6 +10,7 @@ const tabs = [
   { value: 'change-password', label: 'Change password' },
   { value: 'sign-out', label: 'Sign out' },
   { value: 'delete-account', label: 'Delete account' },
+  { value: 'admin', label: 'Admin area' },
 ];
 function AccountHeader({ tabKey }: AccountHeaderProps) {
   return (

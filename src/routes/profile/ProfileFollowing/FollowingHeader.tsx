@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { Col, Row } from 'react-bootstrap';
-import Cookies from 'js-cookie';
 import { useNavigate, useParams } from 'react-router-dom';
 import CustomSearchInput from '../../../components/ui/CustomSearchInput';
 import TabLinks from '../../../components/ui/Tabs/TabLinks';

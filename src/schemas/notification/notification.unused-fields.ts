@@ -39,6 +39,7 @@ export class NotificationUnusedFields {
       NotificationType.UserLikedYourCommentOnANewsPost,
       NotificationType.NewPostFromFollowedRssFeedProvider,
       NotificationType.HashTagPostNotification,
+      NotificationType.NewPostFromFollowedUser,
     ],
   })
   notifyType: NotificationType;

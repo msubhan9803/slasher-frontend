@@ -50,7 +50,7 @@ export class ReportsController {
         break;
       }
       case 'post': {
-        const feedPost = await this.feedPostsService.findById(createReportDto.targetId, false);
+        const feedPost = await this.feedPostsService.findByIdWithPopulatedFields(createReportDto.targetId, false);
         if (!feedPost) {
           throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
         }

@@ -84,7 +84,7 @@ describe('Delete Feed Post Likes (e2e)', () => {
         .send()
         .expect(HttpStatus.OK);
       expect(response.body).toEqual({ success: true });
-      const feedPostData = await feedPostsService.findById(feedPost.id, false);
+      const feedPostData = await feedPostsService.findByIdWithPopulatedFields(feedPost.id, false);
       expect(feedPostData.likes).toHaveLength(1);
       expect(feedPostData.likeCount).toBe(1);
     });

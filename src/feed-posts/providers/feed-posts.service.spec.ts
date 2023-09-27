@@ -119,7 +119,7 @@ describe('FeedPostsService', () => {
       });
       const feedPost = await feedPostsService.create(feedPostData);
       const reloadedFeedPost = await feedPostsService.findById(feedPost.id, false);
-      expect((reloadedFeedPost.userId as unknown as User)._id.toString()).toEqual(activeUser.id);
+      expect((reloadedFeedPost.userId as unknown as User).toString()).toEqual(activeUser.id);
     });
 
     it('successfully creates a feed post that is associated with an rss feed provider, '
@@ -163,8 +163,38 @@ describe('FeedPostsService', () => {
         ),
       );
     });
-    it('finds the expected feed post details', async () => {
+    it('finds the expected feedPost', async () => {
       const feedPostDetails = await feedPostsService.findById(feedPost.id, false);
+      expect(feedPostDetails._id).toEqual(feedPost._id);
+    });
+
+    it('finds the expected feed post details that has not deleted and active status', async () => {
+      const feedPostData = await feedPostsService.create(
+        feedPostFactory.build({
+          status: FeedPostStatus.Active,
+          userId: activeUser.id,
+        }),
+      );
+      const feedPostDetails = await feedPostsService.findById(feedPostData.id, true);
+      expect(feedPostDetails.message).toEqual(feedPostData.message);
+    });
+  });
+
+  describe('#findByIdWithPopulatedFields', () => {
+    let feedPost: FeedPostDocument;
+    beforeEach(async () => {
+      feedPost = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: activeUser.id,
+            rssFeedId: rssFeed.id,
+            likes: [activeUser._id, user0._id],
+          },
+        ),
+      );
+    });
+    it('finds the expected feed post details', async () => {
+      const feedPostDetails = await feedPostsService.findByIdWithPopulatedFields(feedPost.id, false);
       expect((feedPostDetails.rssFeedId as any).content).toBe('<p>this is rss <b>feed</b> <span>test<span> </p>');
       expect(feedPostDetails.message).toEqual(feedPost.message);
       expect(feedPostDetails.likeCount).toBe(2);
@@ -182,17 +212,17 @@ describe('FeedPostsService', () => {
     });
 
     it("populates the profile_status field on the post's returned userId object", async () => {
-      const feedPostDetails = await feedPostsService.findById(feedPost.id, false);
+      const feedPostDetails = await feedPostsService.findByIdWithPopulatedFields(feedPost.id, false);
       expect((feedPostDetails.userId as unknown as User).profile_status).toEqual(activeUser.profile_status);
     });
 
     it('when add identifylikesforuser than expected response', async () => {
-      const feedPostDetails = await feedPostsService.findById(feedPost.id, false, activeUser.id);
+      const feedPostDetails = await feedPostsService.findByIdWithPopulatedFields(feedPost.id, false, activeUser.id);
       expect((feedPostDetails as any).likedByUser).toBe(true);
     });
 
     it("populates the title field on the post's returned rssFeedId object", async () => {
-      const feedPostDetails = await feedPostsService.findById(feedPost.id, false);
+      const feedPostDetails = await feedPostsService.findByIdWithPopulatedFields(feedPost.id, false);
       expect((feedPostDetails.rssFeedId as unknown as RssFeed).title).toEqual(rssFeed.title);
     });
 
@@ -205,7 +235,7 @@ describe('FeedPostsService', () => {
           likes: [activeUser._id, user0._id],
         }),
       );
-      const feedPostDetails = await feedPostsService.findById(feedPostNew.id, false);
+      const feedPostDetails = await feedPostsService.findByIdWithPopulatedFields(feedPostNew.id, false);
       expect((feedPostDetails.movieId as unknown as Movie).name).toEqual(movie.name);
       expect((feedPostDetails.movieId as unknown as Movie).releaseDate).toEqual(movie.releaseDate);
       expect((feedPostDetails.movieId as unknown as Movie).logo).toEqual(movie.logo);

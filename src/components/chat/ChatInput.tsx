@@ -313,7 +313,6 @@ function ChatInput({
           onFocus={() => { onFocus(); setIsFocused(true); }}
           onBlur={(e) => {
             onBlur();
-            setIsFocused(false);
             const el = e.relatedTarget as any;
             const isCameraButtonClick = el?.id === CAMERA_BUTTON_ID;
             const isMessageSendButtonClick = el?.id === SEND_MESSAGE_BUTTON_ID;

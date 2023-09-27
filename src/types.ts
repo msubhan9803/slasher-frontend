@@ -406,3 +406,12 @@ export type FriendType = {
 } | null;
 
 export type LocationOrPathname = Location | string;
+
+export const HashtagsSortBy = ['name', 'createdAt', 'totalPost', 'deleted'] as const;
+export type HashtagsSortByType = typeof HashtagsSortBy[number];
+
+export enum HashtagActiveStatus {
+  Inactive = 0,
+  Active = 1,
+  Deactivated = 2,
+}

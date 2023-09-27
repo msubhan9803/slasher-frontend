@@ -1,13 +1,15 @@
 /* eslint-disable class-methods-use-this */
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { DateTime } from 'luxon';
 import { escapeStringForRegex } from '../../utils/escape-utils';
 import { Hashtag, HashtagDocument } from '../../schemas/hastag/hashtag.schema';
 import { HashtagActiveStatus, HashtagDeletionStatus } from '../../schemas/hastag/hashtag.enums';
 import { FeedPostsService } from '../../feed-posts/providers/feed-posts.service';
 import { toUtcStartOfDay } from '../../utils/date-utils';
+import { HashtagsSortByType } from '../../types';
+import { NON_ALPHANUMERIC_REGEX } from '../../constants';
 
 @Injectable()
 export class HashtagService {
@@ -142,5 +144,58 @@ export class HashtagService {
       .sort((a, b) => (b as any)[1] - (a as any)[1]) // sort by value
       .map(([key]) => key); // get the keys
     return sortHashtagsKeys;
+  }
+
+  async updateHashtagStatus(hashtagId: string, status: HashtagActiveStatus) {
+    const hashtag = (await this.HashtagModel.findOneAndUpdate(
+      { _id: new mongoose.Types.ObjectId(hashtagId) },
+      { status },
+      { upsert: false, new: true },
+    )).toObject();
+    return hashtag;
+  }
+
+  async hashtagExists(hashtagId: string): Promise<boolean> {
+    const exists = await this.HashtagModel.exists({ _id: new mongoose.Types.ObjectId(hashtagId) });
+    return Boolean(exists);
+  }
+
+  async findAll(
+    limit: number,
+    activeOnly: boolean,
+    sortBy: HashtagsSortByType,
+    after?: mongoose.Types.ObjectId,
+    nameContains?: string,
+    sortNameStartsWith?: string,
+  ): Promise<HashtagDocument[]> {
+    const hashtagFindAllQuery: any = {};
+    if (activeOnly) {
+      hashtagFindAllQuery.status = HashtagActiveStatus.Active;
+    }
+
+    if (after) {
+      const afterHashtag = await this.HashtagModel.findById(after);
+      hashtagFindAllQuery[sortBy] = { $gt: afterHashtag[sortBy] };
+    }
+    if (nameContains) {
+      hashtagFindAllQuery.name = new RegExp(`^${escapeStringForRegex(nameContains)}`, 'i');
+    }
+    if (sortNameStartsWith) {
+      hashtagFindAllQuery.name = hashtagFindAllQuery.name || {};
+      if (sortNameStartsWith !== '#') {
+        hashtagFindAllQuery.name.$regex = new RegExp(`^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`);
+      } else {
+        hashtagFindAllQuery.name.$regex = new RegExp(NON_ALPHANUMERIC_REGEX, 'i');
+      }
+    }
+
+    const sortByFields: any = {};
+    // TODO: Add `aesc` and `desc` params if we need reverse sorting and according set 1 or -1 value
+    sortByFields[sortBy] = 1;
+
+    return this.HashtagModel.find(hashtagFindAllQuery)
+      .sort(sortByFields)
+      .limit(limit)
+      .exec();
   }
 }

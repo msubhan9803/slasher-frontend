@@ -1,10 +1,17 @@
 import {
-  Controller, Get, ValidationPipe, Query,
+  Controller, Get, ValidationPipe, Query, Patch, Body, Param, HttpException, HttpStatus, Req,
 } from '@nestjs/common';
+import { Request } from 'express';
+import mongoose from 'mongoose';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { HashtagService } from './providers/hashtag.service';
 import { FindHashtagDto } from '../search/dto/find-hashtag-dto';
 import { pick } from '../utils/object-utils';
+import { UpdateHashtagStatusDto } from '../search/dto/update-hashtag-status-dto';
+import { UpdateHashtagStatusParamDto } from '../search/dto/update-hashtag-status-param-dto';
+import { getUserFromRequest } from '../utils/request-utils';
+import { UserType } from '../schemas/user/user.enums';
+import { FindAllHashtagsDto } from '../search/dto/find-all-hashtags-dto';
 
 @Controller({ path: 'hashtags', version: ['1'] })
 export class HashtagController {
@@ -25,5 +32,45 @@ export class HashtagController {
   async hashtagOnboardingSuggestions() {
     const hashtags = await this.hashtagService.hashtagOnboardingSuggestions();
     return hashtags;
+  }
+
+  @Get()
+  async findAll(@Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: FindAllHashtagsDto) {
+    const activeOnly = false;
+    const hashtags = await this.hashtagService.findAll(
+      query.limit,
+      activeOnly,
+      query.sortBy,
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
+      query.nameContains,
+      query.startsWith,
+    );
+
+    return hashtags.map(
+      (hashtag) => pick(hashtag, ['_id', 'name', 'createdAt', 'status']),
+    );
+  }
+
+  @Patch('update-status/:id')
+  async updateHashtagStatus(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: UpdateHashtagStatusParamDto,
+    @Body() updateHashtagStatusDto: UpdateHashtagStatusDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const isAdmin = user.userType === UserType.Admin;
+    if (!isAdmin) {
+      throw new HttpException('Only admins can update status of a hashtag', HttpStatus.NOT_FOUND);
+    }
+
+    const exists = await this.hashtagService.hashtagExists(param.id);
+    if (!exists) {
+      throw new HttpException(`Hashtag with id: ${param.id} not found!`, HttpStatus.NOT_FOUND);
+    }
+
+    const { status } = updateHashtagStatusDto;
+    const hashtag = await this.hashtagService.updateHashtagStatus(param.id, status);
+    return pick(hashtag, ['_id', 'name', 'createdAt', 'status']);
   }
 }

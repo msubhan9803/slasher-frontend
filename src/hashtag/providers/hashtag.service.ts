@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { DateTime } from 'luxon';
+import { count } from 'rxjs';
 import { escapeStringForRegex } from '../../utils/escape-utils';
 import { Hashtag, HashtagDocument } from '../../schemas/hastag/hashtag.schema';
 import { HashtagActiveStatus, HashtagDeletionStatus } from '../../schemas/hastag/hashtag.enums';
@@ -167,21 +168,20 @@ export class HashtagService {
     after?: mongoose.Types.ObjectId,
     nameContains?: string,
     sortNameStartsWith?: string,
-  ): Promise<HashtagDocument[]> {
+  ): Promise<{ allItemsCount: number, items: HashtagDocument[] }> {
     const hashtagFindAllQuery: any = {};
     if (activeOnly) {
       hashtagFindAllQuery.status = HashtagActiveStatus.Active;
     }
 
-    if (after) {
-      const afterHashtag = await this.HashtagModel.findById(after);
-      hashtagFindAllQuery[sortBy] = { $gt: afterHashtag[sortBy] };
+    if (nameContains || sortNameStartsWith) {
+      hashtagFindAllQuery.name = {};
     }
+
     if (nameContains) {
-      hashtagFindAllQuery.name = new RegExp(`^${escapeStringForRegex(nameContains)}`, 'i');
+      hashtagFindAllQuery.name.$regex = new RegExp(`^${escapeStringForRegex(nameContains)}`, 'i');
     }
     if (sortNameStartsWith) {
-      hashtagFindAllQuery.name = hashtagFindAllQuery.name || {};
       if (sortNameStartsWith !== '#') {
         hashtagFindAllQuery.name.$regex = new RegExp(`^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`);
       } else {
@@ -189,13 +189,22 @@ export class HashtagService {
       }
     }
 
+    const allItemsCount = await this.HashtagModel.count(hashtagFindAllQuery);
+
+    if (after) {
+      const afterHashtag = await this.HashtagModel.findById(after);
+      hashtagFindAllQuery[sortBy] = { $gt: afterHashtag[sortBy] };
+    }
+
     const sortByFields: any = {};
     // TODO: Add `aesc` and `desc` params if we need reverse sorting and according set 1 or -1 value
     sortByFields[sortBy] = 1;
 
-    return this.HashtagModel.find(hashtagFindAllQuery)
+    const items = await this.HashtagModel.find(hashtagFindAllQuery)
       .sort(sortByFields)
       .limit(limit)
       .exec();
+
+    return { allItemsCount, items };
   }
 }

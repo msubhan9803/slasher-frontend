@@ -37,7 +37,7 @@ export class HashtagController {
   @Get()
   async findAll(@Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: FindAllHashtagsDto) {
     const activeOnly = false;
-    const hashtags = await this.hashtagService.findAll(
+    const { allItemsCount, items } = await this.hashtagService.findAll(
       query.limit,
       activeOnly,
       query.sortBy,
@@ -46,9 +46,12 @@ export class HashtagController {
       query.startsWith,
     );
 
-    return hashtags.map(
-      (hashtag) => pick(hashtag, ['_id', 'name', 'createdAt', 'status']),
-    );
+    return {
+      allItemsCount,
+      items: items.map(
+        (hashtag) => pick(hashtag, ['_id', 'name', 'createdAt', 'status']),
+      ),
+    };
   }
 
   @Patch('update-status/:id')

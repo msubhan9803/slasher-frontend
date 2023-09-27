@@ -59,7 +59,6 @@ export class FeedLikesController {
     ) {
       isFriend = await this.friendsService.areFriends(user.id, (post.userId as unknown as User).toString()) || false;
 
-
       if (!isFriend) {
         await this.postAccessService.checkAccessPostService(user, post.hashtags);
       }

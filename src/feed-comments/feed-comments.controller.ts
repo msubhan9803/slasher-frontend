@@ -62,7 +62,6 @@ export class FeedCommentsController {
     ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_IMAGES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, MAXIMUM_IMAGE_UPLOAD_SIZE, {
       fileFilter: defaultFileInterceptorFileFilter,
     }),
-    }),
   )
   async createFeedComment(
     @Req() request: Request,

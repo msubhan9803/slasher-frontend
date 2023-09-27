@@ -686,7 +686,7 @@ export class FeedPostsController {
     createFeedPost: FeedPostDocument,
     postCreator: UserDocument,
     allUserIds: string[],
-    hashtagNotification: string
+    hashtagNotification: string,
   ) {
     const allNewUser = allFollowedUsers.filter((userId) => !mentionedUserIds.includes(userId));
     const hashtagFollowUser = allUserIds.filter((userId) => !allNewUser.includes(userId));
@@ -722,7 +722,5 @@ export class FeedPostsController {
         notificationMsg: hashtagNotification,
       });
     }
-
-    
   }
 }

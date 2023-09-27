@@ -9,7 +9,7 @@ import { DateTime } from 'luxon';
 import { TablePaginationProps } from '@mui/material';
 import MuiPagination from '@mui/material/Pagination';
 import Switch from '../../components/ui/Switch';
-import { findAllHashtagAdmin } from '../../api/hashtag-admin';
+import { findAllHashtagAdmin, updateHashtagStatusAdmin } from '../../api/hashtag-admin';
 import { HashtagActiveStatus } from '../../types';
 import { getPageCount } from '../../utils/number.utils';
 
@@ -59,8 +59,6 @@ type CellType = {
   [ColumnField.status]: boolean,
 };
 
-// Common header class
-
 type StatusCompProps = {
   params: {
     row: CellType;
@@ -71,16 +69,24 @@ function StatusComp({ params }: StatusCompProps) {
   const [switchState, setSwitchState] = useState(row.status);
   const hashTagId = row?.id;
 
-  const handleChange = (e: any) => {
+  const handleChange: any = async (e: any) => {
+    const newStatus = switchState ? HashtagActiveStatus.Inactive : HashtagActiveStatus.Active;
     setSwitchState(e.target.checked);
+    try {
+      await updateHashtagStatusAdmin(hashTagId, newStatus);
+    } catch (error) {
+      // Revert optimistic update on api failure
+      setSwitchState(!e.target.checked);
+    }
   };
+
   return (
     <div className="d-flex justify-content-between align-items-center">
       <span className="fw-bold" style={{ color: switchState ? '#00F20A' : 'black' }}>{switchState ? 'Active' : 'Inactive'}</span>
       <Switch
         id={`switch-${hashTagId}`}
         className="ms-0 ms-md-3"
-        onSwitchToggle={(e: any) => handleChange(e)}
+        onSwitchToggle={handleChange}
         isChecked={switchState}
       />
     </div>
@@ -208,8 +214,9 @@ function HashtagAdmin() {
 
   // Load any other page when pagination click is done
   const onPaginationModelChange = (data: PaginationModel) => {
+    // !TODO: Fix here
     // eslint-disable-next-line no-alert
-    alert(`Page: ${data.page + 1}`);
+    // alert(`Page: ${data.page + 1}`);
     setPaginationModel(data);
     const after = rows.length === 0 ? undefined : rows[rows.length - 1].id;
     // TODO: Implement proper page based pagination instead of cursor based

@@ -458,9 +458,9 @@ export class FeedPostsService {
       .exec();
   }
 
-  async updatePostPrivacyType(userId: string, status: number): Promise<any> {
+  async updatePostPrivacyType(userId: string, visibility: ProfileVisibility): Promise<any> {
     const updateFeedPostData = {
-      privacyType: status === ProfileVisibility.Private
+      privacyType: visibility === ProfileVisibility.Private
         ? FeedPostPrivacyType.Private
         : FeedPostPrivacyType.Public,
     };

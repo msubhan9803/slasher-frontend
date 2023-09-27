@@ -42,6 +42,7 @@ import { BetaTesterModule } from './beta-tester/beta-tester.module';
 import { TimeoutInterceptor } from './app/interceptors/timeout.interceptor';
 import { AuthGuard } from './app/guards/auth.guard';
 import { CaptchaModule } from './captcha/captcha.module';
+import { UserFollowModule } from './user-follow/user-follow.module';
 
 @Module({
   imports: [
@@ -101,6 +102,7 @@ import { CaptchaModule } from './captcha/captcha.module';
     MovieUserStatusModule,
     BetaTesterModule,
     CaptchaModule,
+    UserFollowModule,
   ],
   controllers: [AppController],
   providers: [

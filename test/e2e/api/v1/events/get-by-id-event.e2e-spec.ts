@@ -93,6 +93,7 @@ describe('Events / :id (e2e)', () => {
             'http://localhost:4444/placeholders/default_user_icon.png',
             'http://localhost:4444/placeholders/default_user_icon.png',
           ],
+          name: 'Event name 1',
           startDate: '2022-10-17T00:00:00.000Z',
           endDate: '2022-10-19T00:00:00.000Z',
           event_type: {
@@ -127,6 +128,7 @@ describe('Events / :id (e2e)', () => {
           images: [
             'http://localhost:4444/placeholders/no_image_available.png',
           ],
+          name: 'Event name 2',
           startDate: '2022-10-17T00:00:00.000Z',
           endDate: '2022-10-19T00:00:00.000Z',
           event_type: {

@@ -90,6 +90,23 @@ describe('Accept Friend Request (e2e)', () => {
       expect(response.body).toEqual({ success: true });
     });
 
+    it('if friendship status is already accepted then it will not create notification', async () => {
+      await request(app.getHttpServer())
+        .post('/api/v1/friends/requests/accept')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send({ userId: user1.id })
+        .expect(HttpStatus.CREATED);
+
+      const response1 = await request(app.getHttpServer())
+        .post('/api/v1/friends/requests/accept')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send({ userId: user1.id })
+        .expect(HttpStatus.CREATED);
+      const friends = await friendsModel.findOne({ from: user1._id, to: activeUser.id });
+      expect(friends.reaction).toEqual(FriendRequestReaction.Accepted);
+      expect(response1.body).toEqual({ success: true });
+    });
+
     it('when the friend request has been sent BY the active user (not TO the expected user), '
       + 'then it returns the expected error message', async () => {
         const response = await request(app.getHttpServer())

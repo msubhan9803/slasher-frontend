@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { DateTime } from 'luxon';
-import { count } from 'rxjs';
 import { escapeStringForRegex } from '../../utils/escape-utils';
 import { Hashtag, HashtagDocument } from '../../schemas/hastag/hashtag.schema';
 import { HashtagActiveStatus, HashtagDeletionStatus } from '../../schemas/hastag/hashtag.enums';

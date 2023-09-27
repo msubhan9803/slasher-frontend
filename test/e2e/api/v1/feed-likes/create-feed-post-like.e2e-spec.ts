@@ -149,7 +149,7 @@ describe('Create Feed Post Like (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.CREATED);
-      expect(response.body).toEqual({ isFriend: true });
+      expect(response.body).toEqual({ isFriend: true, success: true });
       const reloadedFeedPost = await feedPostsService.findByIdWithPopulatedFields(feedPost.id, false);
       expect(reloadedFeedPost.likes).toHaveLength(1);
       expect(reloadedFeedPost.likeCount).toBe(1);

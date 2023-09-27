@@ -246,7 +246,7 @@ export class FriendsService {
     return friendUsers;
   }
 
-  async acceptFriendRequest(fromUser: string, toUser: string): Promise<void> {
+  async acceptFriendRequest(fromUser: string, toUser: string): Promise<Friend> {
     const notFoundMessage = `No pending friend request found from user ${fromUser} to ${toUser}`;
 
     const friendRequest = await this.friendsModel.findOne({ from: fromUser, to: toUser });
@@ -256,7 +256,7 @@ export class FriendsService {
     }
 
     if (friendRequest.reaction === FriendRequestReaction.Accepted) {
-      return;
+      return null;
     }
 
     if (friendRequest.reaction !== FriendRequestReaction.Pending) {
@@ -264,7 +264,7 @@ export class FriendsService {
     }
 
     friendRequest.reaction = FriendRequestReaction.Accepted;
-    await friendRequest.save();
+    return friendRequest.save();
   }
 
   async getReceivedFriendRequestCount(userId: string): Promise<number> {

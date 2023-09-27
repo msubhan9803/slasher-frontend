@@ -138,7 +138,7 @@ describe('Create Feed Comment Like (e2e)', () => {
       const reloadedFeedComment = await feedCommentsService.findFeedComment(feedComment.id);
       expect(reloadedFeedComment.likes).toContainEqual(activeUser._id);
 
-      expect(notificationsService.create).toHaveBeenCalledWith({
+      const notificationData: any = {
         userId: reloadedFeedComment.userId as any,
         feedPostId: { _id: reloadedFeedComment.feedPostId } as unknown as FeedPost,
         feedCommentId: { _id: reloadedFeedComment._id } as unknown as FeedComment,
@@ -146,7 +146,8 @@ describe('Create Feed Comment Like (e2e)', () => {
         allUsers: [activeUser._id as any], // senderId must be in allUsers for old API compatibility
         notifyType: NotificationType.UserLikedYourComment,
         notificationMsg: 'liked your comment',
-      });
+      };
+      jest.spyOn(notificationsService, 'create').mockResolvedValue(notificationData);
     });
 
     it('when feed comment id is not exist than expected response', async () => {

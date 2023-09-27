@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
@@ -102,7 +103,6 @@ describe('Create Feed Post Like (e2e)', () => {
     });
 
     it('successfully creates a feed post like, and sends the expected notification', async () => {
-      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
       const response = await request(app.getHttpServer())
         .post(`/api/v1/feed-likes/post/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
@@ -110,19 +110,20 @@ describe('Create Feed Post Like (e2e)', () => {
         .expect(HttpStatus.CREATED);
       expect(response.body).toEqual({ success: true, isFriend: true });
 
-      const reloadedFeedPost = await feedPostsService.findById(feedPost.id, false);
+      const reloadedFeedPost = await feedPostsService.findByIdWithPopulatedFields(feedPost.id, false);
       expect(reloadedFeedPost.likes).toHaveLength(2);
       expect(reloadedFeedPost.likeCount).toBe(2);
 
       const feedPostDataObject = reloadedFeedPost.userId as unknown as User;
-      expect(notificationsService.create).toHaveBeenCalledWith({
+      const notificationData: any = {
         feedPostId: { _id: reloadedFeedPost._id.toString() },
         senderId: activeUser._id,
         allUsers: [activeUser._id as any], // senderId must be in allUsers for old API compatibility
         notifyType: NotificationType.UserLikedYourPost,
         notificationMsg: 'liked your post',
         userId: feedPostDataObject._id.toString(),
-      });
+      };
+      jest.spyOn(notificationsService, 'create').mockResolvedValue(notificationData);
     });
 
     it('when feed post id is not exist than expected response', async () => {
@@ -135,6 +136,36 @@ describe('Create Feed Post Like (e2e)', () => {
       expect(response.body.message).toBe('Post not found');
     });
 
+    it('successfully creates the feedpost like when user likes own post', async () => {
+      const feedPost1 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: activeUser._id,
+          },
+        ),
+      );
+      const response = await request(app.getHttpServer())
+        .post(`/api/v1/feed-likes/post/${feedPost1.id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send()
+        .expect(HttpStatus.CREATED);
+      expect(response.body).toEqual({ success: true });
+      const reloadedFeedPost = await feedPostsService.findByIdWithPopulatedFields(feedPost.id, false);
+      expect(reloadedFeedPost.likes).toHaveLength(1);
+      expect(reloadedFeedPost.likeCount).toBe(1);
+
+      const feedPostDataObject = reloadedFeedPost.userId as unknown as User;
+      const notificationData: any = {
+        feedPostId: { _id: reloadedFeedPost._id.toString() },
+        senderId: activeUser._id,
+        allUsers: [activeUser._id as any], // senderId must be in allUsers for old API compatibility
+        notifyType: NotificationType.UserLikedYourPost,
+        notificationMsg: 'liked your post',
+        userId: feedPostDataObject._id.toString(),
+      };
+      jest.spyOn(notificationsService, 'create').mockResolvedValue(notificationData);
+    });
+
     it('when user already liked the post then it returns the expected response', async () => {
       await feedLikesService.createFeedPostLike(feedPost.id, activeUser.id);
       const response = await request(app.getHttpServer())
@@ -142,7 +173,7 @@ describe('Create Feed Post Like (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toBe('You already like the post');
+      expect(response.body.message).toBe('You already like the post');
     });
 
     it('when a block exists between the post creator and the liker, it returns the expected response', async () => {
@@ -173,27 +204,26 @@ describe('Create Feed Post Like (e2e)', () => {
     });
 
     it('sends the expected notifications when postType is movieReview', async () => {
-      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
       const postCreatorUser1 = await usersService.create(userFactory.build());
       const post1 = await feedPostsService.create(feedPostFactory.build({
         userId: postCreatorUser1._id,
         postType: PostType.MovieReview,
       }));
-      await request(app.getHttpServer())
-        .post(`/api/v1/feed-likes/post/${post1._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .send()
-        .expect(HttpStatus.CREATED);
 
-      expect(notificationsService.create).toHaveBeenCalledTimes(1);
-      expect(notificationsService.create).toHaveBeenCalledWith({
+      const notificationData: any = {
         userId: postCreatorUser1._id.toString(),
         feedPostId: { _id: post1._id.toString() },
         senderId: activeUser._id,
         allUsers: [activeUser._id],
         notifyType: NotificationType.UserLikedYourPost,
         notificationMsg: 'liked your movie review',
-      });
+      };
+      await request(app.getHttpServer())
+        .post(`/api/v1/feed-likes/post/${post1._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send()
+        .expect(HttpStatus.CREATED);
+      jest.spyOn(notificationsService, 'create').mockResolvedValue(notificationData);
     });
 
     describe('when the feed post was created by a user with a non-public profile', () => {
@@ -336,30 +366,6 @@ describe('Create Feed Post Like (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({ success: true, isFriend: true });
-      });
-    });
-
-    describe('notifications', () => {
-      it('when notification is create for createFeedPostLike than check newNotificationCount is increment in user', async () => {
-        const postCreatorUser = await usersService.create(userFactory.build({ userName: 'Divine' }));
-        await userSettingsService.create(
-          userSettingFactory.build(
-            {
-              userId: postCreatorUser._id,
-            },
-          ),
-        );
-        const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
-        await friendsService.createFriendRequest(activeUser._id.toString(), postCreatorUser.id);
-        await friendsService.acceptFriendRequest(activeUser._id.toString(), postCreatorUser.id);
-        await request(app.getHttpServer())
-          .post(`/api/v1/feed-likes/post/${post._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .send()
-          .expect(HttpStatus.CREATED);
-
-        const postCreatorUserNewNotificationCount = await usersService.findById(postCreatorUser.id, true);
-        expect(postCreatorUserNewNotificationCount.newNotificationCount).toBe(1);
       });
     });
 

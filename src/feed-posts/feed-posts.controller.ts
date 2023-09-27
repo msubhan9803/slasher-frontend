@@ -22,7 +22,7 @@ import {
 } from '../constants';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import {
- FeedPostDeletionState, FeedPostPrivacyType, PostType,
+  FeedPostDeletionState, FeedPostPrivacyType, PostType,
 } from '../schemas/feedPost/feedPost.enums';
 import { NotificationType } from '../schemas/notification/notification.enums';
 import { NotificationsService } from '../notifications/providers/notifications.service';
@@ -114,7 +114,7 @@ export class FeedPostsController {
       images.push({ image_path: storageLocation, description: imageDescriptions });
     }
 
-    let hashtags; let message; let allUserIds;
+    let hashtags; let message; let allUserIds = [];
     if (createFeedPostsDto.message && createFeedPostsDto.message.includes('#')) {
       const hashtagRegex = /(?<![?#])#(?![?#])\w+\b/g;
       const matchedHashtags = createFeedPostsDto.message.match(hashtagRegex);
@@ -255,11 +255,14 @@ export class FeedPostsController {
       }
     }
 
+    const findActiveHashtags = await this.hashtagService.findActiveHashtags(feedPost.hashtags);
+    feedPost.hashtags = findActiveHashtags.map((hashtag) => hashtag.name);
+
     return {
       ...pick(
         feedPost,
         ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likedByUser',
-          'postType', 'spoilers', 'movieId', 'message'],
+          'postType', 'spoilers', 'movieId', 'message', 'hashtags'],
       ),
       reviewData,
     };
@@ -492,12 +495,18 @@ export class FeedPostsController {
       mainFeedPostQueryDto.limit,
       mainFeedPostQueryDto.before ? new mongoose.Types.ObjectId(mainFeedPostQueryDto.before) : undefined,
     );
+
+    for (let i = 0; i < feedPosts.length; i += 1) {
+      const findActiveHashtags = await this.hashtagService.findActiveHashtags(feedPosts[i].hashtags);
+      feedPosts[i].hashtags = findActiveHashtags.map((hashtag) => hashtag.name);
+    }
+
     return feedPosts.map(
       (feedPost) => pick(
         feedPost,
         ['_id', 'message', 'createdAt', 'lastUpdateAt',
           'rssfeedProviderId', 'images', 'userId', 'commentCount',
-          'likeCount', 'likedByUser', 'movieId'],
+          'likeCount', 'likedByUser', 'movieId', 'hashtags'],
       ),
     );
   }
@@ -653,6 +662,12 @@ export class FeedPostsController {
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
       user._id.toString(),
     );
+
+    for (let i = 0; i < posts.length; i += 1) {
+      const findActiveHashtags = await this.hashtagService.findActiveHashtags(posts[i].hashtags);
+      posts[i].hashtags = findActiveHashtags.map((hashtag) => hashtag.name);
+    }
+
     const userIds = posts.map((id) => (id.userId as any)._id);
 
     const movieUserStatusData = await this.movieUserStatusService.findAllMovieUserStatus(userIds, movieData._id.toString());
@@ -674,7 +689,7 @@ export class FeedPostsController {
           '_id', 'message', 'images',
           'userId', 'createdAt', 'likedByUser',
           'likeCount', 'commentCount', 'reviewData',
-          'postType', 'spoilers', 'movieId',
+          'postType', 'spoilers', 'movieId', 'hashtags',
         ],
       ),
     );

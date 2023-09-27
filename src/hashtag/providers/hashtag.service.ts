@@ -101,7 +101,7 @@ export class HashtagService {
     return this.HashtagModel.find(
       {
         $and: [{ _id: { $in: hashtagId } },
-        name,
+          name,
         { deleted: 0, status: 1 }],
       },
       {
@@ -158,6 +158,10 @@ export class HashtagService {
   async hashtagExists(hashtagId: string): Promise<boolean> {
     const exists = await this.HashtagModel.exists({ _id: new mongoose.Types.ObjectId(hashtagId) });
     return Boolean(exists);
+  }
+
+  async findActiveHashtags(hashtags: string[]) {
+    return this.HashtagModel.find({ name: { $in: hashtags }, status: 1 }).exec();
   }
 
   async findAll(

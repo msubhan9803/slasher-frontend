@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
@@ -143,6 +144,37 @@ describe('HashtagService', () => {
       const limit = 10;
       const suggestUserNames = await hashtagService.suggestHashtagName(query, limit, false);
       expect(suggestUserNames).toHaveLength(6);
+    });
+  });
+
+  describe('#findActiveHashtags', () => {
+    beforeEach(async () => {
+      await hashtagModel.create({
+        name: 'frightfulness',
+        status: 1,
+      });
+      await hashtagModel.create({
+        name: 'horridness',
+        status: 0,
+      });
+      await hashtagModel.create({
+        name: 'grisliness',
+        status: 1,
+      });
+      await hashtagModel.create({
+        name: 'depravity',
+        status: 0,
+      });
+      await hashtagModel.create({
+        name: 'scariness',
+        status: 1,
+      });
+    });
+
+    it('finds the only hashtags whose status is active', async () => {
+      const hashtagArray = ['frightfulness', 'horridness', 'grisliness', 'depravity', 'scariness'];
+      const hashtags = await hashtagService.findActiveHashtags(hashtagArray);
+      expect(hashtags).toHaveLength(3);
     });
   });
 

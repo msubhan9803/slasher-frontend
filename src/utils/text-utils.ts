@@ -14,6 +14,7 @@ export function escapeHtmlSpecialCharacters(
   str: string,
   selectedHashtag?: string,
   isComment?: boolean,
+  hashtags?: string[],
 ) {
   const hashtagRegex = /(^|\s)(#[\w-]+)/g;
 
@@ -23,10 +24,12 @@ export function escapeHtmlSpecialCharacters(
     ?.replaceAll('"', '&quot;')
     ?.replaceAll("'", '&#039;');
 
-  if (selectedHashtag) {
-    result = result.replace(hashtagRegex, (match, p1, p2) => (p2 === selectedHashtag
-      ? `${p1}<a href="/app/search/posts?hashtag=${p2.slice(1)}" style="font-weight: 700; text-decoration:underline;">${p2}</a>`
-      : `${p1}<a href="/app/search/posts?hashtag=${p2.slice(1)}" style="text-decoration:underline;">${p2}</a>`));
+  if (selectedHashtag && hashtags) {
+    result = result.replace(hashtagRegex, (match, p1, p2) => (
+      hashtags.includes(p2.slice(1))
+        ? `${p1}<a href="/app/search/posts?hashtag=${p2.slice(1)}" style="font-weight: 700; text-decoration:underline">${p2}</a>`
+        : `${p1}<span>${p2}</span>`
+    ));
   } else if (isComment) {
     result = result.replace(hashtagRegex, (match, p1, p2) => `${p1}<span>${p2}</span>`);
   } else {

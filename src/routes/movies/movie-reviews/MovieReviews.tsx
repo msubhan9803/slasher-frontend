@@ -135,6 +135,7 @@ function MovieReviews({
           contentHeading: data.title,
           movieId: id,
           spoilers: data.spoilers,
+          hashtags: data.hashtags,
         }));
         setReviewPostData(newPosts);
       });

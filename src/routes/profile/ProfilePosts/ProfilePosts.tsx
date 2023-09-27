@@ -38,8 +38,6 @@ interface Props {
 }
 const removeDeletedPost = (post: any) => !deletedPostsCache.has(post._id);
 
-const staticHashTags = ['horrorday', 'horrorcommunity', 'slasher', 'horror'];
-
 function ProfilePosts({ user }: Props) {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
@@ -109,7 +107,7 @@ function ProfilePosts({ user }: Props) {
           likeCount: data.likeCount,
           commentCount: data.commentCount,
           movieId: data.movieId,
-          hashTag: staticHashTags,
+          hashtags: data.hashtags,
         }
       ));
       setPosts((prev: Post[]) => [
@@ -177,7 +175,8 @@ function ProfilePosts({ user }: Props) {
           likeIcon: data.likedByUser,
           likeCount: data.likeCount,
           commentCount: data.commentCount,
-          hashTag: staticHashTags,
+          movieId: data.movieId,
+          hashtags: data.hashtags,
         }));
         setPosts(newPosts);
       });

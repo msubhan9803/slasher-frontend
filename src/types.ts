@@ -415,3 +415,8 @@ export enum HashtagActiveStatus {
   Active = 1,
   Deactivated = 2,
 }
+
+export enum UserType {
+  Regular = '1',
+  Admin = '2',
+}

@@ -4,9 +4,10 @@ import { getSessionToken } from '../utils/session-utils';
 import { HashtagActiveStatus, HashtagsSortByType } from '../types';
 
 type QueryParams = {
+  page: number,
+  perPage: number,
   sortBy: HashtagsSortByType,
-  limit: number,
-  after?: string,
+  nameContains?: string,
 };
 
 type HashTagResp = {
@@ -18,17 +19,21 @@ type HashTagResp = {
 
 type FindAllResponseType = {
   data: {
-    allItemsCount: number,
+    page: number
+    perPage: number
+    allItemsCount: number
     items: Array<HashTagResp>
   }
 };
 
-export async function findAllHashtagAdmin(params: QueryParams): Promise<FindAllResponseType> {
+export async function findAllHashtagAdmin(
+  queryParams: QueryParams,
+): Promise<FindAllResponseType> {
   const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.get(`${apiUrl}/api/v1/hashtags`, { headers, params });
+  return axios.get(`${apiUrl}/api/v1/hashtags`, { headers, params: queryParams });
 }
 type UpdateHashResp = {
   data: HashTagResp

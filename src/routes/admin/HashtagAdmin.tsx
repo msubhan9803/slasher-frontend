@@ -1,17 +1,47 @@
 /* eslint-disable max-lines */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback, useEffect, useMemo, useRef, useState,
+} from 'react';
 import styled from '@emotion/styled';
 import {
   DataGrid, GridColDef, GridPagination,
   useGridApiContext,
 } from '@mui/x-data-grid';
 import { DateTime } from 'luxon';
-import { TablePaginationProps } from '@mui/material';
+import { TablePaginationProps, debounce } from '@mui/material';
 import MuiPagination from '@mui/material/Pagination';
+import { FormControl, InputGroup } from 'react-bootstrap';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Switch from '../../components/ui/Switch';
 import { findAllHashtagAdmin, updateHashtagStatusAdmin } from '../../api/hashtag-admin';
 import { HashtagActiveStatus } from '../../types';
 import { getPageCount } from '../../utils/number.utils';
+
+const StyledSearchInput = styled(InputGroup)`
+  z-index:0;
+  input[type=text] {
+    padding-left: 40px;
+    box-sizing: border-box;
+    /* // ! URGENT: TODO: Remove below properties if search input is working good in mobile and desktop! */
+    /* width: 100%; */
+    /* padding: 12px 20px; */
+    /* margin: 8px 0; */
+  }
+  .input-group-text {
+    background-color: var(--bs-dark);
+    border-color: #3a3b46;
+    border-radius: 1.875rem;
+  }
+  svg {
+    color: var(--bs-primary);
+    min-width: 1.875rem;
+    right: 12px;
+    z-index: 9;
+  }
+`;
+
+//
 
 const commonHeaderClass = 'hashtag-common--header';
 
@@ -136,10 +166,11 @@ const columns: GridColDef[] = [
 //   });
 // }
 
-const rowsPerPage = 10;
+/* This is number of times per page */
+const PAGE_SIZE = 10;
 // We give static `tableHeight` so that when there are less items than `rowsPerPage`
 // then we shw full size table too. Also, 10 * 63px = 630px on desktop
-const tableHeight = (rowsPerPage * 63) + 0.5;
+const tableHeight = (PAGE_SIZE * 63) + 0.5;
 
 function Pagination({
   page,
@@ -178,6 +209,12 @@ function CustomPagination(props: any) {
 
 type PaginationModel = { page: number, pageSize: number };
 
+/* Snippet: Generating hashtags in bulk by creating a post with below text:
+let tags = ''
+for (let i = 1; i <= 10; i++){
+  tags += `#myhashtag${i} `
+}
+*/
 // Docs: https://mui.com/material-ui/react-table/
 // Docs: https://mui.com/x/react-data-grid
 function HashtagAdmin() {
@@ -187,15 +224,18 @@ function HashtagAdmin() {
   const [rowCount, setRowCount] = useState(0);
   const [paginationModel, setPaginationModel] = useState<PaginationModel>({
     page: 0,
-    pageSize: rowsPerPage,
+    pageSize: PAGE_SIZE,
   });
+  const [searchValue, setSearchValue] = useState('');
+  const isFirstMount = useRef(true);
 
-  const getPageItems = useCallback(async (pageSize: number, after?: string) => {
+  const getPageItems = useCallback(async (page: number, pageSize: number, searchText?: string) => {
     setIsLoading(true);
     const { data } = await findAllHashtagAdmin({
+      page,
+      perPage: pageSize,
       sortBy: 'name',
-      limit: pageSize,
-      after,
+      nameContains: searchText,
     });
     setRowCount(data.allItemsCount);
     setRows(data.items.map((hashtag) => ({
@@ -209,24 +249,67 @@ function HashtagAdmin() {
 
   // Load page1 on component load
   useEffect(() => {
-    getPageItems(rowsPerPage);
-  }, [getPageItems]);
+    if (isFirstMount.current) {
+      const page = paginationModel.page + 1;
+      getPageItems(page, paginationModel.pageSize);
+      isFirstMount.current = false;
+    }
+  }, [getPageItems, paginationModel]);
 
   // Load any other page when pagination click is done
   const onPaginationModelChange = (data: PaginationModel) => {
-    // !TODO: Fix here
-    // eslint-disable-next-line no-alert
-    // alert(`Page: ${data.page + 1}`);
-    setPaginationModel(data);
-    const after = rows.length === 0 ? undefined : rows[rows.length - 1].id;
-    // TODO: Implement proper page based pagination instead of cursor based
-    // i.e, remove the `after` field
-    getPageItems(paginationModel.pageSize, after);
+    setPaginationModel(data); // necessary
+
+    const { pageSize } = data;
+    const page = data.page + 1;
+    getPageItems(page, pageSize);
+  };
+
+  const fetchHashtagsDebounced = useMemo(
+    () => debounce((searchText: string) => {
+      getPageItems(
+        paginationModel.page + 1,
+        paginationModel.pageSize,
+        searchText,
+      );
+    }, 300),
+    [getPageItems, paginationModel.page, paginationModel.pageSize],
+  );
+
+  const handleSearch = (e: any) => {
+    const searchText = e.target.value;
+    setSearchValue(searchText);
+    fetchHashtagsDebounced(searchText);
   };
 
   return (
     <StyledContainer>
       <h1 className="mb-3">Hashtag Admin</h1>
+      <StyledSearchInput
+        className="position-relative align-items-center"
+        style={{ marginBottom: 30 }}
+      >
+        <FontAwesomeIcon
+          role="button"
+          icon={solid('magnifying-glass')}
+          className="text-primary position-absolute ps-2"
+          style={{ left: 0 }}
+          size="lg"
+          onClick={handleSearch}
+        />
+        <FormControl
+          placeholder="Search hashtag"
+          addon-label="search"
+          aria-describedby="search"
+          type="text"
+          value={searchValue}
+          onChange={handleSearch}
+          aria-label="search"
+          className="rounded-pill"
+        />
+
+      </StyledSearchInput>
+
       <DataGrid
         slots={{ pagination: CustomPagination }}
         loading={isLoading}
@@ -260,11 +343,13 @@ function HashtagAdmin() {
         }}
         // pageSizeOptions={[5, 10]}
         pageSizeOptions={[10]}
-      // We can enable/disable checkbox selection feature via:
-      // checkboxSelection
+        // We can enable/disable below `checkboxSelection` feature via below prop:
+        // checkboxSelection
+        // Note: By default, the pagination is handled on the client. This means you have to give
+        // the rows of all pages to the data grid. If your dataset is too big, and you only want to
+        // fetch the current page, you can use server-side pagination.
+        paginationMode="server"
       />
-
-      TODO: Make search UI component
     </StyledContainer>
   );
 }

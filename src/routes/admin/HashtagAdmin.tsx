@@ -73,6 +73,16 @@ width: 100%;
 .${statusCellClass}{
   justify-content: end !important;
 }
+
+.MuiTablePagination-selectLabel {
+  /* Fix position of "Rows per page" label on table bottom */
+  margin: auto;
+}
+*::-webkit-scrollbar-track {
+  /* Fix background of scrollbar in the table */
+  background: white;
+}
+
 `;
 
 // Types
@@ -341,8 +351,9 @@ function HashtagAdmin() {
             sortModel: [{ field: ColumnField.hashtagName, sort: 'asc' }],
           },
         }}
-        // pageSizeOptions={[5, 10]}
-        pageSizeOptions={[10]}
+        pageSizeOptions={[PAGE_SIZE, 50]}
+        // Use below instruction if you want to show only one option
+        // pageSizeOptions={[10]}
         // We can enable/disable below `checkboxSelection` feature via below prop:
         // checkboxSelection
         // Note: By default, the pagination is handled on the client. This means you have to give

@@ -1,8 +1,7 @@
 import { Type } from 'class-transformer';
 import {
-  IsIn,
-  IsMongoId,
-  IsNotEmpty, IsNumber, IsOptional, IsString, Matches, Max, MaxLength,
+  IsIn, IsNotEmpty, IsNumber, IsOptional, IsString,
+  Matches, Max, MaxLength,
 } from 'class-validator';
 import { HashtagsSortBy, HashtagsSortByType } from '../../types';
 
@@ -10,18 +9,18 @@ export class FindAllHashtagsDto {
   @IsNotEmpty()
   @Type(() => Number)
   @IsNumber()
+  page: number;
+
+  @IsNotEmpty()
+  @Type(() => Number)
+  @IsNumber()
   @Max(60)
-  limit: number;
+  perPage: number;
 
   @IsNotEmpty()
   @IsIn(HashtagsSortBy)
   @IsString()
   sortBy: HashtagsSortByType;
-
-  @IsOptional()
-  @IsString()
-  @IsMongoId()
-  after: string;
 
   @IsOptional()
   @IsString()

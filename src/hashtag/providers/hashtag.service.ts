@@ -165,47 +165,28 @@ export class HashtagService {
   }
 
   async findAll(
-    limit: number,
-    activeOnly: boolean,
+    page: number,
+    perPage: number,
     sortBy: HashtagsSortByType,
-    after?: mongoose.Types.ObjectId,
     nameContains?: string,
-    sortNameStartsWith?: string,
   ): Promise<{ allItemsCount: number, items: HashtagDocument[] }> {
     const hashtagFindAllQuery: any = {};
-    if (activeOnly) {
-      hashtagFindAllQuery.status = HashtagActiveStatus.Active;
-    }
-
-    if (nameContains || sortNameStartsWith) {
-      hashtagFindAllQuery.name = {};
-    }
 
     if (nameContains) {
-      hashtagFindAllQuery.name.$regex = new RegExp(`^${escapeStringForRegex(nameContains)}`, 'i');
-    }
-    if (sortNameStartsWith) {
-      if (sortNameStartsWith !== '#') {
-        hashtagFindAllQuery.name.$regex = new RegExp(`^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`);
-      } else {
-        hashtagFindAllQuery.name.$regex = new RegExp(NON_ALPHANUMERIC_REGEX, 'i');
-      }
+      hashtagFindAllQuery.name = {};
+      hashtagFindAllQuery.name.$regex = new RegExp(`${escapeStringForRegex(nameContains.toLowerCase())}`, 'i');
     }
 
     const allItemsCount = await this.HashtagModel.count(hashtagFindAllQuery);
 
-    if (after) {
-      const afterHashtag = await this.HashtagModel.findById(after);
-      hashtagFindAllQuery[sortBy] = { $gt: afterHashtag[sortBy] };
-    }
-
     const sortByFields: any = {};
-    // TODO: Add `aesc` and `desc` params if we need reverse sorting and according set 1 or -1 value
     sortByFields[sortBy] = 1;
 
-    const items = await this.HashtagModel.find(hashtagFindAllQuery)
+    const items = await this.HashtagModel
+      .find(hashtagFindAllQuery)
+      .skip((page - 1) * perPage)
       .sort(sortByFields)
-      .limit(limit)
+      .limit(perPage)
       .exec();
 
     return { allItemsCount, items };

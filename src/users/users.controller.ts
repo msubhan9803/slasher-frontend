@@ -478,7 +478,8 @@ export class UsersController {
     const unreadNotificationCount = await this.notificationsService.getUnreadNotificationCount(user.id);
     const friendRequestCount = await this.friendsService.getReceivedFriendRequestCount(user.id);
     return {
-      user: pick(user, ['id', 'userName', 'profilePic', 'newNotificationCount', 'newFriendRequestCount', 'ignoreFriendSuggestionDialog']),
+      user: pick(user, ['id', 'userName', 'profilePic', 'newNotificationCount',
+        'newFriendRequestCount', 'ignoreFriendSuggestionDialog', 'userType']),
       recentMessages,
       recentFriendRequests: receivedFriendRequestsData,
       unreadNotificationCount,

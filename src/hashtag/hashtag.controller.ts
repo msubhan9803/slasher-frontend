@@ -2,7 +2,6 @@ import {
   Controller, Get, ValidationPipe, Query, Patch, Body, Param, HttpException, HttpStatus, Req,
 } from '@nestjs/common';
 import { Request } from 'express';
-import mongoose from 'mongoose';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { HashtagService } from './providers/hashtag.service';
 import { FindHashtagDto } from '../search/dto/find-hashtag-dto';
@@ -19,6 +18,8 @@ export class HashtagController {
     private readonly hashtagService: HashtagService,
   ) { }
 
+  adminOnlyApiRestrictionMessage = 'Only admins can access this API';
+
   @Get('suggest')
   async suggestHashtagName(
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
@@ -34,19 +35,27 @@ export class HashtagController {
     return hashtags;
   }
 
-  @Get()
-  async findAll(@Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: FindAllHashtagsDto) {
-    const activeOnly = false;
+  // Admin only route
+  @Get('admin/find-all')
+  async findAll(
+    @Req() request: Request,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: FindAllHashtagsDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const isAdmin = user.userType === UserType.Admin;
+    if (!isAdmin) {
+      throw new HttpException(this.adminOnlyApiRestrictionMessage, HttpStatus.NOT_FOUND);
+    }
     const { allItemsCount, items } = await this.hashtagService.findAll(
-      query.limit,
-      activeOnly,
+      query.page,
+      query.perPage,
       query.sortBy,
-      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
       query.nameContains,
-      query.startsWith,
     );
 
     return {
+      page: query.page,
+      perPage: query.perPage,
       allItemsCount,
       items: items.map(
         (hashtag) => pick(hashtag, ['_id', 'name', 'createdAt', 'status']),
@@ -54,7 +63,8 @@ export class HashtagController {
     };
   }
 
-  @Patch('update-status/:id')
+  // Admin only route
+  @Patch('admin/update-status/:id')
   async updateHashtagStatus(
     @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
@@ -64,7 +74,7 @@ export class HashtagController {
     const user = getUserFromRequest(request);
     const isAdmin = user.userType === UserType.Admin;
     if (!isAdmin) {
-      throw new HttpException('Only admins can update status of a hashtag', HttpStatus.NOT_FOUND);
+      throw new HttpException(this.adminOnlyApiRestrictionMessage, HttpStatus.NOT_FOUND);
     }
 
     const exists = await this.hashtagService.hashtagExists(param.id);

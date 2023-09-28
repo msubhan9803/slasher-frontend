@@ -82,7 +82,10 @@ width: 100%;
   /* Fix background of scrollbar in the table */
   background: white;
 }
-
+.MuiTablePagination-displayedRows {
+  /* Fix position of "Page number" on table bottom */
+  margin: auto;
+}
 `;
 
 // Types

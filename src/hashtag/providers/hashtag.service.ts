@@ -9,7 +9,6 @@ import { HashtagActiveStatus, HashtagDeletionStatus } from '../../schemas/hastag
 import { FeedPostsService } from '../../feed-posts/providers/feed-posts.service';
 import { toUtcStartOfDay } from '../../utils/date-utils';
 import { HashtagsSortByType } from '../../types';
-import { NON_ALPHANUMERIC_REGEX } from '../../constants';
 
 @Injectable()
 export class HashtagService {

@@ -277,7 +277,7 @@ function Home() {
       });
   };
 
-  const checkFriendShipStatus = (selectedFeedPostUserId: string) => new Promise<void>(
+  const checkFriendShipStatus = useCallback((selectedFeedPostUserId: string) => new Promise<void>(
     (resolve, reject) => {
       if (userId === selectedFeedPostUserId) {
         resolve();
@@ -290,11 +290,12 @@ function Home() {
             setFriendShipStatusModal(true);
             setFriendData(res.data);
             setFriendStatus(res.data.reaction);
+            reject();
           }
         }).catch(() => reject());
       }
     },
-  );
+  ), [userId]);
 
   const handlePostDislike = useCallback((feedPostId: string) => {
     setPosts((prevPosts) => prevPosts.map(
@@ -407,6 +408,8 @@ function Home() {
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
+        {/* <DebugAdvertisingId /> */}
+
         <CustomCreatePost className="mt-3 mt-lg-0" />
         <h1 className="h2 my-3 ms-3 ms-md-0">Suggested friends</h1>
         <SuggestedFriend />

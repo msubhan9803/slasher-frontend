@@ -224,7 +224,7 @@ function ProfilePosts({ user }: Props) {
       .catch((error) => console.error(error));
   };
 
-  const checkFriendShipStatus = (selectedFeedPostId: string) => new Promise<void>(
+  const checkFriendShipStatus = useCallback((selectedFeedPostId: string) => new Promise<void>(
     (resolve, reject) => {
       if (userId === selectedFeedPostId) {
         resolve();
@@ -237,11 +237,14 @@ function ProfilePosts({ user }: Props) {
             setFriendShipStatusModal(true);
             setFriendData(res.data);
             setFriendStatus(res.data.reaction);
+            reject();
           }
-        }).catch(() => reject());
+        }).catch(() => {
+          reject();
+        });
       }
     },
-  );
+  ), [userId]);
 
   const handlePostDislike = useCallback((feedPostId: string) => {
     setPosts((prevPosts) => prevPosts.map(
@@ -273,7 +276,7 @@ function ProfilePosts({ user }: Props) {
     }));
   }, []);
 
-  const onLikeClick = async (feedPostId: string) => {
+  const onLikeClick = useCallback(async (feedPostId: string) => {
     const checkLike = posts.some((post) => post.id === feedPostId
       && post.likeIcon);
 
@@ -294,22 +297,22 @@ function ProfilePosts({ user }: Props) {
 
     const selectedFeedPostId = posts.find((post) => post.id === feedPostId)?.userId;
 
-    try {
-      if (checkLike) {
-        await unlikeFeedPost(feedPostId);
-      } else {
-        const res = await likeFeedPost(feedPostId);
-        if (!res.data.isFriend) {
-          checkFriendShipStatus(selectedFeedPostId!);
+    const handleLikeAndUnlikeFeedPost = async () => {
+      try {
+        if (checkLike) {
+          await unlikeFeedPost(feedPostId);
+        } else {
+          await likeFeedPost(feedPostId);
         }
+      } catch (error) {
+        revertOptimisticUpdate();
       }
-    } catch (error: any) {
-      revertOptimisticUpdate();
-      if (error.response.status === 403) {
-        checkFriendShipStatus(selectedFeedPostId!);
-      }
-    }
-  };
+    };
+
+    checkFriendShipStatus(selectedFeedPostId!)
+      .then(handleLikeAndUnlikeFeedPost)
+      .catch(revertOptimisticUpdate);
+  }, [checkFriendShipStatus, handlePostDislike, handlePostLike, posts]);
 
   const onBlockYesClick = () => {
     setProgressButtonStatus('loading');

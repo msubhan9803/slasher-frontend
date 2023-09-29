@@ -53,6 +53,7 @@ const ChatHeader = styled.div`
   width:100% !important;
   height:70px !important;
   background: black !important;
+}
 `;
 const ChatBody = styled.div<ChatProps>`
 @media (max-width: ${maxWidthForCommentOrReplyInputOnMobile}px) {
@@ -404,7 +405,7 @@ function Chat({
           threshold={500}
           initialLoad
           loader={(
-            <div>
+            <div key="loader">
               {!noEarlierMessagesAvailable && <div key="loader"><LoadingIndicator /></div>}
             </div>
           )}

@@ -216,6 +216,7 @@ export enum NotificationType {
   NewPostFromFollowedRssFeedProvider = 125,
   FriendMessageNotification = 126,
   HashTagPostNotification = 205,
+  NewPostFromFollowedUser = 206,
 }
 
 export interface Notification {

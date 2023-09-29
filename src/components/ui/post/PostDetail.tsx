@@ -163,7 +163,8 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       () => { setRequestAdditionalPosts(false); setLoadingComments(false); },
     );
   }, [commentData, postId]);
-  const checkFriendShipStatus = () => new Promise<void>((resolve, reject) => {
+
+  const checkFriendShipStatus = useCallback(() => new Promise<void>((resolve, reject) => {
     if (postType === 'news' || postType === 'review' || userData.user.id === postData[0].userId) {
       resolve();
     } else {
@@ -175,10 +176,11 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           setFriendShipStatusModal(true);
           setFriendData(res.data);
           setFriendStatus(res.data.reaction);
+          reject();
         }
       }).catch(() => reject());
     }
-  });
+  }), [postData, postType, userData?.user?.id]);
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingComments && (commentData.length || !queryCommentId)) {
@@ -652,7 +654,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     }));
   }, []);
 
-  const onPostLikeClick = async (feedPostId: string) => {
+  const onPostLikeClick = useCallback(async (feedPostId: string) => {
     const checkLike = postData.some((post) => post.id === feedPostId
       && post.likedByUser);
 
@@ -671,16 +673,22 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       }
     };
 
-    try {
-      if (checkLike) {
-        await unlikeFeedPost(feedPostId);
-      } else {
-        await likeFeedPost(feedPostId);
+    const handleLikeAndUnlikeFeedPost = async () => {
+      try {
+        if (checkLike) {
+          await unlikeFeedPost(feedPostId);
+        } else {
+          await likeFeedPost(feedPostId);
+        }
+      } catch (error) {
+        revertOptimisticUpdate();
       }
-    } catch (error) {
-      revertOptimisticUpdate();
-    }
-  };
+    };
+
+    await checkFriendShipStatus()
+      .then(handleLikeAndUnlikeFeedPost)
+      .catch(revertOptimisticUpdate);
+  }, [checkFriendShipStatus, handlePostDislike, handlePostLike, postData]);
 
   const handleLikeComment = (checkCommentId: FeedComments) => {
     setCommentData((prevCommentData) => prevCommentData.map(
@@ -745,10 +753,10 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     setUpdateState(true);
   }, [commentData]);
 
-  const onCommentLike = async (feedCommentId: string) => {
-    const checkCommentId = commentData.find((comment: any) => comment._id === feedCommentId);
-    const checkReplyId = commentData.map(
-      (comment: any) => comment.replies.find((reply: any) => reply._id === feedCommentId),
+  const onCommentLike = useCallback(async (feedCommentId: string) => {
+    const checkCommentId = commentData.find((comment) => comment._id === feedCommentId);
+    const checkReplyId: any = commentData.map(
+      (comment) => comment.replies.find((reply) => reply._id === feedCommentId),
     ).filter(Boolean);
 
     const isComment = feedCommentId === checkCommentId?._id;
@@ -790,40 +798,35 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       }
     };
 
-    try {
-      if (isComment) {
-        if (checkCommentLike) {
-          await unlikeFeedComment(feedCommentId);
-        } else {
-          const res = await likeFeedComment(feedCommentId);
-          if (!res.data.isFriend) {
-            checkFriendShipStatus();
+    await checkFriendShipStatus().then(async () => {
+      try {
+        if (isComment) {
+          if (checkCommentLike) {
+            await unlikeFeedComment(feedCommentId);
+          } else {
+            await likeFeedComment(feedCommentId);
           }
         }
-      }
-      if (isReply) {
-        if (checkReplyLike) {
-          await unlikeFeedReply(feedCommentId);
-        } else {
-          await likeFeedReply(feedCommentId);
+        if (isReply) {
+          if (checkReplyLike) {
+            await unlikeFeedReply(feedCommentId);
+          } else {
+            await likeFeedReply(feedCommentId);
+          }
         }
+      } catch (error) {
+        revertOptimisticUpdate();
       }
-    } catch (error: any) {
-      revertOptimisticUpdate();
+    }).catch(revertOptimisticUpdate);
+  }, [checkFriendShipStatus, commentData, handleLikeFeedReply, handleUnLikeFeedReply]);
 
-      if (error.response.status === 403) {
-        checkFriendShipStatus();
-      }
-    }
-  };
-
-  const onLikeClick = (feedId: string) => {
+  const onLikeClick = useCallback((feedId: string) => {
     if (feedId === postId) {
       onPostLikeClick(feedId);
     } else {
       onCommentLike(feedId);
     }
-  };
+  }, [onCommentLike, onPostLikeClick, postId]);
 
   const handleSpoiler = (spoilerPostId: string) => {
     const spoilerIdList = getLocalStorage('spoilersIds');

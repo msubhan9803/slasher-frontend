@@ -39,7 +39,9 @@ function ChatMessageText({ message, firstLineOnly }: Props) {
   );
   return (
     /* eslint-disable react/no-danger */
-    <span className="text-start" dangerouslySetInnerHTML={{ __html: reformattedMessage }} />
+    <span className="d-flex text-start">
+      <span dangerouslySetInnerHTML={{ __html: reformattedMessage }} />
+    </span>
   );
 }
 

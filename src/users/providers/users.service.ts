@@ -277,6 +277,14 @@ export class UsersService {
     return user;
   }
 
+  async ignoreFriendSuggestionDialog(id: string): Promise<UserDocument> {
+    return this.userModel.findOneAndUpdate(
+      { _id: id },
+      { $set: { ignoreFriendSuggestionDialog: true } },
+      { new: true },
+    );
+  }
+
   /**
    * Deletes the user with the given id.  This will mark the user db record as deleted
    * and also mark all of the user's content as deleted (including posts and comments).

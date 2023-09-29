@@ -86,6 +86,9 @@ export class User extends UserUnusedFields {
   @Prop()
   lastUserNameUpdatedAt: Date;
 
+  @Prop({ default: false })
+  ignoreFriendSuggestionDialog: boolean;
+
   // TODO: Eventually make the field required (@Prop({required: true})), once the old API has been retired.
   // Can't make it required now because that would stop users of the old API from logging in.
   @Prop({ default: '', trim: true })
@@ -155,6 +158,9 @@ export class User extends UserUnusedFields {
   // The number of new notifications that have been received since the user looked at their friend requests page
   @Prop({ default: 0 })
   newFriendRequestCount: number;
+
+  @Prop({ default: [] })
+  hashtags: string[];
 
   @Prop({ trim: true, default: null })
   unverifiedNewEmail: string;
@@ -236,7 +242,22 @@ UserSchema.index(
 );
 UserSchema.index(
   {
+    _id: 1, userName: 1, profilePic: 1, profile_status: 1,
+  },
+);
+UserSchema.index(
+  {
     _id: 1, deleted: 1, status: 1,
+  },
+);
+UserSchema.index(
+  {
+    _id: 1, deleted: 1, status: 1, profile_status: 1,
+  },
+);
+UserSchema.index(
+  {
+    _id: 1, deleted: 1, profile_status: 1,
   },
 );
 UserSchema.index(

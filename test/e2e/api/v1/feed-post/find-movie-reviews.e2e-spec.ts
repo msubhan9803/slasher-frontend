@@ -20,7 +20,7 @@ import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums'
 import { PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
 import { MovieUserStatus, MovieUserStatusDocument } from '../../../../../src/schemas/movieUserStatus/movieUserStatus.schema';
 
-describe('Feed-Post / Main Feed Posts (e2e)', () => {
+describe('Feed-Post / Find Movie Reviews (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;

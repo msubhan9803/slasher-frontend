@@ -33,6 +33,8 @@ import { MovieActiveStatus } from '../../schemas/movie/movie.enums';
 import { RssFeed } from '../../schemas/rssFeed/rssFeed.schema';
 import { Movie } from '../../schemas/movie/movie.schema';
 import { Image } from '../../schemas/shared/image.schema';
+import { HashtagFollowsService } from '../../hashtag-follows/providers/hashtag-follows.service';
+import { Hashtag, HashtagDocument } from '../../schemas/hastag/hashtag.schema';
 import { ProfileVisibility } from '../../schemas/user/user.enums';
 
 describe('FeedPostsService', () => {
@@ -51,6 +53,8 @@ describe('FeedPostsService', () => {
   let user0: UserDocument;
   let blocksModel: Model<BlockAndUnblockDocument>;
   let moviesService: MoviesService;
+  let hashtagFollowsService: HashtagFollowsService;
+  let hashtagModel: Model<HashtagDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -66,7 +70,9 @@ describe('FeedPostsService', () => {
     rssFeedService = moduleRef.get<RssFeedService>(RssFeedService);
     feedLikesService = moduleRef.get<FeedLikesService>(FeedLikesService);
     moviesService = moduleRef.get<MoviesService>(MoviesService);
+    hashtagFollowsService = moduleRef.get<HashtagFollowsService>(HashtagFollowsService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
+    hashtagModel = moduleRef.get<Model<HashtagDocument>>(getModelToken(Hashtag.name));
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -113,7 +119,7 @@ describe('FeedPostsService', () => {
       });
       const feedPost = await feedPostsService.create(feedPostData);
       const reloadedFeedPost = await feedPostsService.findById(feedPost.id, false);
-      expect((reloadedFeedPost.userId as unknown as User)._id.toString()).toEqual(activeUser.id);
+      expect((reloadedFeedPost.userId as unknown as User).toString()).toEqual(activeUser.id);
     });
 
     it('successfully creates a feed post that is associated with an rss feed provider, '
@@ -157,8 +163,38 @@ describe('FeedPostsService', () => {
         ),
       );
     });
-    it('finds the expected feed post details', async () => {
+    it('finds the expected feedPost', async () => {
       const feedPostDetails = await feedPostsService.findById(feedPost.id, false);
+      expect(feedPostDetails._id).toEqual(feedPost._id);
+    });
+
+    it('finds the expected feed post details that has not deleted and active status', async () => {
+      const feedPostData = await feedPostsService.create(
+        feedPostFactory.build({
+          status: FeedPostStatus.Active,
+          userId: activeUser.id,
+        }),
+      );
+      const feedPostDetails = await feedPostsService.findById(feedPostData.id, true);
+      expect(feedPostDetails.message).toEqual(feedPostData.message);
+    });
+  });
+
+  describe('#findByIdWithPopulatedFields', () => {
+    let feedPost: FeedPostDocument;
+    beforeEach(async () => {
+      feedPost = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: activeUser.id,
+            rssFeedId: rssFeed.id,
+            likes: [activeUser._id, user0._id],
+          },
+        ),
+      );
+    });
+    it('finds the expected feed post details', async () => {
+      const feedPostDetails = await feedPostsService.findByIdWithPopulatedFields(feedPost.id, false);
       expect((feedPostDetails.rssFeedId as any).content).toBe('<p>this is rss <b>feed</b> <span>test<span> </p>');
       expect(feedPostDetails.message).toEqual(feedPost.message);
       expect(feedPostDetails.likeCount).toBe(2);
@@ -176,17 +212,17 @@ describe('FeedPostsService', () => {
     });
 
     it("populates the profile_status field on the post's returned userId object", async () => {
-      const feedPostDetails = await feedPostsService.findById(feedPost.id, false);
+      const feedPostDetails = await feedPostsService.findByIdWithPopulatedFields(feedPost.id, false);
       expect((feedPostDetails.userId as unknown as User).profile_status).toEqual(activeUser.profile_status);
     });
 
     it('when add identifylikesforuser than expected response', async () => {
-      const feedPostDetails = await feedPostsService.findById(feedPost.id, false, activeUser.id);
+      const feedPostDetails = await feedPostsService.findByIdWithPopulatedFields(feedPost.id, false, activeUser.id);
       expect((feedPostDetails as any).likedByUser).toBe(true);
     });
 
     it("populates the title field on the post's returned rssFeedId object", async () => {
-      const feedPostDetails = await feedPostsService.findById(feedPost.id, false);
+      const feedPostDetails = await feedPostsService.findByIdWithPopulatedFields(feedPost.id, false);
       expect((feedPostDetails.rssFeedId as unknown as RssFeed).title).toEqual(rssFeed.title);
     });
 
@@ -199,7 +235,7 @@ describe('FeedPostsService', () => {
           likes: [activeUser._id, user0._id],
         }),
       );
-      const feedPostDetails = await feedPostsService.findById(feedPostNew.id, false);
+      const feedPostDetails = await feedPostsService.findByIdWithPopulatedFields(feedPostNew.id, false);
       expect((feedPostDetails.movieId as unknown as Movie).name).toEqual(movie.name);
       expect((feedPostDetails.movieId as unknown as Movie).releaseDate).toEqual(movie.releaseDate);
       expect((feedPostDetails.movieId as unknown as Movie).logo).toEqual(movie.logo);
@@ -615,6 +651,150 @@ describe('FeedPostsService', () => {
         const feedPosts = await feedPostsService.findMainFeedPostsForUser(userData.id, 10);
         expect((feedPosts[0] as any).likedByUser).toBe(true);
       });
+
+      it('when post user profile_status is private than expected response', async () => {
+        const user = await usersService.create(userFactory.build({
+          profile_status: ProfileVisibility.Private,
+        }));
+        const hashtag1 = await hashtagModel.create({
+          name: 'good',
+        });
+        const hashtag2 = await hashtagModel.create({
+          name: 'goodidea',
+        });
+        await hashtagFollowsService.create({
+          userId: activeUser._id,
+          hashTagId: hashtag1._id,
+        });
+        await hashtagFollowsService.create({
+          userId: activeUser._id,
+          hashTagId: hashtag2._id,
+        });
+        const post = await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user.id,
+            message: 'newPost #good #goodidea',
+          }),
+        );
+        const feedPosts = await feedPostsService.findMainFeedPostsForUser(activeUser.id, 100);
+        expect(feedPosts).toHaveLength(10);
+        for (let i = 1; i < feedPosts.length; i += 1) {
+          expect(feedPosts[i]._id).not.toEqual(post._id);
+        }
+      });
+
+      it('return the expected post when both user are friends', async () => {
+        const user1 = await usersService.create(userFactory.build());
+        const user2 = await usersService.create(userFactory.build());
+        await friendsService.createFriendRequest(user1.id, user2.id);
+        await friendsService.acceptFriendRequest(user1.id, user2.id);
+        const limit = 6;
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user1.id,
+          }),
+        );
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user1.id,
+          }),
+        );
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user2.id,
+          }),
+        );
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user2.id,
+          }),
+        );
+        const response = await feedPostsService.findMainFeedPostsForUser(user1.id, limit);
+        expect(response).toHaveLength(4);
+      });
+
+      //public profile of user2
+      it(`returns the expected response when both users are not friends and user follows
+       the hashtag which is in hashtags of other users post`, async () => {
+        const user1 = await usersService.create(userFactory.build());
+        const user2 = await usersService.create(userFactory.build());
+        const limit = 6;
+        const feedPost1 = await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user1.id,
+          }),
+        );
+        const feedPost2 = await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user2.id,
+            hashtags: ['horror', 'dark'],
+          }),
+        );
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user2.id,
+            hashtags: ['test', 'nature'],
+          }),
+        );
+        const feedPost4 = await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user2.id,
+            hashtags: ['dark', 'nature'],
+          }),
+        );
+        const hashtag1 = await hashtagModel.create({
+          name: 'dark',
+        });
+        await hashtagFollowsService.create({
+          userId: user1._id,
+          hashTagId: hashtag1._id,
+        });
+        const response = await feedPostsService.findMainFeedPostsForUser(user1.id, limit);
+        expect(response).toHaveLength(3);
+        expect(response.map(({ _id }) => _id).sort()).toEqual([feedPost1.id, feedPost2.id, feedPost4.id].sort());
+      });
+
+      //private profile of user2
+      it(`returns the expected response when both users are not friends and
+       user follows the hashtag which is in hashtags of other users privte post`, async () => {
+        const user1 = await usersService.create(userFactory.build());
+        const user2 = await usersService.create(userFactory.build(
+          { profile_status: ProfileVisibility.Private },
+        ));
+        const limit = 6;
+        const feedPost1 = await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user1.id,
+          }),
+        );
+        const feedPost2 = await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user1.id,
+          }),
+        );
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user2.id,
+            hashtags: ['test', 'good'],
+          }),
+        );
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user2.id,
+            hashtags: ['horror', 'dark'],
+          }),
+        );
+        const hashtag1 = await hashtagModel.create({
+          name: 'dark',
+        });
+        await hashtagFollowsService.create({
+          userId: user1._id,
+          hashTagId: hashtag1._id,
+        });
+        const response = await feedPostsService.findMainFeedPostsForUser(user1.id, limit);
+        expect(response).toHaveLength(2);
+        expect(response.map(({ _id }) => _id).sort()).toEqual([feedPost1.id, feedPost2.id].sort());
+      });
     });
 
     describe('should not include posts hidden for current user', () => {
@@ -965,6 +1145,143 @@ describe('FeedPostsService', () => {
     });
   });
 
+  describe('#findAllFeedPostsForHashtag', () => {
+    let user1;
+    let user2;
+    let user3;
+    let user4;
+    let user5;
+    beforeEach(async () => {
+      user1 = await usersService.create(userFactory.build());
+      user2 = await usersService.create(userFactory.build());
+      user3 = await usersService.create(userFactory.build());
+      user4 = await usersService.create(userFactory.build());
+      user5 = await usersService.create(userFactory.build());
+      await feedPostsService.create(
+        feedPostFactory.build({
+          message: 'user1 post #horror #test',
+          userId: user1.id,
+          hashtags: ['horror', 'test'],
+          privacyType: FeedPostPrivacyType.Public,
+        }),
+      );
+      await feedPostsService.create(
+        feedPostFactory.build({
+          message: 'user2 post #horror #evil',
+          userId: user2.id,
+          hashtags: ['horror', 'evil'],
+          privacyType: FeedPostPrivacyType.Private,
+        }),
+      );
+      await feedPostsService.create(
+        feedPostFactory.build({
+          message: 'user3 post test #horror',
+          userId: user3.id,
+          hashtags: ['horror'],
+          privacyType: FeedPostPrivacyType.Public,
+        }),
+      );
+      await feedPostsService.create(
+        feedPostFactory.build({
+          message: 'user4 post #horror',
+          userId: user4.id,
+          hashtags: ['horror'],
+          privacyType: FeedPostPrivacyType.Public,
+        }),
+      );
+      await feedPostsService.create(
+        feedPostFactory.build({
+          message: 'user5 post #horror',
+          userId: user5.id,
+          hashtags: ['horror'],
+          privacyType: FeedPostPrivacyType.Public,
+        }),
+      );
+      await hashtagModel.create({
+        name: 'horror',
+      });
+    });
+
+    it('when hashtag is "horror" than expected posts response', async () => {
+      const feedPost = await feedPostsService.findAllFeedPostsForHashtag('horror', 5);
+      expect((feedPost[1] as any)).toHaveLength(4);
+    });
+
+    it('when hashtag is "horror" and limit is exists than expected posts response', async () => {
+      const feedPost = await feedPostsService.findAllFeedPostsForHashtag('horror', 2);
+      expect((feedPost[1] as any)).toHaveLength(2);
+    });
+
+    it('returns the expected response when block status is existing between two users', async () => {
+      await blocksModel.create({
+        from: activeUser.id,
+        to: user1.id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      const feedPost = await feedPostsService.findAllFeedPostsForHashtag('horror', 5, null, activeUser.id);
+      expect((feedPost[1] as any)).toHaveLength(3);
+    });
+  });
+  describe('#findPostsByDays', () => {
+    beforeEach(async () => {
+      await feedPostsService.create(
+        feedPostFactory.build({
+          message: 'post #scariness #horridness',
+          userId: activeUser.id,
+          hashtags: ['horridness', 'horridness'],
+        }),
+      );
+      await feedPostsService.create(
+        feedPostFactory.build({
+          message: 'post #heinousness #evil',
+          userId: activeUser.id,
+          hashtags: ['heinousness', 'evil'],
+        }),
+      );
+      await feedPostsService.create(
+        feedPostFactory.build({
+          message: 'post #torture',
+          userId: activeUser.id,
+          hashtags: ['torture'],
+        }),
+      );
+    });
+
+    it('successfully find posts by days', async () => {
+      const fourteenDaysAgo = DateTime.now().minus({ days: 14 }).toJSDate();
+      const posts = await feedPostsService.findPostsByDays(fourteenDaysAgo);
+      expect(posts).toEqual([
+        'horridness',
+        'horridness',
+        'heinousness',
+        'evil',
+        'torture',
+      ]);
+    });
+
+    it('when post is not match with exists days', async () => {
+      await feedPostsService.create(
+        feedPostFactory.build({
+          userId: activeUser._id,
+          message: 'post #scary',
+          createdAt: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(),
+          updatedAt: DateTime.fromISO('2022-10-23T00:00:00Z').toJSDate(),
+          lastUpdateAt: DateTime.fromISO('2022-10-19T00:00:00Z').toJSDate(),
+          hashtags: ['scary'],
+        }),
+      );
+      const fourteenDaysAgo = DateTime.now().minus({ days: 14 }).toJSDate();
+      const posts = await feedPostsService.findPostsByDays(fourteenDaysAgo);
+      expect(posts).toEqual([
+        'horridness',
+        'horridness',
+        'heinousness',
+        'evil',
+        'torture',
+      ]);
+    });
+  });
+
   describe('#findMovieReviewPost', () => {
     beforeEach(async () => {
       // Created post is associated with the `activeUser`
@@ -1038,11 +1355,13 @@ describe('FeedPostsService', () => {
         }),
       );
     });
+
     it('updates the privacyPost according to user profile visibility', async () => {
       //update private to public
       await feedPostsService.updatePostPrivacyType(user.id, 0);
       expect((await feedPostsService.findById(feedPost1, true)).privacyType).toEqual(FeedPostPrivacyType.Public);
       expect((await feedPostsService.findById(feedPost2, true)).privacyType).toEqual(FeedPostPrivacyType.Public);
+
       //update public to private
       await feedPostsService.updatePostPrivacyType(user1.id, 1);
       expect((await feedPostsService.findById(feedPost3, true)).privacyType).toEqual(FeedPostPrivacyType.Private);

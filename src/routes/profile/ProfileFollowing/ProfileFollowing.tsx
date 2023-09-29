@@ -16,7 +16,7 @@ function ProfileFollowing({ user }: Props) {
     <div>
       <ProfileHeader tabKey="following" user={user} />
       <Routes>
-        <Route path="/*" element={<Navigate to="hashtags" replace />} />
+        <Route path="/*" element={<Navigate to="people" replace />} />
         <Route path="/hashtags" element={<FollowingHashtags />} />
         <Route path="/people" element={<FollowingPeople />} />
 

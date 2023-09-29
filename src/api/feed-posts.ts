@@ -152,3 +152,16 @@ export async function getMovieReview(postId: string, lastRetrievedPostId?: strin
   }
   return axios.get(`${apiUrl}/api/v1/feed-posts/${postId}/reviews${queryParameter}`, { headers });
 }
+
+export async function getHashtagPostList(hashTag: string, lastRetrievedPostId?: string) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  const limit = 10;
+  let queryParameter = `?limit=${limit}`;
+  if (lastRetrievedPostId) {
+    queryParameter += `&before=${lastRetrievedPostId}`;
+  }
+  return axios.get(`${apiUrl}/api/v1/feed-posts/hashtag/${hashTag}${queryParameter}`, { headers });
+}

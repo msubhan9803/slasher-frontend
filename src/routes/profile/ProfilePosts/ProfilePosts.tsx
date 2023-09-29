@@ -107,6 +107,7 @@ function ProfilePosts({ user }: Props) {
           likeCount: data.likeCount,
           commentCount: data.commentCount,
           movieId: data.movieId,
+          hashtags: data.hashtags,
         }
       ));
       setPosts((prev: Post[]) => [
@@ -175,6 +176,7 @@ function ProfilePosts({ user }: Props) {
           likeCount: data.likeCount,
           commentCount: data.commentCount,
           movieId: data.movieId,
+          hashtags: data.hashtags,
         }));
         setPosts(newPosts);
       });
@@ -413,7 +415,7 @@ function ProfilePosts({ user }: Props) {
             />
           )}
 
-        {friendShipStatusModal && (
+        {friendShipStatusModal && !loginUserData.ignoreFriendSuggestionDialog && (
           <FriendshipStatusModal
             friendShipStatusModal={friendShipStatusModal}
             setFriendShipStatusModal={setFriendShipStatusModal}

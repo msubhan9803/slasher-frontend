@@ -179,7 +179,7 @@ function CommentSection({
             {
               __html: newLineToBr(
                 // eslint-disable-next-line max-len
-                linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(commentMsg)), defaultLinkifyOpts),
+                linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(commentMsg, '', true)), defaultLinkifyOpts),
               ),
             }
           }

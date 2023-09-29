@@ -10,12 +10,33 @@ export function findFirstYouTubeLinkVideoId(message: string) {
   return message?.match(YOUTUBE_LINK_REGEX)?.[6];
 }
 
-export function escapeHtmlSpecialCharacters(str: string) {
-  return str?.replaceAll('&', '&amp;')
+export function escapeHtmlSpecialCharacters(
+  str: string,
+  selectedHashtag?: string,
+  isComment?: boolean,
+  hashtags?: string[],
+) {
+  const hashtagRegex = /(^|\s)(#[\w-]+)/g;
+
+  let result = str?.replaceAll('&', '&amp;')
     ?.replaceAll('<', '&lt;')
     ?.replaceAll('>', '&gt;')
     ?.replaceAll('"', '&quot;')
     ?.replaceAll("'", '&#039;');
+
+  if (selectedHashtag && hashtags) {
+    result = result.replace(hashtagRegex, (match, p1, p2) => (
+      hashtags.includes(p2.slice(1))
+        ? `${p1}<a href="/app/search/posts?hashtag=${p2.slice(1)}" style="font-weight: 700; text-decoration:underline">${p2}</a>`
+        : `${p1}<span>${p2}</span>`
+    ));
+  } else if (isComment) {
+    result = result.replace(hashtagRegex, (match, p1, p2) => `${p1}<span>${p2}</span>`);
+  } else {
+    result = result.replace(hashtagRegex, (match, p1, p2) => `${p1}<a href="/app/search/posts?hashtag=${p2.slice(1)}" style="text-decoration:underline;">${p2}</a>`);
+  }
+
+  return result;
 }
 
 /**

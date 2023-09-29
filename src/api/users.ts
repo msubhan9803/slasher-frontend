@@ -372,3 +372,61 @@ export async function resetPassword(
     },
   );
 }
+
+export async function addHashtags(
+  hashtags: string[],
+) {
+  const userId = await getSessionUserId();
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.post(`${apiUrl}/api/v1/users/${userId}/hashtag-follows`, { hashtags }, { headers });
+}
+
+export async function getFollowedHashtags(userId: string, search: string, page: number) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  const limit = 10;
+  let queryParameter = `?limit=${limit}&offset=${page * limit}`;
+  if (search) {
+    queryParameter += `&query=${search}`;
+  }
+  return axios.get(`${apiUrl}/api/v1/users/${userId}/hashtag-follows${queryParameter}`, { headers });
+}
+
+export async function followHashtag(
+  hashtag: string,
+  userId: string,
+  notification: boolean,
+) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.put(`${apiUrl}/api/v1/users/${userId}/hashtag-follows/${hashtag}`, { notification }, { headers });
+}
+
+export async function unfollowHashtag(
+  hashtag: string,
+  userId: string,
+) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.delete(`${apiUrl}/api/v1/users/${userId}/hashtag-follows/${hashtag}`, { headers });
+}
+
+export async function getSingleHashtagDetail(
+  hashtag: string,
+  userId: string,
+) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.get(`${apiUrl}/api/v1/users/${userId}/hashtag-follows/${hashtag}`, { headers });
+}

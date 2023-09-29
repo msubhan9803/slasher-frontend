@@ -1,11 +1,15 @@
 import React, { useEffect, useRef } from 'react';
-import { Col, Row } from 'react-bootstrap';
-import Cookies from 'js-cookie';
-import { useNavigate, useParams } from 'react-router-dom';
+import {
+  Col, Row,
+} from 'react-bootstrap';
+import {
+  useNavigate, useParams,
+} from 'react-router-dom';
 import CustomSearchInput from '../../../components/ui/CustomSearchInput';
 import TabLinks from '../../../components/ui/Tabs/TabLinks';
 import { enableDevFeatures } from '../../../env';
 import { BREAK_POINTS, topToDivHeight } from '../../../constants';
+import { useAppSelector } from '../../../redux/hooks';
 
 const tabs = [
   { value: 'people', label: 'People' },
@@ -21,7 +25,7 @@ function FollowingHeader({
 }: any) {
   const { userName } = useParams();
   const navigate = useNavigate();
-  const loginUserName = Cookies.get('userName');
+  const loginUserName = useAppSelector((state) => state.user.user.userName);
   const positionRef = useRef<HTMLDivElement>(null);
   const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => !t.devOnly);
   useEffect(() => {

@@ -34,6 +34,7 @@ import ErrorMessageList from '../ErrorMessageList';
 import ReportModal from '../ReportModal';
 import EditPostModal from './EditPostModal';
 import PostFeed from './PostFeed/PostFeed';
+import { getSuggestHashtag } from '../../../api/searchHashtag';
 import { deletedPostsCache } from '../../../pageStateCache';
 import useProgressButton from '../ProgressButton';
 import { sleep } from '../../../utils/timer-utils';
@@ -213,100 +214,105 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       replies: [],
       createdAt: new Date().toISOString(),
     };
-    await checkFriendShipStatus().then(() => {
-      if (comment?.commentId) {
-        updateFeedComments(
-          postId!,
-          comment.commentMessage,
-          comment?.commentId,
-          comment?.images,
-          comment?.deleteImage,
-          comment?.descriptionArr,
-        )
-          .then(async (res) => {
-            const updateCommentArray: any = commentData;
-            const index = updateCommentArray.findIndex(
-              (commentId: any) => commentId._id === res.data._id,
-            );
-            commentValueData = {
-              ...updateCommentArray[index],
-              _id: res.data._id,
-              feedPostId: res.data.feedPostId,
-              images: res.data.images,
-              message: comment.commentMessage,
-              userId: { ...userData.user, _id: userData.user.id },
-              replies: [],
-              createdAt: new Date().toISOString(),
+    if (comment?.commentId) {
+      updateFeedComments(
+        postId!,
+        comment.commentMessage,
+        comment?.commentId,
+        comment?.images,
+        comment?.deleteImage,
+        comment?.descriptionArr,
+      )
+        .then(async (res) => {
+          const updateCommentArray: any = commentData;
+          const index = updateCommentArray.findIndex(
+            (commentId: any) => commentId._id === res.data._id,
+          );
+          commentValueData = {
+            ...updateCommentArray[index],
+            _id: res.data._id,
+            feedPostId: res.data.feedPostId,
+            images: res.data.images,
+            message: comment.commentMessage,
+            userId: { ...userData.user, _id: userData.user.id },
+            replies: [],
+            createdAt: new Date().toISOString(),
+          };
+          if (updateCommentArray[index]._id === res.data._id) {
+            updateCommentArray[index] = {
+              ...res.data,
+              ...commentValueData,
+              replies: updateCommentArray[index].replies,
             };
-            if (updateCommentArray[index]._id === res.data._id) {
-              updateCommentArray[index] = {
-                ...res.data,
-                ...commentValueData,
-                replies: updateCommentArray[index].replies,
-              };
-            }
-            setCommentData(updateCommentArray);
-            setUpdateState(true);
-            setCommentErrorMessage([]);
-            setCommentSent(false);
-            setIsEdit(false);
-          })
-          .catch((error) => {
+          }
+          setCommentData(updateCommentArray);
+          setUpdateState(true);
+          setCommentErrorMessage([]);
+          setCommentSent(false);
+          setIsEdit(false);
+        })
+        .catch((error) => {
+          const msg = error.response.status === 0 && !error.response.data
+            ? 'Combined size of files is too large.'
+            : error.response.data.message;
+          setCommentErrorMessage(msg);
+          setCommentSent(false);
+        })
+        .finally(() => {
+          abortControllerRef.current = null;
+        });
+    } else {
+      addFeedComments(
+        postId!,
+        comment.commentMessage,
+        comment.imageArr,
+        comment.descriptionArr,
+      )
+        .then(async (res) => {
+          if (res.status === 201 && res.data.isFriend === false) {
+            checkFriendShipStatus();
+          }
+          let newCommentArray: any = commentData;
+          commentValueData = {
+            _id: res.data._id,
+            feedPostId: res.data.feedPostId,
+            images: res.data.images,
+            message: comment.commentMessage,
+            userId: { ...userData.user, _id: userData.user.id },
+            replies: [],
+            likeCount: 0,
+            createdAt: new Date().toISOString(),
+          };
+          if (isCommentsOldestFirst) {
+            newCommentArray = newCommentArray.concat(commentValueData);
+          } else {
+            newCommentArray = [commentValueData].concat(newCommentArray);
+          }
+          setCommentData(newCommentArray);
+          setPostData([{
+            ...postData[0],
+            commentCount: postData[0].commentCount + 1,
+          }]);
+          setUpdateState(true);
+          setCommentSent(false);
+          setCommentErrorMessage([]);
+          setCommentOrReplySuccessAlertMessage('Your comment has been added.');
+        })
+        .catch((error) => {
+          if (error.response.status === 403) {
+            checkFriendShipStatus();
+          } else {
             const msg = error.response.status === 0 && !error.response.data
               ? 'Combined size of files is too large.'
               : error.response.data.message;
+            setCommentSent(false);
             setCommentErrorMessage(msg);
-            setCommentSent(false);
-          })
-          .finally(() => {
-            abortControllerRef.current = null;
-          });
-      } else {
-        addFeedComments(
-          postId!,
-          comment.commentMessage,
-          comment.imageArr,
-          comment.descriptionArr,
-        )
-          .then(async (res) => {
-            let newCommentArray: any = commentData;
-            commentValueData = {
-              _id: res.data._id,
-              feedPostId: res.data.feedPostId,
-              images: res.data.images,
-              message: comment.commentMessage,
-              userId: { ...userData.user, _id: userData.user.id },
-              replies: [],
-              likeCount: 0,
-              createdAt: new Date().toISOString(),
-            };
-            if (isCommentsOldestFirst) {
-              newCommentArray = newCommentArray.concat(commentValueData);
-            } else {
-              newCommentArray = [commentValueData].concat(newCommentArray);
-            }
-            setCommentData(newCommentArray);
-            setPostData([{
-              ...postData[0],
-              commentCount: postData[0].commentCount + 1,
-            }]);
-            setUpdateState(true);
-            setCommentSent(false);
-            setCommentErrorMessage([]);
-            setCommentOrReplySuccessAlertMessage('Your comment has been added.');
-          })
-          .catch((error) => {
-            const msg = error.response.status === 0 && !error.response.data
-              ? 'Combined size of files is too large.'
-              : error.response.data.message;
-            setCommentErrorMessage(msg);
-            setCommentSent(false);
-          })
-          .finally(() => {
-            abortControllerRef.current = null;
-          });
-      }
-    }).catch(() => { });
+          }
+        })
+        .finally(() => {
+          abortControllerRef.current = null;
+        });
+    }
   };
   const addUpdateReply = async (reply: any) => {
     if (abortControllerRef.current) {
@@ -326,89 +332,41 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       createdAt: new Date().toISOString(),
     };
 
-    await checkFriendShipStatus().then(() => {
-      if (reply.replyId) {
-        updateFeedCommentReply(
-          postId!,
-          reply.replyMessage,
-          reply.replyId,
-          reply.images,
-          reply.deleteImage,
-          reply.descriptionArr,
-        )
-          .then(async (res) => {
-            const updateReplyArray: any = commentData;
-            updateReplyArray.map((comment: any) => {
-              const staticReplies = comment.replies;
-              if (comment._id === res.data.feedCommentId) {
-                const index = staticReplies.findIndex(
-                  (replyId: any) => replyId._id === res.data._id,
-                );
-                replyValueData = {
-                  ...staticReplies[index],
-                  message: res.data.message,
-                  userId: { ...userData.user, _id: userData.user.id },
-                  images: res.data.images,
-                };
-                if (staticReplies[index]._id === res.data._id) {
-                  staticReplies[index] = { ...res.data, ...replyValueData };
-                }
-                return null;
+    if (reply.replyId) {
+      updateFeedCommentReply(
+        postId!,
+        reply.replyMessage,
+        reply.replyId,
+        reply.images,
+        reply.deleteImage,
+        reply.descriptionArr,
+      )
+        .then(async (res) => {
+          const updateReplyArray: any = commentData;
+          updateReplyArray.map((comment: any) => {
+            const staticReplies = comment.replies;
+            if (comment._id === res.data.feedCommentId) {
+              const index = staticReplies.findIndex(
+                (replyId: any) => replyId._id === res.data._id,
+              );
+              replyValueData = {
+                ...staticReplies[index],
+                message: res.data.message,
+                userId: { ...userData.user, _id: userData.user.id },
+                images: res.data.images,
+              };
+              if (staticReplies[index]._id === res.data._id) {
+                staticReplies[index] = { ...res.data, ...replyValueData };
               }
               return null;
-            });
-            setCommentData(updateReplyArray);
-            setUpdateState(true);
-            setCommentReplyErrorMessage([]);
-            setIsEdit(false);
-            setCommentSent(false);
-          }).catch((error) => {
-            const msg = error.response.status === 0 && !error.response.data
-              ? 'Combined size of files is too large.'
-              : error.response.data.message;
-            setCommentReplyErrorMessage(msg);
-            setCommentSent(false);
-          })
-          .finally(() => {
-            abortControllerRef.current = null;
-          });
-      } else {
-        addFeedReplyComments(
-          postId!,
-          reply.replyMessage,
-          reply?.imageArr,
-          reply.commentId!,
-          reply.descriptionArr,
-        ).then(async (res) => {
-          const newReplyArray: any = commentData;
-          replyValueData = {
-            feedPostId: postId,
-            feedCommentId: res.data.feedCommentId,
-            images: res.data.images,
-            message: reply.replyMessage,
-            userId: { ...userData.user, _id: userData.user.id },
-            createdAt: new Date().toISOString(),
-            likeCount: 0,
-            new: true,
-          };
-          newReplyArray.map((comment: any) => {
-            const staticReplies = comment.replies;
-            const index = staticReplies.findIndex((obj: any) => obj._id === reply.commentReplyID);
-            if (comment._id === reply.commentId) {
-              staticReplies.splice(index + 1, 0, { ...replyValueData, _id: res.data._id });
             }
             return null;
           });
-          setCommentData(newReplyArray);
+          setCommentData(updateReplyArray);
           setUpdateState(true);
           setCommentReplyErrorMessage([]);
+          setIsEdit(false);
           setCommentSent(false);
-          setCommentID('');
-          // eslint-disable-next-line max-len
-          // Fix showing of two success alert messages (i.e, inside two comment inputs for comment and reply-to-comment)
-          setTimeout(() => {
-            setCommentOrReplySuccessAlertMessage('Your reply has been added to the end of this comment thread.');
-          }, 500);
         }).catch((error) => {
           const msg = error.response.status === 0 && !error.response.data
             ? 'Combined size of files is too large.'
@@ -416,11 +374,64 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           setCommentReplyErrorMessage(msg);
           setCommentSent(false);
         })
-          .finally(() => {
-            abortControllerRef.current = null;
-          });
-      }
-    }).catch(() => { });
+        .finally(() => {
+          abortControllerRef.current = null;
+        });
+    } else {
+      addFeedReplyComments(
+        postId!,
+        reply.replyMessage,
+        reply?.imageArr,
+        reply.commentId!,
+        reply.descriptionArr,
+      ).then(async (res) => {
+        if (res.status === 201 && res.data.isFriend === false) {
+          checkFriendShipStatus();
+        }
+        const newReplyArray: any = commentData;
+        replyValueData = {
+          feedPostId: postId,
+          feedCommentId: res.data.feedCommentId,
+          images: res.data.images,
+          message: reply.replyMessage,
+          userId: { ...userData.user, _id: userData.user.id },
+          createdAt: new Date().toISOString(),
+          likeCount: 0,
+          new: true,
+        };
+        newReplyArray.map((comment: any) => {
+          const staticReplies = comment.replies;
+          const index = staticReplies.findIndex((obj: any) => obj._id === reply.commentReplyID);
+          if (comment._id === reply.commentId) {
+            staticReplies.splice(index + 1, 0, { ...replyValueData, _id: res.data._id });
+          }
+          return null;
+        });
+        setCommentData(newReplyArray);
+        setUpdateState(true);
+        setCommentReplyErrorMessage([]);
+        setCommentSent(false);
+        setCommentID('');
+        // eslint-disable-next-line max-len
+        // Fix showing of two success alert messages (i.e, inside two comment inputs for comment and reply-to-comment)
+        setTimeout(() => {
+          setCommentOrReplySuccessAlertMessage('Your reply has been added to the end of this comment thread.');
+        }, 500);
+      }).catch((error) => {
+        if (error.response.status === 403) {
+          checkFriendShipStatus();
+        } else {
+          const msg = error.response.status === 0 && !error.response.data
+            ? 'Combined size of files is too large.'
+            : error.response.data.message;
+          setCommentSent(false);
+          setCommentErrorMessage(msg);
+        }
+      })
+        .finally(() => {
+          abortControllerRef.current = null;
+        });
+    }
   };
 
   const removeCommentAsync = async () => {
@@ -446,12 +457,16 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     }
     return undefined;
   };
-
-  const handleSearch = (text: string) => {
+  const handleSearch = (text: string, prefix: string) => {
     setMentionList([]);
     if (text) {
-      getSuggestUserName(text)
-        .then((res) => setMentionList(res.data));
+      if (prefix === '@') {
+        getSuggestUserName(text)
+          .then((res) => setMentionList(res.data));
+      } else if (prefix === '#') {
+        getSuggestHashtag(text)
+          .then((res) => setMentionList(res.data));
+      }
     }
   };
 
@@ -1037,7 +1052,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                   />
                 )}
 
-              {friendShipStatusModal && (
+              {friendShipStatusModal && !userData.ignoreFriendSuggestionDialog && (
                 <FriendshipStatusModal
                   friendShipStatusModal={friendShipStatusModal}
                   setFriendShipStatusModal={setFriendShipStatusModal}
@@ -1134,7 +1149,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                 />
               )}
 
-            {friendShipStatusModal && (
+            {friendShipStatusModal && !userData.user.ignoreFriendSuggestionDialog && (
               <FriendshipStatusModal
                 friendShipStatusModal={friendShipStatusModal}
                 setFriendShipStatusModal={setFriendShipStatusModal}

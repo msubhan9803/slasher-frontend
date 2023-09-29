@@ -18,15 +18,18 @@ import { findAllHashtagAdmin, updateHashtagStatusAdmin } from '../../api/hashtag
 import { HashtagActiveStatus } from '../../types';
 import { getPageCount } from '../../utils/number.utils';
 
+/* Snippet: Generating hashtags in bulk by creating a post with below text:
+let tags = ''
+for (let i = 1; i <= 10; i++){
+  tags += `#myhashtag${i} `
+}
+*/
+
 const StyledSearchInput = styled(InputGroup)`
   z-index:0;
   input[type=text] {
     padding-left: 40px;
     box-sizing: border-box;
-    /* // ! URGENT: TODO: Remove below properties if search input is working good in mobile and desktop! */
-    /* width: 100%; */
-    /* padding: 12px 20px; */
-    /* margin: 8px 0; */
   }
   .input-group-text {
     background-color: var(--bs-dark);
@@ -41,51 +44,47 @@ const StyledSearchInput = styled(InputGroup)`
   }
 `;
 
-//
-
 const commonHeaderClass = 'hashtag-common--header';
-
 const statusCellClass = 'status__cell';
 const StyledContainer = styled.div`
-height: 400;
-width: 100%;
+  width: 100%;
+  /* No need to use padding bottom when we are setting height of table using "vh" */
+  /* padding-bottom: 115px; */
 
-.MuiDataGrid-root, .MuiDataGrid-main{
-  border-radius: 10px;
-}
+  .MuiDataGrid-root, .MuiDataGrid-main{
+    border-radius: 10px;
+  }
 
-.hashtag--header {
-  /* Background color of a column (not needed as we use columnHeaders instead) */
-  /* background-color: green; */
-  border-right: 1px solid black;
-}
-.MuiDataGrid-columnHeaders {
-  background-color: var(--bs-primary);
-}
-.MuiDataGrid-columnHeaderTitle{
-  font-weight: bold;
-}
+  .hashtag--header {
+    border-right: 1px solid black;
+  }
+  .MuiDataGrid-columnHeaders {
+    background-color: var(--bs-primary);
+  }
+  .MuiDataGrid-columnHeaderTitle{
+    font-weight: bold;
+  }
 
-/* Set outline to none so mouse click does not highlight the cell */
-.MuiDataGrid-cell{
-  outline: none !important;
-}
-.${statusCellClass}{
-  justify-content: end !important;
-}
+  /* Set outline to none so mouse click does not highlight the cell */
+  .MuiDataGrid-cell{
+    outline: none !important;
+  }
+  .${statusCellClass}{
+    justify-content: end !important;
+  }
 
-.MuiTablePagination-selectLabel {
-  /* Fix position of "Rows per page" label on table bottom */
-  margin: auto;
-}
-*::-webkit-scrollbar-track {
-  /* Fix background of scrollbar in the table */
-  background: white;
-}
-.MuiTablePagination-displayedRows {
-  /* Fix position of "Page number" on table bottom */
-  margin: auto;
-}
+  .MuiTablePagination-selectLabel {
+    /* Fix position of "Rows per page" label on table bottom */
+    margin: auto;
+  }
+  *::-webkit-scrollbar-track {
+    /* Fix background of scrollbar in the table */
+    background: white;
+  }
+  .MuiTablePagination-displayedRows {
+    /* Fix position of "Page number" on table bottom */
+    margin: auto;
+  }
 `;
 
 // Types
@@ -102,11 +101,7 @@ type CellType = {
   [ColumnField.status]: boolean,
 };
 
-type StatusCompProps = {
-  params: {
-    row: CellType;
-  }
-};
+type StatusCompProps = { params: { row: CellType; } };
 function StatusComp({ params }: StatusCompProps) {
   const { row } = params;
   const [switchState, setSwitchState] = useState(row.status);
@@ -158,32 +153,13 @@ const columns: GridColDef[] = [
   },
 ];
 
-// ### MOCK DATA FOR TABLE ###
-// const sampleRows: Array<CellType> = [
-//   {
-//     id: '1',
-//     hashtagName: '#hashtag01',
-//     createdDate: '15/12/2022 03:33 PM',
-//     status: false,
-//   },
-// ];
-//
-// const NUMBER_OF_DUMMY_ROWS = 24; // Using `NUMBER_OF_ROWS=1` will add one more row.
-// const padZeroToLeftIfSingleDigit = (i: number) => ((i <= 9) ? `0${i}` : String(i));
-// for (let i = 2; i < (NUMBER_OF_DUMMY_ROWS + 2); i += 1) {
-//   sampleRows.push({
-//     id: String(i),
-//     hashtagName: `#hashtag${padZeroToLeftIfSingleDigit(i)}`,
-//     createdDate: `18/12/202${i} 0${i}:${i}${i} PM`,
-//     status: true,
-//   });
-// }
-
-/* This is number of times per page */
+/* This is number of items per page */
 const PAGE_SIZE = 10;
 // We give static `tableHeight` so that when there are less items than `rowsPerPage`
 // then we shw full size table too. Also, 10 * 63px = 630px on desktop
-const tableHeight = (PAGE_SIZE * 63) + 0.5;
+// const tableHeight = (PAGE_SIZE * 63) + 0.5;
+// This works better on mobile and desktop both!
+const tableHeight = '75vh';
 
 function Pagination({
   page,
@@ -191,12 +167,7 @@ function Pagination({
   className,
 }: Pick<TablePaginationProps, 'page' | 'onPageChange' | 'className'>) {
   const apiRef = useGridApiContext();
-
-  // Get compelte `data-grid` state
-  // console.log('apiRef.current.state?', apiRef.current.state);
-
-  // Not working for some unknown reason
-  //  const pageCount = useGridSelector(apiRef, gridPageCountSelector);
+  // Note: We can get compelte `data-grid` state via `apiRef.current.state`
 
   const { totalRowCount } = apiRef.current.state.rows;
   const { pageSize } = apiRef.current.state.pagination.paginationModel;
@@ -222,12 +193,6 @@ function CustomPagination(props: any) {
 
 type PaginationModel = { page: number, pageSize: number };
 
-/* Snippet: Generating hashtags in bulk by creating a post with below text:
-let tags = ''
-for (let i = 1; i <= 10; i++){
-  tags += `#myhashtag${i} `
-}
-*/
 // Docs: https://mui.com/material-ui/react-table/
 // Docs: https://mui.com/x/react-data-grid
 function HashtagAdmin() {
@@ -340,9 +305,6 @@ function HashtagAdmin() {
         paginationModel={paginationModel}
         onPaginationModelChange={onPaginationModelChange}
         initialState={{
-          // pagination: {
-          //   paginationModel,
-          // },
           columns: {
             columnVisibilityModel: {
               // Hide columns `status`, the other columns will remain visible
@@ -355,9 +317,9 @@ function HashtagAdmin() {
           },
         }}
         pageSizeOptions={[PAGE_SIZE, 50]}
-        // Use below instruction if you want to show only one option
+        // Note: Use below instruction if you want to show only one option
         // pageSizeOptions={[10]}
-        // We can enable/disable below `checkboxSelection` feature via below prop:
+        // Note: We can enable/disable below `checkboxSelection` feature via below prop:
         // checkboxSelection
         // Note: By default, the pagination is handled on the client. This means you have to give
         // the rows of all pages to the data grid. If your dataset is too big, and you only want to

@@ -6,7 +6,6 @@ import TabLinks from '../../../components/ui/Tabs/TabLinks';
 import { enableDevFeatures } from '../../../env';
 import { BREAK_POINTS, topToDivHeight } from '../../../constants';
 import { useAppSelector } from '../../../redux/hooks';
-import { useAppSelector } from '../../../redux/hooks';
 
 const tabs = [
   { value: 'people', label: 'People' },
@@ -22,7 +21,6 @@ function FollowingHeader({
 }: any) {
   const { userName } = useParams();
   const navigate = useNavigate();
-  const loginUserName = useAppSelector((state) => state.user.user.userName);
   const loginUserName = useAppSelector((state) => state.user.user.userName);
   const positionRef = useRef<HTMLDivElement>(null);
   const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => !t.devOnly);

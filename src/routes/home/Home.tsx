@@ -59,6 +59,7 @@ function Home() {
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const location = useLocation();
   const userId = useAppSelector((state: any) => state.user.user.id);
+  const userData = useAppSelector((state) => state.user.user);
   const pageStateCache = (getPageStateCache(location) ?? [])
     .filter(removeDeletedPost)
     .filter(removeBlockedUserPosts);
@@ -123,6 +124,7 @@ function Home() {
             likeCount: data.likeCount,
             commentCount: data.commentCount,
             movieId: data?.movieId,
+            hashtags: data.hashtags,
           };
         }
         // RSS feed post
@@ -137,7 +139,8 @@ function Home() {
           likeIcon: data.likedByUser,
           likeCount: data.likeCount,
           commentCount: data.commentCount,
-          rssfeedProviderId: data.rssfeedProviderId._id,
+          rssfeedProviderId: data?.rssfeedProviderId?._id,
+          hashtags: data.hashtags,
         };
       });
       setPosts((prev: Post[]) => [
@@ -324,7 +327,7 @@ function Home() {
     }));
   }, []);
 
-  const onLikeClick = useCallback(async (feedPostId: string) => {
+  const onLikeClick = async (feedPostId: string) => {
     const checkLike = posts.some((post) => post.id === feedPostId
       && post.likeIcon);
 
@@ -344,34 +347,27 @@ function Home() {
     };
 
     const selectedFeedPostUserId = posts.find((post) => post.id === feedPostId)?.userId;
-    const selectedRssfeedProviderIdOfFeedPost = posts.find(
-      (post) => post.id === feedPostId,
-    )?.rssfeedProviderId;
 
     const handleLikeAndUnlikeFeedPost = async () => {
       try {
         if (checkLike) {
           await unlikeFeedPost(feedPostId);
         } else {
-          await likeFeedPost(feedPostId);
+          const res = await likeFeedPost(feedPostId);
+          if (!res.data.isFriend) {
+            checkFriendShipStatus(selectedFeedPostUserId!);
+          }
         }
-      } catch (error) {
+      } catch (error: any) {
         revertOptimisticUpdate();
+        if (error.response.status === 403) {
+          checkFriendShipStatus(selectedFeedPostUserId!);
+        }
       }
     };
 
-    // feedPost is a user post
-    if (selectedFeedPostUserId) {
-      checkFriendShipStatus(selectedFeedPostUserId!)
-        .then(handleLikeAndUnlikeFeedPost)
-        .catch(revertOptimisticUpdate);
-    }
-
-    // feedPost is rssFeedPost
-    if (selectedRssfeedProviderIdOfFeedPost) {
-      handleLikeAndUnlikeFeedPost();
-    }
-  }, [checkFriendShipStatus, handlePostDislike, handlePostLike, posts]);
+    handleLikeAndUnlikeFeedPost();
+  };
 
   const onBlockYesClick = () => {
     setProgressButtonStatus('loading');
@@ -487,7 +483,7 @@ function Home() {
           )
         }
 
-        {friendShipStatusModal && (
+        {friendShipStatusModal && !userData.ignoreFriendSuggestionDialog && (
           <FriendshipStatusModal
             friendShipStatusModal={friendShipStatusModal}
             setFriendShipStatusModal={setFriendShipStatusModal}

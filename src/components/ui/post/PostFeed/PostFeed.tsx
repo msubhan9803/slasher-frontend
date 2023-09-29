@@ -83,7 +83,7 @@ interface Props {
   setUpdateState?: (value: boolean) => void;
   onSelect?: () => void;
   postType?: string,
-  handleSearch?: (val: string) => void;
+  handleSearch?: (val: string, prefix: string) => void;
   mentionList?: MentionListProps[];
   commentImages?: string[];
   commentReplyError?: string[];
@@ -105,7 +105,7 @@ interface Props {
 }
 
 interface StyledProps {
-  detailsPage: boolean;
+  detailsPage?: boolean;
 }
 
 const StyledPostFeed = styled.div`
@@ -137,11 +137,14 @@ const StyledContentContainer = styled.div<StyledProps>`
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 4;
     `}
-  cursor: ${(props) => (!props?.detailsPage ? 'pointer' : 'auto')};
-  a {
-    display: inline-block;
-  }
-`;
+    cursor: ${(props) => (!props?.detailsPage ? 'pointer' : 'auto')};
+    span {
+      cursor: pointer
+    }
+    a {
+      display: inline-block;
+    }
+  `;
 type PostContentPropsType = {
   post: any, postType: string | undefined, generateReadMoreLink: any,
   escapeHtml: boolean | undefined, onPostContentClick: (post: any, event?: any) => void,
@@ -164,7 +167,8 @@ function PostContent({
   const messageRef = useRef<any>(null);
   const visible = useOnScreen(messageRef);
   const [showReadMoreLink, setShowReadMoreLink] = useState(false);
-
+  const [searchParams] = useSearchParams();
+  const selectedHashtag = searchParams.get('hashtag');
   let { message } = post;
 
   if (post.rssFeedTitle) {
@@ -199,6 +203,28 @@ function PostContent({
       }
     }
   }, [isSinglePost, visible]);
+
+  const genratePostContent = (content: any) => {
+    const escapedString = newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content, `#${selectedHashtag}`!, false, post.hashtags)), defaultLinkifyOpts));
+
+    const regex = /(#\w+)/g;
+
+    const result = escapedString.split(regex).filter(Boolean);
+
+    const arrayWithJsx = result.map((resultItem) => {
+      if (resultItem.startsWith('#')) {
+        (
+          <div>
+            <Link to={`/app/search/posts?hashtag=${resultItem.slice(1)}`}>{resultItem}</Link>
+          </div>
+        );
+      }
+
+      return resultItem;
+    });
+
+    return arrayWithJsx.join('').toString();
+  };
 
   return (
     <div>
@@ -260,22 +286,18 @@ function PostContent({
                 {
                   __html: escapeHtml && !post?.spoiler
                     // eslint-disable-next-line max-len
-                    ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(message)), defaultLinkifyOpts))
+                    ? genratePostContent(message)
                     : cleanExternalHtmlContent(message),
                 }
               }
-              onClick={(e) => !isSinglePost && onPostContentClick(e, post)}
+              onClick={(e: any) => {
+                if (e.target.tagName !== 'A' && !isSinglePost) {
+                  onPostContentClick(e, post);
+                }
+              }}
               aria-label="post-content"
               onKeyDown={(e) => handlePostContentKeyDown(e, post)}
             />
-            {
-              post.hashTag?.map((hashtag: string) => (
-                <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
-                  #
-                  {hashtag}
-                </span>
-              ))
-            }
             {
               !isSinglePost
               && showReadMoreLink
@@ -448,7 +470,6 @@ function PostFeed({
   const handleComment = () => {
     setCommentClick(!isCommentClick);
   };
-
   return (
     <StyledPostFeed>
       {isPostDetailsPage(pathname) && <ScrollToTop />}

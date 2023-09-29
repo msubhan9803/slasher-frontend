@@ -31,6 +31,7 @@ import useProgressButton from '../../../components/ui/ProgressButton';
 import { sleep } from '../../../utils/timer-utils';
 import { atMentionsGlobalRegex, decryptMessage, generateMentionReplacementMatchFunc } from '../../../utils/text-utils';
 import FriendshipStatusModal from '../../../components/ui/friendShipCheckModal';
+import { useAppSelector } from '../../../redux/hooks';
 
 type Props = {
   movieData: MovieData;
@@ -88,6 +89,8 @@ function MovieReviews({
     hasPageStateCache(location)
       ? ReviewsCache : [],
   );
+  const userData = useAppSelector((state) => state.user.user);
+
   const navigate = useNavigate();
   const handleCreateInput = () => {
     setShowReviewForm(true);
@@ -132,6 +135,7 @@ function MovieReviews({
           contentHeading: data.title,
           movieId: id,
           spoilers: data.spoilers,
+          hashtags: data.hashtags,
         }));
         setReviewPostData(newPosts);
       });
@@ -399,40 +403,38 @@ function MovieReviews({
   };
 
   const handlePostDislike = (feedPostId: string) => {
-    const likePostData = reviewPostData.map((likePost: Post) => {
-      if (likePost._id === feedPostId) {
+    setReviewPostData((prevReviewPostData: any) => prevReviewPostData.map((reviewPost: Post) => {
+      if (reviewPost._id === feedPostId) {
         return {
-          ...likePost,
+          ...reviewPost,
           likeIcon: true,
           likedByUser: true,
-          likeCount: likePost.likeCount + 1,
+          likeCount: reviewPost.likeCount + 1,
         };
       }
-      return likePost;
-    });
-    setReviewPostData(likePostData);
+      return reviewPost;
+    }));
   };
 
   const handlePostLike = (feedPostId: string) => {
-    const unLikePostData = reviewPostData.map(
-      (unLikePost: Post) => {
-        if (unLikePost._id === feedPostId) {
+    setReviewPostData((prevReviewPostData: any) => prevReviewPostData.map(
+      (reviewPost: Post) => {
+        if (reviewPost._id === feedPostId) {
           return {
-            ...unLikePost,
+            ...reviewPost,
             likeIcon: false,
             likedByUser: false,
-            likeCount: unLikePost.likeCount - 1,
+            likeCount: reviewPost.likeCount - 1,
           };
         }
-        return unLikePost;
+        return reviewPost;
       },
-    );
-    setReviewPostData(unLikePostData);
+    ));
   };
 
   const onLikeClick = async (feedPostId: string) => {
     const checkLike = reviewPostData.some((post: any) => post.id === feedPostId
-      && post.likeIcon);
+    && post.likeIcon);
 
     if (checkLike) {
       handlePostLike(feedPostId);
@@ -540,7 +542,7 @@ function MovieReviews({
         )
       }
 
-      {friendShipStatusModal && (
+      {friendShipStatusModal && !userData.ignoreFriendSuggestionDialog && (
         <FriendshipStatusModal
           friendShipStatusModal={friendShipStatusModal}
           setFriendShipStatusModal={setFriendShipStatusModal}

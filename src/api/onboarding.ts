@@ -32,3 +32,11 @@ export async function onboardingAboutMe(message: string) {
     },
   );
 }
+
+export async function getOnboardingSuggestedHashtag() {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.get(`${apiUrl}/api/v1/hashtags/onboarding-suggestions`, { headers });
+}

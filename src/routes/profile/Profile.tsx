@@ -26,11 +26,11 @@ import PostDetail from '../../components/ui/post/PostDetail';
 import ProfileLimitedView from './ProfileLimitedView/ProfileLimitedView';
 import RightSidebarAdOnly from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarAdOnly';
 import ContentNotAvailable from '../../components/ContentNotAvailable';
+import ProfileFollowing from './ProfileFollowing/ProfileFollowing';
 import useBootstrapBreakpointName from '../../hooks/useBootstrapBreakpoint';
 import { getPageStateCache, setPageStateCache } from '../../pageStateCache';
 import { getProfileSubroutesCache } from './profileSubRoutesCacheUtils';
 import { setProfilePageUserDetailsReload } from '../../redux/slices/userSlice';
-import ProfileFollowing from './ProfileFollowing/ProfileFollowing';
 
 interface SharedHeaderProfilePagesProps {
   user: User;
@@ -171,7 +171,6 @@ function Profile() {
       <ContentPageWrapper>
         <h1 className="sr-only">{user.userName}</h1>
         <Routes>
-          <Route path="/edit" element={<ProfileEdit user={user} />} />
           <Route path="*" element={<SharedHeaderProfilePages user={user} isSelfProfile={isSelfProfile} />} />
         </Routes>
       </ContentPageWrapper>

@@ -15,6 +15,7 @@ interface Props {
   userId?: string;
   postImages?: string[] | undefined;
   rssfeedProviderId?: string;
+  isHashtag?: boolean;
 }
 
 export interface PopoverClickProps {
@@ -26,10 +27,14 @@ export interface PopoverClickProps {
   rssfeedProviderId?: string,
 }
 
-const StyledPopover = styled.div`
+export interface PopoverProp {
+  isHashtag?: boolean
+}
+
+const StyledPopover = styled.div<PopoverProp>`
   position: relative;
   left: .755rem;
-
+  ${(props) => (props.isHashtag ? 'top:0.125rem;' : 'top:-.5rem;')}
   .btn.show:focus-visible, .btn:first-child:active:focus-visible {
     box-shadow: 0 0 0 2px var(--stroke-and-line-separator-color) !important;
   }
@@ -85,7 +90,7 @@ const StyledPopover = styled.div`
 
 function CustomPopover({
   popoverOptions, onPopoverClick,
-  message, id, userId, userName, postImages, rssfeedProviderId,
+  message, id, userId, userName, postImages, rssfeedProviderId, isHashtag,
 }: Props) {
   const popoverClickProps = {
     message,
@@ -96,7 +101,7 @@ function CustomPopover({
     rssfeedProviderId,
   };
   return (
-    <StyledPopover>
+    <StyledPopover isHashtag={isHashtag}>
       <DropdownButton
         variant="link"
         drop="start"
@@ -134,6 +139,7 @@ CustomPopover.defaultProps = {
   userName: null,
   postImages: [],
   rssfeedProviderId: '',
+  isHashtag: false,
 };
 
 export default CustomPopover;

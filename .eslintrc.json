@@ -31,6 +31,8 @@
         "import/prefer-default-export": "off",
         "@typescript-eslint/no-unused-vars": "warn",
         "react/jsx-props-no-spreading": "off",
+        // Starting from React 17, you no longer need to import React in files that contain React components. 
+        "react/react-in-jsx-scope":  "off",
         "max-lines": [
             "error",
             200

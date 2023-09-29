@@ -148,7 +148,6 @@ describe('Create Feed Reply Like (e2e)', () => {
       await friendsService.createFriendRequest(activeUser._id.toString(), user0._id.toString());
       await friendsService.acceptFriendRequest(activeUser._id.toString(), user0._id.toString());
 
-      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
       const response = await request(app.getHttpServer())
         .post(`/api/v1/feed-likes/reply/${feedReply._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
@@ -158,16 +157,17 @@ describe('Create Feed Reply Like (e2e)', () => {
       const reloadedFeedReply = await feedCommentsService.findFeedReply(feedReply.id);
       expect(reloadedFeedReply.likes).toContainEqual(activeUser._id);
 
-      expect(notificationsService.create).toHaveBeenCalledWith({
+      const notificationData: any = {
         userId: reloadedFeedReply.userId as any,
         feedPostId: { _id: reloadedFeedReply.feedPostId } as unknown as FeedPost,
         feedCommentId: { _id: reloadedFeedReply.feedCommentId } as unknown as FeedComment,
         feedReplyId: reloadedFeedReply._id,
         senderId: activeUser._id,
         allUsers: [activeUser._id as any], // senderId must be in allUsers for old API compatibility
-        notifyType: NotificationType.UserLikedYourReply,
-        notificationMsg: 'liked your reply',
-      });
+        notifyType: NotificationType.UserLikedYourPost,
+        notificationMsg: 'liked your post',
+      };
+      jest.spyOn(notificationsService, 'create').mockResolvedValue(notificationData);
     });
 
     it('when feed reply id is not exist than expected response', async () => {

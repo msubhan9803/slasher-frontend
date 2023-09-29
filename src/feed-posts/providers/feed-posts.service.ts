@@ -75,8 +75,23 @@ export class FeedPostsService {
   async findById(
     id: string,
     activeOnly: boolean,
+  ): Promise<any> {
+    const feedPostFindQuery: any = { _id: id };
+    if (activeOnly) {
+      feedPostFindQuery.is_deleted = false;
+      feedPostFindQuery.status = FeedPostStatus.Active;
+    }
+    const feedPost = await this.feedPostModel
+      .findOne(feedPostFindQuery)
+      .exec();
+    return feedPost;
+  }
+
+  async findByIdWithPopulatedFields(
+    id: string,
+    activeOnly: boolean,
     identifyLikesForUser?: mongoose.Schema.Types.ObjectId,
-  ): Promise<FeedPostDocument> {
+  ): Promise<any> {
     const feedPostFindQuery: any = { _id: id };
     if (activeOnly) {
       feedPostFindQuery.is_deleted = false;
@@ -525,9 +540,9 @@ export class FeedPostsService {
       .exec();
   }
 
-  async updatePostPrivacyType(userId: string, status: number): Promise<any> {
+  async updatePostPrivacyType(userId: string, visibility: ProfileVisibility): Promise<any> {
     const updateFeedPostData = {
-      privacyType: status === ProfileVisibility.Private
+      privacyType: visibility === ProfileVisibility.Private
         ? FeedPostPrivacyType.Private
         : FeedPostPrivacyType.Public,
     };

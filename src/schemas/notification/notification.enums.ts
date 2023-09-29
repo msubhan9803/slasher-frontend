@@ -22,6 +22,7 @@ export enum NotificationType {
   UserLikedYourReply = 203,
   UserRepliedOnYourPost = 204,
   HashTagPostNotification = 205,
+  NewPostFromFollowedUser = 206,
   Type102 = 102,
   Type103 = 103,
   UserMentionedYouInACommentOnANewsPost = 121,

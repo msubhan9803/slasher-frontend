@@ -1,7 +1,8 @@
+/* eslint-disable max-lines */
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { DateTime } from 'luxon';
 import { AppModule } from '../../app.module';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
@@ -143,6 +144,37 @@ describe('HashtagService', () => {
       const limit = 10;
       const suggestUserNames = await hashtagService.suggestHashtagName(query, limit, false);
       expect(suggestUserNames).toHaveLength(6);
+    });
+  });
+
+  describe('#findActiveHashtags', () => {
+    beforeEach(async () => {
+      await hashtagModel.create({
+        name: 'frightfulness',
+        status: 1,
+      });
+      await hashtagModel.create({
+        name: 'horridness',
+        status: 0,
+      });
+      await hashtagModel.create({
+        name: 'grisliness',
+        status: 1,
+      });
+      await hashtagModel.create({
+        name: 'depravity',
+        status: 0,
+      });
+      await hashtagModel.create({
+        name: 'scariness',
+        status: 1,
+      });
+    });
+
+    it('finds the only hashtags whose status is active', async () => {
+      const hashtagArray = ['frightfulness', 'horridness', 'grisliness', 'depravity', 'scariness'];
+      const hashtags = await hashtagService.findActiveHashtags(hashtagArray);
+      expect(hashtags).toHaveLength(3);
     });
   });
 
@@ -355,5 +387,52 @@ describe('HashtagService', () => {
         'horror21', 'horror22',
       ]);
     });
+  });
+
+  it('#hashtagExists', async () => {
+    const hashtag = await hashtagModel.create({
+      name: 'good',
+    });
+    const exists = await hashtagService.hashtagExists(hashtag.id);
+    expect(exists).toBeTruthy();
+
+    // when document does not exist
+    const randomId = new mongoose.Types.ObjectId();
+    const nonExisting = await hashtagService.hashtagExists(randomId.toString());
+    expect(nonExisting).toBeFalsy();
+  });
+
+  it('#updateHashtagStatus', async () => {
+    const hashtag = await hashtagModel.create({
+      name: 'good',
+      status: HashtagActiveStatus.Active,
+    });
+    expect(hashtag.status).toBe(HashtagActiveStatus.Active);
+
+    const updatedHashtag = await hashtagService.updateHashtagStatus(hashtag.id, HashtagActiveStatus.Inactive);
+    expect(updatedHashtag.status).toBe(HashtagActiveStatus.Inactive);
+
+    const updatedHashtag2 = await hashtagService.updateHashtagStatus(hashtag.id, HashtagActiveStatus.Deactivated);
+    expect(updatedHashtag2.status).toBe(HashtagActiveStatus.Deactivated);
+
+    const updatedHashtag3 = await hashtagService.updateHashtagStatus(hashtag.id, HashtagActiveStatus.Active);
+    expect(updatedHashtag3.status).toBe(HashtagActiveStatus.Active);
+  });
+
+  // Admin only
+  it('#findAll', async () => {
+    await hashtagModel.create({ name: 'tag1' });
+    await hashtagModel.create({ name: 'tag2' });
+    await hashtagModel.create({ name: 'tag3' });
+    await hashtagModel.create({ name: 'tag344' });
+
+    const page1Hashtags = await hashtagService.findAll(1, 3, 'name');
+    expect(page1Hashtags.items).toHaveLength(3);
+    expect(page1Hashtags.items.map((item) => item.name)).toEqual(['tag1', 'tag2', 'tag3']);
+
+    // with search
+    const searchHashtags = await hashtagService.findAll(1, 3, 'name', 'tag3');
+    expect(searchHashtags.items).toHaveLength(2);
+    expect(searchHashtags.items.map((item) => item.name)).toEqual(['tag3', 'tag344']);
   });
 });

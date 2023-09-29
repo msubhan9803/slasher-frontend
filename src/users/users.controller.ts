@@ -478,7 +478,8 @@ export class UsersController {
     const unreadNotificationCount = await this.notificationsService.getUnreadNotificationCount(user.id);
     const friendRequestCount = await this.friendsService.getReceivedFriendRequestCount(user.id);
     return {
-      user: pick(user, ['id', 'userName', 'profilePic', 'newNotificationCount', 'newFriendRequestCount', 'ignoreFriendSuggestionDialog']),
+      user: pick(user, ['id', 'userName', 'profilePic', 'newNotificationCount',
+        'newFriendRequestCount', 'ignoreFriendSuggestionDialog', 'userType']),
       recentMessages,
       recentFriendRequests: receivedFriendRequestsData,
       unreadNotificationCount,
@@ -749,8 +750,18 @@ export class UsersController {
       loggedInUser.id,
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
     );
+
+    for (let i = 0; i < feedPosts.length; i += 1) {
+      const findActiveHashtags = await this.hashtagService.findActiveHashtags(feedPosts[i].hashtags);
+      feedPosts[i].hashtags = findActiveHashtags.map((hashtag) => hashtag.name);
+    }
+
     return feedPosts.map(
-      (post) => pick(post, ['_id', 'message', 'images', 'userId', 'createdAt', 'likedByUser', 'likeCount', 'commentCount', 'movieId']),
+      (post) => pick(
+post,
+        ['_id', 'message', 'images', 'userId', 'createdAt',
+          'likedByUser', 'likeCount', 'commentCount', 'movieId', 'hashtags'],
+),
     );
   }
 

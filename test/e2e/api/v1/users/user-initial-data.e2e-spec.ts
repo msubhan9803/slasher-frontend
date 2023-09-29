@@ -19,6 +19,7 @@ import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-se
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 import { UserSettingsService } from '../../../../../src/settings/providers/user-settings.service';
 import { userSettingFactory } from '../../../../factories/user-setting.factory';
+import { UserType } from '../../../../../src/schemas/user/user.enums';
 
 describe('Users suggested friends (e2e)', () => {
   let app: INestApplication;
@@ -158,6 +159,7 @@ describe('Users suggested friends (e2e)', () => {
             user: {
               id: expect.any(String),
               userName: 'Username1',
+              userType: UserType.Regular,
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
               newNotificationCount: 6,
               newFriendRequestCount: 0,

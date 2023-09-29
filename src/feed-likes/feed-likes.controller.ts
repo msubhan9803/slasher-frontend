@@ -3,6 +3,8 @@ import {
   Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Query, Req, ValidationPipe,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 import { getUserFromRequest } from '../utils/request-utils';
 import { FeedLikesService } from './providers/feed-likes.service';
 import { FeedPostsIdDto } from './dto/feed-post-id.dto';
@@ -27,6 +29,7 @@ import { PostAccessService } from '../feed-posts/providers/post-access.service';
 @Controller({ path: 'feed-likes', version: ['1'] })
 export class FeedLikesController {
   constructor(
+    @InjectQueue('notification') private createNotificationQueue: Queue,
     private readonly feedLikesService: FeedLikesService,
     private readonly feedPostsService: FeedPostsService,
     private readonly feedCommentsService: FeedCommentsService,
@@ -41,6 +44,7 @@ export class FeedLikesController {
   async createFeedPostLike(@Req() request: Request, @Param() params: FeedPostsIdDto) {
     const user = getUserFromRequest(request);
     const post = await this.feedPostsService.findById(params.feedPostId, true);
+
     if (!post) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
@@ -51,16 +55,16 @@ export class FeedLikesController {
     let isFriend = true;
     if (
       post.postType !== PostType.MovieReview && !post.rssfeedProviderId
-      && user.id !== (post.userId as unknown as User)._id.toString()
+      && user.id !== (post.userId as unknown as User).toString()
     ) {
-      isFriend = await this.friendsService.areFriends(user.id, (post.userId as unknown as User)._id.toString()) || false;
+      isFriend = await this.friendsService.areFriends(user.id, (post.userId as unknown as User).toString()) || false;
 
       if (!isFriend) {
         await this.postAccessService.checkAccessPostService(user, post.hashtags);
       }
     }
     if (!post.rssfeedProviderId) {
-      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User)._id.toString());
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User).toString());
       if (block) {
         throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
       }
@@ -69,7 +73,7 @@ export class FeedLikesController {
     let postUserId;
     if (!post.rssfeedProviderId) {
       // Create notification for post creator, informing them that a like was added to their post.
-      postUserId = (post.userId as any)._id.toString();
+      postUserId = (post.userId as any).toString();
     }
     const skipPostCreatorNotification = (
       // Don't send a "liked your post" notification to the post creator if any of
@@ -78,16 +82,16 @@ export class FeedLikesController {
       || post.rssfeedProviderId
     );
     if (!skipPostCreatorNotification) {
-      await this.notificationsService.create({
-        userId: postUserId as any,
-        feedPostId: { _id: post._id.toString() } as unknown as FeedPost,
-        senderId: user._id,
-        allUsers: [user._id as any], // senderId must be in allUsers for old API compatibility
-        notifyType: NotificationType.UserLikedYourPost,
-        notificationMsg: post.postType === PostType.MovieReview ? 'liked your movie review' : 'liked your post',
-      });
-    }
+      const notification: any = {};
+      notification.userId = postUserId as any;
+      notification.feedPostId = { _id: post._id.toString() } as unknown as FeedPost;
+      notification.senderId = user._id;
+      notification.allUsers = [user._id as any];
+      notification.notifyType = NotificationType.UserLikedYourPost;
+      notification.notificationMsg = post.postType === PostType.MovieReview ? 'liked your movie review' : 'liked your post';
 
+      await this.createNotificationQueue.add('create-notification', notification);
+    }
     return { success: true, isFriend };
   }
 
@@ -120,7 +124,7 @@ export class FeedLikesController {
     }
 
     if (!feedPost.rssfeedProviderId) {
-      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User).toString());
       if (block) {
         throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
       }
@@ -128,9 +132,9 @@ export class FeedLikesController {
     let isFriend = true;
     if (
       feedPost.postType !== PostType.MovieReview && !feedPost.rssfeedProviderId
-      && user.id !== (comment.userId as unknown as User)._id.toString()
+      && user.id !== (feedPost.userId as unknown as User).toString()
     ) {
-      isFriend = await this.friendsService.areFriends(user.id, (comment.userId as unknown as User)._id.toString()) || false;
+      isFriend = await this.friendsService.areFriends(user.id, (comment.userId as unknown as User).toString()) || false;
 
       if (!isFriend) {
         await this.postAccessService.checkAccessPostService(user, feedPost.hashtags);
@@ -146,15 +150,16 @@ export class FeedLikesController {
       user.id === comment.userId.toString()
     );
     if (!skipCommentCreatorNotification) {
-      await this.notificationsService.create({
-        userId: comment.userId as any,
-        feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
-        feedCommentId: { _id: comment._id } as unknown as FeedComment,
-        senderId: user._id,
-        allUsers: [user._id as any], // senderId must be in allUsers for old API compatibility
-        notifyType: NotificationType.UserLikedYourComment,
-        notificationMsg: 'liked your comment',
-      });
+      const notification: any = {};
+      notification.userId = comment.userId as any;
+      notification.feedPostId = { _id: comment.feedPostId } as unknown as FeedPost;
+      notification.feedCommentId = { _id: comment._id } as unknown as FeedComment;
+      notification.senderId = user._id;
+      notification.allUsers = [user._id as any];
+      notification.notifyType = NotificationType.UserLikedYourComment;
+      notification.notificationMsg = 'liked your comment';
+
+      await this.createNotificationQueue.add('create-notification', notification);
     }
     return { success: true, isFriend };
   }
@@ -188,7 +193,7 @@ export class FeedLikesController {
     }
 
     if (!feedPost.rssfeedProviderId) {
-      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (reply.userId as unknown as User)._id.toString());
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (reply.userId as unknown as User).toString());
       if (block) {
         throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
       }
@@ -196,9 +201,9 @@ export class FeedLikesController {
     let isFriend = true;
     if (
       feedPost.postType !== PostType.MovieReview && !feedPost.rssfeedProviderId
-      && user.id !== (reply.userId as unknown as User)._id.toString()
+      && user.id !== (reply.userId as unknown as User).toString()
     ) {
-      isFriend = await this.friendsService.areFriends(user.id, (reply.userId as unknown as User)._id.toString()) || false;
+      isFriend = await this.friendsService.areFriends(user.id, (reply.userId as unknown as User).toString()) || false;
 
       if (!isFriend) {
         await this.postAccessService.checkAccessPostService(user, feedPost.hashtags);
@@ -214,16 +219,17 @@ export class FeedLikesController {
       user.id === reply.userId.toString()
     );
     if (!skipCommentCreatorNotification) {
-      await this.notificationsService.create({
-        userId: reply.userId as any,
-        feedPostId: { _id: reply.feedPostId } as unknown as FeedPost,
-        feedCommentId: { _id: reply.feedCommentId } as unknown as FeedComment,
-        feedReplyId: reply._id,
-        senderId: user._id,
-        allUsers: [user._id as any], // senderId must be in allUsers for old API compatibility
-        notifyType: NotificationType.UserLikedYourReply,
-        notificationMsg: 'liked your reply',
-      });
+      const notification: any = {};
+      notification.userId = reply.userId as any;
+      notification.feedPostId = { _id: reply.feedPostId } as unknown as FeedPost;
+      notification.feedCommentId = { _id: reply.feedCommentId } as unknown as FeedComment;
+      notification.feedReplyId = reply._id;
+      notification.senderId = user._id;
+      notification.allUsers = [user._id as any];
+      notification.notifyType = NotificationType.UserLikedYourReply;
+      notification.notificationMsg = 'liked your reply';
+
+      await this.createNotificationQueue.add('create-notification', notification);
     }
 
     return { success: true, isFriend };
@@ -251,7 +257,7 @@ export class FeedLikesController {
     if (!comment) {
       throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
     }
-    const feedPost = await this.feedPostsService.findById(comment.feedPostId.toString(), true);
+    const feedPost = await this.feedPostsService.findByIdWithPopulatedFields(comment.feedPostId.toString(), true);
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
@@ -299,7 +305,7 @@ export class FeedLikesController {
     if (!reply) {
       throw new HttpException('Reply not found', HttpStatus.NOT_FOUND);
     }
-    const feedPost = await this.feedPostsService.findById(reply.feedPostId.toString(), true);
+    const feedPost = await this.feedPostsService.findByIdWithPopulatedFields(reply.feedPostId.toString(), true);
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }

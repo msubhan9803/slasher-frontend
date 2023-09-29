@@ -141,6 +141,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
           content: '<p>this is rss <b>feed</b> <span>test<span> </p>',
           title: 'Rss Feed 1',
         },
+        hashtags: [],
         images: [
           {
             image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
@@ -231,6 +232,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
           title: 'RssFeedProvider 2',
         },
         rssFeedId: null,
+        hashtags: [],
         images: [
           {
             image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
@@ -277,6 +279,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         createdAt: expect.any(String),
         rssfeedProviderId: null,
         rssFeedId: null,
+        hashtags: [],
         images: [
           {
             image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',

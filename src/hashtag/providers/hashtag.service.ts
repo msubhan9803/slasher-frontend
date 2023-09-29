@@ -1,13 +1,14 @@
 /* eslint-disable class-methods-use-this */
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { DateTime } from 'luxon';
 import { escapeStringForRegex } from '../../utils/escape-utils';
 import { Hashtag, HashtagDocument } from '../../schemas/hastag/hashtag.schema';
 import { HashtagActiveStatus, HashtagDeletionStatus } from '../../schemas/hastag/hashtag.enums';
 import { FeedPostsService } from '../../feed-posts/providers/feed-posts.service';
 import { toUtcStartOfDay } from '../../utils/date-utils';
+import { HashtagsSortByType } from '../../types';
 
 @Injectable()
 export class HashtagService {
@@ -99,7 +100,7 @@ export class HashtagService {
     return this.HashtagModel.find(
       {
         $and: [{ _id: { $in: hashtagId } },
-        name,
+          name,
         { deleted: 0, status: 1 }],
       },
       {
@@ -142,5 +143,51 @@ export class HashtagService {
       .sort((a, b) => (b as any)[1] - (a as any)[1]) // sort by value
       .map(([key]) => key); // get the keys
     return sortHashtagsKeys;
+  }
+
+  async updateHashtagStatus(hashtagId: string, status: HashtagActiveStatus) {
+    const hashtag = (await this.HashtagModel.findOneAndUpdate(
+      { _id: new mongoose.Types.ObjectId(hashtagId) },
+      { status },
+      { upsert: false, new: true },
+    )).toObject();
+    return hashtag;
+  }
+
+  async hashtagExists(hashtagId: string): Promise<boolean> {
+    const exists = await this.HashtagModel.exists({ _id: new mongoose.Types.ObjectId(hashtagId) });
+    return Boolean(exists);
+  }
+
+  async findActiveHashtags(hashtags: string[]) {
+    return this.HashtagModel.find({ name: { $in: hashtags }, status: 1 }).exec();
+  }
+
+  async findAll(
+    page: number,
+    perPage: number,
+    sortBy: HashtagsSortByType,
+    nameContains?: string,
+  ): Promise<{ allItemsCount: number, items: HashtagDocument[] }> {
+    const hashtagFindAllQuery: any = {};
+
+    if (nameContains) {
+      hashtagFindAllQuery.name = {};
+      hashtagFindAllQuery.name.$regex = new RegExp(`${escapeStringForRegex(nameContains.toLowerCase())}`, 'i');
+    }
+
+    const allItemsCount = await this.HashtagModel.count(hashtagFindAllQuery);
+
+    const sortByFields: any = {};
+    sortByFields[sortBy] = 1;
+
+    const items = await this.HashtagModel
+      .find(hashtagFindAllQuery)
+      .skip((page - 1) * perPage)
+      .sort(sortByFields)
+      .limit(perPage)
+      .exec();
+
+    return { allItemsCount, items };
   }
 }

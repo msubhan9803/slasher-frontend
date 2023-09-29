@@ -163,7 +163,7 @@ describe('Report And Unreport (e2e)', () => {
         .post('/api/v1/reports')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(reportAndUnreportObject);
-      const feedPostData = await feedPostsService.findById(feedPost.id, false);
+      const feedPostData = await feedPostsService.findByIdWithPopulatedFields(feedPost.id, false);
       expect(feedPostData._id.toString()).toEqual(reportAndUnreportObject.targetId);
       expect(mailService.sendReportNotificationEmail).toHaveBeenCalledWith(
         reportAndUnreportObject.reportType,
@@ -193,7 +193,7 @@ describe('Report And Unreport (e2e)', () => {
         .post('/api/v1/reports')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(reportAndUnreportObject);
-      const feedPostData = await feedPostsService.findById(rssFeedPost.id, false);
+      const feedPostData = await feedPostsService.findByIdWithPopulatedFields(rssFeedPost.id, false);
       expect(feedPostData._id.toString()).toEqual(reportAndUnreportObject.targetId);
       expect(mailService.sendReportNotificationEmail).toHaveBeenCalledWith(
         reportAndUnreportObject.reportType,

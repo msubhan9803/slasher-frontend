@@ -9,7 +9,7 @@ import { useAppSelector } from '../../../redux/hooks';
 
 const tabs = [
   { value: 'people', label: 'People' },
-  { value: 'hashtags', label: 'Hashtags', devOnly: true },
+  { value: 'hashtags', label: 'Hashtags' },
   { value: 'posts', label: 'Posts', devOnly: true },
   { value: 'news', label: 'News', devOnly: true },
   { value: 'events', label: 'Events', devOnly: true },

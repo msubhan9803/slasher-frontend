@@ -60,7 +60,7 @@ function FollowingPeople() {
         {
           followPeople.length === 0
             ? message
-            : 'No more hashtag'
+            : 'No more people'
         }
       </p>
     );

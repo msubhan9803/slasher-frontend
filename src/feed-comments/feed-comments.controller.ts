@@ -38,6 +38,7 @@ import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
 import { UsersService } from '../users/providers/users.service';
 import { PostType } from '../schemas/feedPost/feedPost.enums';
+import { PostAccessService } from '../feed-posts/providers/post-access.service';
 
 @Controller({ path: 'feed-comments', version: ['1'] })
 export class FeedCommentsController {
@@ -52,6 +53,7 @@ export class FeedCommentsController {
     private readonly blocksService: BlocksService,
     private readonly friendsService: FriendsService,
     private readonly usersService: UsersService,
+    private readonly postAccessService: PostAccessService,
   ) { }
 
   @TransformImageUrls('$.images[*].image_path')
@@ -77,15 +79,16 @@ export class FeedCommentsController {
     if (!post) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-
+    let isFriend = true;
     const user = getUserFromRequest(request);
     if (
       post.postType !== PostType.MovieReview && !post.rssfeedProviderId
       && user.id !== (post.userId as unknown as User).toString()
     ) {
-      const areFriends = await this.friendsService.areFriends(user.id, (post.userId as unknown as User).toString());
-      if (!areFriends) {
-        throw new HttpException('You can only interact with posts of friends.', HttpStatus.FORBIDDEN);
+      isFriend = await this.friendsService.areFriends(user.id, (post.userId as unknown as User).toString()) || false;
+
+      if (!isFriend) {
+        await this.postAccessService.checkAccessPostService(user, post.hashtags);
       }
     }
 
@@ -131,6 +134,7 @@ export class FeedCommentsController {
       message: comment.message,
       userId: comment.userId,
       images: comment.images,
+      isFriend,
     };
   }
 
@@ -299,14 +303,14 @@ export class FeedCommentsController {
         throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
       }
     }
-
+    let isFriend = true;
     if (
       feedPost.postType !== PostType.MovieReview && !feedPost.rssfeedProviderId
       && user.id !== (feedPost.userId as unknown as User).toString()
     ) {
-      const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User).toString());
-      if (!areFriends) {
-        throw new HttpException('You can only interact with posts of friends.', HttpStatus.FORBIDDEN);
+      isFriend = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User).toString()) || false;
+      if (!isFriend) {
+        await this.postAccessService.checkAccessPostService(user, feedPost.hashtags);
       }
     }
 
@@ -347,6 +351,7 @@ export class FeedCommentsController {
       message: reply.message,
       userId: reply.userId,
       images: reply.images,
+      isFriend,
     };
   }
 

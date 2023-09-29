@@ -3,9 +3,9 @@ import * as request from 'supertest';
 import * as path from 'path';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { EventEmitter } from 'stream';
 import { readdirSync } from 'fs';
 import { AppModule } from '../../../../../src/app.module';
@@ -17,6 +17,7 @@ import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { Hashtag, HashtagDocument } from '../../../../../src/schemas/hastag/hashtag.schema';
 import { FeedPostPrivacyType, PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
 import { MoviesService } from '../../../../../src/movies/providers/movies.service';
 import { moviesFactory } from '../../../../factories/movies.factory';
@@ -36,6 +37,7 @@ describe('Feed-Post / Post File (e2e)', () => {
   let activeUserAuthToken: string;
   let activeUser: User;
   let configService: ConfigService;
+  let hashtagModel: Model<HashtagDocument>;
   let feedPostsService: FeedPostsService;
   let movieUserStatusService: MovieUserStatusService;
   let userSettingsService: UserSettingsService;
@@ -52,6 +54,7 @@ describe('Feed-Post / Post File (e2e)', () => {
     moviesService = moduleRef.get<MoviesService>(MoviesService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
+    hashtagModel = moduleRef.get<Model<HashtagDocument>>(getModelToken(Hashtag.name));
     movieUserStatusService = moduleRef.get<MovieUserStatusService>(MovieUserStatusService);
 
     app = moduleRef.createNestApplication();
@@ -117,22 +120,22 @@ describe('Feed-Post / Post File (e2e)', () => {
           userId: activeUser._id.toString(),
           images: [
             {
-              image_path: expect.stringMatching(/api\/v1\/local-storage\/feed\/feed_.+\.png|jpe?g/),
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
               description: 'this is create post description 1',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
-              image_path: expect.stringMatching(/api\/v1\/local-storage\/feed\/feed_.+\.png|jpe?g/),
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
               description: 'this is create post description 2',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
-              image_path: expect.stringMatching(/api\/v1\/local-storage\/feed\/feed_.+\.png|jpe?g/),
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
               description: 'this is create post description 3',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
-              image_path: expect.stringMatching(/api\/v1\/local-storage\/feed\/feed_.+\.png|jpe?g/),
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
               description: 'this is create post description 4',
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
@@ -297,6 +300,110 @@ describe('Feed-Post / Post File (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
+    it('when # is exists on message string than expected response', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'test user#ok #slasher #nothing #ok')
+          .field('postType', PostType.User)
+          .field('userId', activeUser._id.toString())
+          .attach('files', tempPaths[0])
+          .field('imageDescriptions[0][description]', 'this is create post description 0');
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'test user#ok #slasher #nothing #ok',
+          userId: activeUser._id.toString(),
+          postType: PostType.User,
+          spoilers: false,
+          images: [
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              description: 'this is create post description 0',
+            },
+          ],
+        });
+
+        const feedPost = await feedPostsService.findById(response.body._id, true);
+        expect(feedPost.hashtags).toEqual(['ok', 'slasher', 'nothing']);
+
+        const hashtags = await hashtagModel.find({ name: { $in: feedPost.hashtags } });
+        expect(hashtags[0].name).toBe('nothing');
+        expect(hashtags[1].name).toBe('ok');
+        expect(hashtags[2].name).toBe('slasher');
+      }, [{ extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when # is exists on message string than it returns the response after removing punctuation marks', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'test user#okay #slasher #test12 #?ok ##good #horror1?12')
+          .field('postType', PostType.User)
+          .field('userId', activeUser._id.toString())
+          .attach('files', tempPaths[0])
+          .field('imageDescriptions[0][description]', 'this is create post description 0');
+
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'test user#okay #slasher #test12 #?ok ##good #horror1?12',
+          userId: activeUser._id.toString(),
+          postType: PostType.User,
+          spoilers: false,
+          images: [
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              description: 'this is create post description 0',
+            },
+          ],
+        });
+
+        const feedPost = await feedPostsService.findById(response.body._id, true);
+        expect(feedPost.hashtags).toEqual(['okay', 'slasher', 'test12', 'horror1']);
+
+        const hashtags = await hashtagModel.find({ name: { $in: feedPost.hashtags } });
+        expect(hashtags[0].name).toBe('horror1');
+        expect(hashtags[1].name).toBe('okay');
+        expect(hashtags[2].name).toBe('slasher');
+        expect(hashtags[3].name).toBe('test12');
+      }, [{ extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('only allows a maximum of 10 hashtags', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'test user#ok #slasher #nothing #okay #best #not #go #run #fast #good #buy')
+          .field('userId', activeUser._id.toString())
+          .field('postType', PostType.User)
+          .attach('files', tempPaths[0])
+          .field('imageDescriptions[0][description]', 'this is create post description 0');
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'you can not add more than 10 hashtags on a post',
+        });
+      }, [{ extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
     it('when movieId is exits than expected response', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
@@ -445,6 +552,38 @@ describe('Feed-Post / Post File (e2e)', () => {
       );
     });
 
+    it('when we add single 5(hashtags) and double 5(hashtags)', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'test user#ok #slasher #nothing #okay #best ##not ##go ##run ##fast ##good')
+          .field('userId', activeUser._id.toString())
+          .field('postType', PostType.User)
+          .attach('files', tempPaths[0])
+          .field('imageDescriptions[0][description]', 'this is create post description 0');
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'test user#ok #slasher #nothing #okay #best ##not ##go ##run ##fast ##good',
+          spoilers: false,
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              description: 'this is create post description 0',
+            },
+          ],
+          postType: PostType.User,
+        });
+      }, [{ extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
     it('when files length is not equal imageDescriptions length than expected response', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
@@ -487,11 +626,76 @@ describe('Feed-Post / Post File (e2e)', () => {
           userId: activeUser._id.toString(),
           images: [
             {
-              image_path: expect.stringMatching(/api\/v1\/local-storage\/feed\/feed_.+\.png|jpe?g/),
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
               description: null,
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
           ],
+        });
+      }, [{ extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when we add double(##) 11 hashtags', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'test user##ok ##slasher ##nothing ##okay ##best ##not ##go ##run ##fast ##good ##far')
+          .field('userId', activeUser._id.toString())
+          .field('postType', PostType.User)
+          .attach('files', tempPaths[0])
+          .field('imageDescriptions[0][description]', 'this is create post description 0');
+
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'test user##ok ##slasher ##nothing ##okay ##best ##not ##go ##run ##fast ##good ##far',
+          spoilers: false,
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              description: 'this is create post description 0',
+            },
+          ],
+          postType: PostType.User,
+        });
+      }, [{ extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when message start with hashtag than expected response', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', '#test user#ok #slasher #nothing #okay')
+          .field('userId', activeUser._id.toString())
+          .field('postType', PostType.User)
+          .attach('files', tempPaths[0])
+          .field('imageDescriptions[0][description]', 'this is create post description 0');
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: '#test user#ok #slasher #nothing #okay',
+          spoilers: false,
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              description: 'this is create post description 0',
+            },
+          ],
+          postType: PostType.User,
         });
       }, [{ extension: 'png' }]);
 
@@ -535,6 +739,7 @@ describe('Feed-Post / Post File (e2e)', () => {
         .expect(HttpStatus.CREATED);
       expect((await feedPostsService.findById(response.body._id, true)).privacyType).toEqual(FeedPostPrivacyType.Public);
     });
+
     it('sets the privacyPost type to private when user profile is private', async () => {
       const user = await usersService.create(userFactory.build(
         { profile_status: ProfileVisibility.Private },
@@ -556,7 +761,7 @@ describe('Feed-Post / Post File (e2e)', () => {
     describe('notifications', () => {
       it('when notification is create for createFeedPost than check newNotificationCount is increment in user', async () => {
         const otherUser1 = await usersService.create(userFactory.build({ userName: 'Denial' }));
-        const otherUser2 = await usersService.create(userFactory.build({ userName: 'Divine' }));
+        const otherUser2 = await usersService.create(userFactory.build({ userName: 'Devine' }));
         await userSettingsService.create(
           userSettingFactory.build(
             {
@@ -578,8 +783,8 @@ describe('Feed-Post / Post File (e2e)', () => {
             .set('Content-Type', 'multipart/form-data')
             .field(
               'message',
-              `##LINK_ID##${otherUser1._id.toString()}@Denial##LINK_END## other user 1`
-              + `##LINK_ID##${otherUser2._id.toString()}@Divine##LINK_END## other user 2`,
+              `##LINK_ID##${otherUser1._id.toString()}@Denial##LINK_END## other user 1 `
+              + `##LINK_ID##${otherUser2._id.toString()}@Denial##LINK_END## other user 2`,
             )
             .field('postType', PostType.User)
             .field('userId', activeUser._id.toString())

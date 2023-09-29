@@ -124,12 +124,16 @@ describe('Create Feed Comment Like (e2e)', () => {
     });
 
     it('successfully creates a feed comment like, and sends the expected notification', async () => {
+      await friendsService.createFriendRequest(activeUser._id.toString(), user0._id.toString());
+      await friendsService.acceptFriendRequest(activeUser._id.toString(), user0._id.toString());
+
+      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
       const response = await request(app.getHttpServer())
         .post(`/api/v1/feed-likes/comment/${feedComment._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.CREATED);
-      expect(response.body).toEqual({ success: true });
+      expect(response.body).toEqual({ success: true, isFriend: true });
 
       const reloadedFeedComment = await feedCommentsService.findFeedComment(feedComment.id);
       expect(reloadedFeedComment.likes).toContainEqual(activeUser._id);
@@ -336,7 +340,7 @@ describe('Create Feed Comment Like (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toBe(HttpStatus.CREATED);
-        expect(response.body).toEqual({ success: true });
+        expect(response.body).toEqual({ success: true, isFriend: true });
       });
 
       it('when postType is movieReview than expected response', async () => {
@@ -363,7 +367,7 @@ describe('Create Feed Comment Like (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
           expect(response.status).toBe(HttpStatus.CREATED);
-          expect(response.body).toEqual({ success: true });
+          expect(response.body).toEqual({ success: true, isFriend: true });
       });
 
       it('when postType is movieReview and comment liking user is a friend of the post creator', async () => {
@@ -402,7 +406,7 @@ describe('Create Feed Comment Like (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
           expect(response.status).toBe(HttpStatus.CREATED);
-          expect(response.body).toEqual({ success: true });
+          expect(response.body).toEqual({ success: true, isFriend: true });
       });
     });
 

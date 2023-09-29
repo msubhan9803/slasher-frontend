@@ -13,6 +13,8 @@ import { RssFeedProviderFollowsModule } from '../rss-feed-provider-follows/rss-f
 import { RssFeedProvidersModule } from '../rss-feed-providers/rss-feed-providers.module';
 import { MailModule } from '../providers/mail.module';
 import { DisallowedUsernameModule } from '../disallowedUsername/disallowed-username.module';
+import { MoviesModule } from '../movies/movies.module';
+import { HashtagFollowsModule } from '../hashtag-follows/hashtag-follows.module';
 import { UsersEmailChangeController } from './users.email-change.controller';
 import { UsersPublicController } from './users.public.controller';
 import { EmailRevertTokensModule } from '../email-revert-tokens/email-revert-tokens.module';
@@ -31,6 +33,8 @@ import { EmailRevertTokensModule } from '../email-revert-tokens/email-revert-tok
     MailModule,
     DisallowedUsernameModule,
     CaptchaModule,
+    MoviesModule,
+    HashtagFollowsModule,
   ],
   controllers: [UsersEmailChangeController, UsersPublicController, UsersController],
   providers: [UsersService, LocalStorageService, S3StorageService],

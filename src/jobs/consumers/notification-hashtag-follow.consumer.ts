@@ -4,26 +4,24 @@ import { NotificationsService } from '../../notifications/providers/notification
 
 @Processor('hashtag-follow-post')
 export class NotificatationOfHashtagFollowPost {
-    constructor(
-        private readonly notificationsService: NotificationsService,
-    ) { }
+  constructor(private readonly notificationsService: NotificationsService) { }
 
-    @Process('send-notification-of-hashtagfollow-post')
-    async sendNotificationOfHashtagFollowPost(job: Job<any>) {
-        const {
+  @Process('send-notification-of-hashtagfollow-post')
+  async sendNotificationOfHashtagFollowPost(job: Job<any>) {
+    const {
  userId, feedPostId, senderId, notifyType, notificationMsg,
 } = job.data;
 
-        for (let i = 0; i < userId.length; i += 1) {
-            await this.notificationsService.create({
-                userId: userId[i],
-                feedPostId,
-                senderId,
-                notifyType,
-                notificationMsg,
-            });
-        }
-
-        return { success: true };
+    for (let i = 0; i < userId.length; i += 1) {
+      await this.notificationsService.create({
+        userId: userId[i]._id,
+        feedPostId,
+        senderId,
+        notifyType,
+        notificationMsg,
+      });
     }
+
+    return { success: true };
+  }
 }

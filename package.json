@@ -1,7 +1,7 @@
 {
   "name": "slasher-web-frontend",
   "version": "4.6.5",
-  "capacitorAppBuildNumber": 203,
+  "capacitorAppBuildNumber": 204,
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
@@ -30,6 +30,7 @@
     "@fortawesome/react-fontawesome": "^0.1.18",
     "@mui/material": "^5.9.2",
     "@mui/styles": "^5.9.2",
+    "@mui/x-data-grid": "^6.15.0",
     "@mui/x-date-pickers": "^5.0.20",
     "@reduxjs/toolkit": "^1.8.5",
     "@testing-library/jest-dom": "^5.16.4",

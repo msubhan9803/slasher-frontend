@@ -20,6 +20,7 @@ export const urlForNotification = (notification: Notification) => {
       // username from the notificationMsg string.
       // eslint-disable-next-line no-case-declarations
       return `/${userNameForReceivedFriendRequestNotification(notification)}`;
+    case NotificationType.HashTagPostNotification:
     case NotificationType.NewPostFromFollowedUser:
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}`;
     case NotificationType.UserLikedYourPost:

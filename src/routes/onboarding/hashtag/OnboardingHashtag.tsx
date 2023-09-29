@@ -1,19 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Button, Col, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
+import { addHashtags } from '../../../api/users';
+import { getOnboardingSuggestedHashtag } from '../../../api/onboarding';
 
-const hashtagList: string[] = [
-  'horrorfilm', 'monsters', 'vintagehorror', 'horror', 'art', 'scary',
-  'ghost', 'horrorfan', 'onlinedating', 'thriller', 'horrorlover',
-  'story', 'darkart', 'datenight',
-];
-
-const HashtagButton = styled(Button)`
+export const HashtagButton = styled(Button)`
   border : 0.125rem solid #383838
 `;
 const SelectedHashtagButton = styled(Button)`
@@ -33,7 +30,15 @@ const HashtagText = styled.p`
 `;
 
 function OnboardingHashtag() {
+  const navigate = useNavigate();
+  const [suggestedHashtags, setSuggestedHashtags] = useState<string[]>([]);
   const [selectedHashtag, setSelectedHashtag] = useState<string[]>([]);
+
+  useEffect(() => {
+    getOnboardingSuggestedHashtag().then((res) => {
+      setSuggestedHashtags(res.data);
+    });
+  }, []);
 
   const addHashtag = (tag: string) => {
     if (selectedHashtag.indexOf(tag) === -1) {
@@ -41,25 +46,32 @@ function OnboardingHashtag() {
     }
   };
 
-  const romoveHashtag = (removeTag: string) => {
+  const removeHashtag = (removeTag: string) => {
     const removeHashtags = selectedHashtag.filter((tag) => tag !== removeTag);
     setSelectedHashtag(removeHashtags);
   };
+
+  const completeSignUp = () => {
+    addHashtags(selectedHashtag).then(() => { navigate('/app/home'); });
+  };
+
   return (
     <>
       <h1 className="mt-5 mb-3 h2">Suggested hashtags:</h1>
       <Row>
         <Col>
-          {hashtagList.map((hashtag: string) => (
-            <HashtagButton
-              key={`${hashtag}-1`}
-              as="input"
-              type="button"
-              value={hashtag}
-              className="m-1 px-3 py-1 text-light rounded-pill bg-secondary"
-              onClick={() => addHashtag(hashtag)}
-            />
-          ))}
+          {suggestedHashtags
+            && suggestedHashtags.length > 0
+            && suggestedHashtags.map((hashtag: string) => (
+              <HashtagButton
+                key={`${hashtag}-1`}
+                as="input"
+                type="button"
+                value={hashtag}
+                className="m-1 px-3 py-1 text-light rounded-pill bg-secondary"
+                onClick={() => addHashtag(hashtag)}
+              />
+            ))}
         </Col>
       </Row>
       <h2 className="mt-5 mb-3 h2">Hashtags you selected:</h2>
@@ -69,7 +81,7 @@ function OnboardingHashtag() {
             {selectedHashtag.map((tag: string) => (
               <SelectedHashtagButton key={`${tag}-1`} type="button" className="p-1 m-2 px-3 text-light rounded-pill text-white">
                 {tag}
-                <FontAwesomeIcon icon={solid('times')} size="lg" className="text-light ms-2" onClick={() => romoveHashtag(tag)} />
+                <FontAwesomeIcon icon={solid('times')} size="lg" className="text-light ms-2" onClick={() => removeHashtag(tag)} />
               </SelectedHashtagButton>
             ))}
           </SelectedHashtagContainer>
@@ -92,7 +104,7 @@ function OnboardingHashtag() {
               </RoundButtonLink>
             </Col>
             <Col xs={6}>
-              <RoundButtonLink to="/" className="w-100" variant="primary">
+              <RoundButtonLink to="/app/onboarding/hashtag" handleClick={completeSignUp} className="w-100" variant="primary">
                 Finish
               </RoundButtonLink>
             </Col>

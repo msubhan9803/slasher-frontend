@@ -21,7 +21,9 @@ import { deletePageStateCache } from '../../../pageStateCache';
 
 export interface MentionProps {
   id: string;
+  _id: string;
   userName: string;
+  name: string;
   profilePic: string;
 }
 

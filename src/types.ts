@@ -216,6 +216,7 @@ export enum NotificationType {
   NewPostFromFollowedRssFeedProvider = 125,
   FriendMessageNotification = 126,
   HashTagPostNotification = 205,
+  NewPostFromFollowedUser = 206,
 }
 
 export interface Notification {
@@ -406,3 +407,17 @@ export type FriendType = {
 } | null;
 
 export type LocationOrPathname = Location | string;
+
+export const HashtagsSortBy = ['name', 'createdAt', 'totalPost', 'deleted'] as const;
+export type HashtagsSortByType = typeof HashtagsSortBy[number];
+
+export enum HashtagActiveStatus {
+  Inactive = 0,
+  Active = 1,
+  Deactivated = 2,
+}
+
+export enum UserType {
+  Regular = '1',
+  Admin = '2',
+}

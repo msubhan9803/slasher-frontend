@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { MessagesList } from '../../types';
+import { MessagesList, UserType } from '../../types';
 
 export const userSlice = createSlice({
   name: 'user',
@@ -17,6 +17,7 @@ export const userSlice = createSlice({
       newFriendRequestCount: 0,
       newNotificationCount: 0,
       ignoreFriendSuggestionDialog: false,
+      userType: null as (UserType | null),
     },
     forceFriendListReload: false,
     forceProfilePageUserDetailsReload: false,

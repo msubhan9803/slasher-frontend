@@ -205,7 +205,7 @@ function PostContent({
   }, [isSinglePost, visible]);
 
   const genratePostContent = (content: any) => {
-    const escapedString = newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content, `#${selectedHashtag}`!)), defaultLinkifyOpts));
+    const escapedString = newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content, `#${selectedHashtag}`!, false, post.hashtags)), defaultLinkifyOpts));
 
     const regex = /(#\w+)/g;
 
@@ -544,7 +544,7 @@ function PostFeed({
             {
               isCommentSection
               && (
-                <SelectContainer className="ml-auto ms-auto pb-1">
+                <SelectContainer className="ml-auto ms-auto pb-1 mt-3">
                   <CustomSelect value={commentsOrder} onChange={handleCommentsOrder} options={[{ value: CommentsOrder.oldestFirst, label: 'Oldest to newest (default)' }, { value: CommentsOrder.newestFirst, label: 'Newest to oldest' }]} />
                 </SelectContainer>
               )

@@ -18,3 +18,11 @@ export function formatNumberWithUnits(number: number) {
   }
   return number.toString();
 }
+
+/* Returns number of pages  */
+export const getPageCount = (rowCount: number, pageSize: number) => {
+  if (pageSize > 0 && rowCount > 0) {
+    return Math.ceil(rowCount / pageSize);
+  }
+  return 0;
+};

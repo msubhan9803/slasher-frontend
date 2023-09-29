@@ -1,8 +1,11 @@
 import React from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import {
+  Navigate, Route, Routes,
+} from 'react-router-dom';
 import { User } from '../../../types';
 import ProfileHeader from '../ProfileHeader';
 import FollowingHashtags from './FollowingHashtags/FollowingHashtags';
+import FollowingPeople from './FollowingPeople/FollowingPeople';
 
 interface Props {
   user: User;
@@ -14,7 +17,9 @@ function ProfileFollowing({ user }: Props) {
       <ProfileHeader tabKey="following" user={user} />
       <Routes>
         <Route path="/*" element={<Navigate to="hashtags" replace />} />
-        <Route path="hashtags" element={<FollowingHashtags />} />
+        <Route path="/hashtags" element={<FollowingHashtags />} />
+        <Route path="/people" element={<FollowingPeople />} />
+
       </Routes>
     </div>
   );

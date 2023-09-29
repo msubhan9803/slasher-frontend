@@ -19,7 +19,7 @@ import { createBlockUser } from '../../api/blocks';
 import { reportData } from '../../api/report';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { StyledBorder } from '../../components/ui/StyledBorder';
-import { BREAK_POINTS, topToDivHeight } from '../../constants';
+import { BREAK_POINTS, MD_MEDIA_BREAKPOINT, topToDivHeight } from '../../constants';
 import FriendActionButtons from '../../components/ui/Friend/FriendActionButtons';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import SignInModal from '../../components/ui/SignInModal';
@@ -29,6 +29,8 @@ import { setScrollToTabsPosition } from '../../redux/slices/scrollPositionSlice'
 import { formatNumberWithUnits } from '../../utils/number.utils';
 import ZoomableImageModal from '../../components/ui/ZoomingImageModal';
 import useProgressButton from '../../components/ui/ProgressButton';
+import NotificationBell from '../../components/ui/NotificationBell';
+import { checkFollowNotificationStatus, deleteNotificationStatus, updateNotificationStatus } from '../../api/user-follow';
 
 interface Props {
   tabKey?: string;
@@ -37,6 +39,23 @@ interface Props {
 }
 const AboutProfileImage = styled(UserCircleImage)`
   border: 0.25rem solid #1B1B1B;
+`;
+export const StyledButtonIcon = styled.div`  
+  min-height:2.356rem;
+  .main {
+    width:25.8px;
+  }
+  .toggle {
+    line-height: 0.625;
+  }
+  .res-div {
+    width : 100%;
+  }
+  @media (min-width: ${MD_MEDIA_BREAKPOINT}) {
+    .res-div {
+      width : auto;
+    }
+  }
 `;
 const tabs = [
   { value: 'about', label: 'About' },
@@ -65,6 +84,19 @@ const StyleDot = styled(FontAwesomeIcon)`
   height: 0.267rem;
 `;
 
+const NotificationBellWrapper = styled.div`
+  width: 100%;
+  @media (min-width: 767.98px) { 
+    width: auto;
+  }
+  @media (min-width: 991.98px) { 
+    width: 100%;
+  } 
+  @media (min-width: 1199.98px) { 
+    width: auto;
+  } 
+`;
+
 function ProfileHeader({
   tabKey, user, showTabs,
 }: Props) {
@@ -74,6 +106,7 @@ function ProfileHeader({
   const [friendshipStatus, setFriendshipStatus] = useState<any>();
   const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
   const [dropDownValue, setDropDownValue] = useState<string>('');
+  const [isNotify, setNotify] = useState(false);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const popoverOption = ['Report', 'Block user'];
   const loginUserName = useAppSelector((state) => state.user.user.userName);
@@ -92,7 +125,6 @@ function ProfileHeader({
   const isSelfUserProfile = userName === loginUserName;
   const userIsLoggedIn = !token.isLoading && token.value;
   const customTabs = isSelfUserProfile ? tabs : tabs.filter((t) => t.user !== 'self');
-
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.userId) {
       setClickedUserId(popoverClickProps.userId);
@@ -111,6 +143,15 @@ function ProfileHeader({
       });
     }
   }, [user, friendshipStatus, isSelfUserProfile, userId, token]);
+
+  useEffect(() => {
+    if (friendStatus === 3 && !isSelfUserProfile && user) {
+      checkFollowNotificationStatus(user?._id)
+        .then((res) => {
+          setNotify(res.data.success);
+        });
+    }
+  }, [friendStatus, user, isSelfUserProfile]);
 
   useLayoutEffect(() => {
     if (token.isLoading) { return; }
@@ -181,6 +222,19 @@ function ProfileHeader({
   };
   const handleScrollToTab = () => dispatch(setScrollToTabsPosition(true));
 
+  const onOffNotificationClick = () => {
+    const requestBody = {
+      followUserId: user?._id,
+      notification: isNotify,
+    };
+    if (isNotify) {
+      deleteNotificationStatus(user?._id).then(() => setNotify(false));
+    } else {
+      updateNotificationStatus(requestBody)
+        .then(() => setNotify(true));
+    }
+  };
+
   // Fix bug of 1071: Use `visibility` style variable so that `ProfileHeader` details
   // like profile-name, profile-image are not shown when we switch tabs i.e,.,Posts,
   // Friends, Photos, etc. (bug was only replicable on capacitor app and not on mobile-web)
@@ -235,7 +289,7 @@ function ProfileHeader({
                   )}
                 {!isSelfUserProfile && userIsLoggedIn
                   && (
-                    <div className="d-flex align-items-center justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
+                    <div className="d-flex flex-wrap-reverse flex-md-nowrap flex-lg-wrap-reverse flex-xl-nowrap align-items-center justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
                       <FriendActionButtons
                         user={user}
                         friendData={friendData}
@@ -243,6 +297,18 @@ function ProfileHeader({
                         setFriendshipStatus={setFriendshipStatus}
                         buttonType="send-message"
                       />
+                      {friendStatus === 3 && (
+                        <NotificationBellWrapper className="d-flex justify-content-center mb-2 mb-md-0 mb-lg-2 mb-xl-0">
+                          <StyledButtonIcon className="d-flex align-items-center ms-md-2 justify-content-end">
+                            {!isSelfUserProfile && friendStatus === 3 && (
+                              <NotificationBell
+                                onButtonClick={() => onOffNotificationClick()}
+                                toggle={isNotify}
+                              />
+                            )}
+                          </StyledButtonIcon>
+                        </NotificationBellWrapper>
+                      )}
                       <StyledPopoverContainer className="d-none d-md-block d-lg-none d-xl-block">
                         <CustomPopover
                           popoverOptions={popoverOption}

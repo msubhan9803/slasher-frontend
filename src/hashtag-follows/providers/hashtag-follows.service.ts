@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as _ from 'lodash';
@@ -66,6 +66,7 @@ export class HashtagFollowsService {
           $and: [
             { hashTagId: { $in: hashtagIdsArr } },
             { notification: 1 },
+            { userId: { $ne: new mongoose.Types.ObjectId(user as any)._id } },
           ],
         },
       },

@@ -67,7 +67,8 @@ export class NotificationsService {
       return;
     }
     const isNotificationEnabled = userSetting && userSetting[`${NOTIFICATION_TYPES_TO_CATEGORIES.get(notificationData.notifyType)}`];
-    if ((isNotificationEnabled || notificationData.notifyType === NotificationType.HashTagPostNotification) && user.userDevices?.length) {
+    if ((isNotificationEnabled || (notificationData.notifyType === NotificationType.HashTagPostNotification
+      || notificationData.notifyType === NotificationType.NewPostFromFollowedUser)) && user.userDevices?.length) {
       const deviceTokens = user.userDevices.filter((device) => device.device_id !== 'browser' && device.device_token)
         .map((device) => device.device_token);
       this.pushNotificationsService.sendPushNotification(notificationData, deviceTokens, user.newNotificationCount);

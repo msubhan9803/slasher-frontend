@@ -334,14 +334,19 @@ function SearchPosts() {
       .catch((error) => console.error(error));
   };
 
-  const deletePostClick = () => {
-    deleteFeedPost(postId)
+  const deletePostClick = async () => {
+    setProgressButtonStatus('loading');
+    return deleteFeedPost(postId)
       .then(() => {
         setShow(false);
-        getSearchPost();
+        setProgressButtonStatus('default');
+        getSearchPost(true);
       })
-      /* eslint-disable no-console */
-      .catch((error) => console.error(error));
+      .catch(async (error) => {
+        // eslint-disable-next-line no-console
+        console.error(error);
+        setProgressButtonStatus('failure');
+      });
   };
 
   const reportPost = (reason: string) => {
@@ -426,6 +431,7 @@ function SearchPosts() {
             setShow={setShow}
             slectedDropdownValue={dropDownValue}
             onBlockYesClick={onBlockYesClick}
+            ProgressButton={ProgressButton}
             handleReport={reportPost}
           />
         )

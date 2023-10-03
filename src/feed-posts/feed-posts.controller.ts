@@ -627,12 +627,17 @@ export class FeedPostsController {
       user.id,
     );
 
+    for (let i = 0; i < feedPosts.length; i += 1) {
+      const findActiveHashtags = await this.hashtagService.findActiveHashtags(feedPosts[i].hashtags);
+      feedPosts[i].hashtags = findActiveHashtags.map((j) => j.name);
+    }
+
     const posts = feedPosts.map(
       (feedPost) => pick(
         feedPost,
         ['_id', 'message', 'createdAt', 'lastUpdateAt',
           'rssfeedProviderId', 'images', 'userId', 'commentCount',
-          'likeCount', 'likedByUser'],
+          'likeCount', 'likedByUser', 'hashtags'],
       ),
     );
     return { count, posts };

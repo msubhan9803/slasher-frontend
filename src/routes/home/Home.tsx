@@ -247,12 +247,15 @@ function Home() {
         const updatePost = posts.map((post: any) => {
           if (post._id === postId) {
             return {
-              ...post, message: res.data.message, images: res.data.images,
+              ...post,
+              message: res.data.message,
+              images: res.data.images,
             };
           }
           return post;
         });
         setPosts(updatePost);
+        callLatestFeedPost();
       })
       .catch((error) => {
         setProgressButtonStatus('failure');

@@ -296,7 +296,12 @@ export class FeedPostsService {
           { status: 1 },
           { is_deleted: 0 },
           { userId: { $nin: blockUserIds } },
-          { privacyType: FeedPostPrivacyType.Public },
+          {
+            $or: [
+              { privacyType: FeedPostPrivacyType.Public },
+              { $and: [{ privacyType: FeedPostPrivacyType.Private }, { userId: new mongoose.Types.ObjectId(userId) }] },
+            ],
+          },
           beforeQuery,
         ],
       })

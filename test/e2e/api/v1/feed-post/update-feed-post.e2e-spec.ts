@@ -133,6 +133,7 @@ describe('Update Feed Post (e2e)', () => {
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
         message: 'hello all test user upload your feed post',
         userId: activeUser._id.toString(),
+        hashtags: [],
         images: [
           {
             image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -234,6 +235,7 @@ describe('Update Feed Post (e2e)', () => {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           message: 'hello test user',
           userId: activeUser._id.toString(),
+          hashtags: [],
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -276,6 +278,7 @@ describe('Update Feed Post (e2e)', () => {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           message: 'hello test user',
           userId: activeUser._id.toString(),
+          hashtags: [],
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -319,6 +322,7 @@ describe('Update Feed Post (e2e)', () => {
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
         message: 'hello test user',
         userId: activeUser._id.toString(),
+        hashtags: [],
         images: [
           {
             image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -495,6 +499,7 @@ describe('Update Feed Post (e2e)', () => {
           message: '"test user#ok #Slasher post #nothing12 #ok1?12 #!1good2"',
           spoilers: false,
           userId: activeUser._id.toString(),
+          hashtags: ['nothing12', 'ok', 'ok1', 'slasher'],
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -565,6 +570,7 @@ describe('Update Feed Post (e2e)', () => {
           message: 'test user #Slasher post #funny',
           spoilers: false,
           userId: activeUser._id.toString(),
+          hashtags: ['funny', 'slasher'],
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -611,6 +617,7 @@ describe('Update Feed Post (e2e)', () => {
           message: 'test user #flash #best',
           spoilers: false,
           userId: activeUser._id.toString(),
+          hashtags: ['best', 'flash'],
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -791,6 +798,7 @@ describe('Update Feed Post (e2e)', () => {
         message: 'this new post',
         spoilers: false,
         userId: activeUser._id.toString(),
+        hashtags: [],
         images: [
           {
             image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
@@ -861,6 +869,7 @@ describe('Update Feed Post (e2e)', () => {
           message: 'test user#ok #slasher #nothing #okay #best ##not ##go ##run ##fast ##good',
           spoilers: false,
           userId: activeUser._id.toString(),
+          hashtags: ['best', 'nothing', 'ok', 'okay', 'slasher'],
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -920,6 +929,7 @@ describe('Update Feed Post (e2e)', () => {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           message: 'hello all test user upload your feed post',
           userId: activeUser._id.toString(),
+          hashtags: [],
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -958,6 +968,7 @@ describe('Update Feed Post (e2e)', () => {
           message: 'test user##ok ##slasher ##nothing ##okay ##best ##not ##go ##run ##fast ##good ##far',
           spoilers: false,
           userId: activeUser._id.toString(),
+          hashtags: [],
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -999,6 +1010,7 @@ describe('Update Feed Post (e2e)', () => {
           message: '#test user#ok #slasher #nothing #okay',
           spoilers: false,
           userId: activeUser._id.toString(),
+          hashtags: ['nothing', 'ok', 'okay', 'slasher', 'test'],
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),

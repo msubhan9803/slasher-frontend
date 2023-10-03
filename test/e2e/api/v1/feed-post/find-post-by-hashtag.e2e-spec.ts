@@ -154,6 +154,7 @@ describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
               createdAt: expect.any(String),
               lastUpdateAt: expect.any(String),
               rssfeedProviderId: null,
+              hashtags: ['ok'],
               images: [
                 {
                   image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -181,6 +182,7 @@ describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
               createdAt: expect.any(String),
               lastUpdateAt: expect.any(String),
               rssfeedProviderId: null,
+              hashtags: ['ok'],
               images: [
                 {
                   image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -208,6 +210,7 @@ describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
               createdAt: expect.any(String),
               lastUpdateAt: expect.any(String),
               rssfeedProviderId: null,
+              hashtags: ['ok'],
               images: [
                 {
                   image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),

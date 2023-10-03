@@ -454,6 +454,10 @@ export class FeedPostsController {
       param.id,
       Object.assign(updateFeedPostsDto, { hashtags: newHashtagNames || [] }),
     );
+
+    const findActiveHashtags = await this.hashtagService.findActiveHashtags(updatedFeedPost.hashtags);
+    updatedFeedPost.hashtags = findActiveHashtags.map((hashtag) => hashtag.name);
+
     const mentionedUserIdsBeforeUpdate = extractUserMentionIdsFromMessage(feedPost.message);
     const mentionedUserIdsAfterUpdate = extractUserMentionIdsFromMessage(updateFeedPostsDto?.message);
 
@@ -476,6 +480,7 @@ export class FeedPostsController {
       userId: updatedFeedPost.userId,
       images: updatedFeedPost.images,
       spoilers: updatedFeedPost.spoilers,
+      hashtags: updatedFeedPost.hashtags,
     };
   }
 
@@ -627,12 +632,17 @@ export class FeedPostsController {
       user.id,
     );
 
+    for (let i = 0; i < feedPosts.length; i += 1) {
+      const findActiveHashtags = await this.hashtagService.findActiveHashtags(feedPosts[i].hashtags);
+      feedPosts[i].hashtags = findActiveHashtags.map((j) => j.name);
+    }
+
     const posts = feedPosts.map(
       (feedPost) => pick(
         feedPost,
         ['_id', 'message', 'createdAt', 'lastUpdateAt',
           'rssfeedProviderId', 'images', 'userId', 'commentCount',
-          'likeCount', 'likedByUser'],
+          'likeCount', 'likedByUser', 'hashtags'],
       ),
     );
     return { count, posts };

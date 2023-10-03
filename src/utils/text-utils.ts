@@ -25,11 +25,13 @@ export function escapeHtmlSpecialCharacters(
     ?.replaceAll("'", '&#039;');
 
   if (selectedHashtag && hashtags) {
-    result = result.replace(hashtagRegex, (match, p1, p2) => (
-      hashtags.includes(p2.slice(1))
-        ? `${p1}<a href="/app/search/posts?hashtag=${p2.slice(1)}" style="font-weight: 700; text-decoration:underline">${p2}</a>`
-        : `${p1}<span>${p2}</span>`
-    ));
+    const escapedHashtags = hashtags.map((tag) => tag.toLowerCase());
+    result = result.replace(hashtagRegex, (match, p1, p2) => {
+      const lowerCaseTag = p2.slice(1).toLowerCase();
+      return escapedHashtags.includes(lowerCaseTag)
+        ? `${p1}<a href="/app/search/posts?hashtag=${lowerCaseTag}" style="font-weight: 700; text-decoration: underline">${p2}</a>`
+        : `${p1}<span>${p2}</span>`;
+    });
   } else if (isComment) {
     result = result.replace(hashtagRegex, (match, p1, p2) => `${p1}<span>${p2}</span>`);
   } else {

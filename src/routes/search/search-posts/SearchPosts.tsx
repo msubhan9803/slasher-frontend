@@ -23,6 +23,7 @@ import {
 import useProgressButton from '../../../components/ui/ProgressButton';
 import FriendshipStatusModal from '../../../components/ui/friendShipCheckModal';
 import { friendship } from '../../../api/friends';
+import { sleep } from '../../../utils/timer-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
@@ -301,8 +302,9 @@ function SearchPosts() {
 
   const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
     setProgressButtonStatus('loading');
-    updateFeedPost(postId, message, images, imageDelete).then((res) => {
+    updateFeedPost(postId, message, images, imageDelete).then(async (res) => {
       setProgressButtonStatus('default');
+      await sleep(500);
       setShow(false);
       const updatePost = searchPosts.map((post: any) => {
         if (post._id === postId) {
@@ -312,7 +314,8 @@ function SearchPosts() {
         }
         return post;
       });
-      const checkHahtag = updatePost.filter((tag) => tag.message.includes(query));
+      // eslint-disable-next-line max-len
+      const checkHahtag = updatePost.filter((tag) => tag.message.toLowerCase().includes(query.toLowerCase()));
       setSearchPosts(checkHahtag);
     })
       .catch((error) => {

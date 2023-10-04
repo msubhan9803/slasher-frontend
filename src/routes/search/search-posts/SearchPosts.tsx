@@ -445,7 +445,7 @@ function SearchPosts() {
           setFriendShipStatusModal={setFriendShipStatusModal}
           friendStatus={friendStatus}
           setFriendStatus={setFriendStatus}
-          setFriendData={setSearchPosts}
+          setFriendData={setFriendData}
           friendData={friendData}
           userId={postUserId}
         />

@@ -290,6 +290,25 @@ function MessageTextarea({
     };
   }, [changeEmojiPickerPosition]);
 
+  const handleKeyDown = (e: any) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      const textarea = textareaRef.current?.textarea as any;
+      const { selectionStart } = textarea;
+      const { selectionEnd } = textarea;
+      const textBeforeCursor = e.target.value.substring(0, selectionStart);
+      const hashtagPattern = /#\S*$/;
+      const mentionPattern = /@\S*$/;
+
+      if (hashtagPattern.test(textBeforeCursor) || mentionPattern.test(textBeforeCursor)) {
+        const newValue = `${e.target.value.substring(0, selectionStart)}\n${e.target.value.substring(selectionEnd)}`;
+        setMessageContent(newValue);
+      } else {
+        setMessageContent(`${e.target.value}\n`);
+      }
+    }
+  };
+
   return (
     <>
       <StyledShadowWrapper isMentionsFocused={isMentionsFocused} iscommentinput={isCommentInput!}>
@@ -307,6 +326,7 @@ function MessageTextarea({
           onSearch={handleSearch}
           onSelect={handleSelect}
           onFocus={() => styledMentionFocusHandler()}
+          onKeyDown={handleKeyDown}
           onBlur={() => styledMentionBlurHandler()}
           value={defaultValue || ''}
           notFoundContent={notFoundContent}

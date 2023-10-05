@@ -4,6 +4,7 @@ import { clearLocalStorage } from './localstorage-utils';
 import socketStore from '../socketStore';
 import { isNativePlatform } from '../constants';
 import { sleep } from './timer-utils';
+import { isProductionServer } from '../env';
 
 // Fix for SD-1542: https://slasher.atlassian.net/browse/SD-1542
 // Because the api `await Preferences.get` is too slow and it causes the app the slow
@@ -11,11 +12,10 @@ import { sleep } from './timer-utils';
 // scroll-restore not possilbe
 let cachedSessionToken: string | null = null;
 
-const onlySendCookieOverHttps = !['development', 'test'].includes(process.env.NODE_ENV);
 const DEFAULT_COOKIE_OPTIONS = {
   expires: 400, // Expire cookie in 400 days (400 is maximum allowed by google-chrome)
 };
-const SESSION_TOKEN_OPTIONS = { ...DEFAULT_COOKIE_OPTIONS, secure: onlySendCookieOverHttps };
+const SESSION_TOKEN_OPTIONS = { ...DEFAULT_COOKIE_OPTIONS, secure: isProductionServer };
 
 export const setSignInCookies = async (sessionToken: string, userId: string, userName: string) => {
   if (!isNativePlatform) {
@@ -33,7 +33,7 @@ export const setSignInCookies = async (sessionToken: string, userId: string, use
 };
 export const updateUserNameCookie = async (userName: string) => {
   if (!isNativePlatform) {
-    Cookies.set('userName', userName, { secure: onlySendCookieOverHttps });
+    Cookies.set('userName', userName, { secure: isProductionServer });
   } else {
     await Preferences.set({ key: 'userName', value: userName });
   }

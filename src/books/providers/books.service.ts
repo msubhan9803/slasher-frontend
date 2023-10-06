@@ -41,12 +41,16 @@ export class BooksService {
     let hasMoreData = true;
 
     while (hasMoreData) {
+      const searchQuery = 'subject%3Ahorror'; // subject:horror
+      const fields = 'key,author_name,cover_edition_key'; // Helps in fetching unnecessary data from the API.
       const { data } = await lastValueFrom(
-        this.httpService.get<any>(`https://openlibrary.org/subjects/horror.json?limit=${limit}&offset=${offset}`),
+        this.httpService.get<any>(
+          `https://openlibrary.org/search.json?q=${searchQuery}&mode=everything&limit=${limit}&offset=${offset}&fields=${fields}`,
+        ),
       );
 
-      if (data && data.works && data.works.length > 0) {
-        arr.push(...data.works);
+      if (data?.docs?.length) {
+        arr.push(...data.docs);
         offset += limit;
       } else {
         hasMoreData = false;
@@ -57,38 +61,37 @@ export class BooksService {
 
   async syncWithTheBookDb(): Promise<ReturnBookDb> {
     try {
-      const mainBookData: any = await this.getBookData();
-      const mainBookArray: any = [];
-      for (let i = 0; i < mainBookData.length; i += 1) {
-        const bookDataObject: any = {};
+      const searchBooksData: any = await this.getBookData();
+      const mainBookArray: Array<Partial<BookDocument>> = [];
+      for (let i = 0; i < searchBooksData.length; i += 1) {
+        const bookDataObject: Partial<BookDocument> = {};
         const [keyData, editionKeyData]: any = await Promise.all([
           lastValueFrom(
-            this.httpService.get<any>(`https://openlibrary.org/${mainBookData[i].key}.json`),
+            this.httpService.get<any>(`https://openlibrary.org/${searchBooksData[i].key}.json`),
           ),
           lastValueFrom(
-            this.httpService.get<any>(`https://openlibrary.org/works/${mainBookData[i].cover_edition_key}.json`),
+            this.httpService.get<any>(`https://openlibrary.org/works/${searchBooksData[i].cover_edition_key}.json`),
           ),
         ]);
-        bookDataObject.description = keyData.data.description?.value ? keyData.data.description.value : keyData.data.description;
+        // From `searchBooksData` API
+        bookDataObject.bookId = searchBooksData[i].key;
+        bookDataObject.coverEditionKey = searchBooksData[i].cover_edition_key;
+        bookDataObject.author = searchBooksData[i]?.author_name ?? [];
+        // From `keyData` API
+        bookDataObject.description = keyData.data?.description?.value ?? keyData.data?.description;
         bookDataObject.covers = keyData.data.covers;
+        // From `editionKeyData` API
         bookDataObject.name = editionKeyData.data.title;
-        if (keyData.data?.authors && keyData.data?.authors.length) {
-          bookDataObject.author = (keyData.data?.authors).map((author) => author.author.key);
-        }
         bookDataObject.numberOfPages = editionKeyData.data.number_of_pages;
         bookDataObject.publishDate = editionKeyData.data.publish_date;
-        bookDataObject.coverEditionKey = mainBookData[i].cover_edition_key;
-        bookDataObject.bookId = mainBookData[i].key;
-
-        bookDataObject.isbnNumber = {};
-        const isbnRegex = new RegExp('isbn[_0-9]');
-        const allBookDataKeys = Object.keys(editionKeyData.data);
-
-        for (let num = 0; num < allBookDataKeys.length; num += 1) {
-          if (allBookDataKeys[num].match(isbnRegex)) {
-            bookDataObject.isbnNumber[allBookDataKeys[num]] = editionKeyData.data[allBookDataKeys[num]];
-          }
+        bookDataObject.isbnNumber = [];
+        if (editionKeyData.data.isbn_13) {
+          bookDataObject.isbnNumber.push(...editionKeyData.data.isbn_13);
         }
+        if (editionKeyData.data.isbn_10) {
+          bookDataObject.isbnNumber.push(...editionKeyData.data.isbn_10);
+        }
+
         mainBookArray.push(bookDataObject);
       }
       await this.booksModel.insertMany(mainBookArray);

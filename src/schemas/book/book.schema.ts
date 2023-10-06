@@ -63,5 +63,5 @@ export const BookSchema = SchemaFactory.createForClass(Book);
 export type BookDocument = HydratedDocument<Book>;
 
 BookSchema.index({
-  name: 1, descriptions: 1, logo: 1, type: 1, status: 1, createdBy: 1, deleted: 1,
+  name: 1, description: 1, logo: 1, type: 1, status: 1, createdBy: 1, deleted: 1,
 });

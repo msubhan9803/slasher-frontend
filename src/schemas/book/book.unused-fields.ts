@@ -4,9 +4,6 @@ import { BookDeletionState, BookStatus, BookType } from './book.enums';
 
 export class BookUnusedFields {
   @Prop({ default: null })
-  descriptions: string;
-
-  @Prop({ default: null })
   logo: string;
 
   @Prop({ default: BookType.Free, enum: [BookType.Free, BookType.Paid] })

@@ -78,9 +78,14 @@ export class BooksService {
         bookDataObject.author = searchBooksData[i]?.author_name ?? [];
         // From `keyData` API
         bookDataObject.description = keyData.data?.description?.value ?? keyData.data?.description;
-        bookDataObject.covers = keyData.data.covers;
         // From `editionKeyData` API
         bookDataObject.name = editionKeyData.data.title;
+        bookDataObject.covers = editionKeyData.data.covers;
+        // !TODO: Upload image of books to S3 bucket.
+        // Documentation: https://openlibrary.org/dev/docs/api/covers
+        // https://covers.openlibrary.org/b/ID/2808629-S.jpg
+        // https://covers.openlibrary.org/b/ID/2808629-M.jpg
+        // https://covers.openlibrary.org/b/ID/2808629-L.jpg
         bookDataObject.numberOfPages = editionKeyData.data.number_of_pages;
         bookDataObject.publishDate = editionKeyData.data.publish_date;
         bookDataObject.isbnNumber = [];

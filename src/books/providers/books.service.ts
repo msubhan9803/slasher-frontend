@@ -18,6 +18,16 @@ export class BooksService {
     return this.booksModel.create(bookData);
   }
 
+  async findById(id: string, activeOnly: boolean): Promise<Book> {
+    const booksFindQuery: any = { _id: id };
+    if (activeOnly) {
+      booksFindQuery.deleted = BookDeletionState.NotDeleted;
+      booksFindQuery.status = BookStatus.Active;
+    }
+    const bookData = await this.booksModel.findOne(booksFindQuery).exec();
+    return bookData ? bookData.toObject() : null;
+  }
+
   async findAll(activeOnly: boolean): Promise<BookDocument[]> {
     const booksFindAllQuery: any = {};
 
@@ -36,7 +46,7 @@ export class BooksService {
   async getBookData(): Promise<any> {
     const arr: any = [];
     let offset = 0;
-    const limit = 1000;
+    const limit = 10; // ! FOR PRODUCTION: Use 1000 value
     let hasMoreData = true;
 
     while (hasMoreData) {
@@ -51,6 +61,8 @@ export class BooksService {
       if (data?.docs?.length) {
         arr.push(...data.docs);
         offset += limit;
+        // ! FOR PRODUCTION: Remove below line
+        hasMoreData = false;
       } else {
         hasMoreData = false;
       }
@@ -81,11 +93,6 @@ export class BooksService {
         // From `editionKeyData` API
         bookDataObject.name = editionKeyData.data.title;
         bookDataObject.covers = editionKeyData.data.covers;
-        // !TODO: Upload image of books to S3 bucket.
-        // Documentation: https://openlibrary.org/dev/docs/api/covers
-        // https://covers.openlibrary.org/b/ID/2808629-S.jpg
-        // https://covers.openlibrary.org/b/ID/2808629-M.jpg
-        // https://covers.openlibrary.org/b/ID/2808629-L.jpg
         bookDataObject.numberOfPages = editionKeyData.data.number_of_pages;
         bookDataObject.publishDate = editionKeyData.data.publish_date;
         bookDataObject.isbnNumber = [];

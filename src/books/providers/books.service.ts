@@ -27,7 +27,6 @@ export class BooksService {
     }
     return this.booksModel
       .find(booksFindAllQuery)
-      .select('name')
       .sort({
         name: 1,
       })

@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { BookUnusedFields } from './book.unused-fields';
+import { BookStatus, BookDeletionState } from './book.enums';
 
 @Schema({ timestamps: true })
 export class Book extends BookUnusedFields {
@@ -43,6 +44,12 @@ export class Book extends BookUnusedFields {
   @Prop({ default: null })
   bookId: string;
 
+  @Prop({ default: BookStatus.Active, enum: [BookStatus.InActive, BookStatus.Active, BookStatus.Deactive] })
+  status: BookStatus;
+
+  @Prop({ default: BookDeletionState.NotDeleted, enum: [BookDeletionState.NotDeleted, BookDeletionState.Deleted] })
+  deleted: BookDeletionState;
+
   /***********
    * Methods *
    ***********/
@@ -62,6 +69,7 @@ export const BookSchema = SchemaFactory.createForClass(Book);
 
 export type BookDocument = HydratedDocument<Book>;
 
-BookSchema.index({
-  name: 1, description: 1, logo: 1, type: 1, status: 1, createdBy: 1, deleted: 1,
-});
+// !NOTE - TODO: Using below index throws error for some unknown reason ~ Sahil
+// BookSchema.index({
+//   name: 1, description: 1, logo: 1, type: 1, status: 1, createdBy: 1, deleted: 1,
+// });

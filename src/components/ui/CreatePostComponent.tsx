@@ -167,7 +167,6 @@ function CreatePostComponent({
   };
 
   const handleSearch = (text: string, prefix: string) => {
-    setMentionList([]);
     if (prefix === '@') {
       setNotFoundContent('Type to search for a username');
     } else if (prefix === '#') {

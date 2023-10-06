@@ -458,7 +458,6 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     return undefined;
   };
   const handleSearch = (text: string, prefix: string) => {
-    setMentionList([]);
     if (text) {
       if (prefix === '@') {
         getSuggestUserName(text)

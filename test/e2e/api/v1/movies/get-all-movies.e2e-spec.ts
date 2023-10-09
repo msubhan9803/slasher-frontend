@@ -401,7 +401,7 @@ describe('All Movies (e2e)', () => {
         moviesFactory.build(
           {
             status: MovieActiveStatus.Active,
-            name: 'a',
+            name: 'alive',
           },
         ),
       );
@@ -409,7 +409,7 @@ describe('All Movies (e2e)', () => {
         moviesFactory.build(
           {
             status: MovieActiveStatus.Active,
-            name: 'b',
+            name: 'horror',
           },
         ),
       );
@@ -417,12 +417,12 @@ describe('All Movies (e2e)', () => {
         moviesFactory.build(
           {
             status: MovieActiveStatus.Active,
-            name: 'c',
+            name: 'cat-die',
           },
         ),
       );
       const limit = 5;
-      const nameContains = 'c';
+      const nameContains = 'li';
       const response = await request(app.getHttpServer())
         .get(`/api/v1/movies?limit=${limit}&sortBy=${'rating'}&nameContains=${nameContains}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
@@ -467,7 +467,7 @@ describe('All Movies (e2e)', () => {
         .get(`/api/v1/movies?limit=${limit}&sortBy=${'name'}&nameContains=${nameContains}&startsWith=${sortNameStartsWith}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      expect(response.body).toEqual([]);
+      expect(response.body).toHaveLength(0);
     });
 
     it('when startsWith is exist and nameContains is not exist than expected response', async () => {
@@ -494,7 +494,13 @@ describe('All Movies (e2e)', () => {
           status: MovieActiveStatus.Active,
         }),
       );
-      const nameContains = 'ali';
+      const movie1 = await moviesService.create(
+        moviesFactory.build({
+          name: 'The alive',
+          status: MovieActiveStatus.Active,
+        }),
+      );
+      const nameContains = 'li';
       const sortNameStartsWith = 'a';
       const limit = 3;
       const response = await request(app.getHttpServer())
@@ -506,6 +512,14 @@ describe('All Movies (e2e)', () => {
         name: movie0.name,
         logo: 'http://localhost:4444/placeholders/movie_poster.png',
         releaseDate: movie0.releaseDate.toISOString(),
+        rating: 0,
+        worthWatching: 0,
+      },
+      {
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        name: movie1.name,
+        logo: 'http://localhost:4444/placeholders/movie_poster.png',
+        releaseDate: movie1.releaseDate.toISOString(),
         rating: 0,
         worthWatching: 0,
       }]);

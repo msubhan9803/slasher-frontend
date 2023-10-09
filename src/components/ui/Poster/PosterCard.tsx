@@ -66,7 +66,7 @@ function PosterCard({
   return (
     <PosterCardStyle className="bg-transparent border-0" type={type}>
       <div className="poster">
-        <LazyLoadImage src={poster} alt={`${name} poster`} className="w-100 h-100 rounded-4" />
+        <LazyLoadImage style={{ minHeight: 225 }} src={poster} alt={`${name} poster`} className="w-100 h-100 rounded-4" />
       </div>
       {rating !== 0 && (
         <RatingDiv className="d-flex justify-content-end me-2">

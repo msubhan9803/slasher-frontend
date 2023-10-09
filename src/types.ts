@@ -365,6 +365,13 @@ export type MoviePageCache = {
   reviews: any
 };
 
+// Cache type for Book related data (page = http://localhost:3000/app/book/64477b42b12f5efbb3468ff4/reviews)
+export type BookPageCache = {
+  movieData: MovieData,
+  additionalMovieData: AdditionalMovieData,
+  reviews: any
+};
+
 // Cache type for profile subroutes (i.e, About, Posts, Friends, Photos, Watched list)
 export type ProfileSubroutesCache = {
   user?: any,

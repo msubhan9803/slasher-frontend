@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
 import { Col, Image, Row } from 'react-bootstrap';
 import styled from 'styled-components';
@@ -19,12 +20,13 @@ import RoundButton from '../../../components/ui/RoundButton';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
 import BookReviews from '../book-reviews/BookReviews';
 import { enableDevFeatures } from '../../../env';
+import { BookDetailResType } from '../../../api/books';
 
 const StyledBookPoster = styled.div`
-aspect - ratio: 0.67;
-  img{
-  object - fit: cover;
-}
+  aspect-ratio: 0.67;
+  img {
+    object-fit: cover;
+  }
 `;
 type OptionType = { value: string, label: string, devOnly?: boolean };
 const tabsForAllViews: OptionType[] = [
@@ -38,7 +40,11 @@ const tabsForSelf: OptionType[] = [
 const tabsForViewer = tabsForAllViews;
 const filterEnableDevFeatures = (t: OptionType) => (enableDevFeatures ? true : (!t.devOnly));
 
-function AboutBooks() {
+type AboutBooksProps = {
+  bookData: BookDetailResType
+};
+
+function AboutBooks({ bookData }: AboutBooksProps) {
   const [searchParams] = useSearchParams();
   const [reviewForm, setReviewForm] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -95,6 +101,7 @@ function AboutBooks() {
           </Col>
           <Col xl={7}>
             <BookSummary
+              bookData={bookData}
               // reviewForm={reviewForm}
               setReviewForm={setReviewForm}
               // showReviewForm={showReviewForm}
@@ -191,7 +198,5 @@ function AboutBooks() {
     </div>
   );
 }
-AboutBooks.defaultProps = {
-  selectedTab: '',
-};
+AboutBooks.defaultProps = {};
 export default AboutBooks;

@@ -5,8 +5,7 @@ import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
-import { useNavigate, useParams } from 'react-router-dom';
-import ShareButton from '../../../components/ui/ShareButton';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import RoundButton from '../../../components/ui/RoundButton';
 import BooksModal from '../components/BooksModal';
 import BorderButton from '../../../components/ui/BorderButton';
@@ -17,8 +16,12 @@ import WorthWatchIcon, { StyledLikeIcon, StyledDislikeIcon } from '../../movies/
 import { bookDetail } from '../components/booksList';
 import ShareLinksModal from '../../../components/ui/ShareLinksModal';
 import { urlForMovie } from '../../../utils/url-utils';
+import { generateAmazonAffiliateLinkForBook, getPrefferedISBN } from '../../../utils/text-utils';
+import { BookDetailResType } from '../../../api/books';
+import { getYearFromString } from '../../../utils/date-utils';
 
 interface Props {
+  bookData: BookDetailResType,
   setReviewForm: (val: boolean) => void;
   setShowReviewForm: (val: boolean) => void;
 }
@@ -70,8 +73,9 @@ const StyledVerticalBorder = styled.div`
     border-left: 1px solid #3A3B46;
   }
 `;
+
 function BookSummary({
-  setReviewForm, setShowReviewForm,
+  bookData, setReviewForm, setShowReviewForm,
 }: Props) {
   const [worthIt, setWorthIt] = useState<WorthWatchingStatus | null>(null);
   const [showGoreRating, setShowGoreRating] = useState(false);
@@ -96,19 +100,28 @@ function BookSummary({
       navigate(`/app/books/${params.id}/reviews`, { state: { bookId: params.id } });
     }
   };
+  const to = generateAmazonAffiliateLinkForBook(bookData.name, bookData.author?.join(', '));
   return (
     <AboutBookDetails className="text-xl-start pt-4">
       <Row className="justify-content-center mt-2 mt-xl-0">
         <Col xs={12}>
           <h1 className="fw-semibold m-0 text-center text-xl-start">
-            The Turn Of The Screw
+            {bookData.name}
           </h1>
         </Col>
       </Row>
       <div className="py-3 pb-xxl-0 align-items-center d-flex justify-content-between justify-content-md-center justify-content-lg-between text-light">
-        <p className="m-0 fs-3">George R.R Martin</p>
+        <p className="m-0 fs-3">{bookData.author?.join(', ')}</p>
         <div className="ms-2 d-block d-sm-none d-lg-block d-xxl-none">
-          <ShareButton />
+          <BorderButton
+            buttonClass="d-flex d-xxl-none share-btn"
+            variant="lg"
+            icon={solid('share-nodes')}
+            iconClass="me-2"
+            iconSize="sm"
+            lable="Share"
+            handleClick={handleShowShareLinks}
+          />
         </div>
       </div>
       <div className="d-flex  justify-content-between">
@@ -117,21 +130,21 @@ function BookSummary({
             <span className="m-0 fw-bold">
               Year:&nbsp;
             </span>
-            <span className="m-0 text-light"> 1921</span>
+            <span className="m-0 text-light">{getYearFromString(bookData.publishDate)}</span>
           </span>
           <FontAwesomeIcon icon={solid('circle')} size="sm" className="circle mx-lg-2 text-primary" />
           <span className="fs-3 d-lg-flex text-center">
             <span className="m-0 fw-bold">
               Pages:&nbsp;
             </span>
-            <span className="m-0 text-light"> 447</span>
+            <span className="m-0 text-light">{bookData.numberOfPages}</span>
           </span>
           <FontAwesomeIcon icon={solid('circle')} size="sm" className="circle mx-lg-2 text-primary" />
           <span className="fs-3 fw-lignt d-lg-flex text-center">
             <span className="m-0 fw-bold">
               ISBN:&nbsp;
             </span>
-            <span className="m-0 text-light"> 272423118X</span>
+            <span className="m-0 text-light">{getPrefferedISBN(bookData.isbnNumber)}</span>
           </span>
           <div className="ms-2 ms-xl-3 d-none d-sm-block d-lg-none d-xxl-block">
             <div className="d-flex justify-content-end justify-content-md-center">
@@ -147,7 +160,6 @@ function BookSummary({
             </div>
           </div>
         </div>
-        <div><ShareButton /></div>
       </div>
 
       <StyledBorder className="d-md-none mt-4" />
@@ -283,9 +295,11 @@ function BookSummary({
           id="buyNow"
           className="d-none d-md-flex d-lg-none d-xl-flex justify-content-center mt-4"
         >
-          <RoundButton className="px-5 fw-bold">
-            Buy now
-          </RoundButton>
+          <a href={to} target="_blank" className="text-decoration-none" rel="noreferrer">
+            <RoundButton className="px-5 fw-bold">
+              Buy now
+            </RoundButton>
+          </a>
         </div>
         <StyledBorder className="d-md-none my-3" />
       </Row>

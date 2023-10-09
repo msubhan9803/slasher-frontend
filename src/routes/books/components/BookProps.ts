@@ -1,12 +1,16 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
-export interface BooksProps {
-  id: number,
+export type Book = {
+  _id: string,
   name: string,
-  logo: string,
-  year: string,
-  liked: boolean,
-}
+  author: string[],
+  description: string,
+  numberOfPages: number,
+  isbnNumber: Array<string>,
+  publishDate: string
+  covers: Array<string>
+};
+
 export interface BookIconProps {
   label: string;
   icon: IconDefinition;

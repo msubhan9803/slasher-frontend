@@ -1,13 +1,55 @@
-import React from 'react';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable max-len */
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
+import { useLocation, useParams } from 'react-router-dom';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
 import BooksRightSideNav from '../components/BooksRightSideNav';
 import AboutBooks from './AboutBooks';
 import { enableDevFeatures } from '../../../env';
+import LoadingIndicator from '../../../components/ui/LoadingIndicator';
+import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../../pageStateCache';
+import { BookPageCache } from '../../../types';
+import { BookDetailResType, getBookById } from '../../../api/books';
 
 function BookDetails() {
+  const location = useLocation();
+  // const pageStateCache: BookPageCache = getPageStateCache(location)
+  //   ?? { movieData: undefined, additionalMovieData: undefined };
+
+  const params = useParams();
+  const [bookData, setBookData] = useState<BookDetailResType | undefined>();
+  // TODO: fix page state cache
+  // const [bookData, setBookData] = useState<BookDetailResType | undefined>(
+  //   hasPageStateCache(location) ? pageStateCache.movieData : undefined,
+  // );
+  useEffect(() => {
+    if (params.id && !bookData) {
+      getBookById(params.id)
+        .then((res) => {
+          setBookData(res.data);
+          // TODO: fix page state cache
+          // Update `pageStateCache`
+          // setPageStateCache<BookPageCache>(location, {
+          //   ...getPageStateCache(location), movieData: res.data,
+          // });
+        });
+    }
+  }, [location, bookData, params]);
+
+  useLayoutEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'instant' as any,
+    });
+  }, []);
+
+  if (!bookData) {
+    return <LoadingIndicator />;
+  }
+
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
@@ -19,7 +61,7 @@ function BookDetails() {
               <h1 className="text-center text-primary h3 d-lg-none">Claim this listing</h1>
             </>
             )}
-          <AboutBooks />
+          <AboutBooks bookData={bookData} />
         </Container>
       </ContentPageWrapper>
       <RightSidebarWrapper>

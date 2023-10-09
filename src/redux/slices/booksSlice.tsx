@@ -1,8 +1,9 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { DateTime } from 'luxon';
+import { Book } from '../../routes/books/components/BookProps';
 
 const initialState = {
-  books: [],
+  books: [] as Book[],
   lastRetrievalTime: null as null | string,
 };
 

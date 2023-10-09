@@ -18,7 +18,7 @@ interface PosterCardProps {
 interface CardListProps {
   id: number;
   name: string;
-  image: string;
+  image?: string;
   year: string;
   rating?: number;
   _id?: string | null;
@@ -55,7 +55,7 @@ function PosterCardList({
                 className="m-1 text-decoration-none"
                 // eslint-disable-next-line max-len
                 onClick={() => { deletePageStateCache(`/app/movies/${listDetail._id}`); onSelect!(listDetail._id!); }}
-                to={type === 'book' ? `/app/books/${listDetail.id}` : `/app/movies/${listDetail._id}`}
+                to={type === 'book' ? `/app/books/${listDetail._id}` : `/app/movies/${listDetail._id}`}
               >
                 <PosterCard
                   type={type}

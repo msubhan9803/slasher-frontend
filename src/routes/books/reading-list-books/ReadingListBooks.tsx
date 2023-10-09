@@ -3,14 +3,14 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/la
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import BooksHeader from '../BooksHeader';
-import { BooksProps } from '../components/BookProps';
+import { Book } from '../components/BookProps';
 import { readingListBooks } from '../components/booksList';
 import BooksRightSideNav from '../components/BooksRightSideNav';
 
 function ReadingListBooks() {
   const [showKeys, setShowKeys] = useState(false);
   const [search, setSearch] = useState<string>('');
-  const [filteredBooks, setFilteredBooks] = useState<BooksProps[] | any>(readingListBooks);
+  const [filteredBooks, setFilteredBooks] = useState<Book[] | any>(readingListBooks);
 
   const searchData = useCallback(() => {
     let searchResult;

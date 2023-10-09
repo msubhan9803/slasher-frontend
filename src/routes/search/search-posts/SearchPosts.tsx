@@ -104,6 +104,7 @@ function SearchPosts() {
             likeIcon: data.likedByUser,
             likeCount: data.likeCount,
             commentCount: data.commentCount,
+            movieId: data?.movieId,
           };
           return setPost;
         });

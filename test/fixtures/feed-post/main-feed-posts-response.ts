@@ -32,6 +32,7 @@ export default [
     likedByUser: true,
     lastUpdateAt: '2022-10-20T00:00:00.000Z',
     movieId: null,
+    hashtags: [],
   },
   {
     _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -69,5 +70,6 @@ export default [
       name: 'Shawshank Redemption',
       releaseDate: '2022-10-17T00:00:00.000Z',
     },
+    hashtags: [],
   },
 ];

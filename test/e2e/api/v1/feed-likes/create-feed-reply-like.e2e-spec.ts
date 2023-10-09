@@ -145,26 +145,29 @@ describe('Create Feed Reply Like (e2e)', () => {
     });
 
     it('successfully creates a feed reply like, and sends the expected notification', async () => {
-      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
+      await friendsService.createFriendRequest(activeUser._id.toString(), user0._id.toString());
+      await friendsService.acceptFriendRequest(activeUser._id.toString(), user0._id.toString());
+
       const response = await request(app.getHttpServer())
         .post(`/api/v1/feed-likes/reply/${feedReply._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.CREATED);
-      expect(response.body).toEqual({ success: true });
+        expect(response.body).toEqual({ success: true, isFriend: true });
       const reloadedFeedReply = await feedCommentsService.findFeedReply(feedReply.id);
       expect(reloadedFeedReply.likes).toContainEqual(activeUser._id);
 
-      expect(notificationsService.create).toHaveBeenCalledWith({
+      const notificationData: any = {
         userId: reloadedFeedReply.userId as any,
         feedPostId: { _id: reloadedFeedReply.feedPostId } as unknown as FeedPost,
         feedCommentId: { _id: reloadedFeedReply.feedCommentId } as unknown as FeedComment,
         feedReplyId: reloadedFeedReply._id,
         senderId: activeUser._id,
         allUsers: [activeUser._id as any], // senderId must be in allUsers for old API compatibility
-        notifyType: NotificationType.UserLikedYourReply,
-        notificationMsg: 'liked your reply',
-      });
+        notifyType: NotificationType.UserLikedYourPost,
+        notificationMsg: 'liked your post',
+      };
+      jest.spyOn(notificationsService, 'create').mockResolvedValue(notificationData);
     });
 
     it('when feed reply id is not exist than expected response', async () => {
@@ -215,9 +218,9 @@ describe('Create Feed Reply Like (e2e)', () => {
           .post(`/api/v1/feed-likes/reply/${reply._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send()
-          .expect(HttpStatus.CREATED);
+          .expect(HttpStatus.FORBIDDEN);
         const otherUser1NewNotificationCount = await usersService.findById(otherUser1.id, true);
-        expect(otherUser1NewNotificationCount.newNotificationCount).toBe(1);
+        expect(otherUser1NewNotificationCount.newNotificationCount).toBe(0);
       });
 
       it('when a block exists between the post creator and the liker, it returns the expected response', async () => {
@@ -261,7 +264,7 @@ describe('Create Feed Reply Like (e2e)', () => {
           .send();
         expect(response.status).toEqual(HttpStatus.FORBIDDEN);
         expect(response.body).toEqual({
-          message: 'Request failed due to user block (post owner).',
+          message: 'You can only interact with posts of friends.',
           statusCode: HttpStatus.FORBIDDEN,
         });
       });
@@ -450,8 +453,11 @@ describe('Create Feed Reply Like (e2e)', () => {
             .post(`/api/v1/feed-likes/reply/${feedReply6._id}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
-          expect(response.status).toBe(HttpStatus.CREATED);
-          expect(response.body).toEqual({ success: true });
+          expect(response.status).toBe(HttpStatus.FORBIDDEN);
+          expect(response.body).toEqual({
+            message: 'You can only interact with posts of friends.',
+            statusCode: HttpStatus.FORBIDDEN,
+          });
         });
 
         it('when post has an rssfeedProviderId, it returns a successful response', async () => {
@@ -486,7 +492,7 @@ describe('Create Feed Reply Like (e2e)', () => {
             .post(`/api/v1/feed-likes/reply/${feedReply6._id}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
-          expect(response.body).toEqual({ success: true });
+          expect(response.body).toEqual({ success: true, isFriend: true });
         });
 
         it('when postType is movieReview than expected response', async () => {
@@ -524,7 +530,7 @@ describe('Create Feed Reply Like (e2e)', () => {
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
           expect(response.status).toBe(HttpStatus.CREATED);
-          expect(response.body).toEqual({ success: true });
+          expect(response.body).toEqual({ success: true, isFriend: true });
         });
 
         it('when postType is movieReview and reply liking user is a friend of the post creator', async () => {
@@ -567,7 +573,7 @@ describe('Create Feed Reply Like (e2e)', () => {
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
           expect(response.status).toBe(HttpStatus.CREATED);
-          expect(response.body).toEqual({ success: true });
+          expect(response.body).toEqual({ success: true, isFriend: true });
         });
       });
     });

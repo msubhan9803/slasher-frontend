@@ -21,6 +21,8 @@ export enum NotificationType {
   UserMentionedYouInACommentReply = 202,
   UserLikedYourReply = 203,
   UserRepliedOnYourPost = 204,
+  HashTagPostNotification = 205,
+  NewPostFromFollowedUser = 206,
   Type102 = 102,
   Type103 = 103,
   UserMentionedYouInACommentOnANewsPost = 121,
@@ -56,4 +58,5 @@ export const NOTIFICATION_TYPES_TO_CATEGORIES = new Map([
   [NotificationType.UserLikedYourReply, 'feed_post_like'],
   [NotificationType.UserRepliedOnYourPost, 'feed_mention_on_post_comment_reply'],
   [NotificationType.FriendMessageNotification, 'friends_message_received'],
+  [NotificationType.HashTagPostNotification, 'hashtag_push_notification'],
 ]);

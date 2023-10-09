@@ -94,6 +94,9 @@ export class FeedPost extends FeedPostUnusedFields {
   })
   privacyType: FeedPostPrivacyType;
 
+  @Prop({ default: [] })
+  hashtags: string[];
+
   @Prop({
     enum: [
       PostType.User,
@@ -164,6 +167,12 @@ FeedPostSchema.index(
 FeedPostSchema.index(
   {
     _id: 1, is_deleted: 1, status: 1, userId: 1, rssfeedProviderId: 1, rssFeedId: 1, movieId: 1,
+  },
+);
+
+FeedPostSchema.index(
+  {
+    hashtags: 1, status: 1, is_deleted: 1, userId: 1, createdAt: 1,
   },
 );
 

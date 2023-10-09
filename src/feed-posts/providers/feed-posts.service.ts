@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { FriendsService } from '../../friends/providers/friends.service';
 import { RssFeedProviderFollowsService } from '../../rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
 import {
- FeedPostDeletionState, FeedPostPrivacyType, FeedPostStatus, PostType,
+  FeedPostDeletionState, FeedPostPrivacyType, FeedPostStatus, PostType,
 } from '../../schemas/feedPost/feedPost.enums';
 import { FeedPost, FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 import { User, UserDocument } from '../../schemas/user/user.schema';
@@ -14,9 +14,11 @@ import { relativeToFullImagePath } from '../../utils/image-utils';
 import { FeedPostLike, FeedPostLikeDocument } from '../../schemas/feedPostLike/feedPostLike.schema';
 import { BlocksService } from '../../blocks/providers/blocks.service';
 import { pick } from '../../utils/object-utils';
+import { ProfileVisibility } from '../../schemas/user/user.enums';
 import { FriendShip, LikeUserAndFriendship } from '../../types';
 import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
-import { ProfileVisibility } from '../../schemas/user/user.enums';
+import { HashtagFollowsService } from '../../hashtag-follows/providers/hashtag-follows.service';
+import { Hashtag, HashtagDocument } from '../../schemas/hastag/hashtag.schema';
 
 @Injectable()
 export class FeedPostsService {
@@ -24,9 +26,11 @@ export class FeedPostsService {
     @InjectModel(FeedPost.name) private feedPostModel: Model<FeedPostDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(FeedPostLike.name) private feedLikesModel: Model<FeedPostLikeDocument>,
+    @InjectModel(Hashtag.name) private hashtagModel: Model<HashtagDocument>,
     private readonly rssFeedProviderFollowsService: RssFeedProviderFollowsService,
     private readonly friendsService: FriendsService,
     private readonly blocksService: BlocksService,
+    private readonly hashtagFollowsService: HashtagFollowsService,
     private configService: ConfigService,
   ) { }
 
@@ -40,11 +44,54 @@ export class FeedPostsService {
       .exec();
   }
 
+  async updateMessageInFeedposts(id: string, newUserName: string): Promise<void> {
+    const updatedMsgInPosts = await this.feedPostModel.aggregate([
+      {
+        $match: {
+          message: {
+            $regex: `##LINK_ID##${id}@[^#]+##LINK_END##`,
+          },
+          is_deleted: 0,
+        },
+      },
+    ]);
+
+    const bulkUpdateOperations = updatedMsgInPosts.map((post) => ({
+      updateOne: {
+        filter: { _id: post._id },
+        update: {
+          $set: {
+            message: post.message.replace(
+              new RegExp(`##LINK_ID##${id}@[^#]+##LINK_END##`, 'i'),
+              `##LINK_ID##${id}@${newUserName}##LINK_END##`,
+            ),
+          },
+        },
+      },
+    }));
+    await this.feedPostModel.bulkWrite(bulkUpdateOperations);
+  }
+
   async findById(
     id: string,
     activeOnly: boolean,
+  ): Promise<any> {
+    const feedPostFindQuery: any = { _id: id };
+    if (activeOnly) {
+      feedPostFindQuery.is_deleted = false;
+      feedPostFindQuery.status = FeedPostStatus.Active;
+    }
+    const feedPost = await this.feedPostModel
+      .findOne(feedPostFindQuery)
+      .exec();
+    return feedPost;
+  }
+
+  async findByIdWithPopulatedFields(
+    id: string,
+    activeOnly: boolean,
     identifyLikesForUser?: mongoose.Schema.Types.ObjectId,
-  ): Promise<FeedPostDocument> {
+  ): Promise<any> {
     const feedPostFindQuery: any = { _id: id };
     if (activeOnly) {
       feedPostFindQuery.is_deleted = false;
@@ -71,7 +118,7 @@ export class FeedPostsService {
     activeOnly: boolean,
     loggedInUserId: mongoose.Types.ObjectId,
     before?: mongoose.Types.ObjectId,
-    ): Promise<FeedPostDocument[]> {
+  ): Promise<FeedPostDocument[]> {
     const feedPostFindAllQuery: any = {};
     const feedPostQuery = [];
     feedPostQuery.push({ userId: new mongoose.Types.ObjectId(userId) });
@@ -89,6 +136,7 @@ export class FeedPostsService {
       feedPostFindAllQuery.status = FeedPostStatus.Active;
       feedPostQuery.push(feedPostFindAllQuery);
     }
+
     const feedPosts = await this.feedPostModel
       .find({ $and: feedPostQuery })
       .populate('userId', 'userName _id profilePic')
@@ -157,6 +205,19 @@ export class FeedPostsService {
     // Get the list of friend ids
     const friendIds = await this.friendsService.getFriendIds(userId, [FriendRequestReaction.Accepted]);
 
+    const hashtagFollows = await this.hashtagFollowsService.findAllByUserId(userId);
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    const hashtags = hashtagFollows.map((hashtagFollows) => (hashtagFollows.hashTagId as any).name);
+
+    const profileIdsToIgnore = await this.userModel.find({
+      _id: { $nin: [...friendIds, new mongoose.Types.ObjectId(userId)] },
+      $or: [
+        { profile_status: ProfileVisibility.Private },
+        { $and: [{ profile_status: ProfileVisibility.Public, deleted: true }] },
+      ],
+    }, { _id: 1 });
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    const userIds = profileIdsToIgnore.map((userId) => userId._id);
     // Optionally, only include posts that are older than the given `before` post
     const beforeQuery: any = {};
     if (before) {
@@ -171,9 +232,9 @@ export class FeedPostsService {
           { is_deleted: 0 },
           {
             $or: [
-              { userId: { $eq: userId } },
               { userId: { $in: [...friendIds, new mongoose.Types.ObjectId(userId)] } },
               { rssfeedProviderId: { $in: rssFeedProviderIds } },
+              { $and: [{ hashtags: { $in: hashtags } }, { userId: { $nin: userIds } }] },
             ],
           },
           {
@@ -200,6 +261,62 @@ export class FeedPostsService {
       return post;
     });
     return feedPosts;
+  }
+
+  async findAllFeedPostsForHashtag(
+    hashtag: string,
+    limit: number,
+    before?: mongoose.Types.ObjectId,
+    userId?: string,
+  ): Promise<FeedPostDocument[]> {
+    const blockUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(userId);
+
+    const [totalHashtagCount, feedPosts] = await Promise.all([
+      this.fetchTotalHashTagPostCount(hashtag),
+      this.fetchPostByHashTag(before, hashtag, blockUserIds, limit, userId),
+    ]);
+    return [totalHashtagCount, feedPosts];
+  }
+
+  async fetchTotalHashTagPostCount(name) {
+    return (await this.hashtagModel.findOne({ name })).totalPost;
+  }
+
+  async fetchPostByHashTag(before, hashtag, blockUserIds, limit, userId) {
+    const beforeQuery: any = {};
+    if (before) {
+      const feedPost = await this.feedPostModel.findById(before).exec();
+      beforeQuery.createdAt = { $lt: feedPost.createdAt };
+    }
+
+    const query = await this.feedPostModel
+      .find({
+        $and: [
+          { hashtags: hashtag },
+          { status: 1 },
+          { is_deleted: 0 },
+          { userId: { $nin: blockUserIds } },
+          {
+            $or: [
+              { privacyType: FeedPostPrivacyType.Public },
+              { $and: [{ privacyType: FeedPostPrivacyType.Private }, { userId: new mongoose.Types.ObjectId(userId) }] },
+            ],
+          },
+          beforeQuery,
+        ],
+      })
+      .populate('userId', '_id userName profilePic')
+      .populate('rssfeedProviderId', '_id title logo')
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .exec();
+    return JSON.parse(JSON.stringify(query)).map((post) => {
+      // eslint-disable-next-line no-param-reassign
+      post.likedByUser = post.likes.includes(userId);
+      // eslint-disable-next-line no-param-reassign
+      post.likeCount = post.likes.length || 0;
+      return post;
+    });
   }
 
   async findAllPostsWithImagesByUser(userId: string, limit: number, before?: mongoose.Types.ObjectId): Promise<FeedPostDocument[]> {
@@ -396,6 +513,19 @@ export class FeedPostsService {
     return likeUsersForPost;
   }
 
+  async findPostsByDays(pastFourteenDaysAgoDate: Date): Promise<FeedPostDocument[]> {
+    const feedPosts = await this.feedPostModel
+      .find({
+        $and: [
+          { updatedAt: { $gte: pastFourteenDaysAgoDate } },
+          { is_deleted: 0, status: 1 },
+        ],
+      })
+      .exec();
+    const allHashtags = feedPosts.map((post) => post.hashtags).flat(1);
+    return allHashtags as any;
+  }
+
   async findMovieReviewPost(userId: string, movieId: string) {
     const feedPost = await this.feedPostModel
       .findOne({
@@ -415,9 +545,9 @@ export class FeedPostsService {
       .exec();
   }
 
-  async updatePostPrivacyType(userId: string, status: number): Promise<any> {
+  async updatePostPrivacyType(userId: string, visibility: ProfileVisibility): Promise<any> {
     const updateFeedPostData = {
-      privacyType: status === ProfileVisibility.Private
+      privacyType: visibility === ProfileVisibility.Private
         ? FeedPostPrivacyType.Private
         : FeedPostPrivacyType.Public,
     };

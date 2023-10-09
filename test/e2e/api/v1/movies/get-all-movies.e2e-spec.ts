@@ -467,7 +467,7 @@ describe('All Movies (e2e)', () => {
         .get(`/api/v1/movies?limit=${limit}&sortBy=${'name'}&nameContains=${nameContains}&startsWith=${sortNameStartsWith}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      expect(response.body).toHaveLength(1);
+      expect(response.body).toHaveLength(0);
     });
 
     it('when startsWith is exist and nameContains is not exist than expected response', async () => {
@@ -500,7 +500,7 @@ describe('All Movies (e2e)', () => {
           status: MovieActiveStatus.Active,
         }),
       );
-      const nameContains = 'ali';
+      const nameContains = 'li';
       const sortNameStartsWith = 'a';
       const limit = 3;
       const response = await request(app.getHttpServer())

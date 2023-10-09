@@ -315,7 +315,7 @@ export class MoviesService {
     }
     if (after && sortBy === 'name') {
       const afterMovie = await this.moviesModel.findById(after);
-      movieFindAllQuery.sort_name = { $gt: afterMovie.sort_name };
+      movieFindAllQuery.sort_name = { ...movieFindAllQuery.sort_name, $gt: afterMovie.sort_name };
     }
     if (after && sortBy === 'releaseDate') {
       const afterMovie = await this.moviesModel.findById(after);
@@ -325,16 +325,25 @@ export class MoviesService {
       const afterMovie = await this.moviesModel.findById(after);
       movieFindAllQuery.sortRating = { $lt: afterMovie.sortRating };
     }
-    if (nameContains) {
-      movieFindAllQuery.sort_name = new RegExp(`${escapeStringForRegex(nameContains)}`, 'i');
-    }
-    if (sortNameStartsWith) {
+    if (nameContains || sortNameStartsWith) {
       movieFindAllQuery.sort_name = movieFindAllQuery.sort_name || {};
-      if (sortNameStartsWith !== '#') {
-        movieFindAllQuery.sort_name.$regex = new RegExp(`^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`);
-      } else {
-        movieFindAllQuery.sort_name.$regex = new RegExp(NON_ALPHANUMERIC_REGEX, 'i');
+
+      let combinedRegex = '';
+
+      if (sortNameStartsWith && sortNameStartsWith !== '#') {
+        combinedRegex += `^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`;
+      } else if (sortNameStartsWith === '#') {
+        combinedRegex += NON_ALPHANUMERIC_REGEX.source;
       }
+      
+      if (nameContains) {
+        if (combinedRegex) {
+          combinedRegex += `${combinedRegex ? '.*' : ''}${escapeStringForRegex(nameContains)}`;
+        } else {
+          combinedRegex += `${escapeStringForRegex(nameContains)}`;
+        }
+      }
+      movieFindAllQuery.sort_name.$regex = new RegExp(combinedRegex, 'i');
     }
 
     let sortMoviesByNameAndReleaseDate: any;

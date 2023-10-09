@@ -335,7 +335,7 @@ export class MoviesService {
       } else if (sortNameStartsWith === '#') {
         combinedRegex += NON_ALPHANUMERIC_REGEX.source;
       }
-      
+
       if (nameContains) {
         if (combinedRegex) {
           combinedRegex += `${combinedRegex ? '.*' : ''}${escapeStringForRegex(nameContains)}`;

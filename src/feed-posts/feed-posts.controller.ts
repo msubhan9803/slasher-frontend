@@ -642,7 +642,7 @@ export class FeedPostsController {
         feedPost,
         ['_id', 'message', 'createdAt', 'lastUpdateAt',
           'rssfeedProviderId', 'images', 'userId', 'commentCount',
-          'likeCount', 'likedByUser', 'hashtags'],
+          'likeCount', 'likedByUser', 'hashtags', 'movieId'],
       ),
     );
     return { count, posts };

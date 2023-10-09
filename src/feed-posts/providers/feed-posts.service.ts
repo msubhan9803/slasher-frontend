@@ -307,6 +307,7 @@ export class FeedPostsService {
       })
       .populate('userId', '_id userName profilePic')
       .populate('rssfeedProviderId', '_id title logo')
+      .populate('movieId', 'logo name releaseDate')
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();

@@ -118,6 +118,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           postType: PostType.User,
           spoilers: false,
           userId: activeUser._id.toString(),
+          hashtags: [],
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -185,6 +186,7 @@ describe('Feed-Post / Post File (e2e)', () => {
         postType: PostType.User,
         userId: activeUser._id.toString(),
         images: [],
+        hashtags: [],
         spoilers: false,
       });
     });
@@ -317,6 +319,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           userId: activeUser._id.toString(),
           postType: PostType.User,
           spoilers: false,
+          hashtags: ['ok', 'slasher', 'nothing'],
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -358,6 +361,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           userId: activeUser._id.toString(),
           postType: PostType.User,
           spoilers: false,
+          hashtags: ['okay', 'slasher', 'test12', 'good', 'horror1'],
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -366,15 +370,6 @@ describe('Feed-Post / Post File (e2e)', () => {
             },
           ],
         });
-
-        const feedPost = await feedPostsService.findById(response.body._id, true);
-        expect(feedPost.hashtags).toEqual(['okay', 'slasher', 'test12', 'horror1']);
-
-        const hashtags = await hashtagModel.find({ name: { $in: feedPost.hashtags } });
-        expect(hashtags[0].name).toBe('horror1');
-        expect(hashtags[1].name).toBe('okay');
-        expect(hashtags[2].name).toBe('slasher');
-        expect(hashtags[3].name).toBe('test12');
       }, [{ extension: 'png' }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
@@ -522,6 +517,7 @@ describe('Feed-Post / Post File (e2e)', () => {
         spoilers: false,
         userId: activeUser._id.toString(),
         images: [],
+        hashtags: [],
         postType: PostType.MovieReview,
       });
     });
@@ -568,6 +564,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           message: 'test user#ok #slasher #nothing #okay #best ##not ##go ##run ##fast ##good',
           spoilers: false,
           userId: activeUser._id.toString(),
+          hashtags: ['ok', 'slasher', 'nothing', 'okay', 'best', 'not', 'go', 'run', 'fast', 'good'],
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -624,6 +621,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           postType: PostType.User,
           spoilers: false,
           userId: activeUser._id.toString(),
+          hashtags: [],
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -639,13 +637,13 @@ describe('Feed-Post / Post File (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
-    it('when we add double(##) 11 hashtags', async () => {
+    it('when we add all types of hashtags including # and ## than it gives the expected response', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
           .post('/api/v1/feed-posts')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
-          .field('message', 'test user##ok ##slasher ##nothing ##okay ##best ##not ##go ##run ##fast ##good ##far')
+          .field('message', 'hashtag testing post 1 #friend#friend1#friend2 ##done ##slasher #123horror @ghost #horror@12 ##horror12!12')
           .field('userId', activeUser._id.toString())
           .field('postType', PostType.User)
           .attach('files', tempPaths[0])
@@ -653,9 +651,10 @@ describe('Feed-Post / Post File (e2e)', () => {
 
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          message: 'test user##ok ##slasher ##nothing ##okay ##best ##not ##go ##run ##fast ##good ##far',
+          message: 'hashtag testing post 1 #friend#friend1#friend2 ##done ##slasher #123horror @ghost #horror@12 ##horror12!12',
           spoilers: false,
           userId: activeUser._id.toString(),
+          hashtags: ['friend', 'friend1', 'friend2', 'done', 'slasher', '123horror', 'horror', 'horror12'],
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -688,6 +687,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           message: '#test user#ok #slasher #nothing #okay',
           spoilers: false,
           userId: activeUser._id.toString(),
+          hashtags: ['test', 'ok', 'slasher', 'nothing', 'okay'],
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),

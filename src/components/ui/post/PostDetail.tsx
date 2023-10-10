@@ -528,6 +528,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             contentHeading: res?.data?.title,
             spoilers: res.data.spoilers,
             movieId: res.data.movieId._id,
+            hashtags: res.data?.hashtags,
           };
         } else {
           // Regular post

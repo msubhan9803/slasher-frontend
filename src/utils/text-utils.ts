@@ -13,31 +13,23 @@ export function findFirstYouTubeLinkVideoId(message: string) {
 export function escapeHtmlSpecialCharacters(
   str: string,
   selectedHashtag?: string,
-  isComment?: boolean,
   hashtags?: string[],
 ) {
-  const hashtagRegex = /(^|\s)(#[\w-]+)/g;
+  const hashtagRegex = /#([\w-]+)/g;
 
   let result = str?.replaceAll('&', '&amp;')
     ?.replaceAll('<', '&lt;')
     ?.replaceAll('>', '&gt;')
     ?.replaceAll('"', '&quot;')
     ?.replaceAll("'", '&#039;');
-
   if (selectedHashtag && hashtags) {
-    const escapedHashtags = hashtags.map((tag) => tag.toLowerCase());
-    result = result.replace(hashtagRegex, (match, p1, p2) => {
-      const lowerCaseTag = p2.slice(1).toLowerCase();
-      return escapedHashtags.includes(lowerCaseTag)
-        ? `${p1}<a href="/app/search/posts?hashtag=${lowerCaseTag}" style="text-decoration: underline">${p2}</a>`
-        : `${p1}<span>${p2}</span>`;
+    result = result.replace(hashtagRegex, (match) => {
+      const hashtag = match.slice(1).toLowerCase();
+      return hashtags.includes(hashtag)
+        ? `<a href="/app/search/posts?hashtag=${hashtag}" style="text-decoration: underline; font-weight:${selectedHashtag === match && '700'}">${match}</a>`
+        : match;
     });
-  } else if (isComment) {
-    result = result.replace(hashtagRegex, (match, p1, p2) => `${p1}<span>${p2}</span>`);
-  } else {
-    result = result.replace(hashtagRegex, (match, p1, p2) => `${p1}<a href="/app/search/posts?hashtag=${p2.slice(1)}" style="text-decoration:underline; font-weight:${selectedHashtag === p2 && '700'}">${p2}</a>`);
   }
-
   return result;
 }
 

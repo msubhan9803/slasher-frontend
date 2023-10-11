@@ -8,7 +8,7 @@ export type Book = {
   numberOfPages: number,
   isbnNumber: Array<string>,
   publishDate: string
-  covers: Array<string>
+  covers: Array<number>
 };
 
 export interface BookIconProps {

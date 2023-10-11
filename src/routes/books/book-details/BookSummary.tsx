@@ -101,6 +101,7 @@ function BookSummary({
     }
   };
   const to = generateAmazonAffiliateLinkForBook(bookData.name, bookData.author?.join(', '));
+  const isbn = getPrefferedISBN(bookData.isbnNumber);
   return (
     <AboutBookDetails className="text-xl-start pt-4">
       <Row className="justify-content-center mt-2 mt-xl-0">
@@ -139,13 +140,17 @@ function BookSummary({
             </span>
             <span className="m-0 text-light">{bookData.numberOfPages}</span>
           </span>
-          <FontAwesomeIcon icon={solid('circle')} size="sm" className="circle mx-lg-2 text-primary" />
-          <span className="fs-3 fw-lignt d-lg-flex text-center">
-            <span className="m-0 fw-bold">
-              ISBN:&nbsp;
-            </span>
-            <span className="m-0 text-light">{getPrefferedISBN(bookData.isbnNumber)}</span>
-          </span>
+          {isbn && (
+            <>
+              <FontAwesomeIcon icon={solid('circle')} size="sm" className="circle mx-lg-2 text-primary" />
+              <span className="fs-3 fw-lignt d-lg-flex text-center">
+                <span className="m-0 fw-bold">
+                  ISBN:&nbsp;
+                </span>
+                <span className="m-0 text-light">{isbn}</span>
+              </span>
+            </>
+          )}
           <div className="ms-2 ms-xl-3 d-none d-sm-block d-lg-none d-xxl-block">
             <div className="d-flex justify-content-end justify-content-md-center">
               <BorderButton

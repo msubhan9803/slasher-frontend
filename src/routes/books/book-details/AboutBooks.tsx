@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import {
   Navigate, Route, Routes, useNavigate, useParams, useSearchParams,
 } from 'react-router-dom';
-import AboutBookPoster from '../../../images/book-detail-poster.jpg';
 import Switch from '../../../components/ui/Switch';
 import BookSummary from './BookSummary';
 import TabLinks from '../../../components/ui/Tabs/TabLinks';
@@ -21,6 +20,7 @@ import { StyledBorder } from '../../../components/ui/StyledBorder';
 import BookReviews from '../book-reviews/BookReviews';
 import { enableDevFeatures } from '../../../env';
 import { BookDetailResType } from '../../../api/books';
+import { getCoverImageForBook } from '../../../utils/text-utils';
 
 const StyledBookPoster = styled.div`
   aspect-ratio: 0.67;
@@ -76,7 +76,7 @@ function AboutBooks({ bookData }: AboutBooksProps) {
         <Row className="justify-content-center">
           <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
             <StyledBookPoster className="mx-md-4">
-              <Image src={AboutBookPoster} className="rounded-4 w-100 h-100" alt="Book poster" />
+              <Image src={getCoverImageForBook(bookData.covers[0])} className="rounded-4 w-100 h-100" alt="Book poster" />
             </StyledBookPoster>
             <div className="d-none d-xl-block mt-3">
               <span className="h3">Your lists</span>

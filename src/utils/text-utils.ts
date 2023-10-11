@@ -144,7 +144,7 @@ export const generateAmazonAffiliateLinkForBook = (title: string, author: string
   return `https://www.amazon.com/s/ref=nosim?k=${searchText}&i=stripbooks-intl-ship&tag=${SLASHER_AMAZON_TAG_ID}`;
 };
 
-export const getCoverImageForBook = (imageId: string): string | undefined => {
+export const getCoverImageForBook = (imageId: number): string | undefined => {
   if (imageId) {
     return `https://covers.openlibrary.org/b/ID/${imageId}-L.jpg`;
   }

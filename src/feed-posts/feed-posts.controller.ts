@@ -116,11 +116,10 @@ export class FeedPostsController {
 
     let hashtags; let message; let allUserIds = [];
     if (createFeedPostsDto.message && createFeedPostsDto.message.includes('#')) {
-      const hashtagRegex = /(?<![?#])#(?![?#])\w+\b/g;
+      const hashtagRegex = /(?<![?#])#(?![?#])\w+\b|#{2}\w+\b/g;
       const matchedHashtags = createFeedPostsDto.message.match(hashtagRegex);
       if (matchedHashtags && matchedHashtags.length) {
-        const findHashtag = matchedHashtags.map((match) => match.slice(1).toLowerCase().replace(/([^\w\s]|_)+\d*$/, ''));
-
+        const findHashtag = matchedHashtags.map((match) => match.replace(/^##?/, '').replace(/([^\w\s]|_)+\d*$/, '').toLowerCase());
         if (findHashtag && findHashtag.length > 10) {
           throw new HttpException(
             'you can not add more than 10 hashtags on a post',
@@ -131,6 +130,7 @@ export class FeedPostsController {
       } else {
         hashtags = [];
       }
+
       const allHashTags = await this.hashtagService.createOrUpdateHashtags(hashtags);
       const hashtagIds = allHashTags.map((i) => i._id);
       allUserIds = await this.hashtagFollowsService.sendNotificationOfHashtagFollows(hashtagIds, user);
@@ -187,15 +187,6 @@ export class FeedPostsController {
 
     const createFeedPost = await this.feedPostsService.create(feedPost);
 
-    // if (createFeedPost.hashtags && createFeedPost.hashtags.length && allUserIds && allUserIds.length) {
-    //   await this.sendNotificationOfHashtagFollowPost.add('send-notification-of-hashtagfollow-post', {
-    //     userId: allUserIds,
-    //     feedPostId: createFeedPost.id,
-    //     senderId: user.id,
-    //     notifyType: NotificationType.HashTagPostNotification,
-    //     notificationMsg: message,
-    //   });
-    // }
     const mentionedUserIds = extractUserMentionIdsFromMessage(createFeedPost?.message);
     await this.sendFeedPostCreateNotification(mentionedUserIds, userIds, createFeedPost, user, allUserIds, message);
 
@@ -206,6 +197,7 @@ export class FeedPostsController {
       userId: createFeedPost.userId,
       images: createFeedPost.images,
       postType: createFeedPostsDto.postType,
+      hashtags: createFeedPost.hashtags,
     };
   }
 
@@ -384,12 +376,10 @@ export class FeedPostsController {
 
     let newHashtagNames;
     if (updateFeedPostsDto.message && updateFeedPostsDto.message.includes('#')) {
-      const hashtagRegex = /(?<![?#])#(?![?#])\w+\b/g;
+      const hashtagRegex = /(?<![?#])#(?![?#])\w+\b|#{2}\w+\b/g;
       const matchedHashtags = updateFeedPostsDto.message.match(hashtagRegex);
       if (matchedHashtags && matchedHashtags.length) {
-        const findHashtag = matchedHashtags.map(
-          (match) => match.slice(1).toLowerCase().replace(/([^\w\s]|_)+\d*$/, ''),
-        );
+        const findHashtag = matchedHashtags.map((match) => match.replace(/^##?/, '').replace(/([^\w\s]|_)+\d*$/, '').toLowerCase());
 
         if (findHashtag && findHashtag.length > 10) {
           throw new HttpException(

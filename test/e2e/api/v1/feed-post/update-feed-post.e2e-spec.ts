@@ -869,7 +869,7 @@ describe('Update Feed Post (e2e)', () => {
           message: 'test user#ok #slasher #nothing #okay #best ##not ##go ##run ##fast ##good',
           spoilers: false,
           userId: activeUser._id.toString(),
-          hashtags: ['best', 'nothing', 'ok', 'okay', 'slasher'],
+          hashtags: ['best', 'fast', 'go', 'good', 'not', 'nothing', 'ok', 'okay', 'run', 'slasher'],
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -952,23 +952,23 @@ describe('Update Feed Post (e2e)', () => {
       }, [{ extension: 'png' }]);
     });
 
-    it('when we add double(##) 11 hashtags', async () => {
+    it('when we add all types of hashtags including # and ## than it gives the expected response', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
           .patch(`/api/v1/feed-posts/${feedPost._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
-          .field('message', 'test user##ok ##slasher ##nothing ##okay ##best ##not ##go ##run ##fast ##good ##far')
+          .field('message', 'hashtag testing post 1 #friend#friend1#friend2 ##done ##slasher #123horror @ghost #horror@12 ##horror12!12')
           .field('userId', activeUser._id.toString())
           .field('postType', PostType.User)
           .attach('files', tempPaths[0])
           .field('imageDescriptions[0][description]', 'this is update post description 0');
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          message: 'test user##ok ##slasher ##nothing ##okay ##best ##not ##go ##run ##fast ##good ##far',
+          message: 'hashtag testing post 1 #friend#friend1#friend2 ##done ##slasher #123horror @ghost #horror@12 ##horror12!12',
           spoilers: false,
           userId: activeUser._id.toString(),
-          hashtags: [],
+          hashtags: ['123horror', 'done', 'friend', 'friend1', 'friend2', 'horror', 'horror12', 'slasher'],
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),

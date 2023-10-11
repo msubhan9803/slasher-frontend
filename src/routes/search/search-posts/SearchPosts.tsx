@@ -104,6 +104,8 @@ function SearchPosts() {
             likeIcon: data.likedByUser,
             likeCount: data.likeCount,
             commentCount: data.commentCount,
+            movieId: data?.movieId,
+            hashtags: data?.hashtags,
           };
           return setPost;
         });
@@ -445,7 +447,7 @@ function SearchPosts() {
           setFriendShipStatusModal={setFriendShipStatusModal}
           friendStatus={friendStatus}
           setFriendStatus={setFriendStatus}
-          setFriendData={setSearchPosts}
+          setFriendData={setFriendData}
           friendData={friendData}
           userId={postUserId}
         />

@@ -163,16 +163,16 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       () => { setRequestAdditionalPosts(false); setLoadingComments(false); },
     );
   }, [commentData, postId]);
-
-  const checkFriendShipStatus = useCallback(() => new Promise<void>((resolve, reject) => {
-    if (postType === 'news' || postType === 'review' || userData.user.id === postData[0].userId) {
+  // eslint-disable-next-line max-len
+  const checkFriendShipStatus = useCallback((feedPostUserId: any) => new Promise<void>((resolve, reject) => {
+    if (postType === 'news' || postType === 'review' || userData.user.id === feedPostUserId) {
       resolve();
     } else {
-      friendship(postData[0].userId!).then((res) => {
+      friendship(feedPostUserId).then((res) => {
         if (res.data.reaction === FriendRequestReaction.Accepted) {
           resolve();
         } else {
-          setPostUserId(postData[0].userId!);
+          setPostUserId(feedPostUserId);
           setFriendShipStatusModal(true);
           setFriendData(res.data);
           setFriendStatus(res.data.reaction);
@@ -180,7 +180,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         }
       }).catch(() => reject());
     }
-  }), [postData, postType, userData?.user?.id]);
+  }), [postType, userData?.user?.id]);
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingComments && (commentData.length || !queryCommentId)) {
@@ -270,7 +270,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       )
         .then(async (res) => {
           if (res.status === 201 && res.data.isFriend === false) {
-            checkFriendShipStatus();
+            checkFriendShipStatus(postData[0].userId);
           }
           let newCommentArray: any = commentData;
           commentValueData = {
@@ -300,7 +300,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         })
         .catch((error) => {
           if (error.response.status === 403) {
-            checkFriendShipStatus();
+            checkFriendShipStatus(postData[0].userId);
           } else {
             const msg = error.response.status === 0 && !error.response.data
               ? 'Combined size of files is too large.'
@@ -386,7 +386,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         reply.descriptionArr,
       ).then(async (res) => {
         if (res.status === 201 && res.data.isFriend === false) {
-          checkFriendShipStatus();
+          checkFriendShipStatus(postData[0].userId);
         }
         const newReplyArray: any = commentData;
         replyValueData = {
@@ -419,7 +419,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         }, 500);
       }).catch((error) => {
         if (error.response.status === 403) {
-          checkFriendShipStatus();
+          checkFriendShipStatus(postData[0].userId);
         } else {
           const msg = error.response.status === 0 && !error.response.data
             ? 'Combined size of files is too large.'
@@ -458,7 +458,6 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     return undefined;
   };
   const handleSearch = (text: string, prefix: string) => {
-    setMentionList([]);
     if (text) {
       if (prefix === '@') {
         getSuggestUserName(text)
@@ -529,6 +528,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             contentHeading: res?.data?.title,
             spoilers: res.data.spoilers,
             movieId: res.data.movieId._id,
+            hashtags: res.data?.hashtags,
           };
         } else {
           // Regular post
@@ -672,22 +672,27 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         handlePostDislike(feedPostId);
       }
     };
+    const selectedFeedPostUserId = postData.find((post) => post.id === feedPostId)?.userId;
 
     const handleLikeAndUnlikeFeedPost = async () => {
       try {
         if (checkLike) {
           await unlikeFeedPost(feedPostId);
         } else {
-          await likeFeedPost(feedPostId);
+          const res = await likeFeedPost(feedPostId);
+          if (!res.data.isFriend) {
+            checkFriendShipStatus(selectedFeedPostUserId!);
+          }
         }
-      } catch (error) {
+      } catch (error: any) {
         revertOptimisticUpdate();
+        if (error.response.status === 403) {
+          checkFriendShipStatus(selectedFeedPostUserId!);
+        }
       }
     };
 
-    await checkFriendShipStatus()
-      .then(handleLikeAndUnlikeFeedPost)
-      .catch(revertOptimisticUpdate);
+    handleLikeAndUnlikeFeedPost();
   }, [checkFriendShipStatus, handlePostDislike, handlePostLike, postData]);
 
   const handleLikeComment = (checkCommentId: FeedComments) => {
@@ -797,27 +802,35 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         }
       }
     };
-
-    await checkFriendShipStatus().then(async () => {
+    const handleLikeAndUnlikeCommentReply = async () => {
       try {
         if (isComment) {
           if (checkCommentLike) {
             await unlikeFeedComment(feedCommentId);
           } else {
-            await likeFeedComment(feedCommentId);
+            await likeFeedComment(feedCommentId).then((res) => {
+              if (!res.data.isFriend) {
+                checkFriendShipStatus(checkCommentId?.userId?._id!);
+              }
+            });
           }
         }
         if (isReply) {
           if (checkReplyLike) {
             await unlikeFeedReply(feedCommentId);
           } else {
-            await likeFeedReply(feedCommentId);
+            await likeFeedReply(feedCommentId).then((res) => {
+              if (!res.data.isFriend) {
+                checkFriendShipStatus(checkReplyId[0]?.userId?._id!);
+              }
+            });
           }
         }
-      } catch (error) {
+      } catch (error: any) {
         revertOptimisticUpdate();
       }
-    }).catch(revertOptimisticUpdate);
+    };
+    handleLikeAndUnlikeCommentReply();
   }, [checkFriendShipStatus, commentData, handleLikeFeedReply, handleUnLikeFeedReply]);
 
   const onLikeClick = useCallback((feedId: string) => {

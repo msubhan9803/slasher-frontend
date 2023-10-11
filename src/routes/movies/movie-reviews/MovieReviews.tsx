@@ -297,6 +297,7 @@ function MovieReviews({
           contentHeading: data.title,
           movieId: id,
           spoilers: data.spoilers,
+          hashtags: data?.hashtags,
         }));
         setReviewPostData((prev: Post[]) => [
           ...prev,
@@ -434,7 +435,7 @@ function MovieReviews({
 
   const onLikeClick = async (feedPostId: string) => {
     const checkLike = reviewPostData.some((post: any) => post.id === feedPostId
-    && post.likeIcon);
+      && post.likeIcon);
 
     if (checkLike) {
       handlePostLike(feedPostId);

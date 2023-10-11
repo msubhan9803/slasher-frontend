@@ -26,6 +26,7 @@ import PostDetail from '../../components/ui/post/PostDetail';
 import ProfileLimitedView from './ProfileLimitedView/ProfileLimitedView';
 import RightSidebarAdOnly from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarAdOnly';
 import ContentNotAvailable from '../../components/ContentNotAvailable';
+import ProfileFollowing from './ProfileFollowing/ProfileFollowing';
 import useBootstrapBreakpointName from '../../hooks/useBootstrapBreakpoint';
 import { getPageStateCache, setPageStateCache } from '../../pageStateCache';
 import { getProfileSubroutesCache } from './profileSubRoutesCacheUtils';
@@ -47,6 +48,7 @@ function SharedHeaderProfilePages({ user, isSelfProfile }: SharedHeaderProfilePa
       <Route path="/friends/request" element={<ProfileFriendRequest user={user} />} />
       <Route path="/photos" element={<ProfilePhotos user={user} />} />
       <Route path="/watched-list" element={<ProfileWatchList user={user} />} />
+      <Route path="/following/*" element={<ProfileFollowing user={user} />} />
       <Route path="/edit" element={<ProfileEdit user={user} />} />
     </Routes>
   );
@@ -169,7 +171,6 @@ function Profile() {
       <ContentPageWrapper>
         <h1 className="sr-only">{user.userName}</h1>
         <Routes>
-          <Route path="/edit" element={<ProfileEdit user={user} />} />
           <Route path="*" element={<SharedHeaderProfilePages user={user} isSelfProfile={isSelfProfile} />} />
         </Routes>
       </ContentPageWrapper>

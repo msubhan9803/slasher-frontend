@@ -275,6 +275,14 @@ function AuthenticatedPageWrapper({ children }: Props) {
     removeGlobalCssProperty('--heightOfBackButtonOfIos');
   }
 
+  const navigateBack = () => {
+    if (window.history.back() === undefined) {
+      navigate('/app/home', { replace: true });
+    } else {
+      navigate(-1);
+    }
+  };
+
   return (
     <div id={AUTHENTICATED_PAGE_WRAPPER_ID} className="page-wrapper full" style={{ paddingTop: `${!isDesktopResponsiveSize && isIOS && showBackButtonInIos(location.pathname) ? 'var(--heightOfBackButtonOfIos)' : ''}` }}>
       {isIOS
@@ -282,7 +290,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
         && (
           <div className="pt-2 position-fixed" ref={backButtonElementRef} style={{ top: 0, paddingTop: '0.625rem', zIndex: 1 }}>
             <div className="ms-2">
-              <Button variant="link" className="p-0 px-1" onClick={() => navigate(-1)}>
+              <Button variant="link" className="p-0 px-1" onClick={() => navigateBack()}>
                 <FontAwesomeIcon role="button" icon={solid('arrow-left-long')} size="2x" />
               </Button>
             </div>

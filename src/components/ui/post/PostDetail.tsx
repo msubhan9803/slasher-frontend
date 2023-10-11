@@ -34,6 +34,7 @@ import ErrorMessageList from '../ErrorMessageList';
 import ReportModal from '../ReportModal';
 import EditPostModal from './EditPostModal';
 import PostFeed from './PostFeed/PostFeed';
+import { getSuggestHashtag } from '../../../api/searchHashtag';
 import { deletedPostsCache } from '../../../pageStateCache';
 import useProgressButton from '../ProgressButton';
 import { sleep } from '../../../utils/timer-utils';
@@ -162,23 +163,24 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       () => { setRequestAdditionalPosts(false); setLoadingComments(false); },
     );
   }, [commentData, postId]);
-
-  const checkFriendShipStatus = () => new Promise<void>((resolve, reject) => {
-    if (postType === 'news' || postType === 'review' || userData.user.id === postData[0].userId) {
+  // eslint-disable-next-line max-len
+  const checkFriendShipStatus = useCallback((feedPostUserId: any) => new Promise<void>((resolve, reject) => {
+    if (postType === 'news' || postType === 'review' || userData.user.id === feedPostUserId) {
       resolve();
     } else {
-      friendship(postData[0].userId!).then((res) => {
+      friendship(feedPostUserId).then((res) => {
         if (res.data.reaction === FriendRequestReaction.Accepted) {
           resolve();
         } else {
-          setPostUserId(postData[0].userId!);
+          setPostUserId(feedPostUserId);
           setFriendShipStatusModal(true);
           setFriendData(res.data);
           setFriendStatus(res.data.reaction);
+          reject();
         }
       }).catch(() => reject());
     }
-  });
+  }), [postType, userData?.user?.id]);
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingComments && (commentData.length || !queryCommentId)) {
@@ -212,100 +214,105 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       replies: [],
       createdAt: new Date().toISOString(),
     };
-    await checkFriendShipStatus().then(() => {
-      if (comment?.commentId) {
-        updateFeedComments(
-          postId!,
-          comment.commentMessage,
-          comment?.commentId,
-          comment?.images,
-          comment?.deleteImage,
-          comment?.descriptionArr,
-        )
-          .then(async (res) => {
-            const updateCommentArray: any = commentData;
-            const index = updateCommentArray.findIndex(
-              (commentId: any) => commentId._id === res.data._id,
-            );
-            commentValueData = {
-              ...updateCommentArray[index],
-              _id: res.data._id,
-              feedPostId: res.data.feedPostId,
-              images: res.data.images,
-              message: comment.commentMessage,
-              userId: { ...userData.user, _id: userData.user.id },
-              replies: [],
-              createdAt: new Date().toISOString(),
+    if (comment?.commentId) {
+      updateFeedComments(
+        postId!,
+        comment.commentMessage,
+        comment?.commentId,
+        comment?.images,
+        comment?.deleteImage,
+        comment?.descriptionArr,
+      )
+        .then(async (res) => {
+          const updateCommentArray: any = commentData;
+          const index = updateCommentArray.findIndex(
+            (commentId: any) => commentId._id === res.data._id,
+          );
+          commentValueData = {
+            ...updateCommentArray[index],
+            _id: res.data._id,
+            feedPostId: res.data.feedPostId,
+            images: res.data.images,
+            message: comment.commentMessage,
+            userId: { ...userData.user, _id: userData.user.id },
+            replies: [],
+            createdAt: new Date().toISOString(),
+          };
+          if (updateCommentArray[index]._id === res.data._id) {
+            updateCommentArray[index] = {
+              ...res.data,
+              ...commentValueData,
+              replies: updateCommentArray[index].replies,
             };
-            if (updateCommentArray[index]._id === res.data._id) {
-              updateCommentArray[index] = {
-                ...res.data,
-                ...commentValueData,
-                replies: updateCommentArray[index].replies,
-              };
-            }
-            setCommentData(updateCommentArray);
-            setUpdateState(true);
-            setCommentErrorMessage([]);
-            setCommentSent(false);
-            setIsEdit(false);
-          })
-          .catch((error) => {
+          }
+          setCommentData(updateCommentArray);
+          setUpdateState(true);
+          setCommentErrorMessage([]);
+          setCommentSent(false);
+          setIsEdit(false);
+        })
+        .catch((error) => {
+          const msg = error.response.status === 0 && !error.response.data
+            ? 'Combined size of files is too large.'
+            : error.response.data.message;
+          setCommentErrorMessage(msg);
+          setCommentSent(false);
+        })
+        .finally(() => {
+          abortControllerRef.current = null;
+        });
+    } else {
+      addFeedComments(
+        postId!,
+        comment.commentMessage,
+        comment.imageArr,
+        comment.descriptionArr,
+      )
+        .then(async (res) => {
+          if (res.status === 201 && res.data.isFriend === false) {
+            checkFriendShipStatus(postData[0].userId);
+          }
+          let newCommentArray: any = commentData;
+          commentValueData = {
+            _id: res.data._id,
+            feedPostId: res.data.feedPostId,
+            images: res.data.images,
+            message: comment.commentMessage,
+            userId: { ...userData.user, _id: userData.user.id },
+            replies: [],
+            likeCount: 0,
+            createdAt: new Date().toISOString(),
+          };
+          if (isCommentsOldestFirst) {
+            newCommentArray = newCommentArray.concat(commentValueData);
+          } else {
+            newCommentArray = [commentValueData].concat(newCommentArray);
+          }
+          setCommentData(newCommentArray);
+          setPostData([{
+            ...postData[0],
+            commentCount: postData[0].commentCount + 1,
+          }]);
+          setUpdateState(true);
+          setCommentSent(false);
+          setCommentErrorMessage([]);
+          setCommentOrReplySuccessAlertMessage('Your comment has been added.');
+        })
+        .catch((error) => {
+          if (error.response.status === 403) {
+            checkFriendShipStatus(postData[0].userId);
+          } else {
             const msg = error.response.status === 0 && !error.response.data
               ? 'Combined size of files is too large.'
               : error.response.data.message;
+            setCommentSent(false);
             setCommentErrorMessage(msg);
-            setCommentSent(false);
-          })
-          .finally(() => {
-            abortControllerRef.current = null;
-          });
-      } else {
-        addFeedComments(
-          postId!,
-          comment.commentMessage,
-          comment.imageArr,
-          comment.descriptionArr,
-        )
-          .then(async (res) => {
-            let newCommentArray: any = commentData;
-            commentValueData = {
-              _id: res.data._id,
-              feedPostId: res.data.feedPostId,
-              images: res.data.images,
-              message: comment.commentMessage,
-              userId: { ...userData.user, _id: userData.user.id },
-              replies: [],
-              likeCount: 0,
-              createdAt: new Date().toISOString(),
-            };
-            if (isCommentsOldestFirst) {
-              newCommentArray = newCommentArray.concat(commentValueData);
-            } else {
-              newCommentArray = [commentValueData].concat(newCommentArray);
-            }
-            setCommentData(newCommentArray);
-            setPostData([{
-              ...postData[0],
-              commentCount: postData[0].commentCount + 1,
-            }]);
-            setUpdateState(true);
-            setCommentSent(false);
-            setCommentErrorMessage([]);
-            setCommentOrReplySuccessAlertMessage('Your comment has been added.');
-          })
-          .catch((error) => {
-            const msg = error.response.status === 0 && !error.response.data
-              ? 'Combined size of files is too large.'
-              : error.response.data.message;
-            setCommentErrorMessage(msg);
-            setCommentSent(false);
-          })
-          .finally(() => {
-            abortControllerRef.current = null;
-          });
-      }
-    }).catch(() => { });
+          }
+        })
+        .finally(() => {
+          abortControllerRef.current = null;
+        });
+    }
   };
   const addUpdateReply = async (reply: any) => {
     if (abortControllerRef.current) {
@@ -325,89 +332,41 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
       createdAt: new Date().toISOString(),
     };
 
-    await checkFriendShipStatus().then(() => {
-      if (reply.replyId) {
-        updateFeedCommentReply(
-          postId!,
-          reply.replyMessage,
-          reply.replyId,
-          reply.images,
-          reply.deleteImage,
-          reply.descriptionArr,
-        )
-          .then(async (res) => {
-            const updateReplyArray: any = commentData;
-            updateReplyArray.map((comment: any) => {
-              const staticReplies = comment.replies;
-              if (comment._id === res.data.feedCommentId) {
-                const index = staticReplies.findIndex(
-                  (replyId: any) => replyId._id === res.data._id,
-                );
-                replyValueData = {
-                  ...staticReplies[index],
-                  message: res.data.message,
-                  userId: { ...userData.user, _id: userData.user.id },
-                  images: res.data.images,
-                };
-                if (staticReplies[index]._id === res.data._id) {
-                  staticReplies[index] = { ...res.data, ...replyValueData };
-                }
-                return null;
+    if (reply.replyId) {
+      updateFeedCommentReply(
+        postId!,
+        reply.replyMessage,
+        reply.replyId,
+        reply.images,
+        reply.deleteImage,
+        reply.descriptionArr,
+      )
+        .then(async (res) => {
+          const updateReplyArray: any = commentData;
+          updateReplyArray.map((comment: any) => {
+            const staticReplies = comment.replies;
+            if (comment._id === res.data.feedCommentId) {
+              const index = staticReplies.findIndex(
+                (replyId: any) => replyId._id === res.data._id,
+              );
+              replyValueData = {
+                ...staticReplies[index],
+                message: res.data.message,
+                userId: { ...userData.user, _id: userData.user.id },
+                images: res.data.images,
+              };
+              if (staticReplies[index]._id === res.data._id) {
+                staticReplies[index] = { ...res.data, ...replyValueData };
               }
               return null;
-            });
-            setCommentData(updateReplyArray);
-            setUpdateState(true);
-            setCommentReplyErrorMessage([]);
-            setIsEdit(false);
-            setCommentSent(false);
-          }).catch((error) => {
-            const msg = error.response.status === 0 && !error.response.data
-              ? 'Combined size of files is too large.'
-              : error.response.data.message;
-            setCommentReplyErrorMessage(msg);
-            setCommentSent(false);
-          })
-          .finally(() => {
-            abortControllerRef.current = null;
-          });
-      } else {
-        addFeedReplyComments(
-          postId!,
-          reply.replyMessage,
-          reply?.imageArr,
-          reply.commentId!,
-          reply.descriptionArr,
-        ).then(async (res) => {
-          const newReplyArray: any = commentData;
-          replyValueData = {
-            feedPostId: postId,
-            feedCommentId: res.data.feedCommentId,
-            images: res.data.images,
-            message: reply.replyMessage,
-            userId: { ...userData.user, _id: userData.user.id },
-            createdAt: new Date().toISOString(),
-            likeCount: 0,
-            new: true,
-          };
-          newReplyArray.map((comment: any) => {
-            const staticReplies = comment.replies;
-            const index = staticReplies.findIndex((obj: any) => obj._id === reply.commentReplyID);
-            if (comment._id === reply.commentId) {
-              staticReplies.splice(index + 1, 0, { ...replyValueData, _id: res.data._id });
             }
             return null;
           });
-          setCommentData(newReplyArray);
+          setCommentData(updateReplyArray);
           setUpdateState(true);
           setCommentReplyErrorMessage([]);
+          setIsEdit(false);
           setCommentSent(false);
-          setCommentID('');
-          // eslint-disable-next-line max-len
-          // Fix showing of two success alert messages (i.e, inside two comment inputs for comment and reply-to-comment)
-          setTimeout(() => {
-            setCommentOrReplySuccessAlertMessage('Your reply has been added to the end of this comment thread.');
-          }, 500);
         }).catch((error) => {
           const msg = error.response.status === 0 && !error.response.data
             ? 'Combined size of files is too large.'
@@ -415,11 +374,64 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           setCommentReplyErrorMessage(msg);
           setCommentSent(false);
         })
-          .finally(() => {
-            abortControllerRef.current = null;
-          });
-      }
-    }).catch(() => { });
+        .finally(() => {
+          abortControllerRef.current = null;
+        });
+    } else {
+      addFeedReplyComments(
+        postId!,
+        reply.replyMessage,
+        reply?.imageArr,
+        reply.commentId!,
+        reply.descriptionArr,
+      ).then(async (res) => {
+        if (res.status === 201 && res.data.isFriend === false) {
+          checkFriendShipStatus(postData[0].userId);
+        }
+        const newReplyArray: any = commentData;
+        replyValueData = {
+          feedPostId: postId,
+          feedCommentId: res.data.feedCommentId,
+          images: res.data.images,
+          message: reply.replyMessage,
+          userId: { ...userData.user, _id: userData.user.id },
+          createdAt: new Date().toISOString(),
+          likeCount: 0,
+          new: true,
+        };
+        newReplyArray.map((comment: any) => {
+          const staticReplies = comment.replies;
+          const index = staticReplies.findIndex((obj: any) => obj._id === reply.commentReplyID);
+          if (comment._id === reply.commentId) {
+            staticReplies.splice(index + 1, 0, { ...replyValueData, _id: res.data._id });
+          }
+          return null;
+        });
+        setCommentData(newReplyArray);
+        setUpdateState(true);
+        setCommentReplyErrorMessage([]);
+        setCommentSent(false);
+        setCommentID('');
+        // eslint-disable-next-line max-len
+        // Fix showing of two success alert messages (i.e, inside two comment inputs for comment and reply-to-comment)
+        setTimeout(() => {
+          setCommentOrReplySuccessAlertMessage('Your reply has been added to the end of this comment thread.');
+        }, 500);
+      }).catch((error) => {
+        if (error.response.status === 403) {
+          checkFriendShipStatus(postData[0].userId);
+        } else {
+          const msg = error.response.status === 0 && !error.response.data
+            ? 'Combined size of files is too large.'
+            : error.response.data.message;
+          setCommentSent(false);
+          setCommentErrorMessage(msg);
+        }
+      })
+        .finally(() => {
+          abortControllerRef.current = null;
+        });
+    }
   };
 
   const removeCommentAsync = async () => {
@@ -445,12 +457,15 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     }
     return undefined;
   };
-
-  const handleSearch = (text: string) => {
-    setMentionList([]);
+  const handleSearch = (text: string, prefix: string) => {
     if (text) {
-      getSuggestUserName(text)
-        .then((res) => setMentionList(res.data));
+      if (prefix === '@') {
+        getSuggestUserName(text)
+          .then((res) => setMentionList(res.data));
+      } else if (prefix === '#') {
+        getSuggestHashtag(text)
+          .then((res) => setMentionList(res.data));
+      }
     }
   };
 
@@ -513,6 +528,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             contentHeading: res?.data?.title,
             spoilers: res.data.spoilers,
             movieId: res.data.movieId._id,
+            hashtags: res.data?.hashtags,
           };
         } else {
           // Regular post
@@ -608,151 +624,222 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     return undefined;
   };
 
-  const onPostLikeClick = async (feedPostId: string) => {
+  const handlePostDislike = useCallback((feedPostId: string) => {
+    setPostData((prevPosts) => prevPosts.map(
+      (prevPost) => {
+        if (prevPost._id === feedPostId) {
+          return {
+            ...prevPost,
+            likeIcon: false,
+            likedByUser: false,
+            likeCount: prevPost.likeCount - 1,
+          };
+        }
+        return prevPost;
+      },
+    ));
+  }, []);
+
+  const handlePostLike = useCallback((feedPostId: string) => {
+    setPostData((prevPosts) => prevPosts.map((prevPost) => {
+      if (prevPost._id === feedPostId) {
+        return {
+          ...prevPost,
+          likeIcon: true,
+          likedByUser: true,
+          likeCount: prevPost.likeCount + 1,
+        };
+      }
+      return prevPost;
+    }));
+  }, []);
+
+  const onPostLikeClick = useCallback(async (feedPostId: string) => {
     const checkLike = postData.some((post) => post.id === feedPostId
       && post.likedByUser);
 
-    await checkFriendShipStatus().then(() => {
+    // Dislike/Like optimistically
+    if (checkLike) {
+      handlePostDislike(feedPostId);
+    } else {
+      handlePostLike(feedPostId);
+    }
+
+    const revertOptimisticUpdate = () => {
       if (checkLike) {
-        unlikeFeedPost(feedPostId).then((res) => {
-          if (res.status === 200) {
-            const unLikePostData = postData.map(
-              (unLikePost: any) => { // NewsPartnerPostProps || Post type check
-                if (unLikePost._id === feedPostId) {
-                  return {
-                    ...unLikePost,
-                    likeIcon: false,
-                    likedByUser: false,
-                    likeCount: unLikePost.likeCount - 1,
-                  };
-                }
-                return unLikePost;
-              },
-            );
-            setPostData(unLikePostData);
-          }
-        });
+        handlePostLike(feedPostId);
       } else {
-        likeFeedPost(feedPostId).then((res) => {
-          if (res.status === 201) {
-            const likePostData = postData.map((likePost: Post) => {
-              if (likePost._id === feedPostId) {
-                return {
-                  ...likePost,
-                  likeIcon: true,
-                  likedByUser: true,
-                  likeCount: likePost.likeCount + 1,
-                };
-              }
-              return likePost;
-            });
-            setPostData(likePostData);
-          }
-        });
+        handlePostDislike(feedPostId);
       }
-    }).catch(() => { });
+    };
+    const selectedFeedPostUserId = postData.find((post) => post.id === feedPostId)?.userId;
+
+    const handleLikeAndUnlikeFeedPost = async () => {
+      try {
+        if (checkLike) {
+          await unlikeFeedPost(feedPostId);
+        } else {
+          const res = await likeFeedPost(feedPostId);
+          if (!res.data.isFriend) {
+            checkFriendShipStatus(selectedFeedPostUserId!);
+          }
+        }
+      } catch (error: any) {
+        revertOptimisticUpdate();
+        if (error.response.status === 403) {
+          checkFriendShipStatus(selectedFeedPostUserId!);
+        }
+      }
+    };
+
+    handleLikeAndUnlikeFeedPost();
+  }, [checkFriendShipStatus, handlePostDislike, handlePostLike, postData]);
+
+  const handleLikeComment = (checkCommentId: FeedComments) => {
+    setCommentData((prevCommentData) => prevCommentData.map(
+      (prevComment) => (prevComment?._id === checkCommentId?._id
+        ? { ...prevComment, likedByUser: true, likeCount: prevComment.likeCount + 1 }
+        : prevComment),
+    ));
+    setUpdateState(true);
+  };
+  const handleUnLikeComment = (checkCommentId: FeedComments) => {
+    setCommentData((prevCommentData) => prevCommentData.map(
+      (prevComment) => (prevComment?._id === checkCommentId?._id
+        ? { ...prevComment, likedByUser: false, likeCount: prevComment.likeCount - 1 }
+        : prevComment),
+    ));
+    setUpdateState(true);
   };
 
-  const onCommentLike = async (feedCommentId: string) => {
-    const checkCommentId = commentData.find((comment: any) => comment._id === feedCommentId);
-    const checkReplyId = commentData.map(
-      (comment: any) => comment.replies.find((reply: any) => reply._id === feedCommentId),
+  const handleLikeFeedReply = useCallback((checkReplyId: any) => {
+    const updatedCommentData: any = [];
+    commentData.map((commentLike: any) => {
+      if (commentLike._id === checkReplyId[0].feedCommentId) {
+        commentLike.replies.map((reply: any) => {
+          if (reply._id === checkReplyId[0]._id) {
+            /* eslint-disable no-param-reassign */
+            reply.likeCount += 1;
+            reply.likedByUser = true;
+            return reply;
+          }
+          return reply;
+        });
+        updatedCommentData.push(commentLike);
+      } else {
+        updatedCommentData.push(commentLike);
+      }
+      return null;
+    });
+    setCommentData(updatedCommentData);
+    setUpdateState(true);
+  }, [commentData]);
+
+  const handleUnLikeFeedReply = useCallback((checkReplyId: any) => {
+    const updatedCommentData: any = [];
+    commentData.map((commentLike: any) => {
+      if (commentLike._id === checkReplyId[0].feedCommentId) {
+        commentLike.replies.map((reply: any) => {
+          if (reply._id === checkReplyId[0]._id) {
+            /* eslint-disable no-param-reassign */
+            reply.likeCount -= 1;
+            reply.likedByUser = false;
+            return reply;
+          }
+          return reply;
+        });
+        updatedCommentData.push(commentLike);
+      } else {
+        updatedCommentData.push(commentLike);
+      }
+      return null;
+    });
+    setCommentData(updatedCommentData);
+    setUpdateState(true);
+  }, [commentData]);
+
+  const onCommentLike = useCallback(async (feedCommentId: string) => {
+    const checkCommentId = commentData.find((comment) => comment._id === feedCommentId);
+    const checkReplyId: any = commentData.map(
+      (comment) => comment.replies.find((reply) => reply._id === feedCommentId),
     ).filter(Boolean);
 
-    await checkFriendShipStatus().then(() => {
-      if (feedCommentId === checkCommentId?._id) {
-        const checkCommentLike = checkCommentId?.likedByUser;
+    const isComment = feedCommentId === checkCommentId?._id;
+    const checkCommentLike = checkCommentId?.likedByUser;
 
+    const isReply = feedCommentId === checkReplyId[0]?._id;
+    const checkReplyLike = checkReplyId[0]?.likedByUser;
+
+    // Dislike/Like comment/reply optimistically
+    if (isComment) {
+      if (checkCommentLike) {
+        handleUnLikeComment(checkCommentId);
+      } else {
+        handleLikeComment(checkCommentId);
+      }
+    }
+    if (isReply) {
+      if (checkReplyLike) {
+        handleUnLikeFeedReply(checkReplyId);
+      } else {
+        handleLikeFeedReply(checkReplyId);
+      }
+    }
+
+    const revertOptimisticUpdate = () => {
+      if (isComment) {
         if (checkCommentLike) {
-          unlikeFeedComment(feedCommentId).then((res) => {
-            if (res.status === 200) {
-              const unLikeCommentData = commentData.map(
-                (commentLike: any) => (commentLike === checkCommentId
-                  ? { ...commentLike, likedByUser: false, likeCount: commentLike.likeCount - 1 }
-                  : commentLike),
-              );
-              setCommentData(unLikeCommentData);
-              setUpdateState(true);
-            }
-          });
+          handleLikeComment(checkCommentId);
         } else {
-          likeFeedComment(feedCommentId).then((res) => {
-            if (res.status === 201) {
-              const likeCommentData = commentData.map(
-                (commentLike: any) => (commentLike === checkCommentId
-                  ? { ...commentLike, likedByUser: true, likeCount: commentLike.likeCount + 1 }
-                  : commentLike),
-              );
-              setCommentData(likeCommentData);
-              setUpdateState(true);
-            }
-          });
+          handleUnLikeComment(checkCommentId);
         }
       }
-      if (feedCommentId === checkReplyId[0]?._id) {
-        const checkReplyLike = checkReplyId[0].likedByUser;
+      if (isReply) {
         if (checkReplyLike) {
-          unlikeFeedReply(feedCommentId).then((res) => {
-            if (res.status === 200) {
-              const updatedCommentData: any = [];
-              commentData.map((commentLike: any) => {
-                if (commentLike._id === checkReplyId[0].feedCommentId) {
-                  commentLike.replies.map((reply: any) => {
-                    if (reply._id === checkReplyId[0]._id) {
-                      /* eslint-disable no-param-reassign */
-                      reply.likeCount -= 1;
-                      reply.likedByUser = false;
-                      return reply;
-                    }
-                    return reply;
-                  });
-                  updatedCommentData.push(commentLike);
-                } else {
-                  updatedCommentData.push(commentLike);
-                }
-                return null;
-              });
-              setCommentData(updatedCommentData);
-              setUpdateState(true);
-            }
-          });
+          handleLikeFeedReply(checkReplyId);
         } else {
-          likeFeedReply(feedCommentId).then((res) => {
-            if (res.status === 201) {
-              const updatedCommentData: any = [];
-              commentData.map((commentLike: any) => {
-                if (commentLike._id === checkReplyId[0].feedCommentId) {
-                  commentLike.replies.map((reply: any) => {
-                    if (reply._id === checkReplyId[0]._id) {
-                      /* eslint-disable no-param-reassign */
-                      reply.likeCount += 1;
-                      reply.likedByUser = true;
-                      return reply;
-                    }
-                    return reply;
-                  });
-                  updatedCommentData.push(commentLike);
-                } else {
-                  updatedCommentData.push(commentLike);
-                }
-                return null;
-              });
-              setCommentData(updatedCommentData);
-              setUpdateState(true);
-            }
-          });
+          handleUnLikeFeedReply(checkReplyId);
         }
       }
-    });
-  };
+    };
+    const handleLikeAndUnlikeCommentReply = async () => {
+      try {
+        if (isComment) {
+          if (checkCommentLike) {
+            await unlikeFeedComment(feedCommentId);
+          } else {
+            await likeFeedComment(feedCommentId).then((res) => {
+              if (!res.data.isFriend) {
+                checkFriendShipStatus(checkCommentId?.userId?._id!);
+              }
+            });
+          }
+        }
+        if (isReply) {
+          if (checkReplyLike) {
+            await unlikeFeedReply(feedCommentId);
+          } else {
+            await likeFeedReply(feedCommentId).then((res) => {
+              if (!res.data.isFriend) {
+                checkFriendShipStatus(checkReplyId[0]?.userId?._id!);
+              }
+            });
+          }
+        }
+      } catch (error: any) {
+        revertOptimisticUpdate();
+      }
+    };
+    handleLikeAndUnlikeCommentReply();
+  }, [checkFriendShipStatus, commentData, handleLikeFeedReply, handleUnLikeFeedReply]);
 
-  const onLikeClick = (feedId: string) => {
+  const onLikeClick = useCallback((feedId: string) => {
     if (feedId === postId) {
       onPostLikeClick(feedId);
     } else {
       onCommentLike(feedId);
     }
-  };
+  }, [onCommentLike, onPostLikeClick, postId]);
 
   const handleSpoiler = (spoilerPostId: string) => {
     const spoilerIdList = getLocalStorage('spoilersIds');
@@ -978,7 +1065,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                   />
                 )}
 
-              {friendShipStatusModal && (
+              {friendShipStatusModal && !userData.ignoreFriendSuggestionDialog && (
                 <FriendshipStatusModal
                   friendShipStatusModal={friendShipStatusModal}
                   setFriendShipStatusModal={setFriendShipStatusModal}
@@ -1075,7 +1162,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
                 />
               )}
 
-            {friendShipStatusModal && (
+            {friendShipStatusModal && !userData.user.ignoreFriendSuggestionDialog && (
               <FriendshipStatusModal
                 friendShipStatusModal={friendShipStatusModal}
                 setFriendShipStatusModal={setFriendShipStatusModal}

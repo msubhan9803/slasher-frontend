@@ -59,6 +59,7 @@ function Home() {
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const location = useLocation();
   const userId = useAppSelector((state: any) => state.user.user.id);
+  const userData = useAppSelector((state) => state.user.user);
   const pageStateCache = (getPageStateCache(location) ?? [])
     .filter(removeDeletedPost)
     .filter(removeBlockedUserPosts);
@@ -123,6 +124,7 @@ function Home() {
             likeCount: data.likeCount,
             commentCount: data.commentCount,
             movieId: data?.movieId,
+            hashtags: data.hashtags,
           };
         }
         // RSS feed post
@@ -137,7 +139,8 @@ function Home() {
           likeIcon: data.likedByUser,
           likeCount: data.likeCount,
           commentCount: data.commentCount,
-          rssfeedProviderId: data.rssfeedProviderId._id,
+          rssfeedProviderId: data?.rssfeedProviderId?._id,
+          hashtags: data.hashtags,
         };
       });
       setPosts((prev: Post[]) => [
@@ -244,12 +247,15 @@ function Home() {
         const updatePost = posts.map((post: any) => {
           if (post._id === postId) {
             return {
-              ...post, message: res.data.message, images: res.data.images,
+              ...post,
+              message: res.data.message,
+              images: res.data.images,
             };
           }
           return post;
         });
         setPosts(updatePost);
+        callLatestFeedPost();
       })
       .catch((error) => {
         setProgressButtonStatus('failure');
@@ -274,7 +280,7 @@ function Home() {
       });
   };
 
-  const checkFriendShipStatus = (selectedFeedPostUserId: string) => new Promise<void>(
+  const checkFriendShipStatus = useCallback((selectedFeedPostUserId: string) => new Promise<void>(
     (resolve, reject) => {
       if (userId === selectedFeedPostUserId) {
         resolve();
@@ -287,70 +293,83 @@ function Home() {
             setFriendShipStatusModal(true);
             setFriendData(res.data);
             setFriendStatus(res.data.reaction);
+            reject();
           }
         }).catch(() => reject());
       }
     },
-  );
+  ), [userId]);
+
+  const handlePostDislike = useCallback((feedPostId: string) => {
+    setPosts((prevPosts) => prevPosts.map(
+      (prevPost) => {
+        if (prevPost._id === feedPostId) {
+          return {
+            ...prevPost,
+            likeIcon: false,
+            likedByUser: false,
+            likeCount: prevPost.likeCount - 1,
+          };
+        }
+        return prevPost;
+      },
+    ));
+  }, []);
+
+  const handlePostLike = useCallback((feedPostId: string) => {
+    setPosts((prevPosts) => prevPosts.map((prevPost) => {
+      if (prevPost._id === feedPostId) {
+        return {
+          ...prevPost,
+          likeIcon: true,
+          likedByUser: true,
+          likeCount: prevPost.likeCount + 1,
+        };
+      }
+      return prevPost;
+    }));
+  }, []);
 
   const onLikeClick = async (feedPostId: string) => {
     const checkLike = posts.some((post) => post.id === feedPostId
       && post.likeIcon);
 
-    const selectedFeedPostUserId = posts.find((post) => post.id === feedPostId)?.userId;
-    const selectedRssfeedProviderIdOfFeedPost = posts.find(
-      (post) => post.id === feedPostId,
-    )?.rssfeedProviderId;
+    // Dislike/Like optimistically
+    if (checkLike) {
+      handlePostDislike(feedPostId);
+    } else {
+      handlePostLike(feedPostId);
+    }
 
-    const handleLikeAndUnlikeFeedPost = () => {
+    const revertOptimisticUpdate = () => {
       if (checkLike) {
-        unlikeFeedPost(feedPostId).then((res) => {
-          if (res.status === 200) {
-            const unLikePostData = posts.map(
-              (unLikePost) => {
-                if (unLikePost._id === feedPostId) {
-                  return {
-                    ...unLikePost,
-                    likeIcon: false,
-                    likedByUser: false,
-                    likeCount: unLikePost.likeCount - 1,
-                  };
-                }
-                return unLikePost;
-              },
-            );
-            setPosts(unLikePostData);
-          }
-        });
+        handlePostLike(feedPostId);
       } else {
-        likeFeedPost(feedPostId).then((res) => {
-          if (res.status === 201) {
-            const likePostData = posts.map((likePost) => {
-              if (likePost._id === feedPostId) {
-                return {
-                  ...likePost,
-                  likeIcon: true,
-                  likedByUser: true,
-                  likeCount: likePost.likeCount + 1,
-                };
-              }
-              return likePost;
-            });
-            setPosts(likePostData);
-          }
-        });
+        handlePostDislike(feedPostId);
       }
     };
 
-    // feedPost is a user post
-    if (selectedFeedPostUserId) {
-      await checkFriendShipStatus(selectedFeedPostUserId!).then(handleLikeAndUnlikeFeedPost);
-    }
+    const selectedFeedPostUserId = posts.find((post) => post.id === feedPostId)?.userId;
 
-    // feedPost is rssFeedPost
-    if (selectedRssfeedProviderIdOfFeedPost) {
-      handleLikeAndUnlikeFeedPost();
-    }
+    const handleLikeAndUnlikeFeedPost = async () => {
+      try {
+        if (checkLike) {
+          await unlikeFeedPost(feedPostId);
+        } else {
+          const res = await likeFeedPost(feedPostId);
+          if (!res.data.isFriend) {
+            checkFriendShipStatus(selectedFeedPostUserId!);
+          }
+        }
+      } catch (error: any) {
+        revertOptimisticUpdate();
+        if (error.response.status === 403) {
+          checkFriendShipStatus(selectedFeedPostUserId!);
+        }
+      }
+    };
+
+    handleLikeAndUnlikeFeedPost();
   };
 
   const onBlockYesClick = () => {
@@ -392,6 +411,8 @@ function Home() {
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
+        {/* <DebugAdvertisingId /> */}
+
         <CustomCreatePost className="mt-3 mt-lg-0" />
         <h1 className="h2 my-3 ms-3 ms-md-0">Suggested friends</h1>
         <SuggestedFriend />
@@ -465,7 +486,7 @@ function Home() {
           )
         }
 
-        {friendShipStatusModal && (
+        {friendShipStatusModal && !userData.ignoreFriendSuggestionDialog && (
           <FriendshipStatusModal
             friendShipStatusModal={friendShipStatusModal}
             setFriendShipStatusModal={setFriendShipStatusModal}

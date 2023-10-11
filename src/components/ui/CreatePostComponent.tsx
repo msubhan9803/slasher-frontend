@@ -29,10 +29,13 @@ import { getMoviesById, getMoviesDataById } from '../../api/movies';
 import { StyledMoviePoster } from '../../routes/movies/movie-details/StyledUtils';
 import { LG_MEDIA_BREAKPOINT, isNativePlatform, topToDivHeight } from '../../constants';
 import { ProgressButtonComponentType } from './ProgressButton';
+import { getSuggestHashtag } from '../../api/searchHashtag';
 
 interface MentionProps {
   id: string;
+  _id: string;
   userName: string;
+  name: string;
   profilePic: string;
 }
 interface FormatMentionProps {
@@ -108,6 +111,7 @@ function CreatePostComponent({
   const [uploadPost, setUploadPost] = useState<string[]>([]);
   const [showPicker, setShowPicker] = useState<any>(false);
   const [searchParams] = useSearchParams();
+  const [notFoundContent, setNotFoundContent] = useState('');
   const paramsType = searchParams.get('type');
   const imageArrayRef = useRef(imageArray);
   const descriptionArrayRef = useRef(descriptionArray);
@@ -161,6 +165,25 @@ function CreatePostComponent({
       setImageArray(imageArrayList);
     }
   };
+
+  const handleSearch = (text: string, prefix: string) => {
+    if (prefix === '@') {
+      setNotFoundContent('Type to search for a username');
+    } else if (prefix === '#') {
+      setNotFoundContent('Type to search for a hashtag');
+    }
+    if (text) {
+      if (prefix === '@') {
+        getSuggestUserName(text)
+          .then((res) => setMentionList(res.data));
+      } else if (prefix === '#') {
+        setNotFoundContent('Type to search for a hashtag');
+        getSuggestHashtag(text)
+          .then((res: any) => setMentionList(res.data));
+      }
+    }
+  };
+
   let actionText;
   if (postType === 'review') {
     actionText = 'Submit';
@@ -169,13 +192,6 @@ function CreatePostComponent({
   } else {
     actionText = 'Post';
   }
-  const handleSearch = (text: string) => {
-    setMentionList([]);
-    if (text) {
-      getSuggestUserName(text)
-        .then((res) => setMentionList(res.data));
-    }
-  };
 
   const onChangeDescription = (newValue: string, index: number) => {
     const descriptionArrayList = [...descriptionArray!];
@@ -358,7 +374,7 @@ function CreatePostComponent({
       )}
       <div className="mt-3 position-relative">
         <MessageTextarea
-          showEmojiButton={!isNativePlatform}
+          showemojibutton={!isNativePlatform}
           rows={10}
           placeholder={placeHolder}
           handleSearch={handleSearch}
@@ -371,6 +387,7 @@ function CreatePostComponent({
           showPicker={showPicker}
           setShowPicker={setShowPicker}
           createEditPost={createEditPost}
+          notFoundContent={notFoundContent}
         />
       </div>
       {paramsType === 'group-post' && (

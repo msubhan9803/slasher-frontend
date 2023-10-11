@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import {
   ActionPerformed, PushNotifications, Token,
 } from '@capacitor/push-notifications';
+import { Preferences } from '@capacitor/preferences';
 import { AppUpdate } from '@capawesome/capacitor-app-update';
 import { Capacitor } from '@capacitor/core';
 import { App as CapacitorApp, URLOpenListenerEvent } from '@capacitor/app';
@@ -28,17 +29,25 @@ function CapacitorAppListeners() {
     });
   }, [navigate]);
 
-  const checkAppVersionStatus = async () => {
+  const checkAndSetAppVerionPreferance = async () => {
+    const appVersion = (await Preferences.get({ key: 'app-version' })).value;
     const result = await AppUpdate.getAppUpdateInfo();
-    const { currentVersion } = result;
-    const { availableVersion } = result;
+    const { currentVersion, availableVersion } = result;
     if (currentVersion < availableVersion) {
       await AppUpdate.openAppStore();
     }
+    if (currentVersion !== appVersion) {
+      await Preferences.set({ key: 'app-version', value: currentVersion });
+      window.location.reload();
+    }
   };
+
+  useEffect(() => {
+    checkAndSetAppVerionPreferance();
+  }, []);
+
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
-      checkAppVersionStatus();
       PushNotifications.requestPermissions().then((result) => {
         if (result.receive === 'granted') {
           PushNotifications.register();

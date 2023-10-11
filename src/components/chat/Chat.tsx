@@ -53,6 +53,7 @@ const ChatHeader = styled.div`
   width:100% !important;
   height:70px !important;
   background: black !important;
+}
 `;
 const ChatBody = styled.div<ChatProps>`
 @media (max-width: ${maxWidthForCommentOrReplyInputOnMobile}px) {
@@ -117,7 +118,7 @@ function Chat({
   const chatBodyElementRef = useRef<HTMLDivElement>(null);
   const latestChatScrollDistanceFromBottom = useRef<number>(0);
   const dispatch = useAppDispatch();
-  const isIOSSafari = !!window.navigator.userAgent.match(/Version\/[\d.]+.*Safari/);
+  const isIOSSafari = /iP(ad|hone|od).*OS/.test(navigator.userAgent);
 
   useEffect(() => {
     Keyboard.addListener('keyboardWillShow', (info) => {
@@ -129,6 +130,14 @@ function Chat({
       setKeyboardHeight(0);
     });
   }, []);
+  useEffect(() => {
+    if (isKeyBoardVisible) {
+      setIsFocused(true);
+    } else {
+      setIsFocused(false);
+    }
+  }, [isKeyBoardVisible]);
+
   const updateMaxHeightBasedOnCurrentWindowHeight = debounce(() => {
     let newHeight = window.innerHeight;
     if (window.innerWidth >= 960) {
@@ -137,7 +146,7 @@ function Chat({
       newHeight -= bottomMobileNavHeight + 50;
     } else if (KeyBoardHeight) {
       newHeight = window.innerHeight;
-    } else if (isFocused && window?.visualViewport?.height && isIOSSafari) {
+    } else if (isIOSSafari && isFocused && window?.visualViewport?.height) {
       // eslint-disable-next-line no-unsafe-optional-chaining
       newHeight = window?.visualViewport?.height + window.scrollY;
     } else if (isNativePlatform) {
@@ -404,7 +413,7 @@ function Chat({
           threshold={500}
           initialLoad
           loader={(
-            <div>
+            <div key="loader">
               {!noEarlierMessagesAvailable && <div key="loader"><LoadingIndicator /></div>}
             </div>
           )}

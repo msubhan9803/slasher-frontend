@@ -205,7 +205,7 @@ function PostContent({
   }, [isSinglePost, visible]);
 
   const genratePostContent = (content: any) => {
-    const escapedString = newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content, `#${selectedHashtag}`!, false, post.hashtags)), defaultLinkifyOpts));
+    const escapedString = newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content, `#${selectedHashtag}`!, post.hashtags)), defaultLinkifyOpts));
 
     const regex = /(#\w+)/g;
 

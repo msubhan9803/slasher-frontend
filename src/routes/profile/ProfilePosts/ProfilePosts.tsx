@@ -295,23 +295,27 @@ function ProfilePosts({ user }: Props) {
       }
     };
 
-    const selectedFeedPostId = posts.find((post) => post.id === feedPostId)?.userId;
+    const selectedFeedPostUserId = posts.find((post) => post.id === feedPostId)?.userId;
 
     const handleLikeAndUnlikeFeedPost = async () => {
       try {
         if (checkLike) {
           await unlikeFeedPost(feedPostId);
         } else {
-          await likeFeedPost(feedPostId);
+          const res = await likeFeedPost(feedPostId);
+          if (!res.data.isFriend) {
+            checkFriendShipStatus(selectedFeedPostUserId!);
+          }
         }
-      } catch (error) {
+      } catch (error: any) {
         revertOptimisticUpdate();
+        if (error.response.status === 403) {
+          checkFriendShipStatus(selectedFeedPostUserId!);
+        }
       }
     };
 
-    checkFriendShipStatus(selectedFeedPostId!)
-      .then(handleLikeAndUnlikeFeedPost)
-      .catch(revertOptimisticUpdate);
+    handleLikeAndUnlikeFeedPost();
   }, [checkFriendShipStatus, handlePostDislike, handlePostLike, posts]);
 
   const onBlockYesClick = () => {

@@ -12,6 +12,7 @@ export const FRIEND_RELATION_ID = '5c9cb7138a874f1dcd0d8dcc';
 export const UNREAD_MESSAGE_NOTIFICATION_DELAY = 3_000;
 export const NON_ALPHANUMERIC_REGEX = /^[!-/:-@[-`{-~]/;
 export const DEFAULT_REQUEST_TIMEOUT = 130; // a default value that can be overridden via env config
+export const isDevelopmentServer = process.env.NODE_ENV === 'development';
 export const WELCOME_MSG = `Welcome to Slasher! 🔪🔪🔪 It's nice to have you with us!
 
 Here's some helpful info I share with everyone new. Hopefully you find it useful and it helps you enjoy your time with us!

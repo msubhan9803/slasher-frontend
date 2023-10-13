@@ -67,6 +67,9 @@ export class FeedPostsController {
     @Body() createFeedPostsDto: CreateFeedPostsDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
+    // ! TODO ~Sahil: Handle BookReview type here and test via postman first!
+    // PostType.BookReview
+
     if (createFeedPostsDto.postType === PostType.MovieReview && createFeedPostsDto.message === '') {
       throw new HttpException(
         'Review must have a some text',

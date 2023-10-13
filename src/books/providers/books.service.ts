@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { HttpService } from '@nestjs/axios';
@@ -6,11 +6,15 @@ import { ReturnBookDb } from 'src/movies/dto/cron-job-response.dto';
 import { lastValueFrom } from 'rxjs';
 import { BookStatus, BookDeletionState } from '../../schemas/book/book.enums';
 import { Book, BookDocument } from '../../schemas/book/book.schema';
+import { isDevelopmentServer } from '../../constants';
+import { BookUserStatus, BookUserStatusDocument } from '../../schemas/bookUserStatus/bookUserStatus.schema';
+import { WorthWatchingStatus } from '../../types';
 
 @Injectable()
 export class BooksService {
   constructor(
     @InjectModel(Book.name) private booksModel: Model<BookDocument>,
+    @InjectModel(BookUserStatus.name) private bookUserStatusModel: Model<BookUserStatusDocument>,
     private httpService: HttpService,
   ) { }
 
@@ -26,6 +30,107 @@ export class BooksService {
     }
     const bookData = await this.booksModel.findOne(booksFindQuery).exec();
     return bookData ? bookData.toObject() : null;
+  }
+
+  async createOrUpdateRating(bookId: string, rating: number, userId: string) {
+    // Create/update a BookUserStatus document
+    const bookUserStatus = await this.bookUserStatusModel.findOneAndUpdate(
+      { bookId, userId },
+      { $set: { rating } },
+      { upsert: true, new: true },
+    );
+    // Calculate average of all `bookUserStatuses` documents for a given `bookId` (ignore 0 rating)
+    const aggregate = await this.bookUserStatusModel.aggregate([
+      { $match: { bookId: new mongoose.Types.ObjectId(bookId), rating: { $exists: true, $ne: 0 } } },
+      { $group: { _id: 'bookId', averageRating: { $avg: '$rating' }, count: { $sum: 1 } } },
+    ]);
+
+    // assign default values for simplistic usage in client side and document update
+    const update: Partial<Book> = { rating: 0, ratingUsersCount: 0 };
+    if (aggregate.length !== 0) {
+      const [{ averageRating, count }] = aggregate;
+      update.rating = averageRating.toFixed(1);
+      update.ratingUsersCount = count;
+    }
+    // Update properties related to `rating`
+    const book = (await this.booksModel.findOneAndUpdate(
+      { _id: new mongoose.Types.ObjectId(bookId) },
+      { $set: update },
+      { new: true },
+    )).toObject();
+
+    return { ...book, userData: bookUserStatus };
+  }
+
+  async createOrUpdateGoreFactorRating(bookId: string, goreFactorRating: number, userId: string) {
+    // Create/update a BookUserStatus document
+    const bookUserStatus = await this.bookUserStatusModel.findOneAndUpdate(
+      { bookId, userId },
+      { $set: { goreFactorRating } },
+      { upsert: true, new: true },
+    );
+    // Calculate average of all `bookUserStatuses` documents for a given `bookId` (ignore 0 goreFactorRating)
+    const aggregate = await this.bookUserStatusModel.aggregate([
+      { $match: { bookId: new mongoose.Types.ObjectId(bookId), goreFactorRating: { $exists: true, $ne: 0 } } },
+      { $group: { _id: 'bookId', averageGoreFactorRating: { $avg: '$goreFactorRating' }, count: { $sum: 1 } } },
+    ]);
+
+    // assign default values for simplistic usage in client side and document update
+    const update: Partial<Book> = { goreFactorRating: 0, goreFactorRatingUsersCount: 0 };
+    if (aggregate.length !== 0) {
+      const [{ averageGoreFactorRating, count }] = aggregate;
+      update.goreFactorRating = averageGoreFactorRating.toFixed(1);
+      update.goreFactorRatingUsersCount = count;
+    }
+    // Update properties related to `goreFactorRating`
+    const book = (await this.booksModel.findOneAndUpdate(
+      { _id: new mongoose.Types.ObjectId(bookId) },
+      { $set: update },
+      { new: true },
+    )).toObject();
+
+    return { ...book, userData: bookUserStatus };
+  }
+
+  async getUserBookStatusRatings(bookId: string, userId: string) {
+    const bookUserStatus = await this.bookUserStatusModel.findOne({ bookId, userId }).select({
+      rating: 1, goreFactorRating: 1, worthWatching: 1,
+    });
+    return bookUserStatus;
+  }
+
+  async createOrUpdateWorthWatching(bookId: string, worthWatching: number, userId: string) {
+    // Create/update a BookUserStatus document
+    const bookUserStatus = await this.bookUserStatusModel.findOneAndUpdate(
+      { bookId, userId },
+      { $set: { worthWatching } },
+      { upsert: true, new: true },
+    );
+    // Calculate average of all `bookUserStatuses` documents for a given `bookId` (ignore 0 goreFactorRating)
+    const aggregate = await this.bookUserStatusModel.aggregate([
+      { $match: { bookId: new mongoose.Types.ObjectId(bookId), worthWatching: { $exists: true, $ne: WorthWatchingStatus.NoRating } } },
+      { $group: { _id: 'bookId', averageWorthWatching: { $avg: '$worthWatching' } } },
+    ]);
+
+    // assign default values for simplistic usage in client side and document update
+    const update: Partial<Book> = { worthWatching: 0, worthWatchingUpUsersCount: 0, worthWatchingDownUsersCount: 0 };
+    if (aggregate.length !== 0) {
+      const [{ averageWorthWatching }] = aggregate;
+      update.worthWatching = Math.round(averageWorthWatching);
+      update.worthWatchingUpUsersCount = await this.bookUserStatusModel.count({ bookId, worthWatching: { $eq: WorthWatchingStatus.Up } });
+      update.worthWatchingDownUsersCount = await this.bookUserStatusModel.count({
+        bookId,
+        worthWatching: { $eq: WorthWatchingStatus.Down },
+      });
+    }
+    // Update properties related to `worthWatch`
+    const book = (await this.booksModel.findOneAndUpdate(
+      { _id: new mongoose.Types.ObjectId(bookId) },
+      { $set: update },
+      { new: true },
+    )).toObject();
+
+    return { ...book, userData: bookUserStatus };
   }
 
   async findAll(activeOnly: boolean): Promise<BookDocument[]> {
@@ -46,7 +151,8 @@ export class BooksService {
   async getBookData(): Promise<any> {
     const arr: any = [];
     let offset = 0;
-    const limit = 10; // ! FOR PRODUCTION: Use 1000 value
+    // TODO: Remove `isDevelopmentServer` usage
+    const limit = isDevelopmentServer ? 50 : 1000; // ! FOR production we value =1000
     let hasMoreData = true;
 
     while (hasMoreData) {
@@ -62,7 +168,9 @@ export class BooksService {
         arr.push(...data.docs);
         offset += limit;
         // ! FOR PRODUCTION: Remove below line
-        hasMoreData = false;
+        if (isDevelopmentServer) {
+          hasMoreData = false;
+        }
       } else {
         hasMoreData = false;
       }
@@ -75,6 +183,8 @@ export class BooksService {
       const searchBooksData: any = await this.getBookData();
       const mainBookArray: Array<Partial<BookDocument>> = [];
       for (let i = 0; i < searchBooksData.length; i += 1) {
+        // eslint-disable-next-line no-console
+        console.log('i?', i);
         const bookDataObject: Partial<BookDocument> = {};
         const [keyData, editionKeyData]: any = await Promise.all([
           lastValueFrom(

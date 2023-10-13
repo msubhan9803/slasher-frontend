@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { BookUnusedFields } from './book.unused-fields';
 import { BookStatus, BookDeletionState } from './book.enums';
+import { WorthWatchingStatus } from '../../types';
 
 @Schema({ timestamps: true })
 export class Book extends BookUnusedFields {
@@ -43,6 +44,30 @@ export class Book extends BookUnusedFields {
 
   @Prop({ default: null })
   bookId: string;
+
+  @Prop({ default: 0 })
+  rating: number;
+
+  @Prop({ default: 0 })
+  ratingUsersCount: number;
+
+  @Prop({ default: 0 })
+  goreFactorRating: number;
+
+  @Prop({ default: 0 })
+  goreFactorRatingUsersCount: number;
+
+  @Prop({
+    default: 0,
+    enum: [WorthWatchingStatus.NoRating, WorthWatchingStatus.Down, WorthWatchingStatus.Up],
+  })
+  worthWatching: number;
+
+  @Prop({ default: 0 })
+  worthWatchingUpUsersCount: number;
+
+  @Prop({ default: 0 })
+  worthWatchingDownUsersCount: number;
 
   @Prop({ default: BookStatus.Active, enum: [BookStatus.InActive, BookStatus.Active, BookStatus.Deactive] })
   status: BookStatus;

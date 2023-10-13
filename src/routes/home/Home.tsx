@@ -211,6 +211,7 @@ function Home() {
             likeCount: data.likeCount,
             commentCount: data.commentCount,
             movieId: data.movieId,
+            hashtags: data.hashtags,
           };
         }
         // RSS feed post
@@ -226,6 +227,7 @@ function Home() {
           likeCount: data.likeCount,
           commentCount: data.commentCount,
           rssfeedProviderId: data.rssfeedProviderId._id,
+          hashtags: data.hashtags,
         };
       });
       setPosts(newPosts);

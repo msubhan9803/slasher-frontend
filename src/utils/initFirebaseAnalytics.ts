@@ -3,12 +3,13 @@
 import { FirebaseAnalytics } from '@capacitor-community/firebase-analytics';
 import { analyticsJson } from '../env';
 
-let firebaseApp : any;
+let firebaseApp: any;
 
 const initializeFirebase = async () => {
   if (!firebaseApp) {
     try {
-      firebaseApp = await FirebaseAnalytics.initializeFirebase(analyticsJson);
+      const jsonObj = analyticsJson ? JSON.parse(analyticsJson) : {};
+      firebaseApp = await FirebaseAnalytics.initializeFirebase(jsonObj);
 
       return firebaseApp;
     } catch (error) {

@@ -4,10 +4,9 @@ import { Book } from '../book/book.schema';
 import { User } from '../user/user.schema';
 import {
   BookUserStatusBuy, BookUserStatusFavorites,
-  BookUserStatusWatch, BookUserStatusWatched, BookUserStatusDeletionStatus,
-  BookUserStatusRatingStatus, BookUserStatusStatus,
+  BookUserStatusRead, BookUserStatusReadingList, BookUserStatusDeletionStatus,
+  BookUserStatusRatingStatus, BookUserStatusStatus, WorthReadingStatus,
 } from './bookUserStatus.enums';
-import { WorthWatchingStatus } from '../../types';
 
 @Schema({ timestamps: true })
 export class BookUserStatus {
@@ -39,16 +38,16 @@ export class BookUserStatus {
   favourite: BookUserStatusFavorites;
 
   @Prop({
-    default: BookUserStatusWatch.NotWatch,
-    enum: [BookUserStatusWatch.NotWatch, BookUserStatusWatch.Watch],
+    default: BookUserStatusRead.NotRead,
+    enum: [BookUserStatusRead.NotRead, BookUserStatusRead.Read],
   })
-  watch: BookUserStatusWatch;
+  read: BookUserStatusRead;
 
   @Prop({
-    default: BookUserStatusWatched.NotWatched,
-    enum: [BookUserStatusWatched.NotWatched, BookUserStatusWatched.Watched],
+    default: BookUserStatusReadingList.NotReadingList,
+    enum: [BookUserStatusReadingList.ReadingList, BookUserStatusReadingList.NotReadingList],
   })
-  watched: BookUserStatusWatched;
+  readingList: BookUserStatusReadingList;
 
   @Prop({
     default: BookUserStatusBuy.NotBuy,
@@ -64,9 +63,9 @@ export class BookUserStatus {
 
   @Prop({
     default: 0,
-    enum: [WorthWatchingStatus.NoRating, WorthWatchingStatus.Down, WorthWatchingStatus.Up],
+    enum: [WorthReadingStatus.NoRating, WorthReadingStatus.Down, WorthReadingStatus.Up],
   })
-  worthWatching: number;
+  worthReading: number;
 
   @Prop({
     default: BookUserStatusRatingStatus.NotAvailable,

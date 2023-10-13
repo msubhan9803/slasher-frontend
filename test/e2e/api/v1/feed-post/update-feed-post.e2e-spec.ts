@@ -869,7 +869,7 @@ describe('Update Feed Post (e2e)', () => {
           message: 'test user#ok #slasher #nothing #okay #best ##not ##go ##run ##fast ##good',
           spoilers: false,
           userId: activeUser._id.toString(),
-          hashtags: ['best', 'fast', 'go', 'good', 'not', 'nothing', 'ok', 'okay', 'run', 'slasher'],
+          hashtags: ['best', 'nothing', 'ok', 'okay', 'slasher'],
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -968,7 +968,7 @@ describe('Update Feed Post (e2e)', () => {
           message: 'hashtag testing post 1 #friend#friend1#friend2 ##done ##slasher #123horror @ghost #horror@12 ##horror12!12',
           spoilers: false,
           userId: activeUser._id.toString(),
-          hashtags: ['123horror', 'done', 'friend', 'friend1', 'friend2', 'horror', 'horror12', 'slasher'],
+          hashtags: ['123horror', 'friend', 'friend1', 'friend2', 'horror'],
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),

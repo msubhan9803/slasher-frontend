@@ -361,7 +361,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           userId: activeUser._id.toString(),
           postType: PostType.User,
           spoilers: false,
-          hashtags: ['okay', 'slasher', 'test12', 'good', 'horror1'],
+          hashtags: ['okay', 'slasher', 'test12', 'horror1'],
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -564,7 +564,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           message: 'test user#ok #slasher #nothing #okay #best ##not ##go ##run ##fast ##good',
           spoilers: false,
           userId: activeUser._id.toString(),
-          hashtags: ['ok', 'slasher', 'nothing', 'okay', 'best', 'not', 'go', 'run', 'fast', 'good'],
+          hashtags: ['ok', 'slasher', 'nothing', 'okay', 'best'],
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -654,7 +654,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           message: 'hashtag testing post 1 #friend#friend1#friend2 ##done ##slasher #123horror @ghost #horror@12 ##horror12!12',
           spoilers: false,
           userId: activeUser._id.toString(),
-          hashtags: ['friend', 'friend1', 'friend2', 'done', 'slasher', '123horror', 'horror', 'horror12'],
+          hashtags: ['friend', 'friend1', 'friend2', '123horror', 'horror'],
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),

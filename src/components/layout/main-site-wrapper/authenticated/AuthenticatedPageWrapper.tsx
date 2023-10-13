@@ -30,7 +30,6 @@ import {
   AUTHENTICATED_PAGE_WRAPPER_ID,
   isNativePlatform,
 } from '../../../../constants';
-import useGoogleAnalytics from '../../../../hooks/useGoogleAnalytics';
 import SkipToMainContent from '../../sidebar-nav/SkipToMainContent';
 import { setRemoteConstantsData } from '../../../../redux/slices/remoteConstantsSlice';
 import { fetchRemoteConstants } from '../../../../api/remote-constants';
@@ -45,7 +44,7 @@ import { Message } from '../../../../types';
 import { showBackButtonInIos } from '../../../../utils/url-utils';
 import { onKeyboardClose, removeGlobalCssProperty, setGlobalCssProperty } from '../../../../utils/styles-utils ';
 import { enableScrollOnWindow } from '../../../../utils/scrollFunctions';
-import { analyticsId, apiUrl } from '../../../../env';
+import { apiUrl } from '../../../../env';
 
 interface Props {
   children: React.ReactNode;
@@ -115,8 +114,6 @@ function AuthenticatedPageWrapper({ children }: Props) {
     window.addEventListener('click', showUnreachableServerModalIfDisconnected, true);
     return () => window.removeEventListener('click', showUnreachableServerModalIfDisconnected, true);
   }, [showUnreachableServerModalIfDisconnected]);
-
-  useGoogleAnalytics(analyticsId);
 
   const previousPathRef = useRef<string>();
   useEffect(() => {

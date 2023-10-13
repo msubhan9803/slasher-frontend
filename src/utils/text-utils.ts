@@ -152,9 +152,9 @@ export const getCoverImageForBook = (imageId: number): string | undefined => {
 };
 
 export const getPrefferedISBN = (isbnNumber: string[]) => {
-  const isbn13 = isbnNumber.find((isbn) => isbn.length === 13);
-  if (isbn13) { return isbn13; } // we should prefer ISBN13 over ISBN10
-
   const isbn10 = isbnNumber.find((isbn) => isbn.length === 10);
-  return isbn10;
+  if (isbn10) { return isbn10; } // we should prefer ISBN10 over ISBN13
+
+  const isbn13 = isbnNumber.find((isbn) => isbn.length === 13);
+  return isbn13;
 };

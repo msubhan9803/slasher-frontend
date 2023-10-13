@@ -116,10 +116,10 @@ export class FeedPostsController {
 
     let hashtags; let message; let allUserIds = [];
     if (createFeedPostsDto.message && createFeedPostsDto.message.includes('#')) {
-      const hashtagRegex = /(?<![?#])#(?![?#])\w+\b|#{2}\w+\b/g;
+      const hashtagRegex = /(?<![?#])#(?![?#])\w+\b/g;
       const matchedHashtags = createFeedPostsDto.message.match(hashtagRegex);
       if (matchedHashtags && matchedHashtags.length) {
-        const findHashtag = matchedHashtags.map((match) => match.replace(/^##?/, '').replace(/([^\w\s]|_)+\d*$/, '').toLowerCase());
+        const findHashtag = matchedHashtags.map((match) => match.slice(1).toLowerCase().replace(/([^\w\s]|_)+\d*$/, ''));
         if (findHashtag && findHashtag.length > 10) {
           throw new HttpException(
             'you can not add more than 10 hashtags on a post',
@@ -376,11 +376,12 @@ export class FeedPostsController {
 
     let newHashtagNames;
     if (updateFeedPostsDto.message && updateFeedPostsDto.message.includes('#')) {
-      const hashtagRegex = /(?<![?#])#(?![?#])\w+\b|#{2}\w+\b/g;
+      const hashtagRegex = /(?<![?#])#(?![?#])\w+\b/g;
       const matchedHashtags = updateFeedPostsDto.message.match(hashtagRegex);
       if (matchedHashtags && matchedHashtags.length) {
-        const findHashtag = matchedHashtags.map((match) => match.replace(/^##?/, '').replace(/([^\w\s]|_)+\d*$/, '').toLowerCase());
-
+        const findHashtag = matchedHashtags.map(
+          (match) => match.slice(1).toLowerCase().replace(/([^\w\s]|_)+\d*$/, ''),
+        );
         if (findHashtag && findHashtag.length > 10) {
           throw new HttpException(
             'you can not add more than 10 hashtags on a post',

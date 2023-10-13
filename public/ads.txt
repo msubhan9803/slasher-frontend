@@ -318,3 +318,10 @@ appnexus.com, 1019, RESELLER, f5ab79cb980f11d1
 triplelift.com, 8180, DIRECT, 6c33edb13117fd86
 
 # END PubWise Ad Block #
+
+#October 2023 Update #
+
+# google
+google.com, pub-5411868598318640, DIRECT, f08c47fec0942fa0
+google.com, pub-1369672187058468, DIRECT, f08c47fec0942fa0
+google.com, pub-2322157869609449, RESELLER, f08c47fec0942fa0

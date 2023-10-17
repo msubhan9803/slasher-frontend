@@ -11,8 +11,8 @@ import AboutBooks from './AboutBooks';
 import { enableDevFeatures } from '../../../env';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../../pageStateCache';
-import { BookPageCache } from '../../../types';
-import { BookDetailResType, getBookById } from '../../../api/books';
+import { BookData, BookPageCache } from '../../../types';
+import { getBookById } from '../../../api/books';
 
 function BookDetails() {
   const location = useLocation();
@@ -20,16 +20,16 @@ function BookDetails() {
   //   ?? { movieData: undefined, additionalMovieData: undefined };
 
   const params = useParams();
-  const [bookData, setBookData] = useState<BookDetailResType | undefined>();
+  const [bookData, setBookData] = useState<BookData | undefined>();
   // TODO: fix page state cache
-  // const [bookData, setBookData] = useState<BookDetailResType | undefined>(
+  // const [bookData, setBookData] = useState<BookData | undefined>(
   //   hasPageStateCache(location) ? pageStateCache.movieData : undefined,
   // );
   useEffect(() => {
     if (params.id && !bookData) {
       getBookById(params.id)
         .then((res) => {
-          setBookData(res.data);
+          setBookData(res.data as any);
           // TODO: fix page state cache
           // Update `pageStateCache`
           // setPageStateCache<BookPageCache>(location, {
@@ -61,7 +61,7 @@ function BookDetails() {
               <h1 className="text-center text-primary h3 d-lg-none">Claim this listing</h1>
             </>
             )}
-          <AboutBooks bookData={bookData} />
+          <AboutBooks bookData={bookData} setBookData={setBookData} />
         </Container>
       </ContentPageWrapper>
       <RightSidebarWrapper>

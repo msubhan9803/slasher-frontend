@@ -6,7 +6,7 @@ import {
   Navigate, Route, Routes, useNavigate, useParams, useSearchParams,
 } from 'react-router-dom';
 import Switch from '../../../components/ui/Switch';
-import BookSummary from './BookSummary';
+import AboutDetails from './AboutDetails';
 import TabLinks from '../../../components/ui/Tabs/TabLinks';
 import { BookIconProps } from '../components/BookProps';
 import BookEdit from '../book-edit/BookEdit';
@@ -19,8 +19,8 @@ import RoundButton from '../../../components/ui/RoundButton';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
 import BookReviews from '../book-reviews/BookReviews';
 import { enableDevFeatures } from '../../../env';
-import { BookDetailResType } from '../../../api/books';
 import { getCoverImageForBook } from '../../../utils/text-utils';
+import { BookData } from '../../../types';
 
 const StyledBookPoster = styled.div`
   aspect-ratio: 0.67;
@@ -41,10 +41,11 @@ const tabsForViewer = tabsForAllViews;
 const filterEnableDevFeatures = (t: OptionType) => (enableDevFeatures ? true : (!t.devOnly));
 
 type AboutBooksProps = {
-  bookData: BookDetailResType
+  bookData: BookData
+  setBookData: React.Dispatch<React.SetStateAction<BookData | undefined>>
 };
 
-function AboutBooks({ bookData }: AboutBooksProps) {
+function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
   const [searchParams] = useSearchParams();
   const [reviewForm, setReviewForm] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -100,8 +101,9 @@ function AboutBooks({ bookData }: AboutBooksProps) {
             </div>
           </Col>
           <Col xl={7}>
-            <BookSummary
+            <AboutDetails
               bookData={bookData}
+              setBookData={setBookData}
               // reviewForm={reviewForm}
               setReviewForm={setReviewForm}
               // showReviewForm={showReviewForm}

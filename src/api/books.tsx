@@ -10,26 +10,7 @@ export async function getBooks() {
   return axios.get(`${apiUrl}/api/v1/books`, { headers });
 }
 
-export type BookDetailResType = {
-  _id: string,
-  logo: null,
-  type: 0,
-  createdBy: null,
-  name: string,
-  author: string[],
-  numberOfPages: number,
-  isbnNumber: string[],
-  publishDate: string,
-  description: string,
-  covers: number[],
-  coverEditionKey: string,
-  bookId: string,
-  status: 1,
-  deleted: 0,
-  __v: 0,
-  createdAt: string,
-  updatedAt: string
-};
+type BookDetailResType = any;
 export async function getBookById(bookId: string) {
   const token = await getSessionToken();
   const headers = {
@@ -37,4 +18,53 @@ export async function getBookById(bookId: string) {
   };
 
   return axios.get<BookDetailResType>(`${apiUrl}/api/v1/books/${bookId}`, { headers });
+}
+
+export async function createOrUpdateRating(id: string, rating: number) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.put(`${apiUrl}/api/v1/books/${id}/rating`, { rating }, { headers });
+}
+export async function createOrUpdateGoreFactor(id: string, goreFactorRating: number) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.put(`${apiUrl}/api/v1/books/${id}/gore-factor`, { goreFactorRating }, { headers });
+}
+export async function createOrUpdateWorthWatching(id: string, worthWatching: number) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.put(`${apiUrl}/api/v1/books/${id}/worth-watching`, { worthWatching }, { headers });
+}
+export async function deleteRating(id: string) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.delete(`${apiUrl}/api/v1/books/${id}/rating`, { headers });
+}
+export async function deleteGoreFactor(id: string) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.delete(`${apiUrl}/api/v1/books/${id}/gore-factor`, { headers });
+}
+export async function deleteWorthWatching(id: string) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.delete(`${apiUrl}/api/v1/books/${id}/worth-watching`, { headers });
 }

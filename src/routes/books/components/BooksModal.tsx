@@ -29,10 +29,12 @@ function BooksModal({
   );
 
   const handleRatingSubmit = () => {
-
+    // eslint-disable-next-line no-alert
+    alert('rating click (book)');
   };
   const handleGoreFactorSubmit = () => {
-
+    // eslint-disable-next-line no-alert
+    alert('gore click (book)');
   };
   return (
     <CustomRatingsModal

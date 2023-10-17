@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Col, Row } from 'react-bootstrap';
@@ -11,17 +11,20 @@ import BooksModal from '../components/BooksModal';
 import BorderButton from '../../../components/ui/BorderButton';
 import CustomRatingText from '../../../components/ui/CustomRatingText';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
-import { WorthWatchingStatus } from '../../../types';
-import WorthWatchIcon, { StyledLikeIcon, StyledDislikeIcon } from '../../movies/components/WorthWatchIcon';
+import { BookData, WorthWatchingStatus } from '../../../types';
 import { bookDetail } from '../components/booksList';
 import ShareLinksModal from '../../../components/ui/ShareLinksModal';
 import { urlForMovie } from '../../../utils/url-utils';
 import { generateAmazonAffiliateLinkForBook, getPrefferedISBN } from '../../../utils/text-utils';
-import { BookDetailResType } from '../../../api/books';
 import { getYearFromString } from '../../../utils/date-utils';
+import WorthWatchIcon, { StyledDislikeIcon, StyledLikeIcon } from '../components/WorthWatchIcon';
+import { createOrUpdateWorthWatching, deleteWorthWatching } from '../../../api/books';
+import { updateMovieUserData } from '../../movies/components/updateMovieDataUtils';
+import { updateBookUserData } from '../components/updateBookDataUtils';
 
 interface Props {
-  bookData: BookDetailResType,
+  bookData: BookData,
+  setBookData: React.Dispatch<React.SetStateAction<BookData | undefined>>
   setReviewForm: (val: boolean) => void;
   setShowReviewForm: (val: boolean) => void;
 }
@@ -74,24 +77,39 @@ const StyledVerticalBorder = styled.div`
   }
 `;
 
-function BookSummary({
-  bookData, setReviewForm, setShowReviewForm,
+function AboutDetails({
+  bookData, setBookData, setReviewForm, setShowReviewForm,
 }: Props) {
-  const [worthIt, setWorthIt] = useState<WorthWatchingStatus | null>(null);
+  const [showRating, setShowRating] = useState(false);
   const [showGoreRating, setShowGoreRating] = useState(false);
+  const [showShareLinks, setShowShareLinks] = useState(false);
+
+  const [worthIt, setWorthIt] = useState<WorthWatchingStatus | null>(null);
   const [liked, setLike] = useState<boolean>(
     bookDetail.userData.worthWatching === WorthWatchingStatus.Up,
   );
   const [disLiked, setDisLike] = useState<boolean>(
     bookDetail.userData.worthWatching === WorthWatchingStatus.Down,
   );
-  const reviewButtonRef = useRef<HTMLDivElement>(null);
   const params = useParams();
   const navigate = useNavigate();
-  const [showRating, setShowRating] = useState(false);
-  const [showShareLinks, setShowShareLinks] = useState(false);
-  const hasRating = bookDetail.userData !== null && bookDetail.userData?.rating !== 0;
-  const hasGoreFactor = bookDetail.userData !== null && bookDetail.userData?.goreFactorRating !== 0;
+  const reviewButtonRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (params.id && worthIt !== null) {
+      if (worthIt === WorthWatchingStatus.NoRating) {
+        deleteWorthWatching(params.id)
+          .then((res) => {
+            updateBookUserData(res.data, 'worthWatching', setBookData!);
+          });
+      } else {
+        createOrUpdateWorthWatching(params.id, worthIt).then((res) => {
+          updateBookUserData(res.data, 'worthWatching', setBookData!);
+        });
+      }
+    }
+  }, [worthIt, params, setBookData]);
+
   const handleShowShareLinks = () => setShowShareLinks(true);
   const handleReviwRedirect = () => {
     setReviewForm!(true);
@@ -100,8 +118,12 @@ function BookSummary({
       navigate(`/app/books/${params.id}/reviews`, { state: { bookId: params.id } });
     }
   };
+
+  const hasRating = bookDetail.userData !== null && bookDetail.userData?.rating !== 0;
+  const hasGoreFactor = bookDetail.userData !== null && bookDetail.userData?.goreFactorRating !== 0;
   const to = generateAmazonAffiliateLinkForBook(bookData.name, bookData.author?.join(', '));
   const isbn = getPrefferedISBN(bookData.isbnNumber);
+  const year = getYearFromString(bookData.publishDate);
   return (
     <AboutBookDetails className="text-xl-start pt-4">
       <Row className="justify-content-center mt-2 mt-xl-0">
@@ -127,19 +149,27 @@ function BookSummary({
       </div>
       <div className="d-flex  justify-content-between">
         <div className="d-flex justify-content-between align-items-center">
-          <span className="fs-3 d-lg-flex text-center">
-            <span className="m-0 fw-bold">
-              Year:&nbsp;
+          {year && (
+            <span className="fs-3 d-lg-flex text-center">
+              <span className="m-0 fw-bold">
+                Year:&nbsp;
+              </span>
+              <span className="m-0 text-light">{year}</span>
             </span>
-            <span className="m-0 text-light">{getYearFromString(bookData.publishDate)}</span>
-          </span>
-          <FontAwesomeIcon icon={solid('circle')} size="sm" className="circle mx-lg-2 text-primary" />
-          <span className="fs-3 d-lg-flex text-center">
-            <span className="m-0 fw-bold">
-              Pages:&nbsp;
-            </span>
-            <span className="m-0 text-light">{bookData.numberOfPages}</span>
-          </span>
+          )}
+
+          {bookData.numberOfPages
+            && (
+              <>
+                <FontAwesomeIcon icon={solid('circle')} size="sm" className="circle mx-lg-2 text-primary" />
+                <span className="fs-3 d-lg-flex text-center">
+                  <span className="m-0 fw-bold">
+                    Pages:&nbsp;
+                  </span>
+                  <span className="m-0 text-light">{bookData.numberOfPages}</span>
+                </span>
+              </>
+            )}
           {isbn && (
             <>
               <FontAwesomeIcon icon={solid('circle')} size="sm" className="circle mx-lg-2 text-primary" />
@@ -243,7 +273,7 @@ function BookSummary({
             {/* Worth Watch Icons */}
             <div className="mt-3">
               <WorthWatchIcon
-                movieData={bookDetail}
+                bookData={bookData}
                 setWorthIt={setWorthIt}
                 liked={liked}
                 setLike={setLike}
@@ -322,4 +352,4 @@ function BookSummary({
   );
 }
 
-export default BookSummary;
+export default AboutDetails;

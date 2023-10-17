@@ -166,6 +166,7 @@ export const BookIconList = [
   },
 ];
 
+// ! TODO: remove this stale data before making PR
 export const bookDetail = {
   movieDBId: 1068010,
   rating: 3,

@@ -313,6 +313,7 @@ export enum PostType {
 }
 export interface MovieData {
   movieDBId: number;
+  // ** RATING/GORE-FACTOR/WORTH-WATCHING FIELDS **
   // ratings
   rating: number;
   goreFactorRating: number;
@@ -332,6 +333,39 @@ export interface MovieData {
   // to check movieData state update
   isUpdated?: boolean
 }
+export interface BookData {
+  numberOfPages: number,
+  isbnNumber: string[],
+  publishDate: string,
+  description: string,
+  coverEditionKey: string,
+  bookId: string,
+  status: number,
+  deleted: number,
+  author: string[],
+  name: string,
+  covers: number[],
+  // ** RATING/GORE-FACTOR/WORTH-WATCHING FIELDS **
+  // ratings
+  rating: number;
+  goreFactorRating: number;
+  worthWatching: number;
+  // number of users who rated for `rating`, `goreFactorRating` and `worthWatching`
+  ratingUsersCount: number;
+  goreFactorRatingUsersCount: number;
+  worthWatchingUpUsersCount: number;
+  worthWatchingDownUsersCount: number;
+  // ratings by logged-in user
+  userData: {
+    rating: number;
+    goreFactorRating: number;
+    worthWatching: number;
+    reviewPostId: string;
+  },
+  // to check movieData state update
+  isUpdated?: boolean
+}
+
 export type LocationPointType = {
   type: 'Point',
   coordinates: [number, number]

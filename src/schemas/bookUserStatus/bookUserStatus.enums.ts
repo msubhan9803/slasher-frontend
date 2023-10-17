@@ -3,14 +3,14 @@ export enum BookUserStatusFavorites {
   Favorite = 1,
 }
 
-export enum BookUserStatusWatch {
-  NotWatch = 0,
-  Watch = 1,
+export enum BookUserStatusRead {
+  NotRead = 0,
+  Read = 1,
 }
 
-export enum BookUserStatusWatched {
-  NotWatched = 0,
-  Watched = 1,
+export enum BookUserStatusReadingList  {
+  NotReadingList = 0,
+  ReadingList = 1,
 }
 
 export enum BookUserStatusBuy {
@@ -32,4 +32,10 @@ export enum BookUserStatusStatus {
 export enum BookUserStatusDeletionStatus {
   NotDeleted = 0,
   Deleted = 1,
+}
+
+export enum WorthReadingStatus {
+  NoRating = 0,
+  Down = 1,
+  Up = 2,
 }

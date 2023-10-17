@@ -133,6 +133,10 @@ export class BooksService {
     return { ...book, userData: bookUserStatus };
   }
 
+  async getRatingUsersCount(bookId: string) {
+    return this.bookUserStatusModel.count({ bookId, rating: { $exists: true, $ne: 0 } });
+  }
+
   async findAll(activeOnly: boolean): Promise<BookDocument[]> {
     const booksFindAllQuery: any = {};
 

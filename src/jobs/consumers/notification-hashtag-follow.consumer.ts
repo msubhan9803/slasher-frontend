@@ -14,7 +14,7 @@ export class NotificatationOfHashtagFollowPost {
 
     for (let i = 0; i < userId.length; i += 1) {
       await this.notificationsService.create({
-        userId: userId[i]._id,
+        userId: userId[i],
         feedPostId,
         senderId,
         notifyType,

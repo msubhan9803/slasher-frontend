@@ -729,7 +729,7 @@ export class FeedPostsController {
       });
     }
 
-    if (createFeedPost.hashtags && createFeedPost.hashtags.length && allUserIds && allUserIds.length) {
+    if (createFeedPost.hashtags && createFeedPost.hashtags.length && hashtagFollowUser && hashtagFollowUser.length) {
       await this.sendNotificationOfHashtagFollowPost.add('send-notification-of-hashtagfollow-post', {
         userId: hashtagFollowUser,
         feedPostId: createFeedPost.id,

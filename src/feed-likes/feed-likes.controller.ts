@@ -134,7 +134,7 @@ export class FeedLikesController {
       feedPost.postType !== PostType.MovieReview && !feedPost.rssfeedProviderId
       && user.id !== (feedPost.userId as unknown as User).toString()
     ) {
-      isFriend = await this.friendsService.areFriends(user.id, (comment.userId as unknown as User).toString()) || false;
+      isFriend = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User).toString()) || false;
 
       if (!isFriend) {
         await this.postAccessService.checkAccessPostService(user, feedPost.hashtags);
@@ -201,9 +201,9 @@ export class FeedLikesController {
     let isFriend = true;
     if (
       feedPost.postType !== PostType.MovieReview && !feedPost.rssfeedProviderId
-      && user.id !== (reply.userId as unknown as User).toString()
+      && user.id !== (feedPost.userId as unknown as User).toString()
     ) {
-      isFriend = await this.friendsService.areFriends(user.id, (reply.userId as unknown as User).toString()) || false;
+      isFriend = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User).toString()) || false;
 
       if (!isFriend) {
         await this.postAccessService.checkAccessPostService(user, feedPost.hashtags);

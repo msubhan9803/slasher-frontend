@@ -27,12 +27,15 @@ import { UserSettingsService } from '../../../../../src/settings/providers/user-
 import { userSettingFactory } from '../../../../factories/user-setting.factory';
 import { FriendsService } from '../../../../../src/friends/providers/friends.service';
 import { PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
+import { HashtagFollowsService } from '../../../../../src/hashtag-follows/providers/hashtag-follows.service';
+import { HashtagService } from '../../../../../src/hashtag/providers/hashtag.service';
 
 describe('Create Feed Comment Like (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
   let activeUserAuthToken: string;
+  let user6AuthToken: string;
   let activeUser: User;
   let configService: ConfigService;
   let feedPost: FeedPostDocument;
@@ -42,6 +45,8 @@ describe('Create Feed Comment Like (e2e)', () => {
   let blocksModel: Model<BlockAndUnblockDocument>;
   let userSettingsService: UserSettingsService;
   let friendsService: FriendsService;
+  let hashtagFollowsService: HashtagFollowsService;
+  let hashtagService: HashtagService;
 
   const feedCommentsAndReplyObject = {
     images: [
@@ -72,7 +77,8 @@ describe('Create Feed Comment Like (e2e)', () => {
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     friendsService = moduleRef.get<FriendsService>(FriendsService);
-
+    hashtagService = moduleRef.get<HashtagService>(HashtagService);
+    hashtagFollowsService = moduleRef.get<HashtagFollowsService>(HashtagFollowsService);
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
     await app.init();
@@ -343,6 +349,46 @@ describe('Create Feed Comment Like (e2e)', () => {
         expect(response.body).toEqual({ success: true, isFriend: true });
       });
 
+      it(`should allow the creation of a comment like when liking user is not a friend
+       of the post creator but it follows hashtag which is in post`, async () => {
+        const hashtag = await hashtagService.createOrUpdateHashtags(['slasher']);
+        const user6 = await usersService.create(userFactory.build());
+        user6AuthToken = user6.generateNewJwtToken(
+          configService.get<string>('JWT_SECRET_KEY'),
+        );
+        await hashtagFollowsService.create({
+          userId: user6._id,
+          hashTagId: hashtag[0]._id,
+        });
+        const user4 = await usersService.create(userFactory.build({
+          profile_status: ProfileVisibility.Private,
+        }));
+        const feedPost4 = await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: user4._id,
+              hashtags: ['slasher', 'horror'],
+            },
+          ),
+        );
+        const feedComments5 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: activeUser._id,
+              feedPostId: feedPost4.id,
+              message: feedCommentsAndReplyObject.message,
+              images: feedCommentsAndReplyObject.images,
+            },
+          ),
+        );
+        const response = await request(app.getHttpServer())
+          .post(`/api/v1/feed-likes/comment/${feedComments5._id}`)
+          .auth(user6AuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toBe(HttpStatus.CREATED);
+        expect(response.body).toEqual({ success: true, isFriend: false });
+      });
+
       it('when postType is movieReview than expected response', async () => {
         const feedPost5 = await feedPostsService.create(
           feedPostFactory.build(
@@ -366,8 +412,8 @@ describe('Create Feed Comment Like (e2e)', () => {
           .post(`/api/v1/feed-likes/comment/${feedComments4._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-          expect(response.status).toBe(HttpStatus.CREATED);
-          expect(response.body).toEqual({ success: true, isFriend: true });
+        expect(response.status).toBe(HttpStatus.CREATED);
+        expect(response.body).toEqual({ success: true, isFriend: true });
       });
 
       it('when postType is movieReview and comment liking user is a friend of the post creator', async () => {
@@ -405,8 +451,8 @@ describe('Create Feed Comment Like (e2e)', () => {
           .post(`/api/v1/feed-likes/comment/${feedComments5._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-          expect(response.status).toBe(HttpStatus.CREATED);
-          expect(response.body).toEqual({ success: true, isFriend: true });
+        expect(response.status).toBe(HttpStatus.CREATED);
+        expect(response.body).toEqual({ success: true, isFriend: true });
       });
     });
 

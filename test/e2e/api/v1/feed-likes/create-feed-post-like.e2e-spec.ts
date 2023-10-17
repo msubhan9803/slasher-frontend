@@ -27,6 +27,8 @@ import { UserSettingsService } from '../../../../../src/settings/providers/user-
 import { userSettingFactory } from '../../../../factories/user-setting.factory';
 import { PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
 import { FriendsService } from '../../../../../src/friends/providers/friends.service';
+import { HashtagFollowsService } from '../../../../../src/hashtag-follows/providers/hashtag-follows.service';
+import { HashtagService } from '../../../../../src/hashtag/providers/hashtag.service';
 
 describe('Create Feed Post Like (e2e)', () => {
   let app: INestApplication;
@@ -35,6 +37,7 @@ describe('Create Feed Post Like (e2e)', () => {
   let activeUserAuthToken: string;
   let activeUser: UserDocument;
   let user0: User;
+  let user2AuthToken: string;
   let configService: ConfigService;
   let feedPost: FeedPostDocument;
   let feedPostsService: FeedPostsService;
@@ -44,6 +47,8 @@ describe('Create Feed Post Like (e2e)', () => {
   let rssFeedProvidersService: RssFeedProvidersService;
   let userSettingsService: UserSettingsService;
   let friendsService: FriendsService;
+  let hashtagFollowsService: HashtagFollowsService;
+  let hashtagService: HashtagService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -60,7 +65,8 @@ describe('Create Feed Post Like (e2e)', () => {
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     friendsService = moduleRef.get<FriendsService>(FriendsService);
-
+    hashtagService = moduleRef.get<HashtagService>(HashtagService);
+    hashtagFollowsService = moduleRef.get<HashtagFollowsService>(HashtagFollowsService);
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
     await app.init();
@@ -256,6 +262,36 @@ describe('Create Feed Post Like (e2e)', () => {
           .send();
         expect(response.status).toBe(HttpStatus.FORBIDDEN);
         expect(response.body).toEqual({ statusCode: 403, message: 'You can only interact with posts of friends.' });
+      });
+
+      it(`should allow the creation of a post like when liking user is not a friend 
+      of the post creator but it follows hashtag which is in post`, async () => {
+        const hashtag = await hashtagService.createOrUpdateHashtags(['slasher']);
+        const user2 = await usersService.create(userFactory.build());
+        user2AuthToken = user2.generateNewJwtToken(
+          configService.get<string>('JWT_SECRET_KEY'),
+        );
+        await hashtagFollowsService.create({
+          userId: user2._id,
+          hashTagId: hashtag[0]._id,
+        });
+        const user3 = await usersService.create(userFactory.build({
+          profile_status: ProfileVisibility.Private,
+        }));
+        const feedPost4 = await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: user3._id,
+              hashtags: ['slasher', 'horror'],
+            },
+          ),
+        );
+        const response = await request(app.getHttpServer())
+          .post(`/api/v1/feed-likes/post/${feedPost4._id}`)
+          .auth(user2AuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toBe(HttpStatus.CREATED);
+        expect(response.body).toEqual({ success: true, isFriend: false });
       });
 
       it('should not allow the creation of a post like when liking user is not a'

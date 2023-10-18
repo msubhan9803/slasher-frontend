@@ -4,6 +4,7 @@ import {
   Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Put, Req, ValidationPipe,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
 import { BooksService } from './providers/books.service';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
@@ -15,12 +16,17 @@ import { CreateOrUpdateWorthWatchingDto } from '../movies/dto/create-or-update-w
 import { getUserFromRequest } from '../utils/request-utils';
 import { BookUserStatusIdDto } from '../book-user-status/dto/book-user-status-id.dto';
 import { BookUserStatusService } from '../book-user-status/providers/book-user-status.service';
+import { relativeToFullImagePath } from '../utils/image-utils';
+import { BookUserStatus } from '../schemas/bookUserStatus/bookUserStatus.schema';
+import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 
 @Controller({ path: 'books', version: ['1'] })
 export class BooksController {
   constructor(
     private readonly booksService: BooksService,
     private readonly bookUserStatusService: BookUserStatusService,
+    private feedPostsService: FeedPostsService,
+    private configService: ConfigService,
   ) { }
 
   async bookShouldExist(bookId: string) {
@@ -48,41 +54,43 @@ export class BooksController {
     // TODO: For now, we are always counting the number of users who have previously rated this movie.
     // This is because the old API app does not update this count.  Once the old API is retired, we
     // can instead just use the movie.ratingUsersCount field.
-    // const ratingUsersCount = await this.booksService.getRatingUsersCount(book._id.toString());
+    const ratingUsersCount = await this.booksService.getRatingUsersCount(book._id.toString());
 
-    // const user = getUserFromRequest(request);
-    // if (book.logo === null) {
-    //   book.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
-    // }
+    const user = getUserFromRequest(request);
+    if (book.logo === null) {
+      book.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
+    }
 
-    // let reviewPostId;
-    // const post = await this.feedPostsService.findMovieReviewPost(user.id, book._id.toString());
-    // if (post) {
-    //   reviewPostId = { reviewPostId: post.id };
-    // }
-    // type UserData = Partial<BookUserStatus>;
-    // // assign default values for simplistic usage in client side
-    // let userData: UserData = {
-    //   rating: 0, goreFactorRating: 0, worthWatching: 0, ...reviewPostId,
-    // };
+    let reviewPostId;
+    const post = await this.feedPostsService.findMovieReviewPost(user.id, book._id.toString());
+    if (post) {
+      reviewPostId = { reviewPostId: post.id };
+    }
+    type UserData = Partial<BookUserStatus>;
+    // assign default values for simplistic usage in client side
+    let userData: UserData = {
+      rating: 0, goreFactorRating: 0, worthWatching: 0, ...reviewPostId,
+    };
 
-    // let bookUserStatus: any = await this.booksService.getUserMovieStatusRatings(params.id, user.id);
-    // if (bookUserStatus) {
-    //   bookUserStatus = pick(bookUserStatus, ['rating', 'goreFactorRating', 'worthWatching']);
-    //   userData = { ...userData, ...bookUserStatus };
-    // }
+    let bookUserStatus: any = await this.booksService.getUserBookStatusRatings(params.id, user.id);
+    if (bookUserStatus) {
+      bookUserStatus = pick(bookUserStatus, ['rating', 'goreFactorRating', 'worthWatching']);
+      userData = { ...userData, ...bookUserStatus };
+    }
 
-    return book;
-    // ! TODO: Use below code after implementing all the review related features.
-    // return pick({
-    //   ...book,
-    //   // Intentionally overriding value of `ratingUsersCount` of `movie` by coputing on every request because of old-api.
-    //   ratingUsersCount,
-    //   userData,
-    // }, [
-    //   'movieDBId', 'rating', 'ratingUsersCount', 'goreFactorRating', 'goreFactorRatingUsersCount',
-    //   'worthWatching', 'worthWatchingUpUsersCount', 'worthWatchingDownUsersCount', 'userData',
-    // ]);
+    const bookRelatedFields = ['publishDate', 'description', 'coverEditionKey', 'bookId',
+      'status', 'deleted', 'isbnNumber', 'numberOfPages', 'author', 'name', 'covers'];
+
+    return pick({
+      ...book,
+      // Intentionally overriding value of `ratingUsersCount` of `movie` by coputing on every request because of old-api.
+      ratingUsersCount,
+      userData,
+    }, [
+      ...bookRelatedFields,
+      'rating', 'ratingUsersCount', 'goreFactorRating',
+      'goreFactorRatingUsersCount', 'worthWatching', 'worthWatchingUpUsersCount', 'worthWatchingDownUsersCount', 'userData',
+    ]);
   }
 
   @Put(':id/rating')

@@ -90,9 +90,12 @@ export class FeedPost extends FeedPostUnusedFields {
       FeedPostPrivacyType.Public,
       FeedPostPrivacyType.Private,
     ],
-    default: FeedPostPrivacyType.Private,
+    default: FeedPostPrivacyType.Public,
   })
   privacyType: FeedPostPrivacyType;
+
+  @Prop({ default: [] })
+  hashtags: string[];
 
   @Prop({
     enum: [
@@ -133,6 +136,11 @@ FeedPostSchema.index(
 );
 FeedPostSchema.index(
   {
+    _id: 1, is_deleted: 1, status: 1,
+  },
+);
+FeedPostSchema.index(
+  {
     updatedAt: 1, createdAt: 1, is_deleted: 1, status: 1, rssfeedProviderId: 1, userId: 1,
   },
 );
@@ -153,6 +161,18 @@ FeedPostSchema.index(
 FeedPostSchema.index(
   {
     postType: 1, movieId: 1, is_deleted: 1, status: 1, createdAt: 1,
+  },
+);
+
+FeedPostSchema.index(
+  {
+    _id: 1, is_deleted: 1, status: 1, userId: 1, rssfeedProviderId: 1, rssFeedId: 1, movieId: 1,
+  },
+);
+
+FeedPostSchema.index(
+  {
+    hashtags: 1, status: 1, is_deleted: 1, userId: 1, createdAt: 1,
   },
 );
 

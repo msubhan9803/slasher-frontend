@@ -26,6 +26,9 @@ import { Movie } from '../../../../../src/schemas/movie/movie.schema';
 import { MoviesService } from '../../../../../src/movies/providers/movies.service';
 import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
 import { moviesFactory } from '../../../../factories/movies.factory';
+import { Hashtag, HashtagDocument } from '../../../../../src/schemas/hastag/hashtag.schema';
+import { HashtagFollowsService } from '../../../../../src/hashtag-follows/providers/hashtag-follows.service';
+import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 
 describe('Feed-Post / Main Feed Posts (e2e)', () => {
   let app: INestApplication;
@@ -44,6 +47,8 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
   let rssFeedProvidersService: RssFeedProvidersService;
   let movie: Movie;
   let moviesService: MoviesService;
+  let hashtagFollowsService: HashtagFollowsService;
+  let hashtagModel: Model<HashtagDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -58,6 +63,8 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
     rssFeedProviderFollowsService = moduleRef.get<RssFeedProviderFollowsService>(RssFeedProviderFollowsService);
     friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
+    hashtagModel = moduleRef.get<Model<HashtagDocument>>(getModelToken(Hashtag.name));
+    hashtagFollowsService = moduleRef.get<HashtagFollowsService>(HashtagFollowsService);
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -152,6 +159,42 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
         expect(response.body[i].lastUpdateAt < response.body[i - 1].lastUpdateAt).toBe(true);
       }
       expect(response.body).toEqual(getMainFeedPostResponse);
+    });
+
+    it('when post user profile_status is private than expected response', async () => {
+      const user = await usersService.create(userFactory.build({
+        profile_status: ProfileVisibility.Private,
+      }));
+      const hashtag1 = await hashtagModel.create({
+        name: 'scariness',
+      });
+      const hashtag2 = await hashtagModel.create({
+        name: 'funnymouse',
+      });
+      await hashtagFollowsService.create({
+        userId: activeUser._id,
+        hashTagId: hashtag1._id,
+      });
+      await hashtagFollowsService.create({
+        userId: activeUser._id,
+        hashTagId: hashtag2._id,
+      });
+      const post = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: user.id,
+          message: 'newPost #scariness #funnymouse',
+        }),
+      );
+      const limit = 5;
+      const response = await request(app.getHttpServer())
+        .get(`/api/v1/feed-posts?limit=${limit}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      for (let i = 1; i < response.body.length; i += 1) {
+        expect(response.body[i].lastUpdateAt < response.body[i - 1].lastUpdateAt).toBe(true);
+        expect(response.body[i]._id).not.toEqual(post._id);
+      }
+      expect(response.body).toHaveLength(2);
     });
 
     describe('when `before` argument is supplied', () => {

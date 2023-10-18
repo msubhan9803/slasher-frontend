@@ -38,10 +38,13 @@ import { QueuedJobsModule } from './global/queued-jobs.module';
 import { MulterUploadCleanupInterceptor } from './app/interceptors/multer-upload-cleanup.interceptor';
 import { MovieUserStatusModule } from './movie-user-status/movie.user.status.module';
 import { AppController } from './app/app.controller';
+import { HashtagModule } from './hashtag/hashtag.module';
+import { HashtagFollowsModule } from './hashtag-follows/hashtag-follows.module';
 import { BetaTesterModule } from './beta-tester/beta-tester.module';
 import { TimeoutInterceptor } from './app/interceptors/timeout.interceptor';
 import { AuthGuard } from './app/guards/auth.guard';
 import { CaptchaModule } from './captcha/captcha.module';
+import { UserFollowModule } from './user-follow/user-follow.module';
 import { BookUserStatusModule } from './book-user-status/book.user.status.module';
 
 @Module({
@@ -100,8 +103,11 @@ import { BookUserStatusModule } from './book-user-status/book.user.status.module
     ReportsModule,
     QueuedJobsModule,
     MovieUserStatusModule,
+    HashtagModule,
+    HashtagFollowsModule,
     BetaTesterModule,
     CaptchaModule,
+    UserFollowModule,
     BookUserStatusModule,
   ],
   controllers: [AppController],

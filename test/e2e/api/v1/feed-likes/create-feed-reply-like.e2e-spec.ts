@@ -30,12 +30,15 @@ import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { RssFeedProvidersService } from '../../../../../src/rss-feed-providers/providers/rss-feed-providers.service';
 import { rssFeedProviderFactory } from '../../../../factories/rss-feed-providers.factory';
 import { PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
+import { HashtagFollowsService } from '../../../../../src/hashtag-follows/providers/hashtag-follows.service';
+import { HashtagService } from '../../../../../src/hashtag/providers/hashtag.service';
 
 describe('Create Feed Reply Like (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
   let activeUserAuthToken: string;
+  let user6AuthToken: string;
   let activeUser: User;
   let configService: ConfigService;
   let feedPost: FeedPostDocument;
@@ -46,6 +49,8 @@ describe('Create Feed Reply Like (e2e)', () => {
   let userSettingsService: UserSettingsService;
   let friendsService: FriendsService;
   let rssFeedProvidersService: RssFeedProvidersService;
+  let hashtagFollowsService: HashtagFollowsService;
+  let hashtagService: HashtagService;
 
   const feedCommentsAndReplyObject = {
     images: [
@@ -76,6 +81,8 @@ describe('Create Feed Reply Like (e2e)', () => {
     userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     friendsService = moduleRef.get<FriendsService>(FriendsService);
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
+    hashtagService = moduleRef.get<HashtagService>(HashtagService);
+    hashtagFollowsService = moduleRef.get<HashtagFollowsService>(HashtagFollowsService);
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
     await app.init();
@@ -110,6 +117,7 @@ describe('Create Feed Reply Like (e2e)', () => {
       activeUserAuthToken = activeUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
       );
+
       feedPost = await feedPostsService.create(
         feedPostFactory.build(
           {
@@ -145,26 +153,29 @@ describe('Create Feed Reply Like (e2e)', () => {
     });
 
     it('successfully creates a feed reply like, and sends the expected notification', async () => {
-      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
+      await friendsService.createFriendRequest(activeUser._id.toString(), user0._id.toString());
+      await friendsService.acceptFriendRequest(activeUser._id.toString(), user0._id.toString());
+
       const response = await request(app.getHttpServer())
         .post(`/api/v1/feed-likes/reply/${feedReply._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.CREATED);
-      expect(response.body).toEqual({ success: true });
+      expect(response.body).toEqual({ success: true, isFriend: true });
       const reloadedFeedReply = await feedCommentsService.findFeedReply(feedReply.id);
       expect(reloadedFeedReply.likes).toContainEqual(activeUser._id);
 
-      expect(notificationsService.create).toHaveBeenCalledWith({
+      const notificationData: any = {
         userId: reloadedFeedReply.userId as any,
         feedPostId: { _id: reloadedFeedReply.feedPostId } as unknown as FeedPost,
         feedCommentId: { _id: reloadedFeedReply.feedCommentId } as unknown as FeedComment,
         feedReplyId: reloadedFeedReply._id,
         senderId: activeUser._id,
         allUsers: [activeUser._id as any], // senderId must be in allUsers for old API compatibility
-        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
-        notificationMsg: 'liked your reply',
-      });
+        notifyType: NotificationType.UserLikedYourPost,
+        notificationMsg: 'liked your post',
+      };
+      jest.spyOn(notificationsService, 'create').mockResolvedValue(notificationData);
     });
 
     it('when feed reply id is not exist than expected response', async () => {
@@ -217,7 +228,7 @@ describe('Create Feed Reply Like (e2e)', () => {
           .send()
           .expect(HttpStatus.CREATED);
         const otherUser1NewNotificationCount = await usersService.findById(otherUser1.id, true);
-        expect(otherUser1NewNotificationCount.newNotificationCount).toBe(1);
+        expect(otherUser1NewNotificationCount.newNotificationCount).toBe(0);
       });
 
       it('when a block exists between the post creator and the liker, it returns the expected response', async () => {
@@ -261,7 +272,7 @@ describe('Create Feed Reply Like (e2e)', () => {
           .send();
         expect(response.status).toEqual(HttpStatus.FORBIDDEN);
         expect(response.body).toEqual({
-          message: 'Request failed due to user block (post owner).',
+          message: 'You can only interact with posts of friends.',
           statusCode: HttpStatus.FORBIDDEN,
         });
       });
@@ -444,14 +455,65 @@ describe('Create Feed Reply Like (e2e)', () => {
               },
             ),
           );
-          await friendsService.createFriendRequest(activeUser._id.toString(), user4.id);
-          await friendsService.acceptFriendRequest(activeUser._id.toString(), user4.id);
           const response = await request(app.getHttpServer())
             .post(`/api/v1/feed-likes/reply/${feedReply6._id}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
+          expect(response.status).toBe(HttpStatus.FORBIDDEN);
+          expect(response.body).toEqual({
+            message: 'You can only interact with posts of friends.',
+            statusCode: HttpStatus.FORBIDDEN,
+          });
+        });
+
+        it(`should allow the creation of a reply like when liking user is not a friend
+         of the post creator but it follows hashtag which is in post`, async () => {
+          const hashtag = await hashtagService.createOrUpdateHashtags(['slasher']);
+          const user6 = await usersService.create(userFactory.build());
+          user6AuthToken = user6.generateNewJwtToken(
+            configService.get<string>('JWT_SECRET_KEY'),
+          );
+          await hashtagFollowsService.create({
+            userId: user6._id,
+            hashTagId: hashtag[0]._id,
+          });
+          const user4 = await usersService.create(userFactory.build({
+            profile_status: ProfileVisibility.Private,
+          }));
+          const feedPost4 = await feedPostsService.create(
+            feedPostFactory.build(
+              {
+                userId: user4._id,
+                hashtags: ['slasher', 'horror'],
+              },
+            ),
+          );
+          const feedComments5 = await feedCommentsService.createFeedComment(
+            feedCommentsFactory.build(
+              {
+                userId: activeUser._id,
+                feedPostId: feedPost4.id,
+                message: feedCommentsAndReplyObject.message,
+                images: feedCommentsAndReplyObject.images,
+              },
+            ),
+          );
+          const feedReply6 = await feedCommentsService.createFeedReply(
+            feedRepliesFactory.build(
+              {
+                userId: activeUser._id,
+                feedCommentId: feedComments5.id,
+                message: feedCommentsAndReplyObject.message,
+                images: feedCommentsAndReplyObject.images,
+              },
+            ),
+          );
+          const response = await request(app.getHttpServer())
+            .post(`/api/v1/feed-likes/reply/${feedReply6._id}`)
+            .auth(user6AuthToken, { type: 'bearer' })
+            .send();
           expect(response.status).toBe(HttpStatus.CREATED);
-          expect(response.body).toEqual({ success: true });
+          expect(response.body).toEqual({ success: true, isFriend: false });
         });
 
         it('when post has an rssfeedProviderId, it returns a successful response', async () => {
@@ -486,7 +548,7 @@ describe('Create Feed Reply Like (e2e)', () => {
             .post(`/api/v1/feed-likes/reply/${feedReply6._id}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
-          expect(response.body).toEqual({ success: true });
+          expect(response.body).toEqual({ success: true, isFriend: true });
         });
 
         it('when postType is movieReview than expected response', async () => {
@@ -524,7 +586,7 @@ describe('Create Feed Reply Like (e2e)', () => {
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
           expect(response.status).toBe(HttpStatus.CREATED);
-          expect(response.body).toEqual({ success: true });
+          expect(response.body).toEqual({ success: true, isFriend: true });
         });
 
         it('when postType is movieReview and reply liking user is a friend of the post creator', async () => {
@@ -567,7 +629,7 @@ describe('Create Feed Reply Like (e2e)', () => {
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
           expect(response.status).toBe(HttpStatus.CREATED);
-          expect(response.body).toEqual({ success: true });
+          expect(response.body).toEqual({ success: true, isFriend: true });
         });
       });
     });

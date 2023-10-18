@@ -8,41 +8,38 @@ import {
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io-client';
 import { Server } from 'socket.io';
+import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../../users/providers/users.service';
 import { SHARED_GATEWAY_OPTS } from '../../constants';
-import { Friend } from '../../schemas/friend/friend.schema';
-import { pick } from '../../utils/object-utils';
+import { FriendsService } from './friends.service';
+import { relativeToFullImagePath } from '../../utils/image-utils';
 
 @WebSocketGateway(SHARED_GATEWAY_OPTS)
 export class FriendsGateway {
   constructor(
     private readonly usersService: UsersService,
+    private readonly friendsService: FriendsService,
+    private readonly config: ConfigService,
   ) { }
 
   @WebSocketServer()
   server: Server;
 
-  @SubscribeMessage('clearNewFriendRequestCount')
-  async clearNewFriendRequestCount(@ConnectedSocket() client: Socket): Promise<any> {
-    const user = await this.usersService.findBySocketId(client.id);
-    const userId = user._id.toString();
-    const clearFriendRequestCount = await this.usersService.clearFriendRequestCount(userId);
+  async emitFriendRequestReceivedEvent(userId: string, actionUserId?: string) {
     const targetUserSocketIds = await this.usersService.findSocketIdsForUser(userId);
+    const [pendingFriendRequestCount, receivedFriendRequestsData] = await Promise.all([
+      this.friendsService.getReceivedFriendRequestCount(userId),
+      await this.friendsService.getReceivedFriendRequests(userId, 3),
+    ]);
+    const updatedFriendRequests = receivedFriendRequestsData.map((friendReq) => ({
+        ...friendReq,
+        profilePic: relativeToFullImagePath(this.config, friendReq.profilePic),
+      }));
     targetUserSocketIds.forEach((socketId) => {
-      this.server.to(socketId).emit('clearNewFriendRequestCount', {
-        newFriendRequestCount: clearFriendRequestCount.newFriendRequestCount,
-      });
-    });
-    return {
-      newFriendRequestCount: clearFriendRequestCount.newFriendRequestCount,
-    };
-  }
-
-  async emitFriendRequestReceivedEvent(friend: Friend) {
-    const targetUserSocketIds = await this.usersService.findSocketIdsForUser(friend.to.toString());
-    targetUserSocketIds.forEach((socketId) => {
-      this.server.to(socketId).emit('friendRequestReceived', {
-        friend: pick(friend, ['_id', 'from', 'to', 'reaction']),
+      this.server.to(socketId).emit('friendRequestUpdated', {
+        pendingFriendRequestCount,
+        recentFriendRequests: updatedFriendRequests,
+        actionUserId,
       });
     });
   }

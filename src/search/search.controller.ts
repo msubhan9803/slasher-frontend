@@ -8,11 +8,14 @@ import { SearchService } from './providers/search.service';
 import { BlocksService } from '../blocks/providers/blocks.service';
 import { FindUsersDto } from './dto/find-users-dto';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
+import { HashtagService } from '../hashtag/providers/hashtag.service';
+import { FindHashtagDto } from './dto/find-hashtag-dto';
 
 @Controller({ path: 'search', version: ['1'] })
 export class SearchController {
   constructor(
     private readonly searchService: SearchService,
+    private readonly hashtagService: HashtagService,
     private readonly blocksService: BlocksService,
   ) { }
 
@@ -35,5 +38,13 @@ export class SearchController {
     const excludedUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(user.id);
     const findUsersData = await this.searchService.findUsers(query.query, adjustedLimit, query.offset, excludedUserIds);
     return findUsersData;
+  }
+
+  @Get('hashtags')
+  async findHashtagNames(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: FindHashtagDto,
+  ) {
+    return this.hashtagService.suggestHashtagName(query.query, query.limit, true, query.offset);
   }
 }

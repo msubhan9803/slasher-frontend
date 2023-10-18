@@ -19,6 +19,7 @@ import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-se
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 import { UserSettingsService } from '../../../../../src/settings/providers/user-settings.service';
 import { userSettingFactory } from '../../../../factories/user-setting.factory';
+import { UserType } from '../../../../../src/schemas/user/user.enums';
 
 describe('Users suggested friends (e2e)', () => {
   let app: INestApplication;
@@ -152,14 +153,17 @@ describe('Users suggested friends (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
+
         expect(response.body).toEqual(
           {
             user: {
               id: expect.any(String),
               userName: 'Username1',
+              userType: UserType.Regular,
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
               newNotificationCount: 6,
               newFriendRequestCount: 0,
+              ignoreFriendSuggestionDialog: false,
             },
             recentMessages: [
               {
@@ -179,6 +183,7 @@ describe('Users suggested friends (e2e)', () => {
                 unreadCount: 1,
                 latestMessage: 'Hi, test reply 5.',
                 updatedAt: expect.any(String),
+                lastMessageSentAt: expect.any(String),
               },
               {
                 _id: expect.any(String),
@@ -197,6 +202,7 @@ describe('Users suggested friends (e2e)', () => {
                 unreadCount: 1,
                 latestMessage: 'Hi, test reply 4.',
                 updatedAt: expect.any(String),
+                lastMessageSentAt: expect.any(String),
               },
               {
                 _id: expect.any(String),
@@ -215,6 +221,7 @@ describe('Users suggested friends (e2e)', () => {
                 unreadCount: 1,
                 latestMessage: 'Hi, test reply 2.',
                 updatedAt: expect.any(String),
+                lastMessageSentAt: expect.any(String),
               },
             ],
             recentFriendRequests: [
@@ -242,6 +249,7 @@ describe('Users suggested friends (e2e)', () => {
             ],
             unreadNotificationCount: 5,
             newConversationIdsCount: 0,
+            friendRequestCount: 5,
           },
         );
       });

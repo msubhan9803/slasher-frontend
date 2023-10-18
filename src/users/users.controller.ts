@@ -15,6 +15,7 @@ import {
   UploadedFile,
   UseInterceptors,
   Delete,
+  Put,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
@@ -36,7 +37,7 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { MailService } from '../providers/mail.service';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { getUserFromRequest } from '../utils/request-utils';
-import { ActiveStatus, ProfileVisibility } from '../schemas/user/user.enums';
+import { ActiveStatus, ProfileVisibility, UserType } from '../schemas/user/user.enums';
 import { VerificationEmailNotReceivedDto } from './dto/verification-email-not-recevied.dto';
 import { UpdateUserDto } from './dto/update-user-data.dto';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
@@ -65,13 +66,21 @@ import { DisallowedUsernameService } from '../disallowedUsername/providers/disal
 import { MoviesService } from '../movies/providers/movies.service';
 import { FindAllMoviesDto } from '../movies/dto/find-all-movies.dto';
 import { relativeToFullImagePath } from '../utils/image-utils';
+import { FollowHashtagDto } from './dto/follow-hashtag.dto';
+import { HashtagFollowsService } from '../hashtag-follows/providers/hashtag-follows.service';
+import { HashtagService } from '../hashtag/providers/hashtag.service';
+import { NotificationDto } from './dto/notification.dto';
 import { IpOrForwardedIp } from '../app/decorators/ip-or-forwarded-ip.decorator';
+import { HashtagsDto } from './dto/hashtags.dto';
+import { HashtagQueryDto } from './dto/hashtag-query.dto';
 import { BetaTestersService } from '../beta-tester/providers/beta-testers.service';
 import { EmailRevertTokensService } from '../email-revert-tokens/providers/email-revert-tokens.service';
 import { FriendRequestReaction } from '../schemas/friend/friend.enums';
 import { Public } from '../app/guards/auth.guard';
 import { UpdateDeviceTokenDto } from './dto/update-device-token.dto';
 import { SignOutDto } from './dto/sign-out.dto';
+import { ConfirmDeleteAccountQueryDto } from './dto/confirm-delete-account-query.dto';
+import { FeedCommentsService } from '../feed-comments/providers/feed-comments.service';
 import { BooksService } from '../books/providers/books.service';
 import { FindAllBooksDto } from '../books/dto/find-all-books.dto';
 
@@ -85,6 +94,7 @@ export class UsersController {
     private readonly s3StorageService: S3StorageService,
     private readonly storageLocationService: StorageLocationService,
     private readonly feedPostsService: FeedPostsService,
+    private readonly feedCommentsService: FeedCommentsService,
     private readonly friendsService: FriendsService,
     private readonly userSettingsService: UserSettingsService,
     private readonly chatService: ChatService,
@@ -94,6 +104,8 @@ export class UsersController {
     private readonly notificationsService: NotificationsService,
     private readonly disallowedUsernameService: DisallowedUsernameService,
     private readonly moviesService: MoviesService,
+    private readonly hashtagFollowsService: HashtagFollowsService,
+    private readonly hashtagService: HashtagService,
     private readonly booksService: BooksService,
     private readonly betaTestersService: BetaTestersService,
     private readonly emailRevertTokensService: EmailRevertTokensService,
@@ -467,12 +479,15 @@ export class UsersController {
     const recentMessages: any = (await this.chatService.getUnreadConversations(user.id)).slice(0, 3);
     const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user.id, 3);
     const unreadNotificationCount = await this.notificationsService.getUnreadNotificationCount(user.id);
+    const friendRequestCount = await this.friendsService.getReceivedFriendRequestCount(user.id);
     return {
-      user: pick(user, ['id', 'userName', 'profilePic', 'newNotificationCount', 'newFriendRequestCount']),
+      user: pick(user, ['id', 'userName', 'profilePic', 'newNotificationCount',
+        'newFriendRequestCount', 'ignoreFriendSuggestionDialog', 'userType']),
       recentMessages,
       recentFriendRequests: receivedFriendRequestsData,
       unreadNotificationCount,
       newConversationIdsCount: user.newConversationIds.length,
+      friendRequestCount,
     };
   }
 
@@ -487,15 +502,6 @@ export class UsersController {
     // Note: We are allowing a user to look up their own username when getting user suggestions.
     const excludedUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(user.id);
     return this.usersService.suggestUserName(query.query, query.limit, true, excludedUserIds);
-  }
-
-  @Get('previous-username/:userName')
-  async findByPreviousUserName(@Param('userName') userName: string) {
-    const user = await this.usersService.findByPreviousUsername(userName);
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-    return user;
   }
 
   @TransformImageUrls('$.profilePic', '$.coverPhoto')
@@ -593,6 +599,31 @@ export class UsersController {
     }
 
     const additionalFieldsToUpdate: Partial<User> = {};
+
+    if (changingUserName) {
+      if (user.lastUserNameUpdatedAt) {
+        const currentDate = new Date();
+        const lastDate = user.lastUserNameUpdatedAt;
+        const diffTime = Math.abs(currentDate.getTime() - lastDate.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays < 30) {
+          throw new HttpException(
+            `You can update username after ${30 - diffDays} days`,
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+      }
+      const existingUserName = await this.usersService.findExistingUserName(updateUserDto.userName);
+      if (existingUserName.length) {
+        await this.usersService.findAndUpdatePreviousUserName(user.userName, updateUserDto.userName);
+      } else {
+        additionalFieldsToUpdate.userName = updateUserDto.userName;
+        additionalFieldsToUpdate.previousUserName = user.previousUserName ? user.previousUserName : [];
+        additionalFieldsToUpdate.previousUserName.push(user.userName);
+      }
+    }
+    additionalFieldsToUpdate.lastUserNameUpdatedAt = new Date();
+
     if (updateUserDto.email && updateUserDto.email !== user.email) {
       // Check if new email address is already used by another account. If so, throw exception.
       if (!await this.usersService.emailAvailable(updateUserDto.email)) {
@@ -627,19 +658,29 @@ export class UsersController {
       additionalFieldsToUpdate.unverifiedNewEmail = null;
     }
 
-    if (changingUserName) {
-      // TODO (SD-1336): When user is allowed to update username, remove `throw` below
-      throw new HttpException(
-        'You can edit your username after July 31, 2023',
-        HttpStatus.BAD_REQUEST,
-      );
+    // if (changingUserName) {
+    //   // TODO (SD-1336): When user is allowed to update username, remove `throw` below
+    //   throw new HttpException(
+    //     'You can edit your username after July 31, 2023',
+    //     HttpStatus.BAD_REQUEST,
+    //   );
 
-      // TODO (SD-1336): When user is allowed to update username, uncomment lines below
-      // await this.usersService.removePreviousUsernameEntry(updateUserDto.userName);
-      // additionalFieldsToUpdate.previousUserName = user.userName;
+    //   // TODO (SD-1336): When user is allowed to update username, uncomment lines below
+    //   // await this.usersService.removePreviousUsernameEntry(updateUserDto.userName);
+    //   // additionalFieldsToUpdate.previousUserName = user.userName;
+    // }
+
+    if (updateUserDto.profile_status !== undefined && user.profile_status !== updateUserDto.profile_status) {
+      await this.feedPostsService.updatePostPrivacyType(user.id, updateUserDto.profile_status);
     }
 
     const userData = await this.usersService.update(id, { ...updateUserDto, ...additionalFieldsToUpdate });
+    await Promise.all([
+      this.feedPostsService.updateMessageInFeedposts(userData.id, userData.userName),
+      this.feedCommentsService.updateMessageInFeedcomments(userData.id, userData.userName),
+      this.feedCommentsService.updateMessageInFeedreplies(userData.id, userData.userName),
+    ]);
+
     return {
       _id: user.id,
       ...pick(userData, Object.keys(updateUserDto)),
@@ -712,8 +753,18 @@ export class UsersController {
       loggedInUser.id,
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
     );
+
+    for (let i = 0; i < feedPosts.length; i += 1) {
+      const findActiveHashtags = await this.hashtagService.findActiveHashtags(feedPosts[i].hashtags);
+      feedPosts[i].hashtags = findActiveHashtags.map((hashtag) => hashtag.name);
+    }
+
     return feedPosts.map(
-      (post) => pick(post, ['_id', 'message', 'images', 'userId', 'createdAt', 'likedByUser', 'likeCount', 'commentCount', 'movieId']),
+      (post) => pick(
+post,
+        ['_id', 'message', 'images', 'userId', 'createdAt',
+          'likedByUser', 'likeCount', 'commentCount', 'movieId', 'hashtags'],
+),
     );
   }
 
@@ -809,74 +860,6 @@ export class UsersController {
     return feedPosts.map(
       (post) => pick(post, ['_id', 'images', 'createdAt']),
     );
-  }
-
-  @Delete('delete-account')
-  async deleteAccount(
-    @Req() request: Request,
-    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: DeleteAccountQueryDto,
-  ) {
-    const user = getUserFromRequest(request);
-
-    // We check user id against the DTO data to make it harder to accidentally delete an account.
-    // This is important because users cannot undo account deletion.
-    if (user.id !== query.userId) {
-      throw new HttpException(
-        'Supplied userId does not match current user\'s id.',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    // This is to remove all friendships and pending friend requests related to this user.
-    await this.friendsService.deleteAllByUserId(user.id);
-
-    // No need to keep suggested friend blocks to or from this user when their account is deleted.
-    await this.friendsService.deleteAllSuggestBlocksByUserId(user.id);
-
-    // No need to keep blocks from or to the user.  It's especially important to delete
-    // blocks to the user because we don't want this now-deleted user showing up in other
-    // users' block lists in the UI.
-    await this.blocksService.deleteAllByUserId(user.id);
-
-    // Mark user as deleted
-    user.deleted = true;
-
-    // Change user's password to a new random value, to ensure that current session is invalidated
-    // and that they cannot log in again if admins ever need to temporarily reactivate their account.
-    user.setUnhashedPassword(uuidv4());
-
-    // Save changes to user object
-    await user.save();
-
-    return {
-      success: true,
-    };
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  @TransformImageUrls('$.profilePic')
-  @Delete('profile-image')
-  async deleteProfileImage(
-    @Req() request: Request,
-  ) {
-    const user = getUserFromRequest(request);
-    // TODO: Would be good to delete old image before replacing it (if previous value exists), to save storage space.
-    user.profilePic = 'noUser.jpg';
-    await user.save();
-    return { profilePic: user.profilePic };
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  @TransformImageUrls('$.profilePic')
-  @Delete('cover-image')
-  async deleteCoverImage(
-    @Req() request: Request,
-  ) {
-    const user = getUserFromRequest(request);
-    // TODO: Would be good to delete old image before replacing it (if previous value exists), to save storage space.
-    user.coverPhoto = null;
-    await user.save();
-    return { coverPhoto: user.coverPhoto };
   }
 
   @Get(':userId/watched-list')
@@ -1263,6 +1246,219 @@ export class UsersController {
     } else {
       throw new HttpException('Device id is not found', HttpStatus.BAD_REQUEST);
     }
+    return { success: true };
+  }
+
+  // TODO: Delete this after the app and website have been updated.
+  // It wil be replaced by the deleteAccount method in this class.
+  @Delete('delete-account')
+  async deleteAccountDeprecated(
+    @Req() request: Request,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: DeleteAccountQueryDto,
+  ) {
+    const user = getUserFromRequest(request);
+
+    // We check user id against the DTO data to make it harder to accidentally delete an account.
+    // This is important because users cannot undo account deletion.
+    if (user.id !== query.userId) {
+      throw new HttpException("Supplied userId param does not match current user's id.", HttpStatus.BAD_REQUEST);
+    }
+
+    await this.usersService.delete(user.id);
+
+    return {
+      success: true,
+    };
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  @TransformImageUrls('$.profilePic')
+  @Delete('profile-image')
+  async deleteProfileImage(
+    @Req() request: Request,
+  ) {
+    const user = getUserFromRequest(request);
+    // TODO: Would be good to delete old image before replacing it (if previous value exists), to save storage space.
+    user.profilePic = 'noUser.jpg';
+    await user.save();
+    return { profilePic: user.profilePic };
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  @TransformImageUrls('$.profilePic')
+  @Delete('cover-image')
+  async deleteCoverImage(
+    @Req() request: Request,
+  ) {
+    const user = getUserFromRequest(request);
+    // TODO: Would be good to delete old image before replacing it (if previous value exists), to save storage space.
+    user.coverPhoto = null;
+    await user.save();
+    return { coverPhoto: user.coverPhoto };
+  }
+
+  @Delete(':userId')
+  async deleteAccount(
+    @Req() request: Request,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: ConfirmDeleteAccountQueryDto,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+  ) {
+    const requestingUser = getUserFromRequest(request);
+    let userToDelete: UserDocument;
+
+    if (requestingUser.id === param.userId) {
+      // User is deleting their own account
+      userToDelete = requestingUser;
+    } else if (requestingUser.userType === UserType.Admin) {
+      // Admin is deleting any user's account
+      userToDelete = await this.usersService.findById(param.userId, false);
+    } else {
+      throw new HttpException('You are not allowed to perform this action.', HttpStatus.FORBIDDEN);
+    }
+
+    if (!userToDelete) {
+      throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
+    }
+
+    // We check user id against an additional DTO query param to make it harder to accidentally
+    // delete an account. This is important because account deletion is NOT reversible.
+    if (userToDelete.id !== query.confirmUserId) {
+      throw new HttpException("Supplied confirmUserId param does not match user's id.", HttpStatus.BAD_REQUEST);
+    }
+
+    if (!userToDelete.deleted) {
+      await this.usersService.delete(userToDelete.id);
+    }
+
+    return {
+      success: true,
+    };
+  }
+
+  @Get(':userId/hashtag-follows')
+  async fetchAllUserFollowedHashtag(
+
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: HashtagQueryDto,
+  ) {
+    const user = getUserFromRequest(request);
+    if (user.id !== params.userId) { throw new HttpException('Not authorized', HttpStatus.UNAUTHORIZED); }
+
+    const hashtagFollowsData = await this.hashtagFollowsService.findAllByUserId(params.userId);
+    if (!(hashtagFollowsData && hashtagFollowsData.length)) {
+      throw new HttpException('Hashtag follow not found', HttpStatus.NOT_FOUND);
+    }
+
+    const hashtagId: any = hashtagFollowsData.map((hashtag) => (hashtag.hashTagId as any)._id);
+
+    const hashtagsData = await this.hashtagService.findAllHashtagById(hashtagId, query.limit, query.query, query.offset);
+
+    const hashtagFollows = [];
+    for (const follow of hashtagFollowsData) {
+      const hashtag = hashtagsData.find(({ _id }) => _id.toString() === (follow.hashTagId as any)._id.toString());
+      if (hashtag) {
+        const hashtags: any = {};
+        hashtags.notification = follow.notification;
+        hashtags.userId = follow.userId;
+        hashtags.hashTagId = hashtag;
+        hashtagFollows.push(hashtags);
+      }
+    }
+    return hashtagFollows;
+  }
+
+  @Get(':userId/hashtag-follows/:hashtag')
+  async fetchUserFollowedHashtag(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: FollowHashtagDto,
+  ) {
+    const user = getUserFromRequest(request);
+    if (user.id !== params.userId) { throw new HttpException('Not authorized', HttpStatus.UNAUTHORIZED); }
+
+    const hashtag = await this.hashtagService.findByHashTagName(params.hashtag, true);
+    if (!hashtag) {
+      throw new HttpException('Hashtag not found', HttpStatus.NOT_FOUND);
+    }
+
+    const hashtagFollows = await this.hashtagFollowsService.findByUserAndHashtag(params.userId, hashtag._id.toString());
+    if (!hashtagFollows) {
+      throw new HttpException('Hashtag follow not found', HttpStatus.NOT_FOUND);
+    }
+    return pick(hashtagFollows, ['notification', 'hashTagId']);
+  }
+
+  @Put(':userId/hashtag-follows/:hashtag')
+  async createOrUpdateHashtagFollow(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: FollowHashtagDto,
+    @Body() notificationDto: NotificationDto,
+  ) {
+    const user = getUserFromRequest(request);
+    if (user.id !== params.userId) { throw new HttpException('Not authorized', HttpStatus.UNAUTHORIZED); }
+
+    const hashtag = await this.hashtagService.findByHashTagName(params.hashtag, true);
+    if (!hashtag) {
+      throw new HttpException('Hashtag not found', HttpStatus.NOT_FOUND);
+    }
+
+    const hashtagFollow = await this.hashtagFollowsService.findOneAndUpdateHashtagFollow(
+      user.id,
+      hashtag._id.toString(),
+      notificationDto.notification,
+    );
+
+    return pick(hashtagFollow, ['notification', 'userId', 'hashTagId']);
+  }
+
+  @Delete(':userId/hashtag-follows/:hashtag')
+  async deleteHashtagsFollow(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: FollowHashtagDto,
+  ) {
+    const user = getUserFromRequest(request);
+    if (user.id !== params.userId) { throw new HttpException('Not authorized', HttpStatus.UNAUTHORIZED); }
+
+    const hashtag = await this.hashtagService.findByHashTagName(params.hashtag, true);
+    if (!hashtag) {
+      throw new HttpException('Hashtag not found', HttpStatus.NOT_FOUND);
+    }
+
+    const hashtagFollows = await this.hashtagFollowsService.findByUserAndHashtag(user.id, hashtag._id.toString());
+    if (hashtagFollows) {
+      await this.hashtagFollowsService.deleteById(hashtagFollows._id.toString());
+    }
+    return { success: true };
+  }
+
+  @Post(':userId/hashtag-follows')
+  async insertManyHashtagFollow(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ParamUserIdDto,
+    @Body() hashtagsDto: HashtagsDto,
+  ) {
+    const user = getUserFromRequest(request);
+    if (user.id !== params.userId) { throw new HttpException('Not authorized', HttpStatus.UNAUTHORIZED); }
+
+    const hashtagData = await this.hashtagService.findAllHashTagName(hashtagsDto.hashtags);
+    const hashtags = hashtagsDto.hashtags.filter((hashtag) => !hashtagData.map((hashtagName) => hashtagName.name).includes(hashtag));
+    if (hashtags.length) {
+      throw new HttpException(`${hashtags} hashtag not found`, HttpStatus.NOT_FOUND);
+    }
+    const hashtagIds = hashtagData.map((hashtag) => hashtag._id.toString());
+    const hashtagFollows = await this.hashtagFollowsService.insertManyHashtagFollow(user.id, hashtagIds);
+    return hashtagFollows.map(
+      (follow) => pick(follow, ['notification', 'userId', 'hashTagId']),
+    );
+  }
+
+  @Put('ignoreFriendSuggestionDialog')
+  async hideFriendShipModel(@Req() request: Request) {
+    const user = getUserFromRequest(request);
+    await this.usersService.ignoreFriendSuggestionDialog(user.id);
     return { success: true };
   }
 }

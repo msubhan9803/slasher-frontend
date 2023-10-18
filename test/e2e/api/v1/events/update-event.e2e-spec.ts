@@ -146,6 +146,18 @@ describe('Events update / :id (e2e)', () => {
     });
 
     describe('Validation', () => {
+      it('id must be a mongodb id', async () => {
+        const eventId = 'not-a-mongo-id';
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/events/${eventId}`)
+          .auth(adminUserAuthToken, { type: 'bearer' })
+          .send(sampleEventUpdateObject);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'id must be a mongodb id',
+        );
+      });
+
       it('name must be shorter than or equal to 150 characters', async () => {
         sampleEventUpdateObject.name = new Array(155).join('b');
         const response = await request(app.getHttpServer())

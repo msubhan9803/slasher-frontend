@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { INestApplication } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
-import mongoose, { Model } from 'mongoose';
+import mongoose, { ConnectionStates, Model } from 'mongoose';
 import { createApp } from './createApp';
 import { BooksService } from '../src/books/providers/books.service';
 import { Book, BookDocument } from '../src/schemas/book/book.schema';
@@ -22,7 +22,7 @@ const createSampleBooks = async (app: INestApplication) => {
   // ! Please use this only when needed along with caution ~ Sahil
   await deleteAllBooks(app);
 
-  const { success, error } = await booksService.syncWithTheBookDb();
+  const { success, error } = await booksService.syncWithOpenLibrary();
   if (error) {
     console.log('error?', error);
   } else {
@@ -34,6 +34,12 @@ const createSampleBooks = async (app: INestApplication) => {
   const app = await createApp();
 
   await createSampleBooks(app);
-  await mongoose.disconnect();
-  await app.close();
+
+  const isConnectionDisconnectedAlready = mongoose.connection.readyState === ConnectionStates.disconnected;
+  if (!isConnectionDisconnectedAlready) {
+    await mongoose.disconnect();
+    await app.close();
+  } else {
+    process.exit(0);
+  }
 })();

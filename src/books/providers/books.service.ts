@@ -14,6 +14,7 @@ import {
 } from '../../schemas/bookUserStatus/bookUserStatus.enums';
 import { escapeStringForRegex } from '../../utils/escape-utils';
 import { WorthReadingStatus } from '../../types';
+import { createPublishDateForOpenLibrary } from '../../utils/date-utils';
 
 @Injectable()
 export class BooksService {
@@ -99,7 +100,7 @@ export class BooksService {
 
   async getUserBookStatusRatings(bookId: string, userId: string) {
     const bookUserStatus = await this.bookUserStatusModel.findOne({ bookId, userId }).select({
-      rating: 1, goreFactorRating: 1, worthWatching: 1,
+      rating: 1, goreFactorRating: 1, worthReading: 1,
     });
     return bookUserStatus;
   }
@@ -243,12 +244,12 @@ export class BooksService {
     return readingBookIdArray as unknown as BookUserStatusDocument[];
   }
 
-  async getBookData(): Promise<any> {
+  async getBookDataFromOpenLibrary(): Promise<any> {
     const arr: any = [];
     let offset = 0;
     // TODO: Remove `isDevelopmentServer` usage
 
-    const limit = isDevelopmentServer ? 50 : 1000; // ! FOR production we value =1000
+    const limit = isDevelopmentServer ? 1000 : 1000; // ! FOR production we value =1000
     let hasMoreData = true;
 
     while (hasMoreData) {
@@ -273,15 +274,17 @@ export class BooksService {
     return arr;
   }
 
-  async syncWithTheBookDb(): Promise<ReturnBookDb> {
+  async syncWithOpenLibrary(): Promise<ReturnBookDb> {
     try {
-      const searchBooksData: any = await this.getBookData();
+      const searchBooksData: any = await this.getBookDataFromOpenLibrary();
       const mainBookArray: Array<Partial<BookDocument>> = [];
       for (let i = 0; i < searchBooksData.length; i += 1) {
         // eslint-disable-next-line no-console
         console.log('i?', i);
-        const bookDataObject: Partial<BookDocument> = {};
-        const [keyData, editionKeyData]: any = await Promise.all([
+        const bookDataObject: Partial<BookDocument> = {
+          type: BookType.OpenLibrary,
+        };
+        const [keyDataResolved, editionKeyDataResolved]: any = await Promise.allSettled([
           lastValueFrom(
             this.httpService.get<any>(`https://openlibrary.org/${searchBooksData[i].key}.json`),
           ),
@@ -289,23 +292,30 @@ export class BooksService {
             this.httpService.get<any>(`https://openlibrary.org/works/${searchBooksData[i].cover_edition_key}.json`),
           ),
         ]);
+
         // From `searchBooksData` API
         bookDataObject.bookId = searchBooksData[i].key;
         bookDataObject.coverEditionKey = searchBooksData[i].cover_edition_key;
         bookDataObject.author = searchBooksData[i]?.author_name ?? [];
         // From `keyData` API
-        bookDataObject.description = keyData.data?.description?.value ?? keyData.data?.description;
-        // From `editionKeyData` API
-        bookDataObject.name = editionKeyData.data.title;
-        bookDataObject.covers = editionKeyData.data.covers;
-        bookDataObject.numberOfPages = editionKeyData.data.number_of_pages;
-        bookDataObject.publishDate = editionKeyData.data.publish_date;
-        bookDataObject.isbnNumber = [];
-        if (editionKeyData.data.isbn_13) {
-          bookDataObject.isbnNumber.push(...editionKeyData.data.isbn_13);
+        const keyData = keyDataResolved.status === 'fulfilled' && keyDataResolved.value;
+        if (keyData) {
+          bookDataObject.description = keyData.data?.description?.value ?? keyData.data?.description;
         }
-        if (editionKeyData.data.isbn_10) {
-          bookDataObject.isbnNumber.push(...editionKeyData.data.isbn_10);
+        // From `editionKeyData` API
+        const editionKeyData = editionKeyDataResolved.status === 'fulfilled' && editionKeyDataResolved.value;
+        if (editionKeyData) {
+          bookDataObject.name = editionKeyData.data.title;
+          bookDataObject.covers = editionKeyData.data.covers;
+          bookDataObject.numberOfPages = editionKeyData.data.number_of_pages;
+          bookDataObject.publishDate = createPublishDateForOpenLibrary(editionKeyData.data.publish_date);
+          bookDataObject.isbnNumber = [];
+          if (editionKeyData.data.isbn_13) {
+            bookDataObject.isbnNumber.push(...editionKeyData.data.isbn_13);
+          }
+          if (editionKeyData.data.isbn_10) {
+            bookDataObject.isbnNumber.push(...editionKeyData.data.isbn_10);
+          }
         }
 
         mainBookArray.push(bookDataObject);

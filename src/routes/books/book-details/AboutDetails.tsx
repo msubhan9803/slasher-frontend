@@ -14,7 +14,7 @@ import { BookData, WorthReadingStatus } from '../../../types';
 import ShareLinksModal from '../../../components/ui/ShareLinksModal';
 import { urlForMovie } from '../../../utils/url-utils';
 import { generateAmazonAffiliateLinkForBook, getPrefferedISBN } from '../../../utils/text-utils';
-import { getYearFromString } from '../../../utils/date-utils';
+import { getYearFromDate } from '../../../utils/date-utils';
 import WorthWatchIcon, { StyledDislikeIcon, StyledLikeIcon } from '../components/WorthWatchIcon';
 import { createOrUpdateWorthReading, deleteWorthReading } from '../../../api/books';
 import { updateBookUserData } from '../components/updateBookDataUtils';
@@ -120,7 +120,7 @@ function AboutDetails({
   const hasGoreFactor = bookData.userData !== null && bookData.userData?.goreFactorRating !== 0;
   const to = generateAmazonAffiliateLinkForBook(bookData.name, bookData.author?.join(', '));
   const isbn = getPrefferedISBN(bookData.isbnNumber);
-  const year = getYearFromString(bookData.publishDate);
+  const year = getYearFromDate(bookData.publishDate);
   return (
     <AboutBookDetails className="text-xl-start pt-4">
       <Row className="justify-content-center mt-2 mt-xl-0">

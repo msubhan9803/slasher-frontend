@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import LikeIconButton from './LikeIconButton';
 import { WorthWatchingStatus } from '../../../types';
+import { getYearFromDate } from '../../../utils/date-utils';
 
 interface PosterProps {
   type?: string;
@@ -79,7 +80,7 @@ function PosterCard({
       <Card.Body className="px-0 pb-4">
         {deactivate && <h3 className="text-uppercase text-primary text-decoration-none fw-bold">deactivated</h3>}
         <div className="fs-5 d-flex justify-content-between align-items-center m-0 text-light">
-          {year}
+          {year && getYearFromDate(year)}
           {worthWatching !== WorthWatchingStatus.NoRating && (
             <LikeIconButton
               worthWatching={worthWatching}

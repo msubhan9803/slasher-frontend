@@ -1,6 +1,6 @@
 export enum BookType {
   Free = 0,
-  Paid = 1,
+  OpenLibrary = 1,
 }
 
 export enum BookStatus {

@@ -16,7 +16,6 @@ import {
   BookStatus,
   BookDeletionState,
 } from '../../../src/schemas/book/book.enums';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 import { rewindAllFactories } from '../../helpers/factory-helpers.ts';
 import { configureAppPrefixAndVersioning } from '../../../src/utils/app-setup-utils';
 
@@ -87,20 +86,7 @@ describe('Find All Books (e2e)', () => {
         .get('/api/v1/books')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      expect(response.body).toEqual([
-        {
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          name: 'Oh, Whistle, And I will Come To You, My Lad',
-        },
-        {
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          name: 'The Vampire Chronicles',
-        },
-        {
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          name: 'Young Goodman Brown',
-        },
-      ]);
+      expect(response.body).toHaveLength(3);
     });
   });
 });

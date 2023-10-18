@@ -28,6 +28,11 @@ export enum WorthWatchingStatus {
   Down = 1,
   Up = 2,
 }
+export enum WorthReadingStatus {
+  NoRating = 0,
+  Down = 1,
+  Up = 2,
+}
 export type FriendShip = { from?: User, to?: User, friendship?: FriendRequestReaction } | null;
 export type LikeUserAndFriendship = {
   _id: mongoose.Schema.Types.ObjectId;

@@ -72,6 +72,8 @@ import { FriendRequestReaction } from '../schemas/friend/friend.enums';
 import { Public } from '../app/guards/auth.guard';
 import { UpdateDeviceTokenDto } from './dto/update-device-token.dto';
 import { SignOutDto } from './dto/sign-out.dto';
+import { BooksService } from '../books/providers/books.service';
+import { FindAllBooksDto } from '../books/dto/find-all-books.dto';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -92,6 +94,7 @@ export class UsersController {
     private readonly notificationsService: NotificationsService,
     private readonly disallowedUsernameService: DisallowedUsernameService,
     private readonly moviesService: MoviesService,
+    private readonly booksService: BooksService,
     private readonly betaTestersService: BetaTestersService,
     private readonly emailRevertTokensService: EmailRevertTokensService,
     private configService: ConfigService,
@@ -1033,6 +1036,202 @@ export class UsersController {
     });
     return movies.map(
       (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating', 'worthWatching']),
+    );
+  }
+
+  @Get(':userId/reading-booklist')
+  async readingListBooks(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: FindAllBooksDto,
+  ) {
+    const loggedInUser = getUserFromRequest(request);
+    const user = await this.usersService.findById(param.userId, true);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    if (loggedInUser.id !== user.id && user.profile_status !== ProfileVisibility.Public) {
+      const areFriends = await this.friendsService.areFriends(loggedInUser.id, user.id);
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
+    if (block) {
+      throw new HttpException('Request failed due to user block.', HttpStatus.NOT_FOUND);
+    }
+    const readingMovieIds = await this.booksService.getReadingListBookIdsForUser(param.userId);
+    const books = await this.booksService.findAll(
+      query.limit,
+      true,
+      query.sortBy,
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
+      query.nameContains,
+      readingMovieIds as unknown as mongoose.Types.ObjectId[],
+      query.startsWith,
+    );
+
+    books.forEach((book) => {
+      if (book.logo?.length > 1) {
+        // eslint-disable-next-line no-param-reassign
+        book.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${book.logo}`;
+      }
+      if (book.logo === null) {
+        // eslint-disable-next-line no-param-reassign
+        book.logo = relativeToFullImagePath(this.configService, '/placeholders/book_poster.png');
+      }
+    });
+    return books.map(
+      (book) => pick(book, ['_id', 'name', 'logo', 'publishDate', 'rating', 'worthReading']),
+    );
+  }
+
+  @Get(':userId/read-booklist')
+  async readListBook(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: FindAllBooksDto,
+  ) {
+    const loggedInUser = getUserFromRequest(request);
+    const user = await this.usersService.findById(param.userId, true);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    if (loggedInUser.id !== user.id && user.profile_status !== ProfileVisibility.Public) {
+      const areFriends = await this.friendsService.areFriends(loggedInUser.id, user.id);
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
+    if (block) {
+      throw new HttpException('Request failed due to user block.', HttpStatus.NOT_FOUND);
+    }
+    const readBookIds = await this.booksService.getReadListBookIdsForUser(param.userId);
+    const books = await this.booksService.findAll(
+      query.limit,
+      true,
+      query.sortBy,
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
+      query.nameContains,
+      readBookIds as unknown as mongoose.Types.ObjectId[],
+      query.startsWith,
+    );
+    books.forEach((book) => {
+      if (book.logo?.length > 1) {
+        // eslint-disable-next-line no-param-reassign
+        book.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${book.logo}`;
+      }
+      if (book.logo === null) {
+        // eslint-disable-next-line no-param-reassign
+        book.logo = relativeToFullImagePath(this.configService, '/placeholders/book_poster.png');
+      }
+    });
+    return books.map(
+      (book) => pick(book, ['_id', 'name', 'logo', 'publishDate', 'rating', 'worthReading']),
+    );
+  }
+
+  @Get(':userId/buy-booklist')
+  async buyListBooks(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: FindAllBooksDto,
+  ) {
+    const loggedInUser = getUserFromRequest(request);
+    const user = await this.usersService.findById(param.userId, true);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    if (loggedInUser.id !== user.id && user.profile_status !== ProfileVisibility.Public) {
+      const areFriends = await this.friendsService.areFriends(loggedInUser.id, user.id);
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
+    if (block) {
+      throw new HttpException('Request failed due to user block.', HttpStatus.NOT_FOUND);
+    }
+    const buyBookIds = await this.booksService.getBuyListBookIdsForUser(param.userId);
+
+    const books = await this.booksService.findAll(
+      query.limit,
+      true,
+      query.sortBy,
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
+      query.nameContains,
+      buyBookIds as unknown as mongoose.Types.ObjectId[],
+      query.startsWith,
+    );
+
+    books.forEach((book) => {
+      if (book.logo?.length > 1) {
+        // eslint-disable-next-line no-param-reassign
+        book.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${book.logo}`;
+      }
+      if (book.logo === null) {
+        // eslint-disable-next-line no-param-reassign
+        book.logo = relativeToFullImagePath(this.configService, '/placeholders/book_poster.png');
+      }
+    });
+    return books.map(
+      (book) => pick(book, ['_id', 'name', 'logo', 'publishDate', 'rating', 'worthReading']),
+    );
+  }
+
+  @Get(':userId/favorite-booklist')
+  async favoriteListBooks(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: FindAllBooksDto,
+  ) {
+    const loggedInUser = getUserFromRequest(request);
+    const user = await this.usersService.findById(param.userId, true);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    if (loggedInUser.id !== user.id && user.profile_status !== ProfileVisibility.Public) {
+      const areFriends = await this.friendsService.areFriends(loggedInUser.id, user.id);
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
+    if (block) {
+      throw new HttpException('Request failed due to user block.', HttpStatus.NOT_FOUND);
+    }
+    const favoriteBookIds = await this.booksService.getFavoriteListBookIdsForUser(param.userId);
+    const books = await this.booksService.findAll(
+      query.limit,
+      true,
+      query.sortBy,
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
+      query.nameContains,
+      favoriteBookIds as unknown as mongoose.Types.ObjectId[],
+      query.startsWith,
+    );
+
+    books.forEach((book) => {
+      if (book.logo?.length > 1) {
+        // eslint-disable-next-line no-param-reassign
+        book.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${book.logo}`;
+      }
+      if (book.logo === null) {
+        // eslint-disable-next-line no-param-reassign
+        book.logo = relativeToFullImagePath(this.configService, '/placeholders/book_poster.png');
+      }
+    });
+    return books.map(
+      (book) => pick(book, ['_id', 'name', 'logo', 'publishDate', 'rating', 'worthReading']),
     );
   }
 

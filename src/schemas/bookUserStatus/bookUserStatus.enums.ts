@@ -8,7 +8,7 @@ export enum BookUserStatusRead {
   Read = 1,
 }
 
-export enum BookUserStatusReadingList  {
+export enum BookUserStatusReadingList {
   NotReadingList = 0,
   ReadingList = 1,
 }

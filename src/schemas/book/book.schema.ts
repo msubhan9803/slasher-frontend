@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { BookUnusedFields } from './book.unused-fields';
 import { BookStatus, BookDeletionState } from './book.enums';
-import { WorthWatchingStatus } from '../../types';
+import { WorthReadingStatus } from '../../types';
 
 @Schema({ timestamps: true })
 export class Book extends BookUnusedFields {
@@ -21,6 +21,9 @@ export class Book extends BookUnusedFields {
   @Prop({ required: true, trim: true })
   name: string;
 
+  @Prop({ default: null, trim: true })
+  sort_name: string;
+
   @Prop({ default: [], trim: true })
   author: string[];
 
@@ -31,7 +34,10 @@ export class Book extends BookUnusedFields {
   isbnNumber: string[];
 
   @Prop({ default: null })
-  publishDate: string;
+  publishDate: Date;
+
+  @Prop({ default: null, trim: true })
+  sortPublishDate: string;
 
   @Prop({ default: null })
   description: string;
@@ -59,15 +65,18 @@ export class Book extends BookUnusedFields {
 
   @Prop({
     default: 0,
-    enum: [WorthWatchingStatus.NoRating, WorthWatchingStatus.Down, WorthWatchingStatus.Up],
+    enum: [WorthReadingStatus.NoRating, WorthReadingStatus.Down, WorthReadingStatus.Up],
   })
-  worthWatching: number;
+  worthReading: number;
 
   @Prop({ default: 0 })
-  worthWatchingUpUsersCount: number;
+  worthReadingUpUsersCount: number;
 
   @Prop({ default: 0 })
-  worthWatchingDownUsersCount: number;
+  worthReadingDownUsersCount: number;
+
+  @Prop({ default: null, trim: true })
+  sortRating: string;
 
   @Prop({ default: BookStatus.Active, enum: [BookStatus.InActive, BookStatus.Active, BookStatus.Deactive] })
   status: BookStatus;

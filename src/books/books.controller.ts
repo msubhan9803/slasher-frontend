@@ -1,6 +1,7 @@
+/* eslint-disable max-lines */
 import {
   Body,
-  Controller, Delete, Get, HttpException, HttpStatus, Param, Put, Req, ValidationPipe,
+  Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Put, Req, ValidationPipe,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { pick } from '../utils/object-utils';
@@ -12,10 +13,15 @@ import { CreateOrUpdateGoreFactorRatingDto } from '../movies/dto/create-or-updat
 import { CreateOrUpdateRatingDto } from '../movies/dto/create-or-update-rating-dto';
 import { CreateOrUpdateWorthWatchingDto } from '../movies/dto/create-or-update-worth-watching-dto';
 import { getUserFromRequest } from '../utils/request-utils';
+import { BookUserStatusIdDto } from '../book-user-status/dto/book-user-status-id.dto';
+import { BookUserStatusService } from '../book-user-status/providers/book-user-status.service';
 
 @Controller({ path: 'books', version: ['1'] })
 export class BooksController {
-  constructor(private readonly booksService: BooksService) {}
+  constructor(
+    private readonly booksService: BooksService,
+    private readonly bookUserStatusService: BookUserStatusService,
+  ) { }
 
   async bookShouldExist(bookId: string) {
     const bookData = await this.booksService.findById(bookId, true);
@@ -26,7 +32,7 @@ export class BooksController {
 
   @Get()
   async index() {
-    const books = await this.booksService.findAll(true);
+    const books = await this.booksService.findAll(10, true, 'name');
     return books.map((bookData) => pick(
       bookData,
       ['_id', 'name', 'author', 'description', 'numberOfPages', 'isbnNumber', 'publishDate', 'covers'],
@@ -167,5 +173,140 @@ export class BooksController {
     return pick(filterUserData, [
       'worthWatching', 'worthWatchingUpUsersCount', 'worthWatchingDownUsersCount', 'userData',
     ]);
+  }
+
+  @Get(':bookId/lists')
+  async findBookUserStatus(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: BookUserStatusIdDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const bookUserStatusData = await this.bookUserStatusService.findBookUserStatus(user.id, params.bookId);
+    if (!bookUserStatusData) {
+      return {
+        favorite: 0,
+        read: 0,
+        readingList: 0,
+        buy: 0,
+      };
+    }
+    return {
+      favorite: bookUserStatusData.favourite,
+      read: bookUserStatusData.read,
+      readingList: bookUserStatusData.readingList,
+      buy: bookUserStatusData.buy,
+    };
+  }
+
+  @Post(':bookId/lists/favorite')
+  async addBookUserStatusFavorite(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: BookUserStatusIdDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const bookData = await this.booksService.findById(params.bookId, true);
+    if (!bookData) {
+      throw new HttpException('Book not found', HttpStatus.NOT_FOUND);
+    }
+    await this.bookUserStatusService.addBookUserStatusFavorite(user.id, params.bookId);
+    return { success: true };
+  }
+
+  @Delete(':bookId/lists/favorite')
+  async deleteBookUserStatusFavorite(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: BookUserStatusIdDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const bookData = await this.booksService.findById(params.bookId, true);
+    if (!bookData) {
+      throw new HttpException('Book not found', HttpStatus.NOT_FOUND);
+    }
+    await this.bookUserStatusService.deleteBookUserStatusFavorite(user.id, params.bookId);
+    return { success: true };
+  }
+
+  @Post(':bookId/lists/read')
+  async addBookUserStatusRead(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: BookUserStatusIdDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const bookData = await this.booksService.findById(params.bookId, true);
+    if (!bookData) {
+      throw new HttpException('Book not found', HttpStatus.NOT_FOUND);
+    }
+    await this.bookUserStatusService.addBookUserStatusRead(user.id, params.bookId);
+    return { success: true };
+  }
+
+  @Delete(':bookId/lists/read')
+  async deleteBookUserStatusRead(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: BookUserStatusIdDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const bookData = await this.booksService.findById(params.bookId, true);
+    if (!bookData) {
+      throw new HttpException('Book not found', HttpStatus.NOT_FOUND);
+    }
+    await this.bookUserStatusService.deleteBookUserStatusRead(user.id, params.bookId);
+    return { success: true };
+  }
+
+  @Post(':bookId/lists/readingList')
+  async addBookUserStatusReadingList(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: BookUserStatusIdDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const bookData = await this.booksService.findById(params.bookId, true);
+    if (!bookData) {
+      throw new HttpException('Book not found', HttpStatus.NOT_FOUND);
+    }
+    await this.bookUserStatusService.addBookUserStatusReadingList(user.id, params.bookId);
+    return { success: true };
+  }
+
+  @Delete(':bookId/lists/readingList')
+  async deleteBookUserStatusReadingList(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: BookUserStatusIdDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const bookData = await this.booksService.findById(params.bookId, true);
+    if (!bookData) {
+      throw new HttpException('Book not found', HttpStatus.NOT_FOUND);
+    }
+    await this.bookUserStatusService.deleteBookUserStatusReadingList(user.id, params.bookId);
+    return { success: true };
+  }
+
+  @Post(':bookId/lists/buy')
+  async addBookUserStatusBuy(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: BookUserStatusIdDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const bookData = await this.booksService.findById(params.bookId, true);
+    if (!bookData) {
+      throw new HttpException('Book not found', HttpStatus.NOT_FOUND);
+    }
+    await this.bookUserStatusService.addBookUserStatusBuy(user.id, params.bookId);
+    return { success: true };
+  }
+
+  @Delete(':bookId/lists/buy')
+  async deleteBookUserStatusBuy(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: BookUserStatusIdDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const bookData = await this.booksService.findById(params.bookId, true);
+    if (!bookData) {
+      throw new HttpException('Book not found', HttpStatus.NOT_FOUND);
+    }
+    await this.bookUserStatusService.deleteBookUserStatusBuy(user.id, params.bookId);
+    return { success: true };
   }
 }

@@ -1,14 +1,19 @@
+/* eslint-disable max-lines */
 import mongoose, { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { HttpService } from '@nestjs/axios';
 import { ReturnBookDb } from 'src/movies/dto/cron-job-response.dto';
 import { lastValueFrom } from 'rxjs';
-import { BookStatus, BookDeletionState } from '../../schemas/book/book.enums';
+import { BookStatus, BookDeletionState, BookType } from '../../schemas/book/book.enums';
 import { Book, BookDocument } from '../../schemas/book/book.schema';
-import { isDevelopmentServer } from '../../constants';
+import { NON_ALPHANUMERIC_REGEX, isDevelopmentServer } from '../../constants';
 import { BookUserStatus, BookUserStatusDocument } from '../../schemas/bookUserStatus/bookUserStatus.schema';
 import { WorthWatchingStatus } from '../../types';
+import {
+ BookUserStatusBuy, BookUserStatusFavorites, BookUserStatusRead, BookUserStatusReadingList,
+} from '../../schemas/bookUserStatus/bookUserStatus.enums';
+import { escapeStringForRegex } from '../../utils/escape-utils';
 
 @Injectable()
 export class BooksService {
@@ -113,12 +118,12 @@ export class BooksService {
     ]);
 
     // assign default values for simplistic usage in client side and document update
-    const update: Partial<Book> = { worthWatching: 0, worthWatchingUpUsersCount: 0, worthWatchingDownUsersCount: 0 };
+    const update: Partial<Book> = { worthReading: 0, worthReadingUpUsersCount: 0, worthReadingDownUsersCount: 0 };
     if (aggregate.length !== 0) {
       const [{ averageWorthWatching }] = aggregate;
-      update.worthWatching = Math.round(averageWorthWatching);
-      update.worthWatchingUpUsersCount = await this.bookUserStatusModel.count({ bookId, worthWatching: { $eq: WorthWatchingStatus.Up } });
-      update.worthWatchingDownUsersCount = await this.bookUserStatusModel.count({
+      update.worthReading = Math.round(averageWorthWatching);
+      update.worthReadingUpUsersCount = await this.bookUserStatusModel.count({ bookId, worthWatching: { $eq: WorthWatchingStatus.Up } });
+      update.worthReadingDownUsersCount = await this.bookUserStatusModel.count({
         bookId,
         worthWatching: { $eq: WorthWatchingStatus.Down },
       });
@@ -133,25 +138,112 @@ export class BooksService {
     return { ...book, userData: bookUserStatus };
   }
 
-  async findAll(activeOnly: boolean): Promise<BookDocument[]> {
-    const booksFindAllQuery: any = {};
-
+  async findAll(
+    limit: number,
+    activeOnly: boolean,
+    sortBy: 'name' | 'publishDate' | 'rating',
+    after?: mongoose.Types.ObjectId,
+    nameContains?: string,
+    bookIdsIn?: mongoose.Types.ObjectId[],
+    sortNameStartsWith?: string,
+  ): Promise<BookDocument[]> {
+    const booksFindAllQuery: any = {
+      type: BookType.OpenLibrary,
+    };
+    if (bookIdsIn) {
+      booksFindAllQuery._id = { $in: bookIdsIn };
+    }
     if (activeOnly) {
       booksFindAllQuery.deleted = BookDeletionState.NotDeleted;
       booksFindAllQuery.status = BookStatus.Active;
     }
-    return this.booksModel
-      .find(booksFindAllQuery)
-      .sort({
-        name: 1,
-      })
+    if (after && sortBy === 'name') {
+      const afterBook = await this.booksModel.findById(after);
+      booksFindAllQuery.sort_name = { ...booksFindAllQuery.sort_name, $gt: afterBook.sort_name };
+    }
+    if (after && sortBy === 'publishDate') {
+      const afterBook = await this.booksModel.findById(after);
+      booksFindAllQuery.sortPublishDate = { $lt: afterBook.sortPublishDate };
+    }
+    if (after && sortBy === 'rating') {
+      const afterBook = await this.booksModel.findById(after);
+      booksFindAllQuery.sortRating = { $lt: afterBook.sortRating };
+    }
+
+    if (nameContains || sortNameStartsWith) {
+      let combinedRegex = '';
+      if (sortNameStartsWith && sortNameStartsWith !== '#') {
+        combinedRegex += `^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`;
+      } else if (sortNameStartsWith === '#') {
+        combinedRegex += NON_ALPHANUMERIC_REGEX.source;
+      }
+
+      if (nameContains) {
+        if (combinedRegex) {
+          combinedRegex += `${combinedRegex ? '.*' : ''}${escapeStringForRegex(nameContains)}`;
+        } else {
+          combinedRegex += `${escapeStringForRegex(nameContains)}`;
+        }
+      }
+
+      if (!booksFindAllQuery.sort_name) {
+        booksFindAllQuery.sort_name = {};
+      }
+      booksFindAllQuery.sort_name.$regex = new RegExp(combinedRegex, 'i');
+    }
+
+    let sortBooksByNameAndReleaseDate: any;
+    if (sortBy === 'name') {
+      sortBooksByNameAndReleaseDate = { sort_name: 1 };
+    } else if (sortBy === 'publishDate') {
+      sortBooksByNameAndReleaseDate = { sortPublishDate: -1 };
+    } else {
+      sortBooksByNameAndReleaseDate = { sortRating: -1 };
+    }
+    return this.booksModel.find(booksFindAllQuery)
+      .sort(sortBooksByNameAndReleaseDate)
+      .limit(limit)
       .exec();
+  }
+
+  async getFavoriteListBookIdsForUser(userId: string): Promise<Partial<BookUserStatusDocument[]>> {
+    const favoriteBookIdByUser = await this.bookUserStatusModel
+      .find({ userId: new mongoose.Types.ObjectId(userId), favourite: BookUserStatusFavorites.Favorite }, { bookId: 1, _id: 0 })
+      .exec();
+
+    const favoriteBookIdArray = favoriteBookIdByUser.map((book) => book.bookId);
+    return favoriteBookIdArray as unknown as BookUserStatusDocument[];
+  }
+
+  async getBuyListBookIdsForUser(userId: string): Promise<Partial<BookUserStatusDocument[]>> {
+    const buyBookIdByUser = await this.bookUserStatusModel
+      .find({ userId: new mongoose.Types.ObjectId(userId), buy: BookUserStatusBuy.Buy }, { bookId: 1, _id: 0 })
+      .exec();
+    const buyBookIdArray = buyBookIdByUser.map((book) => book.bookId);
+    return buyBookIdArray as unknown as BookUserStatusDocument[];
+  }
+
+  async getReadListBookIdsForUser(userId: string): Promise<Partial<BookUserStatusDocument[]>> {
+    const readBookIdByUser = await this.bookUserStatusModel
+      .find({ userId: new mongoose.Types.ObjectId(userId), read: BookUserStatusRead.Read }, { bookId: 1, _id: 0 })
+      .exec();
+    const readBookIdArray = readBookIdByUser.map((book) => book.bookId);
+    return readBookIdArray as unknown as BookUserStatusDocument[];
+  }
+
+  async getReadingListBookIdsForUser(userId: string): Promise<Partial<BookUserStatusDocument[]>> {
+    const readingBookIdByUser = await this.bookUserStatusModel
+      .find({ userId: new mongoose.Types.ObjectId(userId), readingList: BookUserStatusReadingList.ReadingList }, { bookId: 1, _id: 0 })
+      .exec();
+    const readingBookIdArray = readingBookIdByUser.map((book) => book.bookId);
+    return readingBookIdArray as unknown as BookUserStatusDocument[];
   }
 
   async getBookData(): Promise<any> {
     const arr: any = [];
     let offset = 0;
     // TODO: Remove `isDevelopmentServer` usage
+
     const limit = isDevelopmentServer ? 50 : 1000; // ! FOR production we value =1000
     let hasMoreData = true;
 
@@ -163,7 +255,6 @@ export class BooksService {
           `https://openlibrary.org/search.json?q=${searchQuery}&mode=everything&limit=${limit}&offset=${offset}&fields=${fields}`,
         ),
       );
-
       if (data?.docs?.length) {
         arr.push(...data.docs);
         offset += limit;

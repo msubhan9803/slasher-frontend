@@ -6,7 +6,7 @@ export class BookUnusedFields {
   @Prop({ default: null })
   logo: string;
 
-  @Prop({ default: BookType.Free, enum: [BookType.Free, BookType.Paid] })
+  @Prop({ default: BookType.Free, enum: [BookType.Free, BookType.OpenLibrary] })
   type: BookType;
 
   @Prop({ default: null, ref: 'users' })

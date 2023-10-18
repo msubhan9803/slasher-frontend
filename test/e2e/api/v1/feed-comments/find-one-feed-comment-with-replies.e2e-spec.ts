@@ -225,7 +225,7 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
       );
       await blocksModel.create({
         from: activeUser._id.toString(),
-        to: user4._id,
+        to: user4._id.toString(),
         reaction: BlockAndUnblockReaction.Block,
       });
       const response = await request(app.getHttpServer())

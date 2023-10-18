@@ -38,6 +38,7 @@ import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
 import { UsersService } from '../users/providers/users.service';
 import { PostType } from '../schemas/feedPost/feedPost.enums';
+import { PostAccessService } from '../feed-posts/providers/post-access.service';
 
 @Controller({ path: 'feed-comments', version: ['1'] })
 export class FeedCommentsController {
@@ -52,6 +53,7 @@ export class FeedCommentsController {
     private readonly blocksService: BlocksService,
     private readonly friendsService: FriendsService,
     private readonly usersService: UsersService,
+    private readonly postAccessService: PostAccessService,
   ) { }
 
   @TransformImageUrls('$.images[*].image_path')
@@ -59,7 +61,7 @@ export class FeedCommentsController {
   @UseInterceptors(
     ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_IMAGES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, MAXIMUM_IMAGE_UPLOAD_SIZE, {
       fileFilter: defaultFileInterceptorFileFilter,
-      }),
+    }),
   )
   async createFeedComment(
     @Req() request: Request,
@@ -77,20 +79,21 @@ export class FeedCommentsController {
     if (!post) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-
+    let isFriend = true;
     const user = getUserFromRequest(request);
     if (
       post.postType !== PostType.MovieReview && !post.rssfeedProviderId
-      && user.id !== (post.userId as unknown as User)._id.toString()
+      && user.id !== (post.userId as unknown as User).toString()
     ) {
-      const areFriends = await this.friendsService.areFriends(user.id, (post.userId as unknown as User)._id.toString());
-      if (!areFriends) {
-        throw new HttpException('You can only interact with posts of friends.', HttpStatus.FORBIDDEN);
+      isFriend = await this.friendsService.areFriends(user.id, (post.userId as unknown as User).toString()) || false;
+
+      if (!isFriend) {
+        await this.postAccessService.checkAccessPostService(user, post.hashtags);
       }
     }
 
     if (!post.rssfeedProviderId) {
-      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User)._id.toString());
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User).toString());
       if (block) {
         throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
       }
@@ -131,6 +134,7 @@ export class FeedCommentsController {
       message: comment.message,
       userId: comment.userId,
       images: comment.images,
+      isFriend,
     };
   }
 
@@ -139,7 +143,7 @@ export class FeedCommentsController {
   @UseInterceptors(
     ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, MAXIMUM_IMAGE_UPLOAD_SIZE, {
       fileFilter: defaultFileInterceptorFileFilter,
-      }),
+    }),
   )
   async updateFeedComment(
     @Req() request: Request,
@@ -253,7 +257,7 @@ export class FeedCommentsController {
     }
 
     const feedPost = await this.feedPostsService.findById(feedComment.feedPostId.toString(), true);
-    if (feedComment.userId.toString() !== user.id && (feedPost.userId as unknown as User)._id.toString() !== user.id) {
+    if (feedComment.userId.toString() !== user.id && (feedPost.userId as unknown as User).toString() !== user.id) {
       throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
     }
     await this.feedCommentsService.deleteFeedComment(params.feedCommentId);
@@ -265,7 +269,7 @@ export class FeedCommentsController {
   @UseInterceptors(
     ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_IMAGES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, MAXIMUM_IMAGE_UPLOAD_SIZE, {
       fileFilter: defaultFileInterceptorFileFilter,
-      }),
+    }),
   )
   async createFeedReply(
     @Req() request: Request,
@@ -294,19 +298,19 @@ export class FeedCommentsController {
     }
 
     if (!feedPost.rssfeedProviderId) {
-      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User).toString());
       if (block) {
         throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
       }
     }
-
+    let isFriend = true;
     if (
       feedPost.postType !== PostType.MovieReview && !feedPost.rssfeedProviderId
-      && user.id !== (feedPost.userId as unknown as User)._id.toString()
+      && user.id !== (feedPost.userId as unknown as User).toString()
     ) {
-      const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString());
-      if (!areFriends) {
-        throw new HttpException('You can only interact with posts of friends.', HttpStatus.FORBIDDEN);
+      isFriend = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User).toString()) || false;
+      if (!isFriend) {
+        await this.postAccessService.checkAccessPostService(user, feedPost.hashtags);
       }
     }
 
@@ -347,6 +351,7 @@ export class FeedCommentsController {
       message: reply.message,
       userId: reply.userId,
       images: reply.images,
+      isFriend,
     };
   }
 
@@ -355,7 +360,7 @@ export class FeedCommentsController {
   @UseInterceptors(
     ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, MAXIMUM_IMAGE_UPLOAD_SIZE, {
       fileFilter: defaultFileInterceptorFileFilter,
-      }),
+    }),
   )
   async updateFeedReply(
     @Req() request: Request,
@@ -464,7 +469,7 @@ export class FeedCommentsController {
     }
 
     const feedPost = await this.feedPostsService.findById(feedReply.feedPostId.toString(), true);
-    if (feedReply.userId.toString() !== user.id && (feedPost.userId as unknown as User)._id.toString() !== user.id) {
+    if (feedReply.userId.toString() !== user.id && (feedPost.userId as unknown as User).toString() !== user.id) {
       throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
     }
     await this.feedCommentsService.deleteFeedReply(params.feedReplyId);
@@ -483,7 +488,7 @@ export class FeedCommentsController {
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: GetFeedCommentsDto,
   ) {
     const user = getUserFromRequest(request);
-    const feedPost = await this.feedPostsService.findById(query.feedPostId, true);
+    const feedPost = await this.feedPostsService.findByIdWithPopulatedFields(query.feedPostId, true);
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
@@ -564,7 +569,7 @@ export class FeedCommentsController {
     if (!feedCommentWithReplies) {
       throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
     }
-    const feedPost = await this.feedPostsService.findById(feedCommentWithReplies.feedPostId.toString(), true);
+    const feedPost = await this.feedPostsService.findByIdWithPopulatedFields(feedCommentWithReplies.feedPostId.toString(), true);
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
@@ -642,7 +647,7 @@ export class FeedCommentsController {
           feedCommentId: { _id: comment._id.toString() } as unknown as FeedComment,
           senderId: commentCreatorUser._id,
           allUsers: [commentCreatorUser._id as any], // senderId must be in allUsers for old API compatibility
-          notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          notifyType: NotificationType.UserMentionedYouInAComment,
           notificationMsg: 'mentioned you in a comment',
         });
       }
@@ -667,7 +672,7 @@ export class FeedCommentsController {
         feedCommentId: { _id: comment._id } as unknown as FeedComment,
         senderId: commentUpdateUser._id,
         allUsers: [commentUpdateUser._id as any], // senderId must be in allUsers for old API compatibility
-        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        notifyType: NotificationType.UserMentionedYouInAComment,
         notificationMsg: 'mentioned you in a comment',
       });
     }
@@ -679,7 +684,7 @@ export class FeedCommentsController {
 
     // Create notification for post creator, informing them that a reply was added to their post
     const post = await this.feedPostsService.findById(reply.feedPostId.toString(), true);
-    const postCreatorUserId: string = (post.userId as any)._id.toString();
+    const postCreatorUserId: string = (post.userId as any).toString();
     const skipPostCreatorNotification = (
       // Don't send a "replied on your post" notification to the post creator if any of
       // the following conditions apply:
@@ -690,13 +695,13 @@ export class FeedCommentsController {
     if (!skipPostCreatorNotification) {
       userIdsToSkip.push(postCreatorUserId);
       await this.notificationsService.create({
-        userId: (post.userId as unknown as User)._id,
+        userId: post.userId,
         feedPostId: reply.feedPostId as any,
         feedCommentId: reply.feedCommentId as any,
         feedReplyId: reply._id,
         senderId: replyCreatorUser._id,
         allUsers: [replyCreatorUser._id as any], // senderId must be in allUsers for old API compatibility
-        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        notifyType: NotificationType.UserMentionedYouInACommentReply,
         notificationMsg: post.postType === PostType.MovieReview ? commmentOnMovieReview : 'replied to a comment on your post',
       });
     }
@@ -718,7 +723,7 @@ export class FeedCommentsController {
         feedReplyId: reply._id.toString() as any,
         senderId: replyCreatorUser.id,
         allUsers: [replyCreatorUser._id as any], // senderId must be in allUsers for old API compatibility
-        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        notifyType: NotificationType.UserMentionedYouInACommentReply,
         notificationMsg: 'replied to your comment',
       });
     }
@@ -734,7 +739,7 @@ export class FeedCommentsController {
           feedReplyId: reply._id.toString() as any,
           senderId: replyCreatorUser.id,
           allUsers: [replyCreatorUser._id as any], // senderId must be in allUsers for old API compatibility
-          notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          notifyType: NotificationType.UserMentionedYouInAComment,
           notificationMsg: 'mentioned you in a comment',
         });
       }
@@ -760,7 +765,7 @@ export class FeedCommentsController {
         feedReplyId: feedReply._id,
         senderId: replyUpdateUser._id,
         allUsers: [replyUpdateUser._id as any], // senderId must be in allUsers for old API compatibility
-        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        notifyType: NotificationType.UserMentionedYouInAComment,
         notificationMsg: 'mentioned you in a comment',
       });
     }

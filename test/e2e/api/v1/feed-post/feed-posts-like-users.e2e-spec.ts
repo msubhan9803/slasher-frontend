@@ -330,6 +330,18 @@ describe('Feed-Post / Feed Post Like Users (e2e)', () => {
     });
 
     describe('Validation', () => {
+      it('id must be a mongodb id', async () => {
+        const feedPostId = 'not-a-mongo-id';
+        const response = await request(app.getHttpServer())
+          .get(`/api/v1/feed-posts/${feedPostId}/likes?limit=${10}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'id must be a mongodb id',
+        );
+      });
+
       it('return expected response when feed post not found', async () => {
         const nonExistingFeedPostId = new mongoose.Types.ObjectId().toString();
         const response = await request(app.getHttpServer())

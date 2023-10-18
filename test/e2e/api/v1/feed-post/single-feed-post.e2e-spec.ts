@@ -141,6 +141,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
           content: '<p>this is rss <b>feed</b> <span>test<span> </p>',
           title: 'Rss Feed 1',
         },
+        hashtags: [],
         images: [
           {
             image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
@@ -231,6 +232,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
           title: 'RssFeedProvider 2',
         },
         rssFeedId: null,
+        hashtags: [],
         images: [
           {
             image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
@@ -277,6 +279,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         createdAt: expect.any(String),
         rssfeedProviderId: null,
         rssFeedId: null,
+        hashtags: [],
         images: [
           {
             image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
@@ -309,6 +312,20 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         postType: 3,
         message: 'Message 1',
         reviewData: { rating: 5, goreFactorRating: 4, worthWatching: 1 },
+      });
+    });
+
+    describe('Validation', () => {
+      it('id must be a mongodb id', async () => {
+        const feedPostId = 'not-a-mongo-id';
+        const response = await request(app.getHttpServer())
+          .get(`/api/v1/feed-posts/${feedPostId}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'id must be a mongodb id',
+        );
       });
     });
   });

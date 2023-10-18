@@ -5,6 +5,7 @@ export default [
     _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
     likeCount: 0,
     likedByUser: false,
+    hashtags: [],
     userId: {
       _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
       userName: 'Username2',
@@ -33,6 +34,7 @@ export default [
     _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
     likeCount: 0,
     likedByUser: false,
+    hashtags: [],
     userId: {
       _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
       userName: 'Username3',
@@ -62,6 +64,7 @@ export default [
     _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
     likeCount: 0,
     likedByUser: false,
+    hashtags: [],
     userId: {
       _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
       userName: 'Username1',

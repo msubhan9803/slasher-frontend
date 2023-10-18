@@ -149,7 +149,7 @@ describe('Buy List Movies (e2e)', () => {
       it('get all the user buy movies list', async () => {
         const limit = 5;
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/users/${activeUser.id}/buy-list?limit=${limit}&&sortBy=name`)
+          .get(`/api/v1/users/${activeUser.id}/buy-list?limit=${limit}&sortBy=name`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([
@@ -176,7 +176,7 @@ describe('Buy List Movies (e2e)', () => {
         const nonExistentUserId = '5d1df8ebe9a186319c225cd6';
         const limit = 2;
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/users/${nonExistentUserId}/buy-list?limit=${limit}&&sortBy=name`)
+          .get(`/api/v1/users/${nonExistentUserId}/buy-list?limit=${limit}&sortBy=name`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);
@@ -188,7 +188,7 @@ describe('Buy List Movies (e2e)', () => {
 
       it('when name contains supplied than expected all movies response', async () => {
         const limit = 5;
-        const nameContains = 'c';
+        const nameContains = 'cat';
         const response = await request(app.getHttpServer())
           .get(`/api/v1/users/${activeUser.id}/buy-list?limit=${limit}&sortBy=${'rating'}&nameContains=${nameContains}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
@@ -221,7 +221,7 @@ describe('Buy List Movies (e2e)', () => {
           .get(`/api/v1/users/${user1.id}/buy-list?limit=${limit}&sortBy=${'name'}&nameContains=${nameContains}&startsWith=${sortNameStartsWith}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body).toEqual([]);
+        expect(response.body).toHaveLength(0);
       });
 
       it('when startsWith is exist and nameContains is not exist than expected response', async () => {
@@ -236,7 +236,7 @@ describe('Buy List Movies (e2e)', () => {
       });
 
       it('when startsWith and nameContains is exists than expected response', async () => {
-        const nameContains = 'ali';
+        const nameContains = 'li';
         const sortNameStartsWith = 'a';
         const limit = 3;
         const response = await request(app.getHttpServer())
@@ -255,6 +255,18 @@ describe('Buy List Movies (e2e)', () => {
     });
 
     describe('Validation', () => {
+      it('userId must be a mongodb id', async () => {
+        const userId = 'not-a-mongo-id';
+        const response = await request(app.getHttpServer())
+          .get(`/api/v1/users/${userId}/buy-list?limit=10&sortBy=name`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'userId must be a mongodb id',
+        );
+      });
+
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
           .get(`/api/v1/users/${activeUser.id}/buy-list?&sortBy=${'name'}`)

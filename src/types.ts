@@ -39,3 +39,6 @@ export type LikeUserAndFriendship = {
 
 export const CommentsSortBy = ['newestFirst', 'oldestFirst'] as const;
 export type CommentsSortByType = typeof CommentsSortBy[number];
+
+export const HashtagsSortBy = ['name', 'createdAt', 'totalPost', 'deleted'] as const;
+export type HashtagsSortByType = typeof HashtagsSortBy[number];

@@ -138,6 +138,7 @@ describe('All Feed Post (e2e)', () => {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
           ],
+          hashtags: [],
           userId: {
             _id: activeUser.id,
             userName: 'Username1',
@@ -210,6 +211,18 @@ describe('All Feed Post (e2e)', () => {
     });
 
     describe('Validation', () => {
+      it('userId must be a mongodb id', async () => {
+        const userId = 'not-a-mongo-id';
+        const response = await request(app.getHttpServer())
+          .get(`/api/v1/users/${userId}/posts?limit=10`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'userId must be a mongodb id',
+        );
+      });
+
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
           .get(`/api/v1/users/${activeUser.id}/posts`)
@@ -279,6 +292,7 @@ describe('All Feed Post (e2e)', () => {
         userName: 'Username1',
         profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
       },
+      hashtags: [],
       createdAt: expect.any(String),
       likedByUser: true,
       message: expect.any(String),

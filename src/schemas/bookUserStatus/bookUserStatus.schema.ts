@@ -5,8 +5,9 @@ import { User } from '../user/user.schema';
 import {
   BookUserStatusBuy, BookUserStatusFavorites,
   BookUserStatusRead, BookUserStatusReadingList, BookUserStatusDeletionStatus,
-  BookUserStatusRatingStatus, BookUserStatusStatus, WorthReadingStatus,
+  BookUserStatusRatingStatus, BookUserStatusStatus,
 } from './bookUserStatus.enums';
+import { WorthReadingStatus } from '../../types';
 
 @Schema({ timestamps: true })
 export class BookUserStatus {

@@ -33,9 +33,3 @@ export enum BookUserStatusDeletionStatus {
   NotDeleted = 0,
   Deleted = 1,
 }
-
-export enum WorthReadingStatus {
-  NoRating = 0,
-  Down = 1,
-  Up = 2,
-}

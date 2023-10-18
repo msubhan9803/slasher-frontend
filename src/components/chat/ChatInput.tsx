@@ -247,7 +247,8 @@ function ChatInput({
               ref={fileInputElementRef}
               type="file"
               name="files"
-              accept="image/*"
+              // eslint-disable-next-line no-useless-concat
+              accept={'image/' + '*'}
               onChange={
                 (e) => {
                   const newFiles = Array.from(e.target.files as Iterable<File>);

@@ -107,7 +107,7 @@ export function decryptMessage(message: string, isReplaced?: boolean, isEditModa
     });
   const found = message ? replacedContent.replace(
     /##LINK_ID##(\w+)@([a-zA-Z0-9_.-]+)##LINK_END##/g,
-    (match, fullMention, mention) => `${isEditModal ? `@${mention}` : `<a href="/${mention}">@${mention}</a>`}`,
+    (match, fullMention, mention) => `${isEditModal ? `@${mention}` : `<a href="/${mention}/about">@${mention}</a>`}`,
   ) : '';
   return found;
 }

@@ -1,25 +1,22 @@
 /* eslint-disable max-lines */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useRef, useState } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import RoundButton from '../../../components/ui/RoundButton';
 import BooksModal from '../components/BooksModal';
 import BorderButton from '../../../components/ui/BorderButton';
 import CustomRatingText from '../../../components/ui/CustomRatingText';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
-import { BookData, WorthWatchingStatus } from '../../../types';
-import { bookDetail } from '../components/booksList';
+import { BookData, WorthReadingStatus } from '../../../types';
 import ShareLinksModal from '../../../components/ui/ShareLinksModal';
 import { urlForMovie } from '../../../utils/url-utils';
 import { generateAmazonAffiliateLinkForBook, getPrefferedISBN } from '../../../utils/text-utils';
 import { getYearFromString } from '../../../utils/date-utils';
 import WorthWatchIcon, { StyledDislikeIcon, StyledLikeIcon } from '../components/WorthWatchIcon';
-import { createOrUpdateWorthWatching, deleteWorthWatching } from '../../../api/books';
-import { updateMovieUserData } from '../../movies/components/updateMovieDataUtils';
+import { createOrUpdateWorthReading, deleteWorthReading } from '../../../api/books';
 import { updateBookUserData } from '../components/updateBookDataUtils';
 
 interface Props {
@@ -84,12 +81,12 @@ function AboutDetails({
   const [showGoreRating, setShowGoreRating] = useState(false);
   const [showShareLinks, setShowShareLinks] = useState(false);
 
-  const [worthIt, setWorthIt] = useState<WorthWatchingStatus | null>(null);
+  const [worthIt, setWorthIt] = useState<WorthReadingStatus | null>(null);
   const [liked, setLike] = useState<boolean>(
-    bookDetail.userData.worthWatching === WorthWatchingStatus.Up,
+    bookData.userData.worthReading === WorthReadingStatus.Up,
   );
   const [disLiked, setDisLike] = useState<boolean>(
-    bookDetail.userData.worthWatching === WorthWatchingStatus.Down,
+    bookData.userData.worthReading === WorthReadingStatus.Down,
   );
   const params = useParams();
   const navigate = useNavigate();
@@ -97,14 +94,14 @@ function AboutDetails({
 
   useEffect(() => {
     if (params.id && worthIt !== null) {
-      if (worthIt === WorthWatchingStatus.NoRating) {
-        deleteWorthWatching(params.id)
+      if (worthIt === WorthReadingStatus.NoRating) {
+        deleteWorthReading(params.id)
           .then((res) => {
-            updateBookUserData(res.data, 'worthWatching', setBookData!);
+            updateBookUserData(res.data, 'worthReading', setBookData!);
           });
       } else {
-        createOrUpdateWorthWatching(params.id, worthIt).then((res) => {
-          updateBookUserData(res.data, 'worthWatching', setBookData!);
+        createOrUpdateWorthReading(params.id, worthIt).then((res) => {
+          updateBookUserData(res.data, 'worthReading', setBookData!);
         });
       }
     }
@@ -119,8 +116,8 @@ function AboutDetails({
     }
   };
 
-  const hasRating = bookDetail.userData !== null && bookDetail.userData?.rating !== 0;
-  const hasGoreFactor = bookDetail.userData !== null && bookDetail.userData?.goreFactorRating !== 0;
+  const hasRating = bookData.userData !== null && bookData.userData?.rating !== 0;
+  const hasGoreFactor = bookData.userData !== null && bookData.userData?.goreFactorRating !== 0;
   const to = generateAmazonAffiliateLinkForBook(bookData.name, bookData.author?.join(', '));
   const isbn = getPrefferedISBN(bookData.isbnNumber);
   const year = getYearFromString(bookData.publishDate);
@@ -203,17 +200,17 @@ function AboutDetails({
           <div className="d-flex justify-content-between d-md-block align-items-center mx-2 mx-lg-0">
             <p className="fw-bold text-md-center mb-0 mb-md-3">User rating</p>
 
-            {bookDetail.ratingUsersCount === 0
+            {bookData.ratingUsersCount === 0
               ? <p className="fw-bold m-0 align-self-center text-light text-center">Not yet rated</p>
               : (
                 <div className="d-flex mt-md-3 justify-content-md-center">
                   <CustomRatingText
-                    rating={bookDetail.rating}
+                    rating={bookData.rating}
                     icon={solid('star')}
                     ratingType="star"
                     customWidth="1.638rem"
                     customHeight="1.563rem"
-                    ratingCount={`(${bookDetail.ratingUsersCount ? bookDetail.ratingUsersCount : 0})`}
+                    ratingCount={`(${bookData.ratingUsersCount ? bookData.ratingUsersCount : 0})`}
                   />
                 </div>
               )}
@@ -225,11 +222,8 @@ function AboutDetails({
               iconClass="me-2"
               iconStyle={{ color: hasRating ? 'var(--bs-orange)' : 'white' }}
               iconSize="sm"
-              lable={hasRating ? String(bookDetail.userData ? bookDetail.userData?.rating : 'Rate') : 'Rate'}
-              handleClick={() => {
-                setShowRating(true);
-                //  setShowReviewForm!(false);
-              }}
+              lable={hasRating ? String(bookData.userData ? bookData.userData?.rating : 'Rate') : 'Rate'}
+              handleClick={() => { setShowRating(true); setShowReviewForm!(false); }}
             />
           </div>
           <div id="reviewSmallBUtton" className="d-flex justify-content-center my-3 d-md-none ">
@@ -247,7 +241,7 @@ function AboutDetails({
           <StyledVerticalBorder className="mt-4 mt-md-0">
             <p className="fw-bold text-center">Worth watching?</p>
             <div className="d-flex justify-content-center" style={{ height: 30 }}>
-              {bookDetail.worthWatching === WorthWatchingStatus.Up
+              {bookData.worthReading === WorthReadingStatus.Up
                 && (
                   <>
                     <StyledLikeIcon className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
@@ -256,7 +250,7 @@ function AboutDetails({
                     <p className="fw-bold m-0 align-self-center" style={{ color: 'var(--bs-success)' }}>Worth it!</p>
                   </>
                 )}
-              {bookDetail.worthWatching === WorthWatchingStatus.Down
+              {bookData.worthReading === WorthReadingStatus.Down
                 && (
                   <>
                     <StyledDislikeIcon role="button" className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
@@ -266,7 +260,7 @@ function AboutDetails({
                   </>
                 )}
 
-              {bookDetail.worthWatching === WorthWatchingStatus.NoRating
+              {bookData.worthReading === WorthReadingStatus.NoRating
                 && <div className="fw-bold m-0 align-self-center text-light text-center">Not yet rated</div>}
             </div>
 
@@ -285,17 +279,17 @@ function AboutDetails({
         </Col>
         <Col xs={6} md={3} className="p-0 mt-4 mt-md-0">
           <p className="fs-3 fw-bold text-center">Gore factor</p>
-          {bookDetail.goreFactorRatingUsersCount === 0
+          {bookData.goreFactorRatingUsersCount === 0
             ? <p className="fs-3 fw-bold m-0 align-self-center text-light text-center">Not yet rated</p>
             : (
               <div className="mt-2 d-flex justify-content-center">
                 <CustomRatingText
-                  rating={bookDetail.userData ? bookDetail.userData?.goreFactorRating : 0}
+                  rating={bookData.userData ? bookData.userData?.goreFactorRating : 0}
                   icon={solid('burst')}
                   ratingType="burst"
                   customWidth="1.638rem"
                   customHeight="1.563rem"
-                  ratingCount={`(${bookDetail.goreFactorRatingUsersCount ? bookDetail.goreFactorRatingUsersCount : 0})`}
+                  ratingCount={`(${bookData.goreFactorRatingUsersCount ? bookData.goreFactorRatingUsersCount : 0})`}
                 />
               </div>
             )}
@@ -306,7 +300,7 @@ function AboutDetails({
               icon={solid('burst')}
               iconClass={`me-2 ${hasGoreFactor ? 'text-primary' : ''}`}
               iconSize="sm"
-              lable={hasGoreFactor ? String(bookDetail.userData ? bookDetail.userData?.goreFactorRating : 'Rate') : 'Rate'}
+              lable={hasGoreFactor ? String(bookData.userData ? bookData.userData?.goreFactorRating : 'Rate') : 'Rate'}
               handleClick={() => {
                 setShowGoreRating(true);
                 // setShowReviewForm!(false);
@@ -338,8 +332,8 @@ function AboutDetails({
         </div>
         <StyledBorder className="d-md-none my-3" />
       </Row>
-      {showRating && <BooksModal rateType="rating" show={showRating} setShow={setShowRating} bookData={bookDetail} setBookData={() => { }} ButtonType="rating" hasRating={hasRating} />}
-      {showGoreRating && <BooksModal rateType="goreFactorRating" show={showGoreRating} setShow={setShowGoreRating} bookData={bookDetail} setBookData={() => { }} ButtonType="goreFactorRating" hasGoreFactor={hasGoreFactor} />}
+      {showRating && <BooksModal rateType="rating" show={showRating} setShow={setShowRating} bookData={bookData} setBookData={setBookData} ButtonType="rating" hasRating={hasRating} />}
+      {showGoreRating && <BooksModal rateType="goreFactorRating" show={showGoreRating} setShow={setShowGoreRating} bookData={bookData} setBookData={setBookData} ButtonType="goreFactorRating" hasGoreFactor={hasGoreFactor} />}
       {showShareLinks
         && (
           <ShareLinksModal

@@ -36,13 +36,13 @@ export async function createOrUpdateGoreFactor(id: string, goreFactorRating: num
 
   return axios.put(`${apiUrl}/api/v1/books/${id}/gore-factor`, { goreFactorRating }, { headers });
 }
-export async function createOrUpdateWorthWatching(id: string, worthWatching: number) {
+export async function createOrUpdateWorthReading(id: string, worthReading: number) {
   const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
 
-  return axios.put(`${apiUrl}/api/v1/books/${id}/worth-watching`, { worthWatching }, { headers });
+  return axios.put(`${apiUrl}/api/v1/books/${id}/worth-reading`, { worthReading }, { headers });
 }
 export async function deleteRating(id: string) {
   const token = await getSessionToken();
@@ -60,11 +60,11 @@ export async function deleteGoreFactor(id: string) {
 
   return axios.delete(`${apiUrl}/api/v1/books/${id}/gore-factor`, { headers });
 }
-export async function deleteWorthWatching(id: string) {
+export async function deleteWorthReading(id: string) {
   const token = await getSessionToken();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
 
-  return axios.delete(`${apiUrl}/api/v1/books/${id}/worth-watching`, { headers });
+  return axios.delete(`${apiUrl}/api/v1/books/${id}/worth-reading`, { headers });
 }

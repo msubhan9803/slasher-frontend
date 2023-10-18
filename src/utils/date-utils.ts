@@ -83,7 +83,8 @@ export const toUtcEndOfDay = (date: Date) => DateTime.now().setZone('utc').set({
 export const getYearFromString = (dateString: string): number | null => {
   // eslint-disable-next-line prefer-regex-literals
   const yearPattern = new RegExp('\\d{4}');
-  const match = dateString.match(yearPattern);
+  // eslint-disable-next-line no-debugger
+  const match = dateString?.match(yearPattern);
   if (match) {
     return Number(match[0]);
   }

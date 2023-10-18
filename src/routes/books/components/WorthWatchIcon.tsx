@@ -93,21 +93,21 @@ function WorthWatchIcon({
     }
   }, [setLike, setDisLike, isWorthIt]);
   useEffect(() => {
-    if (bookData?.userData.worthWatching === WorthWatchingStatus.Up) {
+    if (bookData?.userData.worthReading === WorthWatchingStatus.Up) {
       setLike(true);
       setDisLike(false);
     }
-    if (bookData?.userData.worthWatching === WorthWatchingStatus.Down) {
+    if (bookData?.userData.worthReading === WorthWatchingStatus.Down) {
       setDisLike(true);
       setLike(false);
     }
-    if (bookData?.userData.worthWatching === WorthWatchingStatus.NoRating) {
+    if (bookData?.userData.worthReading === WorthWatchingStatus.NoRating) {
       setLike(false);
       setDisLike(false);
     }
-  }, [setLike, setDisLike, bookData?.userData.worthWatching]);
+  }, [setLike, setDisLike, bookData?.userData.worthReading]);
   const handleThumbsUp = useCallback(() => {
-    const alreadyLiked = clickType === 'form' ? isWorthIt === WorthWatchingStatus.Up : bookData?.userData.worthWatching === WorthWatchingStatus.Up;
+    const alreadyLiked = clickType === 'form' ? isWorthIt === WorthWatchingStatus.Up : bookData?.userData.worthReading === WorthWatchingStatus.Up;
     if (alreadyLiked) {
       setLike(false); setDisLike(false);
       setWorthIt(WorthWatchingStatus.NoRating);
@@ -115,10 +115,10 @@ function WorthWatchIcon({
       setLike(true); setDisLike(false);
       setWorthIt(WorthWatchingStatus.Up);
     }
-  }, [bookData?.userData.worthWatching, setLike, setDisLike, setWorthIt, clickType, isWorthIt]);
+  }, [bookData?.userData.worthReading, setLike, setDisLike, setWorthIt, clickType, isWorthIt]);
 
   const handleThumbsDown = useCallback(() => {
-    const alreadyDisLiked = clickType === 'form' ? isWorthIt === WorthWatchingStatus.Down : bookData?.userData.worthWatching === WorthWatchingStatus.Down;
+    const alreadyDisLiked = clickType === 'form' ? isWorthIt === WorthWatchingStatus.Down : bookData?.userData.worthReading === WorthWatchingStatus.Down;
     if (alreadyDisLiked) {
       setLike(false); setDisLike(false);
       setWorthIt(WorthWatchingStatus.NoRating);
@@ -126,7 +126,7 @@ function WorthWatchIcon({
       setLike(false); setDisLike(true);
       setWorthIt(WorthWatchingStatus.Down);
     }
-  }, [bookData?.userData.worthWatching, setLike, setDisLike, setWorthIt, clickType, isWorthIt]);
+  }, [bookData?.userData.worthReading, setLike, setDisLike, setWorthIt, clickType, isWorthIt]);
 
   return (
     <div className="me-1 d-flex align-items-center justify-content-around">
@@ -140,7 +140,7 @@ function WorthWatchIcon({
           && (
             <p className="m-0 fs-3 text-light d-flex align-items-center">
               (
-              {bookData!.worthWatchingUpUsersCount ? bookData!.worthWatchingUpUsersCount : 0}
+              {bookData!.worthReadingUpUsersCount ? bookData!.worthReadingUpUsersCount : 0}
               )
             </p>
           )}
@@ -155,7 +155,7 @@ function WorthWatchIcon({
           && (
             <p className="m-0 fs-3 text-light d-flex align-items-center">
               (
-              {bookData!.worthWatchingDownUsersCount ? bookData!.worthWatchingDownUsersCount : 0}
+              {bookData!.worthReadingDownUsersCount ? bookData!.worthReadingDownUsersCount : 0}
               )
             </p>
           )}

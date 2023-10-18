@@ -16,15 +16,15 @@ type GoreRatingUpdate = {
     goreFactorRating: number,
   }
 };
-type WorthWatchUpdate = {
-  worthWatching: number,
-  worthWatchingUpUsersCount: number,
-  worthWatchingDownUsersCount: number,
+type WorthReadingUpdate = {
+  worthReading: number,
+  worthReadingUpUsersCount: number,
+  worthReadingDownUsersCount: number,
   userData: {
-    worthWatching: number,
+    worthReading: number,
   },
 };
-type RateType = 'rating' | 'goreFactorRating' | 'worthWatching';
+type RateType = 'rating' | 'goreFactorRating' | 'worthReading';
 type SetBookData = React.Dispatch<React.SetStateAction<BookData | undefined>>;
 
 export const updateBookUserData = (update: any, rateType: RateType, setBookData: SetBookData) => {
@@ -51,20 +51,20 @@ export const updateBookUserData = (update: any, rateType: RateType, setBookData:
         userData: { ...prevBookData.userData!, goreFactorRating: userData.goreFactorRating },
       });
     }
-    if (rateType === 'worthWatching') {
+    if (rateType === 'worthReading') {
       const {
-        worthWatching, worthWatchingUpUsersCount, worthWatchingDownUsersCount, userData,
-      } = update as WorthWatchUpdate;
+        worthReading, worthReadingUpUsersCount, worthReadingDownUsersCount, userData,
+      } = update as WorthReadingUpdate;
 
       if (!prevBookData) { return prevBookData; }
       return ({
         ...prevBookData,
-        worthWatching,
-        worthWatchingUpUsersCount,
-        worthWatchingDownUsersCount,
+        worthReading,
+        worthReadingUpUsersCount,
+        worthReadingDownUsersCount,
         userData: {
           ...prevBookData.userData!,
-          worthWatching: userData.worthWatching,
+          worthReading: userData.worthReading,
         },
       });
     }

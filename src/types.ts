@@ -306,6 +306,11 @@ export enum WorthWatchingStatus {
   Down = 1,
   Up = 2,
 }
+export enum WorthReadingStatus {
+  NoRating = 0,
+  Down = 1,
+  Up = 2,
+}
 export enum PostType {
   User = 1,
   News = 2,
@@ -345,21 +350,21 @@ export interface BookData {
   author: string[],
   name: string,
   covers: number[],
-  // ** RATING/GORE-FACTOR/WORTH-WATCHING FIELDS **
+  // ** RATING/GORE-FACTOR/WORTH-READING FIELDS **
   // ratings
   rating: number;
   goreFactorRating: number;
-  worthWatching: number;
-  // number of users who rated for `rating`, `goreFactorRating` and `worthWatching`
+  worthReading: number;
+  // number of users who rated for `rating`, `goreFactorRating` and `worthReading`
   ratingUsersCount: number;
   goreFactorRatingUsersCount: number;
-  worthWatchingUpUsersCount: number;
-  worthWatchingDownUsersCount: number;
+  worthReadingUpUsersCount: number;
+  worthReadingDownUsersCount: number;
   // ratings by logged-in user
   userData: {
     rating: number;
     goreFactorRating: number;
-    worthWatching: number;
+    worthReading: number;
     reviewPostId: string;
   },
   // to check movieData state update

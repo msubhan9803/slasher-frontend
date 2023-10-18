@@ -284,7 +284,7 @@ export class BooksService {
         const bookDataObject: Partial<BookDocument> = {
           type: BookType.OpenLibrary,
         };
-        const [keyDataResolved, editionKeyDataResolved]: any = await Promise.allSettled([
+        const [keyDataSettled, editionKeyDataSettled]: any = await Promise.allSettled([
           lastValueFrom(
             this.httpService.get<any>(`https://openlibrary.org/${searchBooksData[i].key}.json`),
           ),
@@ -298,12 +298,12 @@ export class BooksService {
         bookDataObject.coverEditionKey = searchBooksData[i].cover_edition_key;
         bookDataObject.author = searchBooksData[i]?.author_name ?? [];
         // From `keyData` API
-        const keyData = keyDataResolved.status === 'fulfilled' && keyDataResolved.value;
+        const keyData = (keyDataSettled.status === 'fulfilled') ? keyDataSettled.value : null;
         if (keyData) {
           bookDataObject.description = keyData.data?.description?.value ?? keyData.data?.description;
         }
         // From `editionKeyData` API
-        const editionKeyData = editionKeyDataResolved.status === 'fulfilled' && editionKeyDataResolved.value;
+        const editionKeyData = (editionKeyDataSettled.status === 'fulfilled') ? editionKeyDataSettled.value : null;
         if (editionKeyData) {
           bookDataObject.name = editionKeyData.data.title;
           bookDataObject.covers = editionKeyData.data.covers;
@@ -318,9 +318,14 @@ export class BooksService {
           }
         }
 
-        mainBookArray.push(bookDataObject);
+        // Note: We only add book to `mainBookArray` if all required fields are present in `bookDataObject` i.e, name, coverEditionKey, etc
+        if (bookDataObject.name && bookDataObject.coverEditionKey) {
+          mainBookArray.push(bookDataObject);
+        }
       }
-      await this.booksModel.insertMany(mainBookArray);
+      if (mainBookArray.length !== 0) {
+        await this.booksModel.insertMany(mainBookArray);
+      }
       return {
         success: true,
         message: 'Successfully completed the cron job',

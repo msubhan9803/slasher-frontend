@@ -38,7 +38,7 @@ export class BooksController {
 
   @Get()
   async index() {
-    const books = await this.booksService.findAll(10, true, 'name');
+    const books = await this.booksService.findAll(100, true, 'name');
     return books.map((bookData) => pick(
       bookData,
       ['_id', 'name', 'author', 'description', 'numberOfPages', 'isbnNumber', 'publishDate', 'covers'],

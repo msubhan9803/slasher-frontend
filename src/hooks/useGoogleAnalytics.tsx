@@ -1,51 +1,41 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import useScript from './useScript';
-import { useAppDispatch } from '../redux/hooks';
-import { setIsGoogleAnalyticsReady } from '../redux/slices/googleAnalyticsSlice';
-import { gtag, sendUserPropertiesToGoogleAnalyticsOnPageLoad } from '../utils/google-analytics-utils';
+import { initializeFirebase } from '../utils/initFirebaseAnalytics';
 
-declare global {
-  interface Window {
-    dataLayer: any;
-  }
-}
-
-const useGoogleAnalytics = (analyticsId?: string) => {
+const useGoogleAnalytics = () => {
   const location = useLocation();
-  const isLoaded = useScript(`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`, Boolean(!analyticsId));
   const previousPathRef = useRef<string>();
-  const dispatch = useAppDispatch();
 
   const { pathname, search, hash } = location;
 
-  const DISABLE_HOOK = typeof analyticsId === 'undefined';
-
   useEffect(() => {
-    if (isLoaded) {
-      dispatch(setIsGoogleAnalyticsReady());
-      sendUserPropertiesToGoogleAnalyticsOnPageLoad();
-    }
-  }, [dispatch, isLoaded]);
+    const logAnalyticsEvent = async () => {
+      try {
+        // Initialize Firebase Analytics
+        const firebaseApp = await initializeFirebase();
 
-  useEffect(() => {
-    if (DISABLE_HOOK) { return; }
-    if (!isLoaded) { return; }
+        const currentPath = pathname + search + hash;
+        if (previousPathRef.current === currentPath) {
+          return;
+        }
+        previousPathRef.current = currentPath;
 
-    window.dataLayer = window.dataLayer || [];
+        // Now, you can use the firebaseApp instance for logging events
+        firebaseApp.logEvent({
+          name: 'page_view',
+          params: {
+            page_location: window.location.href,
+            page_title: 'Avadh',
+          },
+        });
+      } catch (error) {
+      // eslint-disable-next-line no-console
+        console.error('Error initializing Firebase Analytics:', error);
+      }
+    };
 
-    const currentPath = pathname + search + hash;
-    if (previousPathRef.current === currentPath) { return; }
-    previousPathRef.current = currentPath;
-
-    gtag('js', new Date()); // necessary
-    gtag('config', analyticsId); // necessary
-
-    gtag('event', 'page_view', {
-      page_location: window.location.href,
-      page_title: document.title,
-    });
-  }, [location, isLoaded, analyticsId, hash, pathname, search, DISABLE_HOOK]);
+    logAnalyticsEvent();
+  }, [location, hash, pathname, search]);
 };
 
 export default useGoogleAnalytics;

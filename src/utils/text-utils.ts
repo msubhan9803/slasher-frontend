@@ -11,12 +11,27 @@ export function findFirstYouTubeLinkVideoId(message: string) {
   return message?.match(YOUTUBE_LINK_REGEX)?.[6];
 }
 
-export function escapeHtmlSpecialCharacters(str: string) {
-  return str?.replaceAll('&', '&amp;')
+export function escapeHtmlSpecialCharacters(
+  str: string,
+  selectedHashtag?: string,
+  hashtags?: string[],
+) {
+  const hashtagRegex = /#([\w-]+)/g;
+
+  let result = str?.replaceAll('&', '&amp;')
     ?.replaceAll('<', '&lt;')
     ?.replaceAll('>', '&gt;')
     ?.replaceAll('"', '&quot;')
     ?.replaceAll("'", '&#039;');
+  if (selectedHashtag && hashtags) {
+    result = result.replace(hashtagRegex, (match) => {
+      const hashtag = match.slice(1).toLowerCase();
+      return hashtags.includes(hashtag)
+        ? `<a href="/app/search/posts?hashtag=${hashtag}" style="text-decoration: underline; font-weight:${selectedHashtag === match && '700'}">${match}</a>`
+        : match;
+    });
+  }
+  return result;
 }
 
 /**
@@ -93,7 +108,7 @@ export function decryptMessage(message: string, isReplaced?: boolean, isEditModa
     });
   const found = message ? replacedContent.replace(
     /##LINK_ID##(\w+)@([a-zA-Z0-9_.-]+)##LINK_END##/g,
-    (match, fullMention, mention) => `${isEditModal ? `@${mention}` : `<a href="/${mention}">@${mention}</a>`}`,
+    (match, fullMention, mention) => `${isEditModal ? `@${mention}` : `<a href="/${mention}/about">@${mention}</a>`}`,
   ) : '';
   return found;
 }

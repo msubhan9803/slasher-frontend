@@ -58,6 +58,7 @@ import CapacitorAppListeners from './components/CapacitorAppListeners';
 import DebugGoogleAnalytics from './routes/debug-google-analytics';
 import { detectAppVersion } from './utils/version-utils';
 import { enableADs, enableDevFeatures } from './env';
+import Admin from './routes/admin/Admin';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -76,6 +77,7 @@ interface TopLevelRoute {
 const routes: Record<string, TopLevelRoute> = {
   ':userName/*': { wrapper: AuthenticatedPageWrapper, component: Profile },
   ':userName': { wrapper: UnauthenticatedPageWrapper, component: PublicProfile, wrapperProps: { hideTopLogo: true, hideFooter: true } },
+  'app/admin/*': { wrapper: AuthenticatedPageWrapper, component: Admin },
   'app/home': { wrapper: AuthenticatedPageWrapper, component: Home },
   'app/search/*': { wrapper: AuthenticatedPageWrapper, component: Search },
   'app/messages': { wrapper: AuthenticatedPageWrapper, component: Messages },

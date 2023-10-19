@@ -61,10 +61,10 @@ function BorderButton({
       <StyleBorderButton
         customcss={customButtonCss}
         onClick={handleClick}
-        className={`rounded-pill ${toggleBgColor ? 'bg-primary border-primary' : 'bg-black'} ${buttonClass}`}
+        className={`rounded-pill ${toggleBgColor ? 'bg-black' : 'bg-primary border-primary'} ${buttonClass}`}
         variant={variant}
       >
-        {toggleBgColor ? 'Follow' : 'Unfollow'}
+        {toggleBgColor ? 'Unfollow' : 'Follow'}
       </StyleBorderButton>
     ) : (
       <StyleBorderButton

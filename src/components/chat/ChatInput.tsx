@@ -67,6 +67,9 @@ const StyledTextareaAutosize = styled(TextareaAutosize)`
   cursor: auto
 `;
 
+const CAMERA_BUTTON_ID = 'upload-button';
+const SEND_MESSAGE_BUTTON_ID = 'send-message-button-id';
+
 function ChatInput({
   onSubmit, onFocus, onBlur, onRemoveFile, placeholder, errorsToDisplay, isFocused, setIsFocused,
 }: Props) {
@@ -234,6 +237,7 @@ function ChatInput({
             type="button"
             variant="link"
             className="upload-button"
+            id={CAMERA_BUTTON_ID}
             onClick={(e) => { e.preventDefault(); fileInputElementRef.current?.click(); }}
           >
             <FontAwesomeIcon icon={solid('camera')} size="lg" />
@@ -307,12 +311,23 @@ function ChatInput({
           onChange={handleMessage}
           onMouseUp={handleCursorChange}
           onFocus={() => { onFocus(); setIsFocused(true); }}
-          onBlur={() => { onBlur(); }}
+          onBlur={(e) => {
+            onBlur();
+            const el = e.relatedTarget as any;
+            const isCameraButtonClick = el?.id === CAMERA_BUTTON_ID;
+            const isMessageSendButtonClick = el?.id === SEND_MESSAGE_BUTTON_ID;
+
+            const isButtonClick = isCameraButtonClick || isMessageSendButtonClick;
+            if (!isButtonClick) {
+              setIsFocused(false);
+            }
+          }}
           onKeyDown={handleTextareaKeyDown}
         />
         <div className="ps-3">
           <Button
             type="submit"
+            id={SEND_MESSAGE_BUTTON_ID}
             variant="link"
             aria-label="submit"
             className="submit-button"

@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import { signIn } from '../../api/users';
 import { setSignInCookies } from '../../utils/session-utils';
 import slasherLogo from '../../images/slasher-beta-logo-medium.png';
-import signInImageMobile from '../../images/sign-in-background-beta-mobile.jpg';
+import signInImageMobile from '../../images/sign-in-background-mobile.jpg';
 import { LG_MEDIA_BREAKPOINT, SERVER_UNAVAILABLE_TIMEOUT } from '../../constants';
 import SigninComponent from '../../components/ui/SigninComponent';
 import useSessionToken from '../../hooks/useSessionToken';

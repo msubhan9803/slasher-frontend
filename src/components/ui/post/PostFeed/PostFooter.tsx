@@ -104,7 +104,7 @@ function PostFooter({
               </Link>
             )
             : (
-              <Button variant="link" onClick={onCommentClick}>
+              <Button className="p-0" variant="link" onClick={onCommentClick}>
                 <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
                 <span className="fs-3 d-none d-md-inline d-lg-none d-xl-inline me-2">Comment</span>
                 <StyleDot icon={solid('circle')} size="xs" className="py-1 me-2" />

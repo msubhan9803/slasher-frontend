@@ -16,7 +16,9 @@ import { reportData } from '../../../../api/report';
 import ReportModal from '../../ReportModal';
 import EditCommentModal from '../../editCommentModal';
 import ErrorMessageList from '../../ErrorMessageList';
-import { CHOOSE_FILE_CAMERA_ICON, COMMENT_SECTION_ID, SEND_BUTTON_COMMENT_OR_REPLY } from '../../../../constants';
+import {
+  CHOOSE_FILE_CAMERA_ICON, COMMENT_OR_REPLY_INPUT, COMMENT_SECTION_ID, SEND_BUTTON_COMMENT_OR_REPLY,
+} from '../../../../constants';
 import { onKeyboardClose, onKeyboardOpen } from '../../../../utils/styles-utils ';
 import { decryptMessage, replyMentionFormat } from '../../../../utils/text-utils';
 
@@ -106,7 +108,7 @@ function PostCommentSection({
 
   const clearErrorMessages = useCallback((e: MouseEvent) => {
     if (!e.target) { return; }
-    const commentOrReplyTextInput = document.getElementById('comment-or-reply-input');
+    const commentOrReplyTextInput = document.getElementById(COMMENT_OR_REPLY_INPUT);
     if (!commentOrReplyTextInput) { return; }
 
     const isClickedOnTextInput = e.y > commentOrReplyTextInput.offsetTop;

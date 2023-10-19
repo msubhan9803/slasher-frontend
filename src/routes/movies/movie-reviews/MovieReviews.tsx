@@ -31,6 +31,7 @@ import useProgressButton from '../../../components/ui/ProgressButton';
 import { sleep } from '../../../utils/timer-utils';
 import { atMentionsGlobalRegex, decryptMessage, generateMentionReplacementMatchFunc } from '../../../utils/text-utils';
 import FriendshipStatusModal from '../../../components/ui/friendShipCheckModal';
+import { useAppSelector } from '../../../redux/hooks';
 
 type Props = {
   movieData: MovieData;
@@ -88,6 +89,8 @@ function MovieReviews({
     hasPageStateCache(location)
       ? ReviewsCache : [],
   );
+  const userData = useAppSelector((state) => state.user.user);
+
   const navigate = useNavigate();
   const handleCreateInput = () => {
     setShowReviewForm(true);
@@ -132,6 +135,7 @@ function MovieReviews({
           contentHeading: data.title,
           movieId: id,
           spoilers: data.spoilers,
+          hashtags: data.hashtags,
         }));
         setReviewPostData(newPosts);
       });
@@ -293,6 +297,7 @@ function MovieReviews({
           contentHeading: data.title,
           movieId: id,
           spoilers: data.spoilers,
+          hashtags: data?.hashtags,
         }));
         setReviewPostData((prev: Post[]) => [
           ...prev,
@@ -398,45 +403,62 @@ function MovieReviews({
     setShow(false);
   };
 
+  const handlePostDislike = (feedPostId: string) => {
+    setReviewPostData((prevReviewPostData: any) => prevReviewPostData.map((reviewPost: Post) => {
+      if (reviewPost._id === feedPostId) {
+        return {
+          ...reviewPost,
+          likeIcon: true,
+          likedByUser: true,
+          likeCount: reviewPost.likeCount + 1,
+        };
+      }
+      return reviewPost;
+    }));
+  };
+
+  const handlePostLike = (feedPostId: string) => {
+    setReviewPostData((prevReviewPostData: any) => prevReviewPostData.map(
+      (reviewPost: Post) => {
+        if (reviewPost._id === feedPostId) {
+          return {
+            ...reviewPost,
+            likeIcon: false,
+            likedByUser: false,
+            likeCount: reviewPost.likeCount - 1,
+          };
+        }
+        return reviewPost;
+      },
+    ));
+  };
+
   const onLikeClick = async (feedPostId: string) => {
     const checkLike = reviewPostData.some((post: any) => post.id === feedPostId
       && post.likeIcon);
+
     if (checkLike) {
-      unlikeFeedPost(feedPostId).then((res) => {
-        if (res.status === 200) {
-          const unLikePostData = reviewPostData.map(
-            (unLikePost: Post) => {
-              if (unLikePost._id === feedPostId) {
-                return {
-                  ...unLikePost,
-                  likeIcon: false,
-                  likedByUser: false,
-                  likeCount: unLikePost.likeCount - 1,
-                };
-              }
-              return unLikePost;
-            },
-          );
-          setReviewPostData(unLikePostData);
-        }
-      });
+      handlePostLike(feedPostId);
     } else {
-      likeFeedPost(feedPostId).then((res) => {
-        if (res.status === 201) {
-          const likePostData = reviewPostData.map((likePost: Post) => {
-            if (likePost._id === feedPostId) {
-              return {
-                ...likePost,
-                likeIcon: true,
-                likedByUser: true,
-                likeCount: likePost.likeCount + 1,
-              };
-            }
-            return likePost;
-          });
-          setReviewPostData(likePostData);
-        }
-      });
+      handlePostDislike(feedPostId);
+    }
+
+    const revertOptimisticUpdate = () => {
+      if (checkLike) {
+        handlePostDislike(feedPostId);
+      } else {
+        handlePostLike(feedPostId);
+      }
+    };
+
+    try {
+      if (checkLike) {
+        await unlikeFeedPost(feedPostId);
+      } else {
+        await likeFeedPost(feedPostId);
+      }
+    } catch (error) {
+      revertOptimisticUpdate();
     }
   };
   return (
@@ -521,7 +543,7 @@ function MovieReviews({
         )
       }
 
-      {friendShipStatusModal && (
+      {friendShipStatusModal && !userData.ignoreFriendSuggestionDialog && (
         <FriendshipStatusModal
           friendShipStatusModal={friendShipStatusModal}
           setFriendShipStatusModal={setFriendShipStatusModal}

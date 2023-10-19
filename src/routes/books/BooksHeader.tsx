@@ -18,7 +18,7 @@ const bookTabs = [
 ];
 const sortoptions = [
   { value: 'name', label: 'Sort: Alphabetical' },
-  { value: 'releaseDate', label: 'Sort: Release Date' },
+  { value: 'publishDate', label: 'Sort: Publish Date' },
   { value: 'rating', label: 'Sort: User Rating' },
 ];
 function BooksHeader({

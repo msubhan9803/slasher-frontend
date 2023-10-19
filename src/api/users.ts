@@ -372,7 +372,6 @@ export async function resetPassword(
     },
   );
 }
-
 export async function addHashtags(
   hashtags: string[],
 ) {
@@ -429,4 +428,29 @@ export async function getSingleHashtagDetail(
     Authorization: `Bearer ${token}`,
   };
   return axios.get(`${apiUrl}/api/v1/users/${userId}/hashtag-follows/${hashtag}`, { headers });
+}
+
+export async function getUserBookList(
+  name: string,
+  search: string,
+  userId: string,
+  sortVal: string,
+  key: string,
+  lastRetrievedMovieId?: string | null,
+) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  let queryParameter = `?limit=10&sortBy=${sortVal}`;
+  if (lastRetrievedMovieId) {
+    queryParameter += `&after=${lastRetrievedMovieId}`;
+  }
+  if (search) {
+    queryParameter += `&nameContains=${encodeURIComponent(search)}`;
+  }
+  if (key) {
+    queryParameter += `&startsWith=${encodeURIComponent(key)}`;
+  }
+  return axios.get(`${apiUrl}/api/v1/users/${userId}/${name}${queryParameter}`, { headers });
 }

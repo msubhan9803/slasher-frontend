@@ -21,6 +21,7 @@ import BookReviews from '../book-reviews/BookReviews';
 import { enableDevFeatures } from '../../../env';
 import { getCoverImageForBook } from '../../../utils/text-utils';
 import { BookData } from '../../../types';
+import { addBookUserStatus, deleteBookUserStatus, getBooksIdList } from '../../../api/books';
 
 const StyledBookPoster = styled.div`
   aspect-ratio: 0.67;
@@ -49,6 +50,7 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
   const [searchParams] = useSearchParams();
   const [reviewForm, setReviewForm] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [bookIdList, setBookIdList] = useState();
   const queryParam = searchParams.get('view');
   // const loginUserId = useAppSelector((state) => state.user.user.id);
   const selfView = false;
@@ -60,17 +62,61 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
   });
   const [bgColor, setBgColor] = useState<boolean>(false);
   const [bookIconListData, setbookIconListData] = useState(BookIconList);
-  const handleBookAddRemove = (labelName: string) => {
-    const tempBookIconList = [...bookIconListData];
-    tempBookIconList.map((iconList) => {
-      const tempBookIcon = iconList;
-      if (tempBookIcon.label === labelName) {
-        tempBookIcon.addBook = !tempBookIcon.addBook;
-      }
-      return tempBookIcon;
-    });
-    setbookIconListData(tempBookIconList);
+  const handleBookAddRemove = (labelName: string, isFavorite: boolean) => {
+    if (params.id && !isFavorite) {
+      addBookUserStatus(params.id, labelName)
+        .then((res) => {
+          if (res.data.success) {
+            const tempMovieIconList = [...bookIconListData];
+            tempMovieIconList.forEach((movieIcon) => {
+              if (movieIcon.key === labelName) {
+                // eslint-disable-next-line no-param-reassign
+                movieIcon.addBook = !movieIcon.addBook;
+              }
+            });
+            setbookIconListData(tempMovieIconList);
+          }
+        });
+    } else if (params.id && isFavorite) {
+      deleteBookUserStatus(params.id, labelName)
+        .then((res) => {
+          if (res.data.success) {
+            const tempMovieIconList = [...bookIconListData];
+            tempMovieIconList.forEach((movieIcon) => {
+              if (movieIcon.key === labelName) {
+                // eslint-disable-next-line no-param-reassign
+                movieIcon.addBook = !movieIcon.addBook;
+              }
+            });
+            setbookIconListData(tempMovieIconList);
+          }
+        });
+    }
   };
+
+  useEffect(() => {
+    if (params) {
+      getBooksIdList(params.id)
+        .then((res) => setBookIdList(res.data));
+    }
+  }, [params]);
+
+  useEffect(() => {
+    const updateMovieIconList = () => {
+      if (bookIdList) {
+        bookIconListData.forEach((bookIcon) => {
+          const { key } = bookIcon;
+          if (key in bookIdList) {
+            // eslint-disable-next-line no-param-reassign
+            bookIcon.addBook = !!bookIdList[key];
+          }
+        });
+        setbookIconListData(bookIconListData);
+      }
+    };
+    updateMovieIconList();
+  }, [bookIdList, bookIconListData, setbookIconListData]);
+
   return (
     <div>
       <div className="bg-dark p-4 pb-0 rounded-2 mb-3">
@@ -91,7 +137,10 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
                     width={iconList.width}
                     height={iconList.height}
                     addData={iconList.addBook}
-                    onClickIcon={handleBookAddRemove}
+                    onClickIcon={() => handleBookAddRemove(
+                      iconList.key,
+                      iconList.addBook,
+                    )}
                   />
                 ))}
               </div>
@@ -124,7 +173,10 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
                   width={iconList.width}
                   height={iconList.height}
                   addData={iconList.addBook}
-                  onClickIcon={() => handleBookAddRemove(iconList.label)}
+                  onClickIcon={() => handleBookAddRemove(
+                    iconList.key,
+                    iconList.addBook,
+                  )}
                 />
               ))}
             </div>

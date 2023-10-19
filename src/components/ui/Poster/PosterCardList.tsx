@@ -24,6 +24,7 @@ interface CardListProps {
   _id?: string | null;
   logo?: string;
   releaseDate?: string;
+  publishDate?: string;
   worthWatching?: number;
   isDeactivate?: boolean;
 }

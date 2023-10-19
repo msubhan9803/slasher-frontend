@@ -13,6 +13,7 @@ export type Book = {
 
 export interface BookIconProps {
   label: string;
+  key: string;
   icon: IconDefinition;
   iconColor: string;
   margin?: string;

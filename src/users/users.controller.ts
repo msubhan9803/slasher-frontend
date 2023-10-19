@@ -1056,18 +1056,8 @@ post,
       query.startsWith,
     );
 
-    books.forEach((book) => {
-      if (book.logo?.length > 1) {
-        // eslint-disable-next-line no-param-reassign
-        book.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${book.logo}`;
-      }
-      if (book.logo === null) {
-        // eslint-disable-next-line no-param-reassign
-        book.logo = relativeToFullImagePath(this.configService, '/placeholders/book_poster.png');
-      }
-    });
     return books.map(
-      (book) => pick(book, ['_id', 'name', 'logo', 'publishDate', 'rating', 'worthReading']),
+      (book) => pick(book, ['_id', 'name', 'covers', 'publishDate', 'rating', 'worthReading']),
     );
   }
 
@@ -1104,18 +1094,8 @@ post,
       readBookIds as unknown as mongoose.Types.ObjectId[],
       query.startsWith,
     );
-    books.forEach((book) => {
-      if (book.logo?.length > 1) {
-        // eslint-disable-next-line no-param-reassign
-        book.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${book.logo}`;
-      }
-      if (book.logo === null) {
-        // eslint-disable-next-line no-param-reassign
-        book.logo = relativeToFullImagePath(this.configService, '/placeholders/book_poster.png');
-      }
-    });
     return books.map(
-      (book) => pick(book, ['_id', 'name', 'logo', 'publishDate', 'rating', 'worthReading']),
+      (book) => pick(book, ['_id', 'name', 'covers', 'publishDate', 'rating', 'worthReading']),
     );
   }
 
@@ -1154,18 +1134,8 @@ post,
       query.startsWith,
     );
 
-    books.forEach((book) => {
-      if (book.logo?.length > 1) {
-        // eslint-disable-next-line no-param-reassign
-        book.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${book.logo}`;
-      }
-      if (book.logo === null) {
-        // eslint-disable-next-line no-param-reassign
-        book.logo = relativeToFullImagePath(this.configService, '/placeholders/book_poster.png');
-      }
-    });
     return books.map(
-      (book) => pick(book, ['_id', 'name', 'logo', 'publishDate', 'rating', 'worthReading']),
+      (book) => pick(book, ['_id', 'name', 'covers', 'publishDate', 'rating', 'worthReading']),
     );
   }
 
@@ -1202,19 +1172,8 @@ post,
       favoriteBookIds as unknown as mongoose.Types.ObjectId[],
       query.startsWith,
     );
-
-    books.forEach((book) => {
-      if (book.logo?.length > 1) {
-        // eslint-disable-next-line no-param-reassign
-        book.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${book.logo}`;
-      }
-      if (book.logo === null) {
-        // eslint-disable-next-line no-param-reassign
-        book.logo = relativeToFullImagePath(this.configService, '/placeholders/book_poster.png');
-      }
-    });
     return books.map(
-      (book) => pick(book, ['_id', 'name', 'logo', 'publishDate', 'rating', 'worthReading']),
+      (book) => pick(book, ['_id', 'name', 'covers', 'publishDate', 'rating', 'worthReading']),
     );
   }
 

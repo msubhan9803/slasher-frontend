@@ -136,7 +136,6 @@ function BookReview({
     });
   };
 
-
   useLayoutEffect(() => {
     if ((location.state && location.state.movieId && location.state.movieId.length) || reviewForm) {
       setShowReviewForm(true);

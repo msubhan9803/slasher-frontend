@@ -37,7 +37,8 @@ import { NotificatationOfHashtagFollowPost } from '../jobs/consumers/notificatio
     ChatModule,
     MongooseModule.forFeature([{ name: Message.name, schema: MessageSchema }]),
   ],
-  providers: [MessageCountUpdateConsumer, DeleteUserDataConsumer,NotificationCreationConsumer, NotificatationOfHashtagFollowPost, ChatGateway],
+  providers: [MessageCountUpdateConsumer, DeleteUserDataConsumer, NotificationCreationConsumer, NotificatationOfHashtagFollowPost,
+    ChatGateway],
   exports: [BullModule, ChatGateway],
 })
 export class QueuedJobsModule { }

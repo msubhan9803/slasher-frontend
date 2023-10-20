@@ -97,7 +97,7 @@ function AllBooks() {
       const dataList = res.data.map((book: any) => ({
         _id: book._id,
         name: book.name,
-        logo: getCoverImageForBook(book.covers[0]),
+        logo: book?.coverImage?.image_path,
         year: book.publishDate,
         liked: false,
 

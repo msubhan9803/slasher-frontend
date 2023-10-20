@@ -352,7 +352,7 @@ export interface BookData {
   deleted: number,
   author: string[],
   name: string,
-  covers: number[],
+  coverImage: { image_path: string },
   // ** RATING/GORE-FACTOR/WORTH-READING FIELDS **
   // ratings
   rating: number;

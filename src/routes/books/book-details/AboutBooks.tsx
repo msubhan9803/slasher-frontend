@@ -19,7 +19,6 @@ import RoundButton from '../../../components/ui/RoundButton';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
 import BookReviews from '../book-reviews/BookReviews';
 import { enableDevFeatures } from '../../../env';
-import { getCoverImageForBook } from '../../../utils/text-utils';
 import { BookData } from '../../../types';
 import { addBookUserStatus, deleteBookUserStatus, getBooksIdList } from '../../../api/books';
 import BookReviewDetails from '../book-reviews/BookReviewDetails';
@@ -125,7 +124,7 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
         <Row className="justify-content-center">
           <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
             <StyledBookPoster className="mx-md-4">
-              <Image src={getCoverImageForBook(bookData.covers[0])} className="rounded-4 w-100 h-100" alt="Book poster" />
+              <Image src={bookData?.coverImage?.image_path} className="rounded-4 w-100 h-100" alt="Book poster" />
             </StyledBookPoster>
             <div className="d-none d-xl-block mt-3">
               <span className="h3">Your lists</span>

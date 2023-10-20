@@ -11,20 +11,20 @@ import AboutBooks from './AboutBooks';
 import { enableDevFeatures } from '../../../env';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../../pageStateCache';
-import { BookData, BookPageCache } from '../../../types';
+import {
+  BookPageCache,
+} from '../../../types';
 import { getBookById } from '../../../api/books';
 
 function BookDetails() {
   const location = useLocation();
-  // const pageStateCache: BookPageCache = getPageStateCache(location)
-  //   ?? { movieData: undefined, additionalMovieData: undefined };
-
+  const pageStateCache: BookPageCache = getPageStateCache(location)
+    ?? { bookData: undefined, additionalBookData: undefined };
   const params = useParams();
-  const [bookData, setBookData] = useState<BookData | undefined>();
-  // TODO: fix page state cache
-  // const [bookData, setBookData] = useState<BookData | undefined>(
-  //   hasPageStateCache(location) ? pageStateCache.movieData : undefined,
-  // );
+  const [bookData, setBookData] = useState<any | undefined>(
+    hasPageStateCache(location) ? pageStateCache.bookData : undefined,
+  );
+
   useEffect(() => {
     if (params.id && !bookData) {
       getBookById(params.id)
@@ -32,9 +32,9 @@ function BookDetails() {
           setBookData(res.data as any);
           // TODO: fix page state cache
           // Update `pageStateCache`
-          // setPageStateCache<BookPageCache>(location, {
-          //   ...getPageStateCache(location), movieData: res.data,
-          // });
+          setPageStateCache<BookPageCache>(location, {
+            ...getPageStateCache(location), additionalBookData: res.data,
+          });
         });
     }
   }, [location, bookData, params]);
@@ -56,12 +56,15 @@ function BookDetails() {
         <Container fluid className="mb-5">
           {enableDevFeatures
             && (
-            <>
-              <RoundButton className="d-lg-none w-100 my-3">Add your book</RoundButton>
-              <h1 className="text-center text-primary h3 d-lg-none">Claim this listing</h1>
-            </>
+              <>
+                <RoundButton className="d-lg-none w-100 my-3">Add your book</RoundButton>
+                <h1 className="text-center text-primary h3 d-lg-none">Claim this listing</h1>
+              </>
             )}
-          <AboutBooks bookData={bookData} setBookData={setBookData} />
+          <AboutBooks
+            bookData={bookData}
+            setBookData={setBookData}
+          />
         </Container>
       </ContentPageWrapper>
       <RightSidebarWrapper>

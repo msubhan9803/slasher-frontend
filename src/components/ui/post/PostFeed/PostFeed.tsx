@@ -225,7 +225,6 @@ function PostContent({
 
     return arrayWithJsx.join('').toString();
   };
-
   return (
     <div>
       {postType === 'review' && (
@@ -534,6 +533,7 @@ function PostFeed({
                       handleLikeModal={handleLikeModal}
                       postType={postType}
                       movieId={post.movieId}
+                      bookId={post?.bookId}
                       detailsPage={isSinglePost}
                       onCommentClick={handleComment}
                     />

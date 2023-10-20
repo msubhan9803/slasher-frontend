@@ -317,6 +317,7 @@ export enum PostType {
   User = 1,
   News = 2,
   MovieReview = 3,
+  BookReview = 4,
 }
 export interface MovieData {
   movieDBId: number;
@@ -408,8 +409,8 @@ export type MoviePageCache = {
 
 // Cache type for Book related data (page = http://localhost:3000/app/book/64477b42b12f5efbb3468ff4/reviews)
 export type BookPageCache = {
-  movieData: MovieData,
-  additionalMovieData: AdditionalMovieData,
+  bookData: any,
+  additionalBookData: any,
   reviews: any
 };
 

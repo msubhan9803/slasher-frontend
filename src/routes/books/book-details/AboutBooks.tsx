@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Col, Image, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import {
@@ -11,7 +11,7 @@ import TabLinks from '../../../components/ui/Tabs/TabLinks';
 import { BookIconProps } from '../components/BookProps';
 import BookEdit from '../book-edit/BookEdit';
 import BookOverview from './BookOverview';
-import { BookIconList, bookDetail } from '../components/booksList';
+import { BookIconList } from '../components/booksList';
 import BookPosts from '../book-posts/BookPosts';
 import BorderButton from '../../../components/ui/BorderButton';
 import CustomGroupIcons from '../../../components/ui/CustomGroupIcons';
@@ -22,6 +22,7 @@ import { enableDevFeatures } from '../../../env';
 import { getCoverImageForBook } from '../../../utils/text-utils';
 import { BookData } from '../../../types';
 import { addBookUserStatus, deleteBookUserStatus, getBooksIdList } from '../../../api/books';
+import BookReviewDetails from '../book-reviews/BookReviewDetails';
 
 const StyledBookPoster = styled.div`
   aspect-ratio: 0.67;
@@ -93,7 +94,8 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
         });
     }
   };
-
+  const reviewButtonRef = useRef<HTMLDivElement>(null);
+  const reviewSmallButtonRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (params) {
       getBooksIdList(params.id)
@@ -151,11 +153,11 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
           </Col>
           <Col xl={7}>
             <AboutDetails
+              setReviewForm={setReviewForm}
               bookData={bookData}
               setBookData={setBookData}
-              // reviewForm={reviewForm}
-              setReviewForm={setReviewForm}
-              // showReviewForm={showReviewForm}
+              reviewButtonRef={reviewButtonRef}
+              reviewSmallButtonRef={reviewSmallButtonRef}
               setShowReviewForm={setShowReviewForm}
             />
           </Col>
@@ -239,14 +241,15 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
             <BookReviews
               reviewForm={reviewForm}
               setReviewForm={setReviewForm}
-              bookReviewData={bookDetail}
-              setBookReviewData={() => { }}
+              bookReviewData={bookData}
+              setBookReviewData={setBookData}
               handleScroll={() => { }}
               showReviewForm={showReviewForm}
               setShowReviewForm={setShowReviewForm}
             />
           )}
         />
+        <Route path="reviews/:postId" element={<BookReviewDetails />} />
         <Route path="edit" element={<BookEdit />} />
       </Routes>
     </div>

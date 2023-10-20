@@ -5,12 +5,12 @@ import PostDetail from '../../../components/ui/post/PostDetail';
 const StyledReviewContainer = styled.div`
   min-height:100vh;
 `;
-function MovieReviewDetails() {
+function BookReviewDetails() {
   return (
     <StyledReviewContainer>
-      <PostDetail postType="movie-review" />
+      <PostDetail postType="book-review" />
     </StyledReviewContainer>
   );
 }
 
-export default MovieReviewDetails;
+export default BookReviewDetails;

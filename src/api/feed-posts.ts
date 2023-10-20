@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import axios from 'axios';
 import { apiUrl } from '../env';
 import { getSessionToken } from '../utils/session-utils';
@@ -38,7 +39,7 @@ export async function createPost(
   }
   formData.append('message', postData.message);
   formData.append('postType', postData.postType);
-  if (postData.movieId) {
+  if (postData.movieId && PostType.MovieReview) {
     formData.append('movieId', postData.movieId);
   }
   if (postData.postType === PostType.MovieReview) {
@@ -48,14 +49,31 @@ export async function createPost(
     // adding `movieId` to `formData` for feature: `share-movie-as-a-post`
     if (!formDataHasMovieId) { formData.append('movieId', postData.movieId); }
   }
-  if (postData.rate) {
+  if (postData.rate && postData.postType === PostType.MovieReview) {
     formData.append('moviePostFields[rating]', postData.rate);
   }
-  if (postData.goreFactorRate) {
+  if (postData.goreFactorRate && postData.postType === PostType.MovieReview) {
     formData.append('moviePostFields[goreFactorRating]', postData.goreFactorRate);
   }
-  if (postData.worthIt) {
+  if (postData.worthIt && postData.postType === PostType.MovieReview) {
     formData.append('moviePostFields[worthWatching]', postData.worthIt);
+  }
+
+  if (postData.postType === PostType.BookReview) {
+    formData.append('bookPostFields[spoilers]', postData.spoiler);
+    const formDataHasMovieId = formData.has('postId');
+    // Check before adding movieId to `formData` as we're already
+    // adding `movieId` to `formData` for feature: `share-movie-as-a-post`
+    if (!formDataHasMovieId) { formData.append('bookId', postData.postId); }
+  }
+  if (postData.rate && postData.postType === PostType.BookReview) {
+    formData.append('bookPostFields[rating]', postData.rate);
+  }
+  if (postData.goreFactorRate && postData.postType === PostType.BookReview) {
+    formData.append('bookPostFields[goreFactorRating]', postData.goreFactorRate);
+  }
+  if (postData.worthIt && postData.postType === PostType.BookReview) {
+    formData.append('bookPostFields[worthWatching]', postData.worthIt);
   }
 
   const headers = {
@@ -70,7 +88,7 @@ export async function updateFeedPost(
   message: string,
   file?: string[],
   imagesToDelete?: string[] | undefined,
-  movieReviewPostData?: any,
+  reviewPostData?: any,
   descriptionArray?: ContentDescription[] | any,
 ) {
   const token = await getSessionToken();
@@ -94,18 +112,31 @@ export async function updateFeedPost(
       formData.append('imagesToDelete', imagesToDelete[i]);
     }
   }
-  if (movieReviewPostData?.postType === PostType.MovieReview) {
-    formData.append('moviePostFields[spoilers]', movieReviewPostData.spoiler);
-    formData.append('movieId', movieReviewPostData.movieId);
+  if (reviewPostData?.postType === PostType.MovieReview) {
+    formData.append('moviePostFields[spoilers]', reviewPostData.spoiler);
+    formData.append('movieId', reviewPostData.movieId);
   }
-  if (movieReviewPostData?.rate) {
-    formData.append('moviePostFields[rating]', movieReviewPostData.rate);
+  if (reviewPostData?.postType === PostType.MovieReview && reviewPostData?.rate) {
+    formData.append('moviePostFields[rating]', reviewPostData.rate);
   }
-  if (movieReviewPostData?.goreFactorRate) {
-    formData.append('moviePostFields[goreFactorRating]', movieReviewPostData.goreFactorRate);
+  if (reviewPostData?.postType === PostType.MovieReview && reviewPostData?.goreFactorRate) {
+    formData.append('moviePostFields[goreFactorRating]', reviewPostData.goreFactorRate);
   }
-  if (typeof movieReviewPostData?.worthIt === 'number') {
-    formData.append('moviePostFields[worthWatching]', movieReviewPostData.worthIt);
+  if (reviewPostData?.postType === PostType.MovieReview && typeof reviewPostData?.worthIt === 'number') {
+    formData.append('moviePostFields[worthWatching]', reviewPostData.worthIt);
+  }
+  if (reviewPostData?.postType === PostType.BookReview) {
+    formData.append('bookPostFields [spoilers]', reviewPostData.spoiler);
+    formData.append('bookId', reviewPostData.postId);
+  }
+  if (reviewPostData?.postType === PostType.BookReview && reviewPostData?.rate) {
+    formData.append('bookPostFields [rating]', reviewPostData.rate);
+  }
+  if (reviewPostData?.postType === PostType.BookReview && reviewPostData?.goreFactorRate) {
+    formData.append('bookPostFields [goreFactorRating]', reviewPostData.goreFactorRate);
+  }
+  if (reviewPostData?.postType === PostType.BookReview && typeof reviewPostData?.worthIt === 'number') {
+    formData.append('bookPostFields [worthWatching]', reviewPostData.worthIt);
   }
   const headers = {
     'Content-Type': 'multipart/form-data',
@@ -153,6 +184,18 @@ export async function getMovieReview(postId: string, lastRetrievedPostId?: strin
   return axios.get(`${apiUrl}/api/v1/feed-posts/${postId}/reviews${queryParameter}`, { headers });
 }
 
+export async function getBookReview(postId: string, lastRetrievedPostId?: string) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  const limit = 10;
+  let queryParameter = `?limit=${limit}`;
+  if (lastRetrievedPostId) {
+    queryParameter += `&before=${lastRetrievedPostId}`;
+  }
+  return axios.get(`${apiUrl}/api/v1/feed-posts/${postId}/bookreviews${queryParameter}`, { headers });
+}
 export async function getHashtagPostList(hashTag: string, lastRetrievedPostId?: string) {
   const token = await getSessionToken();
   const headers = {

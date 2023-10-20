@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Col, Row } from 'react-bootstrap';
@@ -23,7 +23,9 @@ interface Props {
   bookData: BookData,
   setBookData: React.Dispatch<React.SetStateAction<BookData | undefined>>
   setReviewForm: (val: boolean) => void;
-  setShowReviewForm: (val: boolean) => void;
+  reviewButtonRef?: any;
+  reviewSmallButtonRef?: any;
+  setShowReviewForm?: (value: boolean) => void;
 }
 const StyleWatchWorthIcon = styled(FontAwesomeIcon)`
   width: 0.995rem;
@@ -75,7 +77,8 @@ const StyledVerticalBorder = styled.div`
 `;
 
 function AboutDetails({
-  bookData, setBookData, setReviewForm, setShowReviewForm,
+  bookData, setBookData, setReviewForm, setShowReviewForm, reviewButtonRef,
+  reviewSmallButtonRef,
 }: Props) {
   const [showRating, setShowRating] = useState(false);
   const [showGoreRating, setShowGoreRating] = useState(false);
@@ -90,7 +93,6 @@ function AboutDetails({
   );
   const params = useParams();
   const navigate = useNavigate();
-  const reviewButtonRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (params.id && worthIt !== null) {
@@ -226,7 +228,7 @@ function AboutDetails({
               handleClick={() => { setShowRating(true); setShowReviewForm!(false); }}
             />
           </div>
-          <div id="reviewSmallBUtton" className="d-flex justify-content-center my-3 d-md-none ">
+          <div ref={reviewSmallButtonRef} id="reviewSmallBUtton" className="d-flex justify-content-center my-3 d-md-none ">
             <RoundButton
               className="w-100 fw-bold"
               onClick={() => { handleReviwRedirect(); }}
@@ -345,5 +347,9 @@ function AboutDetails({
     </AboutBookDetails>
   );
 }
-
+AboutDetails.defaultProps = {
+  reviewButtonRef: null,
+  reviewSmallButtonRef: null,
+  setShowReviewForm: undefined,
+};
 export default AboutDetails;

@@ -165,7 +165,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   }, [commentData, postId]);
   // eslint-disable-next-line max-len
   const checkFriendShipStatus = useCallback((feedPostUserId: any) => new Promise<void>((resolve, reject) => {
-    if (postType === 'news' || postType === 'review' || userData.user.id === feedPostUserId) {
+    if (postType === 'news' || postType === 'book-review' || postType === 'movie-review' || userData.user.id === feedPostUserId) {
       resolve();
     } else {
       friendship(feedPostUserId).then((res) => {
@@ -477,13 +477,21 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           if (partnerId !== res.data.rssfeedProviderId?._id && !queryCommentId) {
             navigate(`/app/news/partner/${res.data.rssfeedProviderId?._id}/posts/${postId}`);
           }
-        } else if (postType === 'review') {
+        } else if (postType === 'movie-review') {
           if (queryCommentId && queryReplyId) {
             navigate(`/app/movies/${res.data.movieId._id}/reviews/${postId}?commentId=${queryCommentId}&replyId=${queryReplyId}`);
           } else if (queryCommentId) {
             navigate(`/app/movies/${res.data.movieId._id}/reviews/${postId}?commentId=${queryCommentId}`);
           } else {
             navigate(`/app/movies/${res.data.movieId._id}/reviews/${postId}`);
+          }
+        } else if (postType === 'book-review') {
+          if (queryCommentId && queryReplyId) {
+            navigate(`/app/books/${res.data.bookId._id}/reviews/${postId}?commentId=${queryCommentId}&replyId=${queryReplyId}`);
+          } else if (queryCommentId) {
+            navigate(`/app/books/${res.data.bookId._id}/reviews/${postId}?commentId=${queryCommentId}`);
+          } else {
+            navigate(`/app/books/${res.data.bookId._id}/reviews/${postId}`);
           }
         } else if (!isPostDetailsPage(location.pathname)) {
           // Only navigate to post-details page if necessary (fix bug of forward-browser history
@@ -509,7 +517,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             likedByUser: res.data.likedByUser,
             rssfeedProviderId: res.data.rssfeedProviderId?._id,
           };
-        } else if (postType === 'review') {
+        } else if (postType === 'movie-review') {
           post = {
             _id: res.data._id,
             id: res.data._id,
@@ -530,6 +538,27 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             spoilers: res.data.spoilers,
             movieId: res.data.movieId._id,
             hashtags: res.data?.hashtags,
+          };
+        } else if (postType === 'book-review') {
+          post = {
+            _id: res.data._id,
+            id: res.data._id,
+            postDate: res.data.createdAt,
+            message: res.data.message,
+            images: res.data.images,
+            userName: res.data.userId.userName,
+            profileImage: res.data.userId.profilePic,
+            userId: res.data.userId._id,
+            likeIcon: res.data.likedByUser,
+            likeCount: res.data.likeCount,
+            commentCount: res.data.commentCount,
+            rating: res.data?.reviewData?.rating || 0,
+            goreFactor: res.data?.reviewData?.goreFactorRating || 0,
+            worthWatching: res.data?.reviewData?.worthWatching || 0,
+            contentHeading: res.data.title,
+            bookId: res.data.bookId._id,
+            spoilers: res.data.spoilers,
+            hashtags: res.data.hashtags,
           };
         } else {
           // Regular post
@@ -1113,7 +1142,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
               escapeHtml={postType === 'news' ? false : undefined}
               handleSearch={handleSearch}
               mentionList={mentionList}
-              postType={postType}
+              postType={postType === 'news' ? 'news' : 'reviews'}
               commentImages={commentImages}
               setCommentImages={setCommentImages}
               commentError={commentErrorMessage}

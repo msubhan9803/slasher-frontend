@@ -46,7 +46,7 @@ export class TasksService {
     if (!force && !this.configService.get<boolean>('CRON_ENABLED')) { return; }
     this.logger.debug('Start cron: syncWithTheBookDb');
 
-    const { success, error } = await this.booksService.syncWithTheBookDb();
+    const { success, error } = await this.booksService.syncWithOpenLibrary();
 
     if (success) {
       this.logger.debug('End cron: syncWithTheBookDb (success)');

@@ -1,9 +1,10 @@
 /* eslint-disable max-lines */
 import {
   Body,
-  Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Put, Req, ValidationPipe,
+  Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Put, Query, Req, ValidationPipe,
 } from '@nestjs/common';
 import { Request } from 'express';
+import mongoose from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
 import { BooksService } from './providers/books.service';
@@ -19,6 +20,7 @@ import { relativeToFullImagePath } from '../utils/image-utils';
 import { BookUserStatus } from '../schemas/bookUserStatus/bookUserStatus.schema';
 import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 import { CreateOrUpdateWorthReadingDto } from './dto/create-or-update-worth-reading-dto';
+import { FindAllBooksDto } from './dto/find-all-books.dto';
 
 @Controller({ path: 'books', version: ['1'] })
 export class BooksController {
@@ -37,8 +39,14 @@ export class BooksController {
   }
 
   @Get()
-  async index() {
-    const books = await this.booksService.findAll(10, true, 'name');
+  async findAll(@Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: FindAllBooksDto) {
+    const books = await this.booksService.findAll(query.limit,
+      true,
+      query.sortBy,
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
+      query.nameContains,
+      null,
+      query.startsWith,);
     return books.map((bookData) => pick(
       bookData,
       ['_id', 'name', 'author', 'description', 'numberOfPages', 'isbnNumber', 'publishDate', 'covers'],
@@ -69,12 +77,12 @@ export class BooksController {
     type UserData = Partial<BookUserStatus>;
     // assign default values for simplistic usage in client side
     let userData: UserData = {
-      rating: 0, goreFactorRating: 0, worthWatching: 0, ...reviewPostId,
+      rating: 0, goreFactorRating: 0, worthReading: 0, ...reviewPostId,
     };
 
     let bookUserStatus: any = await this.booksService.getUserBookStatusRatings(params.id, user.id);
     if (bookUserStatus) {
-      bookUserStatus = pick(bookUserStatus, ['rating', 'goreFactorRating', 'worthWatching']);
+      bookUserStatus = pick(bookUserStatus, ['rating', 'goreFactorRating', 'worthReading']);
       userData = { ...userData, ...bookUserStatus };
     }
 
@@ -89,7 +97,7 @@ export class BooksController {
     }, [
       ...bookRelatedFields,
       'rating', 'ratingUsersCount', 'goreFactorRating',
-      'goreFactorRatingUsersCount', 'worthWatching', 'worthWatchingUpUsersCount', 'worthWatchingDownUsersCount', 'userData',
+      'goreFactorRatingUsersCount', 'worthReading', 'worthReadingUpUsersCount', 'worthReadingDownUsersCount', 'userData',
     ]);
   }
 

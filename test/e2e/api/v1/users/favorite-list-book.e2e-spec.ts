@@ -149,7 +149,7 @@ describe('Favorite List Books (e2e)', () => {
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             name: book3.name,
-            logo: 'http://localhost:4444/placeholders/book_poster.png',
+            covers: [],
             publishDate: expect.any(String),
             rating: 0,
             worthReading: WorthReadingStatus.NoRating,
@@ -157,7 +157,7 @@ describe('Favorite List Books (e2e)', () => {
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             name: book2.name,
-            logo: 'http://localhost:4444/placeholders/book_poster.png',
+            covers: [],
             publishDate: expect.any(String),
             rating: 0,
             worthReading: WorthReadingStatus.NoRating,
@@ -217,7 +217,7 @@ describe('Favorite List Books (e2e)', () => {
         expect(response.body).toEqual([{
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           name: book3.name,
-          logo: 'http://localhost:4444/placeholders/book_poster.png',
+          covers: [],
           publishDate: expect.any(String),
           rating: 0,
           worthReading: WorthReadingStatus.NoRating,
@@ -257,7 +257,7 @@ describe('Favorite List Books (e2e)', () => {
         expect(response.body).toEqual([{
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           name: book2.name,
-          logo: 'http://localhost:4444/placeholders/book_poster.png',
+          covers: [],
           publishDate: expect.any(String),
           rating: 0,
           worthReading: WorthReadingStatus.NoRating,

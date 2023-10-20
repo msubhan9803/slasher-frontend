@@ -208,7 +208,7 @@ describe('Watched List Movies (e2e)', () => {
 
       it('when name contains supplied than expected all movies response', async () => {
         const limit = 5;
-        const nameContains = 'c';
+        const nameContains = 'cat';
         const response = await request(app.getHttpServer())
           .get(`/api/v1/users/${activeUser.id}/watched-list?limit=${limit}&sortBy=${'rating'}&nameContains=${nameContains}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
@@ -241,7 +241,7 @@ describe('Watched List Movies (e2e)', () => {
           .get(`/api/v1/users/${activeUser.id}/watched-list?limit=${limit}&sortBy=${'name'}&nameContains=${nameContains}&startsWith=${sortNameStartsWith}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body).toEqual([]);
+        expect(response.body).toHaveLength(0);
       });
 
       it('when startsWith is exist and nameContains is not exist than expected response', async () => {
@@ -256,7 +256,7 @@ describe('Watched List Movies (e2e)', () => {
       });
 
       it('when startsWith and nameContains is exists than expected response', async () => {
-        const nameContains = 'ali';
+        const nameContains = 'li';
         const sortNameStartsWith = 'a';
         const limit = 3;
         const response = await request(app.getHttpServer())

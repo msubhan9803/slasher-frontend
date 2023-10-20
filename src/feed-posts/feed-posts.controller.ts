@@ -5,6 +5,8 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import mongoose from 'mongoose';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { getUserFromRequest } from '../utils/request-utils';
@@ -20,7 +22,7 @@ import {
 } from '../constants';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import {
- FeedPostDeletionState, FeedPostPrivacyType, PostType,
+  FeedPostDeletionState, FeedPostPrivacyType, PostType,
 } from '../schemas/feedPost/feedPost.enums';
 import { NotificationType } from '../schemas/notification/notification.enums';
 import { NotificationsService } from '../notifications/providers/notifications.service';
@@ -34,17 +36,21 @@ import { LikesLimitOffSetDto } from './dto/likes-limit-offset-query.dto';
 import { FriendsService } from '../friends/providers/friends.service';
 import { MoviesService } from '../movies/providers/movies.service';
 import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
+import { HashtagService } from '../hashtag/providers/hashtag.service';
 import { AllFeedPostQueryDto } from './dto/all-feed-posts-query.dto';
+import { HashtagDto } from './dto/hashtag.dto';
 import { MovieIdDto } from './dto/movie-id.dto';
 import { MovieUserStatusService } from '../movie-user-status/providers/movie-user-status.service';
 import { User, UserDocument } from '../schemas/user/user.schema';
 import { getPostType } from '../utils/post-utils';
 import { UsersService } from '../users/providers/users.service';
 import { UserFollowService } from '../user-follow/providers/userFollow.service';
+import { HashtagFollowsService } from '../hashtag-follows/providers/hashtag-follows.service';
 
 @Controller({ path: 'feed-posts', version: ['1'] })
 export class FeedPostsController {
   constructor(
+    @InjectQueue('hashtag-follow-post') private sendNotificationOfHashtagFollowPost: Queue,
     private readonly feedPostsService: FeedPostsService,
     private readonly config: ConfigService,
     private readonly localStorageService: LocalStorageService,
@@ -53,10 +59,12 @@ export class FeedPostsController {
     private readonly notificationsService: NotificationsService,
     private readonly blocksService: BlocksService,
     private readonly friendsService: FriendsService,
+    private readonly hashtagService: HashtagService,
     private readonly moviesService: MoviesService,
     private readonly movieUserStatusService: MovieUserStatusService,
     private readonly usersService: UsersService,
     private readonly userFollowService: UserFollowService,
+    private readonly hashtagFollowsService: HashtagFollowsService,
   ) { }
 
   @TransformImageUrls('$.images[*].image_path')
@@ -85,7 +93,7 @@ export class FeedPostsController {
       );
     }
 
-    if (files && files.length && files.length && files?.length !== createFeedPostsDto.imageDescriptions?.length) {
+    if (files && files.length && files?.length !== createFeedPostsDto.imageDescriptions?.length) {
       throw new HttpException(
         'files length and imagesDescriptions length should be same',
         HttpStatus.BAD_REQUEST,
@@ -106,10 +114,38 @@ export class FeedPostsController {
       images.push({ image_path: storageLocation, description: imageDescriptions });
     }
 
+    let hashtags; let message; let allUserIds = [];
+    if (createFeedPostsDto.message && createFeedPostsDto.message.includes('#')) {
+      const hashtagRegex = /(?<![?#])#(?![?#])\w+\b/g;
+      const matchedHashtags = createFeedPostsDto.message.match(hashtagRegex);
+      if (matchedHashtags && matchedHashtags.length) {
+        const findHashtag = matchedHashtags.map((match) => match.slice(1).toLowerCase().replace(/([^\w\s]|_)+\d*$/, ''));
+        if (findHashtag && findHashtag.length > 10) {
+          throw new HttpException(
+            'you can not add more than 10 hashtags on a post',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+        hashtags = [...new Set(findHashtag)];
+      } else {
+        hashtags = [];
+      }
+
+      const allHashTags = await this.hashtagService.createOrUpdateHashtags(hashtags);
+      const hashtagIds = allHashTags.map((i) => i._id);
+      allUserIds = await this.hashtagFollowsService.sendNotificationOfHashtagFollows(hashtagIds, user);
+      const hashTagNames = allHashTags.map((hashTag) => `#${hashTag.name}`).join(' ');
+      message = `added a new post with ${hashTagNames}`;
+    }
+
     const feedPost = new FeedPost(createFeedPostsDto);
     feedPost.images = images;
     feedPost.userId = user._id;
+    feedPost.hashtags = hashtags;
     feedPost.postType = createFeedPostsDto.postType;
+    if (user.profile_status === ProfileVisibility.Private) {
+      feedPost.privacyType = FeedPostPrivacyType.Private;
+    }
 
     if (user.profile_status === ProfileVisibility.Private) {
       feedPost.privacyType = FeedPostPrivacyType.Private;
@@ -151,9 +187,8 @@ export class FeedPostsController {
 
     const createFeedPost = await this.feedPostsService.create(feedPost);
 
-    // Create notifications if any users were mentioned
     const mentionedUserIds = extractUserMentionIdsFromMessage(createFeedPost?.message);
-    await this.sendFeedPostCreateNotification(mentionedUserIds, userIds, createFeedPost, user);
+    await this.sendFeedPostCreateNotification(mentionedUserIds, userIds, createFeedPost, user, allUserIds, message);
 
     return {
       _id: createFeedPost.id,
@@ -162,6 +197,7 @@ export class FeedPostsController {
       userId: createFeedPost.userId,
       images: createFeedPost.images,
       postType: createFeedPostsDto.postType,
+      hashtags: createFeedPost.hashtags,
     };
   }
 
@@ -173,7 +209,7 @@ export class FeedPostsController {
     param: SingleFeedPostsDto,
   ) {
     const user = getUserFromRequest(request);
-    const feedPost = await this.feedPostsService.findById(param.id, true, user.id);
+    const feedPost = await this.feedPostsService.findByIdWithPopulatedFields(param.id, true, user.id);
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
@@ -211,11 +247,14 @@ export class FeedPostsController {
       }
     }
 
+    const findActiveHashtags = await this.hashtagService.findActiveHashtags(feedPost.hashtags);
+    feedPost.hashtags = findActiveHashtags.map((hashtag) => hashtag.name);
+
     return {
       ...pick(
         feedPost,
         ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likedByUser',
-          'postType', 'spoilers', 'movieId', 'message'],
+          'postType', 'spoilers', 'movieId', 'message', 'hashtags'],
       ),
       reviewData,
     };
@@ -335,6 +374,40 @@ export class FeedPostsController {
       Object.assign(updateFeedPostsDto, { images: updateFeedPostsDto.imagesToDelete ? feedPostImages : images.concat(feedPost.images) });
     }
 
+    let newHashtagNames;
+    if (updateFeedPostsDto.message && updateFeedPostsDto.message.includes('#')) {
+      const hashtagRegex = /(?<![?#])#(?![?#])\w+\b/g;
+      const matchedHashtags = updateFeedPostsDto.message.match(hashtagRegex);
+      if (matchedHashtags && matchedHashtags.length) {
+        const findHashtag = matchedHashtags.map(
+          (match) => match.slice(1).toLowerCase().replace(/([^\w\s]|_)+\d*$/, ''),
+        );
+        if (findHashtag && findHashtag.length > 10) {
+          throw new HttpException(
+            'you can not add more than 10 hashtags on a post',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+        newHashtagNames = [...new Set(findHashtag)];
+      } else {
+        newHashtagNames = [];
+      }
+
+      if (JSON.stringify(newHashtagNames) !== JSON.stringify(feedPost.hashtags)) {
+        const addHashtagNameOrTotalPost = newHashtagNames.filter((item) => !feedPost.hashtags.includes(item));
+        const totalPostDecrement = feedPost.hashtags.filter((item) => !newHashtagNames.includes(item));
+        if (addHashtagNameOrTotalPost.length) {
+          await this.hashtagService.createOrUpdateHashtags(addHashtagNameOrTotalPost);
+        }
+        if (totalPostDecrement.length) {
+          await this.hashtagService.decrementTotalPost(totalPostDecrement);
+        }
+      }
+    }
+    if (updateFeedPostsDto.message && updateFeedPostsDto.message.indexOf('#') === -1) {
+      await this.hashtagService.decrementTotalPost(feedPost.hashtags);
+    }
+
     if (updateFeedPostsDto.moviePostFields) {
       if (feedPost.postType !== PostType.MovieReview) {
         throw new HttpException('When submitting moviePostFields, post type must be MovieReview.', HttpStatus.BAD_REQUEST);
@@ -367,7 +440,15 @@ export class FeedPostsController {
         );
       }
     }
-    const updatedFeedPost = await this.feedPostsService.update(param.id, updateFeedPostsDto);
+
+    const updatedFeedPost = await this.feedPostsService.update(
+      param.id,
+      Object.assign(updateFeedPostsDto, { hashtags: newHashtagNames || [] }),
+    );
+
+    const findActiveHashtags = await this.hashtagService.findActiveHashtags(updatedFeedPost.hashtags);
+    updatedFeedPost.hashtags = findActiveHashtags.map((hashtag) => hashtag.name);
+
     const mentionedUserIdsBeforeUpdate = extractUserMentionIdsFromMessage(feedPost.message);
     const mentionedUserIdsAfterUpdate = extractUserMentionIdsFromMessage(updateFeedPostsDto?.message);
 
@@ -390,6 +471,7 @@ export class FeedPostsController {
       userId: updatedFeedPost.userId,
       images: updatedFeedPost.images,
       spoilers: updatedFeedPost.spoilers,
+      hashtags: updatedFeedPost.hashtags,
     };
   }
 
@@ -409,12 +491,18 @@ export class FeedPostsController {
       mainFeedPostQueryDto.limit,
       mainFeedPostQueryDto.before ? new mongoose.Types.ObjectId(mainFeedPostQueryDto.before) : undefined,
     );
+
+    for (let i = 0; i < feedPosts.length; i += 1) {
+      const findActiveHashtags = await this.hashtagService.findActiveHashtags(feedPosts[i].hashtags);
+      feedPosts[i].hashtags = findActiveHashtags.map((hashtag) => hashtag.name);
+    }
+
     return feedPosts.map(
       (feedPost) => pick(
         feedPost,
         ['_id', 'message', 'createdAt', 'lastUpdateAt',
           'rssfeedProviderId', 'images', 'userId', 'commentCount',
-          'likeCount', 'likedByUser', 'movieId'],
+          'likeCount', 'likedByUser', 'movieId', 'hashtags'],
       ),
     );
   }
@@ -430,7 +518,7 @@ export class FeedPostsController {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
     const user = getUserFromRequest(request);
-    if ((feedPost.userId as any)._id.toString() !== user._id.toString()) {
+    if ((feedPost.userId as any).toString() !== user._id.toString()) {
       throw new HttpException(
         'You can only delete a post that you created.',
         HttpStatus.FORBIDDEN,
@@ -456,7 +544,7 @@ export class FeedPostsController {
       );
     }
 
-    const postCreatedByDifferentUser = feedPost.rssfeedProviderId || (feedPost.userId as any)._id.toString() !== user._id.toString();
+    const postCreatedByDifferentUser = feedPost.rssfeedProviderId || (feedPost.userId as any).toString() !== user._id.toString();
 
     if (!postCreatedByDifferentUser) {
       throw new HttpException(
@@ -477,7 +565,7 @@ export class FeedPostsController {
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: LikesLimitOffSetDto,
   ) {
     const user = getUserFromRequest(request);
-    const feedPost = await this.feedPostsService.findById(param.id, true);
+    const feedPost = await this.feedPostsService.findByIdWithPopulatedFields(param.id, true);
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
@@ -511,6 +599,47 @@ export class FeedPostsController {
   }
 
   @TransformImageUrls(
+    '$.posts[*].images[*].image_path',
+    '$.posts[*].userId.profilePic',
+    '$[*].rssfeedProviderId.logo',
+  )
+  @Get('hashtag/:hashtag')
+  async findPostByHashtag(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: HashtagDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) allFeedPostQueryDto: AllFeedPostQueryDto,
+  ) {
+    const user = getUserFromRequest(request);
+
+    const hashtag = await this.hashtagService.findByHashTagName(params.hashtag, true);
+    if (!hashtag) {
+      throw new HttpException('Hashtag not found', HttpStatus.NOT_FOUND);
+    }
+
+    const [count, feedPosts]: any = await this.feedPostsService.findAllFeedPostsForHashtag(
+      params.hashtag,
+      allFeedPostQueryDto.limit,
+      allFeedPostQueryDto.before ? new mongoose.Types.ObjectId(allFeedPostQueryDto.before) : undefined,
+      user.id,
+    );
+
+    for (let i = 0; i < feedPosts.length; i += 1) {
+      const findActiveHashtags = await this.hashtagService.findActiveHashtags(feedPosts[i].hashtags);
+      feedPosts[i].hashtags = findActiveHashtags.map((j) => j.name);
+    }
+
+    const posts = feedPosts.map(
+      (feedPost) => pick(
+        feedPost,
+        ['_id', 'message', 'createdAt', 'lastUpdateAt',
+          'rssfeedProviderId', 'images', 'userId', 'commentCount',
+          'likeCount', 'likedByUser', 'hashtags', 'movieId'],
+      ),
+    );
+    return { count, posts };
+  }
+
+  @TransformImageUrls(
     '$[*].images[*].image_path',
     '$[*].userId.profilePic',
   )
@@ -534,6 +663,12 @@ export class FeedPostsController {
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
       user._id.toString(),
     );
+
+    for (let i = 0; i < posts.length; i += 1) {
+      const findActiveHashtags = await this.hashtagService.findActiveHashtags(posts[i].hashtags);
+      posts[i].hashtags = findActiveHashtags.map((hashtag) => hashtag.name);
+    }
+
     const userIds = posts.map((id) => (id.userId as any)._id);
 
     const movieUserStatusData = await this.movieUserStatusService.findAllMovieUserStatus(userIds, movieData._id.toString());
@@ -555,7 +690,7 @@ export class FeedPostsController {
           '_id', 'message', 'images',
           'userId', 'createdAt', 'likedByUser',
           'likeCount', 'commentCount', 'reviewData',
-          'postType', 'spoilers', 'movieId',
+          'postType', 'spoilers', 'movieId', 'hashtags',
         ],
       ),
     );
@@ -566,8 +701,11 @@ export class FeedPostsController {
     allFollowedUsers: string[],
     createFeedPost: FeedPostDocument,
     postCreator: UserDocument,
+    allUserIds: string[],
+    hashtagNotification: string,
   ) {
     const allNewUser = allFollowedUsers.filter((userId) => !mentionedUserIds.includes(userId));
+    const hashtagFollowUser = allUserIds.filter((userId) => !allNewUser.includes(userId));
 
     for (const mentionedUserId of mentionedUserIds) {
       await this.notificationsService.create({
@@ -588,6 +726,16 @@ export class FeedPostsController {
         allUsers: [postCreator._id as any], // senderId must be in allUsers for old API compatibility
         notifyType: NotificationType.NewPostFromFollowedUser,
         notificationMsg: createFeedPost.postType === PostType.MovieReview ? 'has written a movie review ' : 'created a new post',
+      });
+    }
+
+    if (createFeedPost.hashtags && createFeedPost.hashtags.length && hashtagFollowUser && hashtagFollowUser.length) {
+      await this.sendNotificationOfHashtagFollowPost.add('send-notification-of-hashtagfollow-post', {
+        userId: hashtagFollowUser,
+        feedPostId: createFeedPost.id,
+        senderId: postCreator.id,
+        notifyType: NotificationType.HashTagPostNotification,
+        notificationMsg: hashtagNotification,
       });
     }
   }

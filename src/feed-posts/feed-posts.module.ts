@@ -12,8 +12,12 @@ import { BlocksService } from '../blocks/providers/blocks.service';
 import { BlockAndUnblock, BlockAndUnblockSchema } from '../schemas/blockAndUnblock/blockAndUnblock.schema';
 import { FriendsModule } from '../friends/friends.module';
 import { BlocksModule } from '../blocks/blocks.module';
+import { HashtagModule } from '../hashtag/hashtag.module';
 import { MovieUserStatusModule } from '../movie-user-status/movie.user.status.module';
 import { FriendsGateway } from '../friends/providers/friends.gateway';
+import { Hashtag, HashtagSchema } from '../schemas/hastag/hashtag.schema';
+import { HashtagFollowsModule } from '../hashtag-follows/hashtag-follows.module';
+import { PostAccessService } from './providers/post-access.service';
 
 @Global()
 @Module({
@@ -22,13 +26,16 @@ import { FriendsGateway } from '../friends/providers/friends.gateway';
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: FeedPostLike.name, schema: FeedPostLikeSchema }]),
     MongooseModule.forFeature([{ name: BlockAndUnblock.name, schema: BlockAndUnblockSchema }]),
+    MongooseModule.forFeature([{ name: Hashtag.name, schema: HashtagSchema }]),
     RssFeedProviderFollowsModule,
     FriendsModule,
     BlocksModule,
+    HashtagModule,
     MovieUserStatusModule,
+    HashtagFollowsModule,
   ],
-  providers: [FeedPostsService, BlocksService, LocalStorageService, S3StorageService, FriendsGateway],
-  exports: [FeedPostsService, FriendsGateway],
+  providers: [FeedPostsService, PostAccessService, BlocksService, LocalStorageService, S3StorageService, FriendsGateway],
+  exports: [FeedPostsService, PostAccessService, FriendsGateway],
   controllers: [FeedPostsController],
 })
 export class FeedPostsModule { }

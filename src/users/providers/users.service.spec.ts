@@ -800,6 +800,17 @@ describe('UsersService', () => {
     });
   });
 
+  describe('#ignoreFriendSuggestionDialog', () => {
+    it('successfully updates ignoreFriendSuggestionDialog key', async () => {
+      const user = await usersService.create(userFactory.build());
+      await usersService.ignoreFriendSuggestionDialog(user.id);
+      const updateUser = await usersService.findById(user.id, true);
+      expect(user.ignoreFriendSuggestionDialog).toBe(false);
+      //after update
+      expect(updateUser.ignoreFriendSuggestionDialog).toBe(true);
+    });
+  });
+
   describe('#delete', () => {
     let user;
     beforeEach(async () => {

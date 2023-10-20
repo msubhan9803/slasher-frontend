@@ -38,7 +38,7 @@ export class FeedLikesService {
   }
 
   async findFeedPostLike(feedPostId: string, userId: string): Promise<FeedPostLikeDocument> {
-    return this.feedLikesModel.findOne({ feedPostId, userId });
+    return this.feedLikesModel.findOne({ feedPostId, userId }).exec();
   }
 
   async deleteFeedPostLike(feedPostId: string, userId: string): Promise<void> {

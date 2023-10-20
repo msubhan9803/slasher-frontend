@@ -129,7 +129,7 @@ describe('FeedLikesService', () => {
 
   describe('#createFeedPostLike', () => {
     it('successfully creates a feed post likes.', async () => {
-      const feedPostData = await feedPostsService.findById(feedPost.id, false);
+      const feedPostData = await feedPostsService.findByIdWithPopulatedFields(feedPost.id, false);
       expect(feedPostData.likes).toContainEqual(activeUser._id);
       expect(feedPostData.likeCount).toBe(2);
     });
@@ -146,7 +146,7 @@ describe('FeedLikesService', () => {
   describe('#deleteFeedPostLike', () => {
     it('successfully delete a feed post likes.', async () => {
       await feedLikesService.deleteFeedPostLike(feedPost.id, activeUser.id);
-      const feedPostData = await feedPostsService.findById(feedPost.id, false);
+      const feedPostData = await feedPostsService.findByIdWithPopulatedFields(feedPost.id, false);
       expect(feedPostData.likes).toHaveLength(1);
       expect(feedPostData.likeCount).toBe(1);
     });

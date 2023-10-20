@@ -29,6 +29,10 @@ import { moviesFactory } from '../../../../factories/movies.factory';
 import { Hashtag, HashtagDocument } from '../../../../../src/schemas/hastag/hashtag.schema';
 import { HashtagFollowsService } from '../../../../../src/hashtag-follows/providers/hashtag-follows.service';
 import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
+import { BooksService } from '../../../../../src/books/providers/books.service';
+import { booksFactory } from '../../../../factories/books.factory';
+import { BookStatus } from '../../../../../src/schemas/book/book.enums';
+import { Book } from '../../../../../src/schemas/book/book.schema';
 
 describe('Feed-Post / Main Feed Posts (e2e)', () => {
   let app: INestApplication;
@@ -46,7 +50,9 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
   let rssFeedProviderFollowsService: RssFeedProviderFollowsService;
   let rssFeedProvidersService: RssFeedProvidersService;
   let movie: Movie;
+  let book: Book;
   let moviesService: MoviesService;
+  let booksService: BooksService;
   let hashtagFollowsService: HashtagFollowsService;
   let hashtagModel: Model<HashtagDocument>;
 
@@ -58,6 +64,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
 
     usersService = moduleRef.get<UsersService>(UsersService);
     moviesService = moduleRef.get<MoviesService>(MoviesService);
+    booksService = moduleRef.get<BooksService>(BooksService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
@@ -121,6 +128,13 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
         },
       ),
     );
+    book = await booksService.create(booksFactory.build({
+      status: BookStatus.Active,
+      logo: 'https://picsum.photos/id/237/200/300',
+      publishDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+      name: 'Dracula',
+    }));
+
     await feedPostsService.create(
       feedPostFactory.build({
         userId: activeUser._id,
@@ -140,6 +154,16 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
         lastUpdateAt: DateTime.fromISO('2022-10-19T00:00:00Z').toJSDate(),
         // Feedpost with a movie (feature: Share movie as a post)
         movieId: movie._id,
+      }),
+    );
+    await feedPostsService.create(
+      feedPostFactory.build({
+        userId: user1._id,
+        rssfeedProviderId: rssFeedProviderData2._id,
+        createdAt: DateTime.fromISO('2022-10-19T00:00:00Z').toJSDate(),
+        updatedAt: DateTime.fromISO('2022-10-24T00:00:00Z').toJSDate(),
+        lastUpdateAt: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(),
+        bookId: book._id,
       }),
     );
   });
@@ -194,7 +218,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
         expect(response.body[i].lastUpdateAt < response.body[i - 1].lastUpdateAt).toBe(true);
         expect(response.body[i]._id).not.toEqual(post._id);
       }
-      expect(response.body).toHaveLength(2);
+      expect(response.body).toHaveLength(3);
     });
 
     describe('when `before` argument is supplied', () => {
@@ -223,7 +247,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
           .get(`/api/v1/feed-posts?limit=${limit}&before=${firstResponse.body[limit - 1]._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(secondResponse.body).toHaveLength(2);
+        expect(secondResponse.body).toHaveLength(3);
         for (let index = 1; index < secondResponse.body.length; index += 1) {
           expect(secondResponse.body[index].lastUpdateAt < secondResponse.body[index - 1].lastUpdateAt).toBe(true);
         }
@@ -254,7 +278,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         const ids: string[] = response2.body.map((post) => post._id);
-        expect(ids).toHaveLength(2);
+        expect(ids).toHaveLength(3);
         const hiddenPost = ids.findIndex((id) => id === feedPost.id);
         expect(hiddenPost).toBe(-1);
       });

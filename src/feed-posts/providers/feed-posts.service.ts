@@ -103,6 +103,7 @@ export class FeedPostsService {
       .populate('rssfeedProviderId', 'title _id logo')
       .populate('rssFeedId', 'content title')
       .populate('movieId', 'logo name releaseDate')
+      .populate('bookId', 'name publishDate logo')
       .exec();
 
     if (feedPost) {
@@ -195,6 +196,47 @@ export class FeedPostsService {
     });
   }
 
+  async findPostsByBookId(
+    bookId: string,
+    limit: number,
+    activeOnly: boolean,
+    before?: mongoose.Types.ObjectId,
+    requestingContextUserId?: string,
+  ): Promise<FeedPostDocument[]> {
+    const feedPostFindAllQuery: any = {};
+    const feedPostQuery = [];
+    feedPostQuery.push({ bookId: new mongoose.Types.ObjectId(bookId) });
+    feedPostQuery.push({ postType: PostType.BookReview });
+    if (requestingContextUserId) {
+      const blockUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(requestingContextUserId);
+      feedPostQuery.push({ userId: { $nin: blockUserIds } });
+    }
+    if (before) {
+      const feedPost = await this.feedPostModel.findById(before).exec();
+      feedPostQuery.push({ createdAt: { $lt: feedPost.createdAt } });
+    }
+    if (activeOnly) {
+      feedPostFindAllQuery.is_deleted = FeedPostDeletionState.NotDeleted;
+      feedPostFindAllQuery.status = FeedPostStatus.Active;
+      feedPostQuery.push(feedPostFindAllQuery);
+    }
+    const feedPosts = await this.feedPostModel
+      .find({ $and: feedPostQuery })
+      .populate('userId', 'userName _id profilePic')
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .exec();
+
+    // return feedPosts
+    return JSON.parse(JSON.stringify(feedPosts)).map((post) => {
+      // eslint-disable-next-line no-param-reassign
+      post.likeCount = post.likes.length || 0;
+      // eslint-disable-next-line no-param-reassign
+      post.likedByUser = post.likes.includes(requestingContextUserId);
+      return post;
+    });
+  }
+
   async findMainFeedPostsForUser(
     userId: string,
     limit: number,
@@ -241,6 +283,7 @@ export class FeedPostsService {
             $and: [
               { postType: { $ne: PostType.MovieReview } },
               { postType: { $ne: PostType.News } },
+              { postType: { $ne: PostType.BookReview } },
             ],
           },
           { hideUsers: { $ne: new mongoose.Types.ObjectId(userId) } },
@@ -250,6 +293,7 @@ export class FeedPostsService {
       .populate('userId', '_id userName profilePic')
       .populate('rssfeedProviderId', '_id title logo')
       .populate('movieId', 'logo name releaseDate')
+      .populate('bookId', 'name publishDate logo')
       .sort({ lastUpdateAt: -1 })
       .limit(limit)
       .exec();
@@ -308,6 +352,7 @@ export class FeedPostsService {
       .populate('userId', '_id userName profilePic')
       .populate('rssfeedProviderId', '_id title logo')
       .populate('movieId', 'logo name releaseDate')
+      .populate('bookId', 'name publishDate logo')
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();

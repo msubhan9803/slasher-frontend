@@ -154,4 +154,15 @@ describe('BookUserStatusService', () => {
       expect(bookUserStatusData.userId.toString()).toBe(activeUser.id);
     });
   });
+
+  describe('#findAllBookUserStatus', () => {
+    it('successfully find a all movie user status', async () => {
+      const user = [activeUser.id, user0.id, user1.id, user2.id];
+      const bookUserStatusData = await bookUserStatusService.findAllBookUserStatus(user, book._id.toString());
+      expect(bookUserStatusData[0].userId.toString()).toBe(activeUser.id);
+      expect(bookUserStatusData[1].userId.toString()).toBe(user0.id);
+      expect(bookUserStatusData[2].userId.toString()).toBe(user1.id);
+      expect(bookUserStatusData[3].userId.toString()).toBe(user2.id);
+    });
+  });
 });

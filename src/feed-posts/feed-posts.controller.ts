@@ -46,6 +46,9 @@ import { getPostType } from '../utils/post-utils';
 import { UsersService } from '../users/providers/users.service';
 import { UserFollowService } from '../user-follow/providers/userFollow.service';
 import { HashtagFollowsService } from '../hashtag-follows/providers/hashtag-follows.service';
+import { BooksService } from '../books/providers/books.service';
+import { BookUserStatusService } from '../book-user-status/providers/book-user-status.service';
+import { BookIdDto } from './dto/book-id.dto';
 
 @Controller({ path: 'feed-posts', version: ['1'] })
 export class FeedPostsController {
@@ -61,7 +64,9 @@ export class FeedPostsController {
     private readonly friendsService: FriendsService,
     private readonly hashtagService: HashtagService,
     private readonly moviesService: MoviesService,
+    private readonly booksService: BooksService,
     private readonly movieUserStatusService: MovieUserStatusService,
+    private readonly bookUserStatusService: BookUserStatusService,
     private readonly usersService: UsersService,
     private readonly userFollowService: UserFollowService,
     private readonly hashtagFollowsService: HashtagFollowsService,
@@ -81,6 +86,19 @@ export class FeedPostsController {
   ) {
     // ! TODO ~Sahil: Handle BookReview type here and test via postman first!
     // PostType.BookReview
+    if (createFeedPostsDto.postType === PostType.BookReview && createFeedPostsDto.message === '') {
+      throw new HttpException(
+        'Review must have a some text',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (createFeedPostsDto.postType !== PostType.BookReview && !files.length && createFeedPostsDto.message === '') {
+      throw new HttpException(
+        'Posts must have some text or at least one image.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
     if (createFeedPostsDto.postType === PostType.MovieReview && createFeedPostsDto.message === '') {
       throw new HttpException(
@@ -150,8 +168,37 @@ export class FeedPostsController {
       feedPost.privacyType = FeedPostPrivacyType.Private;
     }
 
-    if (user.profile_status === ProfileVisibility.Private) {
-      feedPost.privacyType = FeedPostPrivacyType.Private;
+    if (createFeedPostsDto.bookPostFields) {
+      if (createFeedPostsDto.postType !== PostType.BookReview) {
+        throw new HttpException('When submitting bookPostFields, post type must be BookReview.', HttpStatus.BAD_REQUEST);
+      }
+      if (!createFeedPostsDto.bookId) {
+        throw new HttpException('When submitting bookPostFields, bookId is required.', HttpStatus.BAD_REQUEST);
+      }
+
+      feedPost.spoilers = createFeedPostsDto.bookPostFields.spoilers;
+      if (createFeedPostsDto.bookPostFields.rating) {
+        await this.booksService.createOrUpdateRating(
+          feedPost.bookId.toString(),
+          createFeedPostsDto.bookPostFields.rating,
+          user.id,
+        );
+      }
+      if (createFeedPostsDto.bookPostFields.goreFactorRating) {
+        await this.booksService.createOrUpdateGoreFactorRating(
+          feedPost.bookId.toString(),
+          createFeedPostsDto.bookPostFields.goreFactorRating,
+          user.id,
+        );
+      }
+
+      if (createFeedPostsDto.bookPostFields.worthReading) {
+        await this.booksService.createOrUpdateWorthReading(
+          feedPost.bookId.toString(),
+          createFeedPostsDto.bookPostFields.worthReading,
+          user.id,
+        );
+      }
     }
 
     if (createFeedPostsDto.moviePostFields) {
@@ -250,6 +297,20 @@ export class FeedPostsController {
       }
     }
 
+    if (postType === PostType.BookReview) {
+      const bookUserStatusData = await this.bookUserStatusService.findBookUserStatus(
+        (feedPost.userId as any)._id.toString(),
+        (feedPost.bookId as any)._id.toString(),
+      );
+      if (bookUserStatusData) {
+        reviewData = {
+          rating: bookUserStatusData.rating,
+          goreFactorRating: bookUserStatusData.goreFactorRating,
+          worthReading: bookUserStatusData.worthReading,
+        };
+      }
+    }
+
     const findActiveHashtags = await this.hashtagService.findActiveHashtags(feedPost.hashtags);
     feedPost.hashtags = findActiveHashtags.map((hashtag) => hashtag.name);
 
@@ -257,7 +318,7 @@ export class FeedPostsController {
       ...pick(
         feedPost,
         ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likedByUser',
-          'postType', 'spoilers', 'movieId', 'message', 'hashtags'],
+          'postType', 'spoilers', 'movieId', 'bookId', 'message', 'hashtags'],
       ),
       reviewData,
     };
@@ -302,6 +363,13 @@ export class FeedPostsController {
     const { message } = updateFeedPostsDto;
 
     if (feedPost.postType === PostType.MovieReview && updateFeedPostsDto.message === '') {
+      throw new HttpException(
+        'Review must have a some text',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (feedPost.postType === PostType.BookReview && updateFeedPostsDto.message === '') {
       throw new HttpException(
         'Review must have a some text',
         HttpStatus.BAD_REQUEST,
@@ -444,6 +512,39 @@ export class FeedPostsController {
       }
     }
 
+    if (updateFeedPostsDto.bookPostFields) {
+      if (feedPost.postType !== PostType.BookReview) {
+        throw new HttpException('When submitting bookPostFields, post type must be BookReview.', HttpStatus.BAD_REQUEST);
+      }
+
+      if (!feedPost.bookId) {
+        throw new HttpException('When submitting bookPostFields, bookId is required.', HttpStatus.BAD_REQUEST);
+      }
+      // eslint-disable-next-line no-param-reassign
+      (updateFeedPostsDto as unknown as FeedPost).spoilers = updateFeedPostsDto.bookPostFields.spoilers;
+      if (updateFeedPostsDto.bookPostFields.rating) {
+        await this.booksService.createOrUpdateRating(
+          (feedPost.bookId as any)._id.toString(),
+          updateFeedPostsDto.bookPostFields.rating,
+          user.id,
+        );
+      }
+      if (updateFeedPostsDto.bookPostFields.goreFactorRating) {
+        await this.booksService.createOrUpdateGoreFactorRating(
+          (feedPost.bookId as any)._id.toString(),
+          updateFeedPostsDto.bookPostFields.goreFactorRating,
+          user.id,
+        );
+      }
+      if (typeof updateFeedPostsDto.bookPostFields.worthReading === 'number') {
+        await this.booksService.createOrUpdateWorthReading(
+          (feedPost.bookId as any)._id.toString(),
+          updateFeedPostsDto.bookPostFields.worthReading,
+          user.id,
+        );
+      }
+    }
+
     const updatedFeedPost = await this.feedPostsService.update(
       param.id,
       Object.assign(updateFeedPostsDto, { hashtags: newHashtagNames || [] }),
@@ -505,7 +606,7 @@ export class FeedPostsController {
         feedPost,
         ['_id', 'message', 'createdAt', 'lastUpdateAt',
           'rssfeedProviderId', 'images', 'userId', 'commentCount',
-          'likeCount', 'likedByUser', 'movieId', 'hashtags'],
+          'likeCount', 'likedByUser', 'movieId', 'bookId', 'hashtags'],
       ),
     );
   }
@@ -636,7 +737,7 @@ export class FeedPostsController {
         feedPost,
         ['_id', 'message', 'createdAt', 'lastUpdateAt',
           'rssfeedProviderId', 'images', 'userId', 'commentCount',
-          'likeCount', 'likedByUser', 'hashtags', 'movieId'],
+          'likeCount', 'likedByUser', 'hashtags', 'movieId', 'bookId'],
       ),
     );
     return { count, posts };
@@ -699,6 +800,59 @@ export class FeedPostsController {
     );
   }
 
+  @Get(':bookId/bookreviews')
+  async findBookReviews(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: BookIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: AllFeedPostQueryDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const bookData = await this.booksService.findById(params.bookId, true);
+    if (!bookData) {
+      throw new HttpException('Book not found', HttpStatus.NOT_FOUND);
+    }
+
+    const posts = await this.feedPostsService.findPostsByBookId(
+      bookData._id.toString(),
+      query.limit,
+      true,
+      query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
+      user._id.toString(),
+    );
+
+    for (let i = 0; i < posts.length; i += 1) {
+      const findActiveHashtags = await this.hashtagService.findActiveHashtags(posts[i].hashtags);
+      posts[i].hashtags = findActiveHashtags.map((hashtag) => hashtag.name);
+    }
+
+    const userIds = posts.map((id) => (id.userId as any)._id);
+
+    const bookUserStatusData = await this.bookUserStatusService.findAllBookUserStatus(userIds, bookData._id.toString());
+    posts.map((post) => {
+      bookUserStatusData.forEach((book) => {
+        // eslint-disable-next-line max-len
+        if (book.bookId.toString() === post.bookId.toString() && book.userId.toString() === (post.userId as unknown as User)._id.toString()) {
+          // eslint-disable-next-line no-param-reassign
+          (post as any).reviewData = { rating: book.rating, goreFactorRating: book.goreFactorRating, worthReading: book.worthReading };
+        }
+        return book;
+      });
+      return post;
+    });
+    return posts.map(
+      (post) => pick(
+        post,
+        [
+          '_id', 'message', 'images',
+          'userId', 'createdAt', 'likedByUser',
+          'likeCount', 'commentCount', 'reviewData',
+          'postType', 'spoilers', 'bookId', 'hashtags',
+        ],
+      ),
+    );
+  }
+
   async sendFeedPostCreateNotification(
     mentionedUserIds: string[],
     allFollowedUsers: string[],
@@ -721,6 +875,12 @@ export class FeedPostsController {
       });
     }
 
+    const postTypeMessages = {
+      [PostType.MovieReview]: 'has written a movie review',
+      [PostType.BookReview]: 'has written a book review',
+      default: 'created a new post',
+    };
+
     for (const user of allNewUser) {
       await this.notificationsService.create({
         userId: new mongoose.Types.ObjectId(user) as any,
@@ -728,7 +888,7 @@ export class FeedPostsController {
         senderId: postCreator._id,
         allUsers: [postCreator._id as any], // senderId must be in allUsers for old API compatibility
         notifyType: NotificationType.NewPostFromFollowedUser,
-        notificationMsg: createFeedPost.postType === PostType.MovieReview ? 'has written a movie review ' : 'created a new post',
+        notificationMsg: postTypeMessages[createFeedPost.postType] || postTypeMessages.default,
       });
     }
 

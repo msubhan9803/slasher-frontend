@@ -102,4 +102,13 @@ export class BookUserStatusService {
       { $set: { buy: BookUserStatusBuy.NotBuy } },
     );
   }
+
+  async findAllBookUserStatus(userId: mongoose.Types.ObjectId[], bookId: string): Promise<BookUserStatus[]> {
+    const bookUserStatus = await this.bookUserStatusModel
+      .find({
+        $and: [{ userId: { $in: userId } }, { bookId: new mongoose.Types.ObjectId(bookId) }],
+      })
+      .exec();
+    return bookUserStatus;
+  }
 }

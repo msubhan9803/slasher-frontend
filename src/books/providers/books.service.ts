@@ -9,9 +9,9 @@ import { BookStatus, BookDeletionState, BookType } from '../../schemas/book/book
 import { Book, BookDocument } from '../../schemas/book/book.schema';
 import { NON_ALPHANUMERIC_REGEX, isDevelopmentServer } from '../../constants';
 import { BookUserStatus, BookUserStatusDocument } from '../../schemas/bookUserStatus/bookUserStatus.schema';
-import { WorthWatchingStatus } from '../../types';
+import { WorthReadingStatus } from '../../types';
 import {
- BookUserStatusBuy, BookUserStatusFavorites, BookUserStatusRead, BookUserStatusReadingList,
+  BookUserStatusBuy, BookUserStatusFavorites, BookUserStatusRead, BookUserStatusReadingList,
 } from '../../schemas/bookUserStatus/bookUserStatus.enums';
 import { escapeStringForRegex } from '../../utils/escape-utils';
 
@@ -49,7 +49,6 @@ export class BooksService {
       { $match: { bookId: new mongoose.Types.ObjectId(bookId), rating: { $exists: true, $ne: 0 } } },
       { $group: { _id: 'bookId', averageRating: { $avg: '$rating' }, count: { $sum: 1 } } },
     ]);
-
     // assign default values for simplistic usage in client side and document update
     const update: Partial<Book> = { rating: 0, ratingUsersCount: 0 };
     if (aggregate.length !== 0) {
@@ -63,7 +62,6 @@ export class BooksService {
       { $set: update },
       { new: true },
     )).toObject();
-
     return { ...book, userData: bookUserStatus };
   }
 
@@ -99,36 +97,36 @@ export class BooksService {
 
   async getUserBookStatusRatings(bookId: string, userId: string) {
     const bookUserStatus = await this.bookUserStatusModel.findOne({ bookId, userId }).select({
-      rating: 1, goreFactorRating: 1, worthWatching: 1,
+      rating: 1, goreFactorRating: 1, worthReading: 1,
     });
     return bookUserStatus;
   }
 
-  async createOrUpdateWorthWatching(bookId: string, worthWatching: number, userId: string) {
+  async createOrUpdateWorthReading(bookId: string, worthReading: number, userId: string) {
     // Create/update a BookUserStatus document
     const bookUserStatus = await this.bookUserStatusModel.findOneAndUpdate(
       { bookId, userId },
-      { $set: { worthWatching } },
+      { $set: { worthReading } },
       { upsert: true, new: true },
     );
     // Calculate average of all `bookUserStatuses` documents for a given `bookId` (ignore 0 goreFactorRating)
     const aggregate = await this.bookUserStatusModel.aggregate([
-      { $match: { bookId: new mongoose.Types.ObjectId(bookId), worthWatching: { $exists: true, $ne: WorthWatchingStatus.NoRating } } },
-      { $group: { _id: 'bookId', averageWorthWatching: { $avg: '$worthWatching' } } },
+      { $match: { bookId: new mongoose.Types.ObjectId(bookId), worthReading: { $exists: true, $ne: WorthReadingStatus.NoRating } } },
+      { $group: { _id: 'bookId', averageWorthReading: { $avg: '$worthReading' } } },
     ]);
 
     // assign default values for simplistic usage in client side and document update
     const update: Partial<Book> = { worthReading: 0, worthReadingUpUsersCount: 0, worthReadingDownUsersCount: 0 };
     if (aggregate.length !== 0) {
-      const [{ averageWorthWatching }] = aggregate;
-      update.worthReading = Math.round(averageWorthWatching);
-      update.worthReadingUpUsersCount = await this.bookUserStatusModel.count({ bookId, worthWatching: { $eq: WorthWatchingStatus.Up } });
+      const [{ averageWorthReading }] = aggregate;
+      update.worthReading = Math.round(averageWorthReading);
+      update.worthReadingUpUsersCount = await this.bookUserStatusModel.count({ bookId, worthReading: { $eq: WorthReadingStatus.Up } });
       update.worthReadingDownUsersCount = await this.bookUserStatusModel.count({
         bookId,
-        worthWatching: { $eq: WorthWatchingStatus.Down },
+        worthReading: { $eq: WorthReadingStatus.Down },
       });
     }
-    // Update properties related to `worthWatch`
+    // Update properties related to `worthRead`
     const book = (await this.booksModel.findOneAndUpdate(
       { _id: new mongoose.Types.ObjectId(bookId) },
       { $set: update },
@@ -137,7 +135,7 @@ export class BooksService {
 
     return { ...book, userData: bookUserStatus };
   }
-  
+
   async getRatingUsersCount(bookId: string) {
     return this.bookUserStatusModel.count({ bookId, rating: { $exists: true, $ne: 0 } });
   }

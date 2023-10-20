@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
@@ -28,6 +29,10 @@ import { MoviesService } from '../../../../../src/movies/providers/movies.servic
 import { moviesFactory } from '../../../../factories/movies.factory';
 import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
 import { MovieUserStatus, MovieUserStatusDocument } from '../../../../../src/schemas/movieUserStatus/movieUserStatus.schema';
+import { BooksService } from '../../../../../src/books/providers/books.service';
+import { BookUserStatus, BookUserStatusDocument } from '../../../../../src/schemas/bookUserStatus/bookUserStatus.schema';
+import { booksFactory } from '../../../../factories/books.factory';
+import { BookStatus } from '../../../../../src/schemas/book/book.enums';
 
 describe('Feed-Post / Single Feed Post Details (e2e)', () => {
   let app: INestApplication;
@@ -42,7 +47,9 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
   let rssFeedService: RssFeedService;
   let blocksModel: Model<BlockAndUnblockDocument>;
   let moviesService: MoviesService;
+  let booksService: BooksService;
   let movieUserStatusModel: Model<MovieUserStatusDocument>;
+  let bookUserStatusModel: Model<BookUserStatusDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -56,7 +63,9 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
     rssFeedService = moduleRef.get<RssFeedService>(RssFeedService);
     moviesService = moduleRef.get<MoviesService>(MoviesService);
+    booksService = moduleRef.get<BooksService>(BooksService);
     movieUserStatusModel = moduleRef.get<Model<MovieUserStatusDocument>>(getModelToken(MovieUserStatus.name));
+    bookUserStatusModel = moduleRef.get<Model<BookUserStatusDocument>>(getModelToken(BookUserStatus.name));
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -82,6 +91,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
     let rssFeed;
     let user1;
     let movie;
+    let book;
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       user1 = await usersService.create(userFactory.build());
@@ -110,6 +120,18 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         goreFactorRating: 4,
         worthWatching: 1,
       });
+      book = await booksService.create(booksFactory.build({
+        logo: 'https://picsum.photos/id/237/200/300',
+        status: BookStatus.Active,
+        publishDate: DateTime.fromISO('2022-10-19T00:00:00Z').toJSDate(),
+      }));
+      await bookUserStatusModel.create({
+        userId: activeUser._id,
+        bookId: book._id,
+        rating: 5,
+        goreFactorRating: 4,
+        worthReading: 1,
+      });
     });
 
     it('requires authentication', async () => {
@@ -136,6 +158,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         _id: feedPost.id,
         createdAt: '2022-10-17T00:00:00.000Z',
         rssfeedProviderId: null,
+        bookId: null,
         rssFeedId: {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           content: '<p>this is rss <b>feed</b> <span>test<span> </p>',
@@ -257,6 +280,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         likedByUser: false,
         spoilers: false,
         movieId: null,
+        bookId: null,
         postType: 1,
         message: 'Message 1',
       });
@@ -309,9 +333,64 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
           logo: movie.logo,
           releaseDate: '2022-10-17T00:00:00.000Z',
         },
+        bookId: null,
         postType: 3,
         message: 'Message 1',
         reviewData: { rating: 5, goreFactorRating: 4, worthWatching: 1 },
+      });
+    });
+
+    it('when postType is BookReview than post expected response', async () => {
+      const feedPost = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: activeUser._id,
+          bookId: book._id,
+          postType: PostType.BookReview,
+        }),
+      );
+      const response = await request(app.getHttpServer())
+        .get(`/api/v1/feed-posts/${feedPost._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        createdAt: expect.any(String),
+        rssfeedProviderId: null,
+        rssFeedId: null,
+        hashtags: [],
+        images: [
+          {
+            image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+            description: 'this is test description',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+          {
+            image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
+            description: 'this is test description',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+        ],
+        userId: {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          userName: 'Username1',
+          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          profile_status: 0,
+        },
+        commentCount: 0,
+        likeCount: 0,
+        sharedList: 0,
+        likedByUser: false,
+        spoilers: false,
+        movieId: null,
+        bookId: {
+          _id: book._id.toString(),
+          logo: book.logo,
+          name: book.name,
+          publishDate: '2022-10-19T00:00:00.000Z',
+        },
+        postType: 4,
+        message: 'Message 1',
+        reviewData: { rating: 5, goreFactorRating: 4, worthReading: 1 },
       });
     });
 

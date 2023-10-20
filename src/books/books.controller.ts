@@ -12,13 +12,13 @@ import { ValidateBookIdDto } from './dto/validate.books.id.dto';
 // Note: We are using same DTO's as of movies's controller to avoid code duplicacy.
 import { CreateOrUpdateGoreFactorRatingDto } from '../movies/dto/create-or-update-gore-factor-rating-dto';
 import { CreateOrUpdateRatingDto } from '../movies/dto/create-or-update-rating-dto';
-import { CreateOrUpdateWorthWatchingDto } from '../movies/dto/create-or-update-worth-watching-dto';
 import { getUserFromRequest } from '../utils/request-utils';
 import { BookUserStatusIdDto } from '../book-user-status/dto/book-user-status-id.dto';
 import { BookUserStatusService } from '../book-user-status/providers/book-user-status.service';
 import { relativeToFullImagePath } from '../utils/image-utils';
 import { BookUserStatus } from '../schemas/bookUserStatus/bookUserStatus.schema';
 import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
+import { CreateOrUpdateWorthReadingDto } from './dto/create-or-update-worth-reading-dto';
 
 @Controller({ path: 'books', version: ['1'] })
 export class BooksController {
@@ -124,19 +124,19 @@ export class BooksController {
     ]);
   }
 
-  @Put(':id/worth-watching')
-  async createOrUpdateWorthWatching(
+  @Put(':id/worth-reading')
+  async createOrUpdateWorthReading(
     @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateBookIdDto,
-    @Body() createOrUpdateWorthWatchingDto: CreateOrUpdateWorthWatchingDto,
+    @Body() createOrUpdateWorthReadingDto: CreateOrUpdateWorthReadingDto,
   ) {
     await this.bookShouldExist(params.id);
     const user = getUserFromRequest(request);
     // eslint-disable-next-line max-len
-    const bookUserStatus = await this.booksService.createOrUpdateWorthWatching(params.id, createOrUpdateWorthWatchingDto.worthWatching, user.id);
-    const filterUserData = { ...bookUserStatus, userData: pick(bookUserStatus.userData, ['worthWatching']) };
+    const bookUserStatus = await this.booksService.createOrUpdateWorthReading(params.id, createOrUpdateWorthReadingDto.worthReading, user.id);
+    const filterUserData = { ...bookUserStatus, userData: pick(bookUserStatus.userData, ['worthReading']) };
     return pick(filterUserData, [
-      'worthWatching', 'worthWatchingUpUsersCount', 'worthWatchingDownUsersCount', 'userData',
+      'worthReading', 'worthReadingUpUsersCount', 'worthReadingDownUsersCount', 'userData',
     ]);
   }
 
@@ -168,18 +168,18 @@ export class BooksController {
     ]);
   }
 
-  @Delete(':id/worth-watching')
-  async deleteWorthWatching(
+  @Delete(':id/worth-reading')
+  async deleteWorthReading(
     @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateBookIdDto,
   ) {
     await this.bookShouldExist(params.id);
     const user = getUserFromRequest(request);
     // eslint-disable-next-line max-len
-    const bookUserStatus = await this.booksService.createOrUpdateWorthWatching(params.id, 0, user.id);
-    const filterUserData = { ...bookUserStatus, userData: pick(bookUserStatus.userData, ['worthWatching']) };
+    const bookUserStatus = await this.booksService.createOrUpdateWorthReading(params.id, 0, user.id);
+    const filterUserData = { ...bookUserStatus, userData: pick(bookUserStatus.userData, ['worthReading']) };
     return pick(filterUserData, [
-      'worthWatching', 'worthWatchingUpUsersCount', 'worthWatchingDownUsersCount', 'userData',
+      'worthReading', 'worthReadingUpUsersCount', 'worthReadingDownUsersCount', 'userData',
     ]);
   }
 

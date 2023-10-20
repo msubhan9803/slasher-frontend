@@ -4,7 +4,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { HttpService } from '@nestjs/axios';
 import { ReturnBookDb } from 'src/movies/dto/cron-job-response.dto';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { lastValueFrom } from 'rxjs';
+import { ConfigService } from '@nestjs/config';
+import { v4 as uuidv4 } from 'uuid';
 import { BookStatus, BookDeletionState, BookType } from '../../schemas/book/book.enums';
 import { Book, BookDocument } from '../../schemas/book/book.schema';
 import { NON_ALPHANUMERIC_REGEX, isDevelopmentServer } from '../../constants';
@@ -13,15 +16,24 @@ import {
   BookUserStatusBuy, BookUserStatusFavorites, BookUserStatusRead, BookUserStatusReadingList,
 } from '../../schemas/bookUserStatus/bookUserStatus.enums';
 import { escapeStringForRegex } from '../../utils/escape-utils';
-import { WorthReadingStatus } from '../../types';
+import { BookKeysFromOpenLibrary, BookFromOpenLibrary, WorthReadingStatus } from '../../types';
 import { createPublishDateForOpenLibrary } from '../../utils/date-utils';
+import { S3StorageService } from '../../local-storage/providers/s3-storage.service';
+import { getCoverImageForBookOfOpenLibrary, getExtensionFromFilename } from '../../utils/text-utils';
+import { StorageLocationService } from '../../global/providers/storage-location.service';
+import { LocalStorageService } from '../../local-storage/providers/local-storage.service';
+import { downloadFileTemporarily } from '../../utils/file-download-utils';
 
 @Injectable()
 export class BooksService {
   constructor(
     @InjectModel(Book.name) private booksModel: Model<BookDocument>,
     @InjectModel(BookUserStatus.name) private bookUserStatusModel: Model<BookUserStatusDocument>,
+    private readonly s3StorageService: S3StorageService,
     private httpService: HttpService,
+    private readonly config: ConfigService,
+    private readonly storageLocationService: StorageLocationService,
+    private readonly localStorageService: LocalStorageService,
   ) { }
 
   async create(bookData: Partial<Book>): Promise<BookDocument> {
@@ -266,17 +278,18 @@ export class BooksService {
     return readingBookIdArray as unknown as BookUserStatusDocument[];
   }
 
-  async getBookDataFromOpenLibrary(): Promise<any> {
-    const arr: any = [];
+  async getBooksFromOpenLibrary() {
+    const arr: BookFromOpenLibrary[] = [];
     let offset = 0;
     // TODO: Remove `isDevelopmentServer` usage
 
-    const limit = isDevelopmentServer ? 1000 : 1000; // ! FOR production we value =1000
+    const limit = isDevelopmentServer ? 3 : 1000; // ! FOR production we value =1000
     let hasMoreData = true;
 
     while (hasMoreData) {
       const searchQuery = 'subject%3Ahorror'; // subject:horror
-      const fields = 'key,author_name,cover_edition_key'; // Helps in fetching unnecessary data from the API.
+      const bookFieldKeys: BookKeysFromOpenLibrary = ['author_name', 'cover_edition_key', 'key'];
+      const fields = bookFieldKeys.join(','); // Helps in overfetching data issue from API.
       const { data } = await lastValueFrom(
         this.httpService.get<any>(
           `https://openlibrary.org/search.json?q=${searchQuery}&mode=everything&limit=${limit}&offset=${offset}&fields=${fields}`,
@@ -298,55 +311,61 @@ export class BooksService {
 
   async syncWithOpenLibrary(): Promise<ReturnBookDb> {
     try {
-      const searchBooksData: any = await this.getBookDataFromOpenLibrary();
-      const mainBookArray: Array<Partial<BookDocument>> = [];
-      for (let i = 0; i < searchBooksData.length; i += 1) {
+      const booksFromOpenLibrary = await this.getBooksFromOpenLibrary();
+      const booksToAdd: Array<Partial<BookDocument>> = [];
+      for (let i = 0; i < booksFromOpenLibrary.length; i += 1) {
         // eslint-disable-next-line no-console
         console.log('i?', i);
-        const bookDataObject: Partial<BookDocument> = {
+        const book: Partial<BookDocument> = {
           type: BookType.OpenLibrary,
         };
         const [keyDataSettled, editionKeyDataSettled]: any = await Promise.allSettled([
           lastValueFrom(
-            this.httpService.get<any>(`https://openlibrary.org/${searchBooksData[i].key}.json`),
+            this.httpService.get<any>(`https://openlibrary.org/${booksFromOpenLibrary[i].key}.json`),
           ),
           lastValueFrom(
-            this.httpService.get<any>(`https://openlibrary.org/works/${searchBooksData[i].cover_edition_key}.json`),
+            this.httpService.get<any>(`https://openlibrary.org/works/${booksFromOpenLibrary[i].cover_edition_key}.json`),
           ),
         ]);
 
         // From `searchBooksData` API
-        bookDataObject.bookId = searchBooksData[i].key;
-        bookDataObject.coverEditionKey = searchBooksData[i].cover_edition_key;
-        bookDataObject.author = searchBooksData[i]?.author_name ?? [];
+        book.bookId = booksFromOpenLibrary[i].key;
+        book.coverEditionKey = booksFromOpenLibrary[i].cover_edition_key;
+        book.author = booksFromOpenLibrary[i]?.author_name ?? [];
         // From `keyData` API
         const keyData = (keyDataSettled.status === 'fulfilled') ? keyDataSettled.value : null;
         if (keyData) {
-          bookDataObject.description = keyData.data?.description?.value ?? keyData.data?.description;
+          book.description = keyData.data?.description?.value ?? keyData.data?.description;
         }
         // From `editionKeyData` API
         const editionKeyData = (editionKeyDataSettled.status === 'fulfilled') ? editionKeyDataSettled.value : null;
         if (editionKeyData) {
-          bookDataObject.name = editionKeyData.data.title;
-          bookDataObject.covers = editionKeyData.data.covers;
-          bookDataObject.numberOfPages = editionKeyData.data.number_of_pages;
-          bookDataObject.publishDate = createPublishDateForOpenLibrary(editionKeyData.data.publish_date);
-          bookDataObject.isbnNumber = [];
+          book.name = editionKeyData.data.title;
+          const coverImageId = editionKeyData.data?.covers?.[0];
+          if (coverImageId) {
+            book.coverImageId = coverImageId;
+            const coverImgeUrl = getCoverImageForBookOfOpenLibrary(coverImageId);
+            const storageLocation = await this.uploadToS3Bucket(coverImgeUrl);
+            book.coverImage = { image_path: storageLocation, description: null };
+          }
+          book.numberOfPages = editionKeyData.data.number_of_pages;
+          book.publishDate = createPublishDateForOpenLibrary(editionKeyData.data.publish_date);
+          book.isbnNumber = [];
           if (editionKeyData.data.isbn_13) {
-            bookDataObject.isbnNumber.push(...editionKeyData.data.isbn_13);
+            book.isbnNumber.push(...editionKeyData.data.isbn_13);
           }
           if (editionKeyData.data.isbn_10) {
-            bookDataObject.isbnNumber.push(...editionKeyData.data.isbn_10);
+            book.isbnNumber.push(...editionKeyData.data.isbn_10);
           }
         }
 
         // Note: We only add book to `mainBookArray` if all required fields are present in `bookDataObject` i.e, name, coverEditionKey, etc
-        if (bookDataObject.name && bookDataObject.coverEditionKey) {
-          mainBookArray.push(bookDataObject);
+        if (book.name && book.coverEditionKey) {
+          booksToAdd.push(book);
         }
       }
-      if (mainBookArray.length !== 0) {
-        await this.booksModel.insertMany(mainBookArray);
+      if (booksToAdd.length !== 0) {
+        await this.booksModel.insertMany(booksToAdd);
       }
       return {
         success: true,
@@ -358,5 +377,25 @@ export class BooksService {
         error,
       };
     }
+  }
+
+  // TODO-SAHIL: Write tests for this function
+  /** Returns `storageLocation` of uploaded file (`s3Bucket` or `local-storage`) */
+  async uploadToS3Bucket(fileUrl: string) {
+    const extension = getExtensionFromFilename(fileUrl);
+
+    const tempFilename = `${uuidv4()}.${extension}`;
+    const tempPath = `./local-storage/${tempFilename}`;
+
+    const storageLocation = this.storageLocationService.generateNewStorageLocationFor('book', tempFilename);
+    await downloadFileTemporarily(fileUrl, tempPath, async () => {
+      const file = { path: tempPath, filename: tempFilename } as Express.Multer.File;
+      if (this.config.get<string>('FILE_STORAGE') === 's3') {
+        await this.s3StorageService.write(storageLocation, file);
+      } else {
+        this.localStorageService.write(storageLocation, file);
+      }
+    });
+    return storageLocation;
   }
 }

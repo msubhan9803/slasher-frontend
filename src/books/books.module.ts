@@ -8,6 +8,8 @@ import { BookUserStatus, BookUserStatusSchema } from '../schemas/bookUserStatus/
 import { User, UserSchema } from '../schemas/user/user.schema';
 import { BookUserStatusModule } from '../book-user-status/book.user.status.module';
 import { addPrePostHooks } from '../schemas/book/book.pre-post-hooks';
+import { S3StorageService } from '../local-storage/providers/s3-storage.service';
+import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 
 @Global()
 @Module({
@@ -28,7 +30,7 @@ import { addPrePostHooks } from '../schemas/book/book.pre-post-hooks';
     BookUserStatusModule,
   ],
   controllers: [BooksController],
-  providers: [BooksService],
+  providers: [BooksService, S3StorageService, LocalStorageService],
   exports: [BooksService],
 })
 export class BooksModule {}

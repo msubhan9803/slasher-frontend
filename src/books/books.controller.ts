@@ -21,6 +21,7 @@ import { BookUserStatus } from '../schemas/bookUserStatus/bookUserStatus.schema'
 import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 import { CreateOrUpdateWorthReadingDto } from './dto/create-or-update-worth-reading-dto';
 import { FindAllBooksDto } from './dto/find-all-books.dto';
+import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 
 @Controller({ path: 'books', version: ['1'] })
 export class BooksController {
@@ -38,23 +39,25 @@ export class BooksController {
     }
   }
 
+  @TransformImageUrls('$[*].coverImage.image_path')
   @Get()
   async findAll(@Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: FindAllBooksDto) {
     const books = await this.booksService.findAll(
-query.limit,
+      query.limit,
       true,
       query.sortBy,
       query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
       query.nameContains,
       null,
       query.startsWith,
-);
+    );
     return books.map((bookData) => pick(
       bookData,
-      ['_id', 'name', 'author', 'description', 'numberOfPages', 'isbnNumber', 'publishDate', 'covers'],
+      ['_id', 'name', 'author', 'description', 'numberOfPages', 'isbnNumber', 'publishDate', 'coverImage'],
     ));
   }
 
+  @TransformImageUrls('$.coverImage.image_path')
   @Get(':id')
   async findOne(@Req() request: Request, @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateBookIdDto) {
     const book = await this.booksService.findById(params.id, true);
@@ -99,7 +102,7 @@ query.limit,
     }, [
       ...bookRelatedFields,
       'rating', 'ratingUsersCount', 'goreFactorRating',
-      'goreFactorRatingUsersCount', 'worthReading', 'worthReadingUpUsersCount', 'worthReadingDownUsersCount', 'userData',
+      'goreFactorRatingUsersCount', 'worthReading', 'worthReadingUpUsersCount', 'worthReadingDownUsersCount', 'userData', 'coverImage',
     ]);
   }
 

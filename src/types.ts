@@ -47,3 +47,11 @@ export type CommentsSortByType = typeof CommentsSortBy[number];
 
 export const HashtagsSortBy = ['name', 'createdAt', 'totalPost', 'deleted'] as const;
 export type HashtagsSortByType = typeof HashtagsSortBy[number];
+
+export type BookFromOpenLibrary = {
+  key: string,
+  cover_edition_key: string,
+  author_name: string[]
+};
+type BookKey = keyof BookFromOpenLibrary;
+export type BookKeysFromOpenLibrary = BookKey[];

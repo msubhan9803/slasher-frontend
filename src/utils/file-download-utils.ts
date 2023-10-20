@@ -4,7 +4,6 @@ import { createWriteStream } from 'fs';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { https } from 'follow-redirects';
 
-// TODO: Add test for this function
 export async function downloadFile(url: string, savePath: string) {
   const file = createWriteStream(savePath);
 
@@ -20,13 +19,13 @@ export async function downloadFile(url: string, savePath: string) {
   });
 }
 
-// TODO: Add test for this function
 export async function downloadFileTemporarily(url: string, savePath: string, callback: () => void) {
   try {
-    await downloadFile(url, savePath);
+    await downloadFile(url, savePath); // file is downloaded at `savePath`
     await callback();
-    fs.unlinkSync(savePath);
   } catch (error) {
     console.error('Failed to execute downloadFileTemporarily() with following values:', { url, savePath });
+  } finally {
+    fs.unlinkSync(savePath); // downloaded file is removed deleted after callback is run
   }
 }

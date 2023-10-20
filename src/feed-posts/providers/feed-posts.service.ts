@@ -585,6 +585,19 @@ export class FeedPostsService {
     return feedPost;
   }
 
+  async findBookReviewPost(userId: string, bookId: string) {
+    const feedPost = await this.feedPostModel
+      .findOne({
+        $and: [
+          { userId: new mongoose.Types.ObjectId(userId) },
+          { bookId: new mongoose.Types.ObjectId(bookId) },
+          { postType: PostType.BookReview },
+          { is_deleted: FeedPostDeletionState.NotDeleted }],
+      })
+      .exec();
+    return feedPost;
+  }
+
   async updateLastUpdateAt(id: string): Promise<FeedPostDocument> {
     return this.feedPostModel
       .findOneAndUpdate({ _id: id }, { $set: { lastUpdateAt: Date.now() } }, { new: true })

@@ -72,7 +72,7 @@ query.limit,
     }
 
     let reviewPostId;
-    const post = await this.feedPostsService.findMovieReviewPost(user.id, book._id.toString());
+    const post = await this.feedPostsService.findBookReviewPost(user.id, book._id.toString());
     if (post) {
       reviewPostId = { reviewPostId: post.id };
     }

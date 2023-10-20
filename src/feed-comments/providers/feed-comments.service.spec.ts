@@ -828,4 +828,118 @@ describe('FeedCommentsService', () => {
       expect(feedCommentAndReplyDetails).toBeNull();
     });
   });
+
+  describe('#deleteAllReplyByUserId', () => {
+    it('deleted all feed replys by the given userId', async () => {
+      const feedReply1 = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser.id,
+            feedCommentId: feedComments.id,
+            message: 'Hello Test Reply Message 1',
+            images: sampleFeedCommentsObject.images,
+          },
+        ),
+      );
+      const feedReply2 = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser.id,
+            feedCommentId: feedComments.id,
+            message: 'Hello Test Reply Message 2',
+            images: sampleFeedCommentsObject.images,
+          },
+        ),
+      );
+
+      await feedCommentsService.deleteAllReplyByUserId(activeUser.id);
+      expect((await feedReplyModel.findOne({ _id: feedReply1._id })).deleted).toEqual(FeedReplyDeletionState.Deleted);
+      expect((await feedReplyModel.findOne({ _id: feedReply2._id })).deleted).toEqual(FeedReplyDeletionState.Deleted);
+    });
+  });
+
+  describe('#deleteAllCommentByUserId', () => {
+    it('deleted all commentes and modify the comment count by using feedpostId', async () => {
+    const user = await usersService.create(userFactory.build());
+    const feedPost2 = await feedPostsService.create(
+      feedPostFactory.build(
+        {
+          userId: activeUser.id,
+        },
+      ),
+    );
+    const feedPost3 = await feedPostsService.create(
+      feedPostFactory.build(
+        {
+          userId: activeUser.id,
+        },
+      ),
+    );
+    const feedComment1 = await feedCommentsService.createFeedComment(
+      feedCommentsFactory.build(
+        {
+          userId: user._id,
+          feedPostId: feedPost1.id,
+          message: 'test comment 1',
+        },
+      ),
+    );
+    const feedComment2 = await feedCommentsService.createFeedComment(
+      feedCommentsFactory.build(
+        {
+          userId: user._id,
+          feedPostId: feedPost1.id,
+          message: 'test comment 2',
+        },
+      ),
+    );
+    const feedComment3 = await feedCommentsService.createFeedComment(
+      feedCommentsFactory.build(
+        {
+          userId: user._id,
+          feedPostId: feedPost2.id,
+          message: 'test comment 3',
+        },
+      ),
+    );
+   await feedCommentsService.deleteAllCommentByUserId(user.id);
+   expect((await feedPostsService.findById(feedPost2.id, true)).commentCount).toBe(0);
+   expect((await feedPostsService.findById(feedPost3.id, true)).commentCount).toBe(0);
+   expect((await feedCommentsModel.findById(feedComment1._id)).is_deleted).toEqual(FeedCommentDeletionState.Deleted);
+   expect((await feedCommentsModel.findById(feedComment2._id)).is_deleted).toEqual(FeedCommentDeletionState.Deleted);
+   expect((await feedCommentsModel.findById(feedComment3._id)).is_deleted).toEqual(FeedCommentDeletionState.Deleted);
+    });
+  });
+
+  describe('#deleteAllFeedReplyLikeByUserId', () => {
+    it('deleted all feedreply likes of given userId', async () => {
+      const user1 = await usersService.create(userFactory.build());
+      const feedReply1 = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser.id,
+            feedCommentId: feedComments.id,
+            message: 'Hello Test Reply Message 1',
+            images: sampleFeedCommentsObject.images,
+            likes: [user1._id],
+          },
+        ),
+      );
+      const feedReply2 = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser.id,
+            feedCommentId: feedComments.id,
+            message: 'Hello Test Reply Message 2',
+            images: sampleFeedCommentsObject.images,
+            likes: [user1._id],
+          },
+        ),
+      );
+
+      await feedCommentsService.deleteAllFeedReplyLikeByUserId(user1.id);
+      expect((await feedReplyModel.findOne({ _id: feedReply1._id })).likes).toEqual([]);
+      expect((await feedReplyModel.findOne({ _id: feedReply2._id })).likes).toEqual([]);
+    });
+  });
 });

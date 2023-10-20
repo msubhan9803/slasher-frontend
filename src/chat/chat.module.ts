@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ChatService } from './providers/chat.service';
 import { ChatController } from './chat.controller';
@@ -8,6 +8,7 @@ import { LocalStorageService } from '../local-storage/providers/local-storage.se
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { User, UserSchema } from '../schemas/user/user.schema';
 
+@Global()
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: MatchList.name, schema: MatchListSchema }]),

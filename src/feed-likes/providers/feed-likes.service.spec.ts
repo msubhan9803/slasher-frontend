@@ -19,6 +19,7 @@ import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 import { FriendsService } from '../../friends/providers/friends.service';
 import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndUnblock.enums';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
+import { FeedReplyLike, FeedReplyLikeDocument } from '../../schemas/feedReplyLike/feedReplyLike.schema';
 
 describe('FeedLikesService', () => {
   let app: INestApplication;
@@ -34,6 +35,7 @@ describe('FeedLikesService', () => {
   let feedCommentsService: FeedCommentsService;
   let friendsService: FriendsService;
   let blocksModel: Model<BlockAndUnblockDocument>;
+  let feedReplyLikeModel: Model<FeedReplyLikeDocument>;
 
   const feedCommentsAndReplyObject = {
     images: [
@@ -60,6 +62,7 @@ describe('FeedLikesService', () => {
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
     friendsService = moduleRef.get<FriendsService>(FriendsService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
+    feedReplyLikeModel = moduleRef.get<Model<FeedReplyLikeDocument>>(getModelToken(FeedReplyLike.name));
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -317,6 +320,42 @@ describe('FeedLikesService', () => {
         const allLikeUsers = likeUsers.map((user) => user._id.toString());
         expect(allLikeUsers).not.toContain(user0.id);
       });
+    });
+  });
+
+  describe('#deleteAllFeedPostLikeByUserId', () => {
+    it('deletes all the likes of given userId', async () => {
+      const feedPost1 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: activeUser.id,
+          },
+        ),
+      );
+      await feedLikesService.createFeedPostLike(feedPost.id, user0.id);
+      await feedLikesService.createFeedPostLike(feedPost1.id, user0.id);
+      await feedLikesService.deleteAllFeedPostLikeByUserId(user0.id);
+      expect(await feedLikesService.findFeedPostLike(feedPost.id, user0.id)).toBeNull();
+      expect(await feedLikesService.findFeedPostLike(feedPost1.id, user0.id)).toBeNull();
+    });
+  });
+
+  describe('#deleteAllFeedReplyLikeByUserId', () => {
+    it('deletes all the replies of given userId', async () => {
+      const feedReply1 = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser._id,
+            feedCommentId: feedComment._id,
+          },
+        ),
+      );
+
+      await feedLikesService.createFeedReplyLike(feedReply.id, user0.id);
+      await feedLikesService.createFeedReplyLike(feedReply1.id, user0.id);
+      await feedLikesService.deleteAllFeedReplyLikeByUserId(user0.id);
+      expect(await feedReplyLikeModel.findOne({ _id: feedReply.id })).toBeNull();
+      expect(await feedReplyLikeModel.findOne({ _id: feedReply1.id })).toBeNull();
     });
   });
 });

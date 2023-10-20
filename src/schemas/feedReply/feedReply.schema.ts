@@ -68,4 +68,8 @@ export class FeedReply extends FeedReplyUnusedFields {
 
 export const FeedReplySchema = SchemaFactory.createForClass(FeedReply);
 
+FeedReplySchema.index({
+  feedCommentId: 1, userId: 1, deleted: 1, status: 1,
+});
+
 export type FeedReplyDocument = HydratedDocument<FeedReply>;

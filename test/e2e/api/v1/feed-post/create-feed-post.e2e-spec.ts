@@ -24,13 +24,12 @@ import { moviesFactory } from '../../../../factories/movies.factory';
 import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
 import { FeedPostsService } from '../../../../../src/feed-posts/providers/feed-posts.service';
 import { MovieUserStatusService } from '../../../../../src/movie-user-status/providers/movie-user-status.service';
-import { WorthWatchingStatus } from '../../../../../src/types';
+import { WorthWatchingStatus, WorthReadingStatus } from '../../../../../src/types';
 import { UserSettingsService } from '../../../../../src/settings/providers/user-settings.service';
 import { userSettingFactory } from '../../../../factories/user-setting.factory';
 import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { BooksService } from '../../../../../src/books/providers/books.service';
 import { booksFactory } from '../../../../factories/books.factory';
-import { WorthReadingStatus } from '../../../../../src/schemas/bookUserStatus/bookUserStatus.enums';
 import { BookUserStatusService } from '../../../../../src/book-user-status/providers/book-user-status.service';
 
 describe('Feed-Post / Post File (e2e)', () => {

@@ -86,28 +86,15 @@ export class FeedPostsController {
   ) {
     // ! TODO ~Sahil: Handle BookReview type here and test via postman first!
     // PostType.BookReview
-    if (createFeedPostsDto.postType === PostType.BookReview && createFeedPostsDto.message === '') {
+    if (createFeedPostsDto.postType === (PostType.BookReview || PostType.MovieReview) && createFeedPostsDto.message === '') {
       throw new HttpException(
         'Review must have a some text',
         HttpStatus.BAD_REQUEST,
       );
     }
 
-    if (createFeedPostsDto.postType !== PostType.BookReview && !files.length && createFeedPostsDto.message === '') {
-      throw new HttpException(
-        'Posts must have some text or at least one image.',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    if (createFeedPostsDto.postType === PostType.MovieReview && createFeedPostsDto.message === '') {
-      throw new HttpException(
-        'Review must have a some text',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    if (createFeedPostsDto.postType !== PostType.MovieReview && !files.length && createFeedPostsDto.message === '') {
+    if (createFeedPostsDto.postType !== (PostType.BookReview || PostType.MovieReview)
+      && !files.length && createFeedPostsDto.message === '') {
       throw new HttpException(
         'Posts must have some text or at least one image.',
         HttpStatus.BAD_REQUEST,
@@ -177,28 +164,7 @@ export class FeedPostsController {
       }
 
       feedPost.spoilers = createFeedPostsDto.bookPostFields.spoilers;
-      if (createFeedPostsDto.bookPostFields.rating) {
-        await this.booksService.createOrUpdateRating(
-          feedPost.bookId.toString(),
-          createFeedPostsDto.bookPostFields.rating,
-          user.id,
-        );
-      }
-      if (createFeedPostsDto.bookPostFields.goreFactorRating) {
-        await this.booksService.createOrUpdateGoreFactorRating(
-          feedPost.bookId.toString(),
-          createFeedPostsDto.bookPostFields.goreFactorRating,
-          user.id,
-        );
-      }
-
-      if (createFeedPostsDto.bookPostFields.worthReading) {
-        await this.booksService.createOrUpdateWorthReading(
-          feedPost.bookId.toString(),
-          createFeedPostsDto.bookPostFields.worthReading,
-          user.id,
-        );
-      }
+      await this.booksService.updateBookPostFields(createFeedPostsDto.bookPostFields, feedPost);
     }
 
     if (createFeedPostsDto.moviePostFields) {
@@ -208,29 +174,8 @@ export class FeedPostsController {
       if (!createFeedPostsDto.movieId) {
         throw new HttpException('When submitting moviePostFields, movieId is required.', HttpStatus.BAD_REQUEST);
       }
-
       feedPost.spoilers = createFeedPostsDto.moviePostFields.spoilers;
-      if (createFeedPostsDto.moviePostFields.rating) {
-        await this.moviesService.createOrUpdateRating(
-          feedPost.movieId.toString(),
-          createFeedPostsDto.moviePostFields.rating,
-          user.id,
-        );
-      }
-      if (createFeedPostsDto.moviePostFields.goreFactorRating) {
-        await this.moviesService.createOrUpdateGoreFactorRating(
-          feedPost.movieId.toString(),
-          createFeedPostsDto.moviePostFields.goreFactorRating,
-          user.id,
-        );
-      }
-      if (createFeedPostsDto.moviePostFields.worthWatching) {
-        await this.moviesService.createOrUpdateWorthWatching(
-          feedPost.movieId.toString(),
-          createFeedPostsDto.moviePostFields.worthWatching,
-          user.id,
-        );
-      }
+      await this.moviesService.updateMoviePostFields(createFeedPostsDto.moviePostFields, feedPost);
     }
     const allFollowedUsers = await this.userFollowService.findAllUsersForFollowNotification(user.id);
     const userIds = allFollowedUsers.map((i) => i.userId.toString());
@@ -362,20 +307,12 @@ export class FeedPostsController {
     const currentPostImages = feedPost.images && feedPost.images.length;
     const { message } = updateFeedPostsDto;
 
-    if (feedPost.postType === PostType.MovieReview && updateFeedPostsDto.message === '') {
+    if (feedPost.postType === (PostType.MovieReview || PostType.BookReview) && updateFeedPostsDto.message === '') {
       throw new HttpException(
         'Review must have a some text',
         HttpStatus.BAD_REQUEST,
       );
     }
-
-    if (feedPost.postType === PostType.BookReview && updateFeedPostsDto.message === '') {
-      throw new HttpException(
-        'Review must have a some text',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
     // eslint-disable-next-line max-len
     const isPostWithoutImgAndMsg = (imagesToDelete && !newPostImages && message === '' && currentPostImages === imagesToDelete) || (!currentPostImages && !newPostImages && message === '');
 
@@ -489,27 +426,7 @@ export class FeedPostsController {
       }
       // eslint-disable-next-line no-param-reassign
       (updateFeedPostsDto as unknown as FeedPost).spoilers = updateFeedPostsDto.moviePostFields.spoilers;
-      if (updateFeedPostsDto.moviePostFields.rating) {
-        await this.moviesService.createOrUpdateRating(
-          (feedPost.movieId as any)._id.toString(),
-          updateFeedPostsDto.moviePostFields.rating,
-          user.id,
-        );
-      }
-      if (updateFeedPostsDto.moviePostFields.goreFactorRating) {
-        await this.moviesService.createOrUpdateGoreFactorRating(
-          (feedPost.movieId as any)._id.toString(),
-          updateFeedPostsDto.moviePostFields.goreFactorRating,
-          user.id,
-        );
-      }
-      if (typeof updateFeedPostsDto.moviePostFields.worthWatching === 'number') {
-        await this.moviesService.createOrUpdateWorthWatching(
-          (feedPost.movieId as any)._id.toString(),
-          updateFeedPostsDto.moviePostFields.worthWatching,
-          user.id,
-        );
-      }
+      await this.moviesService.updateMoviePostFields(updateFeedPostsDto.moviePostFields, feedPost);
     }
 
     if (updateFeedPostsDto.bookPostFields) {
@@ -522,27 +439,7 @@ export class FeedPostsController {
       }
       // eslint-disable-next-line no-param-reassign
       (updateFeedPostsDto as unknown as FeedPost).spoilers = updateFeedPostsDto.bookPostFields.spoilers;
-      if (updateFeedPostsDto.bookPostFields.rating) {
-        await this.booksService.createOrUpdateRating(
-          (feedPost.bookId as any)._id.toString(),
-          updateFeedPostsDto.bookPostFields.rating,
-          user.id,
-        );
-      }
-      if (updateFeedPostsDto.bookPostFields.goreFactorRating) {
-        await this.booksService.createOrUpdateGoreFactorRating(
-          (feedPost.bookId as any)._id.toString(),
-          updateFeedPostsDto.bookPostFields.goreFactorRating,
-          user.id,
-        );
-      }
-      if (typeof updateFeedPostsDto.bookPostFields.worthReading === 'number') {
-        await this.booksService.createOrUpdateWorthReading(
-          (feedPost.bookId as any)._id.toString(),
-          updateFeedPostsDto.bookPostFields.worthReading,
-          user.id,
-        );
-      }
+      await this.booksService.updateBookPostFields(updateFeedPostsDto.bookPostFields, feedPost);
     }
 
     const updatedFeedPost = await this.feedPostsService.update(

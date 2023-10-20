@@ -38,6 +38,30 @@ export class BooksService {
     return bookData ? bookData.toObject() : null;
   }
 
+  async updateBookPostFields(bookPostFields, feedPost) {
+    if (bookPostFields.rating) {
+      await this.createOrUpdateRating(
+        feedPost.bookId.toString(),
+        bookPostFields.rating,
+        feedPost.userId,
+      );
+    }
+    if (bookPostFields.goreFactorRating) {
+      await this.createOrUpdateGoreFactorRating(
+        feedPost.bookId.toString(),
+        bookPostFields.goreFactorRating,
+        feedPost.userId,
+      );
+    }
+    if (typeof bookPostFields.worthReading === 'number') {
+      await this.createOrUpdateWorthReading(
+        feedPost.bookId.toString(),
+        bookPostFields.worthReading,
+        feedPost.userId,
+      );
+    }
+  }
+
   async createOrUpdateRating(bookId: string, rating: number, userId: string) {
     // Create/update a BookUserStatus document
     const bookUserStatus = await this.bookUserStatusModel.findOneAndUpdate(

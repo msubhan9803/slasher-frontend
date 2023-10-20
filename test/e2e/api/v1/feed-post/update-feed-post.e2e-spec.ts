@@ -26,9 +26,12 @@ import { moviesFactory } from '../../../../factories/movies.factory';
 import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
 import { PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
 import { MovieUserStatusService } from '../../../../../src/movie-user-status/providers/movie-user-status.service';
-import { WorthWatchingStatus } from '../../../../../src/types';
+import { WorthReadingStatus, WorthWatchingStatus } from '../../../../../src/types';
 import { UserSettingsService } from '../../../../../src/settings/providers/user-settings.service';
 import { userSettingFactory } from '../../../../factories/user-setting.factory';
+import { BooksService } from '../../../../../src/books/providers/books.service';
+import { booksFactory } from '../../../../factories/books.factory';
+import { BookUserStatusService } from '../../../../../src/book-user-status/providers/book-user-status.service';
 
 describe('Update Feed Post (e2e)', () => {
   let app: INestApplication;
@@ -43,7 +46,9 @@ describe('Update Feed Post (e2e)', () => {
   let feedPost: FeedPostDocument;
   let hashtagModel: Model<HashtagDocument>;
   let moviesService: MoviesService;
+  let booksService: BooksService;
   let movieUserStatusService: MovieUserStatusService;
+  let bookUserStatusService: BookUserStatusService;
   let userSettingsService: UserSettingsService;
 
   const sampleFeedPostObject = {
@@ -65,6 +70,8 @@ describe('Update Feed Post (e2e)', () => {
     hashtagService = moduleRef.get<HashtagService>(HashtagService);
     hashtagModel = moduleRef.get<Model<HashtagDocument>>(getModelToken(Hashtag.name));
     movieUserStatusService = moduleRef.get<MovieUserStatusService>(MovieUserStatusService);
+    bookUserStatusService = moduleRef.get<BookUserStatusService>(BookUserStatusService);
+    booksService = moduleRef.get<BooksService>(BooksService);
     userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -77,6 +84,7 @@ describe('Update Feed Post (e2e)', () => {
 
   let feedPost4;
   let movie;
+  let book;
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
@@ -112,6 +120,7 @@ describe('Update Feed Post (e2e)', () => {
         },
       ),
     );
+    book = await booksService.create(booksFactory.build());
   });
 
   describe('PATCH /api/v1/feed-posts/:id', () => {
@@ -684,6 +693,37 @@ describe('Update Feed Post (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
+    it('when bookPostFields is exits but bookId is not exist in post than expected response', async () => {
+      const feedPost6 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: activeUser._id,
+            postType: PostType.BookReview,
+          },
+        ),
+      );
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-posts/${feedPost6._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'this new post')
+          .field('bookPostFields[spoilers]', true)
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1])
+          .field('imageDescriptions[0][description]', 'this is update post description 0')
+          .field('imageDescriptions[1][description]', 'this is update post description 1');
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'When submitting bookPostFields, bookId is required.',
+        });
+      }, [{ extension: 'png' }, { extension: 'jpg' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
     it('when moviePostFields is exits than expected response', async () => {
       const feedPost5 = await feedPostsService.create(
         feedPostFactory.build(
@@ -714,6 +754,43 @@ describe('Update Feed Post (e2e)', () => {
         expect(movieUserStatus.rating).toBe(3);
         expect(movieUserStatus.goreFactorRating).toBe(4);
         expect(movieUserStatus.worthWatching).toBe(WorthWatchingStatus.Down);
+      }, [{ extension: 'png' }, { extension: 'jpg' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when bookPostFields is exits than expected response', async () => {
+      const feedPost5 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: activeUser._id,
+            bookId: book._id,
+            postType: PostType.BookReview,
+          },
+        ),
+      );
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-posts/${feedPost5._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'this new post')
+          .field('bookPostFields[spoilers]', true)
+          .field('bookPostFields[rating]', 3)
+          .field('bookPostFields[goreFactorRating]', 4)
+          .field('bookPostFields[worthReading]', WorthReadingStatus.Down)
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1])
+          .field('imageDescriptions[0][description]', 'this is update post description 0')
+          .field('imageDescriptions[1][description]', 'this is update post description 1');
+        const post = await feedPostsService.findById(response.body._id, true);
+        const bookUserStatus = await bookUserStatusService.findBookUserStatus(activeUser._id.toString(), book._id.toString());
+        expect(post.spoilers).toBe(true);
+        expect(bookUserStatus.rating).toBe(3);
+        expect(bookUserStatus.goreFactorRating).toBe(4);
+        expect(bookUserStatus.worthReading).toBe(WorthReadingStatus.Down);
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
@@ -778,6 +855,38 @@ describe('Update Feed Post (e2e)', () => {
         expect(response.body).toEqual({
           statusCode: 400,
           message: 'When submitting moviePostFields, post type must be MovieReview.',
+        });
+      }, [{ extension: 'png' }, { extension: 'jpg' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when bookPostFields is exits but postType is User than expected response', async () => {
+      const feedPost9 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: activeUser._id,
+            bookId: book._id,
+            postType: PostType.User,
+          },
+        ),
+      );
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-posts/${feedPost9._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'this new post')
+          .field('bookPostFields[spoilers]', true)
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1])
+          .field('imageDescriptions[0][description]', 'this is update post description 0')
+          .field('imageDescriptions[1][description]', 'this is update post description 1');
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'When submitting bookPostFields, post type must be BookReview.',
         });
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
 
@@ -1158,7 +1267,7 @@ describe('Update Feed Post (e2e)', () => {
       expect(response.body.message).toContain('goreFactorRating must be greater than 1');
     });
 
-    it('worthWatching must be one of the following values: 0, 1, 2', async () => {
+    it('worthWatching must be one of the following values: 1, 2', async () => {
       const response = await request(app.getHttpServer())
         .patch(`/api/v1/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
@@ -1167,6 +1276,18 @@ describe('Update Feed Post (e2e)', () => {
         .field('moviePostFields[spoilers]', true)
         .field('moviePostFields[worthWatching]', 6);
       expect(response.body.message).toContain('worthWatching must be one of the following values: 0, 1, 2');
+    });
+
+    it('worthReading must be one of the following values: 1, 2', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/feed-posts')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('userId', activeUser._id.toString())
+        .field('postType', 4)
+        .field('bookPostFields[spoilers]', true)
+        .field('bookPostFields[worthReading]', 6);
+      expect(response.body.message).toContain('worthReading must be one of the following values: 1, 2');
+    });
     });
 
     it('check description length validation', async () => {
@@ -1188,4 +1309,3 @@ describe('Update Feed Post (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
   });
-});

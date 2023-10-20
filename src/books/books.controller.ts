@@ -40,13 +40,15 @@ export class BooksController {
 
   @Get()
   async findAll(@Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: FindAllBooksDto) {
-    const books = await this.booksService.findAll(query.limit,
+    const books = await this.booksService.findAll(
+query.limit,
       true,
       query.sortBy,
       query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
       query.nameContains,
       null,
-      query.startsWith,);
+      query.startsWith,
+);
     return books.map((bookData) => pick(
       bookData,
       ['_id', 'name', 'author', 'description', 'numberOfPages', 'isbnNumber', 'publishDate', 'covers'],

@@ -160,6 +160,30 @@ export class MoviesService {
     return movieData ? movieData.toObject() : null;
   }
 
+  async updateMoviePostFields(moviePostFields, feedPost) {
+    if (moviePostFields.rating) {
+      await this.createOrUpdateRating(
+        feedPost.movieId.toString(),
+        moviePostFields.rating,
+        feedPost.userId,
+      );
+    }
+    if (moviePostFields.goreFactorRating) {
+      await this.createOrUpdateGoreFactorRating(
+        feedPost.movieId.toString(),
+        moviePostFields.goreFactorRating,
+        feedPost.userId,
+      );
+    }
+    if (typeof moviePostFields.worthWatching === 'number') {
+      await this.createOrUpdateWorthWatching(
+        feedPost.movieId.toString(),
+        moviePostFields.worthWatching,
+        feedPost.userId,
+      );
+    }
+  }
+
   async createOrUpdateRating(movieId: string, rating: number, userId: string) {
     // Create/update a MovieUserStatus document
     const movieUserStatus = await this.movieUserStatusModel.findOneAndUpdate(

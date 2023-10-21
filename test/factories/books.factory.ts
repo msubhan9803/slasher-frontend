@@ -1,7 +1,7 @@
 import { Factory } from 'fishery';
 import { Book } from '../../src/schemas/book/book.schema';
 import {
-  BookStatus,
+  BookActiveStatus,
   BookDeletionState,
   BookType,
 } from '../../src/schemas/book/book.enums';
@@ -12,7 +12,7 @@ const randomName = Math.random().toString(36).substring(2, 5);
 export const booksFactory = Factory.define<Partial<Book>>(
   ({ sequence }) => new Book({
     name: `Book?! ${randomName}${sequence}`,
-    status: BookStatus.Active,
+    status: BookActiveStatus.Inactive, // default status is `InActive` for bookSchema
     deleted: BookDeletionState.NotDeleted,
     coverEditionKey: 'OL11759447M',
     type: BookType.OpenLibrary,

@@ -312,13 +312,15 @@ describe('MoviesService', () => {
     });
 
     it('finds all the expected movie details that has deleted and active status', async () => {
-      for (let index = 0; index < 4; index += 1) {
+      const numberOfInActiveMovies = 4;
+      for (let index = 0; index < numberOfInActiveMovies; index += 1) {
         await moviesService.create(
           moviesFactory.build(),
         );
       }
       const limit = 5;
       const moviesList = await moviesService.findAll(limit, false, 'name');
+      // 4 (numberOfInactiveMovies) + 1 (inactive movie created in top-level `beforeEach`) = 5
       expect(moviesList).toHaveLength(5);
     });
 

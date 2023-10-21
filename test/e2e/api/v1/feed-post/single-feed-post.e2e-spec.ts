@@ -32,7 +32,7 @@ import { MovieUserStatus, MovieUserStatusDocument } from '../../../../../src/sch
 import { BooksService } from '../../../../../src/books/providers/books.service';
 import { BookUserStatus, BookUserStatusDocument } from '../../../../../src/schemas/bookUserStatus/bookUserStatus.schema';
 import { booksFactory } from '../../../../factories/books.factory';
-import { BookStatus } from '../../../../../src/schemas/book/book.enums';
+import { BookActiveStatus } from '../../../../../src/schemas/book/book.enums';
 
 describe('Feed-Post / Single Feed Post Details (e2e)', () => {
   let app: INestApplication;
@@ -122,7 +122,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
       });
       book = await booksService.create(booksFactory.build({
         logo: 'https://picsum.photos/id/237/200/300',
-        status: BookStatus.Active,
+        status: BookActiveStatus.Active,
         publishDate: DateTime.fromISO('2022-10-19T00:00:00Z').toJSDate(),
       }));
       await bookUserStatusModel.create({

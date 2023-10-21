@@ -9,11 +9,14 @@ import { AppModule } from '../../app.module';
 import { BooksService } from './books.service';
 import { booksFactory } from '../../../test/factories/books.factory';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
-import { BookStatus, BookType } from '../../schemas/book/book.enums';
+import { BookActiveStatus, BookType } from '../../schemas/book/book.enums';
 import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 import { BookUserStatus, BookUserStatusDocument } from '../../schemas/bookUserStatus/bookUserStatus.schema';
 import { UsersService } from '../../users/providers/users.service';
 import { userFactory } from '../../../test/factories/user.factory';
+import { BookDocument } from '../../schemas/book/book.schema';
+import { UserDocument } from '../../schemas/user/user.schema';
+import { WorthReadingStatus } from '../../types';
 
 const mockHttpService = () => ({});
 
@@ -23,6 +26,9 @@ describe('BooksService', () => {
   let booksService: BooksService;
   let bookUserStatusModel: Model<BookUserStatusDocument>;
   let usersService: UsersService;
+  let book: BookDocument;
+  let activeUser: UserDocument;
+  let user1: UserDocument;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -47,6 +53,12 @@ describe('BooksService', () => {
 
     // Reset sequences so we start fresh before each test
     rewindAllFactories();
+
+    activeUser = await usersService.create(userFactory.build({ userName: 'superman1' }));
+    user1 = await usersService.create(userFactory.build({ userName: 'Michael' }));
+    book = await booksService.create(
+      booksFactory.build(),
+    );
   });
 
   it('should be defined', () => {
@@ -55,9 +67,6 @@ describe('BooksService', () => {
 
   describe('#create', () => {
     it('successfully creates a book', async () => {
-      const book = await booksService.create(
-        booksFactory.build(),
-      );
       expect(await booksService.findById(book.id, false)).toBeTruthy();
     });
   });
@@ -65,22 +74,24 @@ describe('BooksService', () => {
   describe('#BooksIdsForUser', () => {
     // eslint-disable-next-line @typescript-eslint/no-shadow
     let activeUser;
-    let book;
     let book1;
     let book2;
     let book3;
     beforeEach(async () => {
-      book = await booksService.create(
-        booksFactory.build(),
-      );
       book1 = await booksService.create(
-        booksFactory.build(),
+        booksFactory.build({
+          status: BookActiveStatus.Active,
+        }),
       );
       book2 = await booksService.create(
-        booksFactory.build(),
+        booksFactory.build({
+          status: BookActiveStatus.Active,
+        }),
       );
       book3 = await booksService.create(
-        booksFactory.build(),
+        booksFactory.build({
+          status: BookActiveStatus.Active,
+        }),
       );
       activeUser = await usersService.create(userFactory.build());
     });
@@ -273,13 +284,13 @@ describe('BooksService', () => {
   describe('#findAll', () => {
     it('only includes books of type BookType.openLibrary', async () => {
       await booksService.create(
-        booksFactory.build({ name: 'a', type: BookType.Free }),
+        booksFactory.build({ status: BookActiveStatus.Active, name: 'a', type: BookType.Free }),
       );
       await booksService.create(
-        booksFactory.build({ name: 'b', type: BookType.OpenLibrary }),
+        booksFactory.build({ status: BookActiveStatus.Active, name: 'b', type: BookType.OpenLibrary }),
       );
 
-      const booksList = await booksService.findAll(2, true, 'name');
+      const booksList = await booksService.findAll(10, true, 'name');
       expect(booksList).toHaveLength(1);
     });
 
@@ -287,8 +298,8 @@ describe('BooksService', () => {
       await booksService.create(
         booksFactory.build(
           {
+            status: BookActiveStatus.Active,
             name: 'Afraid',
-            status: BookStatus.Active,
             bookId: '/works/OL450063W',
           },
         ),
@@ -296,8 +307,8 @@ describe('BooksService', () => {
       await booksService.create(
         booksFactory.build(
           {
+            status: BookActiveStatus.Active,
             name: 'Afraid!',
-            status: BookStatus.Active,
             bookId: '/works/OL460063W',
           },
         ),
@@ -305,8 +316,8 @@ describe('BooksService', () => {
       await booksService.create(
         booksFactory.build(
           {
+            status: BookActiveStatus.Active,
             name: 'Afraid 2',
-            status: BookStatus.Active,
             bookId: '/works/OL470063W',
           },
         ),
@@ -314,8 +325,8 @@ describe('BooksService', () => {
       await booksService.create(
         booksFactory.build(
           {
+            status: BookActiveStatus.Active,
             name: 'Afraid: Containment',
-            status: BookStatus.Active,
             bookId: '/works/OL480063W',
           },
         ),
@@ -323,8 +334,8 @@ describe('BooksService', () => {
       await booksService.create(
         booksFactory.build(
           {
+            status: BookActiveStatus.Active,
             name: 'Beetle',
-            status: BookStatus.Active,
             bookId: '/works/OL450763W',
           },
         ),
@@ -332,8 +343,8 @@ describe('BooksService', () => {
       await booksService.create(
         booksFactory.build(
           {
+            status: BookActiveStatus.Active,
             name: 'Carmilla',
-            status: BookStatus.Active,
             bookId: '/works/OL456063W',
           },
         ),
@@ -341,8 +352,8 @@ describe('BooksService', () => {
       await booksService.create(
         booksFactory.build(
           {
+            status: BookActiveStatus.Active,
             name: 'Dracula',
-            status: BookStatus.Active,
             bookId: '/works/OL458063W',
           },
         ),
@@ -350,8 +361,8 @@ describe('BooksService', () => {
       await booksService.create(
         booksFactory.build(
           {
+            status: BookActiveStatus.Active,
             name: 'Frankenstein',
-            status: BookStatus.Active,
             bookId: '/works/OL450093W',
           },
         ),
@@ -368,18 +379,21 @@ describe('BooksService', () => {
       await booksService.create(
         booksFactory.build(
           {
+            status: BookActiveStatus.Active,
             publishDate: DateTime.now().plus({ days: 1 }).toJSDate(),
           },
         ),
       );
       await booksService.create(
         booksFactory.build({
+          status: BookActiveStatus.Active,
           publishDate: DateTime.now().minus({ days: 1 }).toJSDate(),
         }),
       );
       await booksService.create(
         booksFactory.build(
           {
+            status: BookActiveStatus.Active,
             publishDate: DateTime.now().minus({ days: 2 }).toJSDate(),
           },
         ),
@@ -387,6 +401,7 @@ describe('BooksService', () => {
       await booksService.create(
         booksFactory.build(
           {
+            status: BookActiveStatus.Active,
             publishDate: DateTime.now().minus({ days: 1 }).toJSDate(),
           },
         ),
@@ -394,6 +409,7 @@ describe('BooksService', () => {
       await booksService.create(
         booksFactory.build(
           {
+            status: BookActiveStatus.Active,
             publishDate: DateTime.now().minus({ days: 3 }).toJSDate(),
           },
 
@@ -407,22 +423,24 @@ describe('BooksService', () => {
       expect(booksList).toHaveLength(5);
     });
 
-    it('finds all the expected book details that has not deleted and active status', async () => {
-      for (let index = 0; index < 4; index += 1) {
+    it('finds all the expected book details that has not deleted and Inactive status', async () => {
+      const numberOfInActiveBooks = 4;
+      for (let index = 0; index < numberOfInActiveBooks; index += 1) {
         await booksService.create(
           booksFactory.build(),
         );
       }
       const limit = 5;
       const booksList = await booksService.findAll(limit, false, 'name');
-      expect(booksList).toHaveLength(4);
+      // 4 (numberOfInactiveBooks) + 1 (inactive book created in top-level `beforeEach`) = 5
+      expect(booksList).toHaveLength(5);
     });
 
     it('when name contains supplied than expected response', async () => {
       const bookData = await booksService.create(
         booksFactory.build(
           {
-            status: BookStatus.Active,
+            status: BookActiveStatus.Active,
             name: 'Afraid',
           },
         ),
@@ -430,7 +448,7 @@ describe('BooksService', () => {
       await booksService.create(
         booksFactory.build(
           {
-            status: BookStatus.Active,
+            status: BookActiveStatus.Active,
             name: 'The King in Yellow',
           },
         ),
@@ -438,7 +456,7 @@ describe('BooksService', () => {
       await booksService.create(
         booksFactory.build(
           {
-            status: BookStatus.Active,
+            status: BookActiveStatus.Active,
             name: 'Coraline',
           },
         ),
@@ -451,21 +469,25 @@ describe('BooksService', () => {
     it('when sort_name startsWith supplied than expected response', async () => {
       await booksService.create(
         booksFactory.build({
+          status: BookActiveStatus.Active,
           name: 'Coraline',
         }),
       );
       await booksService.create(
         booksFactory.build({
+          status: BookActiveStatus.Active,
           name: 'The King in Yellow',
         }),
       );
       await booksService.create(
         booksFactory.build({
+          status: BookActiveStatus.Active,
           name: 'Beetle',
         }),
       );
       await booksService.create(
         booksFactory.build({
+          status: BookActiveStatus.Active,
           name: 'Beetle 1',
         }),
       );
@@ -477,30 +499,35 @@ describe('BooksService', () => {
     it('when books is sort by rating than expected response', async () => {
       await booksService.create(
         booksFactory.build({
+          status: BookActiveStatus.Active,
           name: 'Coraline',
           rating: 1,
         }),
       );
       await booksService.create(
         booksFactory.build({
+          status: BookActiveStatus.Active,
           name: 'The King in Yellow',
           rating: 1.5,
         }),
       );
       await booksService.create(
         booksFactory.build({
+          status: BookActiveStatus.Active,
           name: 'Beetle',
           rating: 2,
         }),
       );
       await booksService.create(
         booksFactory.build({
+          status: BookActiveStatus.Active,
           name: 'Beetle 1',
           rating: 2.5,
         }),
       );
       await booksService.create(
         booksFactory.build({
+          status: BookActiveStatus.Active,
           name: 'Beetle 2',
           rating: 3,
         }),
@@ -521,7 +548,7 @@ describe('BooksService', () => {
           await booksService.create(
             booksFactory.build(
               {
-                status: BookStatus.Active,
+                status: BookActiveStatus.Active,
                 rating: rating[i],
                 name: name[i],
               },
@@ -560,6 +587,136 @@ describe('BooksService', () => {
         expect(firstResults).toHaveLength(3);
         expect(secondResults).toHaveLength(2);
       });
+    });
+  });
+
+  describe('#createOrUpdateRating', () => {
+    it('create or update `rating` in a bookUserStatus document', async () => {
+      const rating = 3;
+      const bookUserStatus = await booksService.createOrUpdateRating(book.id, rating, activeUser.id);
+      expect(bookUserStatus.rating).toBe(rating);
+      const updatedBook = await booksService.findById(book.id, false);
+      expect(updatedBook.rating).toBe(rating);
+
+      // Delete rating should update `bookUserStatus.rating`, `book.rating` and `book.ratingUsersCount` properly
+      const bookUserStatusAfter = await booksService.createOrUpdateRating(book.id, 0, activeUser.id);
+      expect(bookUserStatusAfter.rating).toBe(0);
+      const bookDataAfter = await booksService.findById(book.id, false);
+      expect(bookDataAfter.rating).toBe(0);
+      expect(bookDataAfter.ratingUsersCount).toBe(0);
+    });
+
+    it('verify that average of all `rating` of bookUserStatus is updated in book', async () => {
+      const rating1 = 1;
+      const bookUserStatus1 = await booksService.createOrUpdateRating(book.id, rating1, activeUser.id);
+      expect(bookUserStatus1.userData.rating).toBe(rating1);
+
+      const rating2 = 2;
+      const bookUserStatus2 = await booksService.createOrUpdateRating(book.id, rating2, user1.id);
+      expect(bookUserStatus2.userData.rating).toBe(rating2);
+
+      // Verify that average rating is correctly updated in book
+      const updatedBook = await booksService.findById(book.id, false);
+      expect(updatedBook.rating).toBe(1.5);
+    });
+  });
+
+  describe('#createOrUpdateGoreFactorRating', () => {
+    it('create or update `goreFactorRating` in a bookUserStatus document', async () => {
+      const goreFactorRating = 3;
+      const bookUserStatus = await booksService.createOrUpdateGoreFactorRating(book.id, goreFactorRating, activeUser.id);
+      expect(bookUserStatus.goreFactorRating).toBe(goreFactorRating);
+      const updatedBook = await booksService.findById(book.id, false);
+      expect(updatedBook.goreFactorRating).toBe(goreFactorRating);
+      expect(updatedBook.goreFactorRatingUsersCount).toBe(1);
+
+      // Delete rating should update `bookUserStatus.goreFactorRating`, `book.goreFactorRating`
+      // and `book.goreFactorRatingUsersCount` properly
+      const bookUserStatusAfter = await booksService.createOrUpdateGoreFactorRating(book.id, 0, activeUser.id);
+      expect(bookUserStatusAfter.goreFactorRating).toBe(0);
+      const bookDataAfter = await booksService.findById(book.id, false);
+      expect(bookDataAfter.goreFactorRating).toBe(0);
+      expect(bookDataAfter.goreFactorRatingUsersCount).toBe(0);
+    });
+
+    it('verify that average of all `goreFactorRating` of bookUserStatus is updated in book', async () => {
+      const goreFactorRating1 = 1;
+      const bookUserStatus1 = await booksService.createOrUpdateGoreFactorRating(book.id, goreFactorRating1, activeUser.id);
+      expect(bookUserStatus1.userData.goreFactorRating).toBe(goreFactorRating1);
+
+      const goreFactorRating2 = 2;
+      const bookUserStatus2 = await booksService.createOrUpdateGoreFactorRating(book.id, goreFactorRating2, user1.id);
+      expect(bookUserStatus2.userData.goreFactorRating).toBe(goreFactorRating2);
+
+      // Verify average `goreFactorRating` is correctly updated in book
+      const updatedBook = await booksService.findById(book.id, false);
+      expect(updatedBook.goreFactorRating).toBe(1.5);
+    });
+  });
+
+  describe('#createOrUpdateWorthReading', () => {
+    it('create or update  a bookrUserStatus document', async () => {
+      const worthReading = WorthReadingStatus.Up;
+      const bookUserStatus = await booksService.createOrUpdateWorthReading(book.id, worthReading, activeUser.id);
+      expect(bookUserStatus.worthReading).toBe(worthReading);
+      const updatedBook = await booksService.findById(book.id, false);
+      expect(updatedBook.worthReading).toBe(WorthReadingStatus.Up);
+      expect(updatedBook.worthReadingUpUsersCount).toBe(1);
+      expect(updatedBook.worthReadingDownUsersCount).toBe(0);
+
+      // Delete rating should update `bookUserStatus.worthReading`, `book.goreFactorRating`
+      // and `book.goreFactorRatingUsersCount` properly
+      const bookUserStatusAfter = await booksService.createOrUpdateWorthReading(book.id, 0, activeUser.id);
+      expect(bookUserStatusAfter.worthReading).toBe(0);
+      const bookAfter = await booksService.findById(book.id, false);
+      expect(bookAfter.worthReading).toBe(WorthReadingStatus.NoRating);
+      expect(bookAfter.worthReadingUpUsersCount).toBe(0);
+      expect(bookAfter.worthReadingDownUsersCount).toBe(0);
+    });
+
+    it('verify that average of all WorthReading of bookrUserStatus is updated in book', async () => {
+      const worthReading1 = WorthReadingStatus.Down;
+      const bookUserStatus1 = await booksService.createOrUpdateWorthReading(book.id, worthReading1, activeUser.id);
+      expect(bookUserStatus1.worthReading).toBe(worthReading1);
+
+      const worthReading2 = WorthReadingStatus.Up;
+      const bookUserStatus2 = await booksService.createOrUpdateWorthReading(book.id, worthReading2, user1.id);
+      expect(bookUserStatus2.worthReading).toBe(worthReading2);
+
+      /** Verify average `WorthReading` is rounded to the nearest integer
+       * i.e,, Math.round((1+2)/2) = Math.round(1.5) = 2 = WorthReadingStatus.Up
+       */
+      const updatedBook = await booksService.findById(book.id, false);
+      expect(updatedBook.worthReading).toBe(WorthReadingStatus.Up);
+    });
+  });
+
+  describe('#getUserBookStatusRatings', () => {
+    const rating = 3;
+    const goreFactorRating = 4;
+    const worthReading = WorthReadingStatus.Up;
+    beforeEach(async () => {
+      await booksService.createOrUpdateRating(book.id, rating, activeUser.id);
+      await booksService.createOrUpdateGoreFactorRating(book.id, goreFactorRating, activeUser.id);
+      await booksService.createOrUpdateWorthReading(book.id, worthReading, activeUser.id);
+    });
+    it('create or update `rating` in a bookrUserStatus document', async () => {
+      const bookUserStatus = await booksService.getUserBookStatusRatings(book.id, activeUser.id);
+      expect(bookUserStatus.rating).toBe(rating);
+      expect(bookUserStatus.goreFactorRating).toBe(goreFactorRating);
+      expect(bookUserStatus.worthReading).toBe(worthReading);
+    });
+  });
+
+  describe('#getRatingUsersCount', () => {
+    beforeEach(async () => {
+      // create rating by two users
+      await booksService.createOrUpdateRating(book.id, 4, activeUser.id);
+      await booksService.createOrUpdateRating(book.id, 5, user1.id);
+    });
+    it('create or update `rating` in a bookUserStatus document', async () => {
+      const ratingUsersCount = await booksService.getRatingUsersCount(book.id);
+      expect(ratingUsersCount).toBe(2);
     });
   });
 });

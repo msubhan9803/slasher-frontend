@@ -8,7 +8,8 @@ import { ReturnBookDb } from 'src/movies/dto/cron-job-response.dto';
 import { lastValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
-import { BookStatus, BookDeletionState, BookType } from '../../schemas/book/book.enums';
+import * as path from 'path';
+import { BookActiveStatus, BookDeletionState, BookType } from '../../schemas/book/book.enums';
 import { Book, BookDocument } from '../../schemas/book/book.schema';
 import { NON_ALPHANUMERIC_REGEX, isDevelopmentServer } from '../../constants';
 import { BookUserStatus, BookUserStatusDocument } from '../../schemas/bookUserStatus/bookUserStatus.schema';
@@ -19,7 +20,7 @@ import { escapeStringForRegex } from '../../utils/escape-utils';
 import { BookKeysFromOpenLibrary, BookFromOpenLibrary, WorthReadingStatus } from '../../types';
 import { createPublishDateForOpenLibrary } from '../../utils/date-utils';
 import { S3StorageService } from '../../local-storage/providers/s3-storage.service';
-import { getCoverImageForBookOfOpenLibrary, getExtensionFromFilename } from '../../utils/text-utils';
+import { getCoverImageForBookOfOpenLibrary } from '../../utils/text-utils';
 import { StorageLocationService } from '../../global/providers/storage-location.service';
 import { LocalStorageService } from '../../local-storage/providers/local-storage.service';
 import { downloadFileTemporarily } from '../../utils/file-download-utils';
@@ -44,12 +45,13 @@ export class BooksService {
     const booksFindQuery: any = { _id: id };
     if (activeOnly) {
       booksFindQuery.deleted = BookDeletionState.NotDeleted;
-      booksFindQuery.status = BookStatus.Active;
+      booksFindQuery.status = BookActiveStatus.Active;
     }
     const bookData = await this.booksModel.findOne(booksFindQuery).exec();
     return bookData ? bookData.toObject() : null;
   }
 
+  // TODO: Write test for this
   async updateBookPostFields(bookPostFields, feedPost) {
     if (bookPostFields.rating) {
       await this.createOrUpdateRating(
@@ -194,7 +196,7 @@ export class BooksService {
     }
     if (activeOnly) {
       booksFindAllQuery.deleted = BookDeletionState.NotDeleted;
-      booksFindAllQuery.status = BookStatus.Active;
+      booksFindAllQuery.status = BookActiveStatus.Active;
     }
     if (after && sortBy === 'name') {
       const afterBook = await this.booksModel.findById(after);
@@ -278,6 +280,7 @@ export class BooksService {
     return readingBookIdArray as unknown as BookUserStatusDocument[];
   }
 
+  // TODO (later): Write test for this
   async getBooksFromOpenLibrary() {
     const arr: BookFromOpenLibrary[] = [];
     let offset = 0;
@@ -309,6 +312,7 @@ export class BooksService {
     return arr;
   }
 
+  // TODO (later): Write test for this
   async syncWithOpenLibrary(): Promise<ReturnBookDb> {
     try {
       const booksFromOpenLibrary = await this.getBooksFromOpenLibrary();
@@ -318,6 +322,8 @@ export class BooksService {
         console.log('i?', i);
         const book: Partial<BookDocument> = {
           type: BookType.OpenLibrary,
+          // Books fromt OpenLibrary are always set to Active when created
+          status: BookActiveStatus.Active,
         };
         const [keyDataSettled, editionKeyDataSettled]: any = await Promise.allSettled([
           lastValueFrom(
@@ -379,13 +385,10 @@ export class BooksService {
     }
   }
 
-  // TODO-SAHIL: Write tests for this function
-  /** Returns `storageLocation` of uploaded file (`s3Bucket` or `local-storage`) */
+  /** Returns `storageLocation` of uploaded file (`s3Bucket` / `local-storage`) */
   async uploadToS3Bucket(fileUrl: string) {
-    const extension = getExtensionFromFilename(fileUrl);
-
-    const tempFilename = `${uuidv4()}.${extension}`;
-    const tempPath = `./local-storage/${tempFilename}`;
+    const tempFilename = `${uuidv4()}${path.extname(fileUrl)}`;
+    const tempPath = path.join(this.config.get<string>('UPLOAD_DIR'), tempFilename);
 
     const storageLocation = this.storageLocationService.generateNewStorageLocationFor('book', tempFilename);
     await downloadFileTemporarily(fileUrl, tempPath, async () => {
@@ -397,5 +400,16 @@ export class BooksService {
       }
     });
     return storageLocation;
+  }
+
+  // ! TODO-SAHIL: Remove this after testing.
+  // eslint-disable-next-line class-methods-use-this
+  async testFunction() {
+    // eslint-disable-next-line no-console
+    console.log('hello');
+    const fileUrl = 'https://covers.openlibrary.org/b/ID/2808629-L.jpg';
+    const storageLocation = await this.uploadToS3Bucket(fileUrl);
+    // eslint-disable-next-line no-console
+    console.log('storageLocation?', storageLocation);
   }
 }

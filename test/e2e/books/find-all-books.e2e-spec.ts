@@ -13,7 +13,7 @@ import { clearDatabase } from '../../helpers/mongo-helpers';
 import { BooksService } from '../../../src/books/providers/books.service';
 import { booksFactory } from '../../factories/books.factory';
 import {
-  BookStatus,
+  BookActiveStatus,
   BookDeletionState,
 } from '../../../src/schemas/book/book.enums';
 import { rewindAllFactories } from '../../helpers/factory-helpers.ts';
@@ -63,21 +63,21 @@ describe('Find All Books (e2e)', () => {
     it('Find all Books with name sorting', async () => {
       await booksService.create(
         booksFactory.build({
-          status: BookStatus.Active,
+          status: BookActiveStatus.Active,
           name: 'Young Goodman Brown',
           deleted: BookDeletionState.NotDeleted,
         }),
       );
       await booksService.create(
         booksFactory.build({
-          status: BookStatus.Active,
+          status: BookActiveStatus.Active,
           name: 'The Vampire Chronicles',
           deleted: BookDeletionState.NotDeleted,
         }),
       );
       await booksService.create(
         booksFactory.build({
-          status: BookStatus.Active,
+          status: BookActiveStatus.Active,
           name: 'Oh, Whistle, And I will Come To You, My Lad',
           deleted: BookDeletionState.NotDeleted,
         }),

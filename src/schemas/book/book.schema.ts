@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { BookUnusedFields } from './book.unused-fields';
-import { BookStatus, BookDeletionState, BookType } from './book.enums';
+import { BookActiveStatus, BookDeletionState, BookType } from './book.enums';
 import { WorthReadingStatus } from '../../types';
 import { Image, ImageSchema } from '../shared/image.schema';
 
@@ -82,8 +82,11 @@ export class Book extends BookUnusedFields {
   @Prop({ default: null, trim: true })
   sortRating: string;
 
-  @Prop({ default: BookStatus.Active, enum: [BookStatus.InActive, BookStatus.Active, BookStatus.Deactive] })
-  status: BookStatus;
+  @Prop({
+    enum: [BookActiveStatus.Inactive, BookActiveStatus.Active, BookActiveStatus.Deactivated],
+    default: BookActiveStatus.Inactive,
+  })
+  status: BookActiveStatus;
 
   @Prop({ default: BookDeletionState.NotDeleted, enum: [BookDeletionState.NotDeleted, BookDeletionState.Deleted] })
   deleted: BookDeletionState;

@@ -31,7 +31,7 @@ import { HashtagFollowsService } from '../../../../../src/hashtag-follows/provid
 import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { BooksService } from '../../../../../src/books/providers/books.service';
 import { booksFactory } from '../../../../factories/books.factory';
-import { BookStatus } from '../../../../../src/schemas/book/book.enums';
+import { BookActiveStatus } from '../../../../../src/schemas/book/book.enums';
 import { Book } from '../../../../../src/schemas/book/book.schema';
 
 describe('Feed-Post / Main Feed Posts (e2e)', () => {
@@ -129,7 +129,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
       ),
     );
     book = await booksService.create(booksFactory.build({
-      status: BookStatus.Active,
+      status: BookActiveStatus.Active,
       logo: 'https://picsum.photos/id/237/200/300',
       publishDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
       name: 'Dracula',

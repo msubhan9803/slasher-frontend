@@ -15,7 +15,6 @@ import { Book } from '../components/BookProps';
 import BooksRightSideNav from '../components/BooksRightSideNav';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { getBooks } from '../../../api/books';
-import { getCoverImageForBook } from '../../../utils/text-utils';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import {
@@ -35,7 +34,7 @@ function AllBooks() {
   const location = useLocation();
   const pageStateCache = getPageStateCache(location) ?? [];
 
-  const [filteredBooks, setFilteredBooks] = useState<Book[] | any>(
+  const [filteredBooks, setFilteredBooks] = useState<Book[]>(
     hasPageStateCache(location) ? pageStateCache : [],
   );
   const [requestAdditionalBooks, setRequestAdditionalBooks] = useState<boolean>(false);
@@ -100,6 +99,8 @@ function AllBooks() {
         logo: book?.coverImage?.image_path,
         year: book.publishDate,
         liked: false,
+        rating: book.rating,
+        worthReading: book.worthReading,
 
       }));
       if (lastBookId) {
@@ -248,7 +249,8 @@ function AllBooks() {
               hasMore={!noMoreData}
             >
               <PosterCardList
-                dataList={filteredBooks}
+                // eslint-disable-next-line max-len
+                dataList={filteredBooks.map((b) => ({ ...b, worthWatching: b.worthReading })) as any}
                 type="book"
                 onSelect={persistScrollPosition}
               />

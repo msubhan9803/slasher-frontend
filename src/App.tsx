@@ -90,6 +90,7 @@ const routes: Record<string, TopLevelRoute> = {
   'app/notifications': { wrapper: AuthenticatedPageWrapper, component: Notifications },
   'app/account/*': { wrapper: AuthenticatedPageWrapper, component: Account },
   'app/podcasts/*': { wrapper: AuthenticatedPageWrapper, component: Podcasts },
+  'app/books/*': { wrapper: AuthenticatedPageWrapper, component: Books },
   // 'app/shopping/*': { wrapper: AuthenticatedPageWrapper, component: Shopping },
   // 'app/places/*': { wrapper: AuthenticatedPageWrapper, component: Places },
   // 'app/books/*': { wrapper: AuthenticatedPageWrapper, component: Books },
@@ -115,7 +116,6 @@ if (enableDevFeatures) {
   routes['app/dating/*'] = { wrapper: AuthenticatedPageWrapper, component: Dating };
   routes['app/groups/*'] = { wrapper: AuthenticatedPageWrapper, component: SocialGroups };
   // routes['podcasts/*'] = { wrapper: AuthenticatedPageWrapper, component: Podcasts };
-  routes['app/books/*'] = { wrapper: AuthenticatedPageWrapper, component: Books };
   // routes['shopping/*'] = { wrapper: AuthenticatedPageWrapper, component: Shopping };
   // routes['places/*'] = { wrapper: AuthenticatedPageWrapper, component: Places };
   routes['app/debug-google-analytics'] = { wrapper: UnauthenticatedPageWrapper, component: DebugGoogleAnalytics };

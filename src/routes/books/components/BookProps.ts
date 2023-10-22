@@ -3,12 +3,10 @@ import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 export type Book = {
   _id: string,
   name: string,
-  author: string[],
-  description: string,
-  numberOfPages: number,
-  isbnNumber: Array<string>,
-  publishDate: string
   coverImage: { image_path: string }
+  publishDate: string
+  rating: string
+  worthReading: string
 };
 
 export interface BookIconProps {

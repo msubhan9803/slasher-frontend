@@ -17,7 +17,6 @@ import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import {
   deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../../pageStateCache';
-import { getCoverImageForBook } from '../../../utils/text-utils';
 import RoundButton from '../../../components/ui/RoundButton';
 import { UIRouteURL } from '../../movies/RouteURL';
 
@@ -26,7 +25,7 @@ function BuyListBooks() {
   const navigate = useNavigate();
   const [showKeys, setShowKeys] = useState(false);
   const [search, setSearch] = useState<string>('');
-  const [filteredBooks, setFilteredBooks] = useState<Book[] | any>([]);
+  const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
   const [requestAdditionalBooks, setRequestAdditionalBooks] = useState<boolean>(false);
   const [sortVal, setSortVal] = useState(searchParams.get('sort') || 'name');
   const userId = useAppSelector((state) => state.user.user.id);
@@ -94,12 +93,14 @@ function BuyListBooks() {
           lastBookId.length > 0 ? lastBookId : undefined,
         )
           .then((res) => {
-            const dataList = res.data.map((book: any) => ({
+            const dataList = res.data.map((book: Book) => ({
               _id: book._id,
               name: book.name,
-              logo: getCoverImageForBook(book.covers[0]),
+              logo: book.coverImage?.image_path,
               year: book.publishDate,
               liked: false,
+              rating: book.rating,
+              worthReading: book.worthReading,
 
             }));
             if (lastBookId) {
@@ -203,7 +204,8 @@ function BuyListBooks() {
               hasMore={!noMoreData}
             >
               <PosterCardList
-                dataList={filteredBooks}
+                // eslint-disable-next-line max-len
+                dataList={filteredBooks.map((b) => ({ ...b, worthWatching: b.worthReading })) as any}
                 type="book"
                 onSelect={persistScrollPosition}
               />

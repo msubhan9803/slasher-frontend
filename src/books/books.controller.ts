@@ -53,7 +53,7 @@ export class BooksController {
     );
     return books.map((bookData) => pick(
       bookData,
-      ['_id', 'name', 'author', 'description', 'numberOfPages', 'isbnNumber', 'publishDate', 'coverImage'],
+      ['_id', 'name', 'publishDate', 'coverImage', 'rating', 'worthReading'],
     ));
   }
 

@@ -113,6 +113,8 @@ export class UsersController {
     private captchaService: CaptchaService,
   ) { }
 
+  commonBookListFields = ['_id', 'name', 'publishDate', 'coverImage', 'rating', 'worthReading'];
+
   @Post('sign-in')
   @Public()
   async signIn(@Body() userSignInDto: UserSignInDto, @IpOrForwardedIp() ip) {
@@ -1022,6 +1024,7 @@ post,
     );
   }
 
+  @TransformImageUrls('$[*].coverImage.image_path')
   @Get(':userId/reading-booklist')
   async readingListBooks(
     @Req() request: Request,
@@ -1057,10 +1060,11 @@ post,
     );
 
     return books.map(
-      (book) => pick(book, ['_id', 'name', 'covers', 'publishDate', 'rating', 'worthReading']),
+      (book) => pick(book, this.commonBookListFields),
     );
   }
 
+  @TransformImageUrls('$[*].coverImage.image_path')
   @Get(':userId/read-booklist')
   async readListBook(
     @Req() request: Request,
@@ -1095,10 +1099,11 @@ post,
       query.startsWith,
     );
     return books.map(
-      (book) => pick(book, ['_id', 'name', 'covers', 'publishDate', 'rating', 'worthReading']),
+      (book) => pick(book, this.commonBookListFields),
     );
   }
 
+  @TransformImageUrls('$[*].coverImage.image_path')
   @Get(':userId/buy-booklist')
   async buyListBooks(
     @Req() request: Request,
@@ -1135,10 +1140,11 @@ post,
     );
 
     return books.map(
-      (book) => pick(book, ['_id', 'name', 'covers', 'publishDate', 'rating', 'worthReading']),
+      (book) => pick(book, this.commonBookListFields),
     );
   }
 
+  @TransformImageUrls('$[*].coverImage.image_path')
   @Get(':userId/favorite-booklist')
   async favoriteListBooks(
     @Req() request: Request,
@@ -1173,7 +1179,7 @@ post,
       query.startsWith,
     );
     return books.map(
-      (book) => pick(book, ['_id', 'name', 'covers', 'publishDate', 'rating', 'worthReading']),
+      (book) => pick(book, this.commonBookListFields),
     );
   }
 

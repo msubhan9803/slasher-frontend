@@ -7,7 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { EventEmitter } from 'stream';
 import { readdirSync } from 'fs';
-import { BookActiveStatus } from 'src/schemas/book/book.enums';
+import { BookActiveStatus } from '../../../../../src/schemas/book/book.enums';
 import { AppModule } from '../../../../../src/app.module';
 import { UsersService } from '../../../../../src/users/providers/users.service';
 import { userFactory } from '../../../../factories/user.factory';

@@ -13,6 +13,7 @@ import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 import { BooksService } from '../../../../../src/books/providers/books.service';
 import { BookUserStatus, BookUserStatusDocument } from '../../../../../src/schemas/bookUserStatus/bookUserStatus.schema';
 import { booksFactory } from '../../../../factories/books.factory';
+import { BookActiveStatus } from '../../../../../src/schemas/book/book.enums';
 
 describe('Find Book User Status (e2e)', () => {
     let app: INestApplication;
@@ -54,7 +55,9 @@ describe('Find Book User Status (e2e)', () => {
             configService.get<string>('JWT_SECRET_KEY'),
         );
         book = await booksService.create(
-            booksFactory.build(),
+            booksFactory.build({
+                status: BookActiveStatus.Active,
+            }),
         );
         await bookUserStatusModel.create({
             name: 'book user status1',

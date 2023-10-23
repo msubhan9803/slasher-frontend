@@ -20,7 +20,7 @@ import { WorthReadingStatus } from '../../../../../src/types';
 import { BooksService } from '../../../../../src/books/providers/books.service';
 import { BookUserStatus, BookUserStatusDocument } from '../../../../../src/schemas/bookUserStatus/bookUserStatus.schema';
 import { booksFactory } from '../../../../factories/books.factory';
-import { BookType } from '../../../../../src/schemas/book/book.enums';
+import { BookType, BookActiveStatus } from '../../../../../src/schemas/book/book.enums';
 
 describe('Read List Books (e2e)', () => {
   let app: INestApplication;
@@ -72,24 +72,28 @@ describe('Read List Books (e2e)', () => {
 
     book1 = await booksService.create(
       booksFactory.build({
+        status: BookActiveStatus.Active,
         type: BookType.OpenLibrary,
         name: 'Coraline',
       }),
     );
     book2 = await booksService.create(
       booksFactory.build({
+        status: BookActiveStatus.Active,
         type: BookType.OpenLibrary,
         name: 'The King in Yellow',
       }),
     );
     book3 = await booksService.create(
       booksFactory.build({
+        status: BookActiveStatus.Active,
         type: BookType.OpenLibrary,
         name: 'Beetle',
       }),
     );
     book4 = await booksService.create(
       booksFactory.build({
+        status: BookActiveStatus.Active,
         type: BookType.OpenLibrary,
         name: 'Dracula',
       }),

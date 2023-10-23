@@ -28,7 +28,7 @@ export class FindAllBooksDto {
   nameContains: string;
 
   @IsOptional()
-  movieIdsIn: string;
+  bookIdsIn: string;
 
   @IsOptional()
   @Matches(/^[a-z0-9#]+$/)

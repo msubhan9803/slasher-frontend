@@ -82,8 +82,9 @@ describe('Find All Books (e2e)', () => {
           deleted: BookDeletionState.NotDeleted,
         }),
       );
+      const limit = 5;
       const response = await request(app.getHttpServer())
-        .get('/api/v1/books')
+        .get(`/api/v1/books?limit=${limit}&&sortBy=name`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toHaveLength(3);

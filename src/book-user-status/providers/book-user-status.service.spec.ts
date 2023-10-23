@@ -13,6 +13,7 @@ import { booksFactory } from '../../../test/factories/books.factory';
 import {
  BookUserStatusBuy, BookUserStatusFavorites, BookUserStatusRead, BookUserStatusReadingList,
 } from '../../schemas/bookUserStatus/bookUserStatus.enums';
+import { BookActiveStatus } from '../../schemas/book/book.enums';
 
 describe('BookUserStatusService', () => {
   let app: INestApplication;
@@ -48,7 +49,9 @@ describe('BookUserStatusService', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
     book = await booksService.create(
-      booksFactory.build(),
+      booksFactory.build({
+        status: BookActiveStatus.Active,
+      }),
     );
     activeUser = await usersService.create(
       userFactory.build(),

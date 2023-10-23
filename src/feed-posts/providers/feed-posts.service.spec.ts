@@ -38,6 +38,7 @@ import { Hashtag, HashtagDocument } from '../../schemas/hastag/hashtag.schema';
 import { ProfileVisibility } from '../../schemas/user/user.enums';
 import { BooksService } from '../../books/providers/books.service';
 import { booksFactory } from '../../../test/factories/books.factory';
+import { BookActiveStatus } from '../../schemas/book/book.enums';
 
 describe('FeedPostsService', () => {
   let app: INestApplication;
@@ -112,6 +113,7 @@ describe('FeedPostsService', () => {
       ),
     );
     book = await booksService.create(booksFactory.build({
+      status: BookActiveStatus.Active,
       logo: 'https://picsum.photos/id/237/200/300',
       publishDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
     }));

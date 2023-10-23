@@ -31,6 +31,7 @@ import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { BooksService } from '../../../../../src/books/providers/books.service';
 import { booksFactory } from '../../../../factories/books.factory';
 import { BookUserStatusService } from '../../../../../src/book-user-status/providers/book-user-status.service';
+import { BookActiveStatus } from '../../../../../src/schemas/book/book.enums';
 
 describe('Feed-Post / Post File (e2e)', () => {
   let app: INestApplication;
@@ -96,7 +97,9 @@ describe('Feed-Post / Post File (e2e)', () => {
           },
         ),
       );
-      book = await booksService.create(booksFactory.build());
+      book = await booksService.create(booksFactory.build({
+        status: BookActiveStatus.Active,
+      }));
     });
 
     it('requires authentication', async () => {

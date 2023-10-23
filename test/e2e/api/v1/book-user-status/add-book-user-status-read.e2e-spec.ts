@@ -15,6 +15,7 @@ import { BookUserStatusService } from '../../../../../src/book-user-status/provi
 import { BookUserStatus, BookUserStatusDocument } from '../../../../../src/schemas/bookUserStatus/bookUserStatus.schema';
 import { booksFactory } from '../../../../factories/books.factory';
 import { BookUserStatusRead } from '../../../../../src/schemas/bookUserStatus/bookUserStatus.enums';
+import { BookActiveStatus } from '../../../../../src/schemas/book/book.enums';
 
 describe('Add Book User Status Read (e2e)', () => {
     let app: INestApplication;
@@ -62,7 +63,9 @@ describe('Add Book User Status Read (e2e)', () => {
                 configService.get<string>('JWT_SECRET_KEY'),
             );
             book = await booksService.create(
-                booksFactory.build(),
+                booksFactory.build({
+                    status: BookActiveStatus.Active,
+                }),
             );
             await bookUserStatusModel.create({
                 name: 'book user status1',

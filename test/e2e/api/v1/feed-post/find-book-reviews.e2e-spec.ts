@@ -18,6 +18,7 @@ import { PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
 import { BooksService } from '../../../../../src/books/providers/books.service';
 import { BookUserStatus, BookUserStatusDocument } from '../../../../../src/schemas/bookUserStatus/bookUserStatus.schema';
 import { booksFactory } from '../../../../factories/books.factory';
+import { BookActiveStatus } from '../../../../../src/schemas/book/book.enums';
 
 describe('Feed-Post / Find Book Reviews (e2e)', () => {
   let app: INestApplication;
@@ -71,7 +72,9 @@ describe('Feed-Post / Find Book Reviews (e2e)', () => {
     user2 = await usersService.create(userFactory.build());
     user3 = await usersService.create(userFactory.build());
     book = await booksService.create(
-      booksFactory.build(),
+      booksFactory.build({
+        status: BookActiveStatus.Active,
+      }),
     );
 
     await feedPostsService.create(

@@ -56,9 +56,6 @@ describe('BooksService', () => {
 
     activeUser = await usersService.create(userFactory.build({ userName: 'superman1' }));
     user1 = await usersService.create(userFactory.build({ userName: 'Michael' }));
-    book = await booksService.create(
-      booksFactory.build(),
-    );
   });
 
   it('should be defined', () => {
@@ -67,6 +64,9 @@ describe('BooksService', () => {
 
   describe('#create', () => {
     it('successfully creates a book', async () => {
+      book = await booksService.create(
+        booksFactory.build({ status: BookActiveStatus.Active }),
+      );
       expect(await booksService.findById(book.id, false)).toBeTruthy();
     });
   });
@@ -433,7 +433,7 @@ describe('BooksService', () => {
       const limit = 5;
       const booksList = await booksService.findAll(limit, false, 'name');
       // 4 (numberOfInactiveBooks) + 1 (inactive book created in top-level `beforeEach`) = 5
-      expect(booksList).toHaveLength(5);
+      expect(booksList).toHaveLength(4);
     });
 
     it('when name contains supplied than expected response', async () => {
@@ -592,6 +592,9 @@ describe('BooksService', () => {
 
   describe('#createOrUpdateRating', () => {
     it('create or update `rating` in a bookUserStatus document', async () => {
+      book = await booksService.create(
+        booksFactory.build({ status: BookActiveStatus.Active }),
+      );
       const rating = 3;
       const bookUserStatus = await booksService.createOrUpdateRating(book.id, rating, activeUser.id);
       expect(bookUserStatus.rating).toBe(rating);
@@ -607,6 +610,9 @@ describe('BooksService', () => {
     });
 
     it('verify that average of all `rating` of bookUserStatus is updated in book', async () => {
+      book = await booksService.create(
+        booksFactory.build({ status: BookActiveStatus.Active }),
+      );
       const rating1 = 1;
       const bookUserStatus1 = await booksService.createOrUpdateRating(book.id, rating1, activeUser.id);
       expect(bookUserStatus1.userData.rating).toBe(rating1);
@@ -623,6 +629,9 @@ describe('BooksService', () => {
 
   describe('#createOrUpdateGoreFactorRating', () => {
     it('create or update `goreFactorRating` in a bookUserStatus document', async () => {
+      book = await booksService.create(
+        booksFactory.build({ status: BookActiveStatus.Active }),
+      );
       const goreFactorRating = 3;
       const bookUserStatus = await booksService.createOrUpdateGoreFactorRating(book.id, goreFactorRating, activeUser.id);
       expect(bookUserStatus.goreFactorRating).toBe(goreFactorRating);
@@ -640,6 +649,9 @@ describe('BooksService', () => {
     });
 
     it('verify that average of all `goreFactorRating` of bookUserStatus is updated in book', async () => {
+      book = await booksService.create(
+        booksFactory.build({ status: BookActiveStatus.Active }),
+      );
       const goreFactorRating1 = 1;
       const bookUserStatus1 = await booksService.createOrUpdateGoreFactorRating(book.id, goreFactorRating1, activeUser.id);
       expect(bookUserStatus1.userData.goreFactorRating).toBe(goreFactorRating1);
@@ -656,6 +668,9 @@ describe('BooksService', () => {
 
   describe('#createOrUpdateWorthReading', () => {
     it('create or update  a bookrUserStatus document', async () => {
+      book = await booksService.create(
+        booksFactory.build({ status: BookActiveStatus.Active }),
+      );
       const worthReading = WorthReadingStatus.Up;
       const bookUserStatus = await booksService.createOrUpdateWorthReading(book.id, worthReading, activeUser.id);
       expect(bookUserStatus.worthReading).toBe(worthReading);
@@ -675,6 +690,9 @@ describe('BooksService', () => {
     });
 
     it('verify that average of all WorthReading of bookrUserStatus is updated in book', async () => {
+      book = await booksService.create(
+        booksFactory.build({ status: BookActiveStatus.Active }),
+      );
       const worthReading1 = WorthReadingStatus.Down;
       const bookUserStatus1 = await booksService.createOrUpdateWorthReading(book.id, worthReading1, activeUser.id);
       expect(bookUserStatus1.worthReading).toBe(worthReading1);
@@ -696,6 +714,9 @@ describe('BooksService', () => {
     const goreFactorRating = 4;
     const worthReading = WorthReadingStatus.Up;
     beforeEach(async () => {
+      book = await booksService.create(
+        booksFactory.build({ status: BookActiveStatus.Active }),
+      );
       await booksService.createOrUpdateRating(book.id, rating, activeUser.id);
       await booksService.createOrUpdateGoreFactorRating(book.id, goreFactorRating, activeUser.id);
       await booksService.createOrUpdateWorthReading(book.id, worthReading, activeUser.id);
@@ -711,6 +732,9 @@ describe('BooksService', () => {
   describe('#getRatingUsersCount', () => {
     beforeEach(async () => {
       // create rating by two users
+      book = await booksService.create(
+        booksFactory.build({ status: BookActiveStatus.Active }),
+      );
       await booksService.createOrUpdateRating(book.id, 4, activeUser.id);
       await booksService.createOrUpdateRating(book.id, 5, user1.id);
     });

@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { EventEmitter } from 'stream';
 import { readdirSync } from 'fs';
+import { BookActiveStatus } from 'src/schemas/book/book.enums';
 import { AppModule } from '../../../../../src/app.module';
 import { UsersService } from '../../../../../src/users/providers/users.service';
 import { userFactory } from '../../../../factories/user.factory';
@@ -120,7 +121,9 @@ describe('Update Feed Post (e2e)', () => {
         },
       ),
     );
-    book = await booksService.create(booksFactory.build());
+    book = await booksService.create(booksFactory.build({
+      status: BookActiveStatus.Active,
+    }));
   });
 
   describe('PATCH /api/v1/feed-posts/:id', () => {

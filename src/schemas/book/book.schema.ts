@@ -110,6 +110,26 @@ export class Book extends BookUnusedFields {
 }
 
 export const BookSchema = SchemaFactory.createForClass(Book);
+BookSchema.index(
+  {
+    _id: 1, deleted: 1, status: 1,
+  },
+);
+BookSchema.index(
+  {
+    sort_name: 1, deleted: 1, status: 1,
+  },
+);
+BookSchema.index(
+  {
+    publishDate: 1, deleted: 1, status: 1,
+  },
+);
+BookSchema.index(
+  {
+    publishDate: 1, logo: 1, name: 1,
+  },
+);
 
 export type BookDocument = HydratedDocument<Book>;
 

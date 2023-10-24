@@ -18,6 +18,8 @@ export class S3StorageService {
   constructor(private readonly config: ConfigService) {
     this.s3Client = this.createS3Client();
     this.s3Bucket = this.config.get<string>('S3_BUCKET');
+    console.log('s3Bucket---s3Bucket',this.s3Bucket);
+    
   }
 
   /**

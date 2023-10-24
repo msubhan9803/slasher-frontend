@@ -23,6 +23,7 @@ import {
 import SuggestedBooks from '../suggested-books/SuggestedBooks';
 import { UIRouteURL } from '../../movies/RouteURL';
 import RoundButton from '../../../components/ui/RoundButton';
+import { enableDevFeatures } from '../../../env';
 
 function AllBooks() {
   const [searchParams] = useSearchParams();
@@ -93,7 +94,7 @@ function AllBooks() {
       key.toLowerCase(),
       lastBookId.length > 0 ? lastBookId : undefined,
     ).then((res) => {
-      const dataList = res.data.map((book: any) => ({
+      const dataList = res.data.map((book: Book) => ({
         _id: book._id,
         name: book.name,
         logo: book?.coverImage?.image_path,
@@ -101,10 +102,9 @@ function AllBooks() {
         liked: false,
         rating: book.rating,
         worthReading: book.worthReading,
-
       }));
       if (lastBookId) {
-        setFilteredBooks((prev: any[]) => [
+        setFilteredBooks((prev: Book[]) => [
           ...prev,
           ...dataList,
         ]);
@@ -223,8 +223,13 @@ function AllBooks() {
           applyFilter={applyFilter}
           sortVal={sortVal}
         />
-        <p className="h2 mb-0">Slasher indie</p>
-        <SuggestedBooks />
+        {enableDevFeatures
+          && (
+            <>
+              <p className="h2 mb-0">Slasher indie</p>
+              <SuggestedBooks />
+            </>
+          )}
         {key !== '' && (isKeyBooksReady || pageStateCache.length <= filteredBooks.length)
           && (
             <div className="w-100 d-flex justify-content-center mb-3">

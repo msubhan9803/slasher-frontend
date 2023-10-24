@@ -8,7 +8,7 @@ const StyledReviewContainer = styled.div`
 function BookReviewDetails() {
   return (
     <StyledReviewContainer>
-      <PostDetail postType="book-review" />
+      <PostDetail reviewDetail="book-review" />
     </StyledReviewContainer>
   );
 }

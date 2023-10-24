@@ -12,7 +12,7 @@ import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import BooksHeader from '../BooksHeader';
 import { Book } from '../components/BookProps';
 import BooksRightSideNav from '../components/BooksRightSideNav';
-import { getUserBookList, getUserMoviesList } from '../../../api/users';
+import { getUserBookList } from '../../../api/users';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import {
   deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
@@ -161,7 +161,7 @@ function ReadBooks() {
     setLastBookId('');
     setFilteredBooks([]);
     if (userId) {
-      getUserMoviesList('read-booklist', search, userId, sortVal, '')
+      getUserBookList('read-booklist', search, userId, sortVal, '')
         .then((result: any) => {
           setFilteredBooks(result.data);
         });

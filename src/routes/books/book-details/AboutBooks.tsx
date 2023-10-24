@@ -25,8 +25,9 @@ import BookReviewDetails from '../book-reviews/BookReviewDetails';
 
 const StyledBookPoster = styled.div`
   aspect-ratio: 0.67;
-  img {
+  img{
     object-fit: cover;
+    box-shadow: 0 0 0 1px var(--poster-border-color);
   }
 `;
 type OptionType = { value: string, label: string, devOnly?: boolean };
@@ -42,8 +43,8 @@ const tabsForViewer = tabsForAllViews;
 const filterEnableDevFeatures = (t: OptionType) => (enableDevFeatures ? true : (!t.devOnly));
 
 type AboutBooksProps = {
-  bookData: BookData
-  setBookData: React.Dispatch<React.SetStateAction<BookData | undefined>>
+  bookData: BookData;
+  setBookData: (val: any) => void;
 };
 
 function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
@@ -57,44 +58,48 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
   const tabs = (selfView ? tabsForSelf : tabsForViewer).filter(filterEnableDevFeatures);
   const navigate = useNavigate();
   const params = useParams();
+  const reviewButtonRef = useRef<HTMLDivElement>(null);
+  const reviewSmallButtonRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (params.summary === 'edit' && queryParam !== 'self') { navigate(`/books/${params.id}/details`); }
   });
+
   const [bgColor, setBgColor] = useState<boolean>(false);
-  const [bookIconListData, setbookIconListData] = useState(BookIconList);
+  const [bookIconListData, setBookIconListData] = useState(BookIconList);
+
   const handleBookAddRemove = (labelName: string, isFavorite: boolean) => {
     if (params.id && !isFavorite) {
       addBookUserStatus(params.id, labelName)
         .then((res) => {
           if (res.data.success) {
-            const tempMovieIconList = [...bookIconListData];
-            tempMovieIconList.forEach((movieIcon) => {
-              if (movieIcon.key === labelName) {
+            const tempBookIconList = [...bookIconListData];
+            tempBookIconList.forEach((bookIcon) => {
+              if (bookIcon.key === labelName) {
                 // eslint-disable-next-line no-param-reassign
-                movieIcon.addBook = !movieIcon.addBook;
+                bookIcon.addBook = !bookIcon.addBook;
               }
             });
-            setbookIconListData(tempMovieIconList);
+            setBookIconListData(tempBookIconList);
           }
         });
     } else if (params.id && isFavorite) {
       deleteBookUserStatus(params.id, labelName)
         .then((res) => {
           if (res.data.success) {
-            const tempMovieIconList = [...bookIconListData];
-            tempMovieIconList.forEach((movieIcon) => {
-              if (movieIcon.key === labelName) {
+            const tempBookIconList = [...bookIconListData];
+            tempBookIconList.forEach((bookIcon) => {
+              if (bookIcon.key === labelName) {
                 // eslint-disable-next-line no-param-reassign
-                movieIcon.addBook = !movieIcon.addBook;
+                bookIcon.addBook = !bookIcon.addBook;
               }
             });
-            setbookIconListData(tempMovieIconList);
+            setBookIconListData(tempBookIconList);
           }
         });
     }
   };
-  const reviewButtonRef = useRef<HTMLDivElement>(null);
-  const reviewSmallButtonRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (params) {
       getBooksIdList(params.id)
@@ -103,50 +108,52 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
   }, [params]);
 
   useEffect(() => {
-    const updateMovieIconList = () => {
+    const updateBookIconList = () => {
       if (bookIdList) {
-        bookIconListData.forEach((bookIcon) => {
+        BookIconList.forEach((bookIcon) => {
           const { key } = bookIcon;
           if (key in bookIdList) {
             // eslint-disable-next-line no-param-reassign
             bookIcon.addBook = !!bookIdList[key];
           }
         });
-        setbookIconListData(bookIconListData);
+        setBookIconListData(BookIconList);
       }
     };
-    updateMovieIconList();
-  }, [bookIdList, bookIconListData, setbookIconListData]);
+    updateBookIconList();
+  }, [bookIdList]);
 
   return (
     <div>
       <div className="bg-dark p-4 pb-0 rounded-2 mb-3">
         <Row className="justify-content-center">
-          <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
-            <StyledBookPoster className="mx-md-4">
-              <Image src={bookData?.coverImage?.image_path} className="rounded-4 w-100 h-100" alt="Book poster" />
-            </StyledBookPoster>
-            <div className="d-none d-xl-block mt-3">
-              <span className="h3">Your lists</span>
-              <div className="mt-2 d-flex justify-content-between">
-                {bookIconListData.map((iconList: BookIconProps) => (
-                  <CustomGroupIcons
-                    key={iconList.label}
-                    label={iconList.label}
-                    icon={iconList.icon}
-                    iconColor={iconList.iconColor}
-                    width={iconList.width}
-                    height={iconList.height}
-                    addData={iconList.addBook}
-                    onClickIcon={() => handleBookAddRemove(
-                      iconList.key,
-                      iconList.addBook,
-                    )}
-                  />
-                ))}
-              </div>
-              <div className="d-none d-xl-block mb-2">
-                <RoundButton variant="black" className="w-100">Create to list</RoundButton>
+          <Col xs={10} sm={7} lg={8} xl={5} className="text-center">
+            <div>
+              <StyledBookPoster className="mx-4">
+                <Image src={bookData?.coverImage?.image_path} alt="book poster" className="rounded-3 w-100 h-100" />
+              </StyledBookPoster>
+              <div className="d-none d-xl-block mt-3">
+                <span className="h3">Your lists</span>
+                <div className="mt-2 d-flex justify-content-between">
+                  {bookIconListData.map((iconList: BookIconProps) => (
+                    <CustomGroupIcons
+                      key={iconList.key}
+                      label={iconList.label}
+                      icon={iconList.icon}
+                      iconColor={iconList.iconColor}
+                      width={iconList.width}
+                      height={iconList.height}
+                      addData={iconList.addBook}
+                      onClickIcon={() => handleBookAddRemove(
+                        iconList.key,
+                        iconList.addBook,
+                      )}
+                    />
+                  ))}
+                </div>
+                <div className="d-none d-xl-block mb-2">
+                  <RoundButton variant="black" className="w-100">Create to list</RoundButton>
+                </div>
               </div>
             </div>
           </Col>
@@ -162,8 +169,8 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
           </Col>
         </Row>
         <Row className="d-xl-none justify-content-center mt-2 mt-xl-2">
-          <Col xs={10} sm={7} md={5} lg={9} className="text-center">
-            <span className="h3">Your lists</span>
+          <Col xs={12} sm={7} md={5} lg={9} className="text-center">
+            <span className="fs-5">Your lists</span>
             <div className="mt-2 d-flex justify-content-around">
               {bookIconListData.map((iconList: BookIconProps) => (
                 <CustomGroupIcons

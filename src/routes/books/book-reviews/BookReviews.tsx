@@ -118,7 +118,7 @@ function BookReview({
           commentCount: data.commentCount,
           rating: data?.reviewData?.rating || 0,
           goreFactor: data?.reviewData?.goreFactorRating || 0,
-          worthWatching: data?.reviewData?.worthWatching || 0,
+          worthReading: data?.reviewData?.worthReading || 0,
           contentHeading: data.title,
           bookId: id,
           spoilers: data.spoilers,
@@ -137,7 +137,7 @@ function BookReview({
   };
 
   useLayoutEffect(() => {
-    if ((location.state && location.state.movieId && location.state.movieId.length) || reviewForm) {
+    if ((location.state && location.state.bookId && location.state.bookId.length) || reviewForm) {
       setShowReviewForm(true);
       getUserBookReviewData(id!);
     }
@@ -146,7 +146,7 @@ function BookReview({
     if (bookReviewData) {
       setRating(bookReviewData.userData.rating - 1);
       setGoreFactor(bookReviewData.userData.goreFactorRating - 1);
-      setWorthIt(bookReviewData.userData.worthWatching);
+      setWorthIt(bookReviewData.userData.worthReading);
       if (bookReviewData.userData?.reviewPostId) {
         getUserBookReviewData(bookReviewData.userData?.reviewPostId);
       }
@@ -195,7 +195,7 @@ function BookReview({
             ...bookReviewData.userData!,
             rating: rating + 1,
             goreFactorRating: goreFactor + 1,
-            worthWatching: isWorthIt,
+            worthReading: isWorthIt,
           },
           isUpdated: true,
         });
@@ -222,7 +222,7 @@ function BookReview({
             ...bookReviewData.userData!,
             rating: rating + 1,
             goreFactorRating: goreFactor + 1,
-            worthWatching: isWorthIt,
+            worthReading: isWorthIt,
           },
           isUpdated: true,
         });
@@ -251,7 +251,7 @@ function BookReview({
       goreFactorRate: goreFactor + 1,
       worthIt: isWorthIt,
       postType: PostType.BookReview,
-      postId: id,
+      bookId: id,
     };
     if (bookReviewData.userData?.reviewPostId) {
       (bookReviewPostData as any).postId = bookReviewData.userData?.reviewPostId;
@@ -297,6 +297,9 @@ function BookReview({
         setProgressButtonStatus('default');
         setShow(false);
         setDropDownValue('BlockUserSuccess');
+        setReviewPostData((prev: any) => prev.filter(
+          (scrollData: any) => scrollData.userId !== postUserId,
+        ));
       })
       /* eslint-disable no-console */
       .catch((error) => {

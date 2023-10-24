@@ -11,7 +11,7 @@ import BooksHeader from '../BooksHeader';
 import { Book } from '../components/BookProps';
 import BooksRightSideNav from '../components/BooksRightSideNav';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import { getUserBookList, getUserMoviesList } from '../../../api/users';
+import { getUserBookList } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import {
@@ -157,7 +157,7 @@ function BuyListBooks() {
     setLastBookId('');
     setFilteredBooks([]);
     if (userId) {
-      getUserMoviesList('buy-booklist', search, userId, sortVal, '')
+      getUserBookList('buy-booklist', search, userId, sortVal, '')
         .then((result: any) => {
           setFilteredBooks(result.data);
         });

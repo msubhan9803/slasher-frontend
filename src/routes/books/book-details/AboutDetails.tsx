@@ -23,8 +23,8 @@ interface Props {
   bookData: BookData,
   setBookData: React.Dispatch<React.SetStateAction<BookData | undefined>>
   setReviewForm: (val: boolean) => void;
-  reviewButtonRef?: any;
-  reviewSmallButtonRef?: any;
+  reviewButtonRef: any;
+  reviewSmallButtonRef: any;
   setShowReviewForm?: (value: boolean) => void;
 }
 const StyleWatchWorthIcon = styled(FontAwesomeIcon)`
@@ -348,8 +348,6 @@ function AboutDetails({
   );
 }
 AboutDetails.defaultProps = {
-  reviewButtonRef: null,
-  reviewSmallButtonRef: null,
   setShowReviewForm: undefined,
 };
 export default AboutDetails;

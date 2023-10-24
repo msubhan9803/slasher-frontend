@@ -64,7 +64,7 @@ export async function createPost(
     const formDataHasMovieId = formData.has('postId');
     // Check before adding movieId to `formData` as we're already
     // adding `movieId` to `formData` for feature: `share-movie-as-a-post`
-    if (!formDataHasMovieId) { formData.append('bookId', postData.postId); }
+    if (!formDataHasMovieId) { formData.append('bookId', postData.bookId); }
   }
   if (postData.rate && postData.postType === PostType.BookReview) {
     formData.append('bookPostFields[rating]', postData.rate);
@@ -73,7 +73,7 @@ export async function createPost(
     formData.append('bookPostFields[goreFactorRating]', postData.goreFactorRate);
   }
   if (postData.worthIt && postData.postType === PostType.BookReview) {
-    formData.append('bookPostFields[worthWatching]', postData.worthIt);
+    formData.append('bookPostFields[worthReading]', postData.worthIt);
   }
 
   const headers = {
@@ -126,17 +126,17 @@ export async function updateFeedPost(
     formData.append('moviePostFields[worthWatching]', reviewPostData.worthIt);
   }
   if (reviewPostData?.postType === PostType.BookReview) {
-    formData.append('bookPostFields [spoilers]', reviewPostData.spoiler);
-    formData.append('bookId', reviewPostData.postId);
+    formData.append('bookPostFields[spoilers]', reviewPostData.spoiler);
+    formData.append('bookId', reviewPostData.bookId);
   }
   if (reviewPostData?.postType === PostType.BookReview && reviewPostData?.rate) {
-    formData.append('bookPostFields [rating]', reviewPostData.rate);
+    formData.append('bookPostFields[rating]', reviewPostData.rate);
   }
   if (reviewPostData?.postType === PostType.BookReview && reviewPostData?.goreFactorRate) {
-    formData.append('bookPostFields [goreFactorRating]', reviewPostData.goreFactorRate);
+    formData.append('bookPostFields[goreFactorRating]', reviewPostData.goreFactorRate);
   }
   if (reviewPostData?.postType === PostType.BookReview && typeof reviewPostData?.worthIt === 'number') {
-    formData.append('bookPostFields [worthWatching]', reviewPostData.worthIt);
+    formData.append('bookPostFields[worthReading]', reviewPostData.worthIt);
   }
   const headers = {
     'Content-Type': 'multipart/form-data',

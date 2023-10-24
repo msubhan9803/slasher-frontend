@@ -13,7 +13,7 @@ function BooksRightSideNav() {
     <>
       {enableDevFeatures && <RoundButtonLink to="/app/books/add" variant="primary" className="w-100 mb-3">Add your book</RoundButtonLink>}
       {params.id && <h1 className="text-center text-primary h3 mb-3">Claim this listing</h1>}
-      <NotificationSetting />
+      {enableDevFeatures && <NotificationSetting />}
       <AdvertisementBox />
       <RecentMessages />
       <FriendRequests />

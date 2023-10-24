@@ -15,7 +15,7 @@ import * as stringSimilarity from 'string-similarity';
 import PostFooter from './PostFooter';
 import {
   CommentValue, LikeShareModalResourceName, Post, LikeShareModalTabName,
-  ReplyValue, WorthWatchingStatus, CommentsOrder,
+  ReplyValue, WorthWatchingStatus, CommentsOrder, WorthReadingStatus,
 } from '../../../../types';
 import LikeShareModal from '../../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
@@ -229,7 +229,7 @@ function PostContent({
     <div>
       {postType === 'review' && (
         <div className="d-flex align-items-center mb-3">
-          {post?.rating !== 0 && (
+          {post?.rating && post?.rating !== 0 && (
             <div className={`px-3 py-2 bg-dark rounded-pill d-flex align-items-center ${(post.worthWatching && !post.goreFactor) && 'me-3'}`}>
               <CustomRatingText
                 rating={post.rating}
@@ -240,8 +240,8 @@ function PostContent({
               />
             </div>
           )}
-          {post?.goreFactor !== 0 && (
-            <div className={`align-items-center bg-dark d-flex py-2 px-3 rounded-pill ${post.rating && 'ms-3'} ${post.worthWatching && 'me-3'}`}>
+          {post?.goreFactor && post?.goreFactor !== 0 && (
+            <div className={`align-items-center bg-dark d-flex py-2 px-3 rounded-pill ${post.rating && 'ms-3'} ${(post.worthWatching || post.worthReading) && 'me-3'}`}>
               <CustomRatingText
                 rating={post.goreFactor}
                 icon={solid('burst')}
@@ -251,7 +251,7 @@ function PostContent({
               />
             </div>
           )}
-          {post.worthWatching !== WorthWatchingStatus.NoRating && (
+          {post.worthWatching && post.worthWatching !== WorthWatchingStatus.NoRating && (
             <CustomWortItText
               divClass="align-items-center py-2 px-3 bg-dark rounded-pill"
               textClass="fs-4"
@@ -260,6 +260,17 @@ function PostContent({
               customIconWidth="8.53px"
               customIconHeight="8.53px"
               worthIt={post.worthWatching}
+            />
+          )}
+          {post.worthReading && post.worthReading !== WorthReadingStatus.NoRating && (
+            <CustomWortItText
+              divClass="align-items-center py-2 px-3 bg-dark rounded-pill"
+              textClass="fs-4"
+              customCircleWidth="16px"
+              customCircleHeight="16px"
+              customIconWidth="8.53px"
+              customIconHeight="8.53px"
+              worthIt={post.worthReading}
             />
           )}
         </div>

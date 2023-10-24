@@ -229,7 +229,7 @@ function PostContent({
     <div>
       {postType === 'review' && (
         <div className="d-flex align-items-center mb-3">
-          {post?.rating && post?.rating !== 0 && (
+          {post?.rating && post?.rating !== 0 ? (
             <div className={`px-3 py-2 bg-dark rounded-pill d-flex align-items-center ${(post.worthWatching && !post.goreFactor) && 'me-3'}`}>
               <CustomRatingText
                 rating={post.rating}
@@ -239,8 +239,8 @@ function PostContent({
                 customHeight="16px"
               />
             </div>
-          )}
-          {post?.goreFactor && post?.goreFactor !== 0 && (
+          ) : null}
+          {post?.goreFactor && post?.goreFactor !== 0 ? (
             <div className={`align-items-center bg-dark d-flex py-2 px-3 rounded-pill ${post.rating && 'ms-3'} ${(post.worthWatching || post.worthReading) && 'me-3'}`}>
               <CustomRatingText
                 rating={post.goreFactor}
@@ -250,8 +250,8 @@ function PostContent({
                 customHeight="16px"
               />
             </div>
-          )}
-          {post.worthWatching && post.worthWatching !== WorthWatchingStatus.NoRating && (
+          ) : null}
+          {post.worthWatching && post.worthWatching !== WorthWatchingStatus.NoRating ? (
             <CustomWortItText
               divClass="align-items-center py-2 px-3 bg-dark rounded-pill"
               textClass="fs-4"
@@ -261,8 +261,8 @@ function PostContent({
               customIconHeight="8.53px"
               worthIt={post.worthWatching}
             />
-          )}
-          {post.worthReading && post.worthReading !== WorthReadingStatus.NoRating && (
+          ) : null}
+          {post.worthReading && post.worthReading !== WorthReadingStatus.NoRating ? (
             <CustomWortItText
               divClass="align-items-center py-2 px-3 bg-dark rounded-pill"
               textClass="fs-4"
@@ -272,7 +272,7 @@ function PostContent({
               customIconHeight="8.53px"
               worthIt={post.worthReading}
             />
-          )}
+          ) : null}
         </div>
       )}
       {(post.spoilers

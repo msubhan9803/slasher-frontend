@@ -59,7 +59,7 @@ function ShareLinksModal({ copyLinkUrl, show, setShow }: any) {
         <h1 className="mb-0 text-primary text-center mx-4">Share</h1>
         <Row xs={isMovieDetailsPageRoute ? 2 : 1} lg="auto" className="mt-4 gx-0 temp11">
           {/* NOTE FOR LATER: Please use xs={3} as per figma design when we have three or more items enabled for production */}
-          {(isMovieDetailsPageRoute || isBookDetailsPageRoute)
+          {(isMovieDetailsPageRoute || (isBookDetailsPageRoute && enableDevFeatures))
             && (
               <Col className="pb-5">
                 <ShareIconButton label="Share as a post" onClick={() => { navigate(`/app/posts/create?movieId=${params.id}`, { state: pathname }); }} imgSrc={ShareAsApostIcon} />

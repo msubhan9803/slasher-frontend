@@ -5,6 +5,8 @@ export const urlForNewsPost = (rssfeedProviderId: string, id: string) => `/app/n
 
 export const urlForMovie = (id: string) => `/app/movies/${id}/details`;
 
+export const urlForBook = (id: string) => `/app/books/${id}/details`;
+
 export const urlForEvent = (id: string) => `/app/events/${id}`;
 
 export const MONGODB_ID = '[a-f\\d]{24}';

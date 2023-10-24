@@ -12,7 +12,7 @@ import CustomRatingText from '../../../components/ui/CustomRatingText';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
 import { BookData, WorthReadingStatus } from '../../../types';
 import ShareLinksModal from '../../../components/ui/ShareLinksModal';
-import { urlForMovie } from '../../../utils/url-utils';
+import { urlForBook } from '../../../utils/url-utils';
 import { generateAmazonAffiliateLinkForBook, getPrefferedISBN } from '../../../utils/text-utils';
 import { getYearFromDate } from '../../../utils/date-utils';
 import WorthWatchIcon, { StyledDislikeIcon, StyledLikeIcon } from '../components/WorthWatchIcon';
@@ -241,7 +241,7 @@ function AboutDetails({
         </Col>
         <Col xs={6} md={5} className="p-0">
           <StyledVerticalBorder className="mt-4 mt-md-0">
-            <p className="fw-bold text-center">Worth watching?</p>
+            <p className="fw-bold text-center">Worth reading?</p>
             <div className="d-flex justify-content-center" style={{ height: 30 }}>
               {bookData.worthReading === WorthReadingStatus.Up
                 && (
@@ -339,7 +339,7 @@ function AboutDetails({
       {showShareLinks
         && (
           <ShareLinksModal
-            copyLinkUrl={urlForMovie(params?.id!)}
+            copyLinkUrl={urlForBook(params?.id!)}
             show={showShareLinks}
             setShow={setShowShareLinks}
           />

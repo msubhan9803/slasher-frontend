@@ -32,7 +32,7 @@ const StyledBookPoster = styled.div`
 `;
 type OptionType = { value: string, label: string, devOnly?: boolean };
 const tabsForAllViews: OptionType[] = [
-  { value: 'details', label: 'Details', devOnly: true },
+  { value: 'details', label: 'Details' },
   { value: 'reviews', label: 'Reviews' },
 ];
 const tabsForSelf: OptionType[] = [
@@ -153,9 +153,9 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
                 </div>
                 {enableDevFeatures
                   && (
-                  <div className="d-none d-xl-block mb-2">
-                    <RoundButton variant="black" className="w-100">Create to list</RoundButton>
-                  </div>
+                    <div className="d-none d-xl-block mb-2">
+                      <RoundButton variant="black" className="w-100">Create to list</RoundButton>
+                    </div>
                   )}
               </div>
             </div>
@@ -194,9 +194,9 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
           </Col>
           {enableDevFeatures
             && (
-            <div className="d-block d-xl-none">
-              <RoundButton variant="black" className="w-100">Create a list</RoundButton>
-            </div>
+              <div className="d-block d-xl-none">
+                <RoundButton variant="black" className="w-100">Create a list</RoundButton>
+              </div>
             )}
           <div className="d-block d-md-none d-lg-block mt-3">
             <RoundButton className="w-100">Buy now</RoundButton>
@@ -204,29 +204,29 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
         </Row>
         {enableDevFeatures
           && (
-          <>
-            <StyledBorder className="d-md-none mt-4" />
-            <Row className="d-lg-none mt-3 mb-2 text-center">
-              <Col xs={12}>
-                <p className="text-center fw-bold mt-2">Get updates for this book</p>
-                <BorderButton
-                  customButtonCss="width: 100% !important;"
-                  buttonClass={`${bgColor ? 'text-black' : ' text-white'} `}
-                  toggleBgColor={bgColor}
-                  handleClick={() => setBgColor(!bgColor)}
-                  toggleButton
-                />
-              </Col>
-            </Row>
-            <Row className="align-items-center justify-content-center mt-4 mb-2 d-lg-none">
-              <Col>
-                <div className="align-items-center d-flex justify-content-center">
-                  <span className="mb-2">Push notifications</span>
-                  <Switch id="bookPushNotificationsSwitch" className="ms-4" />
-                </div>
-              </Col>
-            </Row>
-          </>
+            <>
+              <StyledBorder className="d-md-none mt-4" />
+              <Row className="d-lg-none mt-3 mb-2 text-center">
+                <Col xs={12}>
+                  <p className="text-center fw-bold mt-2">Get updates for this book</p>
+                  <BorderButton
+                    customButtonCss="width: 100% !important;"
+                    buttonClass={`${bgColor ? 'text-black' : ' text-white'} `}
+                    toggleBgColor={bgColor}
+                    handleClick={() => setBgColor(!bgColor)}
+                    toggleButton
+                  />
+                </Col>
+              </Row>
+              <Row className="align-items-center justify-content-center mt-4 mb-2 d-lg-none">
+                <Col>
+                  <div className="align-items-center d-flex justify-content-center">
+                    <span className="mb-2">Push notifications</span>
+                    <Switch id="bookPushNotificationsSwitch" className="ms-4" />
+                  </div>
+                </Col>
+              </Row>
+            </>
           )}
         <Row className="justify-content-center justify-content-xl-start">
           <Col xs={12} md={6} lg={queryParam === 'self' ? 10 : 12} xl={9}>
@@ -242,13 +242,13 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
         </Row>
       </div>
       <Routes>
-        <Route path="/" element={<Navigate to="reviews" replace />} />
+        <Route path="/" element={<Navigate to="details" replace />} />
         <Route
           path="details"
           element={(
             <>
               <BookOverview />
-              <BookPosts />
+              {enableDevFeatures && <BookPosts />}
             </>
           )}
         />

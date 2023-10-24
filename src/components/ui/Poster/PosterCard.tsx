@@ -24,7 +24,7 @@ const PosterCardStyle = styled(Card) <Props>`
   .poster {
     img {
       // ${(props) => props.type === 'book' && 'width:9.563rem !important'} ;
-      object-fit: cover;
+      object-fit: fill;
       box-shadow: 0 0 0 1px var(--poster-border-color);
     }
   }
@@ -60,6 +60,13 @@ const MovieName = styled(Card.Text)`
   -webkit-line-clamp: 2; 
   -webkit-box-orient: vertical;
 `;
+const StyledPoster = styled.div`
+  aspect-ratio: 0.6;
+  img{
+    object-fit: cover;
+    box-shadow: 0 0 0 1px var(--poster-border-color);
+  }
+`;
 
 function PosterCard({
   type, name, poster, year, worthWatching, rating, deactivate,
@@ -67,7 +74,9 @@ function PosterCard({
   return (
     <PosterCardStyle className="bg-transparent border-0" type={type}>
       <div className="poster">
-        <LazyLoadImage style={{ minHeight: 225 }} src={poster} alt={`${name} poster`} className="w-100 h-100 rounded-4" />
+        <StyledPoster>
+          <LazyLoadImage src={poster} alt={`${name} poster`} className="w-100 h-100 rounded-4" />
+        </StyledPoster>
       </div>
       {rating !== 0 && (
         <RatingDiv className="d-flex justify-content-end me-2">

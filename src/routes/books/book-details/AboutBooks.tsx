@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Col, Image, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import {
-  Navigate, Route, Route, Routes, useNavigate, useParams, useSearchParams,
+  Navigate, Route, Routes, useNavigate, useParams, useSearchParams,
 } from 'react-router-dom';
 import Switch from '../../../components/ui/Switch';
 import AboutDetails from './AboutDetails';

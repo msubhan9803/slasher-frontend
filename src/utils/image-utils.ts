@@ -12,8 +12,6 @@ export function relativeToFullImagePath(config: ConfigService, relativeImagePath
   }
 
   if (config.get<string>('FILE_STORAGE') === 's3') {
-    console.log('S3_HOST + S3_HOST',config.get<string>('S3_HOST'));
-    
     return config.get<string>('S3_HOST') + (placeholderToShow || relativeImagePath);
   }
   return config.get<string>('API_URL') + (placeholderToShow || `/api/v1/local-storage${relativeImagePath}`);

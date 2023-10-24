@@ -53,7 +53,7 @@ const MovieIconList = [
     label: 'Watched', key: 'watched', icon: solid('check'), iconColor: '#32D74B', width: '1.354rem', height: '0.968rem', addMovie: false,
   },
   {
-    label: 'Watchlist', key: 'watch', icon: solid('list-check'), iconColor: '#FF8A00', width: '1.404rem', height: '1.185rem', addMovie: false,
+    label: 'Watch list', key: 'watch', icon: solid('list-check'), iconColor: '#FF8A00', width: '1.404rem', height: '1.185rem', addMovie: false,
   },
   {
     label: 'Buy', key: 'buy', icon: solid('bag-shopping'), iconColor: '#FF1800', width: '1.029rem', height: '1.185rem', addMovie: false,

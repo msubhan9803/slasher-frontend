@@ -229,7 +229,7 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
           path="details"
           element={(
             <>
-              <BookOverview />
+              <BookOverview description={bookData.description || ''} />
               <BookPosts />
             </>
           )}

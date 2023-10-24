@@ -23,8 +23,7 @@ import { getCoverImageForBookOfOpenLibrary } from '../../utils/text-utils';
 import { StorageLocationService } from '../../global/providers/storage-location.service';
 import { LocalStorageService } from '../../local-storage/providers/local-storage.service';
 import { downloadFileTemporarily } from '../../utils/file-download-utils';
-import { buildBook } from './books.build';
-import { DiscoverMovieMapper } from '../../movies/mapper/discover-movie.mapper';
+import { buildBook, getCustomBookId } from './books.build';
 
 @Injectable()
 export class BooksService {
@@ -281,7 +280,6 @@ export class BooksService {
     return readingBookIdArray as unknown as BookUserStatusDocument[];
   }
 
-  // TODO (later): Write test for this
   async syncWithOpenLibrary(): Promise<ReturnBookDb> {
     // From OpenLibrary, we collect ids of all the books
     // (`bookId` + `coverEditionKey`)
@@ -290,29 +288,21 @@ export class BooksService {
 
     // Fetch `bookId` and `coverEditionKey` to check for already existing books later
     // (`bookId` + `coverEditionKey`)
-    const databaseBookKeys = [];
+    const databaseBookKeys: string[] = [];
     for await (
       const doc of this.booksModel
         .find()
         .select('bookId coverEditionKey')
         .cursor()
     ) {
-      databaseBookKeys.push(doc.bookId + doc.coverEditionKey);
-      /**
-       * *TESTING ONLY*
-       * '/works/OL2700647WOL11824223M'
-       * '/works/OL8470691WOL9467573M'
-       */
+      databaseBookKeys.push(getCustomBookId(doc));
     }
 
     try {
       // Note; Initial value `offset` is zero i.e, items starting from 1st book.
-      // when offset is 1, items will be fetched from/including 2nd book.
-      let offset = 0; // 28278 (default = 0)
-  // TODO: Remove `isDevelopmentServer` usage
-      const tempLimiter = true;
-
-      const limit = tempLimiter ? 3 : 3; // ! FOR production we value =1000
+      // Note: When offset=1, items will be fetched from and including 2nd book.
+      let offset = 0; // (default = 0)
+      const limit = 50; // ! FOR production we value =1000
       let hasMoreData = true;
 
       while (hasMoreData) {
@@ -325,13 +315,12 @@ export class BooksService {
           ),
         );
         if (data?.docs?.length) {
-          await this.fetchBooksFromOpenLibraryAndInsertToDb(data?.docs);
+          await this.fetchBooksFromOpenLibrary(data?.docs, databaseBookKeys);
 
           offset += limit;
-          // ! FOR PRODUCTION: Remove below line
-          if (tempLimiter) {
-            hasMoreData = false;
-          }
+          // Note to developer: Please ignore below log in testing because in testing we use mockup data which is always fixed.
+          // eslint-disable-next-line no-console
+          console.log('Total books fetched so far?', offset);
         } else {
           hasMoreData = false;
         }
@@ -349,12 +338,15 @@ export class BooksService {
     }
   }
 
-  // TODO (later): Write test for this
-  async fetchBooksFromOpenLibraryAndInsertToDb(booksFromOpenLibrary: BookFromOpenLibrary[]) {
-    const booksToAdd: Array<Partial<BookDocument>> = [];
+  async fetchBooksFromOpenLibrary(
+    booksFromOpenLibrary: BookFromOpenLibrary[],
+    databaseBookKeys: string[],
+  ) {
+    const books: Array<Partial<BookDocument>> = [];
     for (let i = 0; i < booksFromOpenLibrary.length; i += 1) {
+      // Note: This log is here for initial testing and debugging pupose.
       // eslint-disable-next-line no-console
-      console.log('i?', i);
+      console.log(`i=${i}`);
       const [keyDataSettled, editionKeyDataSettled]: any = await Promise.allSettled([
         lastValueFrom(
           this.httpService.get<any>(`https://openlibrary.org/${booksFromOpenLibrary[i].key}.json`),
@@ -368,60 +360,59 @@ export class BooksService {
       const editionKeyData = (editionKeyDataSettled.status === 'fulfilled') ? editionKeyDataSettled.value : null;
 
       const book = buildBook(i, booksFromOpenLibrary, keyData, editionKeyData);
-
-      // Update `coverImageId` & `coverImage`
-      if (editionKeyData) {
-        const coverImageId = editionKeyData.data?.covers?.[0];
-        if (coverImageId) {
-          book.coverImageId = coverImageId;
-          const coverImgeUrl = getCoverImageForBookOfOpenLibrary(coverImageId);
-          const storageLocation = await this.uploadToS3Bucket(coverImgeUrl);
-          book.coverImage = { image_path: storageLocation, description: null };
-        }
-      }
-
-      // TODO: This will be handled in `processDatabaseOperation`
-      // Note: We only add book to `booksToAdd` if all required fields are present in `book` i.e, name, coverEditionKey, etc
-      if (book.name && book.coverEditionKey) {
-        booksToAdd.push(book);
-      }
+      books.push(book);
     }
-    // TODO: This will be handled in `processDatabaseOperation`
-    if (booksToAdd.length !== 0) {
-      await this.booksModel.insertMany(booksToAdd);
+
+    try {
+      await this.processDatabaseOperation(books, databaseBookKeys);
+    } catch (error) {
+      throw new Error('Failed to run `processDatabaseOperation()`');
     }
   }
 
   async processDatabaseOperation(
-    books: any[],
-    databaseBookKeys,
+    books: Array<Partial<BookDocument>>,
+    databaseBookKeys: string[],
   ): Promise<void> {
     if (!books && books.length) {
       return;
     }
 
-    const insertBookList = [];
-
-    const promisesArray = [];
+    const insertBookList: Array<Partial<BookDocument>> = [];
+    const updateBooksPromisesArray = [];
     for (const book of books) {
-      if (databaseBookKeys.includes(book.id)) {
-        const movieData = await this.booksModel.findOne({ movieDBId: book.id });
-        if (movieData) {
-          for (const movieKey of Object.keys(DiscoverMovieMapper.toDomain(book))) {
-            movieData[movieKey] = DiscoverMovieMapper.toDomain(book)[movieKey];
+      const isValidBook = book.name && book.coverEditionKey;
+      if (isValidBook) {
+        if (databaseBookKeys.includes(getCustomBookId(book))) {
+          // Note: We use both `bookId` and `coverEditionKey` because we prefer `getCustomBookId` to uniquely identify a book elsewhere.
+          const bookData = await this.booksModel.findOne({ bookId: book.bookId, coverEditionKey: book.coverEditionKey });
+          if (bookData) {
+            for (const bookKey of Object.keys(book)) {
+              bookData[bookKey] = book[bookKey];
+            }
+            updateBooksPromisesArray.push(bookData.save());
           }
-          promisesArray.push(movieData.save());
+        } else {
+          // Upload `coverImage` to s3 bucket before saving to db
+          for (const item of insertBookList) {
+            if (item.coverImageId) {
+              const coverImgeUrl = getCoverImageForBookOfOpenLibrary(item.coverImageId);
+              const storageLocation = await this.uploadToS3Bucket(coverImgeUrl);
+              book.coverImage = { image_path: storageLocation, description: null };
+            }
+          }
+          insertBookList.push(book);
         }
-      } else {
-        insertBookList.push(DiscoverMovieMapper.toDomain(book));
       }
     }
 
     // Update all existing records
-    await Promise.all(promisesArray);
+    await Promise.all(updateBooksPromisesArray);
 
     // Insert all the new movies to collection
-    if (insertBookList.length) { await this.booksModel.insertMany(insertBookList); }
+    if (insertBookList.length) {
+      await this.booksModel.insertMany(insertBookList);
+    }
   }
 
   /** Returns `storageLocation` of uploaded file (`s3Bucket` / `local-storage`) */
@@ -439,16 +430,5 @@ export class BooksService {
       }
     });
     return storageLocation;
-  }
-
-  // ! TODO-SAHIL: Remove this after testing.
-  // eslint-disable-next-line class-methods-use-this
-  async testFunction() {
-    // eslint-disable-next-line no-console
-    console.log('hello');
-    const fileUrl = 'https://covers.openlibrary.org/b/ID/2808629-L.jpg';
-    const storageLocation = await this.uploadToS3Bucket(fileUrl);
-    // eslint-disable-next-line no-console
-    console.log('storageLocation?', storageLocation);
   }
 }

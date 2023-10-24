@@ -330,11 +330,4 @@ export class BooksController {
     await this.bookUserStatusService.deleteBookUserStatusBuy(user.id, params.bookId);
     return { success: true };
   }
-
-  // ! TODO-SAHIL: Remove this after testing.
-  @Get(':param1/test')
-  async testFunction() {
-    await this.booksService.testFunction();
-    return { success: 'booom' };
-  }
 }

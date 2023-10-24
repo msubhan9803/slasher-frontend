@@ -754,70 +754,138 @@ describe('BooksService', () => {
   });
 
   describe('#getBooksFromOpenLibrary', () => {
-    beforeEach(async () => {
-      jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
-        data: mockBooksSearchQueryFromOpenLibrary,
-        status: 200,
-        statusText: '',
-        headers: {},
-        config: {},
-      }));
-      jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
-        data: keyData1,
-        status: 200,
-        statusText: '',
-        headers: {},
-        config: {},
-      }));
-      jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
-        data: keyEditionData1,
-        status: 200,
-        statusText: '',
-        headers: {},
-        config: {},
-      }));
-      jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
-        data: keyData2,
-        status: 200,
-        statusText: '',
-        headers: {},
-        config: {},
-      }));
-      jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
-        data: keyEditionData2,
-        status: 200,
-        statusText: '',
-        headers: {},
-        config: {},
-      }));
-      jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
-        data: mockBooksSearchQueryFromOpenLibraryNoDocs,
-        status: 200,
-        statusText: '',
-        headers: {},
-        config: {},
-      }));
-    });
-    it('successful fetching books', async () => {
-      const result = await booksService.syncWithOpenLibrary();
-      expect(result).toEqual({
-        success: true,
-        message: 'Successfully completed the cron job',
+    describe('successful fetching books', () => {
+      beforeEach(async () => {
+        jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
+          data: mockBooksSearchQueryFromOpenLibrary,
+          status: 200,
+          statusText: '',
+          headers: {},
+          config: {},
+        }));
+        jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
+          data: keyData1,
+          status: 200,
+          statusText: '',
+          headers: {},
+          config: {},
+        }));
+        jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
+          data: keyEditionData1,
+          status: 200,
+          statusText: '',
+          headers: {},
+          config: {},
+        }));
+        jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
+          data: keyData2,
+          status: 200,
+          statusText: '',
+          headers: {},
+          config: {},
+        }));
+        jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
+          data: keyEditionData2,
+          status: 200,
+          statusText: '',
+          headers: {},
+          config: {},
+        }));
+        jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
+          data: mockBooksSearchQueryFromOpenLibraryNoDocs,
+          status: 200,
+          statusText: '',
+          headers: {},
+          config: {},
+        }));
       });
-      const books = await bookModel.find();
-      // book1
-      expect(books[0].name).toBe('The Empty House And Other Ghost Stories');
-      expect(books[0].author[0]).toBe('Algernon Blackwood');
-      // book2
-      expect(books[1].name).toBe('Dr. Nikola\'s Experiment');
-      expect(books[1].author[0]).toBe('Guy Newell Boothby');
+      it('test', async () => {
+        const result = await booksService.syncWithOpenLibrary();
+        expect(result).toEqual({
+          success: true,
+          message: 'Successfully completed the cron job',
+        });
+        const books = await bookModel.find();
+        expect(books).toHaveLength(2);
+        // Verify both books are added:
+        // book1
+        expect(books[0].name).toBe('The Empty House And Other Ghost Stories');
+        expect(books[0].author[0]).toBe('Algernon Blackwood');
+        // book2
+        expect(books[1].name).toBe('Dr. Nikola\'s Experiment');
+        expect(books[1].author[0]).toBe('Guy Newell Boothby');
+      });
     });
-    it('update books on sync', async () => {
-      // Add books first
-      // const result = await booksService.syncWithOpenLibrary();
-      // TODO: mock the new changed data now and test against that, all done!
-      // const result2 = await booksService.syncWithOpenLibrary();
-      expect(1).toBe(1);
+
+    describe('All fields e.g, `name`, `author`, etc of existing book should update on sync', () => {
+      beforeEach(async () => {
+        await booksService.create(
+          booksFactory.build({
+            bookId: mockBooksSearchQueryFromOpenLibrary.docs[0].key,
+            coverEditionKey: mockBooksSearchQueryFromOpenLibrary.docs[0].cover_edition_key,
+            name: 'abc',
+            author: ['def'],
+          }),
+        );
+
+        jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
+          data: mockBooksSearchQueryFromOpenLibrary,
+          status: 200,
+          statusText: '',
+          headers: {},
+          config: {},
+        }));
+        jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
+          data: keyData1,
+          status: 200,
+          statusText: '',
+          headers: {},
+          config: {},
+        }));
+        jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
+          data: keyEditionData1,
+          status: 200,
+          statusText: '',
+          headers: {},
+          config: {},
+        }));
+        jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
+          data: keyData2,
+          status: 200,
+          statusText: '',
+          headers: {},
+          config: {},
+        }));
+        jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
+          data: keyEditionData2,
+          status: 200,
+          statusText: '',
+          headers: {},
+          config: {},
+        }));
+        jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
+          data: mockBooksSearchQueryFromOpenLibraryNoDocs,
+          status: 200,
+          statusText: '',
+          headers: {},
+          config: {},
+        }));
+      });
+      it('test', async () => {
+        const result = await booksService.syncWithOpenLibrary();
+        expect(result).toEqual({
+          success: true,
+          message: 'Successfully completed the cron job',
+        });
+        const books = await bookModel.find();
+        expect(books).toHaveLength(2);
+        // Verify book1's `name` and `author` is updated
+        expect(books[0].name).toBe('The Empty House And Other Ghost Stories');
+        expect(books[0].author[0]).toBe('Algernon Blackwood');
+        // book2 is newly added
+        expect(books[1].name).toBe('Dr. Nikola\'s Experiment');
+        expect(books[1].author[0]).toBe('Guy Newell Boothby');
+      });
     });
   });
 });

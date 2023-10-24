@@ -24,6 +24,7 @@ export const buildBook = (
   }
   // From `editionKeyData` API
   if (editionKeyData) {
+    book.coverImageId = editionKeyData.data?.covers?.[0] || null;
     book.name = editionKeyData.data.title;
     book.numberOfPages = editionKeyData.data.number_of_pages;
     book.publishDate = createPublishDateForOpenLibrary(editionKeyData.data.publish_date);
@@ -37,3 +38,9 @@ export const buildBook = (
   }
   return book;
 };
+
+/** Example output Ids:
+ * '/works/OL2700647WOL11824223M'
+ * '/works/OL8470691WOL9467573M'
+ */
+export const getCustomBookId = (book: Partial<BookDocument>) => book.bookId + book.coverEditionKey;

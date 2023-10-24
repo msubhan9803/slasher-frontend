@@ -337,6 +337,9 @@ function MovieReviews({
         setProgressButtonStatus('default');
         setShow(false);
         setDropDownValue('BlockUserSuccess');
+        setReviewPostData((prev: any) => prev.filter(
+          (scrollData: any) => scrollData.userId !== postUserId,
+        ));
       })
       /* eslint-disable no-console */
       .catch((error) => {

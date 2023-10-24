@@ -57,11 +57,14 @@ interface Props {
   //       expressions reported by typescript
   // postType?: '' | 'review' | 'news';
   showPubWiseAdAtPageBottom?: boolean;
+  reviewDetail?: string;
 }
 
 const DEFAULT_COMMENTS_SORYBY_OLDEST_FIRST = true;
 
-function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
+function PostDetail({
+  user, postType, showPubWiseAdAtPageBottom, reviewDetail,
+}: Props) {
   const {
     postId, id, partnerId,
   } = useParams<string>();
@@ -111,8 +114,11 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     setSelectedBlockedUserId(popoverClickProps.userId!);
-    if (value === 'Edit Review') {
+    if (value === 'Edit Review' && reviewDetail === 'movie-review') {
       navigate(`/app/movies/${id}/reviews`, { state: { movieId: popoverClickProps.id } });
+    }
+    if (value === 'Edit Review' && reviewDetail === 'book-review') {
+      navigate(`/app/books/${id}/reviews`, { state: { bookId: popoverClickProps.id } });
     }
     if (value === 'Delete Review') {
       setDropDownValue('Delete');
@@ -165,7 +171,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
   }, [commentData, postId]);
   // eslint-disable-next-line max-len
   const checkFriendShipStatus = useCallback((feedPostUserId: any) => new Promise<void>((resolve, reject) => {
-    if (postType === 'news' || postType === 'book-review' || postType === 'movie-review' || userData.user.id === feedPostUserId) {
+    if (postType === 'news' || reviewDetail === 'book-review' || reviewDetail === 'movie-review' || userData.user.id === feedPostUserId) {
       resolve();
     } else {
       friendship(feedPostUserId).then((res) => {
@@ -180,7 +186,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         }
       }).catch(() => reject());
     }
-  }), [postType, userData?.user?.id]);
+  }), [postType, userData?.user?.id, reviewDetail]);
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingComments && (commentData.length || !queryCommentId)) {
@@ -477,7 +483,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           if (partnerId !== res.data.rssfeedProviderId?._id && !queryCommentId) {
             navigate(`/app/news/partner/${res.data.rssfeedProviderId?._id}/posts/${postId}`);
           }
-        } else if (postType === 'movie-review') {
+        } else if (reviewDetail === 'movie-review') {
           if (queryCommentId && queryReplyId) {
             navigate(`/app/movies/${res.data.movieId._id}/reviews/${postId}?commentId=${queryCommentId}&replyId=${queryReplyId}`);
           } else if (queryCommentId) {
@@ -485,7 +491,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           } else {
             navigate(`/app/movies/${res.data.movieId._id}/reviews/${postId}`);
           }
-        } else if (postType === 'book-review') {
+        } else if (reviewDetail === 'book-review') {
           if (queryCommentId && queryReplyId) {
             navigate(`/app/books/${res.data.bookId._id}/reviews/${postId}?commentId=${queryCommentId}&replyId=${queryReplyId}`);
           } else if (queryCommentId) {
@@ -517,7 +523,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             likedByUser: res.data.likedByUser,
             rssfeedProviderId: res.data.rssfeedProviderId?._id,
           };
-        } else if (postType === 'movie-review') {
+        } else if (reviewDetail === 'movie-review') {
           post = {
             _id: res.data._id,
             id: res.data._id,
@@ -539,7 +545,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             movieId: res.data.movieId._id,
             hashtags: res.data?.hashtags,
           };
-        } else if (postType === 'book-review') {
+        } else if (reviewDetail === 'book-review') {
           post = {
             _id: res.data._id,
             id: res.data._id,
@@ -554,7 +560,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
             commentCount: res.data.commentCount,
             rating: res.data?.reviewData?.rating || 0,
             goreFactor: res.data?.reviewData?.goreFactorRating || 0,
-            worthWatching: res.data?.reviewData?.worthWatching || 0,
+            worthReading: res.data?.reviewData?.worthReading || 0,
             contentHeading: res.data.title,
             bookId: res.data.bookId._id,
             spoilers: res.data.spoilers,
@@ -585,7 +591,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
         setErrorMessage(error.response.data.message);
       });
   }, [navigate, partnerId, postId, postType, queryCommentId, queryReplyId,
-    location.pathname]);
+    location.pathname, reviewDetail]);
 
   useEffect(() => {
     if (postId && pastPostId !== postId) {
@@ -642,7 +648,15 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
           setProgressButtonStatus('default');
           setShow(false);
           deletedPostsCache.add(postId);
-          navigate(-1); // act as if browser back icon is pressed
+          setTimeout(() => {
+            if (reviewDetail === 'book-review') {
+              navigate(`/app/books/${id}/reviews`);
+            } else if (reviewDetail === 'movie-review') {
+              navigate(`/app/movies/${id}/reviews`);
+            } else {
+              navigate(-1);
+            }
+          }, 0);
         })
         /* eslint-disable no-console */
         .catch(async (error) => {
@@ -653,7 +667,6 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     }
     return undefined;
   };
-
   const handlePostDislike = useCallback((feedPostId: string) => {
     setPostData((prevPosts) => prevPosts.map(
       (prevPost) => {
@@ -1010,7 +1023,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
     }
     setCommentNotFound(false);
   };
-
+  console.log('postType', postType);
   return (
     <>
       {postType === 'news'
@@ -1142,7 +1155,7 @@ function PostDetail({ user, postType, showPubWiseAdAtPageBottom }: Props) {
               escapeHtml={postType === 'news' ? false : undefined}
               handleSearch={handleSearch}
               mentionList={mentionList}
-              postType={postType === 'news' ? 'news' : 'reviews'}
+              postType={postType}
               commentImages={commentImages}
               setCommentImages={setCommentImages}
               commentError={commentErrorMessage}
@@ -1229,6 +1242,7 @@ PostDetail.defaultProps = {
   user: null,
   postType: '',
   showPubWiseAdAtPageBottom: false,
+  reviewDetail: '',
 };
 
 export default PostDetail;

@@ -320,22 +320,23 @@ export enum PostType {
   BookReview = 4,
 }
 export interface MovieData {
-  movieDBId: number;
+  movieDBId?: number;
   // ** RATING/GORE-FACTOR/WORTH-WATCHING FIELDS **
   // ratings
   rating: number;
   goreFactorRating: number;
-  worthWatching: number;
+  worthWatching?: number;
   // number of users who rated for `rating`, `goreFactorRating` and `worthWatching`
   ratingUsersCount: number;
-  goreFactorRatingUsersCount: number;
-  worthWatchingUpUsersCount: number;
-  worthWatchingDownUsersCount: number;
+  goreFactorRatingUsersCount?: number;
+  worthWatchingUpUsersCount?: number;
+  worthWatchingDownUsersCount?: number;
   // ratings by logged-in user
   userData: {
     rating: number;
     goreFactorRating: number;
     worthWatching: number;
+    worthReading: number;
     reviewPostId: string;
   },
   // to check movieData state update

@@ -12,6 +12,7 @@ import { enableDevFeatures } from '../../../env';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../../pageStateCache';
 import {
+  BookData,
   BookPageCache,
 } from '../../../types';
 import { getBookById } from '../../../api/books';
@@ -21,7 +22,7 @@ function BookDetails() {
   const pageStateCache: BookPageCache = getPageStateCache(location)
     ?? { bookData: undefined, additionalBookData: undefined };
   const params = useParams();
-  const [bookData, setBookData] = useState<any | undefined>(
+  const [bookData, setBookData] = useState<BookData>(
     hasPageStateCache(location) ? pageStateCache.bookData : undefined,
   );
 

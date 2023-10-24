@@ -811,9 +811,13 @@ describe('BooksService', () => {
         // book1
         expect(books[0].name).toBe('The Empty House And Other Ghost Stories');
         expect(books[0].author[0]).toBe('Algernon Blackwood');
+        expect(books[0].coverImageId).toBe(2808629);
+        expect(books[0].coverImage.image_path).toBeTruthy();
         // book2
         expect(books[1].name).toBe('Dr. Nikola\'s Experiment');
         expect(books[1].author[0]).toBe('Guy Newell Boothby');
+        expect(books[0].coverImageId).toBe(2808629);
+        expect(books[0].coverImage.image_path).toBeTruthy();
       });
     });
 

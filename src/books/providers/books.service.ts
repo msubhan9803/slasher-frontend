@@ -394,12 +394,10 @@ export class BooksService {
           }
         } else {
           // Upload `coverImage` to s3 bucket before saving to db
-          for (const item of insertBookList) {
-            if (item.coverImageId) {
-              const coverImgeUrl = getCoverImageForBookOfOpenLibrary(item.coverImageId);
-              const storageLocation = await this.uploadToS3Bucket(coverImgeUrl);
-              book.coverImage = { image_path: storageLocation, description: null };
-            }
+          if (book.coverImageId) {
+            const coverImgeUrl = getCoverImageForBookOfOpenLibrary(book.coverImageId);
+            const storageLocation = await this.uploadToS3Bucket(coverImgeUrl);
+            book.coverImage = { image_path: storageLocation, description: null };
           }
           insertBookList.push(book);
         }

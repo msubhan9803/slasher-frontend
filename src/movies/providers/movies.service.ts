@@ -389,7 +389,7 @@ export class MoviesService {
       // Fetch the max year data limit
       const maxYearLimit = await this.getMoviesDataMaxYearLimit(endYear);
 
-      // From MovieDB
+      // From MovieDB, we collect ids of all the movies between `startYear` to `maxYearLimit`
       const moviesFromMovieDB = { ids: [] };
 
       // Fetch `movieDBId` to check for already existing movies later

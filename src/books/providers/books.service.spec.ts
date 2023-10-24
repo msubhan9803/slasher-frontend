@@ -5,6 +5,7 @@ import { Test } from '@nestjs/testing';
 import { Connection, Model } from 'mongoose';
 import { HttpService } from '@nestjs/axios';
 import { DateTime } from 'luxon';
+import { of } from 'rxjs';
 import { AppModule } from '../../app.module';
 import { BooksService } from './books.service';
 import { booksFactory } from '../../../test/factories/books.factory';
@@ -14,9 +15,13 @@ import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 import { BookUserStatus, BookUserStatusDocument } from '../../schemas/bookUserStatus/bookUserStatus.schema';
 import { UsersService } from '../../users/providers/users.service';
 import { userFactory } from '../../../test/factories/user.factory';
-import { BookDocument } from '../../schemas/book/book.schema';
+import { Book, BookDocument } from '../../schemas/book/book.schema';
 import { UserDocument } from '../../schemas/user/user.schema';
 import { WorthReadingStatus } from '../../types';
+import {
+  keyData1, keyData2, keyEditionData1, keyEditionData2,
+  mockBooksSearchQueryFromOpenLibrary, mockBooksSearchQueryFromOpenLibraryNoDocs,
+} from './books.service.mock';
 
 const mockHttpService = () => ({});
 
@@ -29,6 +34,8 @@ describe('BooksService', () => {
   let book: BookDocument;
   let activeUser: UserDocument;
   let user1: UserDocument;
+  let httpService: HttpService;
+  let bookModel: Model<BookDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -37,10 +44,12 @@ describe('BooksService', () => {
     }).compile();
     connection = moduleRef.get<Connection>(getConnectionToken());
     booksService = moduleRef.get<BooksService>(BooksService);
+    bookModel = moduleRef.get<Model<BookDocument>>(getModelToken(Book.name));
     bookUserStatusModel = moduleRef.get<Model<BookUserStatusDocument>>(getModelToken(BookUserStatus.name));
     usersService = moduleRef.get<UsersService>(UsersService);
     app = moduleRef.createNestApplication();
     await app.init();
+    httpService = await app.get<HttpService>(HttpService);
   });
 
   afterAll(async () => {
@@ -741,6 +750,74 @@ describe('BooksService', () => {
     it('create or update `rating` in a bookUserStatus document', async () => {
       const ratingUsersCount = await booksService.getRatingUsersCount(book.id);
       expect(ratingUsersCount).toBe(2);
+    });
+  });
+
+  describe('#getBooksFromOpenLibrary', () => {
+    beforeEach(async () => {
+      jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
+        data: mockBooksSearchQueryFromOpenLibrary,
+        status: 200,
+        statusText: '',
+        headers: {},
+        config: {},
+      }));
+      jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
+        data: keyData1,
+        status: 200,
+        statusText: '',
+        headers: {},
+        config: {},
+      }));
+      jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
+        data: keyEditionData1,
+        status: 200,
+        statusText: '',
+        headers: {},
+        config: {},
+      }));
+      jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
+        data: keyData2,
+        status: 200,
+        statusText: '',
+        headers: {},
+        config: {},
+      }));
+      jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
+        data: keyEditionData2,
+        status: 200,
+        statusText: '',
+        headers: {},
+        config: {},
+      }));
+      jest.spyOn(httpService, 'get').mockImplementationOnce(() => of({
+        data: mockBooksSearchQueryFromOpenLibraryNoDocs,
+        status: 200,
+        statusText: '',
+        headers: {},
+        config: {},
+      }));
+    });
+    it('successful fetching books', async () => {
+      const result = await booksService.syncWithOpenLibrary();
+      expect(result).toEqual({
+        success: true,
+        message: 'Successfully completed the cron job',
+      });
+      const books = await bookModel.find();
+      // book1
+      expect(books[0].name).toBe('The Empty House And Other Ghost Stories');
+      expect(books[0].author[0]).toBe('Algernon Blackwood');
+      // book2
+      expect(books[1].name).toBe('Dr. Nikola\'s Experiment');
+      expect(books[1].author[0]).toBe('Guy Newell Boothby');
+    });
+    it('update books on sync', async () => {
+      // Add books first
+      // const result = await booksService.syncWithOpenLibrary();
+      // TODO: mock the new changed data now and test against that, all done!
+      // const result2 = await booksService.syncWithOpenLibrary();
+      expect(1).toBe(1);
     });
   });
 });

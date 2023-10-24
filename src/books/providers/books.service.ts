@@ -11,19 +11,20 @@ import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 import { BookActiveStatus, BookDeletionState, BookType } from '../../schemas/book/book.enums';
 import { Book, BookDocument } from '../../schemas/book/book.schema';
-import { NON_ALPHANUMERIC_REGEX, isDevelopmentServer } from '../../constants';
+import { NON_ALPHANUMERIC_REGEX } from '../../constants';
 import { BookUserStatus, BookUserStatusDocument } from '../../schemas/bookUserStatus/bookUserStatus.schema';
 import {
   BookUserStatusBuy, BookUserStatusFavorites, BookUserStatusRead, BookUserStatusReadingList,
 } from '../../schemas/bookUserStatus/bookUserStatus.enums';
 import { escapeStringForRegex } from '../../utils/escape-utils';
 import { BookKeysFromOpenLibrary, BookFromOpenLibrary, WorthReadingStatus } from '../../types';
-import { createPublishDateForOpenLibrary } from '../../utils/date-utils';
 import { S3StorageService } from '../../local-storage/providers/s3-storage.service';
 import { getCoverImageForBookOfOpenLibrary } from '../../utils/text-utils';
 import { StorageLocationService } from '../../global/providers/storage-location.service';
 import { LocalStorageService } from '../../local-storage/providers/local-storage.service';
 import { downloadFileTemporarily } from '../../utils/file-download-utils';
+import { buildBook } from './books.build';
+import { DiscoverMovieMapper } from '../../movies/mapper/discover-movie.mapper';
 
 @Injectable()
 export class BooksService {
@@ -281,98 +282,61 @@ export class BooksService {
   }
 
   // TODO (later): Write test for this
-  async getBooksFromOpenLibrary() {
-    const arr: BookFromOpenLibrary[] = [];
-    let offset = 0;
-    // TODO: Remove `isDevelopmentServer` usage
+  async syncWithOpenLibrary(): Promise<ReturnBookDb> {
+    // From OpenLibrary, we collect ids of all the books
+    // (`bookId` + `coverEditionKey`)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const booksFromOpenLibrary = { ids: [] };
 
-    const limit = isDevelopmentServer ? 3 : 1000; // ! FOR production we value =1000
-    let hasMoreData = true;
+    // Fetch `bookId` and `coverEditionKey` to check for already existing books later
+    // (`bookId` + `coverEditionKey`)
+    const databaseBookKeys = [];
+    for await (
+      const doc of this.booksModel
+        .find()
+        .select('bookId coverEditionKey')
+        .cursor()
+    ) {
+      databaseBookKeys.push(doc.bookId + doc.coverEditionKey);
+      /**
+       * *TESTING ONLY*
+       * '/works/OL2700647WOL11824223M'
+       * '/works/OL8470691WOL9467573M'
+       */
+    }
 
-    while (hasMoreData) {
-      const searchQuery = 'subject%3Ahorror'; // subject:horror
-      const bookFieldKeys: BookKeysFromOpenLibrary = ['author_name', 'cover_edition_key', 'key'];
-      const fields = bookFieldKeys.join(','); // Helps in overfetching data issue from API.
-      const { data } = await lastValueFrom(
-        this.httpService.get<any>(
-          `https://openlibrary.org/search.json?q=${searchQuery}&mode=everything&limit=${limit}&offset=${offset}&fields=${fields}`,
-        ),
-      );
-      if (data?.docs?.length) {
-        arr.push(...data.docs);
-        offset += limit;
-        // ! FOR PRODUCTION: Remove below line
-        if (isDevelopmentServer) {
+    try {
+      // Note; Initial value `offset` is zero i.e, items starting from 1st book.
+      // when offset is 1, items will be fetched from/including 2nd book.
+      let offset = 0; // 28278 (default = 0)
+  // TODO: Remove `isDevelopmentServer` usage
+      const tempLimiter = true;
+
+      const limit = tempLimiter ? 3 : 3; // ! FOR production we value =1000
+      let hasMoreData = true;
+
+      while (hasMoreData) {
+        const searchQuery = 'subject%3Ahorror'; // subject:horror
+        const bookFieldKeys: BookKeysFromOpenLibrary = ['author_name', 'cover_edition_key', 'key'];
+        const fields = bookFieldKeys.join(','); // Helps in overfetching data issue from API.
+        const { data } = await lastValueFrom(
+          this.httpService.get<any>(
+            `https://openlibrary.org/search.json?q=${searchQuery}&mode=everything&limit=${limit}&offset=${offset}&fields=${fields}`,
+          ),
+        );
+        if (data?.docs?.length) {
+          await this.fetchBooksFromOpenLibraryAndInsertToDb(data?.docs);
+
+          offset += limit;
+          // ! FOR PRODUCTION: Remove below line
+          if (tempLimiter) {
+            hasMoreData = false;
+          }
+        } else {
           hasMoreData = false;
         }
-      } else {
-        hasMoreData = false;
       }
-    }
-    return arr;
-  }
 
-  // TODO (later): Write test for this
-  async syncWithOpenLibrary(): Promise<ReturnBookDb> {
-    try {
-      const booksFromOpenLibrary = await this.getBooksFromOpenLibrary();
-      const booksToAdd: Array<Partial<BookDocument>> = [];
-      for (let i = 0; i < booksFromOpenLibrary.length; i += 1) {
-        // eslint-disable-next-line no-console
-        console.log('i?', i);
-        const book: Partial<BookDocument> = {
-          type: BookType.OpenLibrary,
-          // Books fromt OpenLibrary are always set to Active when created
-          status: BookActiveStatus.Active,
-        };
-        const [keyDataSettled, editionKeyDataSettled]: any = await Promise.allSettled([
-          lastValueFrom(
-            this.httpService.get<any>(`https://openlibrary.org/${booksFromOpenLibrary[i].key}.json`),
-          ),
-          lastValueFrom(
-            this.httpService.get<any>(`https://openlibrary.org/works/${booksFromOpenLibrary[i].cover_edition_key}.json`),
-          ),
-        ]);
-
-        // From `searchBooksData` API
-        book.bookId = booksFromOpenLibrary[i].key;
-        book.coverEditionKey = booksFromOpenLibrary[i].cover_edition_key;
-        book.author = booksFromOpenLibrary[i]?.author_name ?? [];
-        // From `keyData` API
-        const keyData = (keyDataSettled.status === 'fulfilled') ? keyDataSettled.value : null;
-        if (keyData) {
-          book.description = keyData.data?.description?.value ?? keyData.data?.description;
-        }
-        // From `editionKeyData` API
-        const editionKeyData = (editionKeyDataSettled.status === 'fulfilled') ? editionKeyDataSettled.value : null;
-        if (editionKeyData) {
-          book.name = editionKeyData.data.title;
-          const coverImageId = editionKeyData.data?.covers?.[0];
-          if (coverImageId) {
-            book.coverImageId = coverImageId;
-            const coverImgeUrl = getCoverImageForBookOfOpenLibrary(coverImageId);
-            const storageLocation = await this.uploadToS3Bucket(coverImgeUrl);
-            book.coverImage = { image_path: storageLocation, description: null };
-          }
-          book.numberOfPages = editionKeyData.data.number_of_pages;
-          book.publishDate = createPublishDateForOpenLibrary(editionKeyData.data.publish_date);
-          book.isbnNumber = [];
-          if (editionKeyData.data.isbn_13) {
-            book.isbnNumber.push(...editionKeyData.data.isbn_13);
-          }
-          if (editionKeyData.data.isbn_10) {
-            book.isbnNumber.push(...editionKeyData.data.isbn_10);
-          }
-        }
-
-        // Note: We only add book to `mainBookArray` if all required fields are present in `bookDataObject` i.e, name, coverEditionKey, etc
-        if (book.name && book.coverEditionKey) {
-          booksToAdd.push(book);
-        }
-      }
-      if (booksToAdd.length !== 0) {
-        await this.booksModel.insertMany(booksToAdd);
-      }
       return {
         success: true,
         message: 'Successfully completed the cron job',
@@ -383,6 +347,81 @@ export class BooksService {
         error,
       };
     }
+  }
+
+  // TODO (later): Write test for this
+  async fetchBooksFromOpenLibraryAndInsertToDb(booksFromOpenLibrary: BookFromOpenLibrary[]) {
+    const booksToAdd: Array<Partial<BookDocument>> = [];
+    for (let i = 0; i < booksFromOpenLibrary.length; i += 1) {
+      // eslint-disable-next-line no-console
+      console.log('i?', i);
+      const [keyDataSettled, editionKeyDataSettled]: any = await Promise.allSettled([
+        lastValueFrom(
+          this.httpService.get<any>(`https://openlibrary.org/${booksFromOpenLibrary[i].key}.json`),
+        ),
+        lastValueFrom(
+          this.httpService.get<any>(`https://openlibrary.org/works/${booksFromOpenLibrary[i].cover_edition_key}.json`),
+        ),
+      ]);
+
+      const keyData = (keyDataSettled.status === 'fulfilled') ? keyDataSettled.value : null;
+      const editionKeyData = (editionKeyDataSettled.status === 'fulfilled') ? editionKeyDataSettled.value : null;
+
+      const book = buildBook(i, booksFromOpenLibrary, keyData, editionKeyData);
+
+      // Update `coverImageId` & `coverImage`
+      if (editionKeyData) {
+        const coverImageId = editionKeyData.data?.covers?.[0];
+        if (coverImageId) {
+          book.coverImageId = coverImageId;
+          const coverImgeUrl = getCoverImageForBookOfOpenLibrary(coverImageId);
+          const storageLocation = await this.uploadToS3Bucket(coverImgeUrl);
+          book.coverImage = { image_path: storageLocation, description: null };
+        }
+      }
+
+      // TODO: This will be handled in `processDatabaseOperation`
+      // Note: We only add book to `booksToAdd` if all required fields are present in `book` i.e, name, coverEditionKey, etc
+      if (book.name && book.coverEditionKey) {
+        booksToAdd.push(book);
+      }
+    }
+    // TODO: This will be handled in `processDatabaseOperation`
+    if (booksToAdd.length !== 0) {
+      await this.booksModel.insertMany(booksToAdd);
+    }
+  }
+
+  async processDatabaseOperation(
+    books: any[],
+    databaseBookKeys,
+  ): Promise<void> {
+    if (!books && books.length) {
+      return;
+    }
+
+    const insertBookList = [];
+
+    const promisesArray = [];
+    for (const book of books) {
+      if (databaseBookKeys.includes(book.id)) {
+        const movieData = await this.booksModel.findOne({ movieDBId: book.id });
+        if (movieData) {
+          for (const movieKey of Object.keys(DiscoverMovieMapper.toDomain(book))) {
+            movieData[movieKey] = DiscoverMovieMapper.toDomain(book)[movieKey];
+          }
+          promisesArray.push(movieData.save());
+        }
+      } else {
+        insertBookList.push(DiscoverMovieMapper.toDomain(book));
+      }
+    }
+
+    // Update all existing records
+    await Promise.all(promisesArray);
+
+    // Insert all the new movies to collection
+    if (insertBookList.length) { await this.booksModel.insertMany(insertBookList); }
   }
 
   /** Returns `storageLocation` of uploaded file (`s3Bucket` / `local-storage`) */

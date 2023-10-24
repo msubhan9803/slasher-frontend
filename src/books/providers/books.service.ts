@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable max-lines */
 import mongoose, { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
@@ -9,6 +10,7 @@ import { lastValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
+import { DateTime, Duration } from 'luxon';
 import { BookActiveStatus, BookDeletionState, BookType } from '../../schemas/book/book.enums';
 import { Book, BookDocument } from '../../schemas/book/book.schema';
 import { NON_ALPHANUMERIC_REGEX } from '../../constants';
@@ -27,6 +29,8 @@ import { buildBook, getCustomBookId } from './books.build';
 
 @Injectable()
 export class BooksService {
+  private syncStartTime: DateTime;
+
   constructor(
     @InjectModel(Book.name) private booksModel: Model<BookDocument>,
     @InjectModel(BookUserStatus.name) private bookUserStatusModel: Model<BookUserStatusDocument>,
@@ -281,10 +285,14 @@ export class BooksService {
   }
 
   async syncWithOpenLibrary(): Promise<ReturnBookDb> {
+    // -- FOR TESTING ONLY ---
+    this.syncStartTime = DateTime.now();
+
+    // Note: This might be helpful to remove duplicate books feature in future.
     // From OpenLibrary, we collect ids of all the books
     // (`bookId` + `coverEditionKey`)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const booksFromOpenLibrary = { ids: [] };
+    // const booksFromOpenLibrary = { ids: [] };
 
     // Fetch `bookId` and `coverEditionKey` to check for already existing books later
     // (`bookId` + `coverEditionKey`)
@@ -305,6 +313,8 @@ export class BooksService {
       const limit = 50; // ! FOR production we value =1000
       let hasMoreData = true;
 
+      const LIMIT_TOTAL_ITEMS = 500; // ! Should me a multiple of limit
+
       while (hasMoreData) {
         const searchQuery = 'subject%3Ahorror'; // subject:horror
         const bookFieldKeys: BookKeysFromOpenLibrary = ['author_name', 'cover_edition_key', 'key'];
@@ -314,13 +324,22 @@ export class BooksService {
             `https://openlibrary.org/search.json?q=${searchQuery}&mode=everything&limit=${limit}&offset=${offset}&fields=${fields}`,
           ),
         );
-        if (data?.docs?.length) {
+        const limitIsNotReachedYet = offset <= LIMIT_TOTAL_ITEMS;
+        if (data?.docs?.length && limitIsNotReachedYet) {
           await this.fetchBooksFromOpenLibrary(data?.docs, databaseBookKeys);
 
           offset += limit;
+
           // Note to developer: Please ignore below log in testing because in testing we use mockup data which is always fixed.
-          // eslint-disable-next-line no-console
+          const now = DateTime.now();
           console.log('Total books fetched so far?', offset);
+
+          const duration = now.diff(this.syncStartTime);
+          console.log('Total time elapsed:', now.diff(this.syncStartTime).toFormat("h 'hours,' m 'minutes,' s 'seconds'"));
+
+          const timeTaken = (duration.as('seconds') / offset) * data.numFound;
+          const estimatedDuration = Duration.fromObject({ seconds: timeTaken });
+          console.log('TOTAL Estimated Time:', estimatedDuration.toFormat("h 'hours,' m 'minutes,' s 'seconds'\n"));
         } else {
           hasMoreData = false;
         }

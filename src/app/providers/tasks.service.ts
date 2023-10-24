@@ -38,7 +38,7 @@ export class TasksService {
     }
   }
 
-  @Cron('0 30 00 * * 1-5', {
+  @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT, {
     name: 'syncWithTheBookDb',
     timeZone: 'America/New_York',
   })

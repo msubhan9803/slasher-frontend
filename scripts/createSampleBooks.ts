@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 import { INestApplication } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';

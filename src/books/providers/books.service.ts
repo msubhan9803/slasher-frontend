@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 import { DateTime, Duration } from 'luxon';
+import async from 'async';
 import { BookActiveStatus, BookDeletionState, BookType } from '../../schemas/book/book.enums';
 import { Book, BookDocument } from '../../schemas/book/book.schema';
 import { NON_ALPHANUMERIC_REGEX } from '../../constants';
@@ -310,10 +311,10 @@ export class BooksService {
       // Note; Initial value `offset` is zero i.e, items starting from 1st book.
       // Note: When offset=1, items will be fetched from and including 2nd book.
       let offset = 0; // (default = 0)
-      const limit = 50; // ! FOR production we value =1000
+      const limit = 50; // 50 // ! FOR production we value =1000
       let hasMoreData = true;
 
-      const LIMIT_TOTAL_ITEMS = 500; // ! Should me a multiple of limit
+      const LIMIT_TOTAL_ITEMS = 1000; // 500 // ! Should me a multiple of limit
 
       while (hasMoreData) {
         const searchQuery = 'subject%3Ahorror'; // subject:horror
@@ -324,18 +325,18 @@ export class BooksService {
             `https://openlibrary.org/search.json?q=${searchQuery}&mode=everything&limit=${limit}&offset=${offset}&fields=${fields}`,
           ),
         );
-        const limitIsNotReachedYet = offset <= LIMIT_TOTAL_ITEMS;
+        const limitIsNotReachedYet = offset < LIMIT_TOTAL_ITEMS;
         if (data?.docs?.length && limitIsNotReachedYet) {
           await this.fetchBooksFromOpenLibrary(data?.docs, databaseBookKeys);
 
           offset += limit;
 
           // Note to developer: Please ignore below log in testing because in testing we use mockup data which is always fixed.
-          const now = DateTime.now();
           console.log('Total books fetched so far?', offset);
 
+          const now = DateTime.now();
           const duration = now.diff(this.syncStartTime);
-          console.log('Total time elapsed:', now.diff(this.syncStartTime).toFormat("h 'hours,' m 'minutes,' s 'seconds'"));
+          console.log('Total time elapsed:', duration.toFormat("h 'hours,' m 'minutes,' s 'seconds'"));
 
           const timeTaken = (duration.as('seconds') / offset) * data.numFound;
           const estimatedDuration = Duration.fromObject({ seconds: timeTaken });
@@ -362,7 +363,8 @@ export class BooksService {
     databaseBookKeys: string[],
   ) {
     const books: Array<Partial<BookDocument>> = [];
-    for (let i = 0; i < booksFromOpenLibrary.length; i += 1) {
+
+    const fetchBookDetails = async (i: number) => {
       // Note: This log is here for initial testing and debugging pupose.
       // eslint-disable-next-line no-console
       console.log(`i=${i}`);
@@ -380,7 +382,24 @@ export class BooksService {
 
       const book = buildBook(i, booksFromOpenLibrary, keyData, editionKeyData);
       books.push(book);
-    }
+    };
+
+    // Note: Concurrency is max number of parallel active async requests, we should keep it low
+    // so public API servers do not block our server IPs
+    const CONCURRENCY = 7;
+    const queue = async.queue(async (i) => {
+      try {
+        await fetchBookDetails(i);
+      } catch (error) {
+        console.log('Failed to execute request: error=', error);
+      }
+    }, CONCURRENCY);
+
+    console.time('BENCHMARK--1a--book-details-queue');
+    booksFromOpenLibrary.forEach((_, i) => queue.push(i));
+    // Wait for all requests to complete
+    await queue.drain();
+    console.timeEnd('BENCHMARK--1a--book-details-queue');
 
     try {
       await this.processDatabaseOperation(books, databaseBookKeys);
@@ -412,12 +431,6 @@ export class BooksService {
             updateBooksPromisesArray.push(bookData.save());
           }
         } else {
-          // Upload `coverImage` to s3 bucket before saving to db
-          if (book.coverImageId) {
-            const coverImgeUrl = getCoverImageForBookOfOpenLibrary(book.coverImageId);
-            const storageLocation = await this.uploadToS3Bucket(coverImgeUrl);
-            book.coverImage = { image_path: storageLocation, description: null };
-          }
           insertBookList.push(book);
         }
       }
@@ -428,12 +441,39 @@ export class BooksService {
 
     // Insert all the new movies to collection
     if (insertBookList.length) {
-      await this.booksModel.insertMany(insertBookList);
+      const handleCoverImageTransferAndUpdateBook = async (book: Partial<BookDocument>) => {
+        // Upload `coverImage` to s3 bucket before saving to db
+        if (book.coverImageId) {
+          const coverImgeUrl = getCoverImageForBookOfOpenLibrary(book.coverImageId);
+          const storageLocation = await this.transferRemoteFileToS3Bucket(coverImgeUrl);
+          // eslint-disable-next-line no-param-reassign
+          book.coverImage = { image_path: storageLocation, description: null };
+        }
+      };
+      // Note: Concurrency is max number of parallel active async requests, we should keep it low
+      // so public API servers do not block our server IPs
+      const CONCURRENCY = 7;
+      const queue = async.queue(async (book) => {
+        try {
+          await handleCoverImageTransferAndUpdateBook(book);
+        } catch (error) {
+          console.log('Failed to execute request: error=', error);
+        }
+      }, CONCURRENCY);
+
+      console.time('BENCHMARK--1b--image-transfer-to-s3');
+      insertBookList.forEach((book) => queue.push(book));
+      // Wait for all requests to complete
+      await queue.drain();
+      console.timeEnd('BENCHMARK--1b--image-transfer-to-s3');
+
+      const validBooks = insertBookList.filter((book) => !!book.coverImage.image_path);
+      await this.booksModel.insertMany(validBooks);
     }
   }
 
   /** Returns `storageLocation` of uploaded file (`s3Bucket` / `local-storage`) */
-  async uploadToS3Bucket(fileUrl: string) {
+  async transferRemoteFileToS3Bucket(fileUrl: string) {
     const tempFilename = `${uuidv4()}${path.extname(fileUrl)}`;
     const tempPath = path.join(this.config.get<string>('UPLOAD_DIR'), tempFilename);
 

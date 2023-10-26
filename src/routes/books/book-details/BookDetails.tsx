@@ -22,7 +22,7 @@ function BookDetails() {
   const pageStateCache: BookPageCache = getPageStateCache(location)
     ?? { bookData: undefined, additionalBookData: undefined };
   const params = useParams();
-  const [bookData, setBookData] = useState<BookData>(
+  const [bookData, setBookData] = useState<BookData | undefined>(
     hasPageStateCache(location) ? pageStateCache.bookData : undefined,
   );
 
@@ -34,7 +34,7 @@ function BookDetails() {
           // TODO: fix page state cache
           // Update `pageStateCache`
           setPageStateCache<BookPageCache>(location, {
-            ...getPageStateCache(location), additionalBookData: res.data,
+            ...getPageStateCache(location), bookData: res.data,
           });
         });
     }

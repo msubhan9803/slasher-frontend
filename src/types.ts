@@ -410,8 +410,7 @@ export type MoviePageCache = {
 
 // Cache type for Book related data (page = http://localhost:3000/app/book/64477b42b12f5efbb3468ff4/reviews)
 export type BookPageCache = {
-  bookData: any,
-  additionalBookData: any,
+  bookData: BookData,
   reviews: any
 };
 

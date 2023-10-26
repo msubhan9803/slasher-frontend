@@ -132,11 +132,11 @@ function AboutDetails({
           </h1>
         </Col>
       </Row>
-      <div className="py-3 pb-xxl-0 align-items-center d-flex justify-content-between justify-content-md-center justify-content-lg-between text-light">
+      <div className="py-3 pb-xxl-0 align-items-center d-flex justify-content-between text-light">
         <p className="m-0 fs-3">{bookData.author?.join(', ')}</p>
-        <div className="ms-2 d-block d-sm-none d-lg-block d-xxl-none">
+        <div className="ms-2 d-block">
           <BorderButton
-            buttonClass="d-flex d-xxl-none share-btn"
+            buttonClass="d-flex share-btn"
             variant="lg"
             icon={solid('share-nodes')}
             iconClass="me-2"
@@ -147,7 +147,7 @@ function AboutDetails({
         </div>
       </div>
       <div className="d-flex  justify-content-between">
-        <div className="d-flex justify-content-between align-items-center">
+        <div className="d-flex justify-content-start align-items-center flex-wrap">
           {year && (
             <span className="fs-3 d-lg-flex text-center">
               <span className="m-0 fw-bold">
@@ -160,7 +160,7 @@ function AboutDetails({
           {bookData.numberOfPages
             && (
               <>
-                <FontAwesomeIcon icon={solid('circle')} size="sm" className="circle mx-lg-2 text-primary" />
+                <FontAwesomeIcon icon={solid('circle')} size="sm" className="circle mx-2 text-primary" />
                 <span className="fs-3 d-lg-flex text-center">
                   <span className="m-0 fw-bold">
                     Pages:&nbsp;
@@ -171,7 +171,7 @@ function AboutDetails({
             )}
           {isbn && (
             <>
-              <FontAwesomeIcon icon={solid('circle')} size="sm" className="circle mx-lg-2 text-primary" />
+              <FontAwesomeIcon icon={solid('circle')} size="sm" className="circle mx-2 text-primary" />
               <span className="fs-3 fw-lignt d-lg-flex text-center">
                 <span className="m-0 fw-bold">
                   ISBN:&nbsp;
@@ -180,19 +180,6 @@ function AboutDetails({
               </span>
             </>
           )}
-          <div className="ms-2 ms-xl-3 d-none d-sm-block d-lg-none d-xxl-block">
-            <div className="d-flex justify-content-end justify-content-md-center">
-              <BorderButton
-                buttonClass="d-flex share-btn bg-black"
-                variant="black"
-                icon={solid('share-nodes')}
-                iconClass="me-2"
-                iconSize="sm"
-                lable="Share"
-                handleClick={handleShowShareLinks}
-              />
-            </div>
-          </div>
         </div>
       </div>
 

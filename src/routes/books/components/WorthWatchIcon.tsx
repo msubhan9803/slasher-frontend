@@ -129,7 +129,7 @@ function WorthWatchIcon({
   }, [bookData?.userData.worthReading, setLike, setDisLike, setWorthIt, clickType, isWorthIt]);
 
   return (
-    <div className="me-1 d-flex align-items-center justify-content-around">
+    <div className="me-1 d-flex align-items-center justify-content-center">
       <div className="mt-2 d-flex justify-content-center ">
         <Button className="bg-transparent p-0 border-0 me-2 rounded-circle" onClick={handleThumbsUp}>
           <StyledLikeIcon isLike={liked} width={circleWidth} height={circleHeight} className="d-flex justify-content-center align-items-center bg-transparent rounded-circle">
@@ -145,7 +145,7 @@ function WorthWatchIcon({
             </p>
           )}
       </div>
-      <div className="mt-2 d-flex justify-content-center ">
+      <div className="mt-2 d-flex justify-content-center ps-3">
         <Button className="bg-transparent p-0 border-0 me-2 rounded-circle" onClick={handleThumbsDown}>
           <StyledDislikeIcon isDislike={disLiked} width={circleWidth} height={circleHeight} className="d-flex justify-content-center align-items-center bg-transparent rounded-circle">
             <StyleWatchWorthIcon iconwidth={iconWidth} iconheight={iconHeight} icon={regular('thumbs-down')} />

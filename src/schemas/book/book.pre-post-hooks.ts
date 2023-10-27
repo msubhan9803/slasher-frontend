@@ -1,7 +1,7 @@
 import { BookDocument, BookSchema } from './book.schema';
 
 function generateSortName(name: string, id: string) {
-  return `${name.toLowerCase().replace(/a |an |the | /g, '')} ${id}`;
+  return `${name.toLowerCase().replace(/[^\w\s]/g, '').replace(/a |an |the | /g, '')} ${id}`;
 }
 
 function generateSortPublishDate(publishDate: Date, id: string) {

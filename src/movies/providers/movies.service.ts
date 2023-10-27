@@ -349,25 +349,21 @@ export class MoviesService {
       const afterMovie = await this.moviesModel.findById(after);
       movieFindAllQuery.sortRating = { $lt: afterMovie.sortRating };
     }
-    if (nameContains || sortNameStartsWith) {
+    if (nameContains) {
+      movieFindAllQuery.name = {};
+      movieFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');
+    }
+    if (sortNameStartsWith) {
       movieFindAllQuery.sort_name = movieFindAllQuery.sort_name || {};
 
       let combinedRegex = '';
-
-      if (sortNameStartsWith && sortNameStartsWith !== '#') {
-        combinedRegex += `^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`;
-      } else if (sortNameStartsWith === '#') {
-        combinedRegex += NON_ALPHANUMERIC_REGEX.source;
-      }
-
       if (nameContains) {
-        let nameContainsRegex = escapeStringForRegex(nameContains);
-        nameContainsRegex = nameContainsRegex.replace(/\b(?:a|an|the|\s)\b/gi, '');
-        if (combinedRegex) {
-          combinedRegex += `${combinedRegex ? '.*' : ''}${nameContainsRegex}`;
-        } else {
-          combinedRegex += nameContainsRegex;
-        }
+        movieFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');
+      }
+      if (sortNameStartsWith && sortNameStartsWith !== '#') {
+        combinedRegex = `^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`;
+      } else if (sortNameStartsWith === '#') {
+        combinedRegex = NON_ALPHANUMERIC_REGEX.source;
       }
       movieFindAllQuery.sort_name.$regex = new RegExp(combinedRegex, 'i');
     }

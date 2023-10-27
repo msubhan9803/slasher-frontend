@@ -216,23 +216,21 @@ export class BooksService {
       booksFindAllQuery.sortRating = { $lt: afterBook.sortRating };
     }
 
-    if (nameContains || sortNameStartsWith) {
+    if (nameContains) {
+      booksFindAllQuery.name = {};
+      booksFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');
+    }
+    if (sortNameStartsWith) {
       booksFindAllQuery.sort_name = booksFindAllQuery.sort_name || {};
 
       let combinedRegex = '';
-      if (sortNameStartsWith && sortNameStartsWith !== '#') {
-        combinedRegex += `^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`;
-      } else if (sortNameStartsWith === '#') {
-        combinedRegex += NON_ALPHANUMERIC_REGEX.source;
-      }
       if (nameContains) {
-        let nameContainsRegex = escapeStringForRegex(nameContains);
-        nameContainsRegex = nameContainsRegex.replace(/\b(?:a|an|the|\s)\b/gi, '');
-        if (combinedRegex) {
-          combinedRegex += `${combinedRegex ? '.*' : ''}${nameContainsRegex}`;
-        } else {
-          combinedRegex += nameContainsRegex;
-        }
+        booksFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');
+      }
+      if (sortNameStartsWith && sortNameStartsWith !== '#') {
+        combinedRegex = `^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`;
+      } else if (sortNameStartsWith === '#') {
+        combinedRegex = NON_ALPHANUMERIC_REGEX.source;
       }
       booksFindAllQuery.sort_name.$regex = new RegExp(combinedRegex, 'i');
     }

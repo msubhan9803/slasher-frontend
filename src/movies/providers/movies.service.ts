@@ -361,10 +361,12 @@ export class MoviesService {
       }
 
       if (nameContains) {
+        let nameContainsRegex = escapeStringForRegex(nameContains);
+        nameContainsRegex = nameContainsRegex.replace(/\b(?:a|an|the|\s)\b/gi, '');
         if (combinedRegex) {
-          combinedRegex += `${combinedRegex ? '.*' : ''}${escapeStringForRegex(nameContains)}`;
+          combinedRegex += `${combinedRegex ? '.*' : ''}${nameContainsRegex}`;
         } else {
-          combinedRegex += `${escapeStringForRegex(nameContains)}`;
+          combinedRegex += nameContainsRegex;
         }
       }
       movieFindAllQuery.sort_name.$regex = new RegExp(combinedRegex, 'i');

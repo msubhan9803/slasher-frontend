@@ -217,23 +217,22 @@ export class BooksService {
     }
 
     if (nameContains || sortNameStartsWith) {
+      booksFindAllQuery.sort_name = booksFindAllQuery.sort_name || {};
+
       let combinedRegex = '';
       if (sortNameStartsWith && sortNameStartsWith !== '#') {
         combinedRegex += `^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`;
       } else if (sortNameStartsWith === '#') {
         combinedRegex += NON_ALPHANUMERIC_REGEX.source;
       }
-
       if (nameContains) {
+        let nameContainsRegex = escapeStringForRegex(nameContains);
+        nameContainsRegex = nameContainsRegex.replace(/\b(?:a|an|the|\s)\b/gi, '');
         if (combinedRegex) {
-          combinedRegex += `${combinedRegex ? '.*' : ''}${escapeStringForRegex(nameContains)}`;
+          combinedRegex += `${combinedRegex ? '.*' : ''}${nameContainsRegex}`;
         } else {
-          combinedRegex += `${escapeStringForRegex(nameContains)}`;
+          combinedRegex += nameContainsRegex;
         }
-      }
-
-      if (!booksFindAllQuery.sort_name) {
-        booksFindAllQuery.sort_name = {};
       }
       booksFindAllQuery.sort_name.$regex = new RegExp(combinedRegex, 'i');
     }

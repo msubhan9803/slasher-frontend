@@ -82,7 +82,8 @@ export class FeedCommentsController {
     let isFriend = true;
     const user = getUserFromRequest(request);
     if (
-      post.postType !== PostType.MovieReview && !post.rssfeedProviderId
+      post.postType !== PostType.MovieReview && post.postType !== PostType.BookReview
+      && !post.rssfeedProviderId
       && user.id !== (post.userId as unknown as User).toString()
     ) {
       isFriend = await this.friendsService.areFriends(user.id, (post.userId as unknown as User).toString()) || false;
@@ -305,7 +306,8 @@ export class FeedCommentsController {
     }
     let isFriend = true;
     if (
-      feedPost.postType !== PostType.MovieReview && !feedPost.rssfeedProviderId
+      feedPost.postType !== PostType.MovieReview && feedPost.postType !== PostType.BookReview
+      && !feedPost.rssfeedProviderId
       && user.id !== (feedPost.userId as unknown as User).toString()
     ) {
       isFriend = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User).toString()) || false;
@@ -624,6 +626,12 @@ export class FeedCommentsController {
       post.rssfeedProviderId // rss feed posts are not created by a real user
       || userIdsToSkip.includes(postCreatorUserId)
     );
+    const postTypeMessages = {
+      [PostType.MovieReview]: 'commented on your movie review',
+      [PostType.BookReview]: 'commented on your book review',
+      default: 'commented on your post',
+    };
+
     if (!skipPostCreatorNotification) {
       userIdsToSkip.push(postCreatorUserId);
       await this.notificationsService.create({
@@ -633,7 +641,7 @@ export class FeedCommentsController {
         senderId: commentCreatorUser._id,
         allUsers: [commentCreatorUser._id as any], // senderId must be in allUsers for old API compatibility
         notifyType: NotificationType.UserCommentedOnYourPost,
-        notificationMsg: post.postType === PostType.MovieReview ? 'commented on your movie review' : 'commented on your post',
+        notificationMsg: postTypeMessages[post.postType] || postTypeMessages.default,
       });
     }
 
@@ -691,7 +699,12 @@ export class FeedCommentsController {
       post.rssfeedProviderId // rss feed posts are not created by a real user
       || userIdsToSkip.includes(postCreatorUserId)
     );
-    const commmentOnMovieReview = 'replied to a comment on your movie review';
+    const postTypeMessages = {
+      [PostType.MovieReview]: 'replied to a comment on your movie review',
+      [PostType.BookReview]: 'replied to a comment on your book review',
+      default: 'replied to a comment on your post',
+    };
+
     if (!skipPostCreatorNotification) {
       userIdsToSkip.push(postCreatorUserId);
       await this.notificationsService.create({
@@ -702,7 +715,7 @@ export class FeedCommentsController {
         senderId: replyCreatorUser._id,
         allUsers: [replyCreatorUser._id as any], // senderId must be in allUsers for old API compatibility
         notifyType: NotificationType.UserMentionedYouInACommentReply,
-        notificationMsg: post.postType === PostType.MovieReview ? commmentOnMovieReview : 'replied to a comment on your post',
+        notificationMsg: postTypeMessages[post.postType] || postTypeMessages.default,
       });
     }
 

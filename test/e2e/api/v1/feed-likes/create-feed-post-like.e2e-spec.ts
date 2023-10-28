@@ -232,6 +232,29 @@ describe('Create Feed Post Like (e2e)', () => {
       jest.spyOn(notificationsService, 'create').mockResolvedValue(notificationData);
     });
 
+    it('sends the expected notifications when postType is bookReview', async () => {
+      const postCreatorUser1 = await usersService.create(userFactory.build());
+      const post1 = await feedPostsService.create(feedPostFactory.build({
+        userId: postCreatorUser1._id,
+        postType: PostType.BookReview,
+      }));
+
+      const notificationData: any = {
+        userId: postCreatorUser1._id.toString(),
+        feedPostId: { _id: post1._id.toString() },
+        senderId: activeUser._id,
+        allUsers: [activeUser._id],
+        notifyType: NotificationType.UserLikedYourPost,
+        notificationMsg: 'liked your book review',
+      };
+      await request(app.getHttpServer())
+        .post(`/api/v1/feed-likes/post/${post1._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send()
+        .expect(HttpStatus.CREATED);
+      jest.spyOn(notificationsService, 'create').mockResolvedValue(notificationData);
+    });
+
     describe('when the feed post was created by a user with a non-public profile', () => {
       let user1;
       let feedPost1;

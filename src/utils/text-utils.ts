@@ -159,6 +159,12 @@ export const generateAmazonAffiliateLinkForBook = (title: string, author: string
   return `https://www.amazon.com/s/ref=nosim?k=${searchText}&i=stripbooks-intl-ship&tag=${SLASHER_AMAZON_TAG_ID}`;
 };
 
+export const generateAmazonAffiliateLinkForMovie = (movieName: string) => {
+  const movieTitle = movieName.split(' ').join('+');
+  const searchText = `${movieTitle}`;
+  return `https://www.amazon.com/s/ref=nosim?k=${searchText}&i=movies-tv-intl-ship&tag=${SLASHER_AMAZON_TAG_ID}`;
+};
+
 export const getPrefferedISBN = (isbnNumber: string[]) => {
   const isbn10 = isbnNumber.find((isbn) => isbn.length === 10);
   if (isbn10) { return isbn10; } // we should prefer ISBN10 over ISBN13

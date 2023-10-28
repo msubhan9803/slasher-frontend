@@ -22,6 +22,7 @@ import { enableDevFeatures } from '../../../env';
 import { BookData } from '../../../types';
 import { addBookUserStatus, deleteBookUserStatus, getBooksIdList } from '../../../api/books';
 import BookReviewDetails from '../book-reviews/BookReviewDetails';
+import { generateAmazonAffiliateLinkForBook } from '../../../utils/text-utils';
 
 const StyledBookPoster = styled.div`
   aspect-ratio: 0.67;
@@ -123,6 +124,8 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
     updateBookIconList();
   }, [bookIdList]);
 
+  const to = generateAmazonAffiliateLinkForBook(bookData.name, bookData.author?.join(', '));
+
   return (
     <div>
       <div className="bg-dark p-4 pb-0 rounded-2 mb-3">
@@ -199,7 +202,9 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
               </div>
             )}
           <div className="d-block d-md-none d-lg-block mt-3">
-            <RoundButton className="w-100">Buy now</RoundButton>
+            <a href={to} target="_blank" className="text-decoration-none" rel="noreferrer">
+              <RoundButton className="w-100">Buy now</RoundButton>
+            </a>
           </div>
         </Row>
         {enableDevFeatures

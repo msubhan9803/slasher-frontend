@@ -364,4 +364,10 @@ export class MoviesController {
     await this.movieUserStatusService.deleteMovieUserStatusBuy(user.id, params.movieId);
     return { success: true };
   }
+
+  // @Get(':param1/test')
+  // async testFunction() {
+  //   await this.moviesService.testFunction();
+  //   return { success: 'booom' };
+  // }
 }

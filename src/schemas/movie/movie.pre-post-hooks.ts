@@ -53,7 +53,7 @@ export function addPrePostHooks(schema: typeof MovieSchema) {
     if (this.id?.length > 0 && typeof this.rating === 'number') {
       // ! TODO-SAHIL: !deprecate this after SD-1556 is marked "DONE".
       this.sortRating = generateSortRating(this.rating, this.id);
-      this.sortRatingAndRatingUsersCount = generateSortRatingAndRatingUsersCount(this.rating, this.ratingUsersCount, this.id);
+      // this.sortRatingAndRatingUsersCount = generateSortRatingAndRatingUsersCount(this.rating, this.ratingUsersCount, this.id);
     } else {
       // ! TODO-SAHIL: !deprecate this after SD-1556 is marked "DONE".
       // Otherwise set sortRating to null (potentially clearing out an existing value)
@@ -67,7 +67,7 @@ export function addPrePostHooks(schema: typeof MovieSchema) {
     // eslint-disable-next-line no-param-reassign
     doc.sortRating = generateSortRating(this.rating, this.id);
     // eslint-disable-next-line no-param-reassign
-    doc.sortRatingAndRatingUsersCount = generateSortRatingAndRatingUsersCount(doc.rating, doc.ratingUsersCount, doc.id);
+    // doc.sortRatingAndRatingUsersCount = generateSortRatingAndRatingUsersCount(doc.rating, doc.ratingUsersCount, doc.id);
     await doc.save();
   });
   schema.post<MovieDocument>('save', async function () {
@@ -99,7 +99,7 @@ export function addPrePostHooks(schema: typeof MovieSchema) {
     if (this.id?.length > 0 && typeof this.rating === 'number' && !this.sortRating) {
       // ! TODO: !deprecate this ASAP  ~ Sahil
       this.sortRating = generateSortRating(this.rating, this.id);
-      this.sortRatingAndRatingUsersCount = generateSortRatingAndRatingUsersCount(this.rating, this.ratingUsersCount, this.id);
+      // this.sortRatingAndRatingUsersCount = generateSortRatingAndRatingUsersCount(this.rating, this.ratingUsersCount, this.id);
       // Because this change is happening after a save, we need to trigger one additional save.
       // Be careful when saving inside the post-save hook, because a mistake here can lead to
       // an infinite loop!

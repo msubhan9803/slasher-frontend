@@ -365,9 +365,9 @@ export class MoviesController {
     return { success: true };
   }
 
-  // @Get(':param1/test')
-  // async testFunction() {
-  //   await this.moviesService.testFunction();
-  //   return { success: 'booom' };
-  // }
+  @Get(':param1/test')
+  async testFunction() {
+    await this.moviesService.testFunction();
+    return { success: 'booom' };
+  }
 }

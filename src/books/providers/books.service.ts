@@ -392,11 +392,11 @@ export class BooksService {
       }
     }, CONCURRENCY);
 
-    console.time('BENCHMARK--1a--book-details-queue');
+    if (process.env.NODE_ENV !== 'test') { console.time('BENCHMARK--1a--book-details-queue'); }
     booksFromOpenLibrary.forEach((_, i) => queue.push(i));
     // Wait for all requests to complete
     await queue.drain();
-    console.timeEnd('BENCHMARK--1a--book-details-queue');
+    if (process.env.NODE_ENV !== 'test') { console.timeEnd('BENCHMARK--1a--book-details-queue'); }
 
     try {
       await this.processDatabaseOperation(books, databaseBookKeys);
@@ -458,11 +458,11 @@ export class BooksService {
         }
       }, CONCURRENCY);
 
-      console.time('BENCHMARK--1b--image-transfer-to-s3');
+      if (process.env.NODE_ENV !== 'test') { console.time('BENCHMARK--1b--image-transfer-to-s3'); }
       insertBookList.forEach((book) => queue.push(book));
       // Wait for all requests to complete
       await queue.drain();
-      console.timeEnd('BENCHMARK--1b--image-transfer-to-s3');
+      if (process.env.NODE_ENV !== 'test') { console.timeEnd('BENCHMARK--1b--image-transfer-to-s3'); }
 
       const validBooks = insertBookList.filter((book) => !!book.coverImage.image_path);
       await this.booksModel.insertMany(validBooks);

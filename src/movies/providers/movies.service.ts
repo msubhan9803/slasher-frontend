@@ -602,9 +602,9 @@ export class MoviesService {
     // eslint-disable-next-line no-console
     console.log('hello');
     let i = 1;
-    let CONTINUE = true;
-    let sum = 0;
-    let numOfItems  = 0;
+    // let CONTINUE = true;
+    // let sum = 0;
+    // let numOfItems  = 0;
     // eslint-disable-next-line no-unreachable-loop
     for await (
       const doc of this.moviesModel
@@ -613,6 +613,7 @@ export class MoviesService {
     ) {
       // 5da965d801651524ded15c88
       // console.log(i);
+      // eslint-disable-next-line no-plusplus
       i++;
       // if (doc._id.toString() === '5def446422f6901701a95145') {
       //   CONTINUE = false;
@@ -621,6 +622,7 @@ export class MoviesService {
       // if (CONTINUE) { continue; }
       // if (i === 10) { break; }
       if ((i % 1000) === 0) {
+        // eslint-disable-next-line no-console
         console.log('items processed?', i);
       }
       // const ratingUsersCount = await this.getRatingUsersCount(doc._id.toString());

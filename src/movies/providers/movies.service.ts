@@ -22,6 +22,7 @@ import {
 } from '../../schemas/movieUserStatus/movieUserStatus.enums';
 import { WorthWatchingStatus } from '../../types';
 import { NON_ALPHANUMERIC_REGEX } from '../../constants';
+import { getSortSafeWeightedRating } from '../../utils/number-tuils';
 
 export interface Cast {
   'adult': boolean,
@@ -347,7 +348,7 @@ export class MoviesService {
     }
     if (after && sortBy === 'rating') {
       const afterMovie = await this.moviesModel.findById(after);
-      movieFindAllQuery.sortRating = { $lt: afterMovie.sortRating };
+      movieFindAllQuery.sortRatingAndRatingUsersCount = { $lt: afterMovie.sortRatingAndRatingUsersCount };
     }
     if (nameContains) {
       movieFindAllQuery.name = {};
@@ -374,7 +375,8 @@ export class MoviesService {
     } else if (sortBy === 'releaseDate') {
       sortMoviesByNameAndReleaseDate = { sortReleaseDate: -1 };
     } else {
-      sortMoviesByNameAndReleaseDate = { sortRating: -1 };
+      // Note: As of SD-155, we use multiple sorting i.e, `rating` and `ratingUsersCount`
+      sortMoviesByNameAndReleaseDate = { sortRatingAndRatingUsersCount: -1 };
     }
     return this.moviesModel.find(movieFindAllQuery)
       .sort(sortMoviesByNameAndReleaseDate)
@@ -616,5 +618,61 @@ export class MoviesService {
       .exec();
     const favoriteMovieIdArray = favoriteMovieIdByUser.map((movie) => movie.movieId);
     return favoriteMovieIdArray as unknown as MovieUserStatusDocument[];
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  async testFunction() {
+    // eslint-disable-next-line no-console
+    console.log('hello');
+    let i = 1;
+    // let CONTINUE = true;
+    // let sum = 0;
+    // let numOfItems  = 0;
+    // eslint-disable-next-line no-unreachable-loop
+    for await (
+      const doc of this.moviesModel
+        .find()
+        .cursor()
+    ) {
+      // 5da965d801651524ded15c88
+      // console.log(i);
+      // eslint-disable-next-line no-plusplus
+      i++;
+      // if (doc._id.toString() === '5def446422f6901701a95145') {
+      //   CONTINUE = false;
+      // }
+
+      // if (CONTINUE) { continue; }
+      // if (i === 10) { break; }
+      if ((i % 1000) === 0) {
+        // eslint-disable-next-line no-console
+        console.log('items processed?', i);
+      }
+      // const ratingUsersCount = await this.getRatingUsersCount(doc._id.toString());
+      // const kk = generateSortRatingAndRatingUsersCount(doc.rating, ratingUsersCount, doc._id.toString());
+      // const kk = generateSortRatingAndRatingUsersCount(doc.rating, doc.ratingUsersCount, doc._id.toString());
+      // console.log(kk);
+      // doc.ratingUsersCount = ratingUsersCount;
+      // doc.sortRatingAndRatingUsersCount = kk;
+
+      // Deleting field (make sure field is not defined in schema)
+      // doc.set('sortRatingAndRatingUsersCount', undefined, { strict: false });
+
+      const sortSafeWeightedRating = getSortSafeWeightedRating(doc.rating, doc.ratingUsersCount);
+      const kk = `${sortSafeWeightedRating}_${doc._id.toString()}`;
+      // console.log('kk?', kk);
+      doc.sortRatingAndRatingUsersCount = kk;
+      await doc.save();
+
+      // return;
+      // return doc;
+      // sum += doc.rating;
+      // numOfItems += 1;
+      // console.log('sum?', sum);
+    }
+    // const avg = (sum / numOfItems).toFixed(2);
+    // console.log('sum?', sum);
+    // console.log('numOfItems?', numOfItems);
+    // console.log('avg?', avg);
   }
 }

@@ -22,7 +22,7 @@ import {
 } from '../../schemas/movieUserStatus/movieUserStatus.enums';
 import { WorthWatchingStatus } from '../../types';
 import { NON_ALPHANUMERIC_REGEX } from '../../constants';
-import { getSortSafeWeightedRating } from '../../utils/number-tuils';
+import { getSortSafeWeightedRatingOfMovie } from '../../schemas/movie/movie.pre-post-hooks';
 
 export interface Cast {
   'adult': boolean,
@@ -375,7 +375,6 @@ export class MoviesService {
     } else if (sortBy === 'releaseDate') {
       sortMoviesByNameAndReleaseDate = { sortReleaseDate: -1 };
     } else {
-      // Note: As of SD-155, we use multiple sorting i.e, `rating` and `ratingUsersCount`
       sortMoviesByNameAndReleaseDate = { sortRatingAndRatingUsersCount: -1 };
     }
     return this.moviesModel.find(movieFindAllQuery)
@@ -658,7 +657,7 @@ export class MoviesService {
       // Deleting field (make sure field is not defined in schema)
       // doc.set('sortRatingAndRatingUsersCount', undefined, { strict: false });
 
-      const sortSafeWeightedRating = getSortSafeWeightedRating(doc.rating, doc.ratingUsersCount);
+      const sortSafeWeightedRating = getSortSafeWeightedRatingOfMovie(doc.rating, doc.ratingUsersCount);
       const kk = `${sortSafeWeightedRating}_${doc._id.toString()}`;
       // console.log('kk?', kk);
       doc.sortRatingAndRatingUsersCount = kk;

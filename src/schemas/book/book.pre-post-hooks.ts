@@ -8,8 +8,20 @@ function generateSortPublishDate(publishDate: Date, id: string) {
   return `${publishDate.toISOString()}_${id}`;
 }
 
-function generateSortRating(rating: number, id: string) {
-  return `${rating}_${id}`;
+// Last updated @ 29 Oct, 2023
+// Average rating of books = sum_of_all_rating_in_books_colletion / total_number_of_books
+const C = 0.52;
+// A minimum number of ratings required for a books to be considered (you can choose a
+// value based on your database size and the level of confidence you want).
+const M = 2;
+// r is rating of books
+// v is number of ratings of books
+const calculateWeightedRatingOfBook = (r: number, v: number) => (v / (v + M)) * r + (M / (v + M)) * C;
+export const getSortSafeWeightedRatingOfBook = (r: number, v: number) => calculateWeightedRatingOfBook(r, v).toFixed(8);
+
+export function generateSortRatingAndRatingUsersCountForBook(rating: number, ratingUsersCount: number, id: string) {
+  const sortSafeWeightedRating = getSortSafeWeightedRatingOfBook(rating, ratingUsersCount);
+  return `${sortSafeWeightedRating}_${id}`;
 }
 
 export function addPrePostHooks(schema: typeof BookSchema) {
@@ -31,17 +43,17 @@ export function addPrePostHooks(schema: typeof BookSchema) {
     }
 
     // If id AND rating are present, then we can use them to generate the sortRating
-    if (this.id?.length > 0 && typeof this.rating === 'number') {
-      this.sortRating = generateSortRating(this.rating, this.id);
+    if (this.id?.length > 0 && typeof this.rating === 'number' && typeof this.ratingUsersCount === 'number') {
+      this.sortRatingAndRatingUsersCount = generateSortRatingAndRatingUsersCountForBook(this.rating, this.ratingUsersCount, this.id);
     } else {
       // Otherwise set sortRating to null (potentially clearing out an existing value)
-      this.sortRating = null;
+      this.sortRatingAndRatingUsersCount = null;
     }
   });
 
-  schema.post<BookDocument>('findOneAndUpdate', async function (doc: BookDocument) {
+  schema.post<BookDocument>('findOneAndUpdate', async (doc: BookDocument) => {
     // eslint-disable-next-line no-param-reassign
-    doc.sortRating = generateSortRating(this.rating, this.id);
+    doc.sortRatingAndRatingUsersCount = generateSortRatingAndRatingUsersCountForBook(doc.rating, doc.ratingUsersCount, doc.id);
     await doc.save();
   });
   schema.post<BookDocument>('save', async function () {
@@ -70,8 +82,9 @@ export function addPrePostHooks(schema: typeof BookSchema) {
     // If, AFTER a save, sortRating is missing (and dependent fields are present), then this is
     // probably a first-time save and we should set the sortRating value based on the dependent
     // fields.
-    if (this.id?.length > 0 && typeof this.rating === 'number' && !this.sortRating) {
-      this.sortRating = generateSortRating(this.rating, this.id);
+    if (this.id?.length > 0 && typeof this.rating === 'number'
+      && typeof this.ratingUsersCount === 'number' && !this.sortRatingAndRatingUsersCount) {
+      this.sortRatingAndRatingUsersCount = generateSortRatingAndRatingUsersCountForBook(this.rating, this.ratingUsersCount, this.id);
       // Because this change is happening after a save, we need to trigger one additional save.
       // Be careful when saving inside the post-save hook, because a mistake here can lead to
       // an infinite loop!

@@ -510,49 +510,60 @@ describe('BooksService', () => {
         booksFactory.build({
           status: BookActiveStatus.Active,
           name: 'Coraline',
-          rating: 1,
+          rating: 5,
+          ratingUsersCount: 30,
         }),
       );
       await booksService.create(
         booksFactory.build({
           status: BookActiveStatus.Active,
           name: 'The King in Yellow',
-          rating: 1.5,
+          rating: 5,
+          ratingUsersCount: 9,
         }),
       );
       await booksService.create(
         booksFactory.build({
           status: BookActiveStatus.Active,
           name: 'Beetle',
-          rating: 2,
+          rating: 3,
+          ratingUsersCount: 25,
         }),
       );
       await booksService.create(
         booksFactory.build({
           status: BookActiveStatus.Active,
           name: 'Beetle 1',
-          rating: 2.5,
+          rating: 3,
+          ratingUsersCount: 24,
         }),
       );
       await booksService.create(
         booksFactory.build({
           status: BookActiveStatus.Active,
           name: 'Beetle 2',
-          rating: 3,
+          rating: 1,
+          ratingUsersCount: 50,
         }),
       );
       const limit = 5;
       const booksList = await booksService.findAll(limit, true, 'rating');
-      for (let i = 1; i < booksList.length; i += 1) {
-        expect(booksList[i].sortRating < booksList[i - 1].sortRating).toBe(true);
-      }
+      const movieOrder = booksList.map((bov) => ({ rating: bov.rating, ratingUsersCount: bov.ratingUsersCount }));
+      // Both `rating` and `ratingUsersCount` are useful to order books.
+      expect(movieOrder).toEqual([
+        { rating: 5, ratingUsersCount: 30 },
+        { rating: 5, ratingUsersCount: 9 },
+        { rating: 3, ratingUsersCount: 25 },
+        { rating: 3, ratingUsersCount: 24 },
+        { rating: 1, ratingUsersCount: 50 },
+      ]);
       expect(booksList).toHaveLength(5);
     });
 
     describe('when `after` argument is supplied', () => {
       beforeEach(async () => {
         const name = ['Alive', 'Again alive', 'Afield', 'Audition', 'Aghost'];
-        const rating = [1, 1.5, 2, 2.5, 3];
+        const rating = [1, 2, 2, 2.5, 3];
         for (let i = 0; i < 5; i += 1) {
           await booksService.create(
             booksFactory.build(
@@ -560,6 +571,7 @@ describe('BooksService', () => {
                 status: BookActiveStatus.Active,
                 rating: rating[i],
                 name: name[i],
+                ratingUsersCount: 22, // must be greater than `MINIMUM_NUMBER_OF_RATING_USES_COUNT`
               },
             ),
           );
@@ -584,9 +596,16 @@ describe('BooksService', () => {
       it('sort by rating returns the first and second sets of paginated results', async () => {
         const limit = 3;
         const firstResults = await booksService.findAll(limit, true, 'rating');
-        const secondResults = await booksService.findAll(limit, true, 'rating', firstResults[limit - 1].id);
         expect(firstResults).toHaveLength(3);
+
+        const firstResultsOrder = firstResults.map((m) => ({ rating: m.rating }));
+        expect(firstResultsOrder).toEqual([{ rating: 3 }, { rating: 2.5 }, { rating: 2 }]);
+
+        const secondResults = await booksService.findAll(limit, true, 'rating', firstResults[limit - 1].id);
         expect(secondResults).toHaveLength(2);
+
+        const secondResultsOrder = secondResults.map((m) => ({ rating: m.rating }));
+        expect(secondResultsOrder).toEqual([{ rating: 2 }, { rating: 1 }]);
       });
 
       it('sort by name and startsWith returns the first and second sets of paginated results', async () => {

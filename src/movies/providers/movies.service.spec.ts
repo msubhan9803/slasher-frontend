@@ -465,7 +465,7 @@ describe('MoviesService', () => {
       const limit = 5;
       const moviesList = await moviesService.findAll(limit, true, 'rating');
       const movieOrder = moviesList.map((mov) => ({ rating: mov.rating, ratingUsersCount: mov.ratingUsersCount }));
-      // The number of `ratingUsersCount` should also be used for same value of `rating` for movie
+      // Both `rating` and `ratingUsersCount` are useful to order movies.
       expect(movieOrder).toEqual([
           { rating: 5, ratingUsersCount: 30 },
           { rating: 5, ratingUsersCount: 9 },

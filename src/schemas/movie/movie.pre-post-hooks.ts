@@ -1,4 +1,3 @@
-import { getSortSafeWeightedRating } from '../../utils/number-tuils';
 import { MovieDocument, MovieSchema } from './movie.schema';
 
 // We pad zeroes such that there are total 11 digits (i.e, 10 Billion in number)
@@ -23,8 +22,19 @@ function generateSortReleaseDate(releaseDate: Date, id: string) {
   return `${releaseDate.toISOString()}_${id}`;
 }
 
-export function generateSortRatingAndRatingUsersCount(rating: number, ratingUsersCount: number, id: string) {
-  const sortSafeWeightedRating = getSortSafeWeightedRating(rating, ratingUsersCount);
+// Last updated @ 28 Oct, 2023
+// Average rating of movies = sum_of_all_rating_in_movies_colletion / total_number_of_movies
+const C = 0.52;
+// A minimum number of ratings required for a movie to be considered (you can choose a
+// value based on your database size and the level of confidence you want).
+const M = 20;
+// r is rating of movie
+// v is number of ratings of movie
+const calculateWeightedRatingOfMovie = (r: number, v: number) => (v / (v + M)) * r + (M / (v + M)) * C;
+export const getSortSafeWeightedRatingOfMovie = (r: number, v: number) => calculateWeightedRatingOfMovie(r, v).toFixed(8);
+
+export function generateSortRatingAndRatingUsersCountForMovie(rating: number, ratingUsersCount: number, id: string) {
+  const sortSafeWeightedRating = getSortSafeWeightedRatingOfMovie(rating, ratingUsersCount);
   return `${sortSafeWeightedRating}_${id}`;
 }
 
@@ -47,8 +57,8 @@ export function addPrePostHooks(schema: typeof MovieSchema) {
     }
 
     // If id AND rating are present, then we can use them to generate the `sortRatingAndRatingUsersCount`
-    if (this.id?.length > 0 && typeof this.rating === 'number') {
-      this.sortRatingAndRatingUsersCount = generateSortRatingAndRatingUsersCount(this.rating, this.ratingUsersCount, this.id);
+    if (this.id?.length > 0 && typeof this.rating === 'number' && typeof this.ratingUsersCount === 'number') {
+      this.sortRatingAndRatingUsersCount = generateSortRatingAndRatingUsersCountForMovie(this.rating, this.ratingUsersCount, this.id);
     } else {
       // Otherwise set sortRatingAndRatingUsersCount to null (potentially clearing out an existing value)
       this.sortRatingAndRatingUsersCount = null;
@@ -57,7 +67,7 @@ export function addPrePostHooks(schema: typeof MovieSchema) {
 
   schema.post<MovieDocument>('findOneAndUpdate', async (doc: MovieDocument) => {
     // eslint-disable-next-line no-param-reassign
-    doc.sortRatingAndRatingUsersCount = generateSortRatingAndRatingUsersCount(doc.rating, doc.ratingUsersCount, doc.id);
+    doc.sortRatingAndRatingUsersCount = generateSortRatingAndRatingUsersCountForMovie(doc.rating, doc.ratingUsersCount, doc.id);
     await doc.save();
   });
   schema.post<MovieDocument>('save', async function () {
@@ -88,7 +98,7 @@ export function addPrePostHooks(schema: typeof MovieSchema) {
     // fields.
     if (this.id?.length > 0 && typeof this.rating === 'number'
         && typeof this.ratingUsersCount === 'number' && !this.sortRatingAndRatingUsersCount) {
-      this.sortRatingAndRatingUsersCount = generateSortRatingAndRatingUsersCount(this.rating, this.ratingUsersCount, this.id);
+      this.sortRatingAndRatingUsersCount = generateSortRatingAndRatingUsersCountForMovie(this.rating, this.ratingUsersCount, this.id);
       // Because this change is happening after a save, we need to trigger one additional save.
       // Be careful when saving inside the post-save hook, because a mistake here can lead to
       // an infinite loop!

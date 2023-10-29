@@ -80,7 +80,7 @@ export class Book extends BookUnusedFields {
   worthReadingDownUsersCount: number;
 
   @Prop({ default: null, trim: true })
-  sortRating: string;
+  sortRatingAndRatingUsersCount: string;
 
   @Prop({
     enum: [BookActiveStatus.Inactive, BookActiveStatus.Active, BookActiveStatus.Deactivated],

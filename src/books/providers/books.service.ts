@@ -213,7 +213,7 @@ export class BooksService {
     }
     if (after && sortBy === 'rating') {
       const afterBook = await this.booksModel.findById(after);
-      booksFindAllQuery.sortRating = { $lt: afterBook.sortRating };
+      booksFindAllQuery.sortRatingAndRatingUsersCount = { $lt: afterBook.sortRatingAndRatingUsersCount };
     }
 
     if (nameContains) {
@@ -241,7 +241,7 @@ export class BooksService {
     } else if (sortBy === 'publishDate') {
       sortBooksByNameAndReleaseDate = { sortPublishDate: -1 };
     } else {
-      sortBooksByNameAndReleaseDate = { sortRating: -1 };
+      sortBooksByNameAndReleaseDate = { sortRatingAndRatingUsersCount: -1 };
     }
     return this.booksModel.find(booksFindAllQuery)
       .sort(sortBooksByNameAndReleaseDate)
@@ -384,7 +384,7 @@ export class BooksService {
     // Note: Concurrency is max number of parallel active async requests, we should keep it low
     // so public API servers do not block our server IPs
     const CONCURRENCY = 7;
-    const queue = async.queue(async (i) => {
+    const queue = async.queue(async (i: number) => {
       try {
         await fetchBookDetails(i);
       } catch (error) {

@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import CreatePostInput from '../../../components/ui/post/CreatePostInput';
 import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import ReportModal from '../../../components/ui/ReportModal';
 import postImage from '../../../images/book-post-image.jpg';
+import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 
 const postData = [
   {
     id: 1,
     userName: 'Aly khan',
     profileImage: 'https://i.pravatar.cc/300?img=12',
-    postDate: '06/18/2022 11:10 PM',
+    postDate: '2023-07-13T09:01:52.844Z',
     message: 'A retired cop battles a murderer who never gets his hands dirty when he kills. And a man stumbles into a league of immortal assassins, who kill to protect their.',
-    postUrl: postImage,
+    images: [{ description: '1', image_path: postImage, _id: '6677' }],
     likeIcon: false,
   },
 ];
@@ -30,13 +30,17 @@ function BookPosts() {
   };
   return (
     <>
-      {queryParam === 'self' && <CreatePostInput />}
-      <PostFeed
-        postFeedData={postData}
-        popoverOptions={popoverOptions}
-        isCommentSection={false}
-        onPopoverClick={handlePopoverOption}
-      />
+      {/* {queryParam === 'self' &&  */}
+      <CustomCreatePost className="mt-3 mt-lg-0" />
+      {/* } */}
+      <div className="mt-3">
+        <PostFeed
+          postFeedData={postData}
+          popoverOptions={popoverOptions}
+          isCommentSection={false}
+          onPopoverClick={handlePopoverOption}
+        />
+      </div>
       <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </>
   );

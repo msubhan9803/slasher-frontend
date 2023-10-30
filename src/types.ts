@@ -308,32 +308,73 @@ export enum WorthWatchingStatus {
   Down = 1,
   Up = 2,
 }
+export enum WorthReadingStatus {
+  NoRating = 0,
+  Down = 1,
+  Up = 2,
+}
 export enum PostType {
   User = 1,
   News = 2,
   MovieReview = 3,
+  BookReview = 4,
 }
 export interface MovieData {
-  movieDBId: number;
+  movieDBId?: number;
+  // ** RATING/GORE-FACTOR/WORTH-WATCHING FIELDS **
   // ratings
   rating: number;
   goreFactorRating: number;
-  worthWatching: number;
+  worthWatching?: number;
   // number of users who rated for `rating`, `goreFactorRating` and `worthWatching`
   ratingUsersCount: number;
-  goreFactorRatingUsersCount: number;
-  worthWatchingUpUsersCount: number;
-  worthWatchingDownUsersCount: number;
+  goreFactorRatingUsersCount?: number;
+  worthWatchingUpUsersCount?: number;
+  worthWatchingDownUsersCount?: number;
   // ratings by logged-in user
   userData: {
     rating: number;
     goreFactorRating: number;
     worthWatching: number;
+    worthReading: number;
     reviewPostId: string;
   },
   // to check movieData state update
   isUpdated?: boolean
 }
+export interface BookData {
+  numberOfPages: number,
+  isbnNumber: string[],
+  publishDate: string,
+  description: string,
+  coverEditionKey: string,
+  bookId: string,
+  status: number,
+  deleted: number,
+  author: string[],
+  name: string,
+  coverImage: { image_path: string },
+  // ** RATING/GORE-FACTOR/WORTH-READING FIELDS **
+  // ratings
+  rating: number;
+  goreFactorRating: number;
+  worthReading: number;
+  // number of users who rated for `rating`, `goreFactorRating` and `worthReading`
+  ratingUsersCount: number;
+  goreFactorRatingUsersCount: number;
+  worthReadingUpUsersCount: number;
+  worthReadingDownUsersCount: number;
+  // ratings by logged-in user
+  userData: {
+    rating: number;
+    goreFactorRating: number;
+    worthReading: number;
+    reviewPostId: string;
+  },
+  // to check movieData state update
+  isUpdated?: boolean
+}
+
 export type LocationPointType = {
   type: 'Point',
   coordinates: [number, number]
@@ -364,6 +405,12 @@ export type NewsPartnerAndPostsCache = { newsPartner: any, newsPosts: any };
 export type MoviePageCache = {
   movieData: MovieData,
   additionalMovieData: AdditionalMovieData,
+  reviews: any
+};
+
+// Cache type for Book related data (page = http://localhost:3000/app/book/64477b42b12f5efbb3468ff4/reviews)
+export type BookPageCache = {
+  bookData: BookData,
   reviews: any
 };
 

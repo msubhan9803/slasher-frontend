@@ -2,7 +2,7 @@ import React from 'react';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
-import { Link, matchPath, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { deletePageStateCache } from '../../../pageStateCache';
 
 interface Props {
@@ -42,6 +42,20 @@ const NavItemContainer = styled.div`
 const StyledIcon = styled(FontAwesomeIcon)`
   font-size: 1.25rem;
 `;
+
+const shouldHighlight = (to: string, pathname: string) => {
+  if (pathname.includes(to)) { return true; }
+
+  if (to === '/app/movies/all' && pathname.includes('/movies/')) {
+    return true;
+  }
+
+  if (to === '/app/books/all' && pathname.includes('/books/')) {
+    return true;
+  }
+
+  return false;
+};
 
 function SidebarNavItem({
   label, icon, iconColor: color, to, className, id, comingSoon, onToggleCanvas,
@@ -93,7 +107,7 @@ function SidebarNavItem({
             <Link
               className={
                 `${commonClasses} btn btn-dark text-decoration-none
-            ${matchPath({ path: to, end: false }, pathname) ? 'btn-filter' : ''}`
+            ${shouldHighlight(to, pathname) ? 'btn-filter' : ''}`
               }
               to={to}
               onClick={(e) => onClickHandler(e, label)}

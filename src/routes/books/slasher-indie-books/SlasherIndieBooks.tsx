@@ -3,14 +3,14 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/la
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import BooksHeader from '../BooksHeader';
-import { BooksProps } from '../components/BookProps';
+import { Book } from '../components/BookProps';
 import { slasherIndieBooks } from '../components/booksList';
 import BooksRightSideNav from '../components/BooksRightSideNav';
 
 function SlasherIndieBooks() {
   const [showKeys, setShowKeys] = useState(false);
   const [search, setSearch] = useState<string>('');
-  const [filteredBooks, setFilteredBooks] = useState<BooksProps[]>(slasherIndieBooks);
+  const [filteredBooks, setFilteredBooks] = useState<Book[] | any>(slasherIndieBooks);
   const searchData = useCallback(() => {
     let searchResult;
     const newFilter = slasherIndieBooks;
@@ -37,8 +37,9 @@ function SlasherIndieBooks() {
           search={search}
         />
         <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
-          <div className="m-md-2">
-            <PosterCardList dataList={filteredBooks} />
+          <p className="h2 mb-0">Slasher indie</p>
+          <div>
+            <PosterCardList dataList={filteredBooks} type="book" />
           </div>
         </div>
       </ContentPageWrapper>

@@ -79,3 +79,11 @@ export const toUtcEndOfDay = (date: Date) => DateTime.now().setZone('utc').set({
   second: 59,
   millisecond: 0,
 }).toJSDate();
+
+export const getYearFromDate = (dateString: string | null): number | null => {
+  if (dateString) {
+    const d = new Date(dateString);
+    return d.getFullYear();
+  }
+  return null;
+};

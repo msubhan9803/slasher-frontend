@@ -19,6 +19,7 @@ import CustomRatingText from '../../../components/ui/CustomRatingText';
 import { createOrUpdateWorthWatching, deleteWorthWatching } from '../../../api/movies';
 import { updateMovieUserData } from '../components/updateMovieDataUtils';
 import { urlForMovie } from '../../../utils/url-utils';
+import { generateAmazonAffiliateLinkForMovie } from '../../../utils/text-utils';
 
 const StyleWatchWorthIcon = styled(FontAwesomeIcon)`
   width: 0.995rem;
@@ -150,6 +151,7 @@ function AboutDetails({
   const handleShowShareLinks = () => setShowShareLinks(true);
   const hasRating = movieData.userData !== null && movieData.userData?.rating !== 0;
   const hasGoreFactor = movieData.userData !== null && movieData.userData?.goreFactorRating !== 0;
+  const to = generateAmazonAffiliateLinkForMovie(aboutMovieDetail?.mainData?.title);
   return (
     <AboutMovieDetails className="text-xl-start pt-4">
       <Row className="justify-content-center mt-2 mt-xl-0">
@@ -306,6 +308,16 @@ function AboutDetails({
           </Col>
           <div ref={reviewButtonRef} id="writeReview" className="d-none d-md-flex justify-content-center mt-3">
             <RoundButton className="w-50 fw-bold" onClick={() => { handleReviwRedirect(); handleScroll!(); }}>Write a review</RoundButton>
+          </div>
+          <div
+            id="buyNow"
+            className="d-none d-md-flex d-lg-none d-xl-flex justify-content-center mt-4"
+          >
+            <a href={to} target="_blank" className="text-decoration-none" rel="noreferrer">
+              <RoundButton className="px-5 fw-bold">
+                Buy now
+              </RoundButton>
+            </a>
           </div>
           <StyledBorder className="d-md-none my-3" />
         </Row>

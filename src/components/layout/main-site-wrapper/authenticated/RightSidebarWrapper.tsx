@@ -7,7 +7,8 @@ interface Props {
 }
 
 const StyledRightSidebarWrapper = styled.div`
-  width: calc(320px + 0.5rem);
+  // width: calc(320px + 5px);
+  width: 319px;
   height: calc(100vh - 93.75px);
   padding: 2px calc(1rem + var(--scroll-bar-width)) 75px .25rem;
   position: sticky;

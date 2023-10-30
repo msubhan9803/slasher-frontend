@@ -1,3 +1,4 @@
+import { SLASHER_AMAZON_TAG_ID } from '../constants';
 import { FormatMentionProps } from '../types';
 
 // Finds the first YouTube link in a post and returns the YouTube ID in the 6-index capture group
@@ -149,4 +150,25 @@ export const generateMentionReplacementMatchFunc = (
   }
 
   return mentionReplacementMatchFunc;
+};
+
+export const generateAmazonAffiliateLinkForBook = (title: string, author: string) => {
+  const newTitle = title.split(' ').join('+');
+  const newAuthor = author.split(' ').join('+');
+  const searchText = `${newTitle}+${newAuthor}`;
+  return `https://www.amazon.com/s/ref=nosim?k=${searchText}&i=stripbooks-intl-ship&tag=${SLASHER_AMAZON_TAG_ID}`;
+};
+
+export const generateAmazonAffiliateLinkForMovie = (movieName: string) => {
+  const movieTitle = movieName.split(' ').join('+');
+  const searchText = `${movieTitle}`;
+  return `https://www.amazon.com/s/ref=nosim?k=${searchText}&i=movies-tv-intl-ship&tag=${SLASHER_AMAZON_TAG_ID}`;
+};
+
+export const getPrefferedISBN = (isbnNumber: string[]) => {
+  const isbn10 = isbnNumber.find((isbn) => isbn.length === 10);
+  if (isbn10) { return isbn10; } // we should prefer ISBN10 over ISBN13
+
+  const isbn13 = isbnNumber.find((isbn) => isbn.length === 13);
+  return isbn13;
 };

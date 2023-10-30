@@ -10,8 +10,8 @@ export const StyledRateBorder = styled.div<StyledRateBorderProps>`
   }
   @media (max-width: 89.938rem) {
     .rating {
-      border-bottom: 1px solid #3A3B46;
-      border-top: 1px solid #3A3B46;
+      // border-bottom: 1px solid #3A3B46;
+      // border-top: 1px solid #3A3B46;
     }
   }
 `;

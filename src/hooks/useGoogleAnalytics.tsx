@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { initializeFirebase } from '../utils/initFirebaseAnalytics';
+import { sendAppInitialLogEvent } from '../utils/initFirebaseAnalytics';
 
 const useGoogleAnalytics = () => {
   const location = useLocation();
@@ -12,7 +12,6 @@ const useGoogleAnalytics = () => {
     const logAnalyticsEvent = async () => {
       try {
         // Initialize Firebase Analytics
-        const firebaseApp = await initializeFirebase();
 
         const currentPath = pathname + search + hash;
         if (previousPathRef.current === currentPath) {
@@ -20,16 +19,12 @@ const useGoogleAnalytics = () => {
         }
         previousPathRef.current = currentPath;
 
-        // Now, you can use the firebaseApp instance for logging events
-        firebaseApp.logEvent({
-          name: 'page_view',
-          params: {
-            page_location: window.location.href,
-            page_title: 'Avadh',
-          },
+        sendAppInitialLogEvent('page_view', {
+          page_location: window.location.href,
+          page_title: document.title,
         });
       } catch (error) {
-      // eslint-disable-next-line no-console
+        // eslint-disable-next-line no-console
         console.error('Error initializing Firebase Analytics:', error);
       }
     };

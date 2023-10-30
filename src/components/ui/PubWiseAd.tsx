@@ -2,8 +2,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useAppSelector } from '../../redux/hooks';
 import SlasherDisableAdblocker from '../../images/slasher-disable-adblocker.jpg';
-import { sendAdUnitEventToGoogleAnalytics } from '../../utils/google-analytics-utils';
 import { enableADs } from '../../env';
+import { sendAdUnitEventToGoogleAnalytics } from '../../utils/initFirebaseAnalytics';
 
 declare global {
   interface Window {

@@ -29,6 +29,7 @@ import { addMovieUserStatus, deleteMovieUserStatus, getMoviesIdList } from '../.
 import MovieReviewDetails from '../movie-reviews/MovieReviewDetails';
 import { StyledMoviePoster } from './StyledUtils';
 import { enableDevFeatures } from '../../../env';
+import { generateAmazonAffiliateLinkForMovie } from '../../../utils/text-utils';
 
 interface MovieIconProps {
   label: string;
@@ -53,7 +54,7 @@ const MovieIconList = [
     label: 'Watched', key: 'watched', icon: solid('check'), iconColor: '#32D74B', width: '1.354rem', height: '0.968rem', addMovie: false,
   },
   {
-    label: 'Watchlist', key: 'watch', icon: solid('list-check'), iconColor: '#FF8A00', width: '1.404rem', height: '1.185rem', addMovie: false,
+    label: 'Watch list', key: 'watch', icon: solid('list-check'), iconColor: '#FF8A00', width: '1.404rem', height: '1.185rem', addMovie: false,
   },
   {
     label: 'Buy', key: 'buy', icon: solid('bag-shopping'), iconColor: '#FF1800', width: '1.029rem', height: '1.185rem', addMovie: false,
@@ -196,6 +197,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
     //   }
     // }, 0);
   };
+  const to = generateAmazonAffiliateLinkForMovie(aboutMovieData?.mainData?.title);
 
   return (
     <div>
@@ -271,6 +273,11 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
                 </div>
               )}
           </Col>
+          <div className="d-block d-md-none d-lg-block mt-3">
+            <a href={to} target="_blank" className="text-decoration-none" rel="noreferrer">
+              <RoundButton className="w-100">Buy now</RoundButton>
+            </a>
+          </div>
         </Row>
 
         {enableDevFeatures

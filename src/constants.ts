@@ -52,3 +52,5 @@ export const isBrowser = typeof window !== 'undefined';
 // eslint-disable-next-line no-nested-ternary
 export const envValueForPubWiseAndGoogleAnalytics = isBrowser ? (window.location.host === 'staging.slasher.tv' ? 'dev' : 'prod') : 'dev';
 export const osValueForPubWiseAndGoogleAnalytics = Capacitor.getPlatform(); // android | web | ios
+
+export const SLASHER_AMAZON_TAG_ID = 'slasherapp-20'; // (affiliate id)

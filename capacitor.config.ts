@@ -45,6 +45,11 @@ const config: CapacitorConfig = {
     },
     CapacitorCookies: {
       "enabled": true
+    },
+    FirebaseAnalytics: {
+      "providers": {
+        "google": true
+      }
     }
   },
 };

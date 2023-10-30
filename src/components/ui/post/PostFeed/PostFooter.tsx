@@ -15,6 +15,7 @@ interface LinearIconProps {
 }
 interface PostFooterProps {
   likeIcon: boolean;
+  bookId?: string;
   postId: string;
   userName: string;
   rssfeedProviderId?: string;
@@ -43,7 +44,7 @@ const LinearIcon = styled.span<LinearIconProps>`
   }
 `;
 function PostFooter({
-  likeIcon, postId, userName, rssfeedProviderId, onLikeClick, onSelect,
+  likeIcon, bookId, postId, userName, rssfeedProviderId, onLikeClick, onSelect,
   likeCount, commentCount, handleLikeModal, postType, movieId, detailsPage, onCommentClick,
 }: PostFooterProps) {
   const { pathname } = useLocation();
@@ -89,10 +90,13 @@ function PostFooter({
               <Link
                 onClick={() => (postType !== 'review' && onSelect!(rssfeedProviderId || postId))}
                 to={
-                  (postType === 'review' && movieId && `/app/movies/${movieId}/reviews/${postId}`)
-                  || (rssfeedProviderId
-                    ? `/app/news/partner/${rssfeedProviderId}/posts/${postId}`
-                    : `/${userName}/posts/${postId}`)
+                  postType === 'review' && movieId
+                    ? `/app/movies/${movieId}/reviews/${postId}`
+                    : postType === 'review' && bookId
+                      ? `/app/books/${bookId}/reviews/${postId}`
+                      : rssfeedProviderId
+                        ? `/app/news/partner/${rssfeedProviderId}/posts/${postId}`
+                        : `/${userName}/posts/${postId}`
                 }
                 state={pathname}
                 className="d-inline-block text-decoration-none rounded"
@@ -134,6 +138,7 @@ PostFooter.defaultProps = {
   handleLikeModal: () => { },
   postType: '',
   movieId: '',
+  bookId: '',
   detailsPage: false,
   onCommentClick: () => { },
 };

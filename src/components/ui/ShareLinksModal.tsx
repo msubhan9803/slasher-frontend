@@ -12,7 +12,7 @@ import FacebookIcon from '../../images/share-links-modal-facebook.png';
 import InstagramIcon from '../../images/share-links-modal-instagram.png';
 import TwitterIcon from '../../images/share-links-modal-twitter.png';
 import { MD_MEDIA_BREAKPOINT, isNativePlatform } from '../../constants';
-import { isMovieDetailsPageSubRoutes } from '../../utils/url-utils';
+import { isBookDetailsPageSubRoutes, isMovieDetailsPageSubRoutes } from '../../utils/url-utils';
 import { enableDevFeatures } from '../../env';
 
 const FRONTEND_URL = isNativePlatform
@@ -45,6 +45,7 @@ function ShareLinksModal({ copyLinkUrl, show, setShow }: any) {
   const paddingModalBody = isTabletAndDesktopResponsiveSize ? 'px-5' : 'px-0';
 
   const isMovieDetailsPageRoute = isMovieDetailsPageSubRoutes(pathname);
+  const isBookDetailsPageRoute = isBookDetailsPageSubRoutes(pathname);
   return (
     <ModalContainer
       $widthMarginAuto
@@ -58,7 +59,7 @@ function ShareLinksModal({ copyLinkUrl, show, setShow }: any) {
         <h1 className="mb-0 text-primary text-center mx-4">Share</h1>
         <Row xs={isMovieDetailsPageRoute ? 2 : 1} lg="auto" className="mt-4 gx-0 temp11">
           {/* NOTE FOR LATER: Please use xs={3} as per figma design when we have three or more items enabled for production */}
-          {isMovieDetailsPageRoute
+          {(isMovieDetailsPageRoute || (isBookDetailsPageRoute && enableDevFeatures))
             && (
               <Col className="pb-5">
                 <ShareIconButton label="Share as a post" onClick={() => { navigate(`/app/posts/create?movieId=${params.id}`, { state: pathname }); }} imgSrc={ShareAsApostIcon} />

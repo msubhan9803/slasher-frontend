@@ -36,7 +36,7 @@ const topMenuListItems: MenuListItem[] = [
     label: 'Movies', icon: solid('film'), iconColor: '#FF343E', to: '/app/movies/all', id: 3,
   },
   {
-    label: 'Books', icon: solid('book-skull'), iconColor: '#D88100', to: '/app/books', id: 4,
+    label: 'Books', icon: solid('book-skull'), iconColor: '#D88100', to: '/app/books/all', id: 4,
   },
   {
     label: 'Podcasts', icon: solid('podcast'), iconColor: '#8F00FF', to: '/app/podcasts', id: 5,

@@ -1,98 +1,98 @@
 import React, { useState } from 'react';
-import { Modal } from 'react-bootstrap';
-import ModalContainer from '../../../components/ui/CustomModal';
-import RoundButton from '../../../components/ui/RoundButton';
-import RatingButtonGroups from '../../../components/ui/RatingButtonGroups';
-import ModalBodyForDeactivateListing from '../../../components/ui/ModalBodyForDeactivateListing';
+import { useParams } from 'react-router-dom';
+import { BookData } from '../../../types';
+import CustomRatingsModal from '../../../components/ui/CustomRatingsModal';
+import {
+  createOrUpdateGoreFactor, createOrUpdateRating, deleteGoreFactor, deleteRating,
+} from '../../../api/books';
+import { updateBookUserData } from './updateBookDataUtils';
 
-interface BookDetaisProps {
+interface Props {
   show: boolean;
   setShow: (value: boolean) => void;
-  ButtonType?: string;
+  ButtonType?: 'rating' | 'goreFactorRating' | 'deactivate';
+  bookData?: any;
+  setBookData?: React.Dispatch<React.SetStateAction<BookData | undefined>>
+  rateType?: 'rating' | 'goreFactorRating';
+  hasRating?: boolean;
+  hasGoreFactor?: boolean;
 }
+
+// Valid rating values
+type RatingValue = -1 | 0 | 1 | 2 | 3 | 4;
 function BooksModal({
-  show, setShow, ButtonType,
-}: BookDetaisProps) {
+  show, setShow, ButtonType, bookData, setBookData, rateType, hasRating, hasGoreFactor,
+}: Props) {
   const [deactivate, setDeactivate] = useState(false);
+
+  const initialRating = rateType ? bookData?.userData?.[rateType] ?? 0 : 0;
+  // We're using `intialRating` as 1 less than actual value to work for `start`/`goreIcon` component
+  const [rating, setRating] = useState<RatingValue>(
+    initialRating === 0 ? -1 : (initialRating - 1) as RatingValue,
+  );
+  const params = useParams();
   const closeModal = () => {
     setShow(false);
+    // Reset rating on modal close event
+    setRating(0);
   };
-  const closeDeactivateModal = () => {
-    setDeactivate(false);
-  };
-  const [rating, setRating] = useState(0);
-  return (
-    <>
-      {deactivate && (
-        <ModalContainer
-          show={deactivate}
-          centered
-          onHide={closeDeactivateModal}
-          size="sm"
-        >
-          <Modal.Header className="border-0 shadow-none justify-content-end" closeButton />
-          <div className="px-4">
-            <Modal.Body className="d-flex flex-column align-items-center text-center pb-5 px-0">
-              <div>
-                <h1 className="text-primary h2">Confirmation</h1>
-                <p className="h5">
-                  Your listing will be deactivated and you will
-                  not be charged when it’s time to renew.
-                  Please check your email for confirmation.
-                </p>
-                <p className="h5">
-                  Listings will be permanently deleted
-                  after 30 days.
-                </p>
-                <RoundButton onClick={closeDeactivateModal} className="mt-3 w-100 border-0 bg-primary fw-bold">
-                  Close
-                </RoundButton>
-              </div>
-            </Modal.Body>
-          </div>
+  const handleRatingSubmit = () => {
+    if (!params.id || !rateType || !setBookData) { return; }
 
-        </ModalContainer>
-      )}
-      {show && (
-        <ModalContainer
-          show={show}
-          centered
-          onHide={closeModal}
-        >
-          <Modal.Header className="border-0 shadow-none justify-content-end" closeButton />
-          <div className="px-5">
-            {ButtonType === 'deactivate' && (
-              <ModalBodyForDeactivateListing
-                onCancel={closeModal}
-                onConfirm={() => setDeactivate(true)}
-                setShow={() => setShow(false)}
-              />
-            )}
-            {ButtonType === 'rate' && (
-              <Modal.Body className="d-flex flex-column align-items-center text-center pb-5">
-                <div className="px-5">
-                  <h1 className="text-primary h2">Rate this movie</h1>
-                  <p className="h5 px-4">The Curse of La Patasola</p>
-                </div>
-                <RatingButtonGroups
-                  rating={rating}
-                  setRating={setRating}
-                  size="2x"
-                />
-                <RoundButton onClick={closeModal} className="mt-3 w-100 border-0 bg-primary fw-bold">
-                  Submit
-                </RoundButton>
-              </Modal.Body>
-            )}
-          </div>
-        </ModalContainer>
-      )}
-    </>
+    if (rating === -1) {
+      deleteRating(params.id)
+        .then((res) => {
+          updateBookUserData(res.data, 'rating', setBookData!);
+          closeModal();
+        });
+    } else {
+      createOrUpdateRating(params.id, rating + 1).then((res) => {
+        updateBookUserData(res.data, rateType, setBookData);
+        closeModal();
+      });
+    }
+  };
+  const handleGoreFactorSubmit = () => {
+    if (!params.id || !rateType || !setBookData) { return; }
+
+    if (rating === -1) {
+      deleteGoreFactor(params.id)
+        .then((res) => {
+          updateBookUserData(res.data, 'goreFactorRating', setBookData!);
+          closeModal();
+        });
+    } else {
+      createOrUpdateGoreFactor(params.id, rating + 1).then((res) => {
+        updateBookUserData(res.data, rateType, setBookData);
+        closeModal();
+      });
+    }
+  };
+  return (
+    <CustomRatingsModal
+      show={show}
+      setShow={setShow}
+      ratingModalType="Book"
+      rating={rating}
+      setRating={setRating}
+      ButtonType={ButtonType}
+      hasRating={hasRating}
+      hasGoreFactor={hasGoreFactor}
+      deactivate={deactivate}
+      setDeactivate={setDeactivate}
+      handleRatingSubmit={handleRatingSubmit}
+      handleGoreFactorSubmit={handleGoreFactorSubmit}
+    />
   );
 }
 
 BooksModal.defaultProps = {
   ButtonType: '',
+  bookData: undefined,
+  setBookData: () => { },
+  rateType: '',
+  hasRating: false,
+  hasGoreFactor: false,
 };
 
 export default BooksModal;

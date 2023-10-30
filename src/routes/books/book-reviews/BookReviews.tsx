@@ -1,6 +1,8 @@
 /* eslint-disable max-lines */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, {
-  useCallback, useEffect, useLayoutEffect, useMemo, useState,
+  useCallback,
+  useEffect, useLayoutEffect, useMemo, useState,
 } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -10,41 +12,38 @@ import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import CreatePostComponent from '../../../components/ui/CreatePostComponent';
 import {
-  createPost, deleteFeedPost, feedPostDetail, getMovieReview, updateFeedPost,
+  createPost, deleteFeedPost, feedPostDetail, getBookReview, updateFeedPost,
 } from '../../../api/feed-posts';
 import {
+  BookPageCache,
   FormatMentionProps,
-  FriendRequestReaction,
-  FriendType,
-  MovieData, MoviePageCache, Post, PostType,
+  Post, PostType,
 } from '../../../types';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
-import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
-import ReportModal from '../../../components/ui/ReportModal';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { getLocalStorage, setLocalStorage } from '../../../utils/localstorage-utils';
-import { getMoviesById } from '../../../api/movies';
-import { createBlockUser } from '../../../api/blocks';
-import { reportData } from '../../../api/report';
 import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../../pageStateCache';
 import useProgressButton from '../../../components/ui/ProgressButton';
-import { sleep } from '../../../utils/timer-utils';
 import { atMentionsGlobalRegex, decryptMessage, generateMentionReplacementMatchFunc } from '../../../utils/text-utils';
-import FriendshipStatusModal from '../../../components/ui/friendShipCheckModal';
-import { useAppSelector } from '../../../redux/hooks';
+import { getBookById } from '../../../api/books';
+import ReportModal from '../../../components/ui/ReportModal';
+import { sleep } from '../../../utils/timer-utils';
+import { createBlockUser } from '../../../api/blocks';
+import { reportData } from '../../../api/report';
+import { unlikeFeedPost, likeFeedPost } from '../../../api/feed-likes';
 
 type Props = {
-  movieData: MovieData;
-  setMovieData: React.Dispatch<React.SetStateAction<MovieData | undefined>>;
-  reviewForm: boolean;
+  bookReviewData: any;
+  setBookReviewData: any;
   setReviewForm: (value: boolean) => void;
   handleScroll: () => void;
   showReviewForm: boolean;
+  reviewForm: boolean;
   setShowReviewForm: (value: boolean) => void;
 };
 
 export const StyledReviewContainer = styled.div`
-  min-height: 60vh;
+  min-height: 100vh;
 `;
 
 const loginUserPopoverOptions = ['Edit Review', 'Delete Review'] as const;
@@ -55,42 +54,36 @@ type PopOverValueType = typeof validPopOverOptions[number];
 // eslint-disable-next-line max-len
 const isValidPopOverValue = (v: string): v is PopOverValueType => validPopOverOptions.includes(v as any);
 
-function MovieReviews({
-  movieData, setMovieData, reviewForm, setReviewForm, handleScroll, showReviewForm,
+function BookReview({
+  reviewForm, bookReviewData, setBookReviewData, setReviewForm, handleScroll, showReviewForm,
   setShowReviewForm,
 }: Props) {
   const { id } = useParams();
   const location = useLocation();
   const [show, setShow] = useState<boolean>(false);
-  const [dropDownValue, setDropDownValue] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState([]);
-  const [postUserId, setPostUserId] = useState<string>('');
-  const [postId, setPostId] = useState<string>('');
   const [postContent, setPostContent] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const [containSpoiler, setContainSpoiler] = useState<boolean>(false);
   const [rating, setRating] = useState(0);
-  const [goreFactor, setGoreFactor] = useState(0);
+  const [postId, setPostId] = useState<string>('');
+  const [postUserId, setPostUserId] = useState<string>('');
+  const [dropDownValue, setDropDownValue] = useState<string>('');
   const [deletePostId, setDeletePostId] = useState<any>([]);
+  const [goreFactor, setGoreFactor] = useState(0);
   const [requestAdditionalReviewPosts, setRequestAdditionalReviewPosts] = useState<boolean>(false);
   const [loadingReviewPosts, setLoadingReviewPosts] = useState<boolean>(false);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
-  const [lastReviewPostId, setLastReviePostId] = useState<string>('');
   const [isWorthIt, setWorthIt] = useState<any>(0);
   const [liked, setLike] = useState<boolean>(false);
   const [disLiked, setDisLike] = useState<boolean>(false);
-  const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
-  const [friendData, setFriendData] = useState<FriendType>(null);
-  const [friendShipStatusModal, setFriendShipStatusModal] = useState<boolean>(false);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   // eslint-disable-next-line max-len
-  const ReviewsCache: MoviePageCache['reviews'] = useMemo(() => getPageStateCache<MoviePageCache>(location)?.reviews ?? [], [location]);
+  const ReviewsCache: BookPageCache['reviews'] = useMemo(() => getPageStateCache<BookPageCache>(location)?.reviews ?? [], [location]);
   const [reviewPostData, setReviewPostData] = useState<any>(
     hasPageStateCache(location)
       ? ReviewsCache : [],
   );
-  const userData = useAppSelector((state) => state.user.user);
-
   const navigate = useNavigate();
   const handleCreateInput = () => {
     setShowReviewForm(true);
@@ -101,22 +94,16 @@ function MovieReviews({
     }
   }, [location, ReviewsCache]);
 
-  const getUserMovieReviewData = (reviewPostId: string) => {
-    feedPostDetail(reviewPostId).then((res) => {
-      setPostContent(res.data.message);
-      setContainSpoiler(res.data.spoilers);
+  const persistScrollPosition = () => {
+    setPageStateCache<BookPageCache>(location, {
+      ...getPageStateCache(location),
+      reviews: reviewPostData,
     });
   };
-  useLayoutEffect(() => {
-    if ((location.state && location.state.movieId && location.state.movieId.length) || reviewForm) {
-      setShowReviewForm(true);
-      getUserMovieReviewData(id!);
-    }
-  }, [location, reviewForm, id, setShowReviewForm]);
 
   const callLatestFeedPost = useCallback(() => {
     if (id) {
-      getMovieReview(id).then((res) => {
+      getBookReview(id).then((res) => {
         const newPosts = res.data.map((data: any) => ({
           _id: data._id,
           id: data._id,
@@ -131,9 +118,9 @@ function MovieReviews({
           commentCount: data.commentCount,
           rating: data?.reviewData?.rating || 0,
           goreFactor: data?.reviewData?.goreFactorRating || 0,
-          worthWatching: data?.reviewData?.worthWatching || 0,
+          worthReading: data?.reviewData?.worthReading || 0,
           contentHeading: data.title,
-          movieId: id,
+          bookId: id,
           spoilers: data.spoilers,
           hashtags: data.hashtags,
         }));
@@ -142,25 +129,30 @@ function MovieReviews({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, showReviewForm]);
+  const getUserBookReviewData = (reviewPostId: string) => {
+    feedPostDetail(reviewPostId).then((res) => {
+      setPostContent(res.data.message);
+      setContainSpoiler(res.data.spoilers);
+    });
+  };
 
+  useLayoutEffect(() => {
+    if ((location.state && location.state.bookId && location.state.bookId.length) || reviewForm) {
+      setShowReviewForm(true);
+      getUserBookReviewData(id!);
+    }
+  }, [location, reviewForm, id, setShowReviewForm]);
   useEffect(() => {
-    if (movieData) {
-      setRating(movieData.userData.rating - 1);
-      setGoreFactor(movieData.userData.goreFactorRating - 1);
-      setWorthIt(movieData.userData.worthWatching);
-      if (movieData.userData?.reviewPostId) {
-        getUserMovieReviewData(movieData.userData?.reviewPostId);
+    if (bookReviewData) {
+      setRating(bookReviewData.userData.rating - 1);
+      setGoreFactor(bookReviewData.userData.goreFactorRating - 1);
+      setWorthIt(bookReviewData.userData.worthReading);
+      if (bookReviewData.userData?.reviewPostId) {
+        getUserBookReviewData(bookReviewData.userData?.reviewPostId);
       }
       callLatestFeedPost();
     }
-  }, [movieData, callLatestFeedPost]);
-
-  const persistScrollPosition = () => {
-    setPageStateCache<MoviePageCache>(location, {
-      ...getPageStateCache(location),
-      reviews: reviewPostData,
-    });
-  };
+  }, [bookReviewData, callLatestFeedPost]);
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     persistScrollPosition();
@@ -170,9 +162,9 @@ function MovieReviews({
     // Tip: `value` has type of `PopOverValueType` here onwards because of typeguard.
     if (value === 'Edit Review') {
       setShowReviewForm(true);
-      getUserMovieReviewData(popoverClickProps.id!);
-      getMoviesById(id!)
-        .then((res) => setMovieData(res.data));
+      getUserBookReviewData(popoverClickProps.id!);
+      getBookById(id!)
+        .then((res) => setBookReviewData(res.data));
       return;
     }
     if (popoverClickProps.id) {
@@ -186,18 +178,24 @@ function MovieReviews({
     setDeletePostId(popoverClickProps.id);
   };
 
-  const createMovieReview = (movieReviewPostData: object) => {
+  const updateBookReview = (bookReviewPostData: any) => {
     setProgressButtonStatus('loading');
-    createPost(movieReviewPostData, '')
+    updateFeedPost(
+      bookReviewPostData.postId,
+      bookReviewPostData.message,
+      [],
+      [],
+      bookReviewPostData,
+    )
       .then(async () => {
         setProgressButtonStatus('default');
-        setMovieData({
-          ...movieData,
+        setBookReviewData({
+          ...bookReviewData,
           userData: {
-            ...movieData.userData!,
+            ...bookReviewData.userData!,
             rating: rating + 1,
             goreFactorRating: goreFactor + 1,
-            worthWatching: isWorthIt,
+            worthReading: isWorthIt,
           },
           isUpdated: true,
         });
@@ -213,25 +211,18 @@ function MovieReviews({
         setErrorMessage(msg);
       });
   };
-
-  const updateMovieReview = (movieReviewPostData: any) => {
+  const createBookReview = (bookReviewPostData: any) => {
     setProgressButtonStatus('loading');
-    updateFeedPost(
-      movieReviewPostData.postId,
-      movieReviewPostData.message,
-      [],
-      [],
-      movieReviewPostData,
-    )
+    createPost(bookReviewPostData, '')
       .then(async () => {
         setProgressButtonStatus('default');
-        setMovieData({
-          ...movieData,
+        setBookReviewData({
+          ...bookReviewData,
           userData: {
-            ...movieData.userData!,
+            ...bookReviewData.userData!,
             rating: rating + 1,
             goreFactorRating: goreFactor + 1,
-            worthWatching: isWorthIt,
+            worthReading: isWorthIt,
           },
           isUpdated: true,
         });
@@ -253,83 +244,52 @@ function MovieReviews({
       atMentionsGlobalRegex,
       generateMentionReplacementMatchFunc(formatMention),
     ));
-    const movieReviewPostData = {
+    const bookReviewPostData = {
       message: postContentWithMentionReplacements,
       spoiler: containSpoiler,
       rate: rating + 1,
       goreFactorRate: goreFactor + 1,
       worthIt: isWorthIt,
-      postType: PostType.MovieReview,
-      movieId: id,
+      postType: PostType.BookReview,
+      bookId: id,
     };
-    if (movieData.userData?.reviewPostId) {
-      (movieReviewPostData as any).postId = movieData.userData?.reviewPostId;
-      updateMovieReview(movieReviewPostData);
+    if (bookReviewData.userData?.reviewPostId) {
+      (bookReviewPostData as any).postId = bookReviewData.userData?.reviewPostId;
+      updateBookReview(bookReviewPostData);
     } else {
-      createMovieReview(movieReviewPostData);
+      createBookReview(bookReviewPostData);
     }
-    return movieReviewPostData;
+    return bookReviewPostData;
   };
-
-  useEffect(() => {
-    if (requestAdditionalReviewPosts && !loadingReviewPosts && id && lastReviewPostId) {
-      setLoadingReviewPosts(false);
-      getMovieReview(
-        id,
-        lastReviewPostId.length > 0 ? lastReviewPostId : undefined,
-      ).then((res) => {
-        // setLoadingReviewPosts(false);
-        const newPosts = res.data.map((data: any) => ({
-          _id: data._id,
-          id: data._id,
-          postDate: data.createdAt,
-          message: data.message,
-          images: data.images,
-          userName: data.userId.userName,
-          profileImage: data.userId.profilePic,
-          userId: data.userId._id,
-          likeIcon: data.likedByUser,
-          likeCount: data.likeCount,
-          commentCount: data.commentCount,
-          rating: data?.reviewData?.rating || 0,
-          goreFactor: data?.reviewData?.goreFactorRating || 0,
-          worthWatching: data?.reviewData?.worthWatching || 0,
-          contentHeading: data.title,
-          movieId: id,
-          spoilers: data.spoilers,
-          hashtags: data?.hashtags,
-        }));
-        setReviewPostData((prev: Post[]) => [
-          ...prev,
-          ...newPosts,
-        ]);
-        if (res.data.length === 0) {
-          setNoMoreData(true);
-          setLastReviePostId('');
-          setLoadingReviewPosts(false);
-        } else {
-          setLastReviePostId(res.data[res.data.length - 1]._id);
-        }
-      }).catch(
-        (error) => {
-          setNoMoreData(true);
-          setErrorMessage(error.response.data.message);
-        },
-      ).finally(
-        () => { setRequestAdditionalReviewPosts(false); setLoadingReviewPosts(false); },
-      );
+  const deletePostClickAsync = () => {
+    setProgressButtonStatus('loading');
+    if (deletePostId) {
+      return deleteFeedPost(deletePostId)
+        .then(async () => {
+          setProgressButtonStatus('default');
+          callLatestFeedPost();
+          setShow(false);
+          setRating(0);
+          setGoreFactor(0);
+          setPostContent('');
+          setContainSpoiler(false);
+          setBookReviewData({
+            ...bookReviewData,
+            userData: {
+              ...bookReviewData.userData!,
+              reviewPostId: '',
+            },
+          });
+        })
+        /* eslint-disable no-console */
+        .catch(async (error) => {
+          console.error(error);
+          setProgressButtonStatus('failure');
+          await sleep(500);
+        });
     }
-  }, [requestAdditionalReviewPosts, loadingReviewPosts, id, lastReviewPostId, movieData]);
-
-  const renderNoMoreDataMessage = () => (
-    <p className="text-center">
-      {
-        reviewPostData.length === 0
-          ? 'No review posts available'
-          : 'No more review posts'
-      }
-    </p>
-  );
+    return undefined;
+  };
   const onBlockYesClick = () => {
     setProgressButtonStatus('loading');
     createBlockUser(postUserId)
@@ -348,6 +308,9 @@ function MovieReviews({
         setProgressButtonStatus('failure');
       });
   };
+  const afterBlockUser = () => {
+    setShow(false);
+  };
   const reportReview = (reason: string) => {
     setProgressButtonStatus('loading');
     const reportPayload = {
@@ -360,64 +323,25 @@ function MovieReviews({
     })
       /* eslint-disable no-console */
       .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
-    // Ask to block user as well
     setDropDownValue('PostReportSuccessDialog');
   };
+  const renderNoMoreDataMessage = () => (
+    <p className="text-center">
+      {
+        reviewPostData.length === 0
+          ? 'No review posts available'
+          : 'No more review posts'
+      }
+    </p>
+  );
 
-  const deletePostClickAsync = () => {
-    setProgressButtonStatus('loading');
-    if (deletePostId) {
-      return deleteFeedPost(deletePostId)
-        .then(async () => {
-          setProgressButtonStatus('default');
-          callLatestFeedPost();
-          setShow(false);
-          setRating(0);
-          setGoreFactor(0);
-          setPostContent('');
-          setContainSpoiler(false);
-          setMovieData({
-            ...movieData,
-            userData: {
-              ...movieData.userData!,
-              reviewPostId: '',
-            },
-          });
-        })
-        /* eslint-disable no-console */
-        .catch(async (error) => {
-          console.error(error);
-          setProgressButtonStatus('failure');
-          await sleep(500);
-        });
-    }
-    return undefined;
-  };
   const handleSpoiler = (currentPostId: string) => {
     const spoilerIdList = getLocalStorage('spoilersIds');
     if (!spoilerIdList.includes(currentPostId)) {
       spoilerIdList.push(currentPostId);
       setLocalStorage('spoilersIds', JSON.stringify(spoilerIdList));
     }
-    navigate(`/app/movies/${id}/reviews/${currentPostId}`);
-  };
-
-  const afterBlockUser = () => {
-    setShow(false);
-  };
-
-  const handlePostDislike = (feedPostId: string) => {
-    setReviewPostData((prevReviewPostData: any) => prevReviewPostData.map((reviewPost: Post) => {
-      if (reviewPost._id === feedPostId) {
-        return {
-          ...reviewPost,
-          likeIcon: true,
-          likedByUser: true,
-          likeCount: reviewPost.likeCount + 1,
-        };
-      }
-      return reviewPost;
-    }));
+    navigate(`/app/books/${id}/reviews/${currentPostId}`);
   };
 
   const handlePostLike = (feedPostId: string) => {
@@ -435,7 +359,19 @@ function MovieReviews({
       },
     ));
   };
-
+  const handlePostDislike = (feedPostId: string) => {
+    setReviewPostData((prevReviewPostData: any) => prevReviewPostData.map((reviewPost: Post) => {
+      if (reviewPost._id === feedPostId) {
+        return {
+          ...reviewPost,
+          likeIcon: true,
+          likedByUser: true,
+          likeCount: reviewPost.likeCount + 1,
+        };
+      }
+      return reviewPost;
+    }));
+  };
   const onLikeClick = async (feedPostId: string) => {
     const checkLike = reviewPostData.some((post: any) => post.id === feedPostId
       && post.likeIcon);
@@ -470,10 +406,10 @@ function MovieReviews({
         showReviewForm
           ? (
             <CreatePostComponent
-              movieData={movieData}
+              movieData={bookReviewData}
               errorMessage={errorMessage}
               setPostMessageContent={setPostContent}
-              defaultValue={decryptMessage(postContent, true, true)}
+              defaultValue={decryptMessage(postContent, true)}
               formatMention={formatMention}
               setFormatMention={setFormatMention}
               postType="review"
@@ -545,20 +481,8 @@ function MovieReviews({
           />
         )
       }
-
-      {friendShipStatusModal && !userData.ignoreFriendSuggestionDialog && (
-        <FriendshipStatusModal
-          friendShipStatusModal={friendShipStatusModal}
-          setFriendShipStatusModal={setFriendShipStatusModal}
-          friendStatus={friendStatus}
-          setFriendStatus={setFriendStatus}
-          setFriendData={setFriendData}
-          friendData={friendData}
-          userId={postUserId}
-        />
-      )}
     </StyledReviewContainer>
   );
 }
 
-export default MovieReviews;
+export default BookReview;

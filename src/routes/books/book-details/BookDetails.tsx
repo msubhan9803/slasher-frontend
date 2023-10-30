@@ -31,7 +31,6 @@ function BookDetails() {
       getBookById(params.id)
         .then((res) => {
           setBookData(res.data as any);
-          // TODO: fix page state cache
           // Update `pageStateCache`
           setPageStateCache<BookPageCache>(location, {
             ...getPageStateCache(location), bookData: res.data,

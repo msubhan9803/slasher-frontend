@@ -15,7 +15,7 @@ export const padNumberWithZeros = (number: number) => {
 };
 
 function generateSortName(name: string, id: string) {
-  return `${name.toLowerCase().replace(/a |an |the | /g, '')} ${id}`;
+  return `${name.toLowerCase().replace(/[^\w\s]/g, '').replace(/a |an |the | /g, '')} ${id}`;
 }
 
 function generateSortReleaseDate(releaseDate: Date, id: string) {
@@ -97,7 +97,7 @@ export function addPrePostHooks(schema: typeof MovieSchema) {
     // probably a first-time save and we should set the `sortRatingAndRatingUsersCount` value based on the dependent
     // fields.
     if (this.id?.length > 0 && typeof this.rating === 'number'
-        && typeof this.ratingUsersCount === 'number' && !this.sortRatingAndRatingUsersCount) {
+      && typeof this.ratingUsersCount === 'number' && !this.sortRatingAndRatingUsersCount) {
       this.sortRatingAndRatingUsersCount = generateSortRatingAndRatingUsersCountForMovie(this.rating, this.ratingUsersCount, this.id);
       // Because this change is happening after a save, we need to trigger one additional save.
       // Be careful when saving inside the post-save hook, because a mistake here can lead to

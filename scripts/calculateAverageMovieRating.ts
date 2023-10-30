@@ -9,6 +9,7 @@ import { MoviesService } from '../src/movies/providers/movies.service';
 import { MovieDocument, Movie } from '../src/schemas/movie/movie.schema';
 import { createApp } from './createApp';
 import { generateSortRatingAndRatingUsersCountForMovie } from '../src/schemas/movie/movie.pre-post-hooks';
+import { MovieDeletionStatus } from '../src/schemas/movie/movie.enums';
 
 const calculateAverageMovieRating = async (app: INestApplication) => {
   console.log('STARTED: calculateAverageMovieRating');
@@ -21,7 +22,7 @@ const calculateAverageMovieRating = async (app: INestApplication) => {
 
   for await (
     const doc of moviesModel
-      .find()
+      .find({ deleted: MovieDeletionStatus.NotDeleted })
       .cursor()
   ) {
     i += 1;

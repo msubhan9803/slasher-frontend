@@ -43,7 +43,9 @@ function CapacitorAppListeners() {
   };
 
   useEffect(() => {
-    checkAndSetAppVerionPreferance();
+    if (Capacitor.isNativePlatform()) {
+      checkAndSetAppVerionPreferance();
+    }
   }, []);
 
   useEffect(() => {

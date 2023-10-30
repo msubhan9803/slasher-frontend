@@ -58,13 +58,18 @@ describe('#notification', () => {
 
     describe('Successfully creates notification', () => {
         it('adds a job', async () => {
+            const postTypeMessages = {
+                [PostType.MovieReview]: 'liked your movie review',
+                [PostType.BookReview]: 'liked your book review',
+                default: 'liked your post',
+            };
             const notificationData = {
                 userId: activeUser.id,
                 feedPostId: { _id: feedPost._id.toString() } as unknown as FeedPost,
                 senderId: activeUser._id,
                 allUsers: [activeUser._id as any],
                 notifyType: NotificationType.UserLikedYourPost,
-                notificationMsg: feedPost.postType === PostType.MovieReview ? 'liked your movie review' : 'liked your post',
+                notificationMsg: postTypeMessages[feedPost.postType] || postTypeMessages.default,
             };
             const response = await notificationCreationConsumer.sendNotification({ data: notificationData } as Job);
             expect(response).toEqual({ success: true });

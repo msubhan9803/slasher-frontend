@@ -10,7 +10,7 @@ import {
   IsNumber,
   IsOptional, Max, MaxLength, Min, ValidateNested,
 } from 'class-validator';
-import { WorthWatchingStatus } from '../../types';
+import { WorthReadingStatus, WorthWatchingStatus } from '../../types';
 import { MAX_ALLOWED_UPLOAD_FILES_FOR_POST } from '../../constants';
 
 export class UpdateImageDescriptionsDto {
@@ -52,6 +52,35 @@ class UpdateMoviePostDto {
   worthWatching: WorthWatchingStatus;
 }
 
+class UpdateBookPostDto {
+  @IsNotEmpty({ message: 'spoilers should not be empty' })
+  @IsBoolean()
+  @Transform(({ value }) => (value === 'true'))
+  spoilers: boolean;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Max(5, { message: 'rating must be less than 5' })
+  @Min(1, { message: 'rating must be greater than 1' })
+  @IsInt()
+  rating: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Max(5, { message: 'goreFactorRating must be less than 5' })
+  @Min(1, { message: 'goreFactorRating must be greater than 1' })
+  @IsInt()
+  goreFactorRating: number;
+
+  @IsOptional()
+  @IsIn([WorthReadingStatus.Down, WorthReadingStatus.Up])
+  @Type(() => Number)
+  @IsNumber()
+  worthReading: WorthReadingStatus;
+}
+
 export class UpdateFeedPostsDto {
   @IsOptional()
   @MaxLength(20000, { message: 'message cannot be longer than 20,000 characters' })
@@ -62,6 +91,11 @@ export class UpdateFeedPostsDto {
   @Type(() => UpdateMoviePostDto)
   @ValidateNested()
   moviePostFields: UpdateMoviePostDto;
+
+  @IsOptional()
+  @Type(() => UpdateBookPostDto)
+  @ValidateNested()
+  bookPostFields: UpdateBookPostDto;
 
   @IsOptional()
   @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))

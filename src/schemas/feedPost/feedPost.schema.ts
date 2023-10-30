@@ -9,6 +9,7 @@ import {
   FeedPostDeletionState, FeedPostPrivacyType, FeedPostStatus, PostType,
 } from './feedPost.enums';
 import { FeedPostUnusedFields } from './feedPost.unused-fields';
+import { Book } from '../book/book.schema';
 
 @Schema({ timestamps: true })
 export class FeedPost extends FeedPostUnusedFields {
@@ -29,6 +30,9 @@ export class FeedPost extends FeedPostUnusedFields {
 
   @Prop({ default: null, ref: Movie.name })
   movieId: mongoose.Schema.Types.ObjectId;
+
+  @Prop({ default: null, ref: Book.name })
+  bookId: mongoose.Schema.Types.ObjectId;
 
   @Prop({ default: null })
   message: string;
@@ -102,6 +106,7 @@ export class FeedPost extends FeedPostUnusedFields {
       PostType.User,
       PostType.News,
       PostType.MovieReview,
+      PostType.BookReview,
     ],
     default: PostType.User,
   })

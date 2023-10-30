@@ -22,6 +22,7 @@ import {
 } from '../../schemas/movieUserStatus/movieUserStatus.enums';
 import { WorthWatchingStatus } from '../../types';
 import { NON_ALPHANUMERIC_REGEX } from '../../constants';
+import { getSortSafeWeightedRatingOfMovie } from '../../schemas/movie/movie.pre-post-hooks';
 
 export interface Cast {
   'adult': boolean,
@@ -158,6 +159,30 @@ export class MoviesService {
     }
     const movieData = await this.moviesModel.findOne(moviesFindQuery).exec();
     return movieData ? movieData.toObject() : null;
+  }
+
+  async updateMoviePostFields(moviePostFields, feedPost) {
+    if (moviePostFields.rating) {
+      await this.createOrUpdateRating(
+        feedPost.movieId.toString(),
+        moviePostFields.rating,
+        feedPost.userId,
+      );
+    }
+    if (moviePostFields.goreFactorRating) {
+      await this.createOrUpdateGoreFactorRating(
+        feedPost.movieId.toString(),
+        moviePostFields.goreFactorRating,
+        feedPost.userId,
+      );
+    }
+    if (typeof moviePostFields.worthWatching === 'number') {
+      await this.createOrUpdateWorthWatching(
+        feedPost.movieId.toString(),
+        moviePostFields.worthWatching,
+        feedPost.userId,
+      );
+    }
   }
 
   async createOrUpdateRating(movieId: string, rating: number, userId: string) {
@@ -323,25 +348,23 @@ export class MoviesService {
     }
     if (after && sortBy === 'rating') {
       const afterMovie = await this.moviesModel.findById(after);
-      movieFindAllQuery.sortRating = { $lt: afterMovie.sortRating };
+      movieFindAllQuery.sortRatingAndRatingUsersCount = { $lt: afterMovie.sortRatingAndRatingUsersCount };
     }
-    if (nameContains || sortNameStartsWith) {
+    if (nameContains) {
+      movieFindAllQuery.name = {};
+      movieFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');
+    }
+    if (sortNameStartsWith) {
       movieFindAllQuery.sort_name = movieFindAllQuery.sort_name || {};
 
       let combinedRegex = '';
-
-      if (sortNameStartsWith && sortNameStartsWith !== '#') {
-        combinedRegex += `^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`;
-      } else if (sortNameStartsWith === '#') {
-        combinedRegex += NON_ALPHANUMERIC_REGEX.source;
-      }
-
       if (nameContains) {
-        if (combinedRegex) {
-          combinedRegex += `${combinedRegex ? '.*' : ''}${escapeStringForRegex(nameContains)}`;
-        } else {
-          combinedRegex += `${escapeStringForRegex(nameContains)}`;
-        }
+        movieFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');
+      }
+      if (sortNameStartsWith && sortNameStartsWith !== '#') {
+        combinedRegex = `^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`;
+      } else if (sortNameStartsWith === '#') {
+        combinedRegex = NON_ALPHANUMERIC_REGEX.source;
       }
       movieFindAllQuery.sort_name.$regex = new RegExp(combinedRegex, 'i');
     }
@@ -352,7 +375,7 @@ export class MoviesService {
     } else if (sortBy === 'releaseDate') {
       sortMoviesByNameAndReleaseDate = { sortReleaseDate: -1 };
     } else {
-      sortMoviesByNameAndReleaseDate = { sortRating: -1 };
+      sortMoviesByNameAndReleaseDate = { sortRatingAndRatingUsersCount: -1 };
     }
     return this.moviesModel.find(movieFindAllQuery)
       .sort(sortMoviesByNameAndReleaseDate)
@@ -365,7 +388,8 @@ export class MoviesService {
       // Fetch the max year data limit
       const maxYearLimit = await this.getMoviesDataMaxYearLimit(endYear);
 
-      // From MovieDB
+      // TODO-SAHIL: Rename below variable to `movieIdFromMovieDB`
+      // From MovieDB, we collect ids of all the movies between `startYear` to `maxYearLimit`
       const moviesFromMovieDB = { ids: [] };
 
       // Fetch `movieDBId` to check for already existing movies later
@@ -593,5 +617,61 @@ export class MoviesService {
       .exec();
     const favoriteMovieIdArray = favoriteMovieIdByUser.map((movie) => movie.movieId);
     return favoriteMovieIdArray as unknown as MovieUserStatusDocument[];
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  async testFunction() {
+    // eslint-disable-next-line no-console
+    console.log('hello');
+    let i = 1;
+    // let CONTINUE = true;
+    // let sum = 0;
+    // let numOfItems  = 0;
+    // eslint-disable-next-line no-unreachable-loop
+    for await (
+      const doc of this.moviesModel
+        .find()
+        .cursor()
+    ) {
+      // 5da965d801651524ded15c88
+      // console.log(i);
+      // eslint-disable-next-line no-plusplus
+      i++;
+      // if (doc._id.toString() === '5def446422f6901701a95145') {
+      //   CONTINUE = false;
+      // }
+
+      // if (CONTINUE) { continue; }
+      // if (i === 10) { break; }
+      if ((i % 1000) === 0) {
+        // eslint-disable-next-line no-console
+        console.log('items processed?', i);
+      }
+      // const ratingUsersCount = await this.getRatingUsersCount(doc._id.toString());
+      // const kk = generateSortRatingAndRatingUsersCount(doc.rating, ratingUsersCount, doc._id.toString());
+      // const kk = generateSortRatingAndRatingUsersCount(doc.rating, doc.ratingUsersCount, doc._id.toString());
+      // console.log(kk);
+      // doc.ratingUsersCount = ratingUsersCount;
+      // doc.sortRatingAndRatingUsersCount = kk;
+
+      // Deleting field (make sure field is not defined in schema)
+      // doc.set('sortRatingAndRatingUsersCount', undefined, { strict: false });
+
+      const sortSafeWeightedRating = getSortSafeWeightedRatingOfMovie(doc.rating, doc.ratingUsersCount);
+      const kk = `${sortSafeWeightedRating}_${doc._id.toString()}`;
+      // console.log('kk?', kk);
+      doc.sortRatingAndRatingUsersCount = kk;
+      await doc.save();
+
+      // return;
+      // return doc;
+      // sum += doc.rating;
+      // numOfItems += 1;
+      // console.log('sum?', sum);
+    }
+    // const avg = (sum / numOfItems).toFixed(2);
+    // console.log('sum?', sum);
+    // console.log('numOfItems?', numOfItems);
+    // console.log('avg?', avg);
   }
 }

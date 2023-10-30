@@ -518,6 +518,33 @@ describe('Feed-Comments / Comments File (e2e)', () => {
         });
       });
 
+      it('sends the expected notifications when postType is bookReview', async () => {
+        const postCreatorUser = await usersService.create(userFactory.build());
+        const otherUser1 = await usersService.create(userFactory.build());
+        const otherUser1AuthToken = otherUser1.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
+        const post = await feedPostsService.create(feedPostFactory.build({
+          userId: postCreatorUser._id,
+          postType: PostType.BookReview,
+        }));
+        const response = await request(app.getHttpServer())
+          .post('/api/v1/feed-comments').auth(otherUser1AuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('feedPostId', post._id.toString())
+          .field('message', 'hello test user')
+          .expect(HttpStatus.CREATED);
+
+        expect(notificationsService.create).toHaveBeenCalledTimes(1);
+        expect(notificationsService.create).toHaveBeenCalledWith({
+          userId: postCreatorUser._id,
+          feedPostId: new mongoose.Types.ObjectId(response.body.feedPostId),
+          feedCommentId: new mongoose.Types.ObjectId(response.body._id),
+          senderId: otherUser1._id,
+          allUsers: [otherUser1._id],
+          notifyType: NotificationType.UserCommentedOnYourPost,
+          notificationMsg: 'commented on your book review',
+        });
+      });
+
       it('does not send any notifications when the commenter user is the post creator user', async () => {
         const postCreatorUser1 = await usersService.create(userFactory.build());
         const postCreatorAuthToken1 = postCreatorUser1.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));

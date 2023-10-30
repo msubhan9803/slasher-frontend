@@ -6,13 +6,13 @@ import {
 } from 'class-validator';
 
 export class FindAllBooksDto {
-  @IsNotEmpty()
+  @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Max(60)
   limit: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsIn(['name', 'publishDate', 'rating'])
   @IsString()
   sortBy: 'name' | 'publishDate' | 'rating';

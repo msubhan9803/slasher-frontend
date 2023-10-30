@@ -711,7 +711,7 @@ describe('All Movies (e2e)', () => {
       expect(response.body).toEqual([
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          name: '!Alive',
+          name: '#1915House',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           releaseDate: '2022-10-17T00:00:00.000Z',
           rating: 0,
@@ -719,7 +719,7 @@ describe('All Movies (e2e)', () => {
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          name: '#1915House',
+          name: '!Alive',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           releaseDate: '2022-10-17T00:00:00.000Z',
           rating: 0,

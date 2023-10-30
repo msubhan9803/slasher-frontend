@@ -19,6 +19,10 @@ import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAnd
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 import { ChatService } from '../../chat/providers/chat.service';
+import { Friend, FriendDocument } from '../../schemas/friend/friend.schema';
+import { SuggestBlock, SuggestBlockDocument } from '../../schemas/suggestBlock/suggestBlock.schema';
+import { SuggestBlockReaction } from '../../schemas/suggestBlock/suggestBlock.enums';
+import { FriendsService } from '../../friends/providers/friends.service';
 
 describe('UsersService', () => {
   let app: INestApplication;
@@ -26,7 +30,10 @@ describe('UsersService', () => {
   let usersService: UsersService;
   let socketUsersModel: Model<SocketUserDocument>;
   let blocksModel: Model<BlockAndUnblockDocument>;
+  let friendsModel: Model<FriendDocument>;
+  let suggestBlocksModel: Model<SuggestBlockDocument>;
   let blocksService: BlocksService;
+  let friendsService: FriendsService;
   let chatService: ChatService;
 
   beforeAll(async () => {
@@ -38,7 +45,10 @@ describe('UsersService', () => {
     chatService = moduleRef.get<ChatService>(ChatService);
     socketUsersModel = moduleRef.get<Model<SocketUserDocument>>(getModelToken(SocketUser.name));
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
+    friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
+    suggestBlocksModel = moduleRef.get<Model<SuggestBlockDocument>>(getModelToken(SuggestBlock.name));
     blocksService = moduleRef.get<BlocksService>(BlocksService);
+    friendsService = moduleRef.get<FriendsService>(FriendsService);
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -813,8 +823,40 @@ describe('UsersService', () => {
 
   describe('#delete', () => {
     let user;
+    let user1;
+    let user2;
     beforeEach(async () => {
       user = await usersService.create(userFactory.build());
+      user1 = await usersService.create(userFactory.build());
+      user2 = await usersService.create(userFactory.build());
+      await friendsService.createFriendRequest(user.id, user1._id.toString());
+      await friendsService.createFriendRequest(user1._id.toString(), user.id);
+      await friendsService.createFriendRequest(user.id, user2._id.toString());
+      await blocksModel.create({
+        from: user.id,
+        to: user1._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      await blocksModel.create({
+        from: user.id,
+        to: user2._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      await blocksModel.create({
+        from: user1._id,
+        to: user.id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      await suggestBlocksModel.create({
+        from: user.id,
+        to: user1._id,
+        reaction: SuggestBlockReaction.Block,
+      });
+      await suggestBlocksModel.create({
+        from: user1._id,
+        to: user.id,
+        reaction: SuggestBlockReaction.Block,
+      });
     });
     it('marks the user as deleted and performs the expected associted deletion actions', async () => {
       const originalHashedPassword = user.password;
@@ -823,6 +865,20 @@ describe('UsersService', () => {
       const userData = await usersService.findById(user.id, false);
       expect(userData.deleted).toBe(true); // expect user to be marked as deleted
       expect(userData.password).not.toEqual(originalHashedPassword); // expect password change
+
+      const fromOrToQuery = {
+        $or: [
+          { from: user.id },
+          { to: user.id },
+        ],
+      };
+      const friends = await friendsModel.find(fromOrToQuery);
+      const blocks = await blocksModel.find(fromOrToQuery);
+      const suggestBlocks = await suggestBlocksModel.find(fromOrToQuery);
+
+      expect(friends).toHaveLength(0); // expect friendships to be deleted
+      expect(blocks).toHaveLength(0); // expect blocks to be deleted
+      expect(suggestBlocks).toHaveLength(0); // expect suggest blocks to be deleted
     });
   });
 });

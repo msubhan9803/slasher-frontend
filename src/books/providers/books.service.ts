@@ -221,18 +221,19 @@ export class BooksService {
       booksFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');
     }
     if (sortNameStartsWith) {
-      booksFindAllQuery.sort_name = booksFindAllQuery.sort_name || {};
-
       let combinedRegex = '';
       if (nameContains) {
         booksFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');
       }
       if (sortNameStartsWith && sortNameStartsWith !== '#') {
+        booksFindAllQuery.sort_name = booksFindAllQuery.sort_name || {};
         combinedRegex = `^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`;
+        booksFindAllQuery.sort_name.$regex = new RegExp(combinedRegex, 'i');
       } else if (sortNameStartsWith === '#') {
         combinedRegex = NON_ALPHANUMERIC_REGEX.source;
+        booksFindAllQuery.name = booksFindAllQuery.name || {};
+        booksFindAllQuery.name.$regex = new RegExp(combinedRegex, 'i');
       }
-      booksFindAllQuery.sort_name.$regex = new RegExp(combinedRegex, 'i');
     }
 
     let sortBooksByNameAndReleaseDate: any;

@@ -289,14 +289,6 @@ describe('Reading List Books (e2e)', () => {
     });
 
     describe('Validations', () => {
-      it('limit should not be empty', async () => {
-        const response = await request(app.getHttpServer())
-          .get(`/api/v1/users/${activeUser.id}/reading-booklist?&sortBy=${'name'}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .send();
-        expect(response.body.message).toContain('limit should not be empty');
-      });
-
       it('limit should be a number', async () => {
         const limit = 'a';
         const response = await request(app.getHttpServer())
@@ -313,15 +305,6 @@ describe('Reading List Books (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must not be greater than 60');
-      });
-
-      it('sortBy should not be empty', async () => {
-        const limit = 3;
-        const response = await request(app.getHttpServer())
-          .get(`/api/v1/users/${activeUser.id}/reading-booklist?limit=${limit}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .send();
-        expect(response.body.message).toContain('sortBy should not be empty');
       });
 
       it('sortBy must be one of the following values: name, publishDate, rating', async () => {

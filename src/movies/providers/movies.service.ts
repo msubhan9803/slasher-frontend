@@ -355,18 +355,19 @@ export class MoviesService {
       movieFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');
     }
     if (sortNameStartsWith) {
-      movieFindAllQuery.sort_name = movieFindAllQuery.sort_name || {};
-
       let combinedRegex = '';
       if (nameContains) {
         movieFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');
       }
       if (sortNameStartsWith && sortNameStartsWith !== '#') {
+        movieFindAllQuery.sort_name = movieFindAllQuery.sort_name || {};
         combinedRegex = `^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`;
+        movieFindAllQuery.sort_name.$regex = new RegExp(combinedRegex, 'i');
       } else if (sortNameStartsWith === '#') {
         combinedRegex = NON_ALPHANUMERIC_REGEX.source;
+        movieFindAllQuery.name = movieFindAllQuery.name || {};
+        movieFindAllQuery.name.$regex = new RegExp(combinedRegex, 'i');
       }
-      movieFindAllQuery.sort_name.$regex = new RegExp(combinedRegex, 'i');
     }
 
     let sortMoviesByNameAndReleaseDate: any;

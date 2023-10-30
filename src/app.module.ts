@@ -45,6 +45,7 @@ import { TimeoutInterceptor } from './app/interceptors/timeout.interceptor';
 import { AuthGuard } from './app/guards/auth.guard';
 import { CaptchaModule } from './captcha/captcha.module';
 import { UserFollowModule } from './user-follow/user-follow.module';
+import { BookUserStatusModule } from './book-user-status/book.user.status.module';
 
 @Module({
   imports: [
@@ -107,6 +108,7 @@ import { UserFollowModule } from './user-follow/user-follow.module';
     BetaTesterModule,
     CaptchaModule,
     UserFollowModule,
+    BookUserStatusModule,
   ],
   controllers: [AppController],
   providers: [

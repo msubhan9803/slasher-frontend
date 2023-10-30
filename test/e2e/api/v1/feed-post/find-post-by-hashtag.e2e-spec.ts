@@ -156,6 +156,7 @@ describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
               rssfeedProviderId: null,
               hashtags: ['ok'],
               movieId: null,
+              bookId: null,
               images: [
                 {
                   image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -185,6 +186,7 @@ describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
               rssfeedProviderId: null,
               hashtags: ['ok'],
               movieId: null,
+              bookId: null,
               images: [
                 {
                   image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -214,6 +216,7 @@ describe('Feed-Post / Find Post By Hashtag (e2e)', () => {
               rssfeedProviderId: null,
               hashtags: ['ok'],
               movieId: null,
+              bookId: null,
               images: [
                 {
                   image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),

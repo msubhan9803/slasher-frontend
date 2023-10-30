@@ -15,6 +15,7 @@ import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 import { BlockAndUnblockDocument, BlockAndUnblock } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndUnblock.enums';
+import { MatchListRoomCategory, MatchListRoomType } from '../../schemas/matchList/matchList.enums';
 
 describe('ChatService', () => {
   let app: INestApplication;
@@ -571,6 +572,48 @@ describe('ChatService', () => {
         participants: user1._id,
       });
       expect(updatedMatchList.deleted).toBeTruthy();
+    });
+  });
+
+  describe('#deleteAllMessageByUserId', () => {
+    it('deletes all the messages of given userId', async () => {
+      const message1 = await chatService.sendPrivateDirectMessage(user0.id, user1.id, 'test message 1');
+      const message2 = await chatService.sendPrivateDirectMessage(user2.id, user0.id, 'test message 2');
+      const message3 = await chatService.sendPrivateDirectMessage(user0.id, user3.id, 'test message 3');
+      await chatService.deleteAllMessageByUserId(user0.id);
+      expect((await messageModel.findById(message1._id)).deleted).toBe(true);
+      expect((await messageModel.findById(message2._id)).deleted).toBe(true);
+      expect((await messageModel.findById(message3._id)).deleted).toBe(true);
+    });
+  });
+
+  describe('#deleteAllMatchlistByUserId', () => {
+    it('deletes all the matchlist data by given userId', async () => {
+      const matchList = await matchListModel.create({
+        deleted: false,
+        roomType: MatchListRoomType.Match,
+        roomCategory: MatchListRoomCategory.DirectMessage,
+        relationId: new mongoose.Types.ObjectId(user1.id),
+        participants: [user0._id, user1._id, user2._id],
+      });
+      const matchList1 = await matchListModel.create({
+        deleted: false,
+        roomType: MatchListRoomType.Match,
+        roomCategory: MatchListRoomCategory.DirectMessage,
+        relationId: new mongoose.Types.ObjectId(user1.id),
+        participants: [user0._id, user1._id],
+      });
+      const matchList2 = await matchListModel.create({
+        deleted: false,
+        roomType: MatchListRoomType.Match,
+        roomCategory: MatchListRoomCategory.DirectMessage,
+        relationId: new mongoose.Types.ObjectId(user1.id),
+        participants: [user0._id, user1.id],
+      });
+      await chatService.deleteAllMatchlistByUserId(user0.id);
+      expect((await matchListModel.findById(matchList.id)).deleted).toBe(true);
+      expect((await matchListModel.findById(matchList1.id)).deleted).toBe(true);
+      expect((await matchListModel.findById(matchList2.id)).deleted).toBe(true);
     });
   });
 });

@@ -14,3 +14,10 @@ export function escapeHtmlSpecialCharacters(str: string) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 }
+
+export const getCoverImageForBookOfOpenLibrary = (imageId: number): string | undefined => {
+  if (imageId) {
+    return `https://covers.openlibrary.org/b/ID/${imageId}-L.jpg`;
+  }
+  return undefined;
+};

@@ -45,7 +45,9 @@ async function createRandomPostsForUser(app: INestApplication, user: UserDocumen
       // We need to put some sample images in the upload directory.
       const imagePath = `/feed/feed_${uuidv4()}.jpg`;
       await downloadFile(app, faker.image.cats(), `./local-storage${imagePath}`);
-      images.push({ image_path: imagePath });
+      // Note: faker.image.cats() = "https://loremflickr.com/640/480/cats"
+
+      images.push({ image_path: imagePath, description: null });
     }
 
     const numParagraphs = randomIntInclusive(1, 3);

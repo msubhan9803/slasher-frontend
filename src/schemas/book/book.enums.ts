@@ -1,12 +1,12 @@
 export enum BookType {
   Free = 0,
-  Paid = 1,
+  OpenLibrary = 1,
 }
 
-export enum BookStatus {
-  InActive = 0,
+export enum BookActiveStatus {
+  Inactive = 0,
   Active = 1,
-  Deactive,
+  Deactivated = 2,
 }
 
 export enum BookDeletionState {

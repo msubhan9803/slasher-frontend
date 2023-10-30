@@ -54,7 +54,8 @@ export class FeedLikesController {
     }
     let isFriend = true;
     if (
-      post.postType !== PostType.MovieReview && !post.rssfeedProviderId
+      post.postType !== PostType.MovieReview && post.postType !== PostType.BookReview
+      && !post.rssfeedProviderId
       && user.id !== (post.userId as unknown as User).toString()
     ) {
       isFriend = await this.friendsService.areFriends(user.id, (post.userId as unknown as User).toString()) || false;
@@ -81,6 +82,12 @@ export class FeedLikesController {
       user.id === postUserId
       || post.rssfeedProviderId
     );
+
+    const postTypeMessages = {
+      [PostType.MovieReview]: 'liked your movie review',
+      [PostType.BookReview]: 'liked your book review',
+      default: 'liked your post',
+    };
     if (!skipPostCreatorNotification) {
       const notification: any = {};
       notification.userId = postUserId as any;
@@ -88,8 +95,7 @@ export class FeedLikesController {
       notification.senderId = user._id;
       notification.allUsers = [user._id as any];
       notification.notifyType = NotificationType.UserLikedYourPost;
-      notification.notificationMsg = post.postType === PostType.MovieReview ? 'liked your movie review' : 'liked your post';
-
+      notification.notificationMsg = postTypeMessages[post.postType] || postTypeMessages.default;
       await this.createNotificationQueue.add('create-notification', notification);
     }
     return { success: true, isFriend };
@@ -131,7 +137,8 @@ export class FeedLikesController {
     }
     let isFriend = true;
     if (
-      feedPost.postType !== PostType.MovieReview && !feedPost.rssfeedProviderId
+      feedPost.postType !== PostType.MovieReview && feedPost.postType !== PostType.BookReview
+      && !feedPost.rssfeedProviderId
       && user.id !== (feedPost.userId as unknown as User).toString()
     ) {
       isFriend = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User).toString()) || false;

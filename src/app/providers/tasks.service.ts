@@ -4,6 +4,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { DateTime } from 'luxon';
 import { NotificationsService } from '../../notifications/providers/notifications.service';
 import { MoviesService } from '../../movies/providers/movies.service';
+import { BooksService } from '../../books/providers/books.service';
 
 @Injectable()
 export class TasksService {
@@ -13,6 +14,7 @@ export class TasksService {
     private readonly configService: ConfigService,
     private readonly moviesService: MoviesService,
     private readonly notificationsService: NotificationsService,
+    private readonly booksService: BooksService,
   ) { }
 
   @Cron(CronExpression.EVERY_DAY_AT_3AM, {
@@ -33,6 +35,23 @@ export class TasksService {
       this.logger.debug('End cron: syncWithTheMovieDb (success)');
     } else {
       this.logger.debug(`End cron: syncWithTheMovieDb (failure). Error: ${error}`);
+    }
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_4AM, {
+    name: 'syncWithTheBookDb',
+    timeZone: 'America/New_York',
+  })
+  async syncWithTheBookDb(force = false) {
+    if (!force && !this.configService.get<boolean>('CRON_ENABLED')) { return; }
+    this.logger.debug('Start cron: syncWithTheBookDb');
+
+    const { success, error } = await this.booksService.syncWithOpenLibrary();
+
+    if (success) {
+      this.logger.debug('End cron: syncWithTheBookDb (success)');
+    } else {
+      this.logger.debug(`End cron: syncWithTheBookDb (failure). Error: ${error}`);
     }
   }
 

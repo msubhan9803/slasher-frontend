@@ -81,6 +81,8 @@ import { UpdateDeviceTokenDto } from './dto/update-device-token.dto';
 import { SignOutDto } from './dto/sign-out.dto';
 import { ConfirmDeleteAccountQueryDto } from './dto/confirm-delete-account-query.dto';
 import { FeedCommentsService } from '../feed-comments/providers/feed-comments.service';
+import { BooksService } from '../books/providers/books.service';
+import { FindAllBooksDto } from '../books/dto/find-all-books.dto';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -104,11 +106,14 @@ export class UsersController {
     private readonly moviesService: MoviesService,
     private readonly hashtagFollowsService: HashtagFollowsService,
     private readonly hashtagService: HashtagService,
+    private readonly booksService: BooksService,
     private readonly betaTestersService: BetaTestersService,
     private readonly emailRevertTokensService: EmailRevertTokensService,
     private configService: ConfigService,
     private captchaService: CaptchaService,
   ) { }
+
+  commonBookListFields = ['_id', 'name', 'publishDate', 'coverImage', 'rating', 'worthReading'];
 
   @Post('sign-in')
   @Public()
@@ -1016,6 +1021,165 @@ post,
     });
     return movies.map(
       (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating', 'worthWatching']),
+    );
+  }
+
+  @TransformImageUrls('$[*].coverImage.image_path')
+  @Get(':userId/reading-booklist')
+  async readingListBooks(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: FindAllBooksDto,
+  ) {
+    const loggedInUser = getUserFromRequest(request);
+    const user = await this.usersService.findById(param.userId, true);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    if (loggedInUser.id !== user.id && user.profile_status !== ProfileVisibility.Public) {
+      const areFriends = await this.friendsService.areFriends(loggedInUser.id, user.id);
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
+    if (block) {
+      throw new HttpException('Request failed due to user block.', HttpStatus.NOT_FOUND);
+    }
+    const readingMovieIds = await this.booksService.getReadingListBookIdsForUser(param.userId);
+    const books = await this.booksService.findAll(
+      query.limit,
+      true,
+      query.sortBy,
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
+      query.nameContains,
+      readingMovieIds as unknown as mongoose.Types.ObjectId[],
+      query.startsWith,
+    );
+
+    return books.map(
+      (book) => pick(book, this.commonBookListFields),
+    );
+  }
+
+  @TransformImageUrls('$[*].coverImage.image_path')
+  @Get(':userId/read-booklist')
+  async readListBook(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: FindAllBooksDto,
+  ) {
+    const loggedInUser = getUserFromRequest(request);
+    const user = await this.usersService.findById(param.userId, true);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    if (loggedInUser.id !== user.id && user.profile_status !== ProfileVisibility.Public) {
+      const areFriends = await this.friendsService.areFriends(loggedInUser.id, user.id);
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
+    if (block) {
+      throw new HttpException('Request failed due to user block.', HttpStatus.NOT_FOUND);
+    }
+    const readBookIds = await this.booksService.getReadListBookIdsForUser(param.userId);
+    const books = await this.booksService.findAll(
+      query.limit,
+      true,
+      query.sortBy,
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
+      query.nameContains,
+      readBookIds as unknown as mongoose.Types.ObjectId[],
+      query.startsWith,
+    );
+    return books.map(
+      (book) => pick(book, this.commonBookListFields),
+    );
+  }
+
+  @TransformImageUrls('$[*].coverImage.image_path')
+  @Get(':userId/buy-booklist')
+  async buyListBooks(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: FindAllBooksDto,
+  ) {
+    const loggedInUser = getUserFromRequest(request);
+    const user = await this.usersService.findById(param.userId, true);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    if (loggedInUser.id !== user.id && user.profile_status !== ProfileVisibility.Public) {
+      const areFriends = await this.friendsService.areFriends(loggedInUser.id, user.id);
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
+    if (block) {
+      throw new HttpException('Request failed due to user block.', HttpStatus.NOT_FOUND);
+    }
+    const buyBookIds = await this.booksService.getBuyListBookIdsForUser(param.userId);
+
+    const books = await this.booksService.findAll(
+      query.limit,
+      true,
+      query.sortBy,
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
+      query.nameContains,
+      buyBookIds as unknown as mongoose.Types.ObjectId[],
+      query.startsWith,
+    );
+
+    return books.map(
+      (book) => pick(book, this.commonBookListFields),
+    );
+  }
+
+  @TransformImageUrls('$[*].coverImage.image_path')
+  @Get(':userId/favorite-booklist')
+  async favoriteListBooks(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: FindAllBooksDto,
+  ) {
+    const loggedInUser = getUserFromRequest(request);
+    const user = await this.usersService.findById(param.userId, true);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    if (loggedInUser.id !== user.id && user.profile_status !== ProfileVisibility.Public) {
+      const areFriends = await this.friendsService.areFriends(loggedInUser.id, user.id);
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
+    if (block) {
+      throw new HttpException('Request failed due to user block.', HttpStatus.NOT_FOUND);
+    }
+    const favoriteBookIds = await this.booksService.getFavoriteListBookIdsForUser(param.userId);
+    const books = await this.booksService.findAll(
+      query.limit,
+      true,
+      query.sortBy,
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
+      query.nameContains,
+      favoriteBookIds as unknown as mongoose.Types.ObjectId[],
+      query.startsWith,
+    );
+    return books.map(
+      (book) => pick(book, this.commonBookListFields),
     );
   }
 

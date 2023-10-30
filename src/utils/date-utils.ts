@@ -28,3 +28,21 @@ export const toUtcEndOfDay = (date: Date) => DateTime.now().setZone('utc').set({
   second: 59,
   millisecond: 0,
 }).toJSDate();
+
+// eslint-disable-next-line prefer-regex-literals
+const YEAR_REGEX = new RegExp('\\d\\d\\d\\d');
+const getYear = (dirtyDateString?: string) => {
+  const match = dirtyDateString?.match(YEAR_REGEX);
+  const year = match?.[0];
+  return Number(year) ?? null;
+};
+
+// 0 means January, 1 means 1st day of month
+const createDateFromYear = (year: number) => new Date(year, 0, 1);
+
+// As per discussion with Damon, we are only storing YEAR, and avoiding to store `date` and `month` values
+// completely because of irregular date formats from OpenLibraray API.
+export const createPublishDateForOpenLibrary = (publish_date: string): Date | null => {
+  const year = getYear(publish_date);
+  return year ? createDateFromYear(year) : null;
+};

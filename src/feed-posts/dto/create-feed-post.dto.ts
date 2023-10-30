@@ -12,7 +12,7 @@ import {
 } from 'class-validator';
 import mongoose from 'mongoose';
 import { PostType } from '../../schemas/feedPost/feedPost.enums';
-import { WorthWatchingStatus } from '../../types';
+import { WorthReadingStatus, WorthWatchingStatus } from '../../types';
 import { MAX_ALLOWED_UPLOAD_FILES_FOR_POST } from '../../constants';
 
 class CreateMoviePostDto {
@@ -44,6 +44,34 @@ class CreateMoviePostDto {
   worthWatching: WorthWatchingStatus;
 }
 
+class CreateBookPostDto {
+  @IsNotEmpty({ message: 'spoilers should not be empty' })
+  @IsBoolean()
+  @Transform(({ value }) => (value === 'true'))
+  spoilers: boolean;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Max(5, { message: 'rating must be less than 5' })
+  @Min(1, { message: 'rating must be greater than 1' })
+  @IsInt()
+  rating: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Max(5, { message: 'goreFactorRating must be less than 5' })
+  @Min(1, { message: 'goreFactorRating must be greater than 1' })
+  @IsInt()
+  goreFactorRating: number;
+
+  @IsOptional()
+  @IsIn([WorthReadingStatus.Down, WorthReadingStatus.Up])
+  @Type(() => Number)
+  @IsNumber()
+  worthReading: WorthReadingStatus;
+}
 export class ImageDescriptionsDto {
   @MaxLength(250, { message: 'description cannot be longer than 250 characters', each: true })
   description: string;
@@ -56,7 +84,7 @@ export class CreateFeedPostsDto {
   message?: string;
 
   @IsNotEmpty()
-  @IsIn([PostType.MovieReview, PostType.News, PostType.User])
+  @IsIn([PostType.MovieReview, PostType.News, PostType.User, PostType.BookReview])
   @Type(() => Number)
   @IsNumber()
   postType: PostType;
@@ -67,8 +95,17 @@ export class CreateFeedPostsDto {
   moviePostFields: CreateMoviePostDto;
 
   @IsOptional()
+  @Type(() => CreateBookPostDto)
+  @ValidateNested({ each: true })
+  bookPostFields: CreateBookPostDto;
+
+  @IsOptional()
   @IsMongoId()
   movieId: mongoose.Schema.Types.ObjectId;
+
+  @IsOptional()
+  @IsMongoId()
+  bookId: mongoose.Schema.Types.ObjectId;
 
   @IsOptional()
   @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))

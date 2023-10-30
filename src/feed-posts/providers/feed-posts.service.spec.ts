@@ -36,6 +36,9 @@ import { Image } from '../../schemas/shared/image.schema';
 import { HashtagFollowsService } from '../../hashtag-follows/providers/hashtag-follows.service';
 import { Hashtag, HashtagDocument } from '../../schemas/hastag/hashtag.schema';
 import { ProfileVisibility } from '../../schemas/user/user.enums';
+import { BooksService } from '../../books/providers/books.service';
+import { booksFactory } from '../../../test/factories/books.factory';
+import { BookActiveStatus } from '../../schemas/book/book.enums';
 
 describe('FeedPostsService', () => {
   let app: INestApplication;
@@ -53,6 +56,7 @@ describe('FeedPostsService', () => {
   let user0: UserDocument;
   let blocksModel: Model<BlockAndUnblockDocument>;
   let moviesService: MoviesService;
+  let booksService: BooksService;
   let hashtagFollowsService: HashtagFollowsService;
   let hashtagModel: Model<HashtagDocument>;
 
@@ -69,6 +73,7 @@ describe('FeedPostsService', () => {
     friendsService = moduleRef.get<FriendsService>(FriendsService);
     rssFeedService = moduleRef.get<RssFeedService>(RssFeedService);
     feedLikesService = moduleRef.get<FeedLikesService>(FeedLikesService);
+    booksService = moduleRef.get<BooksService>(BooksService);
     moviesService = moduleRef.get<MoviesService>(MoviesService);
     hashtagFollowsService = moduleRef.get<HashtagFollowsService>(HashtagFollowsService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
@@ -84,6 +89,7 @@ describe('FeedPostsService', () => {
   });
   let rssFeed;
   let movie;
+  let book;
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
@@ -106,6 +112,11 @@ describe('FeedPostsService', () => {
         },
       ),
     );
+    book = await booksService.create(booksFactory.build({
+      status: BookActiveStatus.Active,
+      logo: 'https://picsum.photos/id/237/200/300',
+      publishDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+    }));
   });
 
   it('should be defined', () => {
@@ -138,8 +149,6 @@ describe('FeedPostsService', () => {
         expect(reloadedFeedPost.userId).toEqual(rssFeedProvider._id);
       });
 
-    // TODO: Probably delete this test after the old iOS/Android apps are retired, since the
-    // privacyType field won't be used anymore.
     it('sets the post privacyType value to public by default', async () => {
       const feedPostData = feedPostFactory.build({
         userId: activeUser.id,
@@ -442,6 +451,108 @@ describe('FeedPostsService', () => {
       const firstResults = await feedPostsService.findPostsByMovieId(movie.id, limit, true);
       const secondResults = await feedPostsService.findPostsByMovieId(
         movie.id,
+        limit,
+        true,
+        new mongoose.Types.ObjectId(firstResults[limit - 1]._id.toString()),
+      );
+      expect(firstResults).toHaveLength(6);
+      expect(secondResults).toHaveLength(4);
+    });
+
+    describe('should not return users blocked by `requestingContextUser`', () => {
+      beforeEach(async () => {
+        await blocksModel.create({
+          from: activeUser.id,
+          to: user0.id,
+          reaction: BlockAndUnblockReaction.Block,
+        });
+      });
+      it('blocker user should not be returned', async () => {
+        const limit = 10;
+        const requestingContextUserId = activeUser.id;
+        const likeUsers = await feedPostsService.findPostsByMovieId(movie.id, limit, true, null, requestingContextUserId);
+        const allLikeUsers = likeUsers.map((user) => user._id.toString());
+        expect(allLikeUsers).not.toContain(user0.id);
+      });
+    });
+  });
+
+  describe('#findPostsByBookId', () => {
+    beforeEach(async () => {
+      for (let i = 0; i < 10; i += 1) {
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: activeUser.id,
+            bookId: book._id,
+            postType: PostType.BookReview,
+            likes: [activeUser._id, user0._id],
+          }),
+        );
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: activeUser.id,
+            bookId: book._id,
+            postType: PostType.BookReview,
+            is_deleted: FeedPostDeletionState.Deleted,
+            status: FeedPostStatus.Inactive,
+          }),
+        );
+      }
+    });
+
+    it('when earlier than post id is exist and active only is true then it returns the expected response', async () => {
+      const feedPostDetails = feedPostFactory.build({
+        userId: activeUser.id,
+        bookId: book.id,
+        postType: PostType.BookReview,
+        status: FeedPostStatus.Active,
+        is_deleted: FeedPostDeletionState.NotDeleted,
+      });
+      const feedPost = await feedPostsService.create(feedPostDetails);
+      const feedPostData = await feedPostsService.findPostsByBookId(book.id, 20, true, feedPost.id);
+      for (let i = 1; i < feedPostData.length; i += 1) {
+        expect(feedPostData[i].createdAt < feedPostData[i - 1].createdAt).toBe(true);
+        expect(feedPostData[i].likeCount).toBe(2);
+      }
+      expect(feedPostData).toHaveLength(10);
+      expect(feedPostData).not.toContain(feedPost.createdAt);
+    });
+
+    it('when earlier than post id is does not exist and active only is false then it returns the expected response', async () => {
+      const feedPost = await feedPostsService.findPostsByBookId(book.id, 20, false);
+      for (let i = 1; i < feedPost.length; i += 1) {
+        expect(feedPost[i].createdAt < feedPost[i - 1].createdAt).toBe(true);
+      }
+      expect(feedPost).toHaveLength(20);
+    });
+
+    it('when earlier than post id is does not exist but active only is true then it returns the expected response', async () => {
+      const feedPost = await feedPostsService.findPostsByBookId(book.id, 20, true);
+      for (let i = 1; i < feedPost.length; i += 1) {
+        expect(feedPost[i].createdAt < feedPost[i - 1].createdAt).toBe(true);
+      }
+      expect(feedPost).toHaveLength(10);
+    });
+
+    it('when earlier than post id does exist but active only is false then it returns the expected response', async () => {
+      const feedPostDetails = feedPostFactory.build({
+        userId: activeUser.id,
+        bookId: book.id,
+        postType: PostType.BookReview,
+      });
+      const feedPost = await feedPostsService.create(feedPostDetails);
+      const feedPostData = await feedPostsService.findPostsByBookId(book.id, 20, false, feedPost.id);
+      for (let i = 1; i < feedPostData.length; i += 1) {
+        expect(feedPostData[i].createdAt < feedPostData[i - 1].createdAt).toBe(true);
+      }
+      expect(feedPostData).toHaveLength(20);
+    });
+
+    it('returns the first and second sets of paginated results', async () => {
+      const limit = 6;
+      const firstResults = await feedPostsService.findPostsByBookId(book.id, limit, true);
+      const secondResults = await feedPostsService.findPostsByBookId(
+        book.id,
         limit,
         true,
         new mongoose.Types.ObjectId(firstResults[limit - 1]._id.toString()),
@@ -1358,14 +1469,62 @@ describe('FeedPostsService', () => {
 
     it('updates the privacyPost according to user profile visibility', async () => {
       //update private to public
-      await feedPostsService.updatePostPrivacyType(user.id, 0);
+      await feedPostsService.updatePostPrivacyType(user.id, ProfileVisibility.Public);
       expect((await feedPostsService.findById(feedPost1, true)).privacyType).toEqual(FeedPostPrivacyType.Public);
       expect((await feedPostsService.findById(feedPost2, true)).privacyType).toEqual(FeedPostPrivacyType.Public);
 
       //update public to private
-      await feedPostsService.updatePostPrivacyType(user1.id, 1);
+      await feedPostsService.updatePostPrivacyType(user1.id, ProfileVisibility.Private);
       expect((await feedPostsService.findById(feedPost3, true)).privacyType).toEqual(FeedPostPrivacyType.Private);
       expect((await feedPostsService.findById(feedPost4, true)).privacyType).toEqual(FeedPostPrivacyType.Private);
+    });
+  });
+
+  describe('#deleteAllPostByUserId', () => {
+    beforeEach(async () => {
+      await feedPostsService.create(
+        feedPostFactory.build({
+          userId: activeUser.id,
+        }),
+      );
+      await feedPostsService.create(
+        feedPostFactory.build({
+          userId: activeUser.id,
+        }),
+      );
+    });
+
+    it('deletes all posts of given user id', async () => {
+      await feedPostsService.deleteAllPostByUserId(activeUser.id);
+      expect(await feedPostsService.findMainFeedPostsForUser(activeUser.id, 5)).toHaveLength(0);
+    });
+  });
+
+  describe('#deleteAllFeedPostLikeByUserId', () => {
+    it('delete all feedpost likes of given user id', async () => {
+      const user1 = await usersService.create(userFactory.build());
+      const user2 = await usersService.create(userFactory.build());
+      const feedPost1 = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: user1.id,
+          likes: [user2._id, user1._id],
+          likeCount: 2,
+        }),
+      );
+
+      const feedPost2 = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: user1.id,
+          likes: [user2._id, user1._id],
+          likeCount: 2,
+        }),
+      );
+
+      await feedPostsService.deleteAllFeedPostLikeByUserId(user2.id);
+      expect((await feedPostsService.findById(feedPost1.id, true)).likeCount).toBe(1);
+      expect((await feedPostsService.findById(feedPost2.id, true)).likeCount).toBe(1);
+      expect((await feedPostsService.findById(feedPost1.id, true)).likes).not.toContain(user2.id);
+      expect((await feedPostsService.findById(feedPost2.id, true)).likes).not.toContain(user2.id);
     });
   });
 });

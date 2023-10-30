@@ -40,4 +40,5 @@ export enum PostType {
   User = 1,
   News = 2,
   MovieReview = 3,
+  BookReview = 4,
 }

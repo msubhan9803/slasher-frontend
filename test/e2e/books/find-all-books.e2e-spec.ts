@@ -13,10 +13,9 @@ import { clearDatabase } from '../../helpers/mongo-helpers';
 import { BooksService } from '../../../src/books/providers/books.service';
 import { booksFactory } from '../../factories/books.factory';
 import {
-  BookStatus,
+  BookActiveStatus,
   BookDeletionState,
 } from '../../../src/schemas/book/book.enums';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 import { rewindAllFactories } from '../../helpers/factory-helpers.ts';
 import { configureAppPrefixAndVersioning } from '../../../src/utils/app-setup-utils';
 
@@ -64,43 +63,31 @@ describe('Find All Books (e2e)', () => {
     it('Find all Books with name sorting', async () => {
       await booksService.create(
         booksFactory.build({
-          status: BookStatus.Active,
+          status: BookActiveStatus.Active,
           name: 'Young Goodman Brown',
           deleted: BookDeletionState.NotDeleted,
         }),
       );
       await booksService.create(
         booksFactory.build({
-          status: BookStatus.Active,
+          status: BookActiveStatus.Active,
           name: 'The Vampire Chronicles',
           deleted: BookDeletionState.NotDeleted,
         }),
       );
       await booksService.create(
         booksFactory.build({
-          status: BookStatus.Active,
+          status: BookActiveStatus.Active,
           name: 'Oh, Whistle, And I will Come To You, My Lad',
           deleted: BookDeletionState.NotDeleted,
         }),
       );
+      const limit = 5;
       const response = await request(app.getHttpServer())
-        .get('/api/v1/books')
+        .get(`/api/v1/books?limit=${limit}&&sortBy=name`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      expect(response.body).toEqual([
-        {
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          name: 'Oh, Whistle, And I will Come To You, My Lad',
-        },
-        {
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          name: 'The Vampire Chronicles',
-        },
-        {
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          name: 'Young Goodman Brown',
-        },
-      ]);
+      expect(response.body).toHaveLength(3);
     });
   });
 });

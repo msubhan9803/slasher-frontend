@@ -312,8 +312,6 @@ export class BooksService {
       const limit = 50; // 50 // ! FOR production we value =1000
       let hasMoreData = true;
 
-      const LIMIT_TOTAL_ITEMS = 1000; // 500 // ! Should me a multiple of limit
-
       while (hasMoreData) {
         const searchQuery = 'subject%3Ahorror'; // subject:horror
         const bookFieldKeys: BookKeysFromOpenLibrary = ['author_name', 'cover_edition_key', 'key'];
@@ -323,8 +321,7 @@ export class BooksService {
             `https://openlibrary.org/search.json?q=${searchQuery}&mode=everything&limit=${limit}&offset=${offset}&fields=${fields}`,
           ),
         );
-        const limitIsNotReachedYet = offset < LIMIT_TOTAL_ITEMS;
-        if (data?.docs?.length && limitIsNotReachedYet) {
+        if (data?.docs?.length) {
           await this.fetchBooksFromOpenLibrary(data?.docs, databaseBookKeys);
 
           offset += limit;

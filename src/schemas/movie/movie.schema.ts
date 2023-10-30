@@ -66,7 +66,7 @@ export class Movie extends MovieUnusedFields {
   worthWatchingDownUsersCount: number;
 
   @Prop({ default: null, trim: true })
-  sortRating: string;
+  sortRatingAndRatingUsersCount: string;
 
   @Prop({
     enum: [

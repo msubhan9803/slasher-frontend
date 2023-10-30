@@ -28,6 +28,11 @@ export enum WorthWatchingStatus {
   Down = 1,
   Up = 2,
 }
+export enum WorthReadingStatus {
+  NoRating = 0,
+  Down = 1,
+  Up = 2,
+}
 export type FriendShip = { from?: User, to?: User, friendship?: FriendRequestReaction } | null;
 export type LikeUserAndFriendship = {
   _id: mongoose.Schema.Types.ObjectId;
@@ -42,3 +47,11 @@ export type CommentsSortByType = typeof CommentsSortBy[number];
 
 export const HashtagsSortBy = ['name', 'createdAt', 'totalPost', 'deleted'] as const;
 export type HashtagsSortByType = typeof HashtagsSortBy[number];
+
+export type BookFromOpenLibrary = {
+  key: string,
+  cover_edition_key: string,
+  author_name: string[]
+};
+type BookKey = keyof BookFromOpenLibrary;
+export type BookKeysFromOpenLibrary = BookKey[];

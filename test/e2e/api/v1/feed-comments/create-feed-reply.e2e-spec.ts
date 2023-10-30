@@ -1032,6 +1032,51 @@ describe('Feed-Comments/Replies File (e2e)', () => {
             notificationMsg: 'replied to your comment',
           });
         });
+
+        it('sends the expected notifications when postType is bookReview', async () => {
+          const post = await feedPostsService.create(feedPostFactory.build({
+            userId: postCreatorUser._id,
+            postType: PostType.BookReview,
+          }));
+          const comment = await feedCommentsService.createFeedComment(
+            feedCommentsFactory.build(
+              {
+                userId: commentCreatorUser.id,
+                feedPostId: post.id,
+                message: 'This is a comment',
+                images: [],
+              },
+            ),
+          );
+          const response = await request(app.getHttpServer())
+            .post('/api/v1/feed-comments/replies').auth(otherUser1AuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('feedCommentId', comment._id.toString())
+            .field('message', 'hello test user')
+            .expect(HttpStatus.CREATED);
+
+          expect(notificationsService.create).toHaveBeenCalledTimes(2);
+          expect(notificationsService.create).toHaveBeenCalledWith({
+            userId: postCreatorUser._id,
+            feedPostId: post._id,
+            feedCommentId: comment._id,
+            feedReplyId: new mongoose.Types.ObjectId(response.body._id),
+            senderId: otherUser1._id,
+            allUsers: [otherUser1._id],
+            notifyType: NotificationType.UserMentionedYouInACommentReply,
+            notificationMsg: 'replied to a comment on your book review',
+          });
+          expect(notificationsService.create).toHaveBeenCalledWith({
+            userId: commentCreatorUser._id.toString(),
+            feedPostId: { _id: post._id.toString() },
+            feedCommentId: { _id: comment._id.toString() },
+            feedReplyId: response.body._id,
+            senderId: otherUser1._id.toString(),
+            allUsers: [otherUser1._id],
+            notifyType: NotificationType.UserMentionedYouInACommentReply,
+            notificationMsg: 'replied to your comment',
+          });
+        });
       });
     });
 

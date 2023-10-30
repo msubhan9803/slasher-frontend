@@ -355,7 +355,6 @@ export class MoviesService {
       movieFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');
     }
     if (sortNameStartsWith) {
-
       let combinedRegex = '';
       if (nameContains) {
         movieFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');

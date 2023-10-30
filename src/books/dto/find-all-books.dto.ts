@@ -2,7 +2,7 @@ import { Type } from 'class-transformer';
 import {
   IsIn,
   IsMongoId,
-  IsNotEmpty, IsNumber, IsOptional, IsString, Matches, Max, MaxLength,
+  IsNumber, IsOptional, IsString, Matches, Max, MaxLength,
 } from 'class-validator';
 
 export class FindAllBooksDto {

@@ -221,7 +221,6 @@ export class BooksService {
       booksFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');
     }
     if (sortNameStartsWith) {
-
       let combinedRegex = '';
       if (nameContains) {
         booksFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');

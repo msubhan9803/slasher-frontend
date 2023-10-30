@@ -5,13 +5,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as EmailValidator from 'email-validator';
 import { isMongoId } from 'class-validator';
-import { InjectQueue } from '@nestjs/bull';
-import { Queue } from 'bull';
 import { User, UserDocument } from '../../schemas/user/user.schema';
 import { escapeStringForRegex } from '../../utils/escape-utils';
 import { SocketUser, SocketUserDocument } from '../../schemas/socketUser/socketUser.schema';
 import { sleep } from '../../utils/timer-utils';
 import { ActiveStatus } from '../../schemas/user/user.enums';
+import { FriendsService } from '../../friends/providers/friends.service';
+import { BlocksService } from '../../blocks/providers/blocks.service';
 import { NotFoundError } from '../../errors';
 
 export interface UserNameSuggestion {
@@ -21,9 +21,10 @@ export interface UserNameSuggestion {
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectQueue('delete-user-data') private deleteUserDataQueue: Queue,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(SocketUser.name) private socketUserModel: Model<SocketUserDocument>,
+    private friendsService: FriendsService,
+    private blocksService: BlocksService,
   ) { }
 
   async create(user: Partial<User>) {
@@ -297,9 +298,35 @@ export class UsersService {
       throw new NotFoundError(`Cannot find user with id: ${userId}`);
     }
 
-    await this.deleteUserDataQueue.add('delete-user-all-data', { userId: user.id });
+    // Remove all friendships and pending friend requests related to this user.
+    await this.friendsService.deleteAllByUserId(user.id);
+
+    // Remove all suggested friend blocks to or from this user.
+    await this.friendsService.deleteAllSuggestBlocksByUserId(user.id);
+
+    // Remove all blocks to or from the user.  It's especially important to delete
+    // blocks to the user because we don't want this now-deleted user showing up in other
+    // users' block lists in the UI.
+    await this.blocksService.deleteAllByUserId(user.id);
+
+    // TODO: Mark all posts by the deleted user as deleted
+    // TODO: Mark all comments by the deleted user as deleted
+    // TODO: Mark all replies by the deleted user as deleted
+    // TODO: Mark all messages by the deleted user as deleted
+    // TODO: For any matchList where roomCategory equals MatchListRoomCategory.DirectMessage AND
+    // that matchList has the deleted user in the participants array, mark the matchList as deleted.
+    // TODO: Delete all likes by the deleted user.  This includes: feedpostlikes, feedreplylikes,
+    // likes by the user on posts, comments, and replies.
+    // TODO: As part of this, also update like and comment counts for any affected posts, and like
+    // counts for any affected comments and replies.
+
+    // Now we'll modify the user object:
+    // 1. Mark user as deleted
     user.deleted = true;
+    // 2. Change user's password to a new random value, to ensure that current session is invalidated
+    // and that they cannot log in again if admins ever need to temporarily reactivate their account.
     user.setUnhashedPassword(uuidv4());
+    // 3. Save changes to user object
     await user.save();
   }
 }

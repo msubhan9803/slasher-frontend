@@ -149,6 +149,8 @@ describe('FeedPostsService', () => {
         expect(reloadedFeedPost.userId).toEqual(rssFeedProvider._id);
       });
 
+    // TODO: Probably delete this test after the old iOS/Android apps are retired, since the
+    // privacyType field won't be used anymore.
     it('sets the post privacyType value to public by default', async () => {
       const feedPostData = feedPostFactory.build({
         userId: activeUser.id,
@@ -1469,62 +1471,14 @@ describe('FeedPostsService', () => {
 
     it('updates the privacyPost according to user profile visibility', async () => {
       //update private to public
-      await feedPostsService.updatePostPrivacyType(user.id, ProfileVisibility.Public);
+      await feedPostsService.updatePostPrivacyType(user.id, 0);
       expect((await feedPostsService.findById(feedPost1, true)).privacyType).toEqual(FeedPostPrivacyType.Public);
       expect((await feedPostsService.findById(feedPost2, true)).privacyType).toEqual(FeedPostPrivacyType.Public);
 
       //update public to private
-      await feedPostsService.updatePostPrivacyType(user1.id, ProfileVisibility.Private);
+      await feedPostsService.updatePostPrivacyType(user1.id, 1);
       expect((await feedPostsService.findById(feedPost3, true)).privacyType).toEqual(FeedPostPrivacyType.Private);
       expect((await feedPostsService.findById(feedPost4, true)).privacyType).toEqual(FeedPostPrivacyType.Private);
-    });
-  });
-
-  describe('#deleteAllPostByUserId', () => {
-    beforeEach(async () => {
-      await feedPostsService.create(
-        feedPostFactory.build({
-          userId: activeUser.id,
-        }),
-      );
-      await feedPostsService.create(
-        feedPostFactory.build({
-          userId: activeUser.id,
-        }),
-      );
-    });
-
-    it('deletes all posts of given user id', async () => {
-      await feedPostsService.deleteAllPostByUserId(activeUser.id);
-      expect(await feedPostsService.findMainFeedPostsForUser(activeUser.id, 5)).toHaveLength(0);
-    });
-  });
-
-  describe('#deleteAllFeedPostLikeByUserId', () => {
-    it('delete all feedpost likes of given user id', async () => {
-      const user1 = await usersService.create(userFactory.build());
-      const user2 = await usersService.create(userFactory.build());
-      const feedPost1 = await feedPostsService.create(
-        feedPostFactory.build({
-          userId: user1.id,
-          likes: [user2._id, user1._id],
-          likeCount: 2,
-        }),
-      );
-
-      const feedPost2 = await feedPostsService.create(
-        feedPostFactory.build({
-          userId: user1.id,
-          likes: [user2._id, user1._id],
-          likeCount: 2,
-        }),
-      );
-
-      await feedPostsService.deleteAllFeedPostLikeByUserId(user2.id);
-      expect((await feedPostsService.findById(feedPost1.id, true)).likeCount).toBe(1);
-      expect((await feedPostsService.findById(feedPost2.id, true)).likeCount).toBe(1);
-      expect((await feedPostsService.findById(feedPost1.id, true)).likes).not.toContain(user2.id);
-      expect((await feedPostsService.findById(feedPost2.id, true)).likes).not.toContain(user2.id);
     });
   });
 });

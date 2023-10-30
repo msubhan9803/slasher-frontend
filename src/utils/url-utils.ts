@@ -22,7 +22,7 @@ export const isUserProfilePage = (pathname: string) => new RegExp('^(?!/app).*')
 
 export const showBackButtonInIos = (pathname: string) => [isPostDetailsPage,
   isNewsPartnerPageSubRoutes, isMovieDetailsPageSubRoutes, isEventDetailsPage,
-  isConversationPage, isUserProfilePage].some((fn) => fn(pathname));
+  isConversationPage, isUserProfilePage, isBookDetailsPageSubRoutes].some((fn) => fn(pathname));
 
 export const getLastNonProfilePathname = (
   pathnameHistory: Array<string>,

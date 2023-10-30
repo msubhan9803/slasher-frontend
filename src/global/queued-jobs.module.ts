@@ -6,7 +6,6 @@ import { MessageCountUpdateConsumer } from '../jobs/consumers/message-count-upda
 import { ChatModule } from '../chat/chat.module';
 import { ChatGateway } from '../chat/providers/chat.gateway';
 import { Message, MessageSchema } from '../schemas/message/message.schema';
-import { DeleteUserDataConsumer } from '../jobs/consumers/user-delete-data.consumer';
 import { NotificationCreationConsumer } from '../jobs/consumers/notification-creation.consumer';
 import { NotificatationOfHashtagFollowPost } from '../jobs/consumers/notification-hashtag-follow.consumer';
 
@@ -26,19 +25,15 @@ import { NotificatationOfHashtagFollowPost } from '../jobs/consumers/notificatio
       name: 'message-count-update',
     }),
     BullModule.registerQueue({
-      name: 'delete-user-data',
+      name: 'notification',
     }),
     BullModule.registerQueue({
       name: 'hashtag-follow-post',
     }),
-    BullModule.registerQueue({
-      name: 'notification',
-    }),
     ChatModule,
     MongooseModule.forFeature([{ name: Message.name, schema: MessageSchema }]),
   ],
-  providers: [MessageCountUpdateConsumer, DeleteUserDataConsumer, NotificationCreationConsumer, NotificatationOfHashtagFollowPost,
-    ChatGateway],
+  providers: [MessageCountUpdateConsumer, NotificationCreationConsumer, NotificatationOfHashtagFollowPost, ChatGateway],
   exports: [BullModule, ChatGateway],
 })
 export class QueuedJobsModule { }

@@ -8,7 +8,7 @@ import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import { MoviesProps } from '../components/MovieProps';
 import MoviesHeader from '../MoviesHeader';
 import { MOVIE_WATCHLIST_DIV_ID } from '../../../utils/pubwise-ad-units';
-import { getUserMoviesList } from '../../../api/users';
+import { getMovieListCount, getUserMoviesList } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import RoundButton from '../../../components/ui/RoundButton';
@@ -42,6 +42,7 @@ function WatchListMovies() {
       : '',
   );
   const [callNavigate, setCallNavigate] = useState<boolean>(false);
+  const [movieListCount, setMovieListCount] = useState(null);
   const userId = useAppSelector((state) => state.user.user.id);
   const prevSearchRef = useRef(search);
   const prevKeyRef = useRef(key);
@@ -118,6 +119,12 @@ function WatchListMovies() {
   }, [requestAdditionalMovies, loadingMovies, search, sortVal, lastMovieId, filteredMovies,
     userId, isKeyMoviesReady, key, location, pageStateCache?.length]);
 
+  useEffect(() => {
+    getMovieListCount(userId, 'watch').then((res) => {
+      setMovieListCount(res.data);
+    });
+  });
+
   const applyFilter = (keyValue: string, sortValue?: string) => {
     setCallNavigate(true);
     setKey(keyValue.toLowerCase());
@@ -177,6 +184,12 @@ function WatchListMovies() {
           </div>
         )}
       <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
+        {movieListCount && (
+          <div className="ps-2">
+            <span className="pe-1">Total:</span>
+            {movieListCount}
+          </div>
+        )}
         <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
         <div className="m-md-2">
           <InfiniteScroll

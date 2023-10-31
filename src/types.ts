@@ -468,3 +468,6 @@ export enum UserType {
   Regular = '1',
   Admin = '2',
 }
+
+export const movieList = ['watch', 'watched', 'favorite', 'buy'] as const;
+export type MovieListType = typeof movieList[number];

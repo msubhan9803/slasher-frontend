@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Capacitor } from '@capacitor/core';
 import { Device } from '@capacitor/device';
 import { apiUrl } from '../env';
-import { DeviceFields, RegisterUser } from '../types';
+import { DeviceFields, MovieListType, RegisterUser } from '../types';
 import { getDeviceToken, getSessionToken, getSessionUserId } from '../utils/session-utils';
 import { getAppVersion } from '../utils/version-utils';
 
@@ -453,4 +453,15 @@ export async function getUserBookList(
     queryParameter += `&startsWith=${encodeURIComponent(key)}`;
   }
   return axios.get(`${apiUrl}/api/v1/users/${userId}/${name}${queryParameter}`, { headers });
+}
+
+export async function getMovieListCount(userId: string, movieListType: MovieListType) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  const queryParams = { type: movieListType };
+
+  return axios.get(`${apiUrl}/api/v1/users/${userId}/movie-list-count`, { headers, params: queryParams });
 }

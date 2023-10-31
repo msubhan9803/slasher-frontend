@@ -12,7 +12,7 @@ import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import RoundButton from '../../../components/ui/RoundButton';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import { getUserMoviesList } from '../../../api/users';
+import { getMovieListCount, getUserMoviesList } from '../../../api/users';
 import { UIRouteURL } from '../RouteURL';
 import {
   deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
@@ -43,6 +43,7 @@ function FavoriteMovies() {
       : '',
   );
   const [callNavigate, setCallNavigate] = useState<boolean>(false);
+  const [movieListCount, setMovieListCount] = useState(null);
   const userId = useAppSelector((state) => state.user.user.id);
   const prevSearchRef = useRef(search);
   const prevKeyRef = useRef(key);
@@ -119,6 +120,12 @@ function FavoriteMovies() {
   }, [requestAdditionalMovies, loadingMovies, search, sortVal, lastMovieId, filteredMovies,
     dispatch, userId, isKeyMoviesReady, key, location, pageStateCache?.length]);
 
+  useEffect(() => {
+    getMovieListCount(userId, 'favorite').then((res) => {
+      setMovieListCount(res.data);
+    });
+  });
+
   const applyFilter = (keyValue: string, sortValue?: string) => {
     setCallNavigate(true);
     setKey(keyValue.toLowerCase());
@@ -178,6 +185,12 @@ function FavoriteMovies() {
           </div>
         )}
       <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
+        {movieListCount && (
+          <div className="ps-2">
+            <span className="pe-1">Total:</span>
+            {movieListCount}
+          </div>
+        )}
         <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
         <div className="m-md-2">
           <InfiniteScroll

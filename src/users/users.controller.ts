@@ -84,6 +84,7 @@ import { FeedCommentsService } from '../feed-comments/providers/feed-comments.se
 import { BooksService } from '../books/providers/books.service';
 import { FindAllBooksDto } from '../books/dto/find-all-books.dto';
 import { MovieListTypeDto } from '../movies/dto/movie-list-type-dto';
+import { BookListTypeDto } from '../books/dto/book-list-type-dto';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -1041,6 +1042,24 @@ export class UsersController {
     }
     const { type } = query;
     const count = await this.moviesService.getMovieListCountForUser(user.id, type);
+
+    return count;
+  }
+
+  // ! TODO-SAHIL: Add e2e test for this.
+  @Get(':userId/book-list-count')
+  async getBookListCount(
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: BookListTypeDto,
+  ) {
+    const user = await this.usersService.findById(param.userId, true);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const { type } = query;
+    const count = await this.booksService.getBookListCountForUser(user.id, type);
 
     return count;
   }

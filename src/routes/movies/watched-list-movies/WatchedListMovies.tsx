@@ -187,7 +187,7 @@ function WatchedListMovies() {
           </div>
         )}
       <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
-        {movieListCount && (
+        {!!movieListCount && (
           <div className="ps-2">
             <span className="pe-1">Total:</span>
             {movieListCount}

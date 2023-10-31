@@ -11,7 +11,7 @@ import BooksHeader from '../BooksHeader';
 import { Book } from '../components/BookProps';
 import BooksRightSideNav from '../components/BooksRightSideNav';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import { getUserBookList } from '../../../api/users';
+import { getBookListCount, getUserBookList } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import {
@@ -28,6 +28,7 @@ function BuyListBooks() {
   const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
   const [requestAdditionalBooks, setRequestAdditionalBooks] = useState<boolean>(false);
   const [sortVal, setSortVal] = useState(searchParams.get('sort') || 'name');
+  const [bookListCount, setBookListCount] = useState(null);
   const userId = useAppSelector((state) => state.user.user.id);
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
@@ -132,6 +133,12 @@ function BuyListBooks() {
   }, [requestAdditionalBooks, loadingBooks, search, sortVal, lastBookId, filteredBooks,
     dispatch, userId, isKeyBooksReady, key, location, pageStateCache?.length]);
 
+  useEffect(() => {
+    getBookListCount(userId, 'buy').then((res) => {
+      setBookListCount(res.data);
+    });
+  });
+
   const persistScrollPosition = () => { setPageStateCache(location, filteredBooks); };
 
   const applyFilter = (keyValue: string, sortValue?: string) => {
@@ -194,6 +201,12 @@ function BuyListBooks() {
           )}
         <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
           <p className="h2 mb-0">Buy list</p>
+          {!!bookListCount && (
+            <div className="mt-2">
+              <span className="pe-1">Total:</span>
+              {bookListCount}
+            </div>
+          )}
           <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
           <div className="m-md-2">
             <InfiniteScroll

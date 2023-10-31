@@ -3,7 +3,9 @@ import axios from 'axios';
 import { Capacitor } from '@capacitor/core';
 import { Device } from '@capacitor/device';
 import { apiUrl } from '../env';
-import { DeviceFields, MovieListType, RegisterUser } from '../types';
+import {
+  BookListType, DeviceFields, MovieListType, RegisterUser,
+} from '../types';
 import { getDeviceToken, getSessionToken, getSessionUserId } from '../utils/session-utils';
 import { getAppVersion } from '../utils/version-utils';
 
@@ -464,4 +466,15 @@ export async function getMovieListCount(userId: string, movieListType: MovieList
   const queryParams = { type: movieListType };
 
   return axios.get(`${apiUrl}/api/v1/users/${userId}/movie-list-count`, { headers, params: queryParams });
+}
+
+export async function getBookListCount(userId: string, bookListType: BookListType) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  const queryParams = { type: bookListType };
+
+  return axios.get(`${apiUrl}/api/v1/users/${userId}/book-list-count`, { headers, params: queryParams });
 }

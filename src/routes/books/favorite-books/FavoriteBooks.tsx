@@ -205,9 +205,8 @@ function FavoriteBooks() {
             </div>
           )}
         <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
-          <p className="h2 mb-0">Favorites List</p>
           {!!bookListCount && (
-            <div className="mt-2">
+            <div className="ps-2">
               <span className="pe-1">Total:</span>
               {bookListCount}
             </div>

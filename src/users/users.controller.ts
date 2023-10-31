@@ -544,7 +544,7 @@ export class UsersController {
     const imagesCount = await this.feedPostsService.getAllPostsImagesCountByUser(user.id);
     const postsCount = await this.feedPostsService.getFeedPostsCountByUser(user.id);
     const friendsCount = await this.friendsService.getActiveFriendCount(user.id, [FriendRequestReaction.Accepted]);
-    const watchedListMovieCount = await this.moviesService.getWatchedListMovieCountForUser(user.id);
+    const watchedListMovieCount = await this.moviesService.getMovieListCountForUser(user.id, 'watched');
 
     const pickFields = ['_id', 'firstName', 'userName', 'profilePic', 'coverPhoto', 'aboutMe', 'profile_status'];
 
@@ -1040,21 +1040,7 @@ export class UsersController {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
     const { type } = query;
-    let count = 0;
-    // ! TODO-SAHIL: incorporate below logic into single service function instead thus
-    // ! it will be better readable in service function.
-    if (type === 'watch') {
-      count = await this.moviesService.getWatchListMovieCountForUser(user.id);
-    }
-    if (type === 'watched') {
-      count = await this.moviesService.getWatchedListMovieCountForUser(user.id);
-    }
-    if (type === 'favorite') {
-      count = await this.moviesService.getFavoriteListMovieCountForUser(user.id);
-    }
-    if (type === 'buy') {
-      count = await this.moviesService.getBuyListMovieCountForUser(user.id);
-    }
+    const count = await this.moviesService.getMovieListCountForUser(user.id, type);
 
     return count;
   }

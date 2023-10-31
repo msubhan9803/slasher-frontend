@@ -20,7 +20,7 @@ import {
   MovieUserStatusBuy, MovieUserStatusFavorites,
   MovieUserStatusWatch, MovieUserStatusWatched,
 } from '../../schemas/movieUserStatus/movieUserStatus.enums';
-import { WorthWatchingStatus } from '../../types';
+import { MovieListType, WorthWatchingStatus } from '../../types';
 import { NON_ALPHANUMERIC_REGEX } from '../../constants';
 
 export interface Cast {
@@ -643,31 +643,30 @@ export class MoviesService {
     return favoriteMovieIdArray as unknown as MovieUserStatusDocument[];
   }
 
-  async getWatchedListMovieCountForUser(userId: string): Promise<number> {
-    const count = await this.movieUserStatusModel
-      .find({ userId: new mongoose.Types.ObjectId(userId), watched: MovieUserStatusWatched.Watched }, { movieId: 1, _id: 0 })
-      .count();
-    return count;
-  }
+  // ! TODO-SAHIL: Add service test for this.
+  async getMovieListCountForUser(userId: string, type: MovieListType): Promise<number> {
+    let count = 0;
 
-  async getWatchListMovieCountForUser(userId: string): Promise<number> {
-    const count = await this.movieUserStatusModel
-      .find({ userId: new mongoose.Types.ObjectId(userId), watch: MovieUserStatusWatch.Watch }, { movieId: 1, _id: 0 })
-      .count();
-    return count;
-  }
-
-  async getFavoriteListMovieCountForUser(userId: string): Promise<number> {
-    const count = await this.movieUserStatusModel
-      .find({ userId: new mongoose.Types.ObjectId(userId), favourite: MovieUserStatusFavorites.Favorite }, { movieId: 1, _id: 0 })
-      .count();
-    return count;
-  }
-
-  async getBuyListMovieCountForUser(userId: string): Promise<number> {
-    const count = await this.movieUserStatusModel
-      .find({ userId: new mongoose.Types.ObjectId(userId), buy: MovieUserStatusBuy.Buy }, { movieId: 1, _id: 0 })
-      .count();
+    if (type === 'watch') {
+      count = await this.movieUserStatusModel
+        .find({ userId: new mongoose.Types.ObjectId(userId), watch: MovieUserStatusWatch.Watch }, { movieId: 1, _id: 0 })
+        .count();
+    }
+    if (type === 'watched') {
+      count = await this.movieUserStatusModel
+        .find({ userId: new mongoose.Types.ObjectId(userId), watched: MovieUserStatusWatched.Watched }, { movieId: 1, _id: 0 })
+        .count();
+    }
+    if (type === 'favorite') {
+      count = await this.movieUserStatusModel
+        .find({ userId: new mongoose.Types.ObjectId(userId), favourite: MovieUserStatusFavorites.Favorite }, { movieId: 1, _id: 0 })
+        .count();
+    }
+    if (type === 'buy') {
+      count = await this.movieUserStatusModel
+        .find({ userId: new mongoose.Types.ObjectId(userId), buy: MovieUserStatusBuy.Buy }, { movieId: 1, _id: 0 })
+        .count();
+    }
     return count;
   }
 }

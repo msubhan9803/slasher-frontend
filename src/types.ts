@@ -72,10 +72,25 @@ export interface NewsPartnerPostProps {
   likes: string[];
 }
 
+type CrewData = {
+  adult: boolean,
+  gender: any,
+  id: number,
+  known_for_department: string,
+  name: string,
+  original_name: string,
+  popularity: 0.6,
+  profile_path: null,
+  credit_id: string,
+  department: string,
+  job: string
+};
+
 export interface AdditionalMovieData {
   cast: MovieCast;
   video: Video[];
   mainData: MainData;
+  crew: CrewData[];
 }
 
 export interface MovieCast {

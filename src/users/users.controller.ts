@@ -83,6 +83,7 @@ import { ConfirmDeleteAccountQueryDto } from './dto/confirm-delete-account-query
 import { FeedCommentsService } from '../feed-comments/providers/feed-comments.service';
 import { BooksService } from '../books/providers/books.service';
 import { FindAllBooksDto } from '../books/dto/find-all-books.dto';
+import { MovieListTypeDto } from '../movies/dto/movie-list-type-dto';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -543,6 +544,7 @@ export class UsersController {
     const imagesCount = await this.feedPostsService.getAllPostsImagesCountByUser(user.id);
     const postsCount = await this.feedPostsService.getFeedPostsCountByUser(user.id);
     const friendsCount = await this.friendsService.getActiveFriendCount(user.id, [FriendRequestReaction.Accepted]);
+    const watchedListMovieCount = await this.moviesService.getWatchedListMovieCountForUser(user.id);
 
     const pickFields = ['_id', 'firstName', 'userName', 'profilePic', 'coverPhoto', 'aboutMe', 'profile_status'];
 
@@ -558,6 +560,7 @@ export class UsersController {
       imagesCount,
       postsCount,
       friendsCount,
+      watchedListMovieCount,
     };
   }
 
@@ -763,10 +766,10 @@ export class UsersController {
 
     return feedPosts.map(
       (post) => pick(
-post,
+        post,
         ['_id', 'message', 'images', 'userId', 'createdAt',
           'likedByUser', 'likeCount', 'commentCount', 'movieId', 'hashtags'],
-),
+      ),
     );
   }
 
@@ -1022,6 +1025,38 @@ post,
     return movies.map(
       (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating', 'worthWatching']),
     );
+  }
+
+  // ! TODO-SAHIL: Add e2e test for this.
+  @Get(':userId/movie-list-count')
+  async getMovieListCount(
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: MovieListTypeDto,
+  ) {
+    const user = await this.usersService.findById(param.userId, true);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const { type } = query;
+    let count = 0;
+    // ! TODO-SAHIL: incorporate below logic into single service function instead thus
+    // ! it will be better readable in service function.
+    if (type === 'watch') {
+      count = await this.moviesService.getWatchListMovieCountForUser(user.id);
+    }
+    if (type === 'watched') {
+      count = await this.moviesService.getWatchedListMovieCountForUser(user.id);
+    }
+    if (type === 'favorite') {
+      count = await this.moviesService.getFavoriteListMovieCountForUser(user.id);
+    }
+    if (type === 'buy') {
+      count = await this.moviesService.getBuyListMovieCountForUser(user.id);
+    }
+
+    return count;
   }
 
   @TransformImageUrls('$[*].coverImage.image_path')

@@ -22,7 +22,6 @@ import {
 } from '../../schemas/movieUserStatus/movieUserStatus.enums';
 import { WorthWatchingStatus } from '../../types';
 import { NON_ALPHANUMERIC_REGEX } from '../../constants';
-import { getSortSafeWeightedRatingOfMovie } from '../../schemas/movie/movie.pre-post-hooks';
 
 export interface Cast {
   'adult': boolean,
@@ -126,10 +125,25 @@ export interface MainData {
   'production_companies': ProductionCompanies[],
 }
 
+type CrewData = {
+  adult: boolean,
+  gender: any,
+  id: number,
+  known_for_department: string,
+  name: string,
+  original_name: string,
+  popularity: 0.6,
+  profile_path: null,
+  credit_id: string,
+  department: string,
+  job: string
+};
+
 export interface MovieDbData {
   cast: Cast[],
   video: VideoData,
   mainData: MainData,
+  crew: CrewData[],
 }
 
 @Injectable()
@@ -546,6 +560,14 @@ export class MoviesService {
     }
     const secureBaseUrl = `${configDetails.data.images.secure_base_url}w185`;
     const cast = JSON.parse(JSON.stringify(castAndCrewData.data.cast));
+    const crew = JSON.parse(JSON.stringify(castAndCrewData.data?.crew));
+
+    const expectedCrewValues: CrewData[] = [];
+    crew.forEach((crewMember) => {
+      if (crewMember?.job?.toLowerCase() === 'director') {
+        expectedCrewValues.push(crewMember);
+      }
+    });
 
     cast.forEach((profile) => {
       if (profile.profile_path) {
@@ -585,6 +607,7 @@ export class MoviesService {
       cast: expectedCastValues,
       video: expectedVideosValues,
       mainData: expectedMainData,
+      crew: expectedCrewValues,
     };
   }
 
@@ -620,59 +643,31 @@ export class MoviesService {
     return favoriteMovieIdArray as unknown as MovieUserStatusDocument[];
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  async testFunction() {
-    // eslint-disable-next-line no-console
-    console.log('hello');
-    let i = 1;
-    // let CONTINUE = true;
-    // let sum = 0;
-    // let numOfItems  = 0;
-    // eslint-disable-next-line no-unreachable-loop
-    for await (
-      const doc of this.moviesModel
-        .find()
-        .cursor()
-    ) {
-      // 5da965d801651524ded15c88
-      // console.log(i);
-      // eslint-disable-next-line no-plusplus
-      i++;
-      // if (doc._id.toString() === '5def446422f6901701a95145') {
-      //   CONTINUE = false;
-      // }
+  async getWatchedListMovieCountForUser(userId: string): Promise<number> {
+    const count = await this.movieUserStatusModel
+      .find({ userId: new mongoose.Types.ObjectId(userId), watched: MovieUserStatusWatched.Watched }, { movieId: 1, _id: 0 })
+      .count();
+    return count;
+  }
 
-      // if (CONTINUE) { continue; }
-      // if (i === 10) { break; }
-      if ((i % 1000) === 0) {
-        // eslint-disable-next-line no-console
-        console.log('items processed?', i);
-      }
-      // const ratingUsersCount = await this.getRatingUsersCount(doc._id.toString());
-      // const kk = generateSortRatingAndRatingUsersCount(doc.rating, ratingUsersCount, doc._id.toString());
-      // const kk = generateSortRatingAndRatingUsersCount(doc.rating, doc.ratingUsersCount, doc._id.toString());
-      // console.log(kk);
-      // doc.ratingUsersCount = ratingUsersCount;
-      // doc.sortRatingAndRatingUsersCount = kk;
+  async getWatchListMovieCountForUser(userId: string): Promise<number> {
+    const count = await this.movieUserStatusModel
+      .find({ userId: new mongoose.Types.ObjectId(userId), watch: MovieUserStatusWatch.Watch }, { movieId: 1, _id: 0 })
+      .count();
+    return count;
+  }
 
-      // Deleting field (make sure field is not defined in schema)
-      // doc.set('sortRatingAndRatingUsersCount', undefined, { strict: false });
+  async getFavoriteListMovieCountForUser(userId: string): Promise<number> {
+    const count = await this.movieUserStatusModel
+      .find({ userId: new mongoose.Types.ObjectId(userId), favourite: MovieUserStatusFavorites.Favorite }, { movieId: 1, _id: 0 })
+      .count();
+    return count;
+  }
 
-      const sortSafeWeightedRating = getSortSafeWeightedRatingOfMovie(doc.rating, doc.ratingUsersCount);
-      const kk = `${sortSafeWeightedRating}_${doc._id.toString()}`;
-      // console.log('kk?', kk);
-      doc.sortRatingAndRatingUsersCount = kk;
-      await doc.save();
-
-      // return;
-      // return doc;
-      // sum += doc.rating;
-      // numOfItems += 1;
-      // console.log('sum?', sum);
-    }
-    // const avg = (sum / numOfItems).toFixed(2);
-    // console.log('sum?', sum);
-    // console.log('numOfItems?', numOfItems);
-    // console.log('avg?', avg);
+  async getBuyListMovieCountForUser(userId: string): Promise<number> {
+    const count = await this.movieUserStatusModel
+      .find({ userId: new mongoose.Types.ObjectId(userId), buy: MovieUserStatusBuy.Buy }, { movieId: 1, _id: 0 })
+      .count();
+    return count;
   }
 }

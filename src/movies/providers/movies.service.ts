@@ -643,7 +643,6 @@ export class MoviesService {
     return favoriteMovieIdArray as unknown as MovieUserStatusDocument[];
   }
 
-  // ! TODO-SAHIL: Add service test for this.
   async getMovieListCountForUser(userId: string, type: MovieListType): Promise<number> {
     let count = 0;
 

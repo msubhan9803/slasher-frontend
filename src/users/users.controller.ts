@@ -1028,7 +1028,6 @@ export class UsersController {
     );
   }
 
-  // ! TODO-SAHIL: Add e2e test for this.
   @Get(':userId/movie-list-count')
   async getMovieListCount(
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
@@ -1046,7 +1045,6 @@ export class UsersController {
     return count;
   }
 
-  // ! TODO-SAHIL: Add e2e test for this.
   @Get(':userId/book-list-count')
   async getBookListCount(
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))

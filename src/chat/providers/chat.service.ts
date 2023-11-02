@@ -28,8 +28,8 @@ export class ChatService {
     @InjectConnection() private readonly connection: mongoose.Connection,
     @InjectModel(Message.name) private messageModel: Model<MessageDocument>,
     @InjectModel(MatchList.name) private matchListModel: Model<MatchListDocument>,
-    private usersService: UsersService,
     private readonly blocksService: BlocksService,
+    private usersService: UsersService,
   ) { }
 
   async createPrivateDirectMessageConversation(participants: mongoose.Types.ObjectId[]) {
@@ -417,5 +417,23 @@ export class ChatService {
     );
 
     return matchList;
+  }
+
+  async deleteAllMessageByUserId(id: string): Promise<void> {
+    await this.messageModel.updateMany({
+      $or: [
+        { fromId: new mongoose.Types.ObjectId(id) },
+        { senderId: new mongoose.Types.ObjectId(id) },
+      ],
+    }, { $set: { deleted: true } }, { multi: true });
+  }
+
+  async deleteAllMatchlistByUserId(id: string): Promise<void> {
+    await this.matchListModel.updateMany({
+      $and: [
+        { roomCategory: MatchListRoomCategory.DirectMessage },
+        { participants: { $in: new mongoose.Types.ObjectId(id) } },
+      ],
+    }, { $set: { deleted: true } }, { multi: true });
   }
 }

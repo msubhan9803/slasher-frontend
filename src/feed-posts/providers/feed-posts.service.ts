@@ -612,4 +612,20 @@ export class FeedPostsService {
     };
     await this.feedPostModel.updateMany({ userId }, { $set: updateFeedPostData }, { multi: true });
   }
+
+  async deleteAllPostByUserId(id: string): Promise<void> {
+    await this.feedPostModel.updateMany(
+      { userId: new mongoose.Types.ObjectId(id) },
+      { $set: { is_deleted: FeedPostDeletionState.Deleted } },
+      { multi: true },
+    );
+  }
+
+  async deleteAllFeedPostLikeByUserId(id: string): Promise<void> {
+    await this.feedPostModel.updateMany(
+      { likes: { $in: [new mongoose.Types.ObjectId(id)] } },
+      { $inc: { likeCount: -1 }, $pull: { likes: new mongoose.Types.ObjectId(id) } },
+      { multi: true },
+    );
+  }
 }

@@ -206,6 +206,40 @@ describe('NotificationsService', () => {
     });
   });
 
+  describe('#deleteAllNotificationByUserId', () => {
+    let user3;
+    let user4;
+    let user5;
+    let notification1;
+    let notification2;
+    beforeEach(async () => {
+      user3 = await usersService.create(userFactory.build());
+      user4 = await usersService.create(userFactory.build());
+      user5 = await usersService.create(userFactory.build());
+      notification1 = await notificationsService.create(
+        notificationFactory.build(
+          {
+            userId: user3.id,
+            senderId: user5.id,
+          },
+        ),
+      );
+      notification2 = await notificationsService.create(
+        notificationFactory.build(
+          {
+            userId: user4.id,
+            senderId: user5.id,
+          },
+        ),
+      );
+    });
+    it('deletes all notification by userId', async () => {
+      await notificationsService.deleteAllNotificationByUserId(user5.id);
+      expect((await notificationsService.findById(notification1.id)).is_deleted).toBe(NotificationDeletionStatus.Deleted);
+      expect((await notificationsService.findById(notification2.id)).is_deleted).toBe(NotificationDeletionStatus.Deleted);
+    });
+  });
+
   describe('#update', () => {
     let notification;
     beforeEach(async () => {

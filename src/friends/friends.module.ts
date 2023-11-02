@@ -8,7 +8,6 @@ import { SuggestBlock, SuggestBlockSchema } from '../schemas/suggestBlock/sugges
 import { BlockAndUnblock, BlockAndUnblockSchema } from '../schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlocksService } from '../blocks/providers/blocks.service';
 import { FriendsGateway } from './providers/friends.gateway';
-import { ChatModule } from '../chat/chat.module';
 
 @Global()
 @Module({
@@ -17,7 +16,6 @@ import { ChatModule } from '../chat/chat.module';
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: SuggestBlock.name, schema: SuggestBlockSchema }]),
     MongooseModule.forFeature([{ name: BlockAndUnblock.name, schema: BlockAndUnblockSchema }]),
-    ChatModule,
   ],
   providers: [FriendsService, BlocksService, FriendsGateway],
   exports: [FriendsService, FriendsGateway],

@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
@@ -148,6 +148,8 @@ export interface MovieDbData {
 
 @Injectable()
 export class MoviesService {
+  private readonly logger = new Logger(MoviesService.name);
+
   constructor(
     @InjectModel(Movie.name) private moviesModel: Model<MovieDocument>,
     @InjectModel(MovieUserStatus.name) private movieUserStatusModel: Model<MovieUserStatusDocument>,
@@ -535,7 +537,8 @@ export class MoviesService {
 
   async fetchMovieDbData(movieDbId: number): Promise<MovieDbData> {
     const movieDbApiKey = this.configService.get<string>('MOVIE_DB_API_KEY');
-    const [castAndCrewData, videoData, mainDetails, configDetails]: any = await Promise.all([
+
+    const [castAndCrewDataSettled, videoDataSettled, mainDetailsSettled, configDetailsSettled]: any = await Promise.allSettled([
       lastValueFrom(this.httpService.get<MovieDbData>(
         `https://api.themoviedb.org/3/movie/${movieDbId}/credits?api_key=${movieDbApiKey}&language=en-US`,
       )),
@@ -550,6 +553,27 @@ export class MoviesService {
       )),
     ]);
 
+    let castAndCrewData;
+    let videoData;
+    let mainDetails;
+    const configDetails = configDetailsSettled.value;
+
+    if (castAndCrewDataSettled.status === 'fulfilled') {
+      castAndCrewData = castAndCrewDataSettled.value;
+    } else {
+      this.logger.error('Failed to load `castAndCrewData` for movieDbId:', movieDbId);
+    }
+    if (videoDataSettled.status === 'fulfilled') {
+      videoData = videoDataSettled.value;
+    } else {
+      this.logger.error('Failed to load `videoData` for movieDbId:', movieDbId);
+    }
+    if (mainDetailsSettled.status === 'fulfilled') {
+      mainDetails = mainDetailsSettled.value;
+    } else {
+      this.logger.error('Failed to load `mainDetails` for movieDbId:', movieDbId);
+    }
+
     const mainData = JSON.parse(JSON.stringify(mainDetails.data));
     if (mainData.poster_path) {
       // eslint-disable-next-line no-param-reassign
@@ -559,8 +583,8 @@ export class MoviesService {
       mainData.poster_path = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
     }
     const secureBaseUrl = `${configDetails.data.images.secure_base_url}w185`;
-    const cast = JSON.parse(JSON.stringify(castAndCrewData.data.cast));
-    const crew = JSON.parse(JSON.stringify(castAndCrewData.data?.crew));
+    const cast = JSON.parse(JSON.stringify(castAndCrewData?.data?.cast || []));
+    const crew = JSON.parse(JSON.stringify(castAndCrewData?.data?.crew || []));
 
     const expectedCrewValues: CrewData[] = [];
     crew.forEach((crewMember) => {

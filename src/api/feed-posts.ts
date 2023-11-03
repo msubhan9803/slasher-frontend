@@ -75,7 +75,9 @@ export async function createPost(
   if (postData.worthIt && postData.postType === PostType.BookReview) {
     formData.append('bookPostFields[worthReading]', postData.worthIt);
   }
-
+  if (postData.bookId && PostType.BookReview) {
+    formData.append('bookId', postData.bookId);
+  }
   const headers = {
     'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,

@@ -28,15 +28,16 @@ interface SliderImage {
   linkUrl?: string;
   videoKey?: string;
   imageDescription?: string;
-  movieData?: {
+  posterData?: {
     poster_path: string,
     title: string,
     release_date: string,
     _id: string, // `movieId`
+    type: string,
   }
 }
 
-type SwiperContext = 'post' | 'comment' | 'shareMoviePost';
+type SwiperContext = 'post' | 'comment' | 'shareMoviePost' | 'shareBookPost';
 
 interface Props {
   context: SwiperContext;
@@ -50,6 +51,7 @@ const heightForContext: Record<SwiperContext, string> = {
   comment: '275px',
   post: '450px',
   shareMoviePost: '190px',
+  shareBookPost: '190px',
 };
 
 const StyledYouTubeButton = styled(Button)`
@@ -208,17 +210,22 @@ function CustomSwiper({
         </Link>
       );
     }
-    if (imageAndVideo.movieData) {
-      const movieDetailsPath = `/app/movies/${imageAndVideo?.movieData?._id}/details`;
+    if (imageAndVideo.posterData) {
+      let detailPagPath: string;
+      if (imageAndVideo?.posterData?.type === 'book') {
+        detailPagPath = `/app/books/${imageAndVideo?.posterData?._id}/details`;
+      } else {
+        detailPagPath = `/app/movies/${imageAndVideo?.posterData?._id}/details`;
+      }
       return (
         <SwiperContentContainer className="me-auto">
           <MoviePosterWithAdditionDetails>
             <div className="py-3">
               <StyledMoviePoster className="h-100">
-                <Link to={movieDetailsPath}>
+                <Link to={detailPagPath}>
                   <Image
-                    src={imageAndVideo?.movieData?.poster_path}
-                    alt="movie poster"
+                    src={imageAndVideo?.posterData?.poster_path}
+                    alt="poster"
                     className="d-block rounded-3"
                     onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                       e.currentTarget.src = placeholderUrlNoImageAvailable;
@@ -228,14 +235,14 @@ function CustomSwiper({
               </StyledMoviePoster>
             </div>
             <div className="text__details">
-              <Link to={movieDetailsPath} className="d-block text-decoration-none fw-bold mb-1 text-start">
-                {imageAndVideo?.movieData?.title}
+              <Link to={detailPagPath} className="d-block text-decoration-none fw-bold mb-1 text-start">
+                {imageAndVideo?.posterData?.title}
               </Link>
-              <Link to={movieDetailsPath} className="d-block text-decoration-none text-light mb-2 text-start">
-                {imageAndVideo?.movieData?.release_date
-                  && DateTime.fromJSDate(new Date(imageAndVideo?.movieData?.release_date)).toFormat('yyyy')}
+              <Link to={detailPagPath} className="d-block text-decoration-none text-light mb-2 text-start">
+                {imageAndVideo?.posterData?.release_date
+                  && DateTime.fromJSDate(new Date(imageAndVideo?.posterData?.release_date)).toFormat('yyyy')}
               </Link>
-              <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4" onClick={() => navigate(movieDetailsPath)}>
+              <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4" onClick={() => navigate(detailPagPath)}>
                 View details
               </RoundButton>
 

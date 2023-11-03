@@ -30,6 +30,7 @@ import { StyledMoviePoster } from '../../routes/movies/movie-details/StyledUtils
 import { LG_MEDIA_BREAKPOINT, isNativePlatform, topToDivHeight } from '../../constants';
 import { ProgressButtonComponentType } from './ProgressButton';
 import { getSuggestHashtag } from '../../api/searchHashtag';
+import { getBookById } from '../../api/books';
 
 interface MentionProps {
   id: string;
@@ -120,7 +121,9 @@ function CreatePostComponent({
   const location = useLocation();
   const movieReviewRef = useRef<HTMLDivElement>(null);
   const movieId = searchParams.get('movieId');
+  const bookId = searchParams.get('bookId');
   const [aboutMovieDetail, setAboutMovieDetail] = useState<AdditionalMovieData>();
+  const [aboutBookDetail, setAboutBookDetail] = useState<any>();
 
   useEffect(() => {
     if (!movieId) { return; }
@@ -129,6 +132,11 @@ function CreatePostComponent({
       .then((res1) => getMoviesDataById(res1.data.movieDBId)
         .then((res2) => setAboutMovieDetail(res2.data)));
   }, [movieId]);
+
+  useEffect(() => {
+    if (!bookId) { return; }
+    getBookById(bookId).then((res) => setAboutBookDetail(res.data));
+  }, [bookId]);
 
   const onMovieReviweCloseButton = () => {
     setShowReviewForm!(false);
@@ -271,6 +279,26 @@ function CreatePostComponent({
               <div className="text-light mb-3">
                 {aboutMovieDetail?.mainData?.release_date
                   && DateTime.fromJSDate(new Date(aboutMovieDetail?.mainData?.release_date)).toFormat('yyyy')}
+              </div>
+            </Col>
+          </Row>
+        )}
+
+      {aboutBookDetail
+        && (
+          <Row className="m-0">
+            <Col className="p-0" xs={4} md={3} lg={3} xl={2}>
+              <StyledMoviePoster>
+                <Image src={aboutBookDetail?.coverImage?.image_path} alt="book poster" className="rounded-3 w-100 h-100" />
+              </StyledMoviePoster>
+            </Col>
+            <Col className="m-auto ps-3">
+              <div className="fw-bold mb-3">
+                {aboutBookDetail?.name}
+              </div>
+              <div className="text-light mb-3">
+                {aboutBookDetail?.publishDate
+                  && DateTime.fromJSDate(new Date(aboutBookDetail?.publishDate)).toFormat('yyyy')}
               </div>
             </Col>
           </Row>

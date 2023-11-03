@@ -47,7 +47,9 @@ import FormatImageVideoList from '../../../../utils/video-utils';
 import useOnScreen from '../../../../hooks/useOnScreen';
 import { isHomePage, isNewsPartnerPageSubRoutes, isPostDetailsPage } from '../../../../utils/url-utils';
 import ScrollToTop from '../../../ScrollToTop';
-import { postMovieDataToMovieDBformat, showMoviePoster } from '../../../../routes/movies/movie-utils';
+import {
+  postBookDataToBookDBformat, postMovieDataToMovieDBformat, showBookPoster, showMoviePoster,
+} from '../../../../routes/movies/movie-utils';
 import { useAppSelector } from '../../../../redux/hooks';
 import CustomSelect from '../../../filter-sort/CustomSelect';
 import { ProgressButtonComponentType } from '../../ProgressButton';
@@ -461,11 +463,15 @@ function PostFeed({
   const swiperDataForPost = (post: any) => {
     const imageVideoList = FormatImageVideoList(post.images, post.message);
     if (post.movieId) {
-      const movieData = postMovieDataToMovieDBformat(post.movieId);
-      imageVideoList.splice(0, 0, { movieData });
+      const posterData = postMovieDataToMovieDBformat(post.movieId);
+      imageVideoList.splice(0, 0, { posterData });
+    }
+    if (post.bookId) {
+      const posterData = postBookDataToBookDBformat(post.bookId);
+      imageVideoList.splice(0, 0, { posterData });
     }
     return imageVideoList.map((imageData: any) => {
-      if (imageData.movieData) { return imageData; }
+      if (imageData.posterData) { return imageData; }
       return ({
         imageDescription: imageData.description,
         videoKey: imageData.videoKey,
@@ -479,6 +485,14 @@ function PostFeed({
 
   const handleComment = () => {
     setCommentClick(!isCommentClick);
+  };
+  const getContext = (post: any) => {
+    if (post?.movieId) {
+      return 'shareMoviePost';
+    } if (post?.bookId) {
+      return 'shareBookPost';
+    }
+    return 'post';
   };
   return (
     <StyledPostFeed>
@@ -519,9 +533,9 @@ function PostFeed({
                   onSpoilerClick={onSpoilerClick}
                   isSinglePost={isSinglePost}
                 />
-                {(post?.images?.length > 0 || findFirstYouTubeLinkVideoId(post?.message) || showMoviePoster(post.movieId, postType)) && (
+                {(post?.images?.length > 0 || findFirstYouTubeLinkVideoId(post?.message) || showMoviePoster(post.movieId, postType) || showBookPoster(post.bookId, postType)) && (
                   <CustomSwiper
-                    context={post?.movieId ? 'shareMoviePost' : 'post'}
+                    context={getContext(post)}
                     images={
                       swiperDataForPost(post)
                     }

@@ -13,6 +13,17 @@ export const postMovieDataToMovieDBformat = (movie: any) => {
     title: movie?.name,
     poster_path: tmdbImagePrefix.lg + movie.logo,
     release_date: movie?.releaseDate,
+    type: 'movie',
+  });
+};
+export const postBookDataToBookDBformat = (book: any) => {
+  if (!book) { return null; }
+  return ({
+    _id: book?._id,
+    title: book?.name,
+    poster_path: book.coverImage.image_path,
+    release_date: book?.publishDate,
+    type: 'book',
   });
 };
 
@@ -20,4 +31,9 @@ export const showMoviePoster = (movie: any, postType: string | undefined) => {
   const moviePosterDetails = movie?._id || movie?.name || movie?.logo;
   const isNotMovieReview = postType !== 'review';
   return moviePosterDetails && isNotMovieReview;
+};
+export const showBookPoster = (book: any, postType: string | undefined) => {
+  const bookPosterDetails = book?._id || book?.name || book?.coverImage?.image_path;
+  const isNotBookReview = postType !== 'review';
+  return bookPosterDetails && isNotBookReview;
 };

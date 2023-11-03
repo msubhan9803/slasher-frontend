@@ -728,7 +728,7 @@ export class UsersController {
     return { profilePic: user.profilePic };
   }
 
-  @TransformImageUrls('$[*].images[*].image_path', '$[*].userId.profilePic')
+  @TransformImageUrls('$[*].images[*].image_path', '$[*].userId.profilePic', '$[*].bookId.coverImage.image_path')
   @Get(':userId/posts')
   async allFeedPosts(
     @Req() request: Request,
@@ -769,7 +769,7 @@ export class UsersController {
       (post) => pick(
         post,
         ['_id', 'message', 'images', 'userId', 'createdAt',
-          'likedByUser', 'likeCount', 'commentCount', 'movieId', 'hashtags'],
+          'likedByUser', 'likeCount', 'commentCount', 'movieId', 'hashtags', 'bookId'],
       ),
     );
   }

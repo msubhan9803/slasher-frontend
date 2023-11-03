@@ -196,7 +196,7 @@ export class FeedPostsController {
     };
   }
 
-  @TransformImageUrls('$.userId.profilePic', '$.rssfeedProviderId.logo', '$.images[*].image_path', '$[*].bookId.coverImage.image_path')
+  @TransformImageUrls('$.userId.profilePic', '$.rssfeedProviderId.logo', '$.images[*].image_path', '$.bookId.coverImage.image_path')
   @Get(':id')
   async singleFeedPostDetails(
     @Req() request: Request,

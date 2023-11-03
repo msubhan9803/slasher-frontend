@@ -697,6 +697,10 @@ export class FeedPostsController {
     );
   }
 
+  @TransformImageUrls(
+    '$[*].images[*].image_path',
+    '$[*].userId.profilePic',
+  )
   @Get(':bookId/bookreviews')
   async findBookReviews(
     @Req() request: Request,

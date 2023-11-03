@@ -23,9 +23,15 @@ import { UIRouteURL } from '../../movies/RouteURL';
 function BuyListBooks() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useAppDispatch();
+  const pageStateCache = getPageStateCache(location) ?? [];
+
   const [showKeys, setShowKeys] = useState(false);
   const [search, setSearch] = useState<string>('');
-  const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
+  const [filteredBooks, setFilteredBooks] = useState<Book[]>(
+    hasPageStateCache(location) ? pageStateCache : [],
+  );
   const [requestAdditionalBooks, setRequestAdditionalBooks] = useState<boolean>(false);
   const [sortVal, setSortVal] = useState(searchParams.get('sort') || 'name');
   const [bookListCount, setBookListCount] = useState(null);
@@ -36,9 +42,6 @@ function BuyListBooks() {
   const [key, setKey] = useState(searchParams.get('startsWith')?.toLowerCase() || '');
   const [isKeyBooksReady, setKeyBooksReady] = useState<boolean>(false);
 
-  const dispatch = useAppDispatch();
-  const location = useLocation();
-  const pageStateCache = getPageStateCache(location) ?? [];
   const [callNavigate, setCallNavigate] = useState<boolean>(false);
   const [lastBookId, setLastBookId] = useState(
     ((hasPageStateCache(location)) && (pageStateCache.length > 0))

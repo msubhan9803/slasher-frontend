@@ -201,7 +201,7 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
                 <RoundButton variant="black" className="w-100">Create a list</RoundButton>
               </div>
             )}
-          <div className="d-block d-md-none d-lg-block mt-3">
+          <div className="d-block d-md-none d-lg-block mb-2">
             <a href={to} target="_blank" className="text-decoration-none" rel="noreferrer">
               <RoundButton className="w-100">Buy now</RoundButton>
             </a>

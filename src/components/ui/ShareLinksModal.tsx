@@ -57,7 +57,7 @@ function ShareLinksModal({ copyLinkUrl, show, setShow }: any) {
       <Modal.Header className="border-0 shadow-none justify-content-end" closeButton />
       <Modal.Body className={`d-flex flex-column align-items-center text-center mx-5 pt-0 pb-0 mb-5 ${paddingModalBody}`}>
         <h1 className="mb-0 text-primary text-center mx-4">Share</h1>
-        <Row xs={isMovieDetailsPageRoute ? 2 : 1} lg="auto" className="mt-4 gx-0 temp11">
+        <Row xs={(isMovieDetailsPageRoute || isBookDetailsPageRoute) ? 2 : 1} lg="auto" className="mt-4 gx-0 temp11">
           {/* NOTE FOR LATER: Please use xs={3} as per figma design when we have three or more items enabled for production */}
           {(isMovieDetailsPageRoute || isBookDetailsPageRoute)
             && (

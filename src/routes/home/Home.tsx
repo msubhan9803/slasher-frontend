@@ -124,6 +124,7 @@ function Home() {
             likeCount: data.likeCount,
             commentCount: data.commentCount,
             movieId: data?.movieId,
+            bookId: data?.bookId,
             hashtags: data.hashtags,
           };
         }

@@ -35,7 +35,7 @@ function WatchedList({ user }: WatchedListProps) {
 
   return (
     <div>
-      <SidebarHeaderWithLink headerLabel="Watched list" linkLabel="See All" linkTo={`/${user && user.userName}/watched-list`} />
+      <SidebarHeaderWithLink headerLabel="Watched list" headerLabelCount={user.watchedListMovieCount} linkLabel="See All" linkTo={`/${user && user.userName}/watched-list`} />
       <div className="p-3 bg-dark rounded-3">
         <Row>
           {!loading && watchListItems.length === 0 && <div>No movies yet.</div>}

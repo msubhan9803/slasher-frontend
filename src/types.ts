@@ -52,6 +52,7 @@ export interface User {
   imagesCount: number,
   postsCount: number,
   friendsCount: number,
+  watchedListMovieCount: number,
 }
 
 export interface NewsPartnerPostProps {

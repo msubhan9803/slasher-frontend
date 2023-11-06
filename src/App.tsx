@@ -59,6 +59,7 @@ import DebugGoogleAnalytics from './routes/debug-google-analytics';
 import { detectAppVersion } from './utils/version-utils';
 import { enableADs, enableDevFeatures } from './env';
 import Admin from './routes/admin/Admin';
+import useScript from './hooks/useScript';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -152,6 +153,8 @@ if (isNativePlatform) {
 
 function App() {
   usePubWiseAdSlots(enableADs);
+  const tpdLoaded = useScript('https://cdn.tpdads.com/configs/slasher.js');
+
   const [appVersionDetected, setAppVersionDetected] = useState<boolean>(false);
   const isServerAvailable = useAppSelector((state) => state.serverAvailability.isAvailable);
 
@@ -194,6 +197,7 @@ function App() {
 
   return (
     <>
+      {!tpdLoaded && 'TPD script is loading...'}
       {isServerAvailable || <ServerUnavailable />}
       <RouterProvider router={router} />
     </>

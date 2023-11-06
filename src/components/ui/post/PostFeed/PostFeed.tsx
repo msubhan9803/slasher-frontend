@@ -23,7 +23,6 @@ import PostHeader from './PostHeader';
 import CustomSwiper from '../../CustomSwiper';
 import 'linkify-plugin-mention';
 import { PopoverClickProps } from '../../CustomPopover';
-import PubWiseAd from '../../PubWiseAd';
 import {
   cleanExternalHtmlContent,
   decryptMessage,
@@ -39,7 +38,7 @@ import {
 import RoundButton from '../../RoundButton';
 import CustomRatingText from '../../CustomRatingText';
 import CustomWortItText from '../../CustomWortItText';
-import { HOME_WEB_DIV_ID, NEWS_PARTNER_DETAILS_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
+import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
 import LoadingIndicator from '../../LoadingIndicator';
 import { defaultLinkifyOpts } from '../../../../utils/linkify-utils';
 import { getLocalStorage } from '../../../../utils/localstorage-utils';
@@ -53,6 +52,7 @@ import {
 import { useAppSelector } from '../../../../redux/hooks';
 import CustomSelect from '../../../filter-sort/CustomSelect';
 import { ProgressButtonComponentType } from '../../ProgressButton';
+import TpdAd, { tempTpdDivIdMap, testFun } from '../../TpdAd';
 
 interface Props {
   popoverOptions: string[];
@@ -340,6 +340,7 @@ function PostFeed({
   handleSearch, mentionList, commentImages, setCommentImages, commentError,
   commentReplyError, postType, onSpoilerClick,
   commentSent, setCommentReplyErrorMessage, setCommentErrorMessage,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   showPubWiseAdAtPageBottom, setSelectedBlockedUserId, setDropDownValue, ProgressButton,
   setProgressButtonStatus, commentOrReplySuccessAlertMessage, setCommentOrReplySuccessAlertMessage,
   commentsOrder, handleCommentsOrder,
@@ -494,6 +495,9 @@ function PostFeed({
     }
     return 'post';
   };
+  // tempTpdDivIdMap.singlePagePost
+  // console.log('tempTpdDivIdMap.singlePagePost?', tempTpdDivIdMap);
+  Object.assign(window, { tempTpdDivIdMap });
   return (
     <StyledPostFeed>
       {isPostDetailsPage(pathname) && <ScrollToTop />}
@@ -640,22 +644,25 @@ function PostFeed({
             }
           </div>
           {/* Below ad is to be shown in the end of a single page post */}
-          {isSinglePost && showPubWiseAdAtPageBottom && <PubWiseAd className="text-center mt-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />}
+          {/* {isSinglePost && showPubWiseAdAtPageBottom && <TpdAd id={tempTpdDivIdMap.singlePagePost} />} */}
 
           {!isSinglePost && <hr className="post-separator" />}
 
           {/* Show ad after every three posts. */}
-          {(i + 1) % 3 === 0 && pubWiseAdDivId && (
+          {/* // ! Ading i<6 condition for testing only for TPD ads only! TODO: REMOVE THIS AFTER TESTING. */}
+          {(i + 1) % 3 === 0 && pubWiseAdDivId && (i < 15) && (
             <>
-              <PubWiseAd id={pubWiseAdDivId} autoSequencer />
+              {testFun(((i + 1) / 3) - 1)}
+              <TpdAd id={tempTpdDivIdMap[((i + 1) / 3) - 1]} />
               <hr className="post-separator" />
             </>
           )}
         </div>
       ))}
 
+      {/* // ! ~SAHIL DISBALING THIS FOR TESTING WITH ThePublisherDesk use case only. TODO: FIX THIS AFTER TESTING IS DONE. */}
       {/* Show an ad if posts are less than 3 */}
-      {!isSinglePost && pubWiseAdDivId && postData.length < 3 && postData.length !== 0 && <PubWiseAd className="my-3" id={pubWiseAdDivId} autoSequencer />}
+      {/* {!isSinglePost && pubWiseAdDivId && postData.length < 3 && postData.length !== 0 && <PubWiseAd className="my-3" id={pubWiseAdDivId} autoSequencer />} */}
       {
         showLikeShareModal
         && (

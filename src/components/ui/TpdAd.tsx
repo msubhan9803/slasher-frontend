@@ -55,7 +55,7 @@ export const tempTpdDivIdMap: Record<any, string> = {
 export const testFun = (b: any) => {
   // eslint-disable-next-line no-console
   console.log('babu?', b);
-  return b;
+  return null;
 };
 
 export default TpdAd;

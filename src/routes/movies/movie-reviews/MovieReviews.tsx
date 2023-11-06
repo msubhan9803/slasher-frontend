@@ -477,6 +477,7 @@ function MovieReviews({
               formatMention={formatMention}
               setFormatMention={setFormatMention}
               postType="review"
+              reviewForm="movie-review"
               createUpdatePost={addPost}
               containSpoiler={containSpoiler}
               setContainSpoiler={setContainSpoiler}

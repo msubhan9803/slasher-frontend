@@ -39,7 +39,9 @@ const StyledRemoveWatchlist = styled.div`
     border: 1px solid #3A3B46;
     width: 1.5rem;
     height: 1.5rem;
-  
+    svg * {
+      fill: red !important;
+    }
     svg {
       width: 0.781rem;
       height: 0.781rem;
@@ -58,24 +60,29 @@ function CustomGroupIcons({
     onClickIcon(label);
   };
   return (
-    <div className="position-relative">
-      <LinearIcon tabIndex={0} role="button" onClick={handleClickIcon} onKeyDown={(e) => { if (e.key === 'Enter') { onClickIcon(label); } }} width={width} height={height} uniqueId={uniqueId} className="d-flex flex-column align-items-center">
-        <div className="detail-book-icon align-items-center bg-white d-flex justify-content-center rounded-circle">
-          <FontAwesomeIcon icon={icon} />
+    <div>
+      <LinearIcon tabIndex={0} role="button" onClick={handleClickIcon} onKeyDown={(e) => { if (e.key === 'Enter') { onClickIcon(label); } }} width={width} height={height} uniqueId={uniqueId} className="d-flex flex-column align-items-center linear-icon">
+        <div className="position-relative">
+          <div className="detail-book-icon align-items-center bg-white d-flex justify-content-center rounded-circle">
+            <FontAwesomeIcon icon={icon} />
+          </div>
+          {
+            addData && (
+              <StyledRemoveWatchlist role="button" onClick={handleClickIcon} onKeyDown={(e) => { if (e.key === 'Enter') { onClickIcon(label); } }} className="align-items-center bg-black d-flex justify-content-center position-absolute rounded-circle">
+                <FontAwesomeIcon icon={solid('times')} size="lg" className="text-primary " />
+              </StyledRemoveWatchlist>
+            )
+          }
         </div>
         <h1 className="h5 mt-2 mb-0">{label}</h1>
-        <svg width="0" height="0">
-          <linearGradient id={uniqueId} x1="0%" y1="0%" x2="0%" y2="100%">
+        <svg width="0" height="0" id="svg-icon">
+          <linearGradient id={uniqueId} x1="0%" y1="0%" x2="0%" y2="100%" className="linear-icon">
             <stop offset="0%" style={{ stopColor: `${color}`, stopOpacity: '1' }} />
             <stop offset="100%" style={{ stopColor: `${color}`, stopOpacity: '0.6' }} />
           </linearGradient>
         </svg>
+
       </LinearIcon>
-      {addData && (
-        <StyledRemoveWatchlist role="button" onClick={handleClickIcon} onKeyDown={(e) => { if (e.key === 'Enter') { onClickIcon(label); } }} className="align-items-center bg-black d-flex justify-content-center position-absolute rounded-circle">
-          <FontAwesomeIcon icon={solid('times')} size="lg" className="text-primary " />
-        </StyledRemoveWatchlist>
-      )}
     </div>
   );
 }

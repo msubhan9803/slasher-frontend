@@ -103,7 +103,7 @@ export class FeedPostsService {
       .populate('rssfeedProviderId', 'title _id logo')
       .populate('rssFeedId', 'content title')
       .populate('movieId', 'logo name releaseDate')
-      .populate('bookId', 'name publishDate logo')
+      .populate('bookId', 'name publishDate coverImage')
       .exec();
 
     if (feedPost) {
@@ -142,6 +142,7 @@ export class FeedPostsService {
       .find({ $and: feedPostQuery })
       .populate('userId', 'userName _id profilePic')
       .populate('movieId', 'logo name releaseDate')
+      .populate('bookId', 'name publishDate coverImage')
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();
@@ -293,7 +294,7 @@ export class FeedPostsService {
       .populate('userId', '_id userName profilePic')
       .populate('rssfeedProviderId', '_id title logo')
       .populate('movieId', 'logo name releaseDate')
-      .populate('bookId', 'name publishDate logo')
+      .populate('bookId', 'name publishDate coverImage')
       .sort({ lastUpdateAt: -1 })
       .limit(limit)
       .exec();
@@ -352,7 +353,7 @@ export class FeedPostsService {
       .populate('userId', '_id userName profilePic')
       .populate('rssfeedProviderId', '_id title logo')
       .populate('movieId', 'logo name releaseDate')
-      .populate('bookId', 'name publishDate logo')
+      .populate('bookId', 'name publishDate coverImage')
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();

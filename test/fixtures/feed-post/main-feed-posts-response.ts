@@ -107,7 +107,7 @@ export default [
     movieId: null,
     bookId: {
       _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-      logo: 'https://picsum.photos/id/237/200/300',
+      coverImage: null,
       name: 'Dracula',
       publishDate: '2022-10-17T00:00:00.000Z',
     },

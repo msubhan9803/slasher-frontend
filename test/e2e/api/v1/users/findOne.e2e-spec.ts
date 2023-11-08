@@ -108,6 +108,7 @@ describe('GET /users/:id (e2e)', () => {
           friendsCount: 0,
           imagesCount: 0,
           postsCount: 0,
+          watchedListMovieCount: 0,
         });
       });
 
@@ -135,6 +136,7 @@ describe('GET /users/:id (e2e)', () => {
           friendsCount: 0,
           imagesCount: 0,
           postsCount: 0,
+          watchedListMovieCount: 0,
         });
       });
 
@@ -175,6 +177,7 @@ describe('GET /users/:id (e2e)', () => {
           friendsCount: 0,
           imagesCount: 0,
           postsCount: 0,
+          watchedListMovieCount: 0,
         });
       });
     });
@@ -203,6 +206,7 @@ describe('GET /users/:id (e2e)', () => {
           friendsCount: 0,
           imagesCount: 0,
           postsCount: 0,
+          watchedListMovieCount: 0,
         });
       });
 
@@ -230,6 +234,7 @@ describe('GET /users/:id (e2e)', () => {
           friendsCount: 0,
           imagesCount: 0,
           postsCount: 0,
+          watchedListMovieCount: 0,
         });
       });
 
@@ -270,6 +275,7 @@ describe('GET /users/:id (e2e)', () => {
           friendsCount: 0,
           imagesCount: 0,
           postsCount: 0,
+          watchedListMovieCount: 0,
         });
       });
 
@@ -295,6 +301,7 @@ describe('GET /users/:id (e2e)', () => {
           friendsCount: 0,
           imagesCount: 0,
           postsCount: 0,
+          watchedListMovieCount: 0,
         });
       });
     });
@@ -343,6 +350,7 @@ describe('GET /users/:id (e2e)', () => {
           friendsCount: 0,
           imagesCount: 0,
           postsCount: 0,
+          watchedListMovieCount: 0,
         });
       },
     );
@@ -371,6 +379,7 @@ describe('GET /users/:id (e2e)', () => {
         friendsCount: 1,
         imagesCount: 0,
         postsCount: 0,
+        watchedListMovieCount: 0,
       });
     });
 
@@ -422,6 +431,7 @@ describe('GET /users/:id (e2e)', () => {
         friendsCount: 1,
         imagesCount: 10,
         postsCount: 5,
+        watchedListMovieCount: 0,
       });
     });
   });

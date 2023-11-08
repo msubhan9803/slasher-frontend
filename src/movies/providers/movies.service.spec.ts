@@ -467,11 +467,11 @@ describe('MoviesService', () => {
       const movieOrder = moviesList.map((mov) => ({ rating: mov.rating, ratingUsersCount: mov.ratingUsersCount }));
       // Both `rating` and `ratingUsersCount` are useful to order movies.
       expect(movieOrder).toEqual([
-          { rating: 5, ratingUsersCount: 30 },
-          { rating: 5, ratingUsersCount: 9 },
-          { rating: 3, ratingUsersCount: 25 },
-          { rating: 3, ratingUsersCount: 24 },
-          { rating: 1, ratingUsersCount: 50 },
+        { rating: 5, ratingUsersCount: 30 },
+        { rating: 5, ratingUsersCount: 9 },
+        { rating: 3, ratingUsersCount: 25 },
+        { rating: 3, ratingUsersCount: 24 },
+        { rating: 1, ratingUsersCount: 50 },
       ]);
       expect(moviesList).toHaveLength(5);
     });
@@ -1212,6 +1212,84 @@ describe('MoviesService', () => {
     it('create or update `rating` in a movierUserStatus document', async () => {
       const ratingUsersCount = await moviesService.getRatingUsersCount(movie.id);
       expect(ratingUsersCount).toBe(2);
+    });
+  });
+
+  describe('#getMovieListCountForUser', () => {
+    let movie1;
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    let activeUser;
+    beforeEach(async () => {
+      movie1 = await moviesService.create(
+        moviesFactory.build({
+          status: MovieActiveStatus.Active,
+          deleted: MovieDeletionStatus.NotDeleted,
+          type: MovieType.MovieDb,
+          movieDBId: 662728,
+        }),
+      );
+      activeUser = await usersService.create(userFactory.build());
+    });
+
+    it('watch movieListCount', async () => {
+      const countBefore = await moviesService.getMovieListCountForUser(activeUser._id, 'watch');
+      expect(countBefore).toBe(0);
+      await movieUserStatusModel.create({
+        name: 'movie user status1',
+        userId: activeUser._id,
+        movieId: movie1._id,
+        favourite: 0,
+        watched: 0,
+        watch: 1,
+        buy: 0,
+      });
+      const count = await moviesService.getMovieListCountForUser(activeUser._id, 'watch');
+      expect(count).toBe(1);
+    });
+    it('watched movieListCount', async () => {
+      const countBefore = await moviesService.getMovieListCountForUser(activeUser._id, 'watched');
+      expect(countBefore).toBe(0);
+      await movieUserStatusModel.create({
+        name: 'movie user status1',
+        userId: activeUser._id,
+        movieId: movie1._id,
+        favourite: 0,
+        watched: 1,
+        watch: 0,
+        buy: 0,
+      });
+      const count = await moviesService.getMovieListCountForUser(activeUser._id, 'watched');
+      expect(count).toBe(1);
+    });
+    it('favorite movieListCount', async () => {
+      const countBefore = await moviesService.getMovieListCountForUser(activeUser._id, 'favorite');
+      expect(countBefore).toBe(0);
+      await movieUserStatusModel.create({
+        name: 'movie user status1',
+        userId: activeUser._id,
+        movieId: movie1._id,
+        favourite: 1,
+        watched: 0,
+        watch: 0,
+        buy: 0,
+      });
+      const count = await moviesService.getMovieListCountForUser(activeUser._id, 'favorite');
+      expect(count).toBe(1);
+    });
+    it('buy movieListCount', async () => {
+      const countBefore = await moviesService.getMovieListCountForUser(activeUser._id, 'buy');
+      expect(countBefore).toBe(0);
+      await movieUserStatusModel.create({
+        name: 'movie user status1',
+        userId: activeUser._id,
+        movieId: movie1._id,
+        favourite: 0,
+        watched: 0,
+        watch: 0,
+        buy: 1,
+      });
+      const count = await moviesService.getMovieListCountForUser(activeUser._id, 'buy');
+      expect(count).toBe(1);
     });
   });
 });

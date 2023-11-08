@@ -657,4 +657,19 @@ export default {
       ],
     },
   },
+  crew: [
+    {
+      adult: false,
+      credit_id: '52fe4374c3a36847f80554bf',
+      department: 'Directing',
+      gender: 2,
+      id: 5174,
+      job: 'Director',
+      known_for_department: 'Directing',
+      name: 'Barry Sonnenfeld',
+      original_name: 'Barry Sonnenfeld',
+      popularity: 9.88,
+      profile_path: '/n6y6vaAFfSqsJodgkwTxAey4NoG.jpg',
+    },
+  ],
 };

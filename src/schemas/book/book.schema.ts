@@ -127,7 +127,7 @@ BookSchema.index(
 );
 BookSchema.index(
   {
-    publishDate: 1, logo: 1, name: 1,
+    publishDate: 1, coverImage: 1, name: 1,
   },
 );
 

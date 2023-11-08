@@ -548,9 +548,9 @@ describe('BooksService', () => {
       );
       const limit = 5;
       const booksList = await booksService.findAll(limit, true, 'rating');
-      const movieOrder = booksList.map((bov) => ({ rating: bov.rating, ratingUsersCount: bov.ratingUsersCount }));
+      const bookOrder = booksList.map((bov) => ({ rating: bov.rating, ratingUsersCount: bov.ratingUsersCount }));
       // Both `rating` and `ratingUsersCount` are useful to order books.
-      expect(movieOrder).toEqual([
+      expect(bookOrder).toEqual([
         { rating: 5, ratingUsersCount: 30 },
         { rating: 5, ratingUsersCount: 9 },
         { rating: 3, ratingUsersCount: 25 },
@@ -909,6 +909,82 @@ describe('BooksService', () => {
         expect(books[1].name).toBe('Dr. Nikola\'s Experiment');
         expect(books[1].author[0]).toBe('Guy Newell Boothby');
       });
+    });
+  });
+
+  describe('#getBookListCountForUser', () => {
+    let book1;
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    let activeUser;
+    beforeEach(async () => {
+      book1 = await booksService.create(
+        booksFactory.build({
+          status: BookActiveStatus.Active,
+          type: BookType.OpenLibrary,
+        }),
+      );
+      activeUser = await usersService.create(userFactory.build());
+    });
+
+    it('watch bookListCount', async () => {
+      const countBefore = await booksService.getBookListCountForUser(activeUser._id, 'read');
+      expect(countBefore).toBe(0);
+      await bookUserStatusModel.create({
+        name: 'book user status1',
+        userId: activeUser._id,
+        bookId: book1._id,
+        favourite: 0,
+        readingList: 0,
+        read: 1,
+        buy: 0,
+      });
+      const count = await booksService.getBookListCountForUser(activeUser._id, 'read');
+      expect(count).toBe(1);
+    });
+    it('watched bookListCount', async () => {
+      const countBefore = await booksService.getBookListCountForUser(activeUser._id, 'reading');
+      expect(countBefore).toBe(0);
+      await bookUserStatusModel.create({
+        name: 'book user status1',
+        userId: activeUser._id,
+        bookId: book1._id,
+        favourite: 0,
+        readingList: 1,
+        read: 0,
+        buy: 0,
+      });
+      const count = await booksService.getBookListCountForUser(activeUser._id, 'reading');
+      expect(count).toBe(1);
+    });
+    it('favorite bookListCount', async () => {
+      const countBefore = await booksService.getBookListCountForUser(activeUser._id, 'favorite');
+      expect(countBefore).toBe(0);
+      await bookUserStatusModel.create({
+        name: 'book user status1',
+        userId: activeUser._id,
+        bookId: book1._id,
+        favourite: 1,
+        readingList: 0,
+        read: 0,
+        buy: 0,
+      });
+      const count = await booksService.getBookListCountForUser(activeUser._id, 'favorite');
+      expect(count).toBe(1);
+    });
+    it('buy bookListCount', async () => {
+      const countBefore = await booksService.getBookListCountForUser(activeUser._id, 'buy');
+      expect(countBefore).toBe(0);
+      await bookUserStatusModel.create({
+        name: 'book user status1',
+        userId: activeUser._id,
+        bookId: book1._id,
+        favourite: 0,
+        readingList: 0,
+        read: 0,
+        buy: 1,
+      });
+      const count = await booksService.getBookListCountForUser(activeUser._id, 'buy');
+      expect(count).toBe(1);
     });
   });
 });

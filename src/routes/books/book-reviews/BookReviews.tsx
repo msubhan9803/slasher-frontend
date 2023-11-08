@@ -406,13 +406,14 @@ function BookReview({
         showReviewForm
           ? (
             <CreatePostComponent
-              movieData={bookReviewData}
+              bookData={bookReviewData}
               errorMessage={errorMessage}
               setPostMessageContent={setPostContent}
               defaultValue={decryptMessage(postContent, true)}
               formatMention={formatMention}
               setFormatMention={setFormatMention}
               postType="review"
+              reviewForm="book-review"
               createUpdatePost={addPost}
               containSpoiler={containSpoiler}
               setContainSpoiler={setContainSpoiler}

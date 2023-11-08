@@ -8,7 +8,7 @@ import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import { MoviesProps } from '../components/MovieProps';
 import MoviesHeader from '../MoviesHeader';
 import { MOVIE_WATCHED_LIST_DIV_ID } from '../../../utils/pubwise-ad-units';
-import { getUserMoviesList } from '../../../api/users';
+import { getMovieListCount, getUserMoviesList } from '../../../api/users';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
@@ -43,6 +43,7 @@ function WatchedListMovies() {
       : '',
   );
   const [callNavigate, setCallNavigate] = useState<boolean>(false);
+  const [movieListCount, setMovieListCount] = useState(null);
   const userId = useAppSelector((state) => state.user.user.id);
   const prevSearchRef = useRef(search);
   const prevKeyRef = useRef(key);
@@ -120,6 +121,12 @@ function WatchedListMovies() {
     dispatch, userId, isKeyMoviesReady, key, location, pageStateCache?.length,
   ]);
 
+  useEffect(() => {
+    getMovieListCount(userId, 'watched').then((res) => {
+      setMovieListCount(res.data);
+    });
+  });
+
   const applyFilter = (keyValue: string, sortValue?: string) => {
     setCallNavigate(true);
     setKey(keyValue.toLowerCase());
@@ -180,6 +187,12 @@ function WatchedListMovies() {
           </div>
         )}
       <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
+        {!!movieListCount && (
+          <div className="ps-2">
+            <span className="pe-1">Total:</span>
+            {movieListCount}
+          </div>
+        )}
         <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
         <div className="m-md-2">
           <InfiniteScroll

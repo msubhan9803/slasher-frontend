@@ -27,7 +27,7 @@ function BookDetails() {
   );
 
   useEffect(() => {
-    if (params.id && !bookData) {
+    if (params.id && (!bookData || bookData?.isUpdated)) {
       getBookById(params.id)
         .then((res) => {
           setBookData(res.data as any);

@@ -45,6 +45,7 @@ function CreatePost() {
   const [selectedPostType, setSelectedPostType] = useState<string>('');
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const paramsMovieId = searchParams.get('movieId');
+  const paramsBookId = searchParams.get('bookId');
   const dispatch = useAppDispatch();
 
   const addPost = async () => {
@@ -65,11 +66,21 @@ function CreatePost() {
       };
       return groupPostData;
     }
-    const createPostData: any = {
+    let createPostData: any = {
       message: postContentWithMentionReplacements,
       postType: PostType.User,
-      movieId: paramsMovieId,
     };
+    if (paramsMovieId) {
+      createPostData = {
+        ...createPostData,
+        movieId: paramsMovieId,
+      };
+    } else if (paramsBookId) {
+      createPostData = {
+        ...createPostData,
+        bookId: paramsBookId,
+      };
+    }
     return createPost(createPostData, imageArray, descriptionArray!)
       .then(async () => {
         setProgressButtonStatus('default');

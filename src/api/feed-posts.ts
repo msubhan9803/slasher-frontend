@@ -39,41 +39,40 @@ export async function createPost(
   }
   formData.append('message', postData.message);
   formData.append('postType', postData.postType);
-  if (postData.movieId && PostType.MovieReview) {
+  // Useful for `share-movie-as-post` and `movie-review-post`
+  if (postData.movieId) {
     formData.append('movieId', postData.movieId);
   }
-  if (postData.postType === PostType.MovieReview) {
+  const isMovieReviewPost = postData.postType === PostType.MovieReview;
+  if (isMovieReviewPost) {
     formData.append('moviePostFields[spoilers]', postData.spoiler);
-    const formDataHasMovieId = formData.has('movieId');
-    // Check before adding movieId to `formData` as we're already
-    // adding `movieId` to `formData` for feature: `share-movie-as-a-post`
-    if (!formDataHasMovieId) { formData.append('movieId', postData.movieId); }
-  }
-  if (postData.rate && postData.postType === PostType.MovieReview) {
-    formData.append('moviePostFields[rating]', postData.rate);
-  }
-  if (postData.goreFactorRate && postData.postType === PostType.MovieReview) {
-    formData.append('moviePostFields[goreFactorRating]', postData.goreFactorRate);
-  }
-  if (postData.worthIt && postData.postType === PostType.MovieReview) {
-    formData.append('moviePostFields[worthWatching]', postData.worthIt);
+    if (postData.rate) {
+      formData.append('moviePostFields[rating]', postData.rate);
+    }
+    if (postData.goreFactorRate) {
+      formData.append('moviePostFields[goreFactorRating]', postData.goreFactorRate);
+    }
+    if (postData.worthIt) {
+      formData.append('moviePostFields[worthWatching]', postData.worthIt);
+    }
   }
 
-  if (postData.postType === PostType.BookReview) {
+  // Useful for `share-book-as-post` and `book-review-post`
+  if (postData.bookId) {
+    formData.append('bookId', postData.bookId);
+  }
+  const isBookReviewPost = postData.postType === PostType.BookReview;
+  if (isBookReviewPost) {
     formData.append('bookPostFields[spoilers]', postData.spoiler);
-    const formDataHasMovieId = formData.has('postId');
-    // Check before adding movieId to `formData` as we're already
-    // adding `movieId` to `formData` for feature: `share-movie-as-a-post`
-    if (!formDataHasMovieId) { formData.append('bookId', postData.bookId); }
-  }
-  if (postData.rate && postData.postType === PostType.BookReview) {
-    formData.append('bookPostFields[rating]', postData.rate);
-  }
-  if (postData.goreFactorRate && postData.postType === PostType.BookReview) {
-    formData.append('bookPostFields[goreFactorRating]', postData.goreFactorRate);
-  }
-  if (postData.worthIt && postData.postType === PostType.BookReview) {
-    formData.append('bookPostFields[worthReading]', postData.worthIt);
+    if (postData.rate && postData.postType === PostType.BookReview) {
+      formData.append('bookPostFields[rating]', postData.rate);
+    }
+    if (postData.goreFactorRate && postData.postType === PostType.BookReview) {
+      formData.append('bookPostFields[goreFactorRating]', postData.goreFactorRate);
+    }
+    if (postData.worthIt && postData.postType === PostType.BookReview) {
+      formData.append('bookPostFields[worthReading]', postData.worthIt);
+    }
   }
 
   const headers = {

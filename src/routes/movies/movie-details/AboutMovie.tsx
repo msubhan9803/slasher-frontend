@@ -273,7 +273,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
                 </div>
               )}
           </Col>
-          <div className="d-block d-md-none d-lg-block mt-3">
+          <div className="d-block d-md-none d-lg-block mb-2">
             <a href={to} target="_blank" className="text-decoration-none" rel="noreferrer">
               <RoundButton className="w-100">Buy now</RoundButton>
             </a>

@@ -107,6 +107,7 @@ function ProfilePosts({ user }: Props) {
           likeCount: data.likeCount,
           commentCount: data.commentCount,
           movieId: data.movieId,
+          bookId: data?.bookId,
           hashtags: data.hashtags,
         }
       ));
@@ -176,6 +177,7 @@ function ProfilePosts({ user }: Props) {
           likeCount: data.likeCount,
           commentCount: data.commentCount,
           movieId: data.movieId,
+          bookId: data.bookId,
           hashtags: data.hashtags,
         }));
         setPosts(newPosts);

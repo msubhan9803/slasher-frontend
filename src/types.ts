@@ -52,6 +52,7 @@ export interface User {
   imagesCount: number,
   postsCount: number,
   friendsCount: number,
+  watchedListMovieCount: number,
 }
 
 export interface NewsPartnerPostProps {
@@ -72,10 +73,25 @@ export interface NewsPartnerPostProps {
   likes: string[];
 }
 
+type CrewData = {
+  adult: boolean,
+  gender: any,
+  id: number,
+  known_for_department: string,
+  name: string,
+  original_name: string,
+  popularity: 0.6,
+  profile_path: null,
+  credit_id: string,
+  department: string,
+  job: string
+};
+
 export interface AdditionalMovieData {
   cast: MovieCast;
   video: Video[];
   mainData: MainData;
+  crew: CrewData[];
 }
 
 export interface MovieCast {
@@ -468,3 +484,9 @@ export enum UserType {
   Regular = '1',
   Admin = '2',
 }
+
+export const movieList = ['watch', 'watched', 'favorite', 'buy'] as const;
+export type MovieListType = typeof movieList[number];
+
+export const bookList = ['reading', 'read', 'favorite', 'buy'] as const;
+export type BookListType = typeof bookList[number];

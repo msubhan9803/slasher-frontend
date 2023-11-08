@@ -55,7 +55,16 @@ function PosterCardList({
               <Link
                 className="m-1 text-decoration-none"
                 // eslint-disable-next-line max-len
-                onClick={() => { deletePageStateCache(`/app/movies/${listDetail._id}`); onSelect!(listDetail._id!); }}
+                onClick={() => {
+                  if (type === 'book') {
+                    deletePageStateCache(`/app/books/${listDetail._id}`);
+                  } else {
+                    deletePageStateCache(`/app/movies/${listDetail._id}`);
+                  }
+                  if (onSelect && listDetail._id) {
+                    onSelect(listDetail._id);
+                  }
+                }}
                 to={type === 'book' ? `/app/books/${listDetail._id}` : `/app/movies/${listDetail._id}`}
               >
                 <PosterCard

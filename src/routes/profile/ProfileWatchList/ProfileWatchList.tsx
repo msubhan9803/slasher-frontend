@@ -9,11 +9,11 @@ import ProfileHeader from '../ProfileHeader';
 import { User } from '../../../types';
 import { ALL_MOVIES_DIV_ID } from '../../../utils/pubwise-ad-units';
 import MoviesHeader from '../../movies/MoviesHeader';
-import { getUserMoviesList } from '../../../api/users';
+import { getMovieListCount, getUserMoviesList } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import RoundButton from '../../../components/ui/RoundButton';
-import { useAppDispatch } from '../../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { MoviesProps } from '../../movies/components/MovieProps';
 import { UIRouteURL } from '../../movies/RouteURL';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
@@ -48,6 +48,8 @@ function ProfileWatchList({ user }: Props) {
       ? (pageStateCache[pageStateCache.length - 1]?._id)
       : '',
   );
+  const [movieListCount, setMovieListCount] = useState(null);
+  const userId = useAppSelector((state) => state.user.user.id);
   const prevSearchRef = useRef(search);
   const prevKeyRef = useRef(key);
   const prevSortValRef = useRef(sortVal);
@@ -120,6 +122,13 @@ function ProfileWatchList({ user }: Props) {
     }
   }, [requestAdditionalMovies, loadingMovies, search, sortVal, lastMovieId, filteredMovies,
     dispatch, user._id, isKeyMoviesReady, key, location, pageStateCache?.length]);
+
+  useEffect(() => {
+    getMovieListCount(userId, 'watched').then((res) => {
+      setMovieListCount(res.data);
+    });
+  });
+
   const applyFilter = (keyValue: string, sortValue?: string) => {
     setCallNavigate(true);
     setKey(keyValue.toLowerCase());
@@ -182,7 +191,13 @@ function ProfileWatchList({ user }: Props) {
               </RoundButton>
             </div>
           )}
-        <div className="bg-dark bg-mobile-transparent rounded-3 py-3">
+        <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
+          {!!movieListCount && (
+            <div className="ps-2">
+              <span className="pe-1">Total:</span>
+              {movieListCount}
+            </div>
+          )}
           <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
           <div className="m-md-2">
             <InfiniteScroll

@@ -152,6 +152,11 @@ function AboutDetails({
   const hasRating = movieData.userData !== null && movieData.userData?.rating !== 0;
   const hasGoreFactor = movieData.userData !== null && movieData.userData?.goreFactorRating !== 0;
   const to = generateAmazonAffiliateLinkForMovie(aboutMovieDetail?.mainData?.title);
+  const directors: string = aboutMovieDetail.crew
+    ?.filter((crewMember) => crewMember?.job?.toLowerCase() === 'director')
+    ?.map((director) => director?.name)
+    ?.join(', ');
+
   return (
     <AboutMovieDetails className="text-xl-start pt-4">
       <Row className="justify-content-center mt-2 mt-xl-0">
@@ -161,6 +166,7 @@ function AboutDetails({
           </h1>
         </Col>
       </Row>
+      {directors && <Row className="pt-3 text-light">{directors}</Row>}
       <div className="d-block align-items-center justify-content-center justify-content-xl-between">
         <Row className="align-items-center">
           <Col className="d-flex justify-content-between my-3 text-light px-0">
@@ -285,7 +291,7 @@ function AboutDetails({
               : (
                 <div className="mt-2 d-flex justify-content-center">
                   <CustomRatingText
-                    rating={movieData.userData ? movieData.userData?.goreFactorRating : 0}
+                    rating={movieData.goreFactorRating ? movieData?.goreFactorRating : 0}
                     icon={solid('burst')}
                     ratingType="burst"
                     customWidth="1.638rem"

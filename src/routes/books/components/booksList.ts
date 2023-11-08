@@ -159,7 +159,7 @@ export const BookIconList = [
     label: 'Read', key: 'read', icon: solid('check'), iconColor: '#32D74B', width: '1.445rem', height: '1.033rem', addBook: false,
   },
   {
-    label: 'Reading list', key: 'readingList', icon: solid('list-check'), iconColor: '#FF8A00', width: '1.498rem', height: '1.265rem', addBook: false,
+    label: 'Reading list', key: 'readingList', icon: solid('list-check'), iconColor: '#FF8A00', width: '3rem', height: '1.265rem', addBook: false,
   },
   {
     label: 'Buy', key: 'buy', icon: solid('bag-shopping'), iconColor: '#FF1800', width: '1.098rem', height: '1.265rem', addBook: false,

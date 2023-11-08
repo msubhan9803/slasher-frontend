@@ -83,6 +83,8 @@ import { ConfirmDeleteAccountQueryDto } from './dto/confirm-delete-account-query
 import { FeedCommentsService } from '../feed-comments/providers/feed-comments.service';
 import { BooksService } from '../books/providers/books.service';
 import { FindAllBooksDto } from '../books/dto/find-all-books.dto';
+import { MovieListTypeDto } from '../movies/dto/movie-list-type-dto';
+import { BookListTypeDto } from '../books/dto/book-list-type-dto';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -543,6 +545,7 @@ export class UsersController {
     const imagesCount = await this.feedPostsService.getAllPostsImagesCountByUser(user.id);
     const postsCount = await this.feedPostsService.getFeedPostsCountByUser(user.id);
     const friendsCount = await this.friendsService.getActiveFriendCount(user.id, [FriendRequestReaction.Accepted]);
+    const watchedListMovieCount = await this.moviesService.getMovieListCountForUser(user.id, 'watched');
 
     const pickFields = ['_id', 'firstName', 'userName', 'profilePic', 'coverPhoto', 'aboutMe', 'profile_status'];
 
@@ -558,6 +561,7 @@ export class UsersController {
       imagesCount,
       postsCount,
       friendsCount,
+      watchedListMovieCount,
     };
   }
 
@@ -724,7 +728,7 @@ export class UsersController {
     return { profilePic: user.profilePic };
   }
 
-  @TransformImageUrls('$[*].images[*].image_path', '$[*].userId.profilePic')
+  @TransformImageUrls('$[*].images[*].image_path', '$[*].userId.profilePic', '$[*].bookId.coverImage.image_path')
   @Get(':userId/posts')
   async allFeedPosts(
     @Req() request: Request,
@@ -763,10 +767,10 @@ export class UsersController {
 
     return feedPosts.map(
       (post) => pick(
-post,
+        post,
         ['_id', 'message', 'images', 'userId', 'createdAt',
-          'likedByUser', 'likeCount', 'commentCount', 'movieId', 'hashtags'],
-),
+          'likedByUser', 'likeCount', 'commentCount', 'movieId', 'hashtags', 'bookId'],
+      ),
     );
   }
 
@@ -1022,6 +1026,40 @@ post,
     return movies.map(
       (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating', 'worthWatching']),
     );
+  }
+
+  @Get(':userId/movie-list-count')
+  async getMovieListCount(
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: MovieListTypeDto,
+  ) {
+    const user = await this.usersService.findById(param.userId, true);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const { type } = query;
+    const count = await this.moviesService.getMovieListCountForUser(user.id, type);
+
+    return count;
+  }
+
+  @Get(':userId/book-list-count')
+  async getBookListCount(
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: BookListTypeDto,
+  ) {
+    const user = await this.usersService.findById(param.userId, true);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const { type } = query;
+    const count = await this.booksService.getBookListCountForUser(user.id, type);
+
+    return count;
   }
 
   @TransformImageUrls('$[*].coverImage.image_path')

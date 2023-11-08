@@ -148,6 +148,7 @@ describe('All Feed Post (e2e)', () => {
           likedByUser: true,
           message: expect.any(String),
           movieId: null,
+          bookId: null,
           likeCount: 2,
           commentCount: 0,
         });
@@ -302,6 +303,7 @@ describe('All Feed Post (e2e)', () => {
         name: 'Shawshank Redemption',
         releaseDate: '2022-10-17T00:00:00.000Z',
       },
+      bookId: null,
       likeCount: 2,
       commentCount: 0,
     });

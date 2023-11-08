@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
@@ -20,9 +20,8 @@ import {
   MovieUserStatusBuy, MovieUserStatusFavorites,
   MovieUserStatusWatch, MovieUserStatusWatched,
 } from '../../schemas/movieUserStatus/movieUserStatus.enums';
-import { WorthWatchingStatus } from '../../types';
+import { MovieListType, WorthWatchingStatus } from '../../types';
 import { NON_ALPHANUMERIC_REGEX } from '../../constants';
-import { getSortSafeWeightedRatingOfMovie } from '../../schemas/movie/movie.pre-post-hooks';
 
 export interface Cast {
   'adult': boolean,
@@ -126,14 +125,31 @@ export interface MainData {
   'production_companies': ProductionCompanies[],
 }
 
+type CrewData = {
+  adult: boolean,
+  gender: any,
+  id: number,
+  known_for_department: string,
+  name: string,
+  original_name: string,
+  popularity: 0.6,
+  profile_path: null,
+  credit_id: string,
+  department: string,
+  job: string
+};
+
 export interface MovieDbData {
   cast: Cast[],
   video: VideoData,
   mainData: MainData,
+  crew: CrewData[],
 }
 
 @Injectable()
 export class MoviesService {
+  private readonly logger = new Logger(MoviesService.name);
+
   constructor(
     @InjectModel(Movie.name) private moviesModel: Model<MovieDocument>,
     @InjectModel(MovieUserStatus.name) private movieUserStatusModel: Model<MovieUserStatusDocument>,
@@ -521,7 +537,8 @@ export class MoviesService {
 
   async fetchMovieDbData(movieDbId: number): Promise<MovieDbData> {
     const movieDbApiKey = this.configService.get<string>('MOVIE_DB_API_KEY');
-    const [castAndCrewData, videoData, mainDetails, configDetails]: any = await Promise.all([
+
+    const [castAndCrewDataSettled, videoDataSettled, mainDetailsSettled, configDetailsSettled]: any = await Promise.allSettled([
       lastValueFrom(this.httpService.get<MovieDbData>(
         `https://api.themoviedb.org/3/movie/${movieDbId}/credits?api_key=${movieDbApiKey}&language=en-US`,
       )),
@@ -536,6 +553,27 @@ export class MoviesService {
       )),
     ]);
 
+    let castAndCrewData;
+    let videoData;
+    let mainDetails;
+    const configDetails = configDetailsSettled.value;
+
+    if (castAndCrewDataSettled.status === 'fulfilled') {
+      castAndCrewData = castAndCrewDataSettled.value;
+    } else {
+      this.logger.error('Failed to load `castAndCrewData` for movieDbId:', movieDbId);
+    }
+    if (videoDataSettled.status === 'fulfilled') {
+      videoData = videoDataSettled.value;
+    } else {
+      this.logger.error('Failed to load `videoData` for movieDbId:', movieDbId);
+    }
+    if (mainDetailsSettled.status === 'fulfilled') {
+      mainDetails = mainDetailsSettled.value;
+    } else {
+      this.logger.error('Failed to load `mainDetails` for movieDbId:', movieDbId);
+    }
+
     const mainData = JSON.parse(JSON.stringify(mainDetails.data));
     if (mainData.poster_path) {
       // eslint-disable-next-line no-param-reassign
@@ -545,7 +583,15 @@ export class MoviesService {
       mainData.poster_path = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
     }
     const secureBaseUrl = `${configDetails.data.images.secure_base_url}w185`;
-    const cast = JSON.parse(JSON.stringify(castAndCrewData.data.cast));
+    const cast = JSON.parse(JSON.stringify(castAndCrewData?.data?.cast || []));
+    const crew = JSON.parse(JSON.stringify(castAndCrewData?.data?.crew || []));
+
+    const expectedCrewValues: CrewData[] = [];
+    crew.forEach((crewMember) => {
+      if (crewMember?.job?.toLowerCase() === 'director') {
+        expectedCrewValues.push(crewMember);
+      }
+    });
 
     cast.forEach((profile) => {
       if (profile.profile_path) {
@@ -585,6 +631,7 @@ export class MoviesService {
       cast: expectedCastValues,
       video: expectedVideosValues,
       mainData: expectedMainData,
+      crew: expectedCrewValues,
     };
   }
 
@@ -620,59 +667,29 @@ export class MoviesService {
     return favoriteMovieIdArray as unknown as MovieUserStatusDocument[];
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  async testFunction() {
-    // eslint-disable-next-line no-console
-    console.log('hello');
-    let i = 1;
-    // let CONTINUE = true;
-    // let sum = 0;
-    // let numOfItems  = 0;
-    // eslint-disable-next-line no-unreachable-loop
-    for await (
-      const doc of this.moviesModel
-        .find()
-        .cursor()
-    ) {
-      // 5da965d801651524ded15c88
-      // console.log(i);
-      // eslint-disable-next-line no-plusplus
-      i++;
-      // if (doc._id.toString() === '5def446422f6901701a95145') {
-      //   CONTINUE = false;
-      // }
+  async getMovieListCountForUser(userId: string, type: MovieListType): Promise<number> {
+    let count = 0;
 
-      // if (CONTINUE) { continue; }
-      // if (i === 10) { break; }
-      if ((i % 1000) === 0) {
-        // eslint-disable-next-line no-console
-        console.log('items processed?', i);
-      }
-      // const ratingUsersCount = await this.getRatingUsersCount(doc._id.toString());
-      // const kk = generateSortRatingAndRatingUsersCount(doc.rating, ratingUsersCount, doc._id.toString());
-      // const kk = generateSortRatingAndRatingUsersCount(doc.rating, doc.ratingUsersCount, doc._id.toString());
-      // console.log(kk);
-      // doc.ratingUsersCount = ratingUsersCount;
-      // doc.sortRatingAndRatingUsersCount = kk;
-
-      // Deleting field (make sure field is not defined in schema)
-      // doc.set('sortRatingAndRatingUsersCount', undefined, { strict: false });
-
-      const sortSafeWeightedRating = getSortSafeWeightedRatingOfMovie(doc.rating, doc.ratingUsersCount);
-      const kk = `${sortSafeWeightedRating}_${doc._id.toString()}`;
-      // console.log('kk?', kk);
-      doc.sortRatingAndRatingUsersCount = kk;
-      await doc.save();
-
-      // return;
-      // return doc;
-      // sum += doc.rating;
-      // numOfItems += 1;
-      // console.log('sum?', sum);
+    if (type === 'watch') {
+      count = await this.movieUserStatusModel
+        .find({ userId: new mongoose.Types.ObjectId(userId), watch: MovieUserStatusWatch.Watch }, { movieId: 1, _id: 0 })
+        .count();
     }
-    // const avg = (sum / numOfItems).toFixed(2);
-    // console.log('sum?', sum);
-    // console.log('numOfItems?', numOfItems);
-    // console.log('avg?', avg);
+    if (type === 'watched') {
+      count = await this.movieUserStatusModel
+        .find({ userId: new mongoose.Types.ObjectId(userId), watched: MovieUserStatusWatched.Watched }, { movieId: 1, _id: 0 })
+        .count();
+    }
+    if (type === 'favorite') {
+      count = await this.movieUserStatusModel
+        .find({ userId: new mongoose.Types.ObjectId(userId), favourite: MovieUserStatusFavorites.Favorite }, { movieId: 1, _id: 0 })
+        .count();
+    }
+    if (type === 'buy') {
+      count = await this.movieUserStatusModel
+        .find({ userId: new mongoose.Types.ObjectId(userId), buy: MovieUserStatusBuy.Buy }, { movieId: 1, _id: 0 })
+        .count();
+    }
+    return count;
   }
 }

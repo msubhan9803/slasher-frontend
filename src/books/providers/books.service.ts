@@ -20,7 +20,9 @@ import {
   BookUserStatusBuy, BookUserStatusFavorites, BookUserStatusRead, BookUserStatusReadingList,
 } from '../../schemas/bookUserStatus/bookUserStatus.enums';
 import { escapeStringForRegex } from '../../utils/escape-utils';
-import { BookKeysFromOpenLibrary, BookFromOpenLibrary, WorthReadingStatus } from '../../types';
+import {
+  BookKeysFromOpenLibrary, BookFromOpenLibrary, WorthReadingStatus, BookListType,
+} from '../../types';
 import { S3StorageService } from '../../local-storage/providers/s3-storage.service';
 import { getCoverImageForBookOfOpenLibrary } from '../../utils/text-utils';
 import { StorageLocationService } from '../../global/providers/storage-location.service';
@@ -281,6 +283,32 @@ export class BooksService {
       .exec();
     const readingBookIdArray = readingBookIdByUser.map((book) => book.bookId);
     return readingBookIdArray as unknown as BookUserStatusDocument[];
+  }
+
+  async getBookListCountForUser(userId: string, type: BookListType): Promise<number> {
+    let count = 0;
+
+    if (type === 'reading') {
+      count = await this.bookUserStatusModel
+        .find({ userId: new mongoose.Types.ObjectId(userId), readingList: BookUserStatusReadingList.ReadingList }, { bookId: 1, _id: 0 })
+        .count();
+    }
+    if (type === 'read') {
+      count = await this.bookUserStatusModel
+        .find({ userId: new mongoose.Types.ObjectId(userId), read: BookUserStatusRead.Read }, { bookId: 1, _id: 0 })
+        .count();
+    }
+    if (type === 'favorite') {
+      count = await this.bookUserStatusModel
+        .find({ userId: new mongoose.Types.ObjectId(userId), favourite: BookUserStatusFavorites.Favorite }, { bookId: 1, _id: 0 })
+        .count();
+    }
+    if (type === 'buy') {
+      count = await this.bookUserStatusModel
+        .find({ userId: new mongoose.Types.ObjectId(userId), buy: BookUserStatusBuy.Buy }, { bookId: 1, _id: 0 })
+        .count();
+    }
+    return count;
   }
 
   async syncWithOpenLibrary(): Promise<ReturnBookDb> {

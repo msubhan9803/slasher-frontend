@@ -55,3 +55,9 @@ export type BookFromOpenLibrary = {
 };
 type BookKey = keyof BookFromOpenLibrary;
 export type BookKeysFromOpenLibrary = BookKey[];
+
+export const movieList = ['watch', 'watched', 'favorite', 'buy'] as const;
+export type MovieListType = typeof movieList[number];
+
+export const bookList = ['reading', 'read', 'favorite', 'buy'] as const;
+export type BookListType = typeof bookList[number];

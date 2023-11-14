@@ -291,7 +291,7 @@ function AboutDetails({
               : (
                 <div className="mt-2 d-flex justify-content-center">
                   <CustomRatingText
-                    rating={movieData.userData ? movieData.userData?.goreFactorRating : 0}
+                    rating={movieData.goreFactorRating ? movieData?.goreFactorRating : 0}
                     icon={solid('burst')}
                     ratingType="burst"
                     customWidth="1.638rem"

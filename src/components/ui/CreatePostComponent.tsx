@@ -23,7 +23,8 @@ import CustomWortItText from './CustomWortItText';
 import { StyledBorder } from './StyledBorder';
 import WorthWatchIcon from '../../routes/movies/components/WorthWatchIcon';
 import {
-  ContentDescription, AdditionalMovieData, MovieData, WorthWatchingStatus,
+  ContentDescription, AdditionalMovieData, MovieData,
+  WorthWatchingStatus, BookData, WorthReadingStatus,
 } from '../../types';
 import { getMoviesById, getMoviesDataById } from '../../api/movies';
 import { StyledMoviePoster } from '../../routes/movies/movie-details/StyledUtils';
@@ -31,6 +32,7 @@ import { LG_MEDIA_BREAKPOINT, isNativePlatform, topToDivHeight } from '../../con
 import { ProgressButtonComponentType } from './ProgressButton';
 import { getSuggestHashtag } from '../../api/searchHashtag';
 import { getBookById } from '../../api/books';
+import WorthWatchIconBook from '../../routes/books/components/WorthWatchIcon';
 
 interface MentionProps {
   id: string;
@@ -46,6 +48,7 @@ interface FormatMentionProps {
 }
 interface Props {
   movieData?: MovieData;
+  bookData?: BookData;
   errorMessage?: string[] | undefined;
   createUpdatePost?: () => void;
   setPostMessageContent: (val: string) => void;
@@ -58,6 +61,7 @@ interface Props {
   deleteImageIds?: any;
   setDeleteImageIds?: any;
   postType?: string;
+  reviewForm?: string;
   titleContent?: string;
   setTitleContent?: (value: string) => void;
   containSpoiler?: boolean;
@@ -98,9 +102,9 @@ const PostTypeButton = styled(Button)`
 `;
 
 function CreatePostComponent({
-  movieData, errorMessage, createUpdatePost, setPostMessageContent,
+  movieData, bookData, errorMessage, createUpdatePost, setPostMessageContent,
   imageArray, setImageArray, defaultValue, formatMention, setFormatMention,
-  deleteImageIds, setDeleteImageIds, postType, titleContent, setTitleContent,
+  deleteImageIds, setDeleteImageIds, postType, reviewForm, titleContent, setTitleContent,
   containSpoiler, setContainSpoiler, rating, setRating, goreFactor, setGoreFactor,
   selectedPostType, setSelectedPostType, setWorthIt, liked, setLike, setReviewForm,
   disLiked, setDisLike, isWorthIt, placeHolder, descriptionArray, setDescriptionArray,
@@ -342,38 +346,74 @@ function CreatePostComponent({
                   isGoreFator
                 />
               </div>
-              <div>
-                <Form.Label className="fw-bold h3">Worth watching?</Form.Label>
-                <div className="d-flex align-items-center">
-                  <WorthWatchIcon
-                    movieData={movieData}
-                    setWorthIt={setWorthIt}
-                    liked={liked!}
-                    setLike={setLike!}
-                    disLiked={disLiked!}
-                    setDisLike={setDisLike!}
-                    postType={postType}
-                    circleWidth="2.534rem"
-                    circleHeight="2.534rem"
-                    iconWidth="1.352rem"
-                    iconHeight="1.352rem"
-                    isWorthIt={isWorthIt}
-                    clickType="form"
-                  />
-                  {isWorthIt !== WorthWatchingStatus.NoRating
-                    && (
-                      <CustomWortItText
-                        divClass="mt-2 align-items-center px-3 bg-black rounded-pill py-2"
-                        textClass="fs-4"
-                        customCircleWidth="20px"
-                        customCircleHeight="20px"
-                        customIconWidth="10.67px"
-                        customIconHeight="10.67px"
-                        worthIt={isWorthIt}
-                      />
-                    )}
+              {reviewForm === 'movie-review' && (
+                <div>
+                  <Form.Label className="fw-bold h3">Worth watching?</Form.Label>
+                  <div className="d-flex align-items-center">
+                    <WorthWatchIcon
+                      movieData={movieData}
+                      setWorthIt={setWorthIt}
+                      liked={liked!}
+                      setLike={setLike!}
+                      disLiked={disLiked!}
+                      setDisLike={setDisLike!}
+                      postType={postType}
+                      circleWidth="2.534rem"
+                      circleHeight="2.534rem"
+                      iconWidth="1.352rem"
+                      iconHeight="1.352rem"
+                      isWorthIt={isWorthIt}
+                      clickType="form"
+                    />
+                    {isWorthIt !== WorthWatchingStatus.NoRating
+                      && (
+                        <CustomWortItText
+                          divClass="mt-2 align-items-center px-3 bg-black rounded-pill py-2"
+                          textClass="fs-4"
+                          customCircleWidth="20px"
+                          customCircleHeight="20px"
+                          customIconWidth="10.67px"
+                          customIconHeight="10.67px"
+                          worthIt={isWorthIt}
+                        />
+                      )}
+                  </div>
                 </div>
-              </div>
+              )}
+              {reviewForm === 'book-review' && (
+                <div>
+                  <Form.Label className="fw-bold h3">Worth reading?</Form.Label>
+                  <div className="d-flex align-items-center">
+                    <WorthWatchIconBook
+                      bookData={bookData}
+                      setWorthIt={setWorthIt}
+                      liked={liked!}
+                      setLike={setLike!}
+                      disLiked={disLiked!}
+                      setDisLike={setDisLike!}
+                      postType={postType}
+                      circleWidth="2.534rem"
+                      circleHeight="2.534rem"
+                      iconWidth="1.352rem"
+                      iconHeight="1.352rem"
+                      isWorthIt={isWorthIt}
+                      clickType="form"
+                    />
+                    {isWorthIt !== WorthReadingStatus.NoRating
+                      && (
+                        <CustomWortItText
+                          divClass="mt-2 align-items-center px-3 bg-black rounded-pill py-2"
+                          textClass="fs-4"
+                          customCircleWidth="20px"
+                          customCircleHeight="20px"
+                          customIconWidth="10.67px"
+                          customIconHeight="10.67px"
+                          worthIt={isWorthIt}
+                        />
+                      )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           <h1 className="h3 mb-3">Write your review</h1>
@@ -522,6 +562,7 @@ function CreatePostComponent({
 }
 CreatePostComponent.defaultProps = {
   movieData: undefined,
+  bookData: undefined,
   defaultValue: '',
   deleteImageIds: [],
   setDeleteImageIds: () => { },
@@ -530,6 +571,7 @@ CreatePostComponent.defaultProps = {
   setImageArray: undefined,
   errorMessage: undefined,
   postType: '',
+  reviewForm: '',
   titleContent: '',
   setTitleContent: undefined,
   containSpoiler: false,

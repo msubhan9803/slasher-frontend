@@ -1,7 +1,7 @@
 {
   "name": "slasher-web-frontend",
-  "version": "4.8.0",
-  "capacitorAppBuildNumber": 218,
+  "version": "4.8.2",
+  "capacitorAppBuildNumber": 220,
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {

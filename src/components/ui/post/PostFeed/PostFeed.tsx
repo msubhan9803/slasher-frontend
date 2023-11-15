@@ -52,7 +52,8 @@ import {
 import { useAppSelector } from '../../../../redux/hooks';
 import CustomSelect from '../../../filter-sort/CustomSelect';
 import { ProgressButtonComponentType } from '../../ProgressButton';
-import TpdAd, { tempTpdDivIdMap, testFun } from '../../TpdAd';
+import TpdAd from '../../TpdAd';
+import { tpdAdSlotIdA } from '../../../../utils/tpd-ad-slot-ids';
 
 interface Props {
   popoverOptions: string[];
@@ -495,9 +496,6 @@ function PostFeed({
     }
     return 'post';
   };
-  // tempTpdDivIdMap.singlePagePost
-  // console.log('tempTpdDivIdMap.singlePagePost?', tempTpdDivIdMap);
-  Object.assign(window, { tempTpdDivIdMap });
   return (
     <StyledPostFeed>
       {isPostDetailsPage(pathname) && <ScrollToTop />}
@@ -649,11 +647,10 @@ function PostFeed({
           {!isSinglePost && <hr className="post-separator" />}
 
           {/* Show ad after every three posts. */}
-          {/* // ! Ading i<6 condition for testing only for TPD ads only! TODO: REMOVE THIS AFTER TESTING. */}
-          {(i + 1) % 3 === 0 && pubWiseAdDivId && (i < 15) && (
+          {(i + 1) % 3 === 0 /* (i=2,5,8,11) */
+            && pubWiseAdDivId && (
             <>
-              {testFun(((i + 1) / 3) - 1)}
-              <TpdAd id={tempTpdDivIdMap[((i + 1) / 3) - 1]} />
+              <TpdAd slotId={tpdAdSlotIdA} id={`post-${(i + 1) / 3}`} />
               <hr className="post-separator" />
             </>
           )}

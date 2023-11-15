@@ -29,6 +29,7 @@ import Notifications from './routes/notifications/Notifications';
 import Account from './routes/account/Account';
 import ResetPassword from './routes/reset-password/ResetPassword';
 import AccountActivated from './routes/account-activated/AccountActivated';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import usePubWiseAdSlots from './hooks/usePubWiseAdSlots';
 import {
   topStatuBarBackgroundColorAndroidOnly, isNativePlatform,
@@ -57,6 +58,7 @@ import { isHomePage } from './utils/url-utils';
 import CapacitorAppListeners from './components/CapacitorAppListeners';
 import DebugGoogleAnalytics from './routes/debug-google-analytics';
 import { detectAppVersion } from './utils/version-utils';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { enableADs, enableDevFeatures } from './env';
 import Admin from './routes/admin/Admin';
 import useScript from './hooks/useScript';
@@ -152,7 +154,7 @@ if (isNativePlatform) {
 }
 
 function App() {
-  usePubWiseAdSlots(enableADs);
+  // usePubWiseAdSlots(enableADs);
   const tpdLoaded = useScript('https://cdn.tpdads.com/configs/slasher.js');
 
   const [appVersionDetected, setAppVersionDetected] = useState<boolean>(false);

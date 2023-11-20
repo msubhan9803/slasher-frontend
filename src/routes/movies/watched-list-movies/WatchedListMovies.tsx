@@ -7,7 +7,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import { MoviesProps } from '../components/MovieProps';
 import MoviesHeader from '../MoviesHeader';
-import { MOVIE_WATCHED_LIST_DIV_ID } from '../../../utils/pubwise-ad-units';
 import { getMovieListCount, getUserMoviesList } from '../../../api/users';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
@@ -204,7 +203,6 @@ function WatchedListMovies() {
           >
             <PosterCardList
               dataList={filteredMovies}
-              pubWiseAdUnitDivId={MOVIE_WATCHED_LIST_DIV_ID}
               onSelect={persistScrollPosition}
             />
           </InfiniteScroll>

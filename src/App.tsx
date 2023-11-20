@@ -29,8 +29,6 @@ import Notifications from './routes/notifications/Notifications';
 import Account from './routes/account/Account';
 import ResetPassword from './routes/reset-password/ResetPassword';
 import AccountActivated from './routes/account-activated/AccountActivated';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import usePubWiseAdSlots from './hooks/usePubWiseAdSlots';
 import {
   topStatuBarBackgroundColorAndroidOnly, isNativePlatform,
 } from './constants';
@@ -61,7 +59,7 @@ import { detectAppVersion } from './utils/version-utils';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { enableADs, enableDevFeatures } from './env';
 import Admin from './routes/admin/Admin';
-import useScript from './hooks/useScript';
+import useTPDAdSlots from './hooks/useTPDAdSlots';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -154,8 +152,7 @@ if (isNativePlatform) {
 }
 
 function App() {
-  // usePubWiseAdSlots(enableADs);
-  const tpdLoaded = useScript('https://cdn.tpdads.com/configs/slasher.js');
+  useTPDAdSlots(enableADs);
 
   const [appVersionDetected, setAppVersionDetected] = useState<boolean>(false);
   const isServerAvailable = useAppSelector((state) => state.serverAvailability.isAvailable);
@@ -199,7 +196,8 @@ function App() {
 
   return (
     <>
-      {!tpdLoaded && 'TPD script is loading...'}
+      {/* // ! Remove this after testing TPD ads */}
+      {/* {!tpdLoaded && 'TPD script is loading...'} */}
       {isServerAvailable || <ServerUnavailable />}
       <RouterProvider router={router} />
     </>

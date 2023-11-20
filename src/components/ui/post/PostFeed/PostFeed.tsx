@@ -38,13 +38,12 @@ import {
 import RoundButton from '../../RoundButton';
 import CustomRatingText from '../../CustomRatingText';
 import CustomWortItText from '../../CustomWortItText';
-import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
 import LoadingIndicator from '../../LoadingIndicator';
 import { defaultLinkifyOpts } from '../../../../utils/linkify-utils';
 import { getLocalStorage } from '../../../../utils/localstorage-utils';
 import FormatImageVideoList from '../../../../utils/video-utils';
 import useOnScreen from '../../../../hooks/useOnScreen';
-import { isHomePage, isNewsPartnerPageSubRoutes, isPostDetailsPage } from '../../../../utils/url-utils';
+import { isPostDetailsPage } from '../../../../utils/url-utils';
 import ScrollToTop from '../../../ScrollToTop';
 import {
   postBookDataToBookDBformat, postMovieDataToMovieDBformat, showBookPoster, showMoviePoster,
@@ -53,7 +52,7 @@ import { useAppSelector } from '../../../../redux/hooks';
 import CustomSelect from '../../../filter-sort/CustomSelect';
 import { ProgressButtonComponentType } from '../../ProgressButton';
 import TpdAd from '../../TpdAd';
-import { tpdAdSlotIdA } from '../../../../utils/tpd-ad-slot-ids';
+import { getInfiniteAdSlot, tpdAdSlotIdZ } from '../../../../utils/tpd-ad-slot-ids';
 
 interface Props {
   popoverOptions: string[];
@@ -96,7 +95,7 @@ interface Props {
   commentSent?: boolean;
   setCommentReplyErrorMessage?: (value: string[]) => void;
   setCommentErrorMessage?: (value: string[]) => void;
-  showPubWiseAdAtPageBottom?: boolean;
+  showAdAtPageBottom?: boolean;
   setSelectedBlockedUserId?: (value: string) => void;
   setDropDownValue?: (value: string) => void;
   ProgressButton?: ProgressButtonComponentType;
@@ -341,8 +340,7 @@ function PostFeed({
   handleSearch, mentionList, commentImages, setCommentImages, commentError,
   commentReplyError, postType, onSpoilerClick,
   commentSent, setCommentReplyErrorMessage, setCommentErrorMessage,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  showPubWiseAdAtPageBottom, setSelectedBlockedUserId, setDropDownValue, ProgressButton,
+  showAdAtPageBottom, setSelectedBlockedUserId, setDropDownValue, ProgressButton,
   setProgressButtonStatus, commentOrReplySuccessAlertMessage, setCommentOrReplySuccessAlertMessage,
   commentsOrder, handleCommentsOrder,
 }: Props) {
@@ -351,7 +349,6 @@ function PostFeed({
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
   const loginUserId = useAppSelector((state) => state.user.user.id);
-  const location = useLocation();
   const navigate = useNavigate();
   const spoilerId = getLocalStorage('spoilersIds');
   // Below states (prefixed by `modal`) are useful for `LikeShareModal` component
@@ -437,14 +434,6 @@ function PostFeed({
       }
     }
   };
-
-  let pubWiseAdDivId: string = '';
-  if (isHomePage(location.pathname)) {
-    pubWiseAdDivId = HOME_WEB_DIV_ID;
-  }
-  if (isNewsPartnerPageSubRoutes(location.pathname)) {
-    pubWiseAdDivId = NEWS_PARTNER_POSTS_DIV_ID;
-  }
 
   const renderGroupPostContent = (posts: any) => (
     <>
@@ -642,24 +631,23 @@ function PostFeed({
             }
           </div>
           {/* Below ad is to be shown in the end of a single page post */}
-          {/* {isSinglePost && showPubWiseAdAtPageBottom && <TpdAd id={tempTpdDivIdMap.singlePagePost} />} */}
+          {isSinglePost && showAdAtPageBottom && <TpdAd id="single-page-post-ad-placeholder" slotId={tpdAdSlotIdZ} />}
 
           {!isSinglePost && <hr className="post-separator" />}
 
           {/* Show ad after every three posts. */}
           {(i + 1) % 3 === 0 /* (i=2,5,8,11) */
-            && pubWiseAdDivId && (
+            && (
             <>
-              <TpdAd slotId={tpdAdSlotIdA} id={`post-${(i + 1) / 3}`} />
+              <TpdAd slotId={getInfiniteAdSlot()} id={`post-${(i + 1) / 3}`} />
               <hr className="post-separator" />
             </>
-          )}
+            )}
         </div>
       ))}
 
-      {/* // ! ~SAHIL DISBALING THIS FOR TESTING WITH ThePublisherDesk use case only. TODO: FIX THIS AFTER TESTING IS DONE. */}
       {/* Show an ad if posts are less than 3 */}
-      {/* {!isSinglePost && pubWiseAdDivId && postData.length < 3 && postData.length !== 0 && <PubWiseAd className="my-3" id={pubWiseAdDivId} autoSequencer />} */}
+      {!isSinglePost && postData.length < 3 && postData.length !== 0 && <TpdAd className="my-3" id="post-0" slotId={tpdAdSlotIdZ} />}
       {
         showLikeShareModal
         && (
@@ -715,7 +703,7 @@ PostFeed.defaultProps = {
   commentSent: undefined,
   setCommentReplyErrorMessage: undefined,
   setCommentErrorMessage: undefined,
-  showPubWiseAdAtPageBottom: undefined,
+  showAdAtPageBottom: undefined,
   setSelectedBlockedUserId: undefined,
   setDropDownValue: undefined,
   ProgressButton: undefined,

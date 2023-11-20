@@ -11,13 +11,13 @@ import EventsPosterCard from '../EventsPosterCard';
 import EventPoster from '../../../images/events-poster.png';
 import 'leaflet/dist/leaflet.css';
 import MapComponent from '../../../components/ui/MapComponent';
-import PubWiseAd from '../../../components/ui/PubWiseAd';
 import useBootstrapBreakpointName from '../../../hooks/useBootstrapBreakpoint';
 import checkAdsEventByLocation from './checkAdsEventByLocation';
-import { EVENTS_BY_LOCATION_DIV_ID } from '../../../utils/pubwise-ad-units';
 import { DEFAULT_EVENTS_USER_LOCATION } from '../../../constants';
 import { LocationPointType } from '../../../types';
 import { getEventsByRectangularArea } from '../../../api/eventByRectangularArea';
+import { getInfiniteAdSlot } from '../../../utils/tpd-ad-slot-ids';
+import TpdAd from '../../../components/ui/TpdAd';
 
 type GetLocationOptions = { city: string, state: string, country: string };
 function getLocationName({ city, state, country }: GetLocationOptions) {
@@ -129,7 +129,7 @@ function EventsByLocation() {
                     listDetail={eventDetail as any}
                   />
                 </Col>
-                {show && <PubWiseAd className="my-3" id={EVENTS_BY_LOCATION_DIV_ID} autoSequencer />}
+                {show && <TpdAd className="my-3" id={`event-by-location-${i}`} slotId={getInfiniteAdSlot()} />}
               </React.Fragment>
             );
           })}

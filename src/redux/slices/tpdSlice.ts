@@ -1,14 +1,14 @@
 /* eslint-disable no-param-reassign */
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
-export const pubWiseSlice = createSlice({
-  name: 'pubWise',
+export const tpdSlice = createSlice({
+  name: 'tpd',
   initialState: {
     isSlotsDefined: false,
     isAdBlockerDetected: false,
   },
   reducers: {
-    setPubWiseSlots: (state) => ({
+    setTpdSlots: (state) => ({
       ...state,
       isSlotsDefined: true,
     }),
@@ -18,6 +18,6 @@ export const pubWiseSlice = createSlice({
   },
 });
 
-export const { setPubWiseSlots, setAdBlockerDetected } = pubWiseSlice.actions;
+export const { setTpdSlots, setAdBlockerDetected } = tpdSlice.actions;
 
-export default pubWiseSlice.reducer;
+export default tpdSlice.reducer;

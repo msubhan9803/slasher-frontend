@@ -3,10 +3,10 @@ import { Col, Row } from 'react-bootstrap';
 import EventHeader from '../EventHeader';
 import EventsPosterCard from '../EventsPosterCard';
 import EventPoster from '../../../images/events-poster.png';
-import PubWiseAd from '../../../components/ui/PubWiseAd';
 import checkAdsFavorites from './checkAdsFavorites';
 import useBootstrapBreakpointName from '../../../hooks/useBootstrapBreakpoint';
-import { EVENTS_FAVOURITES_DIV_ID } from '../../../utils/pubwise-ad-units';
+import TpdAd from '../../../components/ui/TpdAd';
+import { tpdAdSlotIdZ } from '../../../utils/tpd-ad-slot-ids';
 
 const eventsList = [
   {
@@ -66,7 +66,7 @@ function Favorites() {
                   {/* with real data from API. */}
                   <EventsPosterCard listDetail={eventDetail as any} />
                 </Col>
-                {show && <PubWiseAd className="my-3" id={EVENTS_FAVOURITES_DIV_ID} autoSequencer />}
+                {show && <TpdAd className="my-3" id="favorite-movie" slotId={tpdAdSlotIdZ} />}
               </React.Fragment>
             );
           })}

@@ -7,7 +7,6 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import ProfileHeader from '../ProfileHeader';
 import { User } from '../../../types';
-import { ALL_MOVIES_DIV_ID } from '../../../utils/pubwise-ad-units';
 import MoviesHeader from '../../movies/MoviesHeader';
 import { getMovieListCount, getUserMoviesList } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
@@ -209,7 +208,6 @@ function ProfileWatchList({ user }: Props) {
             >
               <PosterCardList
                 dataList={filteredMovies}
-                pubWiseAdUnitDivId={ALL_MOVIES_DIV_ID}
                 onSelect={persistScrollPosition}
               />
             </InfiniteScroll>

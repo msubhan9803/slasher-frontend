@@ -11,7 +11,7 @@ function News() {
       <Routes>
         <Route path="/" element={<NewsIndex />} />
         <Route path="/partner/:partnerId" element={<NewsPartnerDetail />} />
-        <Route path="/partner/:partnerId/posts/:postId" element={<PostDetail postType="news" showPubWiseAdAtPageBottom />} />
+        <Route path="/partner/:partnerId/posts/:postId" element={<PostDetail postType="news" showAdAtPageBottom />} />
       </Routes>
 
     </ContentSidbarWrapper>

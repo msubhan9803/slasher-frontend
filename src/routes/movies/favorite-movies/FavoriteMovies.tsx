@@ -7,7 +7,6 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import { MoviesProps } from '../components/MovieProps';
 import MoviesHeader from '../MoviesHeader';
-import { MOVIE_FAVORITE_DIV } from '../../../utils/pubwise-ad-units';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import RoundButton from '../../../components/ui/RoundButton';
@@ -202,7 +201,6 @@ function FavoriteMovies() {
           >
             <PosterCardList
               dataList={filteredMovies}
-              pubWiseAdUnitDivId={MOVIE_FAVORITE_DIV}
               onSelect={persistScrollPosition}
             />
           </InfiniteScroll>

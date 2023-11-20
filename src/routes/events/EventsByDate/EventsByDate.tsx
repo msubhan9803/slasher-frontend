@@ -13,8 +13,8 @@ import EventsPosterCard from '../EventsPosterCard';
 import { getEvents, getEventsDateCount } from '../../../api/eventByDate';
 import checkAdsEventByDate from './checkAdsEventByDate';
 import useBootstrapBreakpointName from '../../../hooks/useBootstrapBreakpoint';
-import PubWiseAd from '../../../components/ui/PubWiseAd';
-import { ALL_MOVIES_DIV_ID, EVENTS_BY_DATE_DIV_ID } from '../../../utils/pubwise-ad-units';
+import TpdAd from '../../../components/ui/TpdAd';
+import { getInfiniteAdSlot, tpdAdSlotIdZ } from '../../../utils/tpd-ad-slot-ids';
 
 const EventCalender = styled(Calendar)`
   .react-calendar__tile--now {
@@ -294,7 +294,7 @@ function EventsByDate() {
                   <Col md={6}>
                     <EventsPosterCard listDetail={eventDetail} />
                   </Col>
-                  {show && <PubWiseAd className="my-3" id={EVENTS_BY_DATE_DIV_ID} autoSequencer />}
+                  {show && <TpdAd className="my-3" id={`event-by-date-${i}`} slotId={getInfiniteAdSlot()} />}
                 </React.Fragment>
               );
             }))}
@@ -302,7 +302,7 @@ function EventsByDate() {
       </InfiniteScroll>
       {noMoreData && renderNoMoreDataMessage()}
       {/* Show an end in the end of page at all times */}
-      <PubWiseAd className="my-3" id={ALL_MOVIES_DIV_ID} autoSequencer />
+      <TpdAd className="my-3" id="event-by-date-ad-placeholder" slotId={tpdAdSlotIdZ} />
     </div>
   );
 }

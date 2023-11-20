@@ -5,16 +5,16 @@ import { Card, Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import { Link, useLocation } from 'react-router-dom';
 import { rssFeedInitialData } from '../../api/rss-feed-providers';
-import PubWiseAd from '../../components/ui/PubWiseAd';
 import useBootstrapBreakpointName from '../../hooks/useBootstrapBreakpoint';
 import checkAdsNewsIndex from './checkAdsNewsIndex';
-import { NEWS_DIV_ID } from '../../utils/pubwise-ad-units';
 import { ContentPageWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import {
   deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../pageStateCache';
+import TpdAd from '../../components/ui/TpdAd';
+import { getInfiniteAdSlot } from '../../utils/tpd-ad-slot-ids';
 
 const TrucatedDescription = styled.small`
   display: -webkit-box;
@@ -79,7 +79,7 @@ function NewsIndex() {
                       </Card>
                     </Link>
                   </Col>
-                  {show && <PubWiseAd className="my-3" id={NEWS_DIV_ID} autoSequencer />}
+                  {show && <TpdAd className="my-3" id={`news-${i}`} slotId={getInfiniteAdSlot()} />}
                 </React.Fragment>
               );
             })}

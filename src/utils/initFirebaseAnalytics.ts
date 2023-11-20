@@ -1,7 +1,7 @@
 import { FirebaseAnalytics } from '@capacitor-community/firebase-analytics';
 import { analyticsJson } from '../env';
 import { getAppVersion } from './version-utils';
-import { envValueForPubWiseAndGoogleAnalytics, osValueForPubWiseAndGoogleAnalytics } from '../constants';
+import { envValueForTpdAndGoogleAnalytics, osValueForTpdAndGoogleAnalytics } from '../constants';
 
 let firebaseApp: any;
 
@@ -45,8 +45,8 @@ export const sendDebugTexttToGoogleAnalytics = (debugText: string) => {
 export const sendUserPropertiesToGoogleAnalyticsOnPageLoad = () => {
   sendEventHelper('user_properties', {
     slasher_app_version: getAppVersion(),
-    os: osValueForPubWiseAndGoogleAnalytics,
-    env: envValueForPubWiseAndGoogleAnalytics,
+    os: osValueForTpdAndGoogleAnalytics,
+    env: envValueForTpdAndGoogleAnalytics,
   });
 };
 

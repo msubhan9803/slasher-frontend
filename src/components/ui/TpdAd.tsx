@@ -26,17 +26,6 @@ interface AdContainerProps {
   children?: React.ReactNode;
 }
 
-const SponsoredElement = <div className="text-center mt-2 fs-6 fw-normal">Sponsored</div>;
-
-/**
- * Why give static heights to ad-unit and ad-uni-container?
- * To prevent content-jumping while content is loading.
- * 1. You must give static `width` and `height` to each element so they have predictable size.
- * 2. We're giving height more of 15px to container to accomodate height of `SponsoredElement` well
- */
-const AD_UNIT_STYLE = { width: 300, height: 250, margin: 'auto' };
-const AD_CONTAINER_STYLE = { margin: 'auto' };
-
 function AdContainer({
   id,
   slotId,
@@ -70,12 +59,36 @@ function AdContainer({
     });
   }, [id, slotId]);
 
+  /**
+ * Why give static heights to ad-unit and ad-uni-container?
+ * To prevent content-jumping while content is loading.
+ * 1. You must give static `width` and `height` to each element so they have predictable size.
+ * 2. We're giving height more of 15px to container to accomodate height of `SponsoredElement` well
+ */
+  const AD_UNIT_STYLE: React.CSSProperties = {
+    // width: 300,
+    // height: 250,
+    // margin: 'auto',
+    // We're making the ad-unit div `flex` with direction `column` to vertically center ad content.
+    // display: 'flex',
+    // flexDirection: 'column',
+    // justifyContent: 'center',
+  };
+  const AD_CONTAINER_STYLE: React.CSSProperties = {
+    height: 250,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+  };
+
   return (
-    <div className={adContainerClassName} style={{ ...AD_CONTAINER_STYLE, ...adContainerStyle }}>
-      <div style={{ ...AD_UNIT_STYLE, ...adUnitStyle }} className={adUnitClassName} id={id}>
-        {children}
+    <div>
+      <div className={adContainerClassName} style={{ ...AD_CONTAINER_STYLE, ...adContainerStyle }}>
+        <div style={{ ...AD_UNIT_STYLE, ...adUnitStyle }} className={adUnitClassName} id={id}>
+          {children}
+        </div>
       </div>
-      {SponsoredElement}
+      <div className="text-center mt-2 fs-6 fw-normal w-100">Sponsored</div>
     </div>
   );
 }

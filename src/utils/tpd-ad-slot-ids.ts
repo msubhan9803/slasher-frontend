@@ -18,6 +18,8 @@ export const tpdAdSlotIdD = isTpdMobile ? 'mob-box-ad-d' : 'dsk-box-ad-d';
 // single page ad e.g., movie-details, event-details, etc
 export const tpdAdSlotIdZ = isTpdMobile ? 'mob-box-ad-z' : 'dsk-box-ad-z';
 
+export const tpdAdSlotIdBannerA = isTpdMobile ? 'mob-banner-ad-a' : 'dsk-banner-ad-a';
+
 const slotsForInfiniteAds = [
   tpdAdSlotIdB,
   tpdAdSlotIdC,

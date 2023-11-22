@@ -15,7 +15,7 @@ export const tpdAdSlotIdA = isTpdMobile ? 'mob-box-ad-a' : 'dsk-box-ad-a';
 export const tpdAdSlotIdB = isTpdMobile ? 'mob-box-ad-b' : 'dsk-box-ad-b';
 export const tpdAdSlotIdC = isTpdMobile ? 'mob-box-ad-c' : 'dsk-box-ad-c';
 export const tpdAdSlotIdD = isTpdMobile ? 'mob-box-ad-d' : 'dsk-box-ad-d';
-// single page ad e.g., movie-details, event-details, etc
+// single page ad e.g., movie-details, book-details, event-details, etc
 export const tpdAdSlotIdZ = isTpdMobile ? 'mob-box-ad-z' : 'dsk-box-ad-z';
 
 export const tpdAdSlotIdBannerA = isTpdMobile ? 'mob-banner-ad-a' : 'dsk-banner-ad-a';

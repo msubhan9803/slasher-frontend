@@ -8,6 +8,7 @@ import SlasherAbout2 from '../../../images/slasher-about-2.png';
 import SlasherAbout3 from '../../../images/slasher-about-3.png';
 import SlasherAbout4 from '../../../images/slasher-about-4.png';
 import { SM_MEDIA_BREAKPOINT } from '../../../constants';
+import DownloadStoreBadge from '../components/DownloadStoreBadge';
 
 const StyledAbout = styled.div`
   @media (max-width: ${SM_MEDIA_BREAKPOINT}){
@@ -48,6 +49,7 @@ function AboutApp() {
               horror fans? Slasher makes it possible to make connections faster than any other
               social platform! The people behind Slasher are horror fans too!
             </p>
+            <DownloadStoreBadge />
           </Col>
         </Row>
 
@@ -65,6 +67,7 @@ function AboutApp() {
               share, get info, watch trailers, check out ratings from other Slasher members,
               and talk about thousands of horror movies from all over the world!
             </p>
+            <DownloadStoreBadge />
           </Col>
         </Row>
 
@@ -78,6 +81,7 @@ function AboutApp() {
               Looking for a horror convention? Maybe a film festival? Check out Slasher’s
               event calendar to see what kind of cool things are going on near you!
             </p>
+            <DownloadStoreBadge />
           </Col>
         </Row>
 
@@ -91,6 +95,7 @@ function AboutApp() {
               If you’re interested in the latest horror news and reviews, you’ll find it all on
               Slasher! Stay up-to-date with news from some of the top websites in horror!
             </p>
+            <DownloadStoreBadge />
           </Col>
         </Row>
       </StyledContainer>

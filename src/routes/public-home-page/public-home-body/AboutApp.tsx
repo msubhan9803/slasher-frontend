@@ -37,7 +37,7 @@ function AboutApp() {
             </p>
           </Col>
         </Row>
-        <Row className="mx-auto content align-items-center mb-3">
+        <Row className="mx-auto content align-items-center mb-5 pb-4">
           <Col md={6}>
             <Image fluid src={SlasherAbout1} className="" alt="about 1" />
           </Col>

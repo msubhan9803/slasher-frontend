@@ -8,6 +8,7 @@ import SlasherAbout2 from '../../../images/slasher-about-2.png';
 import SlasherAbout3 from '../../../images/slasher-about-3.png';
 import SlasherAbout4 from '../../../images/slasher-about-4.png';
 import { SM_MEDIA_BREAKPOINT } from '../../../constants';
+import DownloadStoreBadge from '../components/DownloadStoreBadge';
 
 const StyledAbout = styled.div`
   @media (max-width: ${SM_MEDIA_BREAKPOINT}){
@@ -42,12 +43,13 @@ function AboutApp() {
           </Col>
           <Col md={6} className="pt-4 mb-md-5 text-center text-sm-start">
             <h2 className="text-primary text-uppercase h1 mb-3 fw-bold">Social Network</h2>
-            <p className="pe-lg-3 text-light fs-4 mb-5">
+            <p className="pe-lg-3 text-light fs-4 mb-4">
               Slasher was built for horror fans! Now you can enjoy a friendly community with no
               censorship of bloody or gory special effects and makeup! Want to connect with other
               horror fans? Slasher makes it possible to make connections faster than any other
               social platform! The people behind Slasher are horror fans too!
             </p>
+            <DownloadStoreBadge />
           </Col>
         </Row>
 
@@ -59,12 +61,13 @@ function AboutApp() {
             <h3 className="text-primary text-uppercase h1 mb-3 fw-bold me-lg-3">
               THE LARGEST HORROR MOVIE DATABASE
             </h3>
-            <p className="text-light fs-4 mb-5">
+            <p className="text-light fs-4 mb-4">
               Slasher has the largest horror movie database online! You can also find two
               unique movie rating systems on Slasher: Gore Factor and Worth It! Write reviews,
               share, get info, watch trailers, check out ratings from other Slasher members,
               and talk about thousands of horror movies from all over the world!
             </p>
+            <DownloadStoreBadge />
           </Col>
         </Row>
 
@@ -74,10 +77,11 @@ function AboutApp() {
           </Col>
           <Col md={6} className="pt-5 mb-md-5 text-center text-sm-start">
             <h4 className="text-primary text-uppercase h1 mb-3 fw-bold">EVENTS CALENDAR</h4>
-            <p className="text-light fs-4 mb-5 me-lg-3">
+            <p className="text-light fs-4 mb-4 me-lg-3">
               Looking for a horror convention? Maybe a film festival? Check out Slasher’s
               event calendar to see what kind of cool things are going on near you!
             </p>
+            <DownloadStoreBadge />
           </Col>
         </Row>
 
@@ -87,10 +91,11 @@ function AboutApp() {
           </Col>
           <Col md={6} className="pt-5 order-2 order-md-1 mb-md-5 text-center text-sm-start">
             <h5 className="text-primary text-uppercase h1 mb-3 fw-bold">NEWS &amp; REVIEWS</h5>
-            <p className="text-light fs-4 mb-5">
+            <p className="text-light fs-4 mb-4">
               If you’re interested in the latest horror news and reviews, you’ll find it all on
               Slasher! Stay up-to-date with news from some of the top websites in horror!
             </p>
+            <DownloadStoreBadge />
           </Col>
         </Row>
       </StyledContainer>

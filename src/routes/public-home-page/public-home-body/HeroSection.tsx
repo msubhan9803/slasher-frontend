@@ -8,6 +8,7 @@ import {
   XL_MEDIA_BREAKPOINT,
 } from '../../../constants';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
+import DownloadStoreBadge from '../components/DownloadStoreBadge';
 
 const StyleHeroSection = styled.div`
   padding: 200px 0 70px 0;
@@ -45,7 +46,9 @@ function HeroSection() {
     <StyleHeroSection className="hero-container px-3 d-flex justify-content-center align-items-center text-center flex-column bottom-0">
       <h1 className="m-0 fw-bold">THE SOCIAL NETWORK FOR</h1>
       <h2 className="horror m-0">Horror</h2>
-      {/* <DownloadStoreBadge /> */}
+      <div className="mb-4 mb-xl-0">
+        <DownloadStoreBadge />
+      </div>
       <div className="text-center d-xl-none">
         <RoundButtonLink variant="primary" className="text-uppercase" to="/app/sign-in">Sign in or create an account</RoundButtonLink>
       </div>

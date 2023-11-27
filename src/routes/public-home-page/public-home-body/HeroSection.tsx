@@ -46,11 +46,11 @@ function HeroSection() {
     <StyleHeroSection className="hero-container px-3 d-flex justify-content-center align-items-center text-center flex-column bottom-0">
       <h1 className="m-0 fw-bold">THE SOCIAL NETWORK FOR</h1>
       <h2 className="horror m-0">Horror</h2>
-      <div className="mb-4 mb-xl-0">
-        <DownloadStoreBadge />
-      </div>
       <div className="text-center d-xl-none">
         <RoundButtonLink variant="primary" className="text-uppercase" to="/app/sign-in">Sign in or create an account</RoundButtonLink>
+      </div>
+      <div className="mt-4 mt-xl-0">
+        <DownloadStoreBadge />
       </div>
     </StyleHeroSection>
   );

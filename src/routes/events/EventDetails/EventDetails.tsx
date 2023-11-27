@@ -1,6 +1,6 @@
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Col, Image, Row,
 } from 'react-bootstrap';
@@ -10,15 +10,15 @@ import { DateTime } from 'luxon';
 import linkifyHtml from 'linkify-html';
 import getEventDetails from '../../../api/events';
 import RoundButton from '../../../components/ui/RoundButton';
-import PubWiseAd from '../../../components/ui/PubWiseAd';
 import { escapeHtmlSpecialCharacters, newLineToBr } from '../../../utils/text-utils';
-import { EVENT_DETAIL_DIV_ID } from '../../../utils/pubwise-ad-units';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
 import { LinearIcon } from '../../../components/ui/FavoriteLinearIcon';
 import ShareLinksModal from '../../../components/ui/ShareLinksModal';
 import { defaultLinkifyOpts } from '../../../utils/linkify-utils';
 import { urlForEvent } from '../../../utils/url-utils';
 import { enableDevFeatures } from '../../../env';
+import TpdAd from '../../../components/ui/TpdAd';
+import { tpdAdSlotIdZ } from '../../../utils/tpd-ad-slot-ids';
 
 const EventBanner = styled.div`
   aspect-ratio : 1.78;
@@ -162,7 +162,7 @@ function EventDetails() {
           />
         )}
 
-      <PubWiseAd className="my-3" id={EVENT_DETAIL_DIV_ID} autoSequencer />
+      <TpdAd className="my-3" id="event-details-ad-placeholder" slotId={tpdAdSlotIdZ} />
     </div>
   );
 }

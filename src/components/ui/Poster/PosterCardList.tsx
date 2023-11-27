@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import React, { useEffect } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { DateTime } from 'luxon';
@@ -5,14 +6,14 @@ import { Link, useLocation } from 'react-router-dom';
 import PosterCard from './PosterCard';
 import checkAdsPosterCardList from './checkAdsPosterCardList';
 import useBootstrapBreakpointName from '../../../hooks/useBootstrapBreakpoint';
-import PubWiseAd from '../PubWiseAd';
 import { useAppSelector } from '../../../redux/hooks';
 import { deletePageStateCache } from '../../../pageStateCache';
+import TpdAd from '../TpdAd';
+import { getInfiniteAdSlot } from '../../../utils/tpd-ad-slot-ids';
 
 interface PosterCardProps {
   dataList: CardListProps[] | [];
   type?: string;
-  pubWiseAdUnitDivId?: string;
   onSelect?: (value?: string) => void;
 }
 interface CardListProps {
@@ -30,7 +31,7 @@ interface CardListProps {
 }
 
 function PosterCardList({
-  dataList, type, pubWiseAdUnitDivId, onSelect,
+  dataList, type, onSelect,
 }: PosterCardProps) {
   const bp = useBootstrapBreakpointName();
   const scrollPosition: any = useAppSelector((state) => state.scrollPosition);
@@ -78,7 +79,7 @@ function PosterCardList({
                 />
               </Link>
             </Col>
-            {pubWiseAdUnitDivId && show && <PubWiseAd className="mb-3" id={pubWiseAdUnitDivId} autoSequencer />}
+            {show && <TpdAd className="mb-3" id={`card-${i.toString()}`} slotId={getInfiniteAdSlot()} />}
           </React.Fragment>
         );
       })}
@@ -87,7 +88,6 @@ function PosterCardList({
 }
 
 PosterCardList.defaultProps = {
-  pubWiseAdUnitDivId: '',
   onSelect: undefined,
   type: 'movies',
 };

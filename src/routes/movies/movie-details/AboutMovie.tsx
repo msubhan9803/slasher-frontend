@@ -22,14 +22,14 @@ import RoundButton from '../../../components/ui/RoundButton';
 import BorderButton from '../../../components/ui/BorderButton';
 import CustomGroupIcons from '../../../components/ui/CustomGroupIcons';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
-import { MOVIE_INDIE_DIV } from '../../../utils/pubwise-ad-units';
-import PubWiseAd from '../../../components/ui/PubWiseAd';
 import MovieReviews from '../movie-reviews/MovieReviews';
 import { addMovieUserStatus, deleteMovieUserStatus, getMoviesIdList } from '../../../api/movies';
 import MovieReviewDetails from '../movie-reviews/MovieReviewDetails';
 import { StyledMoviePoster } from './StyledUtils';
 import { enableDevFeatures } from '../../../env';
 import { generateAmazonAffiliateLinkForMovie } from '../../../utils/text-utils';
+import TpdAd from '../../../components/ui/TpdAd';
+import { tpdAdSlotIdZ } from '../../../utils/tpd-ad-slot-ids';
 
 interface MovieIconProps {
   label: string;
@@ -334,7 +334,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
           element={(
             <>
               <MovieOverview overView={aboutMovieData?.mainData?.overview} />
-              <PubWiseAd className="my-3" id={MOVIE_INDIE_DIV} autoSequencer />
+              <TpdAd className="my-3" id="about-movie-ad-placeholder" slotId={tpdAdSlotIdZ} />
               <MovieCasts castList={aboutMovieData?.cast as any} />
               {
                 aboutMovieData?.video?.length > 0

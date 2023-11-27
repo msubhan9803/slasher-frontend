@@ -33,7 +33,7 @@ const useLoadScriptsInOrder = (URLs: string[], disableHook?: boolean) => {
         }
         setIsLoaded(true);
       } catch (err: any) {
-        console.error('Slasher LOG: (failed to load PubWise scipts):', {
+        console.error('Slasher LOG: (failed to load TPD scipts):', {
           name: err.name,
           message: err.message,
           stack: err.stack,

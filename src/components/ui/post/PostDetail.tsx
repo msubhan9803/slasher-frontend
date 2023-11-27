@@ -56,14 +56,14 @@ interface Props {
   // TODO: Fix type for postType like below and also fix related redundant
   //       expressions reported by typescript
   // postType?: '' | 'review' | 'news';
-  showPubWiseAdAtPageBottom?: boolean;
+  showAdAtPageBottom?: boolean;
   reviewDetail?: string;
 }
 
 const DEFAULT_COMMENTS_SORYBY_OLDEST_FIRST = true;
 
 function PostDetail({
-  user, postType, showPubWiseAdAtPageBottom, reviewDetail,
+  user, postType, showAdAtPageBottom, reviewDetail,
 }: Props) {
   const {
     postId, id, partnerId,
@@ -1068,7 +1068,7 @@ function PostDetail({
                 commentSent={commentSent}
                 setCommentReplyErrorMessage={setCommentReplyErrorMessage}
                 setCommentErrorMessage={setCommentErrorMessage}
-                showPubWiseAdAtPageBottom={showPubWiseAdAtPageBottom}
+                showAdAtPageBottom={showAdAtPageBottom}
                 setSelectedBlockedUserId={setSelectedBlockedUserId}
                 setDropDownValue={setDropDownValue}
                 ProgressButton={ProgressButton}
@@ -1241,7 +1241,7 @@ function PostDetail({
 PostDetail.defaultProps = {
   user: null,
   postType: '',
-  showPubWiseAdAtPageBottom: false,
+  showAdAtPageBottom: false,
   reviewDetail: '',
 };
 

@@ -7,7 +7,6 @@ import InfiniteScroll from 'react-infinite-scroller';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import { MoviesProps } from '../components/MovieProps';
 import MoviesHeader from '../MoviesHeader';
-import { MOVIE_WATCHLIST_DIV_ID } from '../../../utils/pubwise-ad-units';
 import { getMovieListCount, getUserMoviesList } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
@@ -201,7 +200,6 @@ function WatchListMovies() {
           >
             <PosterCardList
               dataList={filteredMovies}
-              pubWiseAdUnitDivId={MOVIE_WATCHLIST_DIV_ID}
               onSelect={persistScrollPosition}
             />
           </InfiniteScroll>

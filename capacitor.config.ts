@@ -28,7 +28,7 @@ const config: CapacitorConfig = {
   },
   server: {
     cleartext: useLiveReloadConfig,
-    // We must give a hostname having domain `slasher.tv` so that pubwise ads properly.
+    // We must give a hostname having domain `slasher.tv` so that ads properly.
     hostname: 'cap.slasher.tv',
     // Please defined your own machine's ip address in file `.env.capacitor.local-network-ip`
     url: useLiveReloadConfig ? process.env.LOCAL_MACHINE_IP : undefined,

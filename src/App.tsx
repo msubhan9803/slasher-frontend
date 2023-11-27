@@ -29,7 +29,6 @@ import Notifications from './routes/notifications/Notifications';
 import Account from './routes/account/Account';
 import ResetPassword from './routes/reset-password/ResetPassword';
 import AccountActivated from './routes/account-activated/AccountActivated';
-import usePubWiseAdSlots from './hooks/usePubWiseAdSlots';
 import {
   topStatuBarBackgroundColorAndroidOnly, isNativePlatform,
 } from './constants';
@@ -57,8 +56,10 @@ import { isHomePage } from './utils/url-utils';
 import CapacitorAppListeners from './components/CapacitorAppListeners';
 import DebugGoogleAnalytics from './routes/debug-google-analytics';
 import { detectAppVersion } from './utils/version-utils';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { enableADs, enableDevFeatures } from './env';
 import Admin from './routes/admin/Admin';
+import useTPDAdSlots from './hooks/useTPDAdSlots';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -151,7 +152,8 @@ if (isNativePlatform) {
 }
 
 function App() {
-  usePubWiseAdSlots(enableADs);
+  useTPDAdSlots(enableADs);
+
   const [appVersionDetected, setAppVersionDetected] = useState<boolean>(false);
   const isServerAvailable = useAppSelector((state) => state.serverAvailability.isAvailable);
 
@@ -194,6 +196,8 @@ function App() {
 
   return (
     <>
+      {/* // ! Remove this after testing TPD ads */}
+      {/* {!tpdLoaded && 'TPD script is loading...'} */}
       {isServerAvailable || <ServerUnavailable />}
       <RouterProvider router={router} />
     </>

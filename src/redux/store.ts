@@ -3,7 +3,7 @@ import registrationReducer from './slices/registrationSlice';
 import suggestedFriendsReducer from './slices/suggestedFriendsSlice';
 import userReducer from './slices/userSlice';
 import remoteConstantsReducer from './slices/remoteConstantsSlice';
-import pubWiseReducer from './slices/pubWiseSlice';
+import tpdReducer from './slices/tpdSlice';
 import booksReducer from './slices/booksSlice';
 import artistsReducer from './slices/artistsSlice';
 import musicReducer from './slices/musicSlice';
@@ -23,7 +23,7 @@ export const store = configureStore({
     music: musicReducer,
     podcasts: podcastsReducer,
     suggestedFriendList: suggestedFriendsReducer,
-    pubWise: pubWiseReducer,
+    tpd: tpdReducer,
     scrollPosition: scrollPositionReducer,
     socket: socketReducer,
     serverAvailability: serverAvailabilityReducer,

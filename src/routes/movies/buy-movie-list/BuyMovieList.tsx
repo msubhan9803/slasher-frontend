@@ -7,7 +7,6 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import { MoviesProps } from '../components/MovieProps';
 import MoviesHeader from '../MoviesHeader';
-import { MOVIE_BUY_LIST_DIV_ID } from '../../../utils/pubwise-ad-units';
 import { getMovieListCount, getUserMoviesList } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
@@ -202,7 +201,6 @@ function BuyMovieList() {
           >
             <PosterCardList
               dataList={filteredMovies}
-              pubWiseAdUnitDivId={MOVIE_BUY_LIST_DIV_ID}
               onSelect={persistScrollPosition}
             />
           </InfiniteScroll>

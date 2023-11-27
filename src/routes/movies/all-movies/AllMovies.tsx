@@ -11,7 +11,6 @@ import MoviesHeader from '../MoviesHeader';
 import { getMovies } from '../../../api/movies';
 import { MoviesProps } from '../components/MovieProps';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
-import { ALL_MOVIES_DIV_ID } from '../../../utils/pubwise-ad-units';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
 import { useAppDispatch } from '../../../redux/hooks';
@@ -202,7 +201,6 @@ function AllMovies() {
           >
             <PosterCardList
               dataList={filteredMovies}
-              pubWiseAdUnitDivId={ALL_MOVIES_DIV_ID}
               onSelect={persistScrollPosition}
             />
           </InfiniteScroll>

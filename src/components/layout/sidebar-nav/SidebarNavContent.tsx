@@ -115,7 +115,9 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
             onToggleCanvas={menuItem.comingSoon ? undefined : onToggleCanvas}
           />
         ))}
-        <ul className="list-inline mt-4 link-hover-underline fs-6">
+        {/* We are adding padding `p-5` here so that `sticky-bottom-ad` does not
+          cover up the content area in the left-sidebar. */}
+        <ul className="list-inline mt-4 link-hover-underline fs-6 p-5">
           <li className="mb-4"><a className="text-light text-decoration-none" href={GOOGLE_PLAY_DOWNLOAD_URL} target="_blank" rel="noreferrer">Download for Android</a></li>
           <li className="mb-4"><a className="text-light text-decoration-none" href={APP_STORE_DOWNLOAD_URL} target="_blank" rel="noreferrer">Download for iOS</a></li>
           <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/advertise`} target="_blank" rel="noreferrer">Advertise on Slasher</a></li>

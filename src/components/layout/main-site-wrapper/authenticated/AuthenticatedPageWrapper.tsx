@@ -42,7 +42,7 @@ import useSessionTokenMonitorAsync from '../../../../hooks/useSessionTokenMonito
 import useSessionToken from '../../../../hooks/useSessionToken';
 import { setIsServerAvailable } from '../../../../redux/slices/serverAvailableSlice';
 import { Message } from '../../../../types';
-import { showBackButtonInIos } from '../../../../utils/url-utils';
+import { isConversationPage, showBackButtonInIos } from '../../../../utils/url-utils';
 import { onKeyboardClose, removeGlobalCssProperty, setGlobalCssProperty } from '../../../../utils/styles-utils ';
 import { enableScrollOnWindow } from '../../../../utils/scrollFunctions';
 import { apiUrl } from '../../../../env';
@@ -287,6 +287,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
   };
 
   const showAdOnDesktopOnly = window.innerWidth >= BREAK_POINTS.lg;
+  const isNotConversationPage = !isConversationPage(pathname);
 
   return (
     <div id={AUTHENTICATED_PAGE_WRAPPER_ID} className="page-wrapper full" style={{ paddingTop: `${!isDesktopResponsiveSize && isIOS && showBackButtonInIos(location.pathname) ? 'var(--heightOfBackButtonOfIos)' : ''}` }}>
@@ -326,6 +327,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
 
       {/* Show `sticky-bottom-ad` on desktop (not show on mobile/tablet) */}
       {showAdOnDesktopOnly
+        && isNotConversationPage
         && (
         <TpdAd
           className="position-fixed bottom-0 w-100"

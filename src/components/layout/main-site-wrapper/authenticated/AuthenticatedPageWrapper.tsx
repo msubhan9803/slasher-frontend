@@ -324,19 +324,16 @@ function AuthenticatedPageWrapper({ children }: Props) {
         </div>
       </div>
 
-      {/* Show sticky bottom ad on desktop (not show on mobile/tablet) */}
+      {/* Show `sticky-bottom-ad` on desktop (not show on mobile/tablet) */}
       {showAdOnDesktopOnly
         && (
-        <>
-          <TpdAd
-            className="position-fixed bottom-0 w-100"
-            style={{ height: 'auto' }}
-            slotId={tpdAdSlotIdBannerA}
-            id="bottom-ad"
-            showSponsoredText={false}
-          />
-          <div style={{ height: 100 }} />
-        </>
+        <TpdAd
+          className="position-fixed bottom-0 w-100"
+          style={{ height: 'auto' }}
+          slotId={tpdAdSlotIdBannerA}
+          id="bottom-ad"
+          showSponsoredText={false}
+        />
         )}
 
       {show && (

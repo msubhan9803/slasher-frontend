@@ -29,6 +29,7 @@ import {
   LG_MEDIA_BREAKPOINT, MAIN_CONTENT_ID, RETRY_CONNECTION_BUTTON_ID,
   AUTHENTICATED_PAGE_WRAPPER_ID,
   isNativePlatform,
+  BREAK_POINTS,
 } from '../../../../constants';
 import SkipToMainContent from '../../sidebar-nav/SkipToMainContent';
 import { setRemoteConstantsData } from '../../../../redux/slices/remoteConstantsSlice';
@@ -45,6 +46,8 @@ import { showBackButtonInIos } from '../../../../utils/url-utils';
 import { onKeyboardClose, removeGlobalCssProperty, setGlobalCssProperty } from '../../../../utils/styles-utils ';
 import { enableScrollOnWindow } from '../../../../utils/scrollFunctions';
 import { apiUrl } from '../../../../env';
+import TpdAd from '../../../ui/TpdAd';
+import { tpdAdSlotIdBannerA } from '../../../../utils/tpd-ad-slot-ids';
 
 interface Props {
   children: React.ReactNode;
@@ -283,6 +286,8 @@ function AuthenticatedPageWrapper({ children }: Props) {
     }
   };
 
+  const showAdOnDesktopOnly = window.innerWidth >= BREAK_POINTS.lg;
+
   return (
     <div id={AUTHENTICATED_PAGE_WRAPPER_ID} className="page-wrapper full" style={{ paddingTop: `${!isDesktopResponsiveSize && isIOS && showBackButtonInIos(location.pathname) ? 'var(--heightOfBackButtonOfIos)' : ''}` }}>
       {isIOS
@@ -318,6 +323,18 @@ function AuthenticatedPageWrapper({ children }: Props) {
           </main>
         </div>
       </div>
+
+      {/* Show sticky bottom ad on desktop (not show on mobile/tablet) */}
+      {showAdOnDesktopOnly
+        && (
+          <TpdAd
+            style={{ height: 'auto' }}
+            className="position-fixed bottom-0 w-100"
+            slotId={tpdAdSlotIdBannerA}
+            id="bottom-ad"
+          />
+        )}
+
       {show && (
         <StyledOffcanvas
           id={offcanvasId}

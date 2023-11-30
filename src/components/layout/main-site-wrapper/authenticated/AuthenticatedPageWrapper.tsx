@@ -327,12 +327,16 @@ function AuthenticatedPageWrapper({ children }: Props) {
       {/* Show sticky bottom ad on desktop (not show on mobile/tablet) */}
       {showAdOnDesktopOnly
         && (
+        <>
           <TpdAd
-            style={{ height: 'auto' }}
             className="position-fixed bottom-0 w-100"
+            style={{ height: 'auto' }}
             slotId={tpdAdSlotIdBannerA}
             id="bottom-ad"
+            showSponsoredText={false}
           />
+          <div style={{ height: 100 }} />
+        </>
         )}
 
       {show && (

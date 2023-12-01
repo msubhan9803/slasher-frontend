@@ -4,7 +4,6 @@ import Friends from '../components/Friends';
 import Photos from '../components/Photos';
 import type { User } from '../../../../types';
 import WatchedList from '../components/WatchedList';
-import SticyBannerAdSpaceCompensation from '../../../SticyBannerAdSpaceCompensation';
 // import Podcasts from '../components/Podcasts';
 // import WatchedList from '../components/WatchedList';
 
@@ -19,8 +18,6 @@ function RightSidebarViewer({ user }: RightSidebarViewerType) {
       <Photos user={user} />
       <Friends user={user} />
       <WatchedList user={user} />
-
-      <SticyBannerAdSpaceCompensation />
     </>
   );
 }

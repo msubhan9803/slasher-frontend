@@ -5,6 +5,7 @@ import PlacePosterCardList from '../components/PlacePosterCardList';
 import { favorites } from '../PlaceData';
 import PlaceHeader from '../PlaceHeader';
 import PlaceRightSidebar from '../PlaceRightSidebar';
+import SticyBannerAdSpaceCompensation from '../../../components/SticyBannerAdSpaceCompensation';
 
 function PlaceFavorites() {
   return (
@@ -14,6 +15,7 @@ function PlaceFavorites() {
         <div className="p-4 pt-0">
           <PlacePosterCardList dataList={favorites} />
         </div>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
       <RightSidebarWrapper>
         <PlaceRightSidebar />

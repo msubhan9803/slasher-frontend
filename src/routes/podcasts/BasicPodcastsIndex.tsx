@@ -10,6 +10,7 @@ import { setPodcasts } from '../../redux/slices/podcastsSlice';
 import { getPodcasts } from '../../api/podcasts';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
+import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 
 function BasicPodcastsIndex() {
   const { podcasts, lastRetrievalTime } = useAppSelector<any>((state) => state.podcasts);
@@ -58,7 +59,9 @@ function BasicPodcastsIndex() {
               )}
           </div>
         </div>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
+
       <RightSidebarWrapper>
         <PodcastsSidebar />
       </RightSidebarWrapper>

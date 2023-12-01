@@ -10,6 +10,7 @@ import { useAppSelector } from '../../redux/hooks';
 import { setArtists } from '../../redux/slices/artistsSlice';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
+import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 
 function BasicArtistsIndex() {
   const [loadingPosts, setLoadingPosts] = useState<boolean>(true);
@@ -58,6 +59,7 @@ function BasicArtistsIndex() {
 
           </div>
         </div>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
       <RightSidebarWrapper>
         <ArtistsRightSideNav />

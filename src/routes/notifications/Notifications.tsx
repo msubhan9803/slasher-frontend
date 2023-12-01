@@ -20,6 +20,7 @@ import socketStore from '../../socketStore';
 import {
   deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../pageStateCache';
+import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 
 function Notifications() {
   const popoverOption = ['Settings'];
@@ -260,6 +261,7 @@ function Notifications() {
           {loadingPosts && <LoadingIndicator />}
           {noMoreData && renderNoMoreDataMessage()}
         </div>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
       <RightSidebarWrapper>
         <NotificationsRightSideNav />

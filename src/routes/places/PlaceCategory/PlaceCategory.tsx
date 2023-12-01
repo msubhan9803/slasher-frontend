@@ -5,6 +5,7 @@ import PlacePosterCardList from '../components/PlacePosterCardList';
 import { category } from '../PlaceData';
 import PlaceHeader from '../PlaceHeader';
 import PlaceRightSidebar from '../PlaceRightSidebar';
+import SticyBannerAdSpaceCompensation from '../../../components/SticyBannerAdSpaceCompensation';
 
 function PlaceCategory() {
   return (
@@ -14,6 +15,7 @@ function PlaceCategory() {
         <div className="px-0 px-md-4 p-4 pt-0 mt-3 mt-lg-0">
           <PlacePosterCardList dataList={category} />
         </div>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
       <RightSidebarWrapper>
         <PlaceRightSidebar />

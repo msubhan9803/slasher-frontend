@@ -638,12 +638,6 @@ function PostFeed({
             </>
           )}
 
-          {/* We are adding additional 100px of space when we're not showing ads on single page
-          post (especially when we are not showing ads) so that the bottom-sticky ad does not
-          cover up comment box in desktop mode. Refer: `sticky-bottom-ad` in
-          file://./../../../layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper.tsx */}
-          {isSinglePost && !showAdAtPageBottom && <div style={{ height: 100 }} />}
-
           {!isSinglePost && <hr className="post-separator" />}
 
           {/* Show ad after every three posts. */}

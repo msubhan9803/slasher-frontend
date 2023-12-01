@@ -19,6 +19,7 @@ import {
 } from '../../../pageStateCache';
 import RoundButton from '../../../components/ui/RoundButton';
 import { UIRouteURL } from '../../movies/RouteURL';
+import SticyBannerAdSpaceCompensation from '../../../components/SticyBannerAdSpaceCompensation';
 
 function BuyListBooks() {
   const [searchParams] = useSearchParams();
@@ -229,6 +230,7 @@ function BuyListBooks() {
             {noMoreData && renderNoMoreDataMessage()}
           </div>
         </div>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
       <RightSidebarWrapper>
         <BooksRightSideNav />

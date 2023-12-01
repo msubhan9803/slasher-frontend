@@ -9,6 +9,7 @@ import AccountDelete from './AccountDelete/AccountDelete';
 import AccountNotification from './AccountNotification/AccountNotification';
 import AccountSettings from './AccountSettings/AccountSettings';
 import ScrollToTopOnPathnameChange from '../../components/ScrollToTopOnPathnameChange';
+import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 
 function Account() {
   return (
@@ -24,6 +25,7 @@ function Account() {
           <Route path="/delete-account" element={<AccountDelete />} />
           <Route path="/admin" element={<Navigate to="/app/admin" replace />} />
         </Routes>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
 
       {/* Global right sidebar for all above routes */}

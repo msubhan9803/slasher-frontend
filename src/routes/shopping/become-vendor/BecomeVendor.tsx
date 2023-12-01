@@ -9,6 +9,7 @@ import CustomPackages from '../../../components/ui/CustomPackages';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import RoundButton from '../../../components/ui/RoundButton';
 import ShoppingInformation from './ShoppingInformation';
+import SticyBannerAdSpaceCompensation from '../../../components/SticyBannerAdSpaceCompensation';
 
 const noteList = [
   'A listing in the Shopping area of Slasher with your logo, description, link to your website, and more.',
@@ -73,7 +74,9 @@ function BecomeVendor() {
             </Col>
           </Row>
         </div>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
+
       <RightSidebarWrapper>
         <RightSidebarSelf />
       </RightSidebarWrapper>

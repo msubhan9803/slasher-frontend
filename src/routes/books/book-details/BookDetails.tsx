@@ -16,6 +16,7 @@ import {
   BookPageCache,
 } from '../../../types';
 import { getBookById } from '../../../api/books';
+import SticyBannerAdSpaceCompensation from '../../../components/SticyBannerAdSpaceCompensation';
 
 function BookDetails() {
   const location = useLocation();
@@ -66,6 +67,7 @@ function BookDetails() {
             setBookData={setBookData}
           />
         </Container>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
       <RightSidebarWrapper>
         <BooksRightSideNav />

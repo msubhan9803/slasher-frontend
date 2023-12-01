@@ -17,6 +17,7 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { resetUnreadConversationCount } from '../../redux/slices/userSlice';
 import socketStore from '../../socketStore';
 import { createBlockUser } from '../../api/blocks';
+import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 
 function Messages() {
   const [
@@ -189,7 +190,9 @@ function Messages() {
           setMessages={setConversations}
           onBlockYesClick={onBlockYesClick}
         />
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
+
       <RightSidebarWrapper>
         <RightSidebarSelf />
       </RightSidebarWrapper>

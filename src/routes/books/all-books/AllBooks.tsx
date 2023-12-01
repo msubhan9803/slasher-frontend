@@ -24,6 +24,7 @@ import SuggestedBooks from '../suggested-books/SuggestedBooks';
 import { UIRouteURL } from '../../movies/RouteURL';
 import RoundButton from '../../../components/ui/RoundButton';
 import { enableDevFeatures } from '../../../env';
+import SticyBannerAdSpaceCompensation from '../../../components/SticyBannerAdSpaceCompensation';
 
 function AllBooks() {
   const [searchParams] = useSearchParams();
@@ -264,6 +265,7 @@ function AllBooks() {
             {noMoreData && renderNoMoreDataMessage()}
           </div>
         </div>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
       <RightSidebarWrapper>
         <BooksRightSideNav />

@@ -6,6 +6,7 @@ import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/righ
 import GroupsList from './groups-all/GroupsList';
 import GroupsDetail from './groups-detail/GroupsDetail';
 import GroupsHome from './groups-home/GroupsHome';
+import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 
 function SocialGroups() {
   return (
@@ -17,6 +18,7 @@ function SocialGroups() {
           <Route path=":groupId" element={<GroupsDetail />} />
           <Route path="*" element={<Navigate to="home" replace />} />
         </Routes>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
 
       {/* Global right sidebar for all above routes */}

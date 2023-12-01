@@ -7,6 +7,7 @@ import RoundButton from '../../components/ui/RoundButton';
 import podcastDataList from './components/PodcastsListData';
 import PodcastsPoster from './components/PodcastsPoster';
 import PodcastsSidebar from './components/PodcastsSidebar';
+import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 
 function PodcastsList() {
   return (
@@ -28,6 +29,7 @@ function PodcastsList() {
             ))}
           </Row>
         </div>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
       <RightSidebarWrapper>
         <PodcastsSidebar />

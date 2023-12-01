@@ -5,6 +5,7 @@ import PlacePosterCardList from '../components/PlacePosterCardList';
 import { myPlaces } from '../PlaceData';
 import PlaceHeader from '../PlaceHeader';
 import PlaceRightSidebar from '../PlaceRightSidebar';
+import SticyBannerAdSpaceCompensation from '../../../components/SticyBannerAdSpaceCompensation';
 
 function PlaceMyplaces() {
   return (
@@ -14,6 +15,7 @@ function PlaceMyplaces() {
         <div className="px-md-4 pt-0">
           <PlacePosterCardList dataList={myPlaces} />
         </div>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
       <RightSidebarWrapper>
         <PlaceRightSidebar />

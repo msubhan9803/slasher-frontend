@@ -4,6 +4,7 @@ import Friends from '../components/Friends';
 import Photos from '../components/Photos';
 import type { User } from '../../../../types';
 import WatchedList from '../components/WatchedList';
+import SticyBannerAdSpaceCompensation from '../../../SticyBannerAdSpaceCompensation';
 // import Podcasts from '../components/Podcasts';
 // import WatchedList from '../components/WatchedList';
 
@@ -19,9 +20,7 @@ function RightSidebarViewer({ user }: RightSidebarViewerType) {
       <Friends user={user} />
       <WatchedList user={user} />
 
-      {/* We are adding padding `p-5` here so that `sticky-bottom-ad` does not
-          cover up the content area in the right-sidebar. */}
-      <div className="pb-5" />
+      <SticyBannerAdSpaceCompensation />
     </>
   );
 }

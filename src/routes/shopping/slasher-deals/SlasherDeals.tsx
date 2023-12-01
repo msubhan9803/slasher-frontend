@@ -6,6 +6,7 @@ import ShoppingPhotos from '../../../images/shopping-photos.png';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import ShoppingRightSidebar from '../ShoppingRightSidebar';
+import SticyBannerAdSpaceCompensation from '../../../components/SticyBannerAdSpaceCompensation';
 
 const slasherDeals = [
   {
@@ -27,7 +28,9 @@ function SlasherDeals() {
           <h2 className="fw-bold mb-4">Clothing &#38; Accessories</h2>
           <ShoppingCardList shoppingList={slasherDeals} />
         </div>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
+
       <RightSidebarWrapper>
         <ShoppingRightSidebar />
       </RightSidebarWrapper>

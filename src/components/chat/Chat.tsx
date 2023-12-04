@@ -6,8 +6,6 @@ import styled from 'styled-components';
 import { AxiosError, CanceledError } from 'axios';
 import { debounce } from 'lodash';
 import InfiniteScroll from 'react-infinite-scroller';
-import { Capacitor } from '@capacitor/core';
-import { Keyboard } from '@capacitor/keyboard';
 import LoadingIndicator from '../ui/LoadingIndicator';
 import { getConversation, markAllReadForSingleConversation, sendMessageWithFiles } from '../../api/messages';
 import { Message, User } from '../../types';
@@ -16,7 +14,7 @@ import socketStore from '../../socketStore';
 import { getConversationMessages } from '../../api/chat';
 import {
   bottomForCommentOrReplyInputOnMobile,
-  bottomMobileNavHeight, isNativePlatform, maxWidthForCommentOrReplyInputOnMobile, topToDivHeight,
+  maxWidthForCommentOrReplyInputOnMobile, topToDivHeight,
 } from '../../constants';
 import ChatOptions from './ChatOptions';
 import ChatUserStatus from './ChatUserStatus';
@@ -109,53 +107,22 @@ function Chat({
   const [otherParticipant, setOtherParticipant] = useState<User>();
   const [messages, setMessages] = useState<Message[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
-  const [maxHeight, setMaxHeight] = useState<number>(0);
+  const [maxHeight, setMaxHeight] = useState<any>(0);
   const [isFocused, setIsFocused] = useState<boolean>(false);
-  const [isKeyBoardVisible, setKeyboardVisible] = useState(false);
-  const [KeyBoardHeight, setKeyboardHeight] = useState<number>(0);
   const [noEarlierMessagesAvailable, setNoEarlierMessagesAvailable] = useState<boolean>(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const chatBodyElementRef = useRef<HTMLDivElement>(null);
   const latestChatScrollDistanceFromBottom = useRef<number>(0);
   const dispatch = useAppDispatch();
-  const isIOSSafari = /iP(ad|hone|od).*OS/.test(navigator.userAgent);
-
-  useEffect(() => {
-    Keyboard.addListener('keyboardWillShow', (info) => {
-      setKeyboardHeight(info.keyboardHeight);
-      setKeyboardVisible(true);
-    });
-    Keyboard.addListener('keyboardWillHide', () => {
-      setKeyboardVisible(false);
-      setKeyboardHeight(0);
-    });
-  }, []);
-  useEffect(() => {
-    if (isKeyBoardVisible) {
-      setIsFocused(true);
-    } else {
-      setIsFocused(false);
-    }
-  }, [isKeyBoardVisible]);
 
   const updateMaxHeightBasedOnCurrentWindowHeight = debounce(() => {
     let newHeight = window.innerHeight;
     if (window.innerWidth >= 960) {
       newHeight -= topToDivHeight;
-    } else if (Capacitor.getPlatform() === 'ios' && !isKeyBoardVisible) {
-      newHeight -= bottomMobileNavHeight + 50;
-    } else if (KeyBoardHeight) {
-      newHeight = window.innerHeight;
-    } else if (isIOSSafari && isFocused && window?.visualViewport?.height) {
-      // eslint-disable-next-line no-unsafe-optional-chaining
-      newHeight = window?.visualViewport?.height + window.scrollY;
-    } else if (isNativePlatform) {
-      newHeight -= bottomMobileNavHeight;
+      setMaxHeight(`${newHeight}px`);
     } else {
-      // eslint-disable-next-line max-len
-      newHeight = isIOSSafari ? (window.innerHeight - bottomMobileNavHeight + 15) : (window.innerHeight - bottomMobileNavHeight);
+      setMaxHeight('100vh');
     }
-    setMaxHeight(newHeight);
   }, 100);
 
   const prependEarlierMessages = useCallback((earlierMessages: Message[]) => {
@@ -384,7 +351,7 @@ function Chat({
   }
 
   return (
-    <StyledChatContainer className="d-flex flex-column" style={{ height: `${maxHeight}px` }}>
+    <StyledChatContainer className="d-flex flex-column" style={{ height: `${maxHeight}` }}>
       <ChatHeader className="chat-header">
         <div className="py-2">
           <div className="d-flex align-items-center">

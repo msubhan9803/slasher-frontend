@@ -1,13 +1,14 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+// import { useLocation } from 'react-router-dom';
 import { BREAK_POINTS } from '../constants';
-import { isConversationPage } from '../utils/url-utils';
+// import { isConversationPage } from '../utils/url-utils';
 
 export const useShowSticyBannerAdDesktopOnly = () => {
-  const { pathname } = useLocation();
+  // const { pathname } = useLocation();
   const isDesktop = window.innerWidth >= BREAK_POINTS.lg;
-  const isNotConversationPage = !isConversationPage(pathname);
-  return isDesktop && isNotConversationPage;
+  // const isNotConversationPage = !isConversationPage(pathname);
+  // return isDesktop && isNotConversationPage;
+  return isDesktop;
 };
 
 // We are adding additional space so that the bottom-sticky ad does not

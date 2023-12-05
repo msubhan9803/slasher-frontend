@@ -13,6 +13,7 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import socketStore from '../../socketStore';
 import { getConversationMessages } from '../../api/chat';
 import {
+  LG_MEDIA_BREAKPOINT,
   bottomForCommentOrReplyInputOnMobile,
   maxWidthForCommentOrReplyInputOnMobile, topToDivHeight,
 } from '../../constants';
@@ -61,6 +62,9 @@ const ChatBody = styled.div<ChatProps>`
 }
 `;
 const ChatFooter = styled.div`
+  @media (min-width: ${LG_MEDIA_BREAKPOINT}){
+    margin-bottom: 68px;
+  }
   @media (max-width: ${maxWidthForCommentOrReplyInputOnMobile}px) {
     position: fixed;
     left: 0;

@@ -45,8 +45,8 @@ import { showBackButtonInIos } from '../../../../utils/url-utils';
 import { onKeyboardClose, removeGlobalCssProperty, setGlobalCssProperty } from '../../../../utils/styles-utils ';
 import { enableScrollOnWindow } from '../../../../utils/scrollFunctions';
 import { apiUrl } from '../../../../env';
-import TpdAd from '../../../ui/TpdAd';
-import { tpdAdSlotIdBannerA } from '../../../../utils/tpd-ad-slot-ids';
+// import TpdAd from '../../../ui/TpdAd';
+// import { tpdAdSlotIdBannerA } from '../../../../utils/tpd-ad-slot-ids';
 import { useShowSticyBannerAdDesktopOnly } from '../../../SticyBannerAdSpaceCompensation';
 
 interface Props {
@@ -113,6 +113,8 @@ function AuthenticatedPageWrapper({ children }: Props) {
     }
   }, [dispatch, isSocketConnected]);
   const showSticyBannerAdDesktopOnly = useShowSticyBannerAdDesktopOnly();
+  // eslint-disable-next-line no-console
+  console.log('showSticyBannerAdDesktopOnly?', showSticyBannerAdDesktopOnly);
 
   useEffect(() => {
     window.addEventListener('click', showUnreachableServerModalIfDisconnected, true);
@@ -324,7 +326,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
       </div>
 
       {/* Show `sticky-bottom-ad` on desktop (not show on mobile/tablet) */}
-      {showSticyBannerAdDesktopOnly
+      {/* {showSticyBannerAdDesktopOnly
         && (
         <TpdAd
           className="position-fixed bottom-0 w-100"
@@ -333,7 +335,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
           id="bottom-ad"
           showSponsoredText={false}
         />
-        )}
+        )} */}
 
       {show && (
         <StyledOffcanvas

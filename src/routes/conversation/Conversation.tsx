@@ -12,6 +12,7 @@ import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authe
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import { useAppSelector } from '../../redux/hooks';
 import Chat from '../../components/chat/Chat';
+import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 // import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 
 function Conversation() {
@@ -43,9 +44,7 @@ function Conversation() {
     <ContentSidbarWrapper>
       <ContentPageWrapper>
         <Chat key={conversationId} viewerUserId={userId} conversationId={conversationId!} />
-        {/* TODO: Uncomment this in case we are not able to fix the
-        issue for bottom sticky ad with converstaiong screen. */}
-        {/* <SticyBannerAdSpaceCompensation /> */}
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
 
       <RightSidebarWrapper>

@@ -114,7 +114,6 @@ function AuthenticatedPageWrapper({ children }: Props) {
   }, [dispatch, isSocketConnected]);
   const showSticyBannerAdDesktopOnly = useShowSticyBannerAdDesktopOnly();
   // eslint-disable-next-line no-console
-  console.log('showSticyBannerAdDesktopOnly?', showSticyBannerAdDesktopOnly);
 
   useEffect(() => {
     window.addEventListener('click', showUnreachableServerModalIfDisconnected, true);

@@ -33,7 +33,7 @@ import { useAppSelector } from '../../redux/hooks';
 import { friendship } from '../../api/friends';
 import FriendshipStatusModal from '../../components/ui/friendShipCheckModal';
 import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
-import DebugGoogleAnalytics from '../debug-google-analytics';
+// import DebugGoogleAnalytics from '../debug-google-analytics';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
@@ -417,7 +417,7 @@ function Home() {
     <ContentSidbarWrapper>
       <ContentPageWrapper>
         {/* <DebugAdvertisingId /> */}
-        <DebugGoogleAnalytics />
+        {/* <DebugGoogleAnalytics /> */}
 
         <CustomCreatePost className="mt-3 mt-lg-0" />
         <h1 className="h2 my-3 ms-3 ms-md-0">Suggested friends</h1>

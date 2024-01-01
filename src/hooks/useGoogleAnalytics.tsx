@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { initializeFirebase, sendAppInitialLogEvent } from '../utils/initFirebaseAnalytics';
+import { initializeFirebase, sendAppInitialLogEvent, sendUserPropertiesToGoogleAnalyticsOnPageLoad } from '../utils/initFirebaseAnalytics';
 
 const useGoogleAnalytics = () => {
   const location = useLocation();
@@ -23,6 +23,7 @@ const useGoogleAnalytics = () => {
           page_location: window.location.href,
           page_title: document.title,
         });
+        sendUserPropertiesToGoogleAnalyticsOnPageLoad();
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error('Error initializing Firebase Analytics:', error);

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { sendAppInitialLogEvent } from '../utils/initFirebaseAnalytics';
+import { initializeFirebase, sendAppInitialLogEvent } from '../utils/initFirebaseAnalytics';
 
 const useGoogleAnalytics = () => {
   const location = useLocation();
@@ -12,7 +12,7 @@ const useGoogleAnalytics = () => {
     const logAnalyticsEvent = async () => {
       try {
         // Initialize Firebase Analytics
-
+        await initializeFirebase();
         const currentPath = pathname + search + hash;
         if (previousPathRef.current === currentPath) {
           return;

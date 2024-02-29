@@ -22,6 +22,7 @@ import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/au
 import ShoppingRightSidebar from '../ShoppingRightSidebar';
 import BorderButton from '../../../components/ui/BorderButton';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
+import SticyBannerAdSpaceCompensation from '../../../components/SticyBannerAdSpaceCompensation';
 
 const ImageContainer = styled.div`
   acpect-ratio: '1.78'
@@ -134,7 +135,9 @@ function ShoppingDetails() {
         {params.summary === 'photos' && <ShoppingPhotos />}
         {params.summary === 'edit' && <ShoppingEdit />}
         {params.summary === 'shopping-offer' && <ShoppingSpecialOffer />}
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
+
       <RightSidebarWrapper>
         <ShoppingRightSidebar />
       </RightSidebarWrapper>

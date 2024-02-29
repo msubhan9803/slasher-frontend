@@ -11,6 +11,7 @@ import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import ShoppingRightSidebar from '../ShoppingRightSidebar';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
+import SticyBannerAdSpaceCompensation from '../../../components/SticyBannerAdSpaceCompensation';
 
 const ShoppingBanner = styled.div`
   aspect-ratio: 3.56;
@@ -91,7 +92,9 @@ function AllShopping() {
           </div>
 
         </div>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
+
       <RightSidebarWrapper>
         <ShoppingRightSidebar />
       </RightSidebarWrapper>

@@ -45,6 +45,9 @@ import { showBackButtonInIos } from '../../../../utils/url-utils';
 import { onKeyboardClose, removeGlobalCssProperty, setGlobalCssProperty } from '../../../../utils/styles-utils ';
 import { enableScrollOnWindow } from '../../../../utils/scrollFunctions';
 import { apiUrl } from '../../../../env';
+import { useShowSticyBannerAdDesktopOnly } from '../../../SticyBannerAdSpaceCompensation';
+import TpdAd from '../../../ui/TpdAd';
+import { tpdAdSlotIdBannerA } from '../../../../utils/tpd-ad-slot-ids';
 
 interface Props {
   children: React.ReactNode;
@@ -109,6 +112,8 @@ function AuthenticatedPageWrapper({ children }: Props) {
       dispatch(setIsServerAvailable(false));
     }
   }, [dispatch, isSocketConnected]);
+  const showSticyBannerAdDesktopOnly = useShowSticyBannerAdDesktopOnly();
+  // eslint-disable-next-line no-console
 
   useEffect(() => {
     window.addEventListener('click', showUnreachableServerModalIfDisconnected, true);
@@ -318,6 +323,19 @@ function AuthenticatedPageWrapper({ children }: Props) {
           </main>
         </div>
       </div>
+
+      {/* Show `sticky-bottom-ad` on desktop (not show on mobile/tablet) */}
+      {showSticyBannerAdDesktopOnly
+        && (
+          <TpdAd
+            className="position-fixed bottom-0 w-100"
+            style={{ height: 'auto' }}
+            slotId={tpdAdSlotIdBannerA}
+            id="bottom-ad"
+            showSponsoredText={false}
+          />
+        )}
+
       {show && (
         <StyledOffcanvas
           id={offcanvasId}

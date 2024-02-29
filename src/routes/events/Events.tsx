@@ -8,6 +8,7 @@ import EventsByDate from './EventsByDate/EventsByDate';
 import EventsByLocation from './EventsByLocation/EventsByLocation';
 import Favorites from './Favorites/Favorites';
 import EventsSuggestion from './suggestion/EventsSuggestion';
+import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 
 function Events() {
   return (
@@ -21,6 +22,7 @@ function Events() {
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/:id" element={<EventDetails />} />
         </Routes>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
 
       {/* Global right sidebar for all above routes */}

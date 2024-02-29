@@ -5,6 +5,7 @@ import PlacePosterCardList from '../components/PlacePosterCard/PlacePosterCardLi
 import { newest } from '../PlaceData';
 import PlaceHeader from '../PlaceHeader';
 import PlaceRightSidebar from '../PlaceRightSidebar';
+import SticyBannerAdSpaceCompensation from '../../../components/SticyBannerAdSpaceCompensation';
 
 function PlaceNewest() {
   return (
@@ -14,6 +15,7 @@ function PlaceNewest() {
         <div className="p-4 pt-0">
           <PlacePosterCardList dataList={newest} />
         </div>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
       <RightSidebarWrapper>
         <PlaceRightSidebar />

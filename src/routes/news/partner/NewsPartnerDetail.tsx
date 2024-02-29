@@ -19,6 +19,7 @@ import NewsPostData from '../components/NewsPostData';
 import NewsRightSideNav from '../components/NewsRightSideNav';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../../pageStateCache';
+import SticyBannerAdSpaceCompensation from '../../../components/SticyBannerAdSpaceCompensation';
 
 const helmetData = new HelmetData({});
 const CustomButton = styled(RoundButton)`
@@ -163,6 +164,7 @@ function NewsPartnerDetail() {
             )
             : <LoadingIndicator />
         }
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
       <RightSidebarWrapper>
         <NewsRightSideNav

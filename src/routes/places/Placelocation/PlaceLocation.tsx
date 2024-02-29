@@ -16,6 +16,7 @@ import PlacePosterCard from './PlacePosterCard';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import PlaceRightSidebar from '../PlaceRightSidebar';
+import SticyBannerAdSpaceCompensation from '../../../components/SticyBannerAdSpaceCompensation';
 
 const MapLocation = styled.div`
   aspectRetio : 3.56rem;
@@ -175,6 +176,7 @@ function PlaceLocation() {
             </Row>
           </div>
         </div>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
       <RightSidebarWrapper>
         <PlaceRightSidebar />

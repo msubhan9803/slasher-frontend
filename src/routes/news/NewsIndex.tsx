@@ -15,6 +15,7 @@ import {
 } from '../../pageStateCache';
 import TpdAd from '../../components/ui/TpdAd';
 import { getInfiniteAdSlot } from '../../utils/tpd-ad-slot-ids';
+import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 
 const TrucatedDescription = styled.small`
   display: -webkit-box;
@@ -85,6 +86,7 @@ function NewsIndex() {
             })}
           </Row>
         </div>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
       <RightSidebarWrapper>
         <RightSidebarSelf />

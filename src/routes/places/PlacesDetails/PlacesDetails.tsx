@@ -19,6 +19,7 @@ import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/au
 import PlaceRightSidebar from '../PlaceRightSidebar';
 import BorderButton from '../../../components/ui/BorderButton';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
+import SticyBannerAdSpaceCompensation from '../../../components/SticyBannerAdSpaceCompensation';
 
 const ImageContainer = styled.div`
   acpect-ratio: '1.78'
@@ -107,7 +108,9 @@ function PlacesDetails() {
         {params.summary === 'posts' && <PlacesPosts />}
         {params.summary === 'photos' && <PlacesPhotos />}
         {params.summary === 'edit' && <PlacesEdit />}
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
+
       <RightSidebarWrapper>
         <PlaceRightSidebar />
       </RightSidebarWrapper>

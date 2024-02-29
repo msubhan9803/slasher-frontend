@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { getGlobalCssProperty, removeGlobalCssProperty, setGlobalCssProperty } from '../../../../utils/styles-utils ';
+import SticyBannerAdSpaceCompensation from '../../../SticyBannerAdSpaceCompensation';
 
 interface Props {
   children: React.ReactNode;
@@ -56,6 +57,7 @@ function RightSidebarWrapper({ children }: Props) {
       ref={rightSidebarRef}
     >
       {children}
+      <SticyBannerAdSpaceCompensation />
     </StyledRightSidebarWrapper>
   );
 }

@@ -15,6 +15,7 @@ interface TpdAdProps {
   className?: string;
   id: string;
   slotId: string;
+  showSponsoredText?: boolean;
 }
 interface AdContainerProps {
   id?: string;
@@ -24,6 +25,7 @@ interface AdContainerProps {
   adContainerClassName?: string;
   adContainerStyle?: React.CSSProperties;
   children?: React.ReactNode;
+  showSponsoredText?: boolean;
 }
 
 function AdContainer({
@@ -34,6 +36,7 @@ function AdContainer({
   adContainerClassName,
   adContainerStyle,
   children,
+  showSponsoredText,
 }: AdContainerProps) {
   const isAdQueued = useRef(false);
 
@@ -88,7 +91,7 @@ function AdContainer({
           {children}
         </div>
       </div>
-      <div className="text-center mt-2 fs-6 fw-normal w-100">Sponsored</div>
+      {showSponsoredText && <div className="text-center mt-2 fs-6 fw-normal w-100">Sponsored</div>}
     </div>
   );
 }
@@ -114,7 +117,7 @@ function PlaceHolderAd({ className, style, showDisableAdBlocker = false }: any) 
 
 // Note: `style` and `className` are always passed to
 // `adContainerStyle` and `adContainerClassName` respectively.
-export default function TpdAd({ style, className, id, slotId }: TpdAdProps) {
+export default function TpdAd({ style, className, id, slotId, showSponsoredText }: TpdAdProps) {
   const { isSlotsDefined, isAdBlockerDetected } = useAppSelector((state) => state.tpd);
   const isFirstLoadRef = useRef(true);
 
@@ -144,12 +147,13 @@ export default function TpdAd({ style, className, id, slotId }: TpdAdProps) {
 
   // This is our actual ad
   // eslint-disable-next-line max-len
-  return <AdContainer adContainerClassName={className} adContainerStyle={style} id={id} slotId={slotId} />;
+  return <AdContainer adContainerClassName={className} adContainerStyle={style} id={id} slotId={slotId} showSponsoredText={showSponsoredText} />;
 }
 
 TpdAd.defaultProps = {
   style: {},
   className: '',
+  showSponsoredText: true,
 };
 
 AdContainer.defaultProps = {
@@ -160,4 +164,5 @@ AdContainer.defaultProps = {
   adContainerClassName: '',
   adContainerStyle: {},
   children: '',
+  showSponsoredText: true,
 };

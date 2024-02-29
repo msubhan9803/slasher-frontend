@@ -11,6 +11,7 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/la
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import CustomPackages from '../../../components/ui/CustomPackages';
+import SticyBannerAdSpaceCompensation from '../../../components/SticyBannerAdSpaceCompensation';
 
 const noteList = [
   'A listing in the Places area of Slasher with your logo, description, link to your website, and more.',
@@ -81,6 +82,7 @@ function AddYourPlace() {
             </Col>
           </Row>
         </div>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
       <RightSidebarWrapper>
         <RightSidebarSelf />

@@ -21,6 +21,7 @@ import { UIRouteURL } from '../../movies/RouteURL';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import RoundButton from '../../../components/ui/RoundButton';
+import SticyBannerAdSpaceCompensation from '../../../components/SticyBannerAdSpaceCompensation';
 
 function ReadBooks() {
   const [searchParams] = useSearchParams();
@@ -231,6 +232,7 @@ function ReadBooks() {
             {noMoreData && renderNoMoreDataMessage()}
           </div>
         </div>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
       <RightSidebarWrapper>
         <BooksRightSideNav />

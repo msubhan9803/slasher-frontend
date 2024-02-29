@@ -31,6 +31,7 @@ import useBootstrapBreakpointName from '../../hooks/useBootstrapBreakpoint';
 import { getPageStateCache, setPageStateCache } from '../../pageStateCache';
 import { getProfileSubroutesCache } from './profileSubRoutesCacheUtils';
 import { setProfilePageUserDetailsReload } from '../../redux/slices/userSlice';
+import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 
 interface SharedHeaderProfilePagesProps {
   user: User;
@@ -157,6 +158,7 @@ function Profile() {
       <ContentSidbarWrapper>
         <ContentPageWrapper>
           <ProfileLimitedView user={user} />
+          <SticyBannerAdSpaceCompensation />
         </ContentPageWrapper>
 
         <RightSidebarWrapper>
@@ -173,6 +175,7 @@ function Profile() {
         <Routes>
           <Route path="*" element={<SharedHeaderProfilePages user={user} isSelfProfile={isSelfProfile} />} />
         </Routes>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
 
       {/* Global right sidebar for all above routes */}

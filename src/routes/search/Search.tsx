@@ -12,6 +12,7 @@ import SearchBooks from './search-books/SearchBooks';
 import { ContentSidbarWrapper, ContentPageWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
+import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 
 function Search() {
   return (
@@ -27,6 +28,7 @@ function Search() {
           <Route path="movies" element={<SearchMovies />} />
           <Route path="books" element={<SearchBooks />} />
         </Routes>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
 
       {/* Global right sidebar for all above routes */}

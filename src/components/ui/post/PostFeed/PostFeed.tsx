@@ -631,7 +631,12 @@ function PostFeed({
             }
           </div>
           {/* Below ad is to be shown in the end of a single page post */}
-          {isSinglePost && showAdAtPageBottom && <TpdAd id="single-page-post-ad-placeholder" slotId={tpdAdSlotIdZ} />}
+          {isSinglePost && showAdAtPageBottom && (
+            <>
+              <TpdAd id="single-page-post-ad-placeholder" slotId={tpdAdSlotIdZ} />
+              <div className="pt-5 mt-5" />
+            </>
+          )}
 
           {!isSinglePost && <hr className="post-separator" />}
 

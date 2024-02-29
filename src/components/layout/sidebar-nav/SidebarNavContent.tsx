@@ -8,6 +8,7 @@ import {
 import RoundButtonLink from '../../ui/RoundButtonLink';
 import { getAppVersion } from '../../../utils/version-utils';
 import { enableDevFeatures } from '../../../env';
+import SticyBannerAdSpaceCompensation from '../../SticyBannerAdSpaceCompensation';
 
 const MAX_ALLOWED_COMING_SOON_ITEMS_IN_MENU = 1;
 
@@ -131,6 +132,7 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
           <li className="text-light text-decoration-none">
             {`${getAppVersion()}`}
           </li>
+          <SticyBannerAdSpaceCompensation />
         </ul>
         <br />
       </Nav>

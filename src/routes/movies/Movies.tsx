@@ -12,6 +12,7 @@ import WatchedListMovies from './watched-list-movies/WatchedListMovies';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import MovieRightSideNav from './components/MovieRightSideNav';
+import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 
 function Movies() {
   return (
@@ -29,6 +30,7 @@ function Movies() {
           <Route path=":id/*" element={<MovieDetails />} />
           <Route path="*" element={<Navigate to="all" replace />} />
         </Routes>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
 
       {/* Global right sidebar for all above routes */}

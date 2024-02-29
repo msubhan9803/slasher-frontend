@@ -18,6 +18,7 @@ import useProgressButton from '../../../components/ui/ProgressButton';
 import { atMentionsGlobalRegex, generateMentionReplacementMatchFunc } from '../../../utils/text-utils';
 import { setProfilePageUserDetailsReload } from '../../../redux/slices/userSlice';
 import { deletePageStateCache } from '../../../pageStateCache';
+import SticyBannerAdSpaceCompensation from '../../../components/SticyBannerAdSpaceCompensation';
 
 export interface MentionProps {
   id: string;
@@ -157,7 +158,9 @@ function CreatePost() {
             createEditPost
           />
         </Form>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
+
       <RightSidebarWrapper>
         <RightSidebarSelf />
       </RightSidebarWrapper>

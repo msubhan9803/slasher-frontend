@@ -11,6 +11,7 @@ import CharactersCounter from '../../components/ui/CharactersCounter';
 import CustomText from '../../components/ui/CustomText';
 import PhotoUploadInput from '../../components/ui/PhotoUploadInput';
 import RoundButton from '../../components/ui/RoundButton';
+import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 
 const noteList = [
   'A listing in the book database with your cover art, description, link to buy your book, and more.',
@@ -108,6 +109,7 @@ function AddYourBook() {
             </Col>
           </Row>
         </div>
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
       <RightSidebarWrapper>
         <RightSidebarSelf />

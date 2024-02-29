@@ -12,6 +12,7 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layou
 import PodcastsSidebar from './components/PodcastsSidebar';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import BorderButton from '../../components/ui/BorderButton';
+import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 
 const StyledPodcastPoster = styled(Image)`
   aspect-ratio: 1;
@@ -148,6 +149,7 @@ function PodcastDetail() {
         </div>
 
         {params.summary === 'episodes' && <PodcastEpisodes episodeData={episodeData} />}
+        <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
       <RightSidebarWrapper>
         <PodcastsSidebar />

@@ -16,6 +16,7 @@ import {
   deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../../pageStateCache';
 import { useAppSelector } from '../../../redux/hooks';
+import { useShowSticyBannerAdMobileOnly } from '../../../components/SticyBannerAdSpaceCompensation';
 
 function WatchListMovies() {
   const [searchParams] = useSearchParams();
@@ -43,6 +44,9 @@ function WatchListMovies() {
   const [callNavigate, setCallNavigate] = useState<boolean>(false);
   const [movieListCount, setMovieListCount] = useState(null);
   const userId = useAppSelector((state) => state.user.user.id);
+  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
+  const { infiniteScrollRef } = useAppSelector((scrollRef) => scrollRef.mobileAd);
+
   const prevSearchRef = useRef(search);
   const prevKeyRef = useRef(key);
   const prevSortValRef = useRef(sortVal);
@@ -197,6 +201,8 @@ function WatchListMovies() {
             initialLoad
             loadMore={() => { setRequestAdditionalMovies(true); }}
             hasMore={!noMoreData}
+            getScrollParent={() => infiniteScrollRef}
+            useWindow={!showSticyBannerAdMobileOnly}
           >
             <PosterCardList
               dataList={filteredMovies}

@@ -24,7 +24,7 @@ const config: CapacitorConfig = {
   bundledWebRuntime: false,
   backgroundColor: '000000',
   ios: {
-    contentInset: 'automatic',
+    contentInset: 'always',
   },
   server: {
     cleartext: useLiveReloadConfig,

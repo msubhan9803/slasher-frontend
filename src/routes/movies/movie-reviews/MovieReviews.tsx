@@ -32,6 +32,7 @@ import { sleep } from '../../../utils/timer-utils';
 import { atMentionsGlobalRegex, decryptMessage, generateMentionReplacementMatchFunc } from '../../../utils/text-utils';
 import FriendshipStatusModal from '../../../components/ui/friendShipCheckModal';
 import { useAppSelector } from '../../../redux/hooks';
+import { useShowSticyBannerAdMobileOnly } from '../../../components/SticyBannerAdSpaceCompensation';
 
 type Props = {
   movieData: MovieData;
@@ -89,7 +90,9 @@ function MovieReviews({
     hasPageStateCache(location)
       ? ReviewsCache : [],
   );
-  const userData = useAppSelector((state) => state.user.user);
+  const userData = useAppSelector((userState) => userState.user.user);
+  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
+  const { infiniteScrollRef } = useAppSelector((scrollRef) => scrollRef.mobileAd);
 
   const navigate = useNavigate();
   const handleCreateInput = () => {
@@ -513,6 +516,8 @@ function MovieReviews({
         initialLoad
         loadMore={() => { setRequestAdditionalReviewPosts(true); }}
         hasMore={!noMoreData}
+        getScrollParent={() => infiniteScrollRef}
+        useWindow={!showSticyBannerAdMobileOnly}
       >
         <div className="mt-3">
           <PostFeed

@@ -12,6 +12,7 @@ import scrollPositionReducer from './slices/scrollPositionSlice';
 import socketReducer from './slices/socketSlice';
 import serverAvailabilityReducer from './slices/serverAvailableSlice';
 import googleAnalyticsReducer from './slices/googleAnalyticsSlice';
+import mobileAdReducer from './slices/mobileAdSlice';
 
 export const store = configureStore({
   reducer: {
@@ -28,6 +29,7 @@ export const store = configureStore({
     socket: socketReducer,
     serverAvailability: serverAvailabilityReducer,
     googleAnalytics: googleAnalyticsReducer,
+    mobileAd: mobileAdReducer,
   },
 });
 

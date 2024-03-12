@@ -40,7 +40,6 @@ import socketStore from '../../../../socketStore';
 import useSessionTokenMonitorAsync from '../../../../hooks/useSessionTokenMonitorAsync';
 import useSessionToken from '../../../../hooks/useSessionToken';
 import { setIsServerAvailable } from '../../../../redux/slices/serverAvailableSlice';
-import { Message } from '../../../../types';
 import { showBackButtonInIos } from '../../../../utils/url-utils';
 import { onKeyboardClose, removeGlobalCssProperty, setGlobalCssProperty } from '../../../../utils/styles-utils ';
 import { enableScrollOnWindow } from '../../../../utils/scrollFunctions';
@@ -48,6 +47,7 @@ import { apiUrl } from '../../../../env';
 import { useShowSticyBannerAdDesktopOnly } from '../../../SticyBannerAdSpaceCompensation';
 import TpdAd from '../../../ui/TpdAd';
 import { tpdAdSlotIdBannerA } from '../../../../utils/tpd-ad-slot-ids';
+import { setMobileInfiniteScrollParent } from '../../../../redux/slices/mobileAdSlice';
 
 interface Props {
   children: React.ReactNode;
@@ -75,6 +75,14 @@ const LeftSidebarWrapper = styled.div`
     ::-webkit-scrollbar { display: block; }
     -ms-overflow-style { display: block; }
     scrollbar-width { display: block; }
+  }
+`;
+
+const StyledAuthenticatedPageWrapper = styled.div`
+  @media(max-width: 979px) {
+    min-height: calc(100dvh - 120px);
+    max-height: calc(100dvh - 120px);
+    overflow: auto;
   }
 `;
 
@@ -207,7 +215,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
     dispatch(handleUpdatedUnreadConversationCount(count.unreadConversationCount));
   }, [dispatch]);
 
-  const onChatMessageReceivedHandler = useCallback((message: Message) => {
+  const onChatMessageReceivedHandler = useCallback((message: any) => {
     dispatch(updateRecentMessage(message));
   }, [dispatch]);
 
@@ -288,8 +296,12 @@ function AuthenticatedPageWrapper({ children }: Props) {
     }
   };
 
+  const setInfiniteScrollRef = (ref: any) => {
+    dispatch(setMobileInfiniteScrollParent(ref));
+  };
+
   return (
-    <div id={AUTHENTICATED_PAGE_WRAPPER_ID} className="page-wrapper full" style={{ paddingTop: `${!isDesktopResponsiveSize && isIOS && showBackButtonInIos(location.pathname) ? 'var(--heightOfBackButtonOfIos)' : ''}` }}>
+    <StyledAuthenticatedPageWrapper id={AUTHENTICATED_PAGE_WRAPPER_ID} className="page-wrapper full" ref={(ref) => setInfiniteScrollRef(ref)}>
       {isIOS
         && showBackButtonInIos(location.pathname)
         && (
@@ -351,7 +363,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
           </Offcanvas.Body>
         </StyledOffcanvas>
       )}
-    </div>
+    </StyledAuthenticatedPageWrapper>
   );
 }
 

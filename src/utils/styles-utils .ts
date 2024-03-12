@@ -21,7 +21,7 @@ export const onKeyboardOpen = () => {
     // Hide mobile-navbar when keyboard is opened`
     mobileNavBarElement.style.display = 'none';
     // Set botom position for the comment or rely input on post-details page when keyboard is opened
-    setGlobalCssProperty('--bottomForCommentOrReplyInputOnMobile', '0px');
+    setGlobalCssProperty('--bottomForCommentOrReplyInputOnMobile', '50px');
   }
 };
 

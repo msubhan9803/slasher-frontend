@@ -24,7 +24,7 @@ import SuggestedBooks from '../suggested-books/SuggestedBooks';
 import { UIRouteURL } from '../../movies/RouteURL';
 import RoundButton from '../../../components/ui/RoundButton';
 import { enableDevFeatures } from '../../../env';
-import SticyBannerAdSpaceCompensation from '../../../components/SticyBannerAdSpaceCompensation';
+import SticyBannerAdSpaceCompensation, { useShowSticyBannerAdMobileOnly } from '../../../components/SticyBannerAdSpaceCompensation';
 
 function AllBooks() {
   const [searchParams] = useSearchParams();
@@ -57,6 +57,8 @@ function AllBooks() {
   const prevKeyRef = useRef(key);
   const prevSortValRef = useRef(sortVal);
   const lastLocationKeyRef = useRef(location.key);
+  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
+  const { infiniteScrollRef } = useAppSelector((state) => state.mobileAd);
 
   useEffect(() => {
     setSearch(searchParams.get('q') || '');
@@ -253,6 +255,8 @@ function AllBooks() {
               initialLoad
               loadMore={() => { setRequestAdditionalBooks(true); }}
               hasMore={!noMoreData}
+              getScrollParent={() => infiniteScrollRef}
+              useWindow={!showSticyBannerAdMobileOnly}
             >
               <PosterCardList
                 // eslint-disable-next-line max-len

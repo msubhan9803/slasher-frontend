@@ -8,6 +8,8 @@ import UserCircleImage from '../../../components/ui/UserCircleImage';
 import { blockedUsers, removeBlockedUsers } from '../../../api/blocks';
 import { LG_MEDIA_BREAKPOINT } from '../../../constants';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import { useShowSticyBannerAdMobileOnly } from '../../../components/SticyBannerAdSpaceCompensation';
+import { useAppSelector } from '../../../redux/hooks';
 
 interface BlockUsers {
   _id: string;
@@ -27,6 +29,8 @@ function AccountBlockedUser() {
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [page, setPage] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState<string[]>();
+  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
+  const { infiniteScrollRef } = useAppSelector((state) => state.mobileAd);
 
   const getBlockedUserList = (blockUserPage: number) => {
     blockedUsers(blockUserPage)
@@ -77,6 +81,8 @@ function AccountBlockedUser() {
           initialLoad={false}
           loadMore={fetchMoreBlockUsersList}
           hasMore={!noMoreData}
+          getScrollParent={() => infiniteScrollRef}
+          useWindow={!showSticyBannerAdMobileOnly}
         >
           <Row>
             {

@@ -643,10 +643,10 @@ function PostFeed({
           {/* Show ad after every three posts. */}
           {(i + 1) % 3 === 0 /* (i=2,5,8,11) */
             && (
-            <>
-              <TpdAd slotId={getInfiniteAdSlot()} id={`post-${(i + 1) / 3}`} />
-              <hr className="post-separator" />
-            </>
+              <>
+                <TpdAd slotId={getInfiniteAdSlot()} id={`post-${(i + 1) / 3}`} />
+                <hr className="post-separator" />
+              </>
             )}
         </div>
       ))}

@@ -32,7 +32,7 @@ import { sleep } from '../../utils/timer-utils';
 import { useAppSelector } from '../../redux/hooks';
 import { friendship } from '../../api/friends';
 import FriendshipStatusModal from '../../components/ui/friendShipCheckModal';
-import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
+import SticyBannerAdSpaceCompensation, { useShowSticyBannerAdMobileOnly } from '../../components/SticyBannerAdSpaceCompensation';
 // import DebugGoogleAnalytics from '../debug-google-analytics';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
@@ -72,6 +72,8 @@ function Home() {
   const lastLocationKeyRef = useRef(location.key);
 
   const persistScrollPosition = () => { setPageStateCache(location, posts); };
+  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
+  const { infiniteScrollRef } = useAppSelector((state) => state.mobileAd);
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     persistScrollPosition();
@@ -436,6 +438,9 @@ function Home() {
           initialLoad
           loadMore={() => { setRequestAdditionalPosts(true); }}
           hasMore={!noMoreData}
+          /* Using a custom parentNode element to base the scroll calulations on. */
+          getScrollParent={() => infiniteScrollRef}
+          useWindow={!showSticyBannerAdMobileOnly}
         >
           {
             posts.length > 0

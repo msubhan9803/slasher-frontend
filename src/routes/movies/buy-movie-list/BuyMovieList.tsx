@@ -16,6 +16,7 @@ import { UIRouteURL } from '../RouteURL';
 import {
   deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../../pageStateCache';
+import { useShowSticyBannerAdMobileOnly } from '../../../components/SticyBannerAdSpaceCompensation';
 
 function BuyMovieList() {
   const [searchParams] = useSearchParams();
@@ -44,6 +45,8 @@ function BuyMovieList() {
   const [callNavigate, setCallNavigate] = useState<boolean>(false);
   const [movieListCount, setMovieListCount] = useState(null);
   const userId = useAppSelector((state) => state.user.user.id);
+  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
+  const { infiniteScrollRef } = useAppSelector((state) => state.mobileAd);
   const prevSearchRef = useRef(search);
   const prevKeyRef = useRef(key);
   const prevSortValRef = useRef(sortVal);
@@ -198,6 +201,8 @@ function BuyMovieList() {
             initialLoad
             loadMore={() => { setRequestAdditionalMovies(true); }}
             hasMore={!noMoreData}
+            getScrollParent={() => infiniteScrollRef}
+            useWindow={!showSticyBannerAdMobileOnly}
           >
             <PosterCardList
               dataList={filteredMovies}

@@ -10,6 +10,9 @@ import IconWithTextNavButton from './IconWithTextNavButton';
 import { useAppSelector } from '../../../../redux/hooks';
 import { LG_MEDIA_BREAKPOINT, MOBILE_NAVBAR } from '../../../../constants';
 import HeaderLogo from '../../../ui/HeaderLogo';
+import TpdAd from '../../../ui/TpdAd';
+import { useShowSticyBannerAdMobileOnly } from '../../../SticyBannerAdSpaceCompensation';
+import { tpdAdSlotIdBannerA } from '../../../../utils/tpd-ad-slot-ids';
 
 const SOLID_BLACK_IMAGE_BASE64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
 
@@ -44,6 +47,9 @@ export const StyledNav = styled(Nav)`
     padding: 10px 50px;
   }
 `;
+const MobileAd = styled.div`
+  height: 50px;
+`;
 interface Props {
   userName: string;
   onToggleClick: () => void;
@@ -59,6 +65,8 @@ function AuthenticatedPageHeader(
   }: Props,
 ) {
   const userData = useAppSelector((state) => state.user);
+  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
+  const adSection = React.useRef<HTMLDivElement>(null);
 
   const mobileNavLinkElements = [
     <IconWithTextNavButton
@@ -112,16 +120,32 @@ function AuthenticatedPageHeader(
         </StyledNavbar>
 
         {/* nav-bar for small screen */}
-        <MobileNavbar id={MOBILE_NAVBAR} bg="dark" variant="dark" className={`d-${offcanvasSidebarExpandBreakPoint}-none fixed-bottom pt-3`}>
-          <div className="w-100 d-flex">
-            {
-              mobileNavLinkElements.map((el, index) => {
-                const uniqueId = `nav-link-${index}`;
-                return <Col key={uniqueId} style={{ maxWidth: `${100 / mobileNavLinkElements.length}%` }}>{el}</Col>;
-              })
-            }
-          </div>
-        </MobileNavbar>
+        <div className="fixed-bottom">
+          <MobileNavbar id={MOBILE_NAVBAR} bg="dark" variant="dark" className={`d-${offcanvasSidebarExpandBreakPoint}-none pt-3`}>
+            <div className="w-100 d-flex">
+              {
+                mobileNavLinkElements.map((el, index) => {
+                  const uniqueId = `nav-link-${index}`;
+                  return <Col key={uniqueId} style={{ maxWidth: `${100 / mobileNavLinkElements.length}%` }}>{el}</Col>;
+                })
+              }
+            </div>
+          </MobileNavbar>
+
+          {showSticyBannerAdMobileOnly
+            && (
+              <MobileAd className="w-100 bg-black" ref={adSection}>
+                <TpdAd
+                  className="w-100"
+                  style={{ height: 'auto' }}
+                  slotId={tpdAdSlotIdBannerA}
+                  id="mob-bottom-ad"
+                  showSponsoredText={false}
+                />
+              </MobileAd>
+            )}
+        </div>
+
       </header>
     </>
   );

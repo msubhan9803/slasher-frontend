@@ -14,6 +14,7 @@ import { useAppSelector } from '../../../../redux/hooks';
 import LoadingIndicator from '../../../../components/ui/LoadingIndicator';
 import { MD_MEDIA_BREAKPOINT } from '../../../../constants';
 import ProfileTabContent from '../../../../components/ui/profile/ProfileTabContent';
+import { useShowSticyBannerAdMobileOnly } from '../../../../components/SticyBannerAdSpaceCompensation';
 
 // const CustomHashTagButton = styled(HashtagButton)`
 //   background-color: #383838;
@@ -59,6 +60,9 @@ function FollowingHashtags() {
   const [followedHashtag, setFollowedHastag] = useState<FollowHashtagProps[]>([]);
   const [additionalHashtag, setAdditionalHashtag] = useState<boolean>(false);
   const [loadingHashtag, setLoadingHashtag] = useState<boolean>(false);
+  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
+  const { infiniteScrollRef } = useAppSelector((state) => state.mobileAd);
+
   const fetchMoreTagList = useCallback(() => {
     getFollowedHashtags(userData.user.id, search, page)
       .then((res) => {
@@ -215,6 +219,8 @@ function FollowingHashtags() {
           initialLoad
           loadMore={() => { setAdditionalHashtag(true); }}
           hasMore={!noMoreData}
+          getScrollParent={() => infiniteScrollRef}
+          useWindow={!showSticyBannerAdMobileOnly}
         >
           {followedHashtag
             && followedHashtag.length > 0

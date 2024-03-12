@@ -19,6 +19,7 @@ import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent'
 import {
   deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../../pageStateCache';
+import { useShowSticyBannerAdMobileOnly } from '../../../components/SticyBannerAdSpaceCompensation';
 
 interface Props {
   user: User
@@ -49,6 +50,9 @@ function ProfileWatchList({ user }: Props) {
   );
   const [movieListCount, setMovieListCount] = useState(null);
   const userId = useAppSelector((state) => state.user.user.id);
+  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
+  const { infiniteScrollRef } = useAppSelector((state) => state.mobileAd);
+
   const prevSearchRef = useRef(search);
   const prevKeyRef = useRef(key);
   const prevSortValRef = useRef(sortVal);
@@ -205,6 +209,8 @@ function ProfileWatchList({ user }: Props) {
               initialLoad
               loadMore={() => { setRequestAdditionalMovies(true); }}
               hasMore={!noMoreData}
+              getScrollParent={() => infiniteScrollRef}
+              useWindow={!showSticyBannerAdMobileOnly}
             >
               <PosterCardList
                 dataList={filteredMovies}

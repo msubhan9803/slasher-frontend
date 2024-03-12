@@ -15,6 +15,7 @@ import {
   getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../../pageStateCache';
 import useProgressButton from '../../../components/ui/ProgressButton';
+import { useShowSticyBannerAdMobileOnly } from '../../../components/SticyBannerAdSpaceCompensation';
 
 interface Props {
   partnerId: string;
@@ -37,6 +38,8 @@ function NewsPostData({ partnerId }: Props) {
     hasPageStateCache(location)
       ? newsPostsCache : [],
   );
+  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
+  const { infiniteScrollRef } = useAppSelector((state) => state.mobileAd);
 
   useEffect(() => {
     if (partnerId && requestAdditionalPosts && !loadingPosts) {
@@ -206,6 +209,8 @@ function NewsPostData({ partnerId }: Props) {
         loadMore={() => { setRequestAdditionalPosts(true); }}
         hasMore={!noMoreData}
         threshold={3000}
+        getScrollParent={() => infiniteScrollRef}
+        useWindow={!showSticyBannerAdMobileOnly}
       >
         {
           postData.length > 0

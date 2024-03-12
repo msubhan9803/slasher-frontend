@@ -46,7 +46,7 @@ export const topStatuBarBackgroundColorAndroidOnly = '000000';
 // Note: This must be numeric value because we use this
 // compare against return value of `useResize` hook
 export const maxWidthForCommentOrReplyInputOnMobile: number = BREAK_POINTS.lg - 1;
-export const bottomForCommentOrReplyInputOnMobile = '77px';
+export const bottomForCommentOrReplyInputOnMobile = '127px';
 
 export const isBrowser = typeof window !== 'undefined';
 // eslint-disable-next-line no-nested-ternary

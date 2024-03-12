@@ -245,7 +245,7 @@ function ProfileHeader({
         <div>
           <ProfileCoverImage src={user.coverPhoto || defaultCoverImage} alt="Cover picture" className="mt-3 mt-md-0 w-100 rounded" onClick={handleSignInDialog} />
         </div>
-        <Row className="d-flex ps-md-4">
+        <Row className="d-flex ps-md-4 md:ps-md-2 lg:ps-md-4">
           <CustomCol md={3} lg={12} xl="auto" className="text-center text-lg-center text-xl-start  position-relative">
             <AboutProfileImage size="11.25rem" src={user?.profilePic} alt="user picture" onClick={handleSignInDialog} />
             {!isSelfUserProfile
@@ -261,8 +261,8 @@ function ProfileHeader({
           </CustomCol>
           <Col className="w-100 mt-md-4">
             <Row className="d-flex justify-content-between">
-              <Col xs={12} md={4} lg={12} xl={5} className="text-center text-md-start text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
-                <h1 className="mb-md-0 text-nowrap">
+              <Col xs={12} md={6} lg={12} xl={5} className="text-center text-md-start text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
+                <h1 className="mb-md-0">
                   {user?.firstName}
                 </h1>
                 <div className="fs-5 text-light">
@@ -277,7 +277,7 @@ function ProfileHeader({
                   <span className="ps-1">{formatNumberWithUnits(user.postsCount)}</span>
                 </div>
               </Col>
-              <Col xs={12} md={8} lg={12} xl={7}>
+              <Col xs={12} md={6} lg={12} xl={7}>
                 {isSelfUserProfile
                   && (
                     <div className="d-flex justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">

@@ -16,6 +16,7 @@ import socketStore from '../../socketStore';
 import { getConversationMessages } from '../../api/chat';
 import {
   bottomForCommentOrReplyInputOnMobile,
+  bottomMobileAdHeight,
   bottomMobileNavHeight, isNativePlatform, maxWidthForCommentOrReplyInputOnMobile, topToDivHeight,
 } from '../../constants';
 import ChatOptions from './ChatOptions';
@@ -58,9 +59,6 @@ const ChatHeader = styled.div`
 const ChatBody = styled.div<ChatProps>`
 @media (max-width: ${maxWidthForCommentOrReplyInputOnMobile}px) {
   margin-top:65px;
-  // ${(props) => props.isFocus === false && 'margin-bottom:60px'};
-  ${(props) => props.isFocus === false && ''};
-  
 }
 `;
 const ChatFooter = styled.div`
@@ -158,7 +156,7 @@ function Chat({
     }
 
     if (window.innerWidth < 960) {
-      setMaxHeight(newHeight - 130);
+      setMaxHeight(newHeight - bottomMobileNavHeight - bottomMobileAdHeight);
     } else {
       setMaxHeight(newHeight);
     }

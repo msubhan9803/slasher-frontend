@@ -8,7 +8,7 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import IconWithTextNavLink from './IconWithTextNavLink';
 import IconWithTextNavButton from './IconWithTextNavButton';
 import { useAppSelector } from '../../../../redux/hooks';
-import { LG_MEDIA_BREAKPOINT, MOBILE_NAVBAR } from '../../../../constants';
+import { LG_MEDIA_BREAKPOINT, MOBILE_NAVBAR, bottomMobileAdHeight } from '../../../../constants';
 import HeaderLogo from '../../../ui/HeaderLogo';
 import TpdAd from '../../../ui/TpdAd';
 import { useShowSticyBannerAdMobileOnly } from '../../../SticyBannerAdSpaceCompensation';
@@ -48,7 +48,7 @@ export const StyledNav = styled(Nav)`
   }
 `;
 const MobileAd = styled.div`
-  height: 50px;
+  height: ${bottomMobileAdHeight}px;
 `;
 interface Props {
   userName: string;

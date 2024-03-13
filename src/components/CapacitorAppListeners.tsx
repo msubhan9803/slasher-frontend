@@ -29,27 +29,19 @@ function CapacitorAppListeners() {
     });
   }, [navigate]);
 
-  const compareVersions = (current: string, available: string) => {
-    const currentParts = current.split('.').map(Number);
-    const availableParts = available.split('.').map(Number);
-
-    for (let i = 0; i < currentParts.length; i += 1) {
-      if (currentParts[i] > availableParts[i]) {
-        return false;
-      }
-      if (currentParts[i] < availableParts[i]) {
-        return true;
-      }
-    }
-
-    return false;
-  };
-
   const checkAndSetAppVerionPreferance = async () => {
     const appVersion = (await Preferences.get({ key: 'app-version' })).value;
     const result = await AppUpdate.getAppUpdateInfo();
     const { currentVersion, availableVersion } = result;
-    if (compareVersions(currentVersion, availableVersion)) {
+    let updateRequired = false;
+    const currentParts = currentVersion.split('.').map(Number);
+    const availableParts = availableVersion.split('.').map(Number);
+    for (let i = 0; i < currentParts.length; i += 1) {
+      if (currentParts[i] < availableParts[i]) {
+        updateRequired = true;
+      }
+    }
+    if (updateRequired) {
       await AppUpdate.openAppStore();
     }
     if (currentVersion !== appVersion) {

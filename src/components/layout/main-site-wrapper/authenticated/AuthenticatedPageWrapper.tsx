@@ -40,6 +40,7 @@ import socketStore from '../../../../socketStore';
 import useSessionTokenMonitorAsync from '../../../../hooks/useSessionTokenMonitorAsync';
 import useSessionToken from '../../../../hooks/useSessionToken';
 import { setIsServerAvailable } from '../../../../redux/slices/serverAvailableSlice';
+import { Message } from '../../../../types';
 import { showBackButtonInIos } from '../../../../utils/url-utils';
 import { onKeyboardClose, removeGlobalCssProperty, setGlobalCssProperty } from '../../../../utils/styles-utils ';
 import { enableScrollOnWindow } from '../../../../utils/scrollFunctions';
@@ -47,7 +48,6 @@ import { apiUrl } from '../../../../env';
 import { useShowSticyBannerAdDesktopOnly } from '../../../SticyBannerAdSpaceCompensation';
 import TpdAd from '../../../ui/TpdAd';
 import { tpdAdSlotIdBannerA } from '../../../../utils/tpd-ad-slot-ids';
-import { Message } from '../../../../types';
 
 interface Props {
   children: React.ReactNode;

@@ -21,7 +21,7 @@ import { UIRouteURL } from '../../movies/RouteURL';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import RoundButton from '../../../components/ui/RoundButton';
-import SticyBannerAdSpaceCompensatio from '../../../components/SticyBannerAdSpaceCompensation';
+import SticyBannerAdSpaceCompensation from '../../../components/SticyBannerAdSpaceCompensation';
 
 function ReadBooks() {
   const [searchParams] = useSearchParams();

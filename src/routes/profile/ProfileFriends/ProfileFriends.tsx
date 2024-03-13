@@ -72,7 +72,6 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
   const [search, setSearch] = useState<string>(
     profileSubRoutesCache?.allFriends?.searchValue || '',
   );
-
   const controllerRef = useRef<AbortController | null>();
   const lastUserIdRef = useRef(user._id);
   const [initialLoad] = useState((profileSubRoutesCache.allFriends?.data.length || 0) === 0);

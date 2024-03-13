@@ -17,7 +17,6 @@ function FollowingPeople() {
   const [loadingPeople, setLoadingPeople] = useState<boolean>(false);
   const [followPeople, setFollowPeople] = useState<any>([]);
   const [page, setPage] = useState<number>(0);
-
   const callLatestFeed = () => {
     getUserFollow(page).then((res) => setFollowPeople(res.data));
   };

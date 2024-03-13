@@ -47,7 +47,7 @@ import { apiUrl } from '../../../../env';
 import { useShowSticyBannerAdDesktopOnly } from '../../../SticyBannerAdSpaceCompensation';
 import TpdAd from '../../../ui/TpdAd';
 import { tpdAdSlotIdBannerA } from '../../../../utils/tpd-ad-slot-ids';
-import { setMobileInfiniteScrollParent } from '../../../../redux/slices/mobileAdSlice';
+import { Message } from '../../../../types';
 
 interface Props {
   children: React.ReactNode;
@@ -75,14 +75,6 @@ const LeftSidebarWrapper = styled.div`
     ::-webkit-scrollbar { display: block; }
     -ms-overflow-style { display: block; }
     scrollbar-width { display: block; }
-  }
-`;
-
-const StyledAuthenticatedPageWrapper = styled.div`
-  @media(max-width: 979px) {
-    min-height: calc(100dvh - 120px);
-    max-height: calc(100dvh - 120px);
-    overflow: auto;
   }
 `;
 
@@ -215,7 +207,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
     dispatch(handleUpdatedUnreadConversationCount(count.unreadConversationCount));
   }, [dispatch]);
 
-  const onChatMessageReceivedHandler = useCallback((message: any) => {
+  const onChatMessageReceivedHandler = useCallback((message: Message) => {
     dispatch(updateRecentMessage(message));
   }, [dispatch]);
 
@@ -294,10 +286,6 @@ function AuthenticatedPageWrapper({ children }: Props) {
     } else {
       navigate(-1);
     }
-  };
-
-  const setInfiniteScrollRef = (ref: any) => {
-    dispatch(setMobileInfiniteScrollParent(ref));
   };
 
   return (

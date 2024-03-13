@@ -54,7 +54,6 @@ function ProfileFriendRequest({ user }: Props) {
   const [friendRequestPage, setFriendRequestPage] = useState<number>(
     profileSubRoutesCache?.friendRequests?.page || 0,
   );
-
   const abortControllerRef = useRef<AbortController | null>();
   const friendsTabs = [
     { value: '', label: 'All friends' },

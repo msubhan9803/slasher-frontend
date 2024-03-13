@@ -65,7 +65,6 @@ function ProfilePosts({ user }: Props) {
   const [friendShipStatusModal, setFriendShipStatusModal] = useState<boolean>(false);
   const { userName: userNameOrId } = useParams<string>();
   const lastUserIdRef = useRef(user._id);
-
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.message) {
       setPostContent(popoverClickProps.message);

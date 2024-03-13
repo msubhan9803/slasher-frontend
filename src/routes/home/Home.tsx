@@ -32,7 +32,7 @@ import { sleep } from '../../utils/timer-utils';
 import { useAppSelector } from '../../redux/hooks';
 import { friendship } from '../../api/friends';
 import FriendshipStatusModal from '../../components/ui/friendShipCheckModal';
-import SticyBannerAdSpaceCompensation, { useShowSticyBannerAdMobileOnly } from '../../components/SticyBannerAdSpaceCompensation';
+import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 // import DebugGoogleAnalytics from '../debug-google-analytics';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];

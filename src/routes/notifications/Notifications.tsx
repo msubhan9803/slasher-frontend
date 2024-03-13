@@ -39,7 +39,6 @@ function Notifications() {
       ? pageStateCache : [],
   );
   const userData = useAppSelector((state) => state.user);
-
   const lastLocationKeyRef = useRef(location.key);
   const fetchNotifcations = useCallback((forceReload = false) => {
     if (forceReload) { setNotificationData([]); }

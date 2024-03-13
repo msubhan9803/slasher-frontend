@@ -43,7 +43,6 @@ function WatchListMovies() {
   const [callNavigate, setCallNavigate] = useState<boolean>(false);
   const [movieListCount, setMovieListCount] = useState(null);
   const userId = useAppSelector((state) => state.user.user.id);
-
   const prevSearchRef = useRef(search);
   const prevKeyRef = useRef(key);
   const prevSortValRef = useRef(sortVal);

@@ -88,7 +88,6 @@ function BookReview({
   const handleCreateInput = () => {
     setShowReviewForm(true);
   };
-
   useEffect(() => {
     if (hasPageStateCache(location)) {
       setReviewPostData(ReviewsCache);

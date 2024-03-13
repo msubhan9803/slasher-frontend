@@ -34,7 +34,6 @@ function ProfilePhotos({ user }: Props) {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [loadingPhotos, setLoadingPhotos] = useState<boolean>(false);
-
   const isLoadingRef = useRef(true);
 
   useEffect(() => {

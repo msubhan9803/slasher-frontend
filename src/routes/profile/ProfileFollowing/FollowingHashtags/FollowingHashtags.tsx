@@ -59,7 +59,6 @@ function FollowingHashtags() {
   const [followedHashtag, setFollowedHastag] = useState<FollowHashtagProps[]>([]);
   const [additionalHashtag, setAdditionalHashtag] = useState<boolean>(false);
   const [loadingHashtag, setLoadingHashtag] = useState<boolean>(false);
-
   const fetchMoreTagList = useCallback(() => {
     getFollowedHashtags(userData.user.id, search, page)
       .then((res) => {

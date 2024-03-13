@@ -43,7 +43,6 @@ function AllMovies() {
       ? (pageStateCache[pageStateCache.length - 1]?._id)
       : '',
   );
-
   const prevSearchRef = useRef(search);
   const prevKeyRef = useRef(key);
   const prevSortValRef = useRef(sortVal);

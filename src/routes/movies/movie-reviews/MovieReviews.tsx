@@ -89,7 +89,7 @@ function MovieReviews({
     hasPageStateCache(location)
       ? ReviewsCache : [],
   );
-  const userData = useAppSelector((userState) => userState.user.user);
+  const userData = useAppSelector((state) => state.user.user);
 
   const navigate = useNavigate();
   const handleCreateInput = () => {

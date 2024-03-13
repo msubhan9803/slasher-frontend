@@ -6,8 +6,6 @@ import { getSearchUser } from '../../../api/searchUser';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import SearchHeader from '../SearchHeader';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
-import { useShowSticyBannerAdMobileOnly } from '../../../components/SticyBannerAdSpaceCompensation';
-import { useAppSelector } from '../../../redux/hooks';
 
 interface SearchPeopleProps {
   _id: number;
@@ -22,8 +20,6 @@ function SearchPeople() {
   const [page, setPage] = useState<number>(0);
   const [loadUser, setLoadUser] = useState<boolean>(false);
   const [moreCharacters, setMoreCharacters] = useState<boolean>(false);
-  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
-  const { infiniteScrollRef } = useAppSelector((state) => state.mobileAd);
 
   const searchData = async (criteria: string) => {
     if (criteria && criteria.length >= 3) {
@@ -111,8 +107,6 @@ function SearchPeople() {
         loadMore={fetchMoreUsers}
         hasMore={!noMoreData}
         element="span"
-        getScrollParent={() => infiniteScrollRef}
-        useWindow={!showSticyBannerAdMobileOnly}
       >
         <Row className="mt-4">
           {loadUser && <LoadingIndicator />}

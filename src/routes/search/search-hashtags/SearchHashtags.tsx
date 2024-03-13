@@ -11,7 +11,6 @@ import { useAppSelector } from '../../../redux/hooks';
 import {
   deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../../pageStateCache';
-import { useShowSticyBannerAdMobileOnly } from '../../../components/SticyBannerAdSpaceCompensation';
 
 interface SearchPeopleProps {
   _id: string;
@@ -32,8 +31,6 @@ function SearchHashtags() {
   const [loadUser, setLoadUser] = useState<boolean>(false);
   const [additionalSearchHashtag, setAdditionalSearchHashtag] = useState<boolean>(false);
   const [moreCharacters, setMoreCharacters] = useState<boolean>(false);
-  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
-  const { infiniteScrollRef } = useAppSelector((state) => state.mobileAd);
 
   useEffect(() => {
     if (scrollPosition.position > 0
@@ -167,8 +164,6 @@ function SearchHashtags() {
         loadMore={() => { setAdditionalSearchHashtag(true); }}
         hasMore={!noMoreData}
         element="span"
-        getScrollParent={() => infiniteScrollRef}
-        useWindow={!showSticyBannerAdMobileOnly}
       >
         <Row className="mt-4">
           {moreCharacters

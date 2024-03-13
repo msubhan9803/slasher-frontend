@@ -29,7 +29,6 @@ import { formatNumberWithUnits } from '../../../utils/number.utils';
 import { setProfilePageUserDetailsReload } from '../../../redux/slices/userSlice';
 import useProgressButton from '../../../components/ui/ProgressButton';
 import { sleep } from '../../../utils/timer-utils';
-import { useShowSticyBannerAdMobileOnly } from '../../../components/SticyBannerAdSpaceCompensation';
 
 type UserProfileFriendsResponseData = AxiosResponse<{ friends: FriendProps[] }>;
 
@@ -73,8 +72,6 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
   const [search, setSearch] = useState<string>(
     profileSubRoutesCache?.allFriends?.searchValue || '',
   );
-  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
-  const { infiniteScrollRef } = useAppSelector((state) => state.mobileAd);
 
   const controllerRef = useRef<AbortController | null>();
   const lastUserIdRef = useRef(user._id);
@@ -311,8 +308,6 @@ function ProfileFriends({ user, isSelfProfile }: Props) {
               initialLoad={initialLoad}
               loadMore={() => { setRequestAdditionalFriends(true); }}
               hasMore={!noMoreData}
-              getScrollParent={() => infiniteScrollRef}
-              useWindow={!showSticyBannerAdMobileOnly}
             /* NOTE: Do not use a custom parentNode element as it leads to infinte loading.
             of friends for some unknown reason. */
             >

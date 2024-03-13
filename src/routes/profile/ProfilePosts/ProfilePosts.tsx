@@ -29,7 +29,6 @@ import { friendship } from '../../../api/friends';
 import { getProfileSubroutesCache } from '../profileSubRoutesCacheUtils';
 import { formatNumberWithUnits } from '../../../utils/number.utils';
 import { setProfilePageUserDetailsReload } from '../../../redux/slices/userSlice';
-import { useShowSticyBannerAdMobileOnly } from '../../../components/SticyBannerAdSpaceCompensation';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -66,8 +65,6 @@ function ProfilePosts({ user }: Props) {
   const [friendShipStatusModal, setFriendShipStatusModal] = useState<boolean>(false);
   const { userName: userNameOrId } = useParams<string>();
   const lastUserIdRef = useRef(user._id);
-  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
-  const { infiniteScrollRef } = useAppSelector((state) => state.mobileAd);
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.message) {
@@ -377,8 +374,6 @@ function ProfilePosts({ user }: Props) {
           initialLoad
           loadMore={() => { setRequestAdditionalPosts(true); }}
           hasMore={!noMoreData}
-          getScrollParent={() => infiniteScrollRef}
-          useWindow={!showSticyBannerAdMobileOnly}
         >
           {
             posts.length > 0

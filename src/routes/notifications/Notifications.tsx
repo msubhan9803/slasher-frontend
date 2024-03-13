@@ -20,7 +20,7 @@ import socketStore from '../../socketStore';
 import {
   deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../pageStateCache';
-import SticyBannerAdSpaceCompensation, { useShowSticyBannerAdMobileOnly } from '../../components/SticyBannerAdSpaceCompensation';
+import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 
 function Notifications() {
   const popoverOption = ['Settings'];
@@ -39,8 +39,6 @@ function Notifications() {
       ? pageStateCache : [],
   );
   const userData = useAppSelector((state) => state.user);
-  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
-  const { infiniteScrollRef } = useAppSelector((state) => state.mobileAd);
 
   const lastLocationKeyRef = useRef(location.key);
   const fetchNotifcations = useCallback((forceReload = false) => {
@@ -253,8 +251,6 @@ function Notifications() {
             initialLoad
             loadMore={() => { setRequestAdditionalPosts(true); }}
             hasMore={!noMoreData}
-            getScrollParent={() => infiniteScrollRef}
-            useWindow={!showSticyBannerAdMobileOnly}
           >
             {notificationData && notificationData.length > 0
               && (

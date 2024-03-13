@@ -19,7 +19,7 @@ import {
 } from '../../../pageStateCache';
 import RoundButton from '../../../components/ui/RoundButton';
 import { UIRouteURL } from '../../movies/RouteURL';
-import SticyBannerAdSpaceCompensation, { useShowSticyBannerAdMobileOnly } from '../../../components/SticyBannerAdSpaceCompensation';
+import SticyBannerAdSpaceCompensation from '../../../components/SticyBannerAdSpaceCompensation';
 
 function BuyListBooks() {
   const [searchParams] = useSearchParams();
@@ -50,8 +50,6 @@ function BuyListBooks() {
       ? (pageStateCache[pageStateCache.length - 1]?._id)
       : '',
   );
-  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
-  const { infiniteScrollRef } = useAppSelector((state) => state.mobileAd);
   const prevSearchRef = useRef(search);
   const prevKeyRef = useRef(key);
   const prevSortValRef = useRef(sortVal);
@@ -220,8 +218,6 @@ function BuyListBooks() {
               initialLoad
               loadMore={() => { setRequestAdditionalBooks(true); }}
               hasMore={!noMoreData}
-              getScrollParent={() => infiniteScrollRef}
-              useWindow={!showSticyBannerAdMobileOnly}
             >
               <PosterCardList
                 // eslint-disable-next-line max-len

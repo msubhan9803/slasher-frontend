@@ -10,8 +10,6 @@ import LoadingIndicator from '../../../../components/ui/LoadingIndicator';
 import { StyledBorder } from '../../../../components/ui/StyledBorder';
 import { deleteNotificationStatus, getUserFollow } from '../../../../api/user-follow';
 import { StyledButtonIcon } from '../../ProfileHeader';
-import { useShowSticyBannerAdMobileOnly } from '../../../../components/SticyBannerAdSpaceCompensation';
-import { useAppSelector } from '../../../../redux/hooks';
 
 function FollowingPeople() {
   const [additionalPost, setAdditionalPost] = useState<boolean>(false);
@@ -19,8 +17,6 @@ function FollowingPeople() {
   const [loadingPeople, setLoadingPeople] = useState<boolean>(false);
   const [followPeople, setFollowPeople] = useState<any>([]);
   const [page, setPage] = useState<number>(0);
-  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
-  const { infiniteScrollRef } = useAppSelector((state) => state.mobileAd);
 
   const callLatestFeed = () => {
     getUserFollow(page).then((res) => setFollowPeople(res.data));
@@ -85,8 +81,6 @@ function FollowingPeople() {
             initialLoad
             loadMore={() => { setAdditionalPost(true); }}
             hasMore={!noMoreData}
-            getScrollParent={() => infiniteScrollRef}
-            useWindow={!showSticyBannerAdMobileOnly}
           >
             <Row>
               {followPeople.map((user: any, index: number) => (

@@ -37,8 +37,6 @@ function Messages() {
   const [selectedMatchListId, setSelectedMatchListId] = useState('');
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const dispatch = useAppDispatch();
-  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
-  const { infiniteScrollRef } = useAppSelector((state) => state.mobileAd);
   const { socket } = socketStore;
 
   const handleMessagesOption = (message: ConversationListItem) => (messageOption: string) => {
@@ -163,8 +161,6 @@ function Messages() {
             initialLoad
             loadMore={() => { setRequestAdditionalConversations(true); }}
             hasMore={!noMoreData}
-            getScrollParent={() => infiniteScrollRef}
-            useWindow={!showSticyBannerAdMobileOnly}
           >
             {
               conversations.length > 0

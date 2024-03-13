@@ -22,7 +22,6 @@ import ProfileTabContent from '../../../../components/ui/profile/ProfileTabConte
 import socketStore from '../../../../socketStore';
 import { hasPageStateCache, setPageStateCache } from '../../../../pageStateCache';
 import { PROFILE_SUBROUTES_DEFAULT_CACHE, getProfileSubroutesCache } from '../../profileSubRoutesCacheUtils';
-import { useShowSticyBannerAdMobileOnly } from '../../../../components/SticyBannerAdSpaceCompensation';
 
 interface FriendProps {
   _id?: string;
@@ -55,8 +54,6 @@ function ProfileFriendRequest({ user }: Props) {
   const [friendRequestPage, setFriendRequestPage] = useState<number>(
     profileSubRoutesCache?.friendRequests?.page || 0,
   );
-  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
-  const { infiniteScrollRef } = useAppSelector((state) => state.mobileAd);
 
   const abortControllerRef = useRef<AbortController | null>();
   const friendsTabs = [
@@ -214,8 +211,6 @@ function ProfileFriendRequest({ user }: Props) {
               initialLoad
               loadMore={() => setAdditionalFriendRequest(true)}
               hasMore={!noMoreData}
-              getScrollParent={() => infiniteScrollRef}
-              useWindow={!showSticyBannerAdMobileOnly}
             >
               <Row className="mt-4" ref={friendRequestContainerElementRef}>
                 {friendsReqList.map((friend: FriendProps) => (

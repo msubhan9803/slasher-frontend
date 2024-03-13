@@ -10,8 +10,6 @@ import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
 import { formatNumberWithUnits } from '../../../utils/number.utils';
-import { useShowSticyBannerAdMobileOnly } from '../../../components/SticyBannerAdSpaceCompensation';
-import { useAppSelector } from '../../../redux/hooks';
 
 const ProfilePhoto = styled.div`
   aspect-ratio:1;
@@ -36,8 +34,6 @@ function ProfilePhotos({ user }: Props) {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [loadingPhotos, setLoadingPhotos] = useState<boolean>(false);
-  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
-  const { infiniteScrollRef } = useAppSelector((state) => state.mobileAd);
 
   const isLoadingRef = useRef(true);
 
@@ -95,8 +91,6 @@ function ProfilePhotos({ user }: Props) {
             initialLoad
             loadMore={() => { setRequestAdditionalPhotos(true); }}
             hasMore={!noMoreData}
-            getScrollParent={() => infiniteScrollRef}
-            useWindow={!showSticyBannerAdMobileOnly}
           >
             <Row>
               {userPhotosList.map((data: UserPhotos) => (

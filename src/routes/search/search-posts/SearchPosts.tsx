@@ -24,7 +24,6 @@ import useProgressButton from '../../../components/ui/ProgressButton';
 import FriendshipStatusModal from '../../../components/ui/friendShipCheckModal';
 import { friendship } from '../../../api/friends';
 import { sleep } from '../../../utils/timer-utils';
-import { useShowSticyBannerAdMobileOnly } from '../../../components/SticyBannerAdSpaceCompensation';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
@@ -61,8 +60,6 @@ function SearchPosts() {
   const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
   const [friendData, setFriendData] = useState<FriendType>(null);
   const userId = useAppSelector((state) => state.user.user.id);
-  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
-  const { infiniteScrollRef } = useAppSelector((state) => state.mobileAd);
 
   useEffect(() => {
     setQueryParam(searchParams.get('hashtag'));
@@ -393,8 +390,6 @@ function SearchPosts() {
         initialLoad
         loadMore={() => { setRequestAdditionalPosts(true); }}
         hasMore={!noMoreData}
-        getScrollParent={() => infiniteScrollRef}
-        useWindow={!showSticyBannerAdMobileOnly}
       >
         {
           searchPosts.length > 0

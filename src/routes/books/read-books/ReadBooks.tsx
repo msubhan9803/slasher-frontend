@@ -21,7 +21,7 @@ import { UIRouteURL } from '../../movies/RouteURL';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import RoundButton from '../../../components/ui/RoundButton';
-import SticyBannerAdSpaceCompensation, { useShowSticyBannerAdMobileOnly } from '../../../components/SticyBannerAdSpaceCompensation';
+import SticyBannerAdSpaceCompensatio from '../../../components/SticyBannerAdSpaceCompensation';
 
 function ReadBooks() {
   const [searchParams] = useSearchParams();
@@ -51,8 +51,6 @@ function ReadBooks() {
       ? (pageStateCache[pageStateCache.length - 1]?._id)
       : '',
   );
-  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
-  const { infiniteScrollRef } = useAppSelector((state) => state.mobileAd);
 
   const prevSearchRef = useRef(search);
   const prevKeyRef = useRef(key);
@@ -223,8 +221,6 @@ function ReadBooks() {
               initialLoad
               loadMore={() => { setRequestAdditionalBooks(true); }}
               hasMore={!noMoreData}
-              getScrollParent={() => infiniteScrollRef}
-              useWindow={!showSticyBannerAdMobileOnly}
             >
               <PosterCardList
                 // eslint-disable-next-line max-len

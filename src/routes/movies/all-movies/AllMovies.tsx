@@ -13,12 +13,11 @@ import { MoviesProps } from '../components/MovieProps';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import { useAppDispatch } from '../../../redux/hooks';
 import { UIRouteURL } from '../RouteURL';
 import {
   deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../../pageStateCache';
-import { useShowSticyBannerAdMobileOnly } from '../../../components/SticyBannerAdSpaceCompensation';
 
 function AllMovies() {
   const [requestAdditionalMovies, setRequestAdditionalMovies] = useState<boolean>(false);
@@ -44,8 +43,6 @@ function AllMovies() {
       ? (pageStateCache[pageStateCache.length - 1]?._id)
       : '',
   );
-  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
-  const { infiniteScrollRef } = useAppSelector((state) => state.mobileAd);
 
   const prevSearchRef = useRef(search);
   const prevKeyRef = useRef(key);
@@ -202,8 +199,6 @@ function AllMovies() {
             initialLoad
             loadMore={() => { setRequestAdditionalMovies(true); }}
             hasMore={!noMoreData}
-            getScrollParent={() => infiniteScrollRef}
-            useWindow={!showSticyBannerAdMobileOnly}
           >
             <PosterCardList
               dataList={filteredMovies}

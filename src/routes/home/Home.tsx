@@ -72,8 +72,6 @@ function Home() {
   const lastLocationKeyRef = useRef(location.key);
 
   const persistScrollPosition = () => { setPageStateCache(location, posts); };
-  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
-  const { infiniteScrollRef } = useAppSelector((state) => state.mobileAd);
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     persistScrollPosition();
@@ -438,9 +436,6 @@ function Home() {
           initialLoad
           loadMore={() => { setRequestAdditionalPosts(true); }}
           hasMore={!noMoreData}
-          /* Using a custom parentNode element to base the scroll calulations on. */
-          getScrollParent={() => infiniteScrollRef}
-          useWindow={!showSticyBannerAdMobileOnly}
         >
           {
             posts.length > 0

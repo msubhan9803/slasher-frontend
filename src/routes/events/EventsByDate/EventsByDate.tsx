@@ -15,8 +15,6 @@ import checkAdsEventByDate from './checkAdsEventByDate';
 import useBootstrapBreakpointName from '../../../hooks/useBootstrapBreakpoint';
 import TpdAd from '../../../components/ui/TpdAd';
 import { getInfiniteAdSlot, tpdAdSlotIdZ } from '../../../utils/tpd-ad-slot-ids';
-import { useShowSticyBannerAdMobileOnly } from '../../../components/SticyBannerAdSpaceCompensation';
-import { useAppSelector } from '../../../redux/hooks';
 
 const EventCalender = styled(Calendar)`
   .react-calendar__tile--now {
@@ -142,8 +140,6 @@ function EventsByDate() {
   const [requestAdditionalEvents, setRequestAdditionalEvents] = useState(false);
   const [loadingEvents, setLoadingEvents] = useState(false);
   const previousSelectedDate = useRef(selectedDateString);
-  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
-  const { infiniteScrollRef } = useAppSelector((state) => state.mobileAd);
 
   const getDateRange = (dateValue: Date) => {
     const startDateRange = DateTime.fromJSDate(dateValue).startOf('month').minus({ days: 7 }).toFormat('yyyy-MM-dd');
@@ -286,8 +282,6 @@ function EventsByDate() {
         }}
         element="span"
         threshold={100} // TODO: Use higher values for production
-        getScrollParent={() => infiniteScrollRef}
-        useWindow={!showSticyBannerAdMobileOnly}
       >
         <Row ref={eventContainerElementRef}>
           {eventsList && eventsList.length > 0

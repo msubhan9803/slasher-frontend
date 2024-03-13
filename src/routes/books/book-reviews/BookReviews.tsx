@@ -31,8 +31,6 @@ import { sleep } from '../../../utils/timer-utils';
 import { createBlockUser } from '../../../api/blocks';
 import { reportData } from '../../../api/report';
 import { unlikeFeedPost, likeFeedPost } from '../../../api/feed-likes';
-import { useShowSticyBannerAdMobileOnly } from '../../../components/SticyBannerAdSpaceCompensation';
-import { useAppSelector } from '../../../redux/hooks';
 
 type Props = {
   bookReviewData: any;
@@ -90,8 +88,6 @@ function BookReview({
   const handleCreateInput = () => {
     setShowReviewForm(true);
   };
-  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
-  const { infiniteScrollRef } = useAppSelector((state) => state.mobileAd);
 
   useEffect(() => {
     if (hasPageStateCache(location)) {
@@ -454,8 +450,6 @@ function BookReview({
         initialLoad
         loadMore={() => { setRequestAdditionalReviewPosts(true); }}
         hasMore={!noMoreData}
-        getScrollParent={() => infiniteScrollRef}
-        useWindow={!showSticyBannerAdMobileOnly}
       >
         <div className="mt-3">
           <PostFeed

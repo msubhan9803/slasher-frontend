@@ -301,7 +301,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
   };
 
   return (
-    <StyledAuthenticatedPageWrapper id={AUTHENTICATED_PAGE_WRAPPER_ID} className="page-wrapper full" ref={(ref) => setInfiniteScrollRef(ref)}>
+    <div id={AUTHENTICATED_PAGE_WRAPPER_ID} className="page-wrapper full" style={{ paddingTop: `${!isDesktopResponsiveSize && isIOS && showBackButtonInIos(location.pathname) ? 'var(--heightOfBackButtonOfIos)' : ''}` }}>
       {isIOS
         && showBackButtonInIos(location.pathname)
         && (
@@ -363,7 +363,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
           </Offcanvas.Body>
         </StyledOffcanvas>
       )}
-    </StyledAuthenticatedPageWrapper>
+    </div>
   );
 }
 

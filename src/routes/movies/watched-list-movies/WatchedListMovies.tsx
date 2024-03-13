@@ -16,7 +16,6 @@ import { UIRouteURL } from '../RouteURL';
 import {
   deletePageStateCache, getPageStateCache, hasPageStateCache, setPageStateCache,
 } from '../../../pageStateCache';
-import { useShowSticyBannerAdMobileOnly } from '../../../components/SticyBannerAdSpaceCompensation';
 
 function WatchedListMovies() {
   const [searchParams] = useSearchParams();
@@ -45,8 +44,6 @@ function WatchedListMovies() {
   const [callNavigate, setCallNavigate] = useState<boolean>(false);
   const [movieListCount, setMovieListCount] = useState(null);
   const userId = useAppSelector((state) => state.user.user.id);
-  const showSticyBannerAdMobileOnly = useShowSticyBannerAdMobileOnly();
-  const { infiniteScrollRef } = useAppSelector((scrollRef) => scrollRef.mobileAd);
 
   const prevSearchRef = useRef(search);
   const prevKeyRef = useRef(key);
@@ -204,8 +201,6 @@ function WatchedListMovies() {
             initialLoad
             loadMore={() => { setRequestAdditionalMovies(true); }}
             hasMore={!noMoreData}
-            getScrollParent={() => infiniteScrollRef}
-            useWindow={!showSticyBannerAdMobileOnly}
           >
             <PosterCardList
               dataList={filteredMovies}

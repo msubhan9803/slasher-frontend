@@ -34,6 +34,7 @@ interface SliderImage {
     release_date: string,
     _id: string, // `movieId`
     type: string,
+    postId: string,
   }
 }
 
@@ -214,8 +215,14 @@ function CustomSwiper({
       let detailPagPath: string;
       if (imageAndVideo?.posterData?.type === 'book') {
         detailPagPath = `/app/books/${imageAndVideo?.posterData?._id}/details`;
-      } else {
+      } else if (imageAndVideo?.posterData?.type === 'movie') {
         detailPagPath = `/app/movies/${imageAndVideo?.posterData?._id}/details`;
+      } else if (imageAndVideo?.posterData?.type === 'bookReview') {
+        detailPagPath = `/app/books/${imageAndVideo?.posterData?._id}/reviews/${imageAndVideo?.posterData?.postId}`;
+      } else if (imageAndVideo?.posterData?.type === 'movieReview') {
+        detailPagPath = `/app/movies/${imageAndVideo?.posterData?._id}/reviews/${imageAndVideo?.posterData?.postId}`;
+      } else {
+        return null;
       }
       return (
         <SwiperContentContainer className="me-auto">

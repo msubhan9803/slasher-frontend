@@ -39,6 +39,7 @@ export const WORDPRESS_SITE_URL = 'https://pages.slasher.tv';
 export const topToDivHeight = 110;
 
 export const bottomMobileNavHeight = 80;
+export const bottomMobileAdHeight = 50;
 export const SERVER_UNAVAILABLE_TIMEOUT = 10_000;
 
 export const topStatuBarBackgroundColorAndroidOnly = '000000';
@@ -46,7 +47,7 @@ export const topStatuBarBackgroundColorAndroidOnly = '000000';
 // Note: This must be numeric value because we use this
 // compare against return value of `useResize` hook
 export const maxWidthForCommentOrReplyInputOnMobile: number = BREAK_POINTS.lg - 1;
-export const bottomForCommentOrReplyInputOnMobile = '77px';
+export const bottomForCommentOrReplyInputOnMobile = '127px';
 
 export const isBrowser = typeof window !== 'undefined';
 // eslint-disable-next-line no-nested-ternary

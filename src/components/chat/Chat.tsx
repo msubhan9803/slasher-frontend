@@ -16,6 +16,7 @@ import socketStore from '../../socketStore';
 import { getConversationMessages } from '../../api/chat';
 import {
   bottomForCommentOrReplyInputOnMobile,
+  bottomMobileAdHeight,
   bottomMobileNavHeight, isNativePlatform, maxWidthForCommentOrReplyInputOnMobile, topToDivHeight,
 } from '../../constants';
 import ChatOptions from './ChatOptions';
@@ -37,7 +38,7 @@ const maxChatImageHeight = 400;
 const StyledChatContainer = styled.div`
   // Always set height to 100vh.  We will restrict max-height separately
   // with js to work around other issues on mobile.
-  height: 100vh;
+  height: 100dvh;
 
   .chat-body {
     overflow-y: auto;
@@ -58,8 +59,6 @@ const ChatHeader = styled.div`
 const ChatBody = styled.div<ChatProps>`
 @media (max-width: ${maxWidthForCommentOrReplyInputOnMobile}px) {
   margin-top:65px;
-  ${(props) => props.isFocus === false && 'margin-bottom:60px'};
-  
 }
 `;
 const ChatFooter = styled.div`
@@ -143,7 +142,7 @@ function Chat({
     if (window.innerWidth >= 960) {
       newHeight -= topToDivHeight;
     } else if (Capacitor.getPlatform() === 'ios' && !isKeyBoardVisible) {
-      newHeight -= bottomMobileNavHeight + 50;
+      newHeight -= bottomMobileNavHeight;
     } else if (KeyBoardHeight) {
       newHeight = window.innerHeight;
     } else if (isIOSSafari && isFocused && window?.visualViewport?.height) {
@@ -155,7 +154,12 @@ function Chat({
       // eslint-disable-next-line max-len
       newHeight = isIOSSafari ? (window.innerHeight - bottomMobileNavHeight + 15) : (window.innerHeight - bottomMobileNavHeight);
     }
-    setMaxHeight(newHeight);
+
+    if (window.innerWidth < 960) {
+      setMaxHeight(newHeight - bottomMobileNavHeight - bottomMobileAdHeight);
+    } else {
+      setMaxHeight(newHeight);
+    }
   }, 100);
 
   const prependEarlierMessages = useCallback((earlierMessages: Message[]) => {

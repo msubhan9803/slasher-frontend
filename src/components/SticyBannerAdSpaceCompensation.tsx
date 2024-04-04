@@ -10,6 +10,11 @@ export const useShowSticyBannerAdDesktopOnly = () => {
   return isDesktop && isNotConversationPage;
 };
 
+export const useShowSticyBannerAdMobileOnly = () => {
+  const isDesktop = window.innerWidth >= BREAK_POINTS.lg;
+  return !isDesktop;
+};
+
 // We are adding additional space so that the bottom-sticky ad does not
 // cover content of website. Refer: `sticky-bottom-ad` in
 // file://./components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper.tsx

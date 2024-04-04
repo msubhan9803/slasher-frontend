@@ -1023,7 +1023,6 @@ function PostDetail({
     }
     setCommentNotFound(false);
   };
-  console.log('postType', postType);
   return (
     <>
       {postType === 'news'

@@ -55,6 +55,7 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
   const [reviewForm, setReviewForm] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [bookIdList, setBookIdList] = useState();
+  const [isReviewDetail, setReviewDetail] = useState<boolean>(false);
   const queryParam = searchParams.get('view');
   // const loginUserId = useAppSelector((state) => state.user.user.id);
   const selfView = false;
@@ -63,10 +64,36 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
   const params = useParams();
   const reviewButtonRef = useRef<HTMLDivElement>(null);
   const reviewSmallButtonRef = useRef<HTMLDivElement>(null);
+  const bookReviwRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (params.summary === 'edit' && queryParam !== 'self') { navigate(`/books/${params.id}/details`); }
+    if (params['*'] === 'edit' && !selfView) { navigate(`/app/movies/${params.id}/details`); }
   });
+
+  useEffect(() => {
+    if (params && params['*']!.startsWith('reviews/') && isReviewDetail && bookReviwRef?.current) {
+      document.documentElement.style.scrollBehavior = 'auto';
+      bookReviwRef?.current?.scrollIntoView({
+        behavior: 'instant' as any,
+        block: 'start',
+        inline: 'nearest',
+      });
+
+      const showContent = () => {
+        document.documentElement.style.scrollBehavior = 'smooth';
+        document.body.classList.remove('no-scroll');
+      };
+      setTimeout(showContent, 10);
+    }
+  }, [isReviewDetail, params]);
+
+  useEffect(() => {
+    if (params && params['*']!.startsWith('reviews/')) {
+      setReviewDetail(true);
+    } else {
+      setReviewDetail(false);
+    }
+  }, [params]);
 
   const [bgColor, setBgColor] = useState<boolean>(false);
   const [bookIconListData, setBookIconListData] = useState(BookIconList);
@@ -235,18 +262,20 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
               </Row>
             </>
           )}
-        <Row className="justify-content-center justify-content-xl-start">
-          <Col xs={12} md={6} lg={queryParam === 'self' ? 10 : 12} xl={9}>
-            <TabLinks
-              tabsClass="start"
-              tabsClassSmall="start"
-              tabLink={tabs}
-              toLink={`/app/books/${params.id}`}
-              selectedTab={params && params['*']!.startsWith('reviews/') ? 'reviews' : params['*']}
-              params={queryParam === 'self' ? '?view=self' : ''}
-            />
-          </Col>
-        </Row>
+        <div ref={bookReviwRef}>
+          <Row className="justify-content-center justify-content-xl-start">
+            <Col xs={12} md={6} lg={queryParam === 'self' ? 10 : 12} xl={9}>
+              <TabLinks
+                tabsClass="start"
+                tabsClassSmall="start"
+                tabLink={tabs}
+                toLink={`/app/books/${params.id}`}
+                selectedTab={params && params['*']!.startsWith('reviews/') ? 'reviews' : params['*']}
+                params={queryParam === 'self' ? '?view=self' : ''}
+              />
+            </Col>
+          </Row>
+        </div>
       </div>
       <Routes>
         <Route path="/" element={<Navigate to="details" replace />} />

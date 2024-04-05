@@ -488,7 +488,7 @@ function PostDetail({
             navigate(`/app/movies/${res.data.movieId._id}/reviews/${postId}?commentId=${queryCommentId}&replyId=${queryReplyId}`);
           } else if (queryCommentId) {
             navigate(`/app/movies/${res.data.movieId._id}/reviews/${postId}?commentId=${queryCommentId}`);
-          } else {
+          } else if (!postId) {
             navigate(`/app/movies/${res.data.movieId._id}/reviews/${postId}`);
           }
         } else if (reviewDetail === 'book-review') {
@@ -496,7 +496,7 @@ function PostDetail({
             navigate(`/app/books/${res.data.bookId._id}/reviews/${postId}?commentId=${queryCommentId}&replyId=${queryReplyId}`);
           } else if (queryCommentId) {
             navigate(`/app/books/${res.data.bookId._id}/reviews/${postId}?commentId=${queryCommentId}`);
-          } else {
+          } else if (!postId) {
             navigate(`/app/books/${res.data.bookId._id}/reviews/${postId}`);
           }
         } else if (!isPostDetailsPage(location.pathname)) {

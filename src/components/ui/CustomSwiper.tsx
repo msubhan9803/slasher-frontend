@@ -224,6 +224,10 @@ function CustomSwiper({
       } else {
         return null;
       }
+      const onViewButtonClick = () => {
+        navigate(detailPagPath);
+        onSelect!(imageAndVideo.postId as string);
+      };
       return (
         <SwiperContentContainer className="me-auto">
           <MoviePosterWithAdditionDetails>
@@ -249,8 +253,8 @@ function CustomSwiper({
                 {imageAndVideo?.posterData?.release_date
                   && DateTime.fromJSDate(new Date(imageAndVideo?.posterData?.release_date)).toFormat('yyyy')}
               </Link>
-              <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4" onClick={() => navigate(detailPagPath)}>
-                View details
+              <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4" onClick={() => onViewButtonClick()}>
+                {(imageAndVideo?.posterData?.type === 'bookReview' || imageAndVideo?.posterData?.type === 'movieReview') ? 'View review' : 'View details'}
               </RoundButton>
 
             </div>

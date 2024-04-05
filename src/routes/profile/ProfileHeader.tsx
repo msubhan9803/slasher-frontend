@@ -262,7 +262,7 @@ function ProfileHeader({
           <Col className="w-100 mt-md-4">
             <Row className="d-flex justify-content-between">
               <Col xs={12} md={6} lg={12} xl={5} className="text-center text-md-start text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
-                <h1 className="mb-md-0">
+                <h1 className="mb-md-0 text-break">
                   {user?.firstName}
                 </h1>
                 <div className="fs-5 text-light">

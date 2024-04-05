@@ -329,6 +329,7 @@ function AboutDetails({
             copyLinkUrl={urlForBook(params?.id!)}
             show={showShareLinks}
             setShow={setShowShareLinks}
+            showShareAsPost
           />
         )}
     </AboutBookDetails>

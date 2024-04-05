@@ -26,6 +26,9 @@ const config: CapacitorConfig = {
   ios: {
     contentInset: 'automatic',
   },
+  android: {
+    backgroundColor: '000000'
+  }, 
   server: {
     cleartext: useLiveReloadConfig,
     // We must give a hostname having domain `slasher.tv` so that ads properly.

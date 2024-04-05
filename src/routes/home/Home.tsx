@@ -128,6 +128,7 @@ function Home() {
             movieId: data?.movieId,
             bookId: data?.bookId,
             hashtags: data.hashtags,
+            postType: data?.postType,
           };
         }
         // RSS feed post
@@ -215,6 +216,7 @@ function Home() {
             commentCount: data.commentCount,
             movieId: data.movieId,
             hashtags: data.hashtags,
+            postType: data?.postType,
           };
         }
         // RSS feed post

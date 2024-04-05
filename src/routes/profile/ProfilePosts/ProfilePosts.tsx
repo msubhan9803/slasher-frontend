@@ -109,6 +109,7 @@ function ProfilePosts({ user }: Props) {
           movieId: data.movieId,
           bookId: data?.bookId,
           hashtags: data.hashtags,
+          postType: data.postType,
         }
       ));
       setPosts((prev: Post[]) => [
@@ -179,6 +180,7 @@ function ProfilePosts({ user }: Props) {
           movieId: data.movieId,
           bookId: data.bookId,
           hashtags: data.hashtags,
+          postType: data.postType,
         }));
         setPosts(newPosts);
       });

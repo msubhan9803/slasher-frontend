@@ -202,6 +202,7 @@ interface NotificationFeedPostId {
   userId: string;
   postType?: number;
   movieId?: string;
+  bookId?: string;
 }
 
 interface NotificationRssFeedProviderId {

@@ -25,10 +25,10 @@ if (isNativePlatform) {
   // we do not have `app-box-ad-z` for app yet (date: 13 Dec 2023)
   adSlotIdZ = 'app-box-ad-d';
   // we do not render bottom-stiky-banner-ad
-  adSlotIdBannerA = '';
+  adSlotIdBannerA = 'app-banner-ad-a';
 }
 
-if (isTpdMobileWeb) {
+if (!isNativePlatform && isTpdMobileWeb) {
   adSlotIdA = 'mob-box-ad-a';
   adSlotIdB = 'mob-box-ad-b';
   adSlotIdC = 'mob-box-ad-c';
@@ -36,6 +36,7 @@ if (isTpdMobileWeb) {
   adSlotIdZ = 'mob-box-ad-z';
   // we do not render bottom-stiky-banner-ad
   adSlotIdBannerA = '';
+  adSlotIdBannerA = 'mob-banner-ad-a';
 }
 
 const isDesktopWeb = !isNativePlatform && !isTpdMobileWeb;

@@ -336,6 +336,7 @@ function AboutDetails({
             copyLinkUrl={urlForMovie(params?.id!)}
             show={showShareLinks}
             setShow={setShowShareLinks}
+            showShareAsPost
           />
         )}
     </AboutMovieDetails>

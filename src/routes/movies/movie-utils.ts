@@ -1,3 +1,5 @@
+import { PostType } from '../../types';
+
 export const tmdbImagePrefix = {
   sm: 'https://image.tmdb.org/t/p/w220_and_h330_face',
   lg: 'https://image.tmdb.org/t/p/w300_and_h450_bestv2',
@@ -6,24 +8,26 @@ export const tmdbImagePrefix = {
 // https://image.tmdb.org/t/p/w220_and_h330_face/lxHAgO3xkwabq6gIXAnzs6sibyF.jpg
 // https://image.tmdb.org/t/p/w300_and_h450_bestv2/lzdK6sqDqBnj4xNSmJG7tF520i9.jpg
 
-export const postMovieDataToMovieDBformat = (movie: any) => {
+export const postMovieDataToMovieDBformat = (movie: any, postType: number, postId: string) => {
   if (!movie) { return null; }
   return ({
     _id: movie?._id,
     title: movie?.name,
     poster_path: tmdbImagePrefix.lg + movie.logo,
     release_date: movie?.releaseDate,
-    type: 'movie',
+    type: postType === PostType.MovieReview ? 'movieReview' : 'movie',
+    postId,
   });
 };
-export const postBookDataToBookDBformat = (book: any) => {
+export const postBookDataToBookDBformat = (book: any, postType: number, postId: string) => {
   if (!book) { return null; }
   return ({
     _id: book?._id,
     title: book?.name,
     poster_path: book.coverImage.image_path,
     release_date: book?.publishDate,
-    type: 'book',
+    type: postType === PostType.BookReview ? 'bookReview' : 'book',
+    postId,
   });
 };
 

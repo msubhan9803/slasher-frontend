@@ -34,6 +34,7 @@ interface SliderImage {
     release_date: string,
     _id: string, // `movieId`
     type: string,
+    postId: string,
   }
 }
 
@@ -214,9 +215,19 @@ function CustomSwiper({
       let detailPagPath: string;
       if (imageAndVideo?.posterData?.type === 'book') {
         detailPagPath = `/app/books/${imageAndVideo?.posterData?._id}/details`;
-      } else {
+      } else if (imageAndVideo?.posterData?.type === 'movie') {
         detailPagPath = `/app/movies/${imageAndVideo?.posterData?._id}/details`;
+      } else if (imageAndVideo?.posterData?.type === 'bookReview') {
+        detailPagPath = `/app/books/${imageAndVideo?.posterData?._id}/reviews/${imageAndVideo?.posterData?.postId}`;
+      } else if (imageAndVideo?.posterData?.type === 'movieReview') {
+        detailPagPath = `/app/movies/${imageAndVideo?.posterData?._id}/reviews/${imageAndVideo?.posterData?.postId}`;
+      } else {
+        return null;
       }
+      const onViewButtonClick = () => {
+        navigate(detailPagPath);
+        onSelect!(imageAndVideo.postId as string);
+      };
       return (
         <SwiperContentContainer className="me-auto">
           <MoviePosterWithAdditionDetails>
@@ -242,8 +253,8 @@ function CustomSwiper({
                 {imageAndVideo?.posterData?.release_date
                   && DateTime.fromJSDate(new Date(imageAndVideo?.posterData?.release_date)).toFormat('yyyy')}
               </Link>
-              <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4" onClick={() => navigate(detailPagPath)}>
-                View details
+              <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4" onClick={() => onViewButtonClick()}>
+                {(imageAndVideo?.posterData?.type === 'bookReview' || imageAndVideo?.posterData?.type === 'movieReview') ? 'View review' : 'View details'}
               </RoundButton>
 
             </div>

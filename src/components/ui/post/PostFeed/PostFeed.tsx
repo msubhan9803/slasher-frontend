@@ -454,11 +454,11 @@ function PostFeed({
   const swiperDataForPost = (post: any) => {
     const imageVideoList = FormatImageVideoList(post.images, post.message);
     if (post.movieId) {
-      const posterData = postMovieDataToMovieDBformat(post.movieId);
+      const posterData = postMovieDataToMovieDBformat(post.movieId, post.postType, post.id);
       imageVideoList.splice(0, 0, { posterData });
     }
     if (post.bookId) {
-      const posterData = postBookDataToBookDBformat(post.bookId);
+      const posterData = postBookDataToBookDBformat(post.bookId, post.postType, post.id);
       imageVideoList.splice(0, 0, { posterData });
     }
     return imageVideoList.map((imageData: any) => {
@@ -643,10 +643,10 @@ function PostFeed({
           {/* Show ad after every three posts. */}
           {(i + 1) % 3 === 0 /* (i=2,5,8,11) */
             && (
-            <>
-              <TpdAd slotId={getInfiniteAdSlot()} id={`post-${(i + 1) / 3}`} />
-              <hr className="post-separator" />
-            </>
+              <>
+                <TpdAd slotId={getInfiniteAdSlot()} id={`post-${(i + 1) / 3}`} />
+                <hr className="post-separator" />
+              </>
             )}
         </div>
       ))}

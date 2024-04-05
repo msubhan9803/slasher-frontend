@@ -115,7 +115,7 @@ describe('All Feed Post (e2e)', () => {
       await request(app.getHttpServer()).get(`/api/v1/users/${userId}/posts`).expect(HttpStatus.UNAUTHORIZED);
     });
 
-    it.only('when earlier than post id is not exist than expected feed post response', async () => {
+    it('when earlier than post id is not exist than expected feed post response', async () => {
       const limit = 10;
       const response = await request(app.getHttpServer())
         .get(`/api/v1/users/${activeUser.id}/posts?limit=${limit}`)

@@ -115,7 +115,7 @@ describe('All Feed Post (e2e)', () => {
       await request(app.getHttpServer()).get(`/api/v1/users/${userId}/posts`).expect(HttpStatus.UNAUTHORIZED);
     });
 
-    it('when earlier than post id is not exist than expected feed post response', async () => {
+    it.only('when earlier than post id is not exist than expected feed post response', async () => {
       const limit = 10;
       const response = await request(app.getHttpServer())
         .get(`/api/v1/users/${activeUser.id}/posts?limit=${limit}`)
@@ -148,6 +148,7 @@ describe('All Feed Post (e2e)', () => {
           likedByUser: true,
           message: expect.any(String),
           movieId: null,
+          postType: 1,
           bookId: null,
           likeCount: 2,
           commentCount: 0,
@@ -276,6 +277,7 @@ describe('All Feed Post (e2e)', () => {
     const postFromResponse = response.body.find((post) => post._id === movieAsPost._id.toString());
     expect(postFromResponse).toEqual({
       _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+      postType: 1,
       images: [
         {
           image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',

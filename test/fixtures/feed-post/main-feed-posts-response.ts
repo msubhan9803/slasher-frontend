@@ -72,12 +72,14 @@ export default [
       name: 'Shawshank Redemption',
       releaseDate: '2022-10-17T00:00:00.000Z',
     },
+    postType: 1,
     bookId: null,
     hashtags: [],
   },
   {
     _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
     message: 'Message 3',
+    postType: 1,
     createdAt: '2022-10-19T00:00:00.000Z',
     rssfeedProviderId: {
       _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),

@@ -23,6 +23,7 @@ import { MovieUserStatusService } from '../movie-user-status/providers/movie-use
 import { MovieUserStatusIdDto } from '../movie-user-status/dto/movie-user-status-id.dto';
 import { MovieUserStatus } from '../schemas/movieUserStatus/movieUserStatus.schema';
 import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
+import { RecentlyAddedMoviesDto } from './dto/recently-added-movies.dto';
 
 @Controller({ path: 'movies', version: ['1'] })
 export class MoviesController {
@@ -363,5 +364,34 @@ export class MoviesController {
     }
     await this.movieUserStatusService.deleteMovieUserStatusBuy(user.id, params.movieId);
     return { success: true };
+  }
+
+  @Get('recently/added')
+  async recentlyAdded(@Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: RecentlyAddedMoviesDto) {
+    const movies = await this.moviesService.recentlyAdded(
+      query.limit,
+      true,
+      query.sortBy,
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
+      query.nameContains,
+      null,
+      query.startsWith,
+    );
+    if (!movies) {
+      throw new HttpException('No movies found', HttpStatus.NOT_FOUND);
+    }
+    movies.forEach((movie) => {
+      if (movie.logo?.length > 1) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${movie.logo}`;
+      }
+      if (movie.logo === null) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
+      }
+    });
+    return movies.map(
+      (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating', 'worthWatching']),
+    );
   }
 }

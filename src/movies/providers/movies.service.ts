@@ -400,6 +400,75 @@ export class MoviesService {
       .exec();
   }
 
+  async recentlyAdded(
+    limit: number,
+    activeOnly: boolean,
+    sortBy?: 'name' | 'releaseDate' | 'rating',
+    after?: mongoose.Types.ObjectId,
+    nameContains?: string,
+    movieIdsIn?: mongoose.Types.ObjectId[],
+    sortNameStartsWith?: string,
+  ): Promise<MovieDocument[]> {
+    const movieFindAllQuery: any = {
+      type: MovieType.MovieDb,
+      createdAt: {
+        $gte: DateTime.now().minus({ days: 30 }),
+        $lte: DateTime.now(),
+      }
+    };
+    if (movieIdsIn) {
+      movieFindAllQuery._id = { $in: movieIdsIn };
+    }
+    if (activeOnly) {
+      movieFindAllQuery.deleted = MovieDeletionStatus.NotDeleted;
+      movieFindAllQuery.status = MovieActiveStatus.Active;
+    }
+    if (after && sortBy === 'name') {
+      const afterMovie = await this.moviesModel.findById(after);
+      movieFindAllQuery.sort_name = { ...movieFindAllQuery.sort_name, $gt: afterMovie.sort_name };
+    }
+    if (after && sortBy === 'releaseDate') {
+      const afterMovie = await this.moviesModel.findById(after);
+      movieFindAllQuery.sortReleaseDate = { $lt: afterMovie.sortReleaseDate };
+    }
+    if (after && sortBy === 'rating') {
+      const afterMovie = await this.moviesModel.findById(after);
+      movieFindAllQuery.sortRatingAndRatingUsersCount = { $lt: afterMovie.sortRatingAndRatingUsersCount };
+    }
+    if (nameContains) {
+      movieFindAllQuery.name = {};
+      movieFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');
+    }
+    if (sortNameStartsWith) {
+      let combinedRegex = '';
+      if (nameContains) {
+        movieFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');
+      }
+      if (sortNameStartsWith && sortNameStartsWith !== '#') {
+        movieFindAllQuery.sort_name = movieFindAllQuery.sort_name || {};
+        combinedRegex = `^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`;
+        movieFindAllQuery.sort_name.$regex = new RegExp(combinedRegex, 'i');
+      } else if (sortNameStartsWith === '#') {
+        combinedRegex = NON_ALPHANUMERIC_REGEX.source;
+        movieFindAllQuery.name = movieFindAllQuery.name || {};
+        movieFindAllQuery.name.$regex = new RegExp(combinedRegex, 'i');
+      }
+    }
+
+    let sortMovies: any = { createdAt: -1 };
+    if (sortBy === 'name') {
+      sortMovies = { sort_name: 1 };
+    } else if (sortBy === 'releaseDate') {
+      sortMovies = { sortReleaseDate: -1 };
+    } else if (sortBy === 'rating') {
+      sortMovies = { sortRatingAndRatingUsersCount: -1 };
+    }
+    return this.moviesModel.find(movieFindAllQuery)
+      .sort(sortMovies)
+      .limit(limit)
+      .exec();
+  }
+
   async syncWithTheMovieDb(startYear: number, endYear: number): Promise<ReturnMovieDb> {
     try {
       // Fetch the max year data limit

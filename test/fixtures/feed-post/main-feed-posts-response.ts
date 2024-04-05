@@ -28,6 +28,7 @@ export default [
       profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
     },
     commentCount: 0,
+    postType: 1,
     likeCount: 2,
     likedByUser: true,
     lastUpdateAt: '2022-10-20T00:00:00.000Z',

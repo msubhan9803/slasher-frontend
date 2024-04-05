@@ -764,7 +764,7 @@ export class UsersController {
       (post) => pick(
         post,
         ['_id', 'message', 'images', 'userId', 'createdAt',
-          'likedByUser', 'likeCount', 'commentCount', 'movieId', 'hashtags', 'bookId'],
+          'likedByUser', 'likeCount', 'commentCount', 'movieId', 'hashtags', 'bookId', 'postType'],
       ),
     );
   }

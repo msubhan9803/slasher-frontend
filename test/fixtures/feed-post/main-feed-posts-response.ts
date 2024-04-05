@@ -28,6 +28,7 @@ export default [
       profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
     },
     commentCount: 0,
+    postType: 1,
     likeCount: 2,
     likedByUser: true,
     lastUpdateAt: '2022-10-20T00:00:00.000Z',
@@ -71,12 +72,14 @@ export default [
       name: 'Shawshank Redemption',
       releaseDate: '2022-10-17T00:00:00.000Z',
     },
+    postType: 1,
     bookId: null,
     hashtags: [],
   },
   {
     _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
     message: 'Message 3',
+    postType: 1,
     createdAt: '2022-10-19T00:00:00.000Z',
     rssfeedProviderId: {
       _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),

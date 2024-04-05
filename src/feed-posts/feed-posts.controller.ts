@@ -504,7 +504,7 @@ export class FeedPostsController {
         feedPost,
         ['_id', 'message', 'createdAt', 'lastUpdateAt',
           'rssfeedProviderId', 'images', 'userId', 'commentCount',
-          'likeCount', 'likedByUser', 'movieId', 'bookId', 'hashtags'],
+          'likeCount', 'likedByUser', 'movieId', 'bookId', 'hashtags', 'postType'],
       ),
     );
   }

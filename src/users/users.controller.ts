@@ -619,16 +619,11 @@ export class UsersController {
           );
         }
       }
-      const existingUserName = await this.usersService.findExistingUserName(updateUserDto.userName);
-      if (existingUserName.length) {
-        await this.usersService.findAndUpdatePreviousUserName(user.userName, updateUserDto.userName);
-      } else {
-        additionalFieldsToUpdate.userName = updateUserDto.userName;
-        additionalFieldsToUpdate.previousUserName = user.previousUserName ? user.previousUserName : [];
-        additionalFieldsToUpdate.previousUserName.push(user.userName);
-      }
+      additionalFieldsToUpdate.userName = updateUserDto.userName;
+      additionalFieldsToUpdate.previousUserName = user.previousUserName ? user.previousUserName : [];
+      additionalFieldsToUpdate.previousUserName.push(user.userName);
+      additionalFieldsToUpdate.lastUserNameUpdatedAt = new Date();
     }
-    additionalFieldsToUpdate.lastUserNameUpdatedAt = new Date();
 
     if (updateUserDto.email && updateUserDto.email !== user.email) {
       // Check if new email address is already used by another account. If so, throw exception.
@@ -769,7 +764,7 @@ export class UsersController {
       (post) => pick(
         post,
         ['_id', 'message', 'images', 'userId', 'createdAt',
-          'likedByUser', 'likeCount', 'commentCount', 'movieId', 'hashtags', 'bookId'],
+          'likedByUser', 'likeCount', 'commentCount', 'movieId', 'hashtags', 'bookId', 'postType'],
       ),
     );
   }

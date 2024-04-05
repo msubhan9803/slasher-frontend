@@ -752,8 +752,8 @@ export class FeedCommentsController {
           feedReplyId: reply._id.toString() as any,
           senderId: replyCreatorUser.id,
           allUsers: [replyCreatorUser._id as any], // senderId must be in allUsers for old API compatibility
-          notifyType: NotificationType.UserMentionedYouInAComment,
-          notificationMsg: 'mentioned you in a comment',
+          notifyType: NotificationType.UserMentionedYouInACommentReply,
+          notificationMsg: 'mentioned you in a reply',
         });
       }
     }
@@ -778,8 +778,8 @@ export class FeedCommentsController {
         feedReplyId: feedReply._id,
         senderId: replyUpdateUser._id,
         allUsers: [replyUpdateUser._id as any], // senderId must be in allUsers for old API compatibility
-        notifyType: NotificationType.UserMentionedYouInAComment,
-        notificationMsg: 'mentioned you in a comment',
+        notifyType: NotificationType.UserMentionedYouInACommentReply,
+        notificationMsg: 'mentioned you in a reply',
       });
     }
   }

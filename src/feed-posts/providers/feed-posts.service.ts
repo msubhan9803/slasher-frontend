@@ -125,7 +125,6 @@ export class FeedPostsService {
     feedPostQuery.push({ userId: new mongoose.Types.ObjectId(userId) });
     //remove postType query when we have support for postType.User
     feedPostQuery.push(
-      { postType: { $ne: PostType.MovieReview } },
       { postType: { $ne: PostType.News } },
     );
     if (before) {
@@ -381,7 +380,6 @@ export class FeedPostsService {
           { 'images.0': { $exists: true } },
           {
             $and: [
-              { postType: { $ne: PostType.MovieReview } },
               { postType: { $ne: PostType.News } },
             ],
           },
@@ -404,7 +402,6 @@ export class FeedPostsService {
             { 'images.0': { $exists: true } },
             {
               $and: [
-                { postType: { $ne: PostType.MovieReview } },
                 { postType: { $ne: PostType.News } },
               ],
             },
@@ -425,7 +422,6 @@ export class FeedPostsService {
           { status: FeedPostStatus.Active },
           {
             $and: [
-              { postType: { $ne: PostType.MovieReview } },
               { postType: { $ne: PostType.News } },
             ],
           },

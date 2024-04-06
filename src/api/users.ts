@@ -261,6 +261,14 @@ export async function getSuggestFriends() {
   return axios.get(`${apiUrl}/api/v1/users/suggested-friends`, { headers });
 }
 
+export async function getSuggestedMovies() {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.get(`${apiUrl}/api/v1/movies/recently/added?limit=60`, { headers });
+}
+
 export async function getUsersFriends(userId: string) {
   const token = await getSessionToken();
   const headers = {

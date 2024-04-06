@@ -33,6 +33,7 @@ import { useAppSelector } from '../../redux/hooks';
 import { friendship } from '../../api/friends';
 import FriendshipStatusModal from '../../components/ui/friendShipCheckModal';
 import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
+import SuggestedMovie from './SuggestedMovie';
 // import DebugGoogleAnalytics from '../debug-google-analytics';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
@@ -424,6 +425,10 @@ function Home() {
         <CustomCreatePost className="mt-3 mt-lg-0" />
         <h1 className="h2 my-3 ms-3 ms-md-0">Suggested friends</h1>
         <SuggestedFriend />
+        <div>
+          <h1 className="h2 my-3 ms-3 ms-md-0">Suggested movies</h1>
+          <SuggestedMovie />
+        </div>
         {
           errorMessage && errorMessage.length > 0 && (
             <div className="mt-3 text-start">

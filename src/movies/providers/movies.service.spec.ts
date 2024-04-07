@@ -536,6 +536,426 @@ describe('MoviesService', () => {
     });
   });
 
+  describe('#recentlyAdded', () => {
+    it('only includes movies of type MovieType.MovieDb', async () => {
+      await moviesService.create(
+        moviesFactory.build({ status: MovieActiveStatus.Active, name: 'a', type: MovieType.Free }),
+      );
+      await moviesService.create(
+        moviesFactory.build({ status: MovieActiveStatus.Active, name: 'b', type: MovieType.MovieDb }),
+      );
+
+      const moviesList = await moviesService.recentlyAdded(2, true, 'name');
+      expect(moviesList).toHaveLength(1);
+    });
+
+    it('when movies is sort by name than expected response', async () => {
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'Alien',
+            movieDBId: 551234,
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'Alien!',
+            movieDBId: 551235,
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'Alien 2',
+            movieDBId: 551230,
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'Alien: Containment',
+            movieDBId: 551233,
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'b',
+            movieDBId: 551224,
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'c',
+            movieDBId: 551214,
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'd',
+            movieDBId: 551219,
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'e',
+            movieDBId: 551218,
+          },
+        ),
+      );
+      const limit = 10;
+      const moviesList = await moviesService.recentlyAdded(limit, true, 'name');
+      for (let i = 1; i < moviesList.length; i += 1) {
+        expect(moviesList[i - 1].sort_name < moviesList[i].sort_name).toBe(true);
+      }
+      expect(moviesList).toHaveLength(8);
+    });
+
+    it('when movies is sort by releaseDate than expected response', async () => {
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            releaseDate: DateTime.now().plus({ days: 1 }).toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            releaseDate: DateTime.now().plus({ days: 2 }).toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            releaseDate: DateTime.now().minus({ days: 2 }).toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            releaseDate: DateTime.now().minus({ days: 1 }).toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            releaseDate: DateTime.now().minus({ days: 3 }).toJSDate(),
+          },
+
+        ),
+      );
+      const limit = 5;
+      const moviesList = await moviesService.recentlyAdded(limit, true, 'releaseDate');
+      for (let i = 0; i < moviesList.length - 1; i += 1) {
+        expect(moviesList[i].sortReleaseDate > moviesList[i + 1].sortReleaseDate).toBe(true);
+      }
+      expect(moviesList).toHaveLength(5);
+    });
+
+    it('finds all the expected movie details that has deleted and active status', async () => {
+      const numberOfInActiveMovies = 4;
+      for (let index = 0; index < numberOfInActiveMovies; index += 1) {
+        await moviesService.create(
+          moviesFactory.build(),
+        );
+      }
+      const limit = 5;
+      const moviesList = await moviesService.recentlyAdded(limit, false, 'name');
+      expect(moviesList).toHaveLength(5);
+    });
+
+    it('when sort_name startsWith supplied than expected response', async () => {
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'alive',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'albeli',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'aquaman',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'blue-whel',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'cat-die',
+          },
+        ),
+      );
+      const limit = 5;
+      const moviesList = await moviesService.recentlyAdded(limit, true, 'name', null, null, null, 'a');
+      expect(moviesList).toHaveLength(3);
+    });
+
+    it('when movie name nameContais supplied than expected response', async () => {
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'alive',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'Second Alive',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'Alive21',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'blue-whel',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'cat-die',
+          },
+        ),
+      );
+      const limit = 5;
+      const moviesList = await moviesService.recentlyAdded(limit, true, 'name', null, 'alive', null, null);
+      expect(moviesList).toHaveLength(3);
+    });
+
+    it('when movies is sort by rating than expected response', async () => {
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            rating: 5,
+            ratingUsersCount: 30,
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            rating: 5,
+            ratingUsersCount: 9,
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            rating: 3,
+            ratingUsersCount: 25,
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            rating: 3,
+            ratingUsersCount: 24,
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            rating: 1,
+            ratingUsersCount: 50,
+          },
+        ),
+      );
+      const limit = 5;
+      const moviesList = await moviesService.recentlyAdded(limit, true, 'rating');
+      const movieOrder = moviesList.map((mov) => ({ rating: mov.rating, ratingUsersCount: mov.ratingUsersCount }));
+      // Both `rating` and `ratingUsersCount` are useful to order movies.
+      expect(movieOrder).toEqual([
+        { rating: 5, ratingUsersCount: 30 },
+        { rating: 5, ratingUsersCount: 9 },
+        { rating: 3, ratingUsersCount: 25 },
+        { rating: 3, ratingUsersCount: 24 },
+        { rating: 1, ratingUsersCount: 50 },
+      ]);
+      expect(moviesList).toHaveLength(5);
+    });
+
+    it('when movies is sort by createdAt than expected response', async () => {
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            createdAt: DateTime.now().minus({ days: 10 }).toJSDate(),
+            name: 'Horror 1',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            createdAt: DateTime.now().minus({ days: 20 }).toJSDate(),
+            name: 'Horror 2',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            createdAt: DateTime.now().minus({ days: 32 }).toJSDate(),
+            name: 'Horror 3',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            createdAt: DateTime.now().minus({ days: 15 }).toJSDate(),
+            name: 'Horror 4',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            createdAt: DateTime.now().minus({ days: 35 }).toJSDate(),
+            name: 'Horror 5',
+          },
+
+        ),
+      );
+      const limit = 5;
+      const moviesList = await moviesService.recentlyAdded(limit, true);
+      expect(moviesList).toHaveLength(3);
+    });
+
+    describe('when `after` argument is supplied', () => {
+      beforeEach(async () => {
+        const name = ['Alive', 'Again alive', 'Afield', 'Audition', 'Aghost'];
+        const rating = [1, 2, 2, 2.5, 3];
+        const movieDBId = [2901, 2902, 2903, 2904, 2905];
+        for (let i = 0; i < 5; i += 1) {
+          await moviesService.create(
+            moviesFactory.build(
+              {
+                status: MovieActiveStatus.Active,
+                rating: rating[i],
+                name: name[i],
+                movieDBId: movieDBId[i],
+                ratingUsersCount: 22, // must be greater than `MINIMUM_NUMBER_OF_RATING_USES_COUNT`
+              },
+            ),
+          );
+        }
+      });
+      it('sort by name returns the first and second sets of paginated results', async () => {
+        const limit = 3;
+        const firstResults = await moviesService.recentlyAdded(limit, true, 'name');
+        const secondResults = await moviesService.recentlyAdded(limit, true, 'name', firstResults[limit - 1].id);
+        expect(firstResults).toHaveLength(3);
+        expect(secondResults).toHaveLength(2);
+      });
+
+      it('sort by release date returns the first and second sets of paginated results', async () => {
+        const limit = 3;
+        const firstResults = await moviesService.recentlyAdded(limit, true, 'releaseDate');
+        const secondResults = await moviesService.recentlyAdded(limit, true, 'releaseDate', firstResults[limit - 1].id);
+        expect(firstResults).toHaveLength(3);
+        expect(secondResults).toHaveLength(2);
+      });
+
+      it('sort by rating returns the first and second sets of paginated results', async () => {
+        const limit = 3;
+        const firstResults = await moviesService.recentlyAdded(limit, true, 'rating');
+        expect(firstResults).toHaveLength(3);
+
+        const firstResultsOrder = firstResults.map((m) => ({ rating: m.rating }));
+        expect(firstResultsOrder).toEqual([{ rating: 3 }, { rating: 2.5 }, { rating: 2 }]);
+
+        const secondResults = await moviesService.recentlyAdded(limit, true, 'rating', firstResults[limit - 1].id);
+        expect(secondResults).toHaveLength(2);
+
+        const secondResultsOrder = secondResults.map((m) => ({ rating: m.rating }));
+        expect(secondResultsOrder).toEqual([{ rating: 2 }, { rating: 1 }]);
+      });
+
+      it('sort by name and startsWith returns the first and second sets of paginated results', async () => {
+        const limit = 3;
+        const firstResults = await moviesService.recentlyAdded(limit, true, 'name');
+        const secondResults = await moviesService.recentlyAdded(limit, true, 'name', firstResults[limit - 1].id, null, null, 'a');
+        expect(firstResults).toHaveLength(3);
+        expect(secondResults).toHaveLength(2);
+      });
+    });
+  });
+
   describe('#getMoviesDataMaxYearLimit', () => {
     it("Returns a lower limit than the given endYear, when endYear is higher than the API data's max end year", async () => {
       jest.spyOn(httpService, 'get').mockImplementation(() => of({

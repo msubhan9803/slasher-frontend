@@ -414,7 +414,7 @@ export class MoviesService {
       createdAt: {
         $gte: DateTime.now().minus({ days: 30 }),
         $lte: DateTime.now(),
-      }
+      },
     };
     if (movieIdsIn) {
       movieFindAllQuery._id = { $in: movieIdsIn };

@@ -138,6 +138,7 @@ describe('Notifications Gateway (e2e)', () => {
         feedPostId: {
           _id: feedPostData.id,
           userId: activeUser.id,
+          bookId: null,
           movieId: null,
           postType: PostType.User,
         },

@@ -8,6 +8,7 @@ import { MoviesService } from './providers/movies.service';
 import { User, UserSchema } from '../schemas/user/user.schema';
 import { MovieUserStatusModule } from '../movie-user-status/movie.user.status.module';
 import { MovieUserStatus, MovieUserStatusSchema } from '../schemas/movieUserStatus/movieUserStatus.schema';
+import { RecentMovieBlock, RecentMovieBlockSchema } from '../schemas/recentMovieBlock/recentMovieBlock.schema';
 
 @Global()
 @Module({
@@ -24,6 +25,7 @@ import { MovieUserStatus, MovieUserStatusSchema } from '../schemas/movieUserStat
     ]),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: MovieUserStatus.name, schema: MovieUserStatusSchema }]),
+    MongooseModule.forFeature([{ name: RecentMovieBlock.name, schema: RecentMovieBlockSchema }]),
     HttpModule,
     MovieUserStatusModule,
   ],

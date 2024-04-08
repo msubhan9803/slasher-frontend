@@ -24,6 +24,7 @@ import { MovieUserStatusIdDto } from '../movie-user-status/dto/movie-user-status
 import { MovieUserStatus } from '../schemas/movieUserStatus/movieUserStatus.schema';
 import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 import { RecentlyAddedMoviesDto } from './dto/recently-added-movies.dto';
+import { BlockRecentMovieDto } from './dto/block-recent-movie.dto';
 
 @Controller({ path: 'movies', version: ['1'] })
 export class MoviesController {
@@ -393,5 +394,15 @@ export class MoviesController {
     return movies.map(
       (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating', 'worthWatching']),
     );
+  }
+
+  @Post('recent/block')
+  async blockRecentlyAddedMovie(
+    @Req() request: Request,
+    @Body() blockRecentMovieDto: BlockRecentMovieDto,
+  ) {
+    const user = getUserFromRequest(request);
+    await this.moviesService.createRecentMovieBlock(user.id, blockRecentMovieDto.movieId);
+    return { success: true };
   }
 }

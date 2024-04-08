@@ -6,6 +6,7 @@ import mongoose, { Model } from 'mongoose';
 import { lastValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { DateTime } from 'luxon';
+import { RecentMovieBlock, RecentMovieBlockDocument } from 'src/schemas/recentMovieBlock/recentMovieBlock.schema';
 import { Movie, MovieDocument } from '../../schemas/movie/movie.schema';
 
 import { MovieActiveStatus, MovieDeletionStatus, MovieType } from '../../schemas/movie/movie.enums';
@@ -22,6 +23,8 @@ import {
 } from '../../schemas/movieUserStatus/movieUserStatus.enums';
 import { MovieListType, WorthWatchingStatus } from '../../types';
 import { NON_ALPHANUMERIC_REGEX } from '../../constants';
+import { RecentMovieBlockReaction } from '../../schemas/recentMovieBlock/recentMovieBlock.enums';
+import { UserDocument } from 'src/schemas/user/user.schema';
 
 export interface Cast {
   'adult': boolean,
@@ -153,6 +156,7 @@ export class MoviesService {
   constructor(
     @InjectModel(Movie.name) private moviesModel: Model<MovieDocument>,
     @InjectModel(MovieUserStatus.name) private movieUserStatusModel: Model<MovieUserStatusDocument>,
+    @InjectModel(RecentMovieBlock.name) private recentMovieBlockModel: Model<RecentMovieBlockDocument>,
     private httpService: HttpService,
     private configService: ConfigService,
   ) { }
@@ -760,5 +764,35 @@ export class MoviesService {
         .count();
     }
     return count;
+  }
+
+  async createRecentMovieBlock(fromUserId: string, movieId: string): Promise<void> {
+    const updateBody = {
+      from: new mongoose.Types.ObjectId(fromUserId),
+      movieId: new mongoose.Types.ObjectId(movieId),
+    };
+    await this.recentMovieBlockModel.findOneAndUpdate(updateBody, { $set: { reaction: RecentMovieBlockReaction.Block } }, { upsert: true });
+  }
+
+  async getRecentMovieBlock(fromUserId: string): Promise<Partial<Movie[]>> {
+    const fromAndBlockQuery = {
+      from: new mongoose.Types.ObjectId(fromUserId),
+      reaction: RecentMovieBlockReaction.Block,
+    };
+    const movieBlock = await this.recentMovieBlockModel.find(fromAndBlockQuery).select('movieId');
+    return movieBlock.map((data) => data.movieId);
+  }
+
+  async getRecentAddedMovies(user: UserDocument, limit: number) {
+    const recentBlockMovieIds = await this.getRecentMovieBlock(user.id);
+    const watchlistMovieIds = await this.getWatchListMovieIdsForUser(user.id)
+    const idsToExclude = recentBlockMovieIds.concat(
+      watchlistMovieIds as any
+    );
+    return this.moviesModel.find(
+      { _id: { $nin: idsToExclude } })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .exec();
   }
 }

@@ -6,7 +6,8 @@ import mongoose, { Model } from 'mongoose';
 import { lastValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { DateTime } from 'luxon';
-import { RecentMovieBlock, RecentMovieBlockDocument } from 'src/schemas/recentMovieBlock/recentMovieBlock.schema';
+import { UserDocument } from 'src/schemas/user/user.schema';
+import { RecentMovieBlock, RecentMovieBlockDocument } from '../../schemas/recentMovieBlock/recentMovieBlock.schema';
 import { Movie, MovieDocument } from '../../schemas/movie/movie.schema';
 
 import { MovieActiveStatus, MovieDeletionStatus, MovieType } from '../../schemas/movie/movie.enums';
@@ -24,7 +25,6 @@ import {
 import { MovieListType, WorthWatchingStatus } from '../../types';
 import { NON_ALPHANUMERIC_REGEX } from '../../constants';
 import { RecentMovieBlockReaction } from '../../schemas/recentMovieBlock/recentMovieBlock.enums';
-import { UserDocument } from 'src/schemas/user/user.schema';
 
 export interface Cast {
   'adult': boolean,
@@ -785,12 +785,13 @@ export class MoviesService {
 
   async getRecentAddedMovies(user: UserDocument, limit: number) {
     const recentBlockMovieIds = await this.getRecentMovieBlock(user.id);
-    const watchlistMovieIds = await this.getWatchListMovieIdsForUser(user.id)
+    const watchlistMovieIds = await this.getWatchListMovieIdsForUser(user.id);
     const idsToExclude = recentBlockMovieIds.concat(
-      watchlistMovieIds as any
+      watchlistMovieIds as any,
     );
     return this.moviesModel.find(
-      { _id: { $nin: idsToExclude } })
+      { _id: { $nin: idsToExclude } },
+    )
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();

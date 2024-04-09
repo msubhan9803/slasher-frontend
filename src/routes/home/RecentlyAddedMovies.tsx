@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import { DateTime } from 'luxon';
-import { useMediaQuery } from 'react-responsive';
-import { getSuggestedMovies } from '../../api/users';
-import ExperienceListItem from '../../components/layout/right-sidebar-wrapper/components/ExperienceListItem';
-import { LG_MEDIA_BREAKPOINT } from '../../constants';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
+import { addMovieUserStatus, removeSuggestedMovie } from '../../api/movies';
+import { getRecentlyAddedMovies } from '../../api/users';
+import RecentMediaTile from '../../components/layout/right-sidebar-wrapper/components/RecentMediaTile';
 
 const StyleMovie = styled(Row)`
   overflow-x: auto;
@@ -18,7 +17,8 @@ const StyleMovie = styled(Row)`
 `;
 
 const Card = styled.div`
-  width: 7.625rem;
+  position: relative;
+  width: 10.625rem;
   padding-right: 1rem;
 `;
 
@@ -26,18 +26,22 @@ const LoadingIndicatorSpacer = styled.div`
   height:12.857rem;
 `;
 
-function SuggestedMovie() {
+function RecentlyAddedMovies() {
+  const abortControllerRef = useRef<AbortController | null>();
   const [suggestedMovies, setSuggestedMovies] = useState([]);
   const [loading, setLoading] = useState(false);
-  const isDesktopResponsiveSize = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` });
 
-  useEffect(() => {
+  const getSuggestedMoviesList = () => {
     setLoading(true);
-    getSuggestedMovies().then((res) => {
+    getRecentlyAddedMovies().then((res) => {
       setSuggestedMovies(res.data);
     }).finally(() => {
       setLoading(false);
     });
+  };
+
+  useEffect(() => {
+    getSuggestedMoviesList();
   }, []);
 
   const slideFriendRight = () => {
@@ -59,6 +63,45 @@ function SuggestedMovie() {
       No movie suggestions available right now, but check back later for more!
     </div>
   );
+
+  const onCloseClick = (e: any, movieId: string) => {
+    e.preventDefault();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    removeSuggestedMovie(movieId).then(() => {
+      const newSuggestedMovies = suggestedMovies.filter((movie: any) => movie._id !== movieId);
+      if (newSuggestedMovies?.length) {
+        setSuggestedMovies(newSuggestedMovies);
+      } else {
+        getSuggestedMoviesList();
+      }
+    }).finally(() => {
+      abortControllerRef.current = null;
+    });
+  };
+
+  const addWatchListClick = (movieId: string) => {
+    if (abortControllerRef.current) {
+      return;
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    addMovieUserStatus(movieId, 'Watch')
+      .then((res) => {
+        if (res.data.success) {
+          const newSuggestedMovie = suggestedMovies.filter((movie: any) => movie._id !== movieId);
+          if (newSuggestedMovie?.length) {
+            setSuggestedMovies(newSuggestedMovie);
+          } else {
+            getSuggestedMoviesList();
+          }
+        }
+      }).finally(() => {
+        abortControllerRef.current = null;
+      });
+  };
 
   if (loading) {
     return (
@@ -84,19 +127,26 @@ function SuggestedMovie() {
             <StyleMovie
               id="sliderMovie"
               className="d-flex flex-nowrap w-100 mx-4 g-0"
-              style={{ maxWidth: isDesktopResponsiveSize ? '50vw' : '' }}
+              // style={{ maxWidth: isDesktopResponsiveSize ? '50vw' : '' }}
               tabIndex={-1}
             >
               {suggestedMovies?.map((movie: any) => (
                 <Card key={movie._id}>
-                  <ExperienceListItem
-                    image={movie.logo}
-                    title={movie.name}
-                    year={+DateTime.fromISO(movie.releaseDate).toFormat('yyyy')}
-                    numericRating={10}
-                    thumbRating={2}
-                    id={movie._id}
-                  />
+                  <div className="d-flex justify-content-center position-relative py-2">
+                    <Button variant="link" className="position-absolute p-0 px-2 py-1" style={{ right: '0', zIndex: 999 }} onClick={(e: any) => onCloseClick(e, movie?._id)}>
+                      <FontAwesomeIcon icon={solid('xmark')} size="lg" />
+                      <span className="visually-hidden">Dismiss suggestion</span>
+                    </Button>
+                    <RecentMediaTile
+                      image={movie.logo}
+                      title={movie.name}
+                      year={+DateTime.fromISO(movie.releaseDate).toFormat('yyyy')}
+                      numericRating={10}
+                      thumbRating={2}
+                      id={movie._id}
+                      addWatchListClick={addWatchListClick}
+                    />
+                  </div>
                 </Card>
               ))}
             </StyleMovie>
@@ -107,4 +157,4 @@ function SuggestedMovie() {
   );
 }
 
-export default SuggestedMovie;
+export default RecentlyAddedMovies;

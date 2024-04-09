@@ -110,3 +110,10 @@ export async function deleteWorthWatching(id: string) {
 
   return axios.delete(`${apiUrl}/api/v1/movies/${id}/worth-watching`, { headers });
 }
+export async function removeSuggestedMovie(movieId: string) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.post(`${apiUrl}/api/v1/movies/recent/block`, { movieId }, { headers });
+}

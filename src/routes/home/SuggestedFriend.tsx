@@ -53,7 +53,6 @@ function SuggestedFriend() {
     forceReload, lastRetrievalTime, suggestedFriends,
   } = useAppSelector((state) => state.suggestedFriendList);
   const abortControllerRef = useRef<AbortController | null>();
-  const isDesktopResponsiveSize = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` });
   const location = useLocation();
   const reloadSuggestedFriends = useCallback(() => {
     setLoading(true);
@@ -159,7 +158,7 @@ function SuggestedFriend() {
             <StyleFriend
               id="slideFriend"
               className="d-flex flex-nowrap w-100 mx-4 g-0"
-              style={{ maxWidth: isDesktopResponsiveSize ? '50vw' : '' }}
+              // style={{ maxWidth: isDesktopResponsiveSize ? '50vw' : '' }}
               tabIndex={-1}
             >
               {suggestedFriends.map((user: any) => (

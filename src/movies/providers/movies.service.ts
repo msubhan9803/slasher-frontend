@@ -790,7 +790,7 @@ export class MoviesService {
       watchlistMovieIds as any,
     );
     return this.moviesModel.find(
-      { _id: { $nin: idsToExclude } },
+      { _id: { $nin: idsToExclude }, logo: { $ne: null } },
     )
       .sort({ createdAt: -1 })
       .limit(limit)

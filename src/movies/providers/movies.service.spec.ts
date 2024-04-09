@@ -28,6 +28,9 @@ import { UsersService } from '../../users/providers/users.service';
 import { userFactory } from '../../../test/factories/user.factory';
 import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 import { WorthWatchingStatus } from '../../types';
+import { RecentMovieBlock } from '../../schemas/recentMovieBlock/recentMovieBlock.schema';
+import { RecentMovieBlockReaction } from '../../schemas/recentMovieBlock/recentMovieBlock.enums';
+import { MovieUserStatusService } from '../../movie-user-status/providers/movie-user-status.service';
 
 const mockHttpService = () => ({
 });
@@ -36,12 +39,14 @@ describe('MoviesService', () => {
   let app: INestApplication;
   let connection: Connection;
   let moviesService: MoviesService;
+  let movieUserStatusService: MovieUserStatusService;
   let configService: ConfigService;
   let movie: MovieDocument;
   let httpService: HttpService;
   let movieModel: Model<MovieDocument>;
   let usersService: UsersService;
   let movieUserStatusModel: Model<MovieUserStatusDocument>;
+  let recentMovieBlockModel: Model<RecentMovieBlock>;
   let activeUser: UserDocument;
   let user1: UserDocument;
 
@@ -55,11 +60,12 @@ describe('MoviesService', () => {
     connection = moduleRef.get<Connection>(getConnectionToken());
     moviesService = moduleRef.get<MoviesService>(MoviesService);
     configService = moduleRef.get<ConfigService>(ConfigService);
-    usersService = moduleRef.get<UsersService>(UsersService);
     httpService = moduleRef.get<HttpService>(HttpService);
     usersService = moduleRef.get<UsersService>(UsersService);
+    movieUserStatusService = moduleRef.get<MovieUserStatusService>(MovieUserStatusService);
     movieModel = moduleRef.get<Model<MovieDocument>>(getModelToken(Movie.name));
     movieUserStatusModel = moduleRef.get<Model<MovieUserStatusDocument>>(getModelToken(MovieUserStatus.name));
+    recentMovieBlockModel = moduleRef.get<Model<RecentMovieBlock>>(getModelToken(RecentMovieBlock.name));
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -1710,6 +1716,103 @@ describe('MoviesService', () => {
       });
       const count = await moviesService.getMovieListCountForUser(activeUser._id, 'buy');
       expect(count).toBe(1);
+    });
+  });
+
+  describe('#createRecentMovieBlock', () => {
+    it('creates the recent movie block data', async () => {
+      const createRecentMovieBlockData = await recentMovieBlockModel.create({
+        from: activeUser._id,
+        movieId: movie._id,
+        reaction: RecentMovieBlockReaction.Unblock,
+      });
+      await moviesService.createRecentMovieBlock(createRecentMovieBlockData.from.toString(), createRecentMovieBlockData.movieId.toString());
+      const getRecentBlockData = await moviesService.getRecentMovieBlock(createRecentMovieBlockData.from.toString());
+      const movieIds = getRecentBlockData.map((item) => item.toString());
+      expect(movieIds.includes(createRecentMovieBlockData.movieId.toString())).toBeTruthy();
+    });
+  });
+
+  describe('#getRecentMovieBlock', () => {
+    it('get the recent movie block data', async () => {
+      await recentMovieBlockModel.create({
+        from: activeUser._id,
+        movieId: movie._id,
+        reaction: RecentMovieBlockReaction.Unblock,
+      });
+      await recentMovieBlockModel.create({
+        from: activeUser._id,
+        movieId: movie._id,
+        reaction: RecentMovieBlockReaction.Block,
+      });
+      await recentMovieBlockModel.create({
+        from: activeUser._id,
+        movieId: movie._id,
+        reaction: RecentMovieBlockReaction.Block,
+      });
+      await recentMovieBlockModel.create({
+        from: user1._id,
+        movieId: movie._id,
+        reaction: RecentMovieBlockReaction.Unblock,
+      });
+      await recentMovieBlockModel.create({
+        from: user1._id,
+        movieId: movie._id,
+        reaction: RecentMovieBlockReaction.Block,
+      });
+
+      expect(await moviesService.getRecentMovieBlock(activeUser._id.toString())).toHaveLength(2);
+      expect(await moviesService.getRecentMovieBlock(user1._id.toString())).toHaveLength(1);
+    });
+  });
+
+  describe('#getRecentAddedMovies', () => {
+    it('returns the recently added movies', async () => {
+      const movie1 = await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'movie 1',
+          },
+        ),
+      );
+      const movie2 = await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'movie 2',
+          },
+        ),
+      );
+      const movie3 = await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'movie 3',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'movie 4',
+          },
+        ),
+      );
+      await recentMovieBlockModel.create({
+        from: activeUser._id,
+        movieId: movie1._id,
+        reaction: RecentMovieBlockReaction.Block,
+      });
+      await recentMovieBlockModel.create({
+        from: activeUser._id,
+        movieId: movie2._id,
+        reaction: RecentMovieBlockReaction.Block,
+      });
+      await movieUserStatusService.addMovieUserStatusWatch(activeUser._id.toString(), movie1._id.toString());
+      await movieUserStatusService.addMovieUserStatusWatch(activeUser._id.toString(), movie3._id.toString());
+      expect(await moviesService.getRecentAddedMovies(activeUser, 5)).toHaveLength(2);
     });
   });
 });

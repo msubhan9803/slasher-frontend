@@ -464,6 +464,7 @@ export class UsersController {
     );
   }
 
+  @TransformImageUrls('$[*].coverImage.image_path')
   @Get('recent-books')
   async recentBooks(@Req() request: Request) {
     const user = getUserFromRequest(request);

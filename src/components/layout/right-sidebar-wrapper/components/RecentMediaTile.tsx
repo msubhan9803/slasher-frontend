@@ -1,20 +1,11 @@
 import React from 'react';
-import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { WorthWatchingStatus } from '../../../../types';
+import { Card } from 'react-bootstrap';
 import RoundButton from '../../../ui/RoundButton';
-import { StyledDislikeIcon, StyledLikeIcon } from '../../../../routes/movies/components/WorthWatchIcon';
-import { StyleWatchWorthIcon } from '../../../../routes/movies/movie-details/AboutDetails';
-
-const StarLabel = styled.span`
-  font-size: 0.938rem;
-  .svg-inline--fa {
-    color: var(--bs-orange);
-    shape-rendering: geometricPrecision; // better rendering for small SVG
-  }
-`;
+import LikeIconButton from '../../../ui/Poster/LikeIconButton';
 
 const YearAndThumbRating = styled.div`
   font-size: 1.875rem;
@@ -22,6 +13,14 @@ const YearAndThumbRating = styled.div`
 
 const RatingSection = styled.div`
   min-height: 2.313rem;
+`;
+
+const RatingDiv = styled.div`
+  .fa-star {
+    color: var(--bs-orange);
+    width: 0.847rem;
+    height: 0.808rem;
+  }
 `;
 
 interface Props {
@@ -39,21 +38,13 @@ function RecentMediaTile({
   className, image, title, year, numericRating, thumbRating, id, addWatchListClick,
 }: Props) {
   const renderThumbIcon = (rating: number) => (
-    <>
-      {rating === WorthWatchingStatus.Up
-        && (
-          <StyledLikeIcon className="d-flex justify-content-center align-items-center shadow-none bg-transparent rounded-circle">
-            <StyleWatchWorthIcon icon={regular('thumbs-up')} />
-          </StyledLikeIcon>
-        )}
-
-      {rating === WorthWatchingStatus.Down
-        && (
-          <StyledDislikeIcon role="button" className="d-flex justify-content-center align-items-center shadow-none bg-transparent rounded-circle">
-            <StyleWatchWorthIcon icon={regular('thumbs-down')} />
-          </StyledDislikeIcon>
-        )}
-    </>
+    <LikeIconButton
+      worthWatching={rating}
+      thumbsUpWidth="0.804rem"
+      thumbsUpHeight="0.805rem"
+      thumbsDownWidth="0.804rem"
+      thumbsDownHeight="0.805rem"
+    />
   );
 
   const hasYearOrThumbRating = year || thumbRating;
@@ -78,10 +69,12 @@ function RecentMediaTile({
             {
               numericRating
                 ? (
-                  <StarLabel className="badge rounded-pill text-black bg-white">
-                    <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" size="xs" />
-                    {numericRating}
-                  </StarLabel>
+                  <RatingDiv className="d-flex justify-content-end me-2">
+                    <Card.Text className="rating bg-white mb-0 px-2 rounded-5 fs-5 text-black">
+                      <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" />
+                      <span className="h5">{numericRating}</span>
+                    </Card.Text>
+                  </RatingDiv>
                 ) : null
             }
           </div>

@@ -25,6 +25,10 @@ const YearAndThumbRating = styled.div`
   }
 `;
 
+const RatingSection = styled.div`
+  min-height: 1.609rem;
+`;
+
 interface Props {
   className?: string;
   image: string;
@@ -62,26 +66,30 @@ function RecentMediaTile({
           <img alt={`Poster for ${title}`} src={image} className="img-fluid rounded-3" />
         </div>
 
-        <div className="mt-2 d-flex justify-content-between align-items-center">
-          {
-            numericRating
-              ? (
-                <StarLabel className="badge rounded-pill text-black bg-white">
-                  <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" size="xs" />
-                  {numericRating}
-                </StarLabel>
-              ) : null
-          }
+        <RatingSection className="mt-2 d-flex justify-content-between align-items-center">
+          <div>
+            {
+              numericRating
+                ? (
+                  <StarLabel className="badge rounded-pill text-black bg-white">
+                    <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" size="xs" />
+                    {numericRating}
+                  </StarLabel>
+                ) : null
+            }
+          </div>
 
-          {
-            (hasYearOrThumbRating)
-            && (
-              <YearAndThumbRating className="d-flex justify-content-between align-items-center pt-1">
-                {thumbRating !== 0 && renderThumbIcon(thumbRating!)}
-              </YearAndThumbRating>
-            )
-          }
-        </div>
+          <div>
+            {
+              (hasYearOrThumbRating)
+              && (
+                <YearAndThumbRating className="d-flex justify-content-between align-items-center pt-1">
+                  {thumbRating !== 0 && renderThumbIcon(thumbRating!)}
+                </YearAndThumbRating>
+              )
+            }
+          </div>
+        </RatingSection>
 
         <RoundButton className="w-100 mt-2" onClick={(e: React.MouseEvent<HTMLButtonElement>) => onAddWatchListClick(e)}>
           Add to watchlist

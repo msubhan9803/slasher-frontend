@@ -3,7 +3,7 @@ import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from '../user/user.schema';
 import { RecentBookBlockReaction } from './recentBookBlock.enums';
 import { RecentBookBlockUnusedFields } from './recentBookBlock.unused-fields';
-import { Book } from '../Book/Book.schema';
+import { Book } from '../book/book.schema';
 
 @Schema({ timestamps: true })
 export class RecentBookBlock extends RecentBookBlockUnusedFields {

@@ -141,8 +141,8 @@ function RecentlyAddedMovies() {
                       image={movie.logo}
                       title={movie.name}
                       year={+DateTime.fromISO(movie.releaseDate).toFormat('yyyy')}
-                      numericRating={10}
-                      thumbRating={2}
+                      numericRating={movie.rating}
+                      thumbRating={movie.worthWatching}
                       id={movie._id}
                       addWatchListClick={addWatchListClick}
                     />

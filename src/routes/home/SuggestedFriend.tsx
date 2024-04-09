@@ -7,7 +7,6 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link, useLocation } from 'react-router-dom';
 import { DateTime } from 'luxon';
-import { useMediaQuery } from 'react-responsive';
 import RoundButton from '../../components/ui/RoundButton';
 import { getSuggestFriends } from '../../api/users';
 import { addFriend, removeSuggestedFriend } from '../../api/friends';
@@ -15,7 +14,6 @@ import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import UserCircleImage from '../../components/ui/UserCircleImage';
 import { setSuggestedFriendsState } from '../../redux/slices/suggestedFriendsSlice';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import { LG_MEDIA_BREAKPOINT } from '../../constants';
 
 const StyleFriend = styled(Row)`
   overflow-x: auto;

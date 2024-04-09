@@ -12,6 +12,9 @@ import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 import { DateTime, Duration } from 'luxon';
 import async from 'async';
+import { RecentBookBlock, RecentBookBlockDocument } from '../../schemas/recentBookBlock/recentBookBlock.schema';
+import { RecentBookBlockReaction } from '../../schemas/recentBookBlock/recentBookBlock.enums';
+import { UserDocument } from '../../schemas/user/user.schema';
 import { BookActiveStatus, BookDeletionState, BookType } from '../../schemas/book/book.enums';
 import { Book, BookDocument } from '../../schemas/book/book.schema';
 import { NON_ALPHANUMERIC_REGEX } from '../../constants';
@@ -37,6 +40,7 @@ export class BooksService {
   constructor(
     @InjectModel(Book.name) private booksModel: Model<BookDocument>,
     @InjectModel(BookUserStatus.name) private bookUserStatusModel: Model<BookUserStatusDocument>,
+    @InjectModel(RecentBookBlock.name) private recentMovieBlockModel: Model<RecentBookBlockDocument>,
     private readonly s3StorageService: S3StorageService,
     private httpService: HttpService,
     private readonly config: ConfigService,
@@ -248,6 +252,76 @@ export class BooksService {
     }
     return this.booksModel.find(booksFindAllQuery)
       .sort(sortBooksByNameAndReleaseDate)
+      .limit(limit)
+      .exec();
+  }
+
+  async recentlyAdded(
+    limit: number,
+    activeOnly: boolean,
+    sortBy?: 'name' | 'publishDate' | 'rating',
+    after?: mongoose.Types.ObjectId,
+    nameContains?: string,
+    bookIdsIn?: mongoose.Types.ObjectId[],
+    sortNameStartsWith?: string,
+  ): Promise<BookDocument[]> {
+    const booksFindAllQuery: any = {
+      type: BookType.OpenLibrary,
+      createdAt: {
+        $gte: DateTime.now().minus({ days: 30 }),
+        $lte: DateTime.now(),
+      },
+    };
+    if (bookIdsIn) {
+      booksFindAllQuery._id = { $in: bookIdsIn };
+    }
+    if (activeOnly) {
+      booksFindAllQuery.deleted = BookDeletionState.NotDeleted;
+      booksFindAllQuery.status = BookActiveStatus.Active;
+    }
+    if (after && sortBy === 'name') {
+      const afterBook = await this.booksModel.findById(after);
+      booksFindAllQuery.sort_name = { ...booksFindAllQuery.sort_name, $gt: afterBook.sort_name };
+    }
+    if (after && sortBy === 'publishDate') {
+      const afterBook = await this.booksModel.findById(after);
+      booksFindAllQuery.sortPublishDate = { $lt: afterBook.sortPublishDate };
+    }
+    if (after && sortBy === 'rating') {
+      const afterBook = await this.booksModel.findById(after);
+      booksFindAllQuery.sortRatingAndRatingUsersCount = { $lt: afterBook.sortRatingAndRatingUsersCount };
+    }
+
+    if (nameContains) {
+      booksFindAllQuery.name = {};
+      booksFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');
+    }
+    if (sortNameStartsWith) {
+      let combinedRegex = '';
+      if (nameContains) {
+        booksFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');
+      }
+      if (sortNameStartsWith && sortNameStartsWith !== '#') {
+        booksFindAllQuery.sort_name = booksFindAllQuery.sort_name || {};
+        combinedRegex = `^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`;
+        booksFindAllQuery.sort_name.$regex = new RegExp(combinedRegex, 'i');
+      } else if (sortNameStartsWith === '#') {
+        combinedRegex = NON_ALPHANUMERIC_REGEX.source;
+        booksFindAllQuery.name = booksFindAllQuery.name || {};
+        booksFindAllQuery.name.$regex = new RegExp(combinedRegex, 'i');
+      }
+    }
+
+    let sortBooks: any = { createdAt: -1 };
+    if (sortBy === 'name') {
+      sortBooks = { sort_name: 1 };
+    } else if (sortBy === 'publishDate') {
+      sortBooks = { sortPublishDate: -1 };
+    } else {
+      sortBooks = { sortRatingAndRatingUsersCount: -1 };
+    }
+    return this.booksModel.find(booksFindAllQuery)
+      .sort(sortBooks)
       .limit(limit)
       .exec();
   }
@@ -510,5 +584,36 @@ export class BooksService {
       }
     });
     return storageLocation;
+  }
+
+  async createRecentBookBlock(fromUserId: string, bookId: string): Promise<void> {
+    const updateBody = {
+      from: new mongoose.Types.ObjectId(fromUserId),
+      bookId: new mongoose.Types.ObjectId(bookId),
+    };
+    await this.recentMovieBlockModel.findOneAndUpdate(updateBody, { $set: { reaction: RecentBookBlockReaction.Block } }, { upsert: true });
+  }
+
+  async getRecentBookBlock(fromUserId: string): Promise<Partial<Book[]>> {
+    const fromAndBlockQuery = {
+      from: new mongoose.Types.ObjectId(fromUserId),
+      reaction: RecentBookBlockReaction.Block,
+    };
+    const bookBlock = await this.recentMovieBlockModel.find(fromAndBlockQuery).select('bookId');
+    return bookBlock.map((data) => data.bookId);
+  }
+
+  async getRecentAddedBooks(user: UserDocument, limit: number) {
+    const recentBlockBookIds = await this.getRecentBookBlock(user.id);
+    const readlistBookIds = await this.getReadListBookIdsForUser(user.id);
+    const idsToExclude = recentBlockBookIds.concat(
+      readlistBookIds as any,
+    );
+    return this.booksModel.find(
+      { _id: { $nin: idsToExclude } },
+    )
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .exec();
   }
 }

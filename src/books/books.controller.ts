@@ -22,6 +22,8 @@ import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 import { CreateOrUpdateWorthReadingDto } from './dto/create-or-update-worth-reading-dto';
 import { FindAllBooksDto } from './dto/find-all-books.dto';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
+import { BlockRecentBookDto } from './dto/block-recent-book.dto';
+import { RecentlyAddedBooksDto } from './dto/recently-added-books.dto';
 
 @Controller({ path: 'books', version: ['1'] })
 export class BooksController {
@@ -329,5 +331,32 @@ export class BooksController {
     }
     await this.bookUserStatusService.deleteBookUserStatusBuy(user.id, params.bookId);
     return { success: true };
+  }
+
+  @Post('recent/block')
+  async blockRecentlyAddedMovie(
+    @Req() request: Request,
+    @Body() blockRecentMovieDto: BlockRecentBookDto,
+  ) {
+    const user = getUserFromRequest(request);
+    await this.booksService.createRecentBookBlock(user.id, blockRecentMovieDto.bookId);
+    return { success: true };
+  }
+
+  @Get('recently/added')
+  async recentlyAdded(@Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: RecentlyAddedBooksDto) {
+    const books = await this.booksService.recentlyAdded(
+      query.limit,
+      true,
+      query.sortBy,
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
+      query.nameContains,
+      null,
+      query.startsWith,
+    );
+    return books.map((bookData) => pick(
+      bookData,
+      ['_id', 'name', 'publishDate', 'coverImage', 'rating', 'worthReading'],
+    ));
   }
 }

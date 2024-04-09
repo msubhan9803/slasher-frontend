@@ -1,12 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from '../user/user.schema';
-import { RecentMovieBlockReaction } from './recentMovieBlock.enums';
-import { RecentMovieBlockUnusedFields } from './recentMovieBlock.unused-fields';
-import { Movie } from '../movie/movie.schema';
+import { RecentBookBlockReaction } from './recentBookBlock.enums';
+import { RecentBookBlockUnusedFields } from './recentBookBlock.unused-fields';
+import { Book } from '../Book/Book.schema';
 
 @Schema({ timestamps: true })
-export class RecentMovieBlock extends RecentMovieBlockUnusedFields {
+export class RecentBookBlock extends RecentBookBlockUnusedFields {
   /***********
    * Fields *
    ***********/
@@ -24,22 +24,22 @@ export class RecentMovieBlock extends RecentMovieBlockUnusedFields {
   from: User;
 
   // The user who will BE blocked
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Movie.name, required: true })
-  movieId: Movie;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Book.name, required: true })
+  bookId: Book;
 
   @Prop({
     enum: [
-      RecentMovieBlockReaction.Block,
-      RecentMovieBlockReaction.Unblock,
+      RecentBookBlockReaction.Block,
+      RecentBookBlockReaction.Unblock,
     ],
   })
-  reaction: RecentMovieBlockReaction;
+  reaction: RecentBookBlockReaction;
 
   /***********
    * Methods *
    ***********/
 
-  constructor(options?: Partial<RecentMovieBlock>) {
+  constructor(options?: Partial<RecentBookBlock>) {
     super();
     if (!options) {
       return;
@@ -50,18 +50,18 @@ export class RecentMovieBlock extends RecentMovieBlockUnusedFields {
   }
 }
 
-export const RecentMovieBlockSchema = SchemaFactory.createForClass(RecentMovieBlock);
+export const RecentBookBlockSchema = SchemaFactory.createForClass(RecentBookBlock);
 
-RecentMovieBlockSchema.index(
+RecentBookBlockSchema.index(
   {
     from: 1, reaction: 1,
   },
 );
 
-RecentMovieBlockSchema.index(
+RecentBookBlockSchema.index(
   {
-    from: 1, movieId: 1,
+    from: 1, bookId: 1,
   },
 );
 
-export type RecentMovieBlockDocument = HydratedDocument<RecentMovieBlock>;
+export type RecentBookBlockDocument = HydratedDocument<RecentBookBlock>;

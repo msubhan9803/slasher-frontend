@@ -464,6 +464,17 @@ export class UsersController {
     );
   }
 
+  @Get('recent-books')
+  async recentBooks(@Req() request: Request) {
+    const user = getUserFromRequest(request);
+    const books = await this.booksService.getRecentAddedBooks(user, 10);
+
+    return books.map((bookData) => pick(
+      bookData,
+      ['_id', 'name', 'publishDate', 'coverImage', 'rating', 'worthReading'],
+    ));
+  }
+
   @Post('verification-email-not-received')
   @Public()
   @HttpCode(200)

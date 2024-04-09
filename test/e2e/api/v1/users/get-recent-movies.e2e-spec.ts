@@ -97,7 +97,7 @@ describe('Get Recent Movies (e2e)', () => {
         .get('/api/v1/users/recent-movies')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      expect(response.body[0].logo).toBe('http://localhost:4444/placeholders/movie_poster.png');
+      expect(response.body).toHaveLength(0);
     });
 
     it('returns the recent movie list', async () => {
@@ -105,6 +105,7 @@ describe('Get Recent Movies (e2e)', () => {
         moviesFactory.build(
           {
             status: MovieActiveStatus.Active,
+            logo: '/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
             name: 'horror',
             releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
@@ -114,6 +115,7 @@ describe('Get Recent Movies (e2e)', () => {
         moviesFactory.build(
           {
             status: MovieActiveStatus.Active,
+            logo: '/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
             name: 'horror 1',
             releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
@@ -123,6 +125,7 @@ describe('Get Recent Movies (e2e)', () => {
         moviesFactory.build(
           {
             status: MovieActiveStatus.Active,
+            logo: '/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
             name: 'horror 2',
             releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
@@ -132,6 +135,7 @@ describe('Get Recent Movies (e2e)', () => {
         moviesFactory.build(
           {
             status: MovieActiveStatus.Active,
+            logo: '/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
             name: 'horror 3',
             releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
@@ -141,6 +145,7 @@ describe('Get Recent Movies (e2e)', () => {
         moviesFactory.build(
           {
             status: MovieActiveStatus.Active,
+            logo: '/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
             name: 'horror 4',
             releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
@@ -150,6 +155,7 @@ describe('Get Recent Movies (e2e)', () => {
         moviesFactory.build(
           {
             status: MovieActiveStatus.Active,
+            logo: '/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
             name: 'horror 5',
             releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
@@ -159,6 +165,7 @@ describe('Get Recent Movies (e2e)', () => {
         moviesFactory.build(
           {
             status: MovieActiveStatus.Active,
+            logo: '/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
             name: 'horror 6',
             releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
@@ -168,6 +175,7 @@ describe('Get Recent Movies (e2e)', () => {
         moviesFactory.build(
           {
             status: MovieActiveStatus.Active,
+            logo: '/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
             name: 'horror 7',
             releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
@@ -177,6 +185,7 @@ describe('Get Recent Movies (e2e)', () => {
         moviesFactory.build(
           {
             status: MovieActiveStatus.Active,
+            logo: '/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
             name: 'horror 8',
             releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
@@ -186,6 +195,7 @@ describe('Get Recent Movies (e2e)', () => {
         moviesFactory.build(
           {
             status: MovieActiveStatus.Active,
+            logo: '/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
             name: 'horror 9',
             releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
@@ -195,6 +205,7 @@ describe('Get Recent Movies (e2e)', () => {
         moviesFactory.build(
           {
             status: MovieActiveStatus.Active,
+            logo: '/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
             name: 'horror 10',
             releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
@@ -246,7 +257,7 @@ describe('Get Recent Movies (e2e)', () => {
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           name: 'horror 10',
-          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          logo: 'https://image.tmdb.org/t/p/w220_and_h330_face/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
           rating: 0,
           worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',
@@ -254,7 +265,7 @@ describe('Get Recent Movies (e2e)', () => {
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           name: 'horror 9',
-          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          logo: 'https://image.tmdb.org/t/p/w220_and_h330_face/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
           rating: 0,
           worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',
@@ -262,7 +273,7 @@ describe('Get Recent Movies (e2e)', () => {
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           name: 'horror 8',
-          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          logo: 'https://image.tmdb.org/t/p/w220_and_h330_face/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
           rating: 0,
           worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',
@@ -270,7 +281,7 @@ describe('Get Recent Movies (e2e)', () => {
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           name: 'horror 7',
-          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          logo: 'https://image.tmdb.org/t/p/w220_and_h330_face/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
           rating: 0,
           worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',
@@ -278,7 +289,7 @@ describe('Get Recent Movies (e2e)', () => {
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           name: 'horror 6',
-          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          logo: 'https://image.tmdb.org/t/p/w220_and_h330_face/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
           rating: 0,
           worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',
@@ -286,7 +297,7 @@ describe('Get Recent Movies (e2e)', () => {
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           name: 'horror 5',
-          logo: 'http://localhost:4444/placeholders/movie_poster.png',
+          logo: 'https://image.tmdb.org/t/p/w220_and_h330_face/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
           rating: 0,
           worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',

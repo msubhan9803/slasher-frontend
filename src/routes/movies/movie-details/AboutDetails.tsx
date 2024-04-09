@@ -21,7 +21,7 @@ import { updateMovieUserData } from '../components/updateMovieDataUtils';
 import { urlForMovie } from '../../../utils/url-utils';
 import { generateAmazonAffiliateLinkForMovie } from '../../../utils/text-utils';
 
-const StyleWatchWorthIcon = styled(FontAwesomeIcon)`
+export const StyleWatchWorthIcon = styled(FontAwesomeIcon)`
   width: 0.995rem;
   height: 0.997rem;
 `;

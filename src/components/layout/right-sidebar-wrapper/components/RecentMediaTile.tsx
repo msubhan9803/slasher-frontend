@@ -5,9 +5,11 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { WorthWatchingStatus } from '../../../../types';
 import RoundButton from '../../../ui/RoundButton';
+import { StyledDislikeIcon, StyledLikeIcon } from '../../../../routes/movies/components/WorthWatchIcon';
+import { StyleWatchWorthIcon } from '../../../../routes/movies/movie-details/AboutDetails';
 
 const StarLabel = styled.span`
-  font-size: .6rem;
+  font-size: 0.938rem;
   .svg-inline--fa {
     color: var(--bs-orange);
     shape-rendering: geometricPrecision; // better rendering for small SVG
@@ -15,18 +17,11 @@ const StarLabel = styled.span`
 `;
 
 const YearAndThumbRating = styled.div`
-  font-size: 0.625rem;
-  .svg-inline--fa {
-    border: 1px solid #3A3B46;
-    color: var(--bs-orange);
-    font-size: .5rem;
-    padding: .15rem;
-    shape-rendering: geometricPrecision; // better rendering for small SVG
-  }
+  font-size: 1.875rem;
 `;
 
 const RatingSection = styled.div`
-  min-height: 1.609rem;
+  min-height: 2.313rem;
 `;
 
 interface Props {
@@ -44,9 +39,21 @@ function RecentMediaTile({
   className, image, title, year, numericRating, thumbRating, id, addWatchListClick,
 }: Props) {
   const renderThumbIcon = (rating: number) => (
-    rating === WorthWatchingStatus.Up
-      ? <FontAwesomeIcon icon={regular('thumbs-up')} className="text-success rounded-circle" size="xs" />
-      : <FontAwesomeIcon icon={regular('thumbs-down')} className="text-primary rounded-circle" size="xs" />
+    <>
+      {rating === WorthWatchingStatus.Up
+        && (
+          <StyledLikeIcon className="d-flex justify-content-center align-items-center shadow-none bg-transparent rounded-circle">
+            <StyleWatchWorthIcon icon={regular('thumbs-up')} />
+          </StyledLikeIcon>
+        )}
+
+      {rating === WorthWatchingStatus.Down
+        && (
+          <StyledDislikeIcon role="button" className="d-flex justify-content-center align-items-center shadow-none bg-transparent rounded-circle">
+            <StyleWatchWorthIcon icon={regular('thumbs-down')} />
+          </StyledDislikeIcon>
+        )}
+    </>
   );
 
   const hasYearOrThumbRating = year || thumbRating;
@@ -67,7 +74,7 @@ function RecentMediaTile({
         </div>
 
         <RatingSection className="mt-2 d-flex justify-content-between align-items-center">
-          <div>
+          <div className="d-flex align-items-center">
             {
               numericRating
                 ? (
@@ -83,7 +90,7 @@ function RecentMediaTile({
             {
               (hasYearOrThumbRating)
               && (
-                <YearAndThumbRating className="d-flex justify-content-between align-items-center pt-1">
+                <YearAndThumbRating className="d-flex justify-content-between align-items-center">
                   {thumbRating !== 0 && renderThumbIcon(thumbRating!)}
                 </YearAndThumbRating>
               )

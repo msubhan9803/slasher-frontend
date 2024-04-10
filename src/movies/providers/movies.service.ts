@@ -6,6 +6,8 @@ import mongoose, { Model } from 'mongoose';
 import { lastValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { DateTime } from 'luxon';
+import { UserDocument } from 'src/schemas/user/user.schema';
+import { RecentMovieBlock, RecentMovieBlockDocument } from '../../schemas/recentMovieBlock/recentMovieBlock.schema';
 import { Movie, MovieDocument } from '../../schemas/movie/movie.schema';
 
 import { MovieActiveStatus, MovieDeletionStatus, MovieType } from '../../schemas/movie/movie.enums';
@@ -22,6 +24,7 @@ import {
 } from '../../schemas/movieUserStatus/movieUserStatus.enums';
 import { MovieListType, WorthWatchingStatus } from '../../types';
 import { NON_ALPHANUMERIC_REGEX } from '../../constants';
+import { RecentMovieBlockReaction } from '../../schemas/recentMovieBlock/recentMovieBlock.enums';
 
 export interface Cast {
   'adult': boolean,
@@ -153,6 +156,7 @@ export class MoviesService {
   constructor(
     @InjectModel(Movie.name) private moviesModel: Model<MovieDocument>,
     @InjectModel(MovieUserStatus.name) private movieUserStatusModel: Model<MovieUserStatusDocument>,
+    @InjectModel(RecentMovieBlock.name) private recentMovieBlockModel: Model<RecentMovieBlockDocument>,
     private httpService: HttpService,
     private configService: ConfigService,
   ) { }
@@ -396,6 +400,75 @@ export class MoviesService {
     }
     return this.moviesModel.find(movieFindAllQuery)
       .sort(sortMoviesByNameAndReleaseDate)
+      .limit(limit)
+      .exec();
+  }
+
+  async recentlyAdded(
+    limit: number,
+    activeOnly: boolean,
+    sortBy?: 'name' | 'releaseDate' | 'rating',
+    after?: mongoose.Types.ObjectId,
+    nameContains?: string,
+    movieIdsIn?: mongoose.Types.ObjectId[],
+    sortNameStartsWith?: string,
+  ): Promise<MovieDocument[]> {
+    const movieFindAllQuery: any = {
+      type: MovieType.MovieDb,
+      createdAt: {
+        $gte: DateTime.now().minus({ days: 30 }),
+        $lte: DateTime.now(),
+      },
+    };
+    if (movieIdsIn) {
+      movieFindAllQuery._id = { $in: movieIdsIn };
+    }
+    if (activeOnly) {
+      movieFindAllQuery.deleted = MovieDeletionStatus.NotDeleted;
+      movieFindAllQuery.status = MovieActiveStatus.Active;
+    }
+    if (after && sortBy === 'name') {
+      const afterMovie = await this.moviesModel.findById(after);
+      movieFindAllQuery.sort_name = { ...movieFindAllQuery.sort_name, $gt: afterMovie.sort_name };
+    }
+    if (after && sortBy === 'releaseDate') {
+      const afterMovie = await this.moviesModel.findById(after);
+      movieFindAllQuery.sortReleaseDate = { $lt: afterMovie.sortReleaseDate };
+    }
+    if (after && sortBy === 'rating') {
+      const afterMovie = await this.moviesModel.findById(after);
+      movieFindAllQuery.sortRatingAndRatingUsersCount = { $lt: afterMovie.sortRatingAndRatingUsersCount };
+    }
+    if (nameContains) {
+      movieFindAllQuery.name = {};
+      movieFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');
+    }
+    if (sortNameStartsWith) {
+      let combinedRegex = '';
+      if (nameContains) {
+        movieFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');
+      }
+      if (sortNameStartsWith && sortNameStartsWith !== '#') {
+        movieFindAllQuery.sort_name = movieFindAllQuery.sort_name || {};
+        combinedRegex = `^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`;
+        movieFindAllQuery.sort_name.$regex = new RegExp(combinedRegex, 'i');
+      } else if (sortNameStartsWith === '#') {
+        combinedRegex = NON_ALPHANUMERIC_REGEX.source;
+        movieFindAllQuery.name = movieFindAllQuery.name || {};
+        movieFindAllQuery.name.$regex = new RegExp(combinedRegex, 'i');
+      }
+    }
+
+    let sortMovies: any = { createdAt: -1 };
+    if (sortBy === 'name') {
+      sortMovies = { sort_name: 1 };
+    } else if (sortBy === 'releaseDate') {
+      sortMovies = { sortReleaseDate: -1 };
+    } else if (sortBy === 'rating') {
+      sortMovies = { sortRatingAndRatingUsersCount: -1 };
+    }
+    return this.moviesModel.find(movieFindAllQuery)
+      .sort(sortMovies)
       .limit(limit)
       .exec();
   }
@@ -691,5 +764,36 @@ export class MoviesService {
         .count();
     }
     return count;
+  }
+
+  async createRecentMovieBlock(fromUserId: string, movieId: string): Promise<void> {
+    const updateBody = {
+      from: new mongoose.Types.ObjectId(fromUserId),
+      movieId: new mongoose.Types.ObjectId(movieId),
+    };
+    await this.recentMovieBlockModel.findOneAndUpdate(updateBody, { $set: { reaction: RecentMovieBlockReaction.Block } }, { upsert: true });
+  }
+
+  async getRecentMovieBlock(fromUserId: string): Promise<Partial<Movie[]>> {
+    const fromAndBlockQuery = {
+      from: new mongoose.Types.ObjectId(fromUserId),
+      reaction: RecentMovieBlockReaction.Block,
+    };
+    const movieBlock = await this.recentMovieBlockModel.find(fromAndBlockQuery).select('movieId');
+    return movieBlock.map((data) => data.movieId);
+  }
+
+  async getRecentAddedMovies(user: UserDocument, limit: number) {
+    const recentBlockMovieIds = await this.getRecentMovieBlock(user.id);
+    const watchlistMovieIds = await this.getWatchListMovieIdsForUser(user.id);
+    const idsToExclude = recentBlockMovieIds.concat(
+      watchlistMovieIds as any,
+    );
+    return this.moviesModel.find(
+      { _id: { $nin: idsToExclude }, logo: { $ne: null } },
+    )
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .exec();
   }
 }

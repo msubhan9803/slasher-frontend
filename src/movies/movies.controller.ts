@@ -265,7 +265,10 @@ export class MoviesController {
     if (!movieData) {
       throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
     }
-    await this.movieUserStatusService.addMovieUserStatusFavorite(user.id, params.movieId);
+    await Promise.all([
+      this.movieUserStatusService.addMovieUserStatusFavorite(user.id, params.movieId),
+      this.moviesService.createRecentMovieBlock(user.id, params.movieId),
+    ]);
     return { success: true };
   }
 
@@ -293,7 +296,8 @@ export class MoviesController {
     if (!movieData) {
       throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
     }
-    await this.movieUserStatusService.addMovieUserStatusWatch(user.id, params.movieId);
+    await Promise.all([this.movieUserStatusService.addMovieUserStatusWatch(user.id, params.movieId),
+    this.moviesService.createRecentMovieBlock(user.id, params.movieId)]);
     return { success: true };
   }
 
@@ -321,7 +325,10 @@ export class MoviesController {
     if (!movieData) {
       throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
     }
-    await this.movieUserStatusService.addMovieUserStatusWatched(user.id, params.movieId);
+    await Promise.all([
+      this.movieUserStatusService.addMovieUserStatusWatched(user.id, params.movieId),
+      this.moviesService.createRecentMovieBlock(user.id, params.movieId),
+    ]);
     return { success: true };
   }
 
@@ -349,7 +356,10 @@ export class MoviesController {
     if (!movieData) {
       throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
     }
-    await this.movieUserStatusService.addMovieUserStatusBuy(user.id, params.movieId);
+    await Promise.all([
+      this.movieUserStatusService.addMovieUserStatusBuy(user.id, params.movieId),
+      this.moviesService.createRecentMovieBlock(user.id, params.movieId),
+    ]);
     return { success: true };
   }
 

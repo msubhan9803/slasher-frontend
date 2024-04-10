@@ -1773,6 +1773,7 @@ describe('MoviesService', () => {
           {
             status: MovieActiveStatus.Active,
             name: 'movie 1',
+            logo: '/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
           },
         ),
       );
@@ -1781,6 +1782,7 @@ describe('MoviesService', () => {
           {
             status: MovieActiveStatus.Active,
             name: 'movie 2',
+            logo: '/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
           },
         ),
       );
@@ -1789,6 +1791,7 @@ describe('MoviesService', () => {
           {
             status: MovieActiveStatus.Active,
             name: 'movie 3',
+            logo: '/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
           },
         ),
       );
@@ -1797,6 +1800,7 @@ describe('MoviesService', () => {
           {
             status: MovieActiveStatus.Active,
             name: 'movie 4',
+            logo: '/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
           },
         ),
       );
@@ -1812,7 +1816,7 @@ describe('MoviesService', () => {
       });
       await movieUserStatusService.addMovieUserStatusWatch(activeUser._id.toString(), movie1._id.toString());
       await movieUserStatusService.addMovieUserStatusWatch(activeUser._id.toString(), movie3._id.toString());
-      expect(await moviesService.getRecentAddedMovies(activeUser, 5)).toHaveLength(2);
+      expect(await moviesService.getRecentAddedMovies(activeUser, 5)).toHaveLength(1);
     });
   });
 });

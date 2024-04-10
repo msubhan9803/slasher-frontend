@@ -40,7 +40,7 @@ export class BooksService {
   constructor(
     @InjectModel(Book.name) private booksModel: Model<BookDocument>,
     @InjectModel(BookUserStatus.name) private bookUserStatusModel: Model<BookUserStatusDocument>,
-    @InjectModel(RecentBookBlock.name) private recentMovieBlockModel: Model<RecentBookBlockDocument>,
+    @InjectModel(RecentBookBlock.name) private recentBookBlockModel: Model<RecentBookBlockDocument>,
     private readonly s3StorageService: S3StorageService,
     private httpService: HttpService,
     private readonly config: ConfigService,
@@ -591,7 +591,7 @@ export class BooksService {
       from: new mongoose.Types.ObjectId(fromUserId),
       bookId: new mongoose.Types.ObjectId(bookId),
     };
-    await this.recentMovieBlockModel.findOneAndUpdate(updateBody, { $set: { reaction: RecentBookBlockReaction.Block } }, { upsert: true });
+    await this.recentBookBlockModel.findOneAndUpdate(updateBody, { $set: { reaction: RecentBookBlockReaction.Block } }, { upsert: true });
   }
 
   async getRecentBookBlock(fromUserId: string): Promise<Partial<Book[]>> {
@@ -599,7 +599,7 @@ export class BooksService {
       from: new mongoose.Types.ObjectId(fromUserId),
       reaction: RecentBookBlockReaction.Block,
     };
-    const bookBlock = await this.recentMovieBlockModel.find(fromAndBlockQuery).select('bookId');
+    const bookBlock = await this.recentBookBlockModel.find(fromAndBlockQuery).select('bookId');
     return bookBlock.map((data) => data.bookId);
   }
 

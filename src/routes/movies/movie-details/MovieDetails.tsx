@@ -21,9 +21,26 @@ function MovieDetails() {
   const [movieData, setMovieData] = useState<MovieData | undefined>(
     hasPageStateCache(location) ? pageStateCache.movieData : undefined,
   );
+  const [initialDataLoadedFromCache, setInitialDataLoadedFromCache] = useState(false);
   const [additionalMovieData, setAdditionalMovieData] = useState<AdditionalMovieData | undefined>(
     hasPageStateCache(location) ? pageStateCache.additionalMovieData : undefined,
   );
+
+  useEffect(() => {
+    if (hasPageStateCache(location) && !initialDataLoadedFromCache) {
+      setInitialDataLoadedFromCache(true);
+      setMovieData(pageStateCache.movieData);
+    }
+  }, [pageStateCache]);
+
+  useEffect(() => (() => {
+    if (movieData) {
+      setPageStateCache<MoviePageCache>(location, {
+        ...getPageStateCache(location), movieData,
+      });
+    }
+  }), [movieData]);
+
   useEffect(() => {
     if (params.id && (!movieData || movieData?.isUpdated)) {
       getMoviesById(params.id)

@@ -231,7 +231,10 @@ export class BooksController {
     if (!bookData) {
       throw new HttpException('Book not found', HttpStatus.NOT_FOUND);
     }
-    await this.bookUserStatusService.addBookUserStatusFavorite(user.id, params.bookId);
+    await Promise.all([
+      this.bookUserStatusService.addBookUserStatusFavorite(user.id, params.bookId),
+      this.booksService.createRecentBookBlock(user.id, params.bookId),
+    ]);
     return { success: true };
   }
 
@@ -259,7 +262,10 @@ export class BooksController {
     if (!bookData) {
       throw new HttpException('Book not found', HttpStatus.NOT_FOUND);
     }
-    await this.bookUserStatusService.addBookUserStatusRead(user.id, params.bookId);
+    await Promise.all([
+      this.bookUserStatusService.addBookUserStatusRead(user.id, params.bookId),
+      this.booksService.createRecentBookBlock(user.id, params.bookId),
+    ]);
     return { success: true };
   }
 
@@ -287,7 +293,10 @@ export class BooksController {
     if (!bookData) {
       throw new HttpException('Book not found', HttpStatus.NOT_FOUND);
     }
-    await this.bookUserStatusService.addBookUserStatusReadingList(user.id, params.bookId);
+    await Promise.all([
+      this.bookUserStatusService.addBookUserStatusReadingList(user.id, params.bookId),
+      this.booksService.createRecentBookBlock(user.id, params.bookId),
+    ]);
     return { success: true };
   }
 
@@ -315,7 +324,10 @@ export class BooksController {
     if (!bookData) {
       throw new HttpException('Book not found', HttpStatus.NOT_FOUND);
     }
-    await this.bookUserStatusService.addBookUserStatusBuy(user.id, params.bookId);
+    await Promise.all([
+      this.bookUserStatusService.addBookUserStatusBuy(user.id, params.bookId),
+      this.booksService.createRecentBookBlock(user.id, params.bookId),
+    ]);
     return { success: true };
   }
 

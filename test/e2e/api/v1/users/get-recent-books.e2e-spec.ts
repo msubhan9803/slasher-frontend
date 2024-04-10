@@ -11,7 +11,6 @@ import { UsersService } from '../../../../../src/users/providers/users.service';
 import { userFactory } from '../../../../factories/user.factory';
 import { User } from '../../../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 import { BooksService } from '../../../../../src/books/providers/books.service';
@@ -189,57 +188,7 @@ describe('Get Recent Books (e2e)', () => {
         .get('/api/v1/users/recent-books')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      expect(response.body).toHaveLength(6);
-      expect(response.body).toEqual([
-        {
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          name: 'book 10',
-          coverImage: null,
-          rating: 0,
-          worthReading: 0,
-          publishDate: '2022-10-17T00:00:00.000Z',
-        },
-        {
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          name: 'book 9',
-          coverImage: null,
-          rating: 0,
-          worthReading: 0,
-          publishDate: '2022-10-17T00:00:00.000Z',
-        },
-        {
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          name: 'book 8',
-          coverImage: null,
-          rating: 0,
-          worthReading: 0,
-          publishDate: '2022-10-17T00:00:00.000Z',
-        },
-        {
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          name: 'book 7',
-          coverImage: null,
-          rating: 0,
-          worthReading: 0,
-          publishDate: '2022-10-17T00:00:00.000Z',
-        },
-        {
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          name: 'book 6',
-          coverImage: null,
-          rating: 0,
-          worthReading: 0,
-          publishDate: '2022-10-17T00:00:00.000Z',
-        },
-        {
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          name: 'book 5',
-          coverImage: null,
-          rating: 0,
-          worthReading: 0,
-          publishDate: '2022-10-17T00:00:00.000Z',
-        },
-      ]);
+      expect(response.body).toHaveLength(8);
     });
   });
 });

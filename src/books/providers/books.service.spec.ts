@@ -1444,23 +1444,19 @@ describe('BooksService', () => {
       const book3 = await booksService.create(
         booksFactory.build({ status: BookActiveStatus.Active, name: 'Book 3' }),
       );
-      await booksService.create(
-        booksFactory.build({ status: BookActiveStatus.Active, name: 'Book 4' }),
-      );
 
       await recentBookBlockModel.create({
         from: activeUser._id,
         bookId: book1._id,
-        reaction: RecentBookBlockReaction.Unblock,
+        reaction: RecentBookBlockReaction.Block,
       });
       await recentBookBlockModel.create({
         from: activeUser._id,
         bookId: book2._id,
-        reaction: RecentBookBlockReaction.Unblock,
+        reaction: RecentBookBlockReaction.Block,
       });
-      await bookUserStatusService.addBookUserStatusRead(activeUser._id.toString(), book1._id.toString());
       await bookUserStatusService.addBookUserStatusRead(activeUser._id.toString(), book3._id.toString());
-      expect(await booksService.getRecentAddedBooks(activeUser, 5)).toHaveLength(2);
+      expect(await booksService.getRecentAddedBooks(activeUser, 5)).toHaveLength(1);
     });
   });
 });

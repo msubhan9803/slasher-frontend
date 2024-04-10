@@ -269,6 +269,14 @@ export async function getRecentlyAddedMovies() {
   return axios.get(`${apiUrl}/api/v1/users/recent-movies`, { headers });
 }
 
+export async function getRecentlyAddedBooks() {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.get(`${apiUrl}/api/v1/users/recent-books`, { headers });
+}
+
 export async function getUsersFriends(userId: string) {
   const token = await getSessionToken();
   const headers = {

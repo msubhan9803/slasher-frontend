@@ -33,6 +33,7 @@ import { useAppSelector } from '../../redux/hooks';
 import { friendship } from '../../api/friends';
 import FriendshipStatusModal from '../../components/ui/friendShipCheckModal';
 import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
+import RecentlyAddedBooks from './RecentlyAddedBooks';
 import RecentlyAddedMovies from './RecentlyAddedMovies';
 // import DebugGoogleAnalytics from '../debug-google-analytics';
 
@@ -427,6 +428,8 @@ function Home() {
         <SuggestedFriend />
         <h1 className="h2 my-3 ms-3 ms-md-0">Recently added movies</h1>
         <RecentlyAddedMovies />
+        <h1 className="h2 my-3 ms-3 ms-md-0">Recently added books</h1>
+        <RecentlyAddedBooks />
         {
           errorMessage && errorMessage.length > 0 && (
             <div className="mt-3 text-start">

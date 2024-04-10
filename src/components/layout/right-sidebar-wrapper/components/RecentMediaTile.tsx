@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { Card } from 'react-bootstrap';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
 import RoundButton from '../../../ui/RoundButton';
 import LikeIconButton from '../../../ui/Poster/LikeIconButton';
 
@@ -23,6 +24,15 @@ const RatingDiv = styled.div`
   }
 `;
 
+const StyledPoster = styled.div`
+  aspect-ratio: 0.6;
+  img{
+    width: 9.650rem !important;
+    object-fit: cover;
+    box-shadow: 0 0 0 1px var(--poster-border-color);
+  }
+`;
+
 interface Props {
   className?: string;
   image: string;
@@ -32,10 +42,11 @@ interface Props {
   thumbRating?: number;
   numericRating?: number;
   id?: string;
+  isBook?: boolean;
 }
 
 function RecentMediaTile({
-  className, image, title, year, numericRating, thumbRating, id, addWatchListClick,
+  className, image, title, year, numericRating, thumbRating, id, addWatchListClick, isBook,
 }: Props) {
   const renderThumbIcon = (rating: number) => (
     <LikeIconButton
@@ -57,11 +68,13 @@ function RecentMediaTile({
 
   return (
     <Link
-      to={`/app/movies/${id}`}
+      to={isBook ? `/app/books/${id}` : `/app/movies/${id}`}
     >
       <div className={`${className}`}>
         <div className="position-relative">
-          <img alt={`Poster for ${title}`} src={image} className="img-fluid rounded-3" />
+          <StyledPoster>
+            <LazyLoadImage src={image} alt={`Poster for ${title}`} className="w-100 h-100 rounded-4" />
+          </StyledPoster>
         </div>
 
         <RatingSection className="mt-2 d-flex justify-content-between align-items-center">
@@ -92,7 +105,7 @@ function RecentMediaTile({
         </RatingSection>
 
         <RoundButton className="w-100 mt-2" onClick={(e: React.MouseEvent<HTMLButtonElement>) => onAddWatchListClick(e)}>
-          Add to watchlist
+          {isBook ? 'Add to readlist' : 'Add to watchlist'}
         </RoundButton>
       </div>
     </Link>
@@ -105,6 +118,7 @@ RecentMediaTile.defaultProps = {
   numericRating: null,
   thumbRating: null,
   id: undefined,
+  isBook: undefined,
 };
 
 export default RecentMediaTile;

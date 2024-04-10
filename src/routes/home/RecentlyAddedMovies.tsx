@@ -64,8 +64,7 @@ function RecentlyAddedMovies() {
     </div>
   );
 
-  const onCloseClick = (e: any, movieId: string) => {
-    e.preventDefault();
+  const removeMovieSuggestion = (movieId: string) => {
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
@@ -81,6 +80,11 @@ function RecentlyAddedMovies() {
     });
   };
 
+  const onCloseClick = (e: any, movieId: string) => {
+    e.preventDefault();
+    removeMovieSuggestion(movieId);
+  };
+
   const addWatchListClick = (movieId: string) => {
     if (abortControllerRef.current) {
       return;
@@ -91,12 +95,7 @@ function RecentlyAddedMovies() {
     addMovieUserStatus(movieId, 'Watch')
       .then((res) => {
         if (res.data.success) {
-          const newSuggestedMovie = suggestedMovies.filter((movie: any) => movie._id !== movieId);
-          if (newSuggestedMovie?.length) {
-            setSuggestedMovies(newSuggestedMovie);
-          } else {
-            getSuggestedMoviesList();
-          }
+          removeMovieSuggestion(movieId);
         }
       }).finally(() => {
         abortControllerRef.current = null;

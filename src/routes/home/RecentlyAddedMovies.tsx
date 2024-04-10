@@ -95,7 +95,12 @@ function RecentlyAddedMovies() {
     addMovieUserStatus(movieId, 'Watch')
       .then((res) => {
         if (res.data.success) {
-          removeMovieSuggestion(movieId);
+          const newSuggestedMovies = suggestedMovies.filter((movie: any) => movie._id !== movieId);
+          if (newSuggestedMovies?.length) {
+            setSuggestedMovies(newSuggestedMovies);
+          } else {
+            getSuggestedMoviesList();
+          }
         }
       }).finally(() => {
         abortControllerRef.current = null;

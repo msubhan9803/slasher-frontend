@@ -605,7 +605,7 @@ export class BooksService {
 
   async getRecentAddedBooks(user: UserDocument, limit: number) {
     const recentBlockBookIds = await this.getRecentBookBlock(user.id);
-    const readlistBookIds = await this.getReadListBookIdsForUser(user.id);
+    const readlistBookIds = await this.getReadingListBookIdsForUser(user.id);
     const idsToExclude = recentBlockBookIds.concat(
       readlistBookIds as any,
     );

@@ -1,5 +1,5 @@
 import React, {
-  useEffect, useLayoutEffect, useState,
+  useEffect, useLayoutEffect, useState, useMemo,
 } from 'react';
 import { Container } from 'react-bootstrap';
 import { useLocation, useParams } from 'react-router-dom';
@@ -14,8 +14,8 @@ import { enableDevFeatures } from '../../../env';
 
 function MovieDetails() {
   const location = useLocation();
-  const pageStateCache: MoviePageCache = getPageStateCache(location)
-    ?? { movieData: undefined, additionalMovieData: undefined };
+  // eslint-disable-next-line max-len
+  const pageStateCache = useMemo(() => getPageStateCache(location) ?? { movieData: undefined, additionalMovieData: undefined }, [location]);
 
   const params = useParams();
   const [movieData, setMovieData] = useState<MovieData | undefined>(
@@ -31,7 +31,7 @@ function MovieDetails() {
       setInitialDataLoadedFromCache(true);
       setMovieData(pageStateCache.movieData);
     }
-  }, [pageStateCache]);
+  }, [pageStateCache, location, initialDataLoadedFromCache]);
 
   useEffect(() => (() => {
     if (movieData) {
@@ -39,7 +39,7 @@ function MovieDetails() {
         ...getPageStateCache(location), movieData,
       });
     }
-  }), [movieData]);
+  }), [movieData, location]);
 
   useEffect(() => {
     if (params.id && (!movieData || movieData?.isUpdated)) {

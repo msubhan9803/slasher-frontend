@@ -444,6 +444,26 @@ export class UsersController {
     return this.friendsService.getSuggestedFriends(user, 7); // for now, always return 7
   }
 
+  @Get('recent-movies')
+  async recentMovies(@Req() request: Request) {
+    const user = getUserFromRequest(request);
+    const movies = await this.moviesService.getRecentAddedMovies(user, 10);
+
+    movies.forEach((movie) => {
+      if (movie.logo?.length > 1) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${movie.logo}`;
+      }
+      if (movie.logo === null) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
+      }
+    });
+    return movies.map(
+      (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating', 'worthWatching']),
+    );
+  }
+
   @Post('verification-email-not-received')
   @Public()
   @HttpCode(200)

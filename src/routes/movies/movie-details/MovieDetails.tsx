@@ -1,5 +1,5 @@
 import React, {
-  useEffect, useLayoutEffect, useState,
+  useEffect, useLayoutEffect, useState, useMemo,
 } from 'react';
 import { Container } from 'react-bootstrap';
 import { useLocation, useParams } from 'react-router-dom';
@@ -14,16 +14,33 @@ import { enableDevFeatures } from '../../../env';
 
 function MovieDetails() {
   const location = useLocation();
-  const pageStateCache: MoviePageCache = getPageStateCache(location)
-    ?? { movieData: undefined, additionalMovieData: undefined };
+  // eslint-disable-next-line max-len
+  const pageStateCache = useMemo(() => getPageStateCache(location) ?? { movieData: undefined, additionalMovieData: undefined }, [location]);
 
   const params = useParams();
   const [movieData, setMovieData] = useState<MovieData | undefined>(
     hasPageStateCache(location) ? pageStateCache.movieData : undefined,
   );
+  const [initialDataLoadedFromCache, setInitialDataLoadedFromCache] = useState(false);
   const [additionalMovieData, setAdditionalMovieData] = useState<AdditionalMovieData | undefined>(
     hasPageStateCache(location) ? pageStateCache.additionalMovieData : undefined,
   );
+
+  useEffect(() => {
+    if (hasPageStateCache(location) && !initialDataLoadedFromCache) {
+      setInitialDataLoadedFromCache(true);
+      setMovieData(pageStateCache.movieData);
+    }
+  }, [pageStateCache, location, initialDataLoadedFromCache]);
+
+  useEffect(() => (() => {
+    if (movieData) {
+      setPageStateCache<MoviePageCache>(location, {
+        ...getPageStateCache(location), movieData,
+      });
+    }
+  }), [movieData, location]);
+
   useEffect(() => {
     if (params.id && (!movieData || movieData?.isUpdated)) {
       getMoviesById(params.id)

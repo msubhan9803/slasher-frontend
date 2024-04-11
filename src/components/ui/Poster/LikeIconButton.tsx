@@ -30,7 +30,8 @@ const StyledLikeButton = styled.div<StyledLikeButtonProps>`
 }
 `;
 function LikeIconButton({
-  worthWatching, thumbsUpWidth, thumbsUpHeight, thumbsDownWidth, thumbsDownHeight,
+  worthWatching, thumbsUpWidth, thumbsUpHeight, thumbsDownWidth,
+  thumbsDownHeight, isRecentMediaTile,
 }: any) {
   return (
     <StyledLikeButton
@@ -38,7 +39,7 @@ function LikeIconButton({
       thumbsUpHeight={thumbsUpHeight}
       thumbsDownWidth={thumbsDownWidth}
       thumbsDownHeight={thumbsDownHeight}
-      className="align-items-center d-flex justify-content-center me-2 p-1 rounded-circle"
+      className={`align-items-center d-flex justify-content-center ${!isRecentMediaTile && 'me-2'} p-1 rounded-circle`}
     >
       <FontAwesomeIcon
         icon={worthWatching === WorthWatchingStatus.Up ? regular('thumbs-up') : regular('thumbs-down')}

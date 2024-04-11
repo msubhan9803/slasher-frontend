@@ -15,7 +15,7 @@ import * as stringSimilarity from 'string-similarity';
 import PostFooter from './PostFooter';
 import {
   CommentValue, LikeShareModalResourceName, Post, LikeShareModalTabName,
-  ReplyValue, WorthWatchingStatus, CommentsOrder, WorthReadingStatus,
+  ReplyValue, WorthWatchingStatus, CommentsOrder, WorthReadingStatus, PostType,
 } from '../../../../types';
 import LikeShareModal from '../../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
@@ -367,7 +367,16 @@ function PostFeed({
       return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
     }
     if (post.movieId) {
-      return `/app/movies/${post.movieId}/reviews/${post.id}`;
+      if (post.postType === PostType.MovieReview) {
+        return `/app/movies/${post.movieId._id}/reviews/${post.id}`;
+      }
+      return `/app/movies/${post.movieId._id}`;
+    }
+    if (post.bookId) {
+      if (post.postType === PostType.BookReview) {
+        return `/app/books/${post.bookId._id}/reviews/${post.id}`;
+      }
+      return `/app/books/${post.bookId._id}`;
     }
     return `/${post.userName}/posts/${post.id}`;
   };

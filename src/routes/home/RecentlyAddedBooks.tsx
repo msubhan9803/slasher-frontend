@@ -11,7 +11,7 @@ import {
   addBookUserStatus, removeSuggestedbook,
 } from '../../api/books';
 
-const StyleMovie = styled(Row)`
+const StyledBook = styled(Row)`
   overflow-x: auto;
   overflow-y: hidden;
   .casts-image { aspect-ratio: 1; }
@@ -130,15 +130,15 @@ function RecentlyAddedBooks() {
             <Button tabIndex={0} aria-label="chevron right icon" style={{ right: 0 }} className="position-absolute d-block p-0 next bg-transparent border-0" onClick={slideFriendRight}>
               <FontAwesomeIcon icon={solid('chevron-right')} size="lg" className="text-white" />
             </Button>
-            <StyleMovie
-              id="sliderMovie"
-              className="d-flex flex-nowrap w-100 mx-4 g-0"
+            <StyledBook
+              id="sliderBook"
+              className="d-flex flex-nowrap w-100 mx-4 g-0 pb-2"
               // style={{ maxWidth: isDesktopResponsiveSize ? '50vw' : '' }}
               tabIndex={-1}
             >
               {suggestedBooks?.map((book: any) => (
-                <Card key={book._id}>
-                  <div className="d-flex justify-content-center position-relative py-2">
+                <Card key={book._id} className="p-2">
+                  <div className="d-flex justify-content-center position-relative">
                     <Button variant="link" className="position-absolute p-0 px-2 py-1" style={{ right: '0', zIndex: 999 }} onClick={(e: any) => onCloseClick(e, book?._id)}>
                       <FontAwesomeIcon icon={solid('xmark')} size="lg" />
                       <span className="visually-hidden">Dismiss suggestion</span>
@@ -156,7 +156,7 @@ function RecentlyAddedBooks() {
                   </div>
                 </Card>
               ))}
-            </StyleMovie>
+            </StyledBook>
           </div>
         </div>
       )}

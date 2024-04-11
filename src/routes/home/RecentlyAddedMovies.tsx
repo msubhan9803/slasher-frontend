@@ -130,13 +130,13 @@ function RecentlyAddedMovies() {
             </Button>
             <StyleMovie
               id="sliderMovie"
-              className="d-flex flex-nowrap w-100 mx-4 g-0"
+              className="d-flex flex-nowrap w-100 mx-4 g-0 pb-2"
               // style={{ maxWidth: isDesktopResponsiveSize ? '50vw' : '' }}
               tabIndex={-1}
             >
               {suggestedMovies?.map((movie: any) => (
-                <Card key={movie._id}>
-                  <div className="d-flex justify-content-center position-relative py-2">
+                <Card key={movie._id} className="p-2">
+                  <div className="d-flex justify-content-center position-relative">
                     <Button variant="link" className="position-absolute p-0 px-2 py-1" style={{ right: '0', zIndex: 999 }} onClick={(e: any) => onCloseClick(e, movie?._id)}>
                       <FontAwesomeIcon icon={solid('xmark')} size="lg" />
                       <span className="visually-hidden">Dismiss suggestion</span>

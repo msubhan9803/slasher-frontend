@@ -55,6 +55,7 @@ function RecentMediaTile({
       thumbsUpHeight="0.805rem"
       thumbsDownWidth="0.804rem"
       thumbsDownHeight="0.805rem"
+      isRecentMediaTile
     />
   );
 

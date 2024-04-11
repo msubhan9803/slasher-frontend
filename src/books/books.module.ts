@@ -10,6 +10,7 @@ import { BookUserStatusModule } from '../book-user-status/book.user.status.modul
 import { addPrePostHooks } from '../schemas/book/book.pre-post-hooks';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
+import { RecentBookBlock, RecentBookBlockSchema } from '../schemas/recentBookBlock/recentBookBlock.schema';
 
 @Global()
 @Module({
@@ -26,6 +27,7 @@ import { LocalStorageService } from '../local-storage/providers/local-storage.se
     ]),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: BookUserStatus.name, schema: BookUserStatusSchema }]),
+    MongooseModule.forFeature([{ name: RecentBookBlock.name, schema: RecentBookBlockSchema }]),
     HttpModule,
     BookUserStatusModule,
   ],

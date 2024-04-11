@@ -106,7 +106,7 @@ function RecentMediaTile({
         </RatingSection>
 
         <RoundButton className="w-100 mt-2" onClick={(e: React.MouseEvent<HTMLButtonElement>) => onAddWatchListClick(e)}>
-          {isBook ? '+ reading list' : '+ watch list'}
+          {isBook ? '+ Reading list' : '+ Watch list'}
         </RoundButton>
       </div>
     </Link>

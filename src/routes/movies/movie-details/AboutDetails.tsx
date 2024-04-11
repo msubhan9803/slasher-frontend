@@ -21,7 +21,7 @@ import { updateMovieUserData } from '../components/updateMovieDataUtils';
 import { urlForMovie } from '../../../utils/url-utils';
 import { generateAmazonAffiliateLinkForMovie } from '../../../utils/text-utils';
 
-const StyleWatchWorthIcon = styled(FontAwesomeIcon)`
+export const StyleWatchWorthIcon = styled(FontAwesomeIcon)`
   width: 0.995rem;
   height: 0.997rem;
 `;
@@ -235,7 +235,7 @@ function AboutDetails({
                 iconClass="me-2"
                 iconStyle={{ color: hasRating ? 'var(--bs-orange)' : 'white' }}
                 iconSize="sm"
-                lable={hasRating ? String(movieData.userData ? movieData.userData?.rating : 'Rate') : 'Rate'}
+                lable={hasRating ? String((movieData.userData && movieData.userData?.rating) ? movieData.userData?.rating : 'Rate') : 'Rate'}
                 handleClick={() => { setShowRating(true); setShowReviewForm!(false); }}
               />
             </div>
@@ -307,7 +307,7 @@ function AboutDetails({
                 icon={solid('burst')}
                 iconClass={`me-2 ${hasGoreFactor ? 'text-primary' : ''}`}
                 iconSize="sm"
-                lable={hasGoreFactor ? String(movieData.userData ? movieData.userData?.goreFactorRating : 'Rate') : 'Rate'}
+                lable={hasGoreFactor ? String((movieData.userData && movieData.userData?.goreFactorRating) ? movieData.userData?.goreFactorRating : 'Rate') : 'Rate'}
                 handleClick={() => { setShowGoreRating(true); setShowReviewForm!(false); }}
               />
             </div>

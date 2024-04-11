@@ -43,7 +43,7 @@ interface Props {
   year?: number;
   thumbRating?: number;
   numericRating?: number;
-  id?:string;
+  id?: string;
 }
 
 function WatchListItem({
@@ -66,12 +66,12 @@ function WatchListItem({
           <img alt={`Poster for ${title}`} src={image} className="img-fluid rounded-3" />
           {
             numericRating
-            && (
-              <StarLabel className="position-absolute badge rounded-pill text-black bg-white">
-                <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" size="xs" />
-                {numericRating}
-              </StarLabel>
-            )
+              ? (
+                <StarLabel className="position-absolute badge rounded-pill text-black bg-white">
+                  <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" size="xs" />
+                  {numericRating}
+                </StarLabel>
+              ) : null
           }
         </div>
         {

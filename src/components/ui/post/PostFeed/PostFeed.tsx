@@ -140,6 +140,8 @@ const StyledContentContainer = styled.div<StyledProps>`
       -webkit-line-clamp: 4;
     `}
     cursor: ${(props) => (!props?.detailsPage ? 'pointer' : 'auto')};
+    word-wrap: break-word;
+    word-break: break-all;
     span {
       cursor: pointer
     }

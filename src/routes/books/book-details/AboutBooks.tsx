@@ -140,14 +140,15 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
   useEffect(() => {
     const updateBookIconList = () => {
       if (bookIdList) {
-        BookIconList.forEach((bookIcon) => {
+        const updatedBookIconList = BookIconList.map((bookIcon) => {
           const { key } = bookIcon;
           if (key in bookIdList) {
             // eslint-disable-next-line no-param-reassign
             bookIcon.addBook = !!bookIdList[key];
           }
+          return bookIcon;
         });
-        setBookIconListData(BookIconList);
+        setBookIconListData(updatedBookIconList);
       }
     };
     updateBookIconList();

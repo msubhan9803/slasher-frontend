@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable max-len */
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, {
+  useEffect, useLayoutEffect, useMemo, useState,
+} from 'react';
 import { Container } from 'react-bootstrap';
 import { useLocation, useParams } from 'react-router-dom';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
@@ -20,12 +22,12 @@ import SticyBannerAdSpaceCompensation from '../../../components/SticyBannerAdSpa
 
 function BookDetails() {
   const location = useLocation();
-  const pageStateCache: BookPageCache = getPageStateCache(location)
-    ?? { bookData: undefined, additionalBookData: undefined };
+  const pageStateCache = useMemo(() => getPageStateCache(location) ?? { bookData: undefined, additionalBookData: undefined }, [location]);
   const params = useParams();
   const [bookData, setBookData] = useState<BookData | undefined>(
     hasPageStateCache(location) ? pageStateCache.bookData : undefined,
   );
+  const [initialDataLoadedFromCache, setInitialDataLoadedFromCache] = useState(false);
 
   useEffect(() => {
     if (params.id && (!bookData || bookData?.isUpdated)) {
@@ -46,6 +48,21 @@ function BookDetails() {
       behavior: 'instant' as any,
     });
   }, []);
+
+  useEffect(() => {
+    if (hasPageStateCache(location) && !initialDataLoadedFromCache) {
+      setInitialDataLoadedFromCache(true);
+      setBookData(pageStateCache.bookData);
+    }
+  }, [pageStateCache, location, initialDataLoadedFromCache]);
+
+  useEffect(() => (() => {
+    if (bookData) {
+      setPageStateCache<BookPageCache>(location, {
+        ...getPageStateCache(location), bookData,
+      });
+    }
+  }), [bookData, location]);
 
   if (!bookData) {
     return <LoadingIndicator />;

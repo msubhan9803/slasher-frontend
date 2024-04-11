@@ -104,3 +104,11 @@ export async function deleteBookUserStatus(id: string, category: string) {
   };
   return axios.delete(`${apiUrl}/api/v1/books/${id}/lists/${category}`, { headers });
 }
+
+export async function removeSuggestedbook(bookId: string) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.post(`${apiUrl}/api/v1/books/recent/block`, { bookId }, { headers });
+}

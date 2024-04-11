@@ -5,11 +5,13 @@ import { Button, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import { DateTime } from 'luxon';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
-import { addMovieUserStatus, removeSuggestedMovie } from '../../api/movies';
-import { getRecentlyAddedMovies } from '../../api/users';
+import { getRecentlyAddedBooks } from '../../api/users';
 import RecentMediaTile from '../../components/layout/right-sidebar-wrapper/components/RecentMediaTile';
+import {
+  addBookUserStatus, removeSuggestedbook,
+} from '../../api/books';
 
-const StyleMovie = styled(Row)`
+const StyledBook = styled(Row)`
   overflow-x: auto;
   overflow-y: hidden;
   .casts-image { aspect-ratio: 1; }
@@ -26,22 +28,22 @@ const LoadingIndicatorSpacer = styled.div`
   height:12.857rem;
 `;
 
-function RecentlyAddedMovies() {
+function RecentlyAddedBooks() {
   const abortControllerRef = useRef<AbortController | null>();
-  const [suggestedMovies, setSuggestedMovies] = useState([]);
+  const [suggestedBooks, setSuggestedBooks] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const getSuggestedMoviesList = () => {
+  const getSuggestedBooksList = () => {
     setLoading(true);
-    getRecentlyAddedMovies().then((res) => {
-      setSuggestedMovies(res.data);
+    getRecentlyAddedBooks().then((res) => {
+      setSuggestedBooks(res.data);
     }).finally(() => {
       setLoading(false);
     });
   };
 
   useEffect(() => {
-    getSuggestedMoviesList();
+    getSuggestedBooksList();
   }, []);
 
   const slideFriendRight = () => {
@@ -60,46 +62,46 @@ function RecentlyAddedMovies() {
 
   const renderNoSuggestionsAvailable = () => (
     <div className="ms-3 ms-md-0" style={{ marginBottom: 50 }}>
-      No movie suggestions available right now, but check back later for more!
+      No book suggestions available right now, but check back later for more!
     </div>
   );
 
-  const removeMovieSuggestion = (movieId: string) => {
+  const removeBookSuggestion = (bookId: string) => {
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
-    removeSuggestedMovie(movieId).then(() => {
-      const newSuggestedMovies = suggestedMovies.filter((movie: any) => movie._id !== movieId);
-      if (newSuggestedMovies?.length) {
-        setSuggestedMovies(newSuggestedMovies);
+    removeSuggestedbook(bookId).then(() => {
+      const newSuggestedBooks = suggestedBooks.filter((book: any) => book._id !== bookId);
+      if (newSuggestedBooks?.length) {
+        setSuggestedBooks(newSuggestedBooks);
       } else {
-        getSuggestedMoviesList();
+        getSuggestedBooksList();
       }
     }).finally(() => {
       abortControllerRef.current = null;
     });
   };
 
-  const onCloseClick = (e: any, movieId: string) => {
+  const onCloseClick = (e: any, bookId: string) => {
     e.preventDefault();
-    removeMovieSuggestion(movieId);
+    removeBookSuggestion(bookId);
   };
 
-  const addWatchListClick = (movieId: string) => {
+  const addWatchListClick = (bookId: string) => {
     if (abortControllerRef.current) {
       return;
     }
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
-    addMovieUserStatus(movieId, 'Watch')
+    addBookUserStatus(bookId, 'readingList')
       .then((res) => {
         if (res.data.success) {
-          const newSuggestedMovies = suggestedMovies.filter((movie: any) => movie._id !== movieId);
-          if (newSuggestedMovies?.length) {
-            setSuggestedMovies(newSuggestedMovies);
+          const newSuggestedBooks = suggestedBooks.filter((book: any) => book._id !== bookId);
+          if (newSuggestedBooks?.length) {
+            setSuggestedBooks(newSuggestedBooks);
           } else {
-            getSuggestedMoviesList();
+            getSuggestedBooksList();
           }
         }
       }).finally(() => {
@@ -119,7 +121,7 @@ function RecentlyAddedMovies() {
 
   return (
     <div>
-      {!suggestedMovies || suggestedMovies.length === 0 ? renderNoSuggestionsAvailable() : (
+      {!suggestedBooks || suggestedBooks.length === 0 ? renderNoSuggestionsAvailable() : (
         <div className="p-md-3 pt-md-1 rounded-2">
           <div className="d-flex align-items-center position-relative">
             <Button tabIndex={0} aria-label="chevron left icon" className="position-absolute d-block p-0 prev bg-transparent border-0" onClick={slideFriendLeft}>
@@ -128,32 +130,33 @@ function RecentlyAddedMovies() {
             <Button tabIndex={0} aria-label="chevron right icon" style={{ right: 0 }} className="position-absolute d-block p-0 next bg-transparent border-0" onClick={slideFriendRight}>
               <FontAwesomeIcon icon={solid('chevron-right')} size="lg" className="text-white" />
             </Button>
-            <StyleMovie
-              id="sliderMovie"
+            <StyledBook
+              id="sliderBook"
               className="d-flex flex-nowrap w-100 mx-4 g-0 pb-2"
               // style={{ maxWidth: isDesktopResponsiveSize ? '50vw' : '' }}
               tabIndex={-1}
             >
-              {suggestedMovies?.map((movie: any) => (
-                <Card key={movie._id} className="p-2">
+              {suggestedBooks?.map((book: any) => (
+                <Card key={book._id} className="p-2">
                   <div className="d-flex justify-content-center position-relative">
-                    <Button variant="link" className="position-absolute p-0 px-2 py-1" style={{ right: '0', zIndex: 999 }} onClick={(e: any) => onCloseClick(e, movie?._id)}>
+                    <Button variant="link" className="position-absolute p-0 px-2 py-1" style={{ right: '0', zIndex: 999 }} onClick={(e: any) => onCloseClick(e, book?._id)}>
                       <FontAwesomeIcon icon={solid('xmark')} size="lg" />
                       <span className="visually-hidden">Dismiss suggestion</span>
                     </Button>
                     <RecentMediaTile
-                      image={movie.logo}
-                      title={movie.name}
-                      year={+DateTime.fromISO(movie.releaseDate).toFormat('yyyy')}
-                      numericRating={movie.rating}
-                      thumbRating={movie.worthWatching}
-                      id={movie._id}
+                      image={book.coverImage.image_path}
+                      title={book.name}
+                      year={+DateTime.fromISO(book.publishDate).toFormat('yyyy')}
+                      numericRating={book?.rating}
+                      thumbRating={book?.worthReading}
+                      id={book._id}
                       addWatchListClick={addWatchListClick}
+                      isBook
                     />
                   </div>
                 </Card>
               ))}
-            </StyleMovie>
+            </StyledBook>
           </div>
         </div>
       )}
@@ -161,4 +164,4 @@ function RecentlyAddedMovies() {
   );
 }
 
-export default RecentlyAddedMovies;
+export default RecentlyAddedBooks;

@@ -163,14 +163,15 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
   useEffect(() => {
     const updateMovieIconList = () => {
       if (movieIdList) {
-        MovieIconList.forEach((movieIcon) => {
+        const updatedMovieIconList = MovieIconList.map((movieIcon) => {
           const { key } = movieIcon;
           if (key in movieIdList) {
             // eslint-disable-next-line no-param-reassign
             movieIcon.addMovie = !!movieIdList[key];
           }
+          return movieIcon;
         });
-        setMovieIconListData(MovieIconList);
+        setMovieIconListData(updatedMovieIconList);
       }
     };
     updateMovieIconList();

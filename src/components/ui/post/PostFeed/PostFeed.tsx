@@ -141,12 +141,14 @@ const StyledContentContainer = styled.div<StyledProps>`
     `}
     cursor: ${(props) => (!props?.detailsPage ? 'pointer' : 'auto')};
     word-wrap: break-word;
-    word-break: break-all;
+    word-break: break-word;
     span {
       cursor: pointer
     }
     a {
       display: inline-block;
+      word-wrap: break-word;
+      word-break: break-all;
     }
   `;
 type PostContentPropsType = {

@@ -1,11 +1,13 @@
 /* eslint-disable max-lines */
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { lastValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { DateTime } from 'luxon';
+import { UserDocument } from 'src/schemas/user/user.schema';
+import { RecentMovieBlock, RecentMovieBlockDocument } from '../../schemas/recentMovieBlock/recentMovieBlock.schema';
 import { Movie, MovieDocument } from '../../schemas/movie/movie.schema';
 
 import { MovieActiveStatus, MovieDeletionStatus, MovieType } from '../../schemas/movie/movie.enums';
@@ -20,9 +22,9 @@ import {
   MovieUserStatusBuy, MovieUserStatusFavorites,
   MovieUserStatusWatch, MovieUserStatusWatched,
 } from '../../schemas/movieUserStatus/movieUserStatus.enums';
-import { WorthWatchingStatus } from '../../types';
+import { MovieListType, WorthWatchingStatus } from '../../types';
 import { NON_ALPHANUMERIC_REGEX } from '../../constants';
-import { getSortSafeWeightedRatingOfMovie } from '../../schemas/movie/movie.pre-post-hooks';
+import { RecentMovieBlockReaction } from '../../schemas/recentMovieBlock/recentMovieBlock.enums';
 
 export interface Cast {
   'adult': boolean,
@@ -126,17 +128,35 @@ export interface MainData {
   'production_companies': ProductionCompanies[],
 }
 
+type CrewData = {
+  adult: boolean,
+  gender: any,
+  id: number,
+  known_for_department: string,
+  name: string,
+  original_name: string,
+  popularity: 0.6,
+  profile_path: null,
+  credit_id: string,
+  department: string,
+  job: string
+};
+
 export interface MovieDbData {
   cast: Cast[],
   video: VideoData,
   mainData: MainData,
+  crew: CrewData[],
 }
 
 @Injectable()
 export class MoviesService {
+  private readonly logger = new Logger(MoviesService.name);
+
   constructor(
     @InjectModel(Movie.name) private moviesModel: Model<MovieDocument>,
     @InjectModel(MovieUserStatus.name) private movieUserStatusModel: Model<MovieUserStatusDocument>,
+    @InjectModel(RecentMovieBlock.name) private recentMovieBlockModel: Model<RecentMovieBlockDocument>,
     private httpService: HttpService,
     private configService: ConfigService,
   ) { }
@@ -384,6 +404,75 @@ export class MoviesService {
       .exec();
   }
 
+  async recentlyAdded(
+    limit: number,
+    activeOnly: boolean,
+    sortBy?: 'name' | 'releaseDate' | 'rating',
+    after?: mongoose.Types.ObjectId,
+    nameContains?: string,
+    movieIdsIn?: mongoose.Types.ObjectId[],
+    sortNameStartsWith?: string,
+  ): Promise<MovieDocument[]> {
+    const movieFindAllQuery: any = {
+      type: MovieType.MovieDb,
+      createdAt: {
+        $gte: DateTime.now().minus({ days: 30 }),
+        $lte: DateTime.now(),
+      },
+    };
+    if (movieIdsIn) {
+      movieFindAllQuery._id = { $in: movieIdsIn };
+    }
+    if (activeOnly) {
+      movieFindAllQuery.deleted = MovieDeletionStatus.NotDeleted;
+      movieFindAllQuery.status = MovieActiveStatus.Active;
+    }
+    if (after && sortBy === 'name') {
+      const afterMovie = await this.moviesModel.findById(after);
+      movieFindAllQuery.sort_name = { ...movieFindAllQuery.sort_name, $gt: afterMovie.sort_name };
+    }
+    if (after && sortBy === 'releaseDate') {
+      const afterMovie = await this.moviesModel.findById(after);
+      movieFindAllQuery.sortReleaseDate = { $lt: afterMovie.sortReleaseDate };
+    }
+    if (after && sortBy === 'rating') {
+      const afterMovie = await this.moviesModel.findById(after);
+      movieFindAllQuery.sortRatingAndRatingUsersCount = { $lt: afterMovie.sortRatingAndRatingUsersCount };
+    }
+    if (nameContains) {
+      movieFindAllQuery.name = {};
+      movieFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');
+    }
+    if (sortNameStartsWith) {
+      let combinedRegex = '';
+      if (nameContains) {
+        movieFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');
+      }
+      if (sortNameStartsWith && sortNameStartsWith !== '#') {
+        movieFindAllQuery.sort_name = movieFindAllQuery.sort_name || {};
+        combinedRegex = `^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`;
+        movieFindAllQuery.sort_name.$regex = new RegExp(combinedRegex, 'i');
+      } else if (sortNameStartsWith === '#') {
+        combinedRegex = NON_ALPHANUMERIC_REGEX.source;
+        movieFindAllQuery.name = movieFindAllQuery.name || {};
+        movieFindAllQuery.name.$regex = new RegExp(combinedRegex, 'i');
+      }
+    }
+
+    let sortMovies: any = { createdAt: -1 };
+    if (sortBy === 'name') {
+      sortMovies = { sort_name: 1 };
+    } else if (sortBy === 'releaseDate') {
+      sortMovies = { sortReleaseDate: -1 };
+    } else if (sortBy === 'rating') {
+      sortMovies = { sortRatingAndRatingUsersCount: -1 };
+    }
+    return this.moviesModel.find(movieFindAllQuery)
+      .sort(sortMovies)
+      .limit(limit)
+      .exec();
+  }
+
   async syncWithTheMovieDb(startYear: number, endYear: number): Promise<ReturnMovieDb> {
     try {
       // Fetch the max year data limit
@@ -521,7 +610,8 @@ export class MoviesService {
 
   async fetchMovieDbData(movieDbId: number): Promise<MovieDbData> {
     const movieDbApiKey = this.configService.get<string>('MOVIE_DB_API_KEY');
-    const [castAndCrewData, videoData, mainDetails, configDetails]: any = await Promise.all([
+
+    const [castAndCrewDataSettled, videoDataSettled, mainDetailsSettled, configDetailsSettled]: any = await Promise.allSettled([
       lastValueFrom(this.httpService.get<MovieDbData>(
         `https://api.themoviedb.org/3/movie/${movieDbId}/credits?api_key=${movieDbApiKey}&language=en-US`,
       )),
@@ -536,6 +626,27 @@ export class MoviesService {
       )),
     ]);
 
+    let castAndCrewData;
+    let videoData;
+    let mainDetails;
+    const configDetails = configDetailsSettled.value;
+
+    if (castAndCrewDataSettled.status === 'fulfilled') {
+      castAndCrewData = castAndCrewDataSettled.value;
+    } else {
+      this.logger.error('Failed to load `castAndCrewData` for movieDbId:', movieDbId);
+    }
+    if (videoDataSettled.status === 'fulfilled') {
+      videoData = videoDataSettled.value;
+    } else {
+      this.logger.error('Failed to load `videoData` for movieDbId:', movieDbId);
+    }
+    if (mainDetailsSettled.status === 'fulfilled') {
+      mainDetails = mainDetailsSettled.value;
+    } else {
+      this.logger.error('Failed to load `mainDetails` for movieDbId:', movieDbId);
+    }
+
     const mainData = JSON.parse(JSON.stringify(mainDetails.data));
     if (mainData.poster_path) {
       // eslint-disable-next-line no-param-reassign
@@ -545,7 +656,15 @@ export class MoviesService {
       mainData.poster_path = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
     }
     const secureBaseUrl = `${configDetails.data.images.secure_base_url}w185`;
-    const cast = JSON.parse(JSON.stringify(castAndCrewData.data.cast));
+    const cast = JSON.parse(JSON.stringify(castAndCrewData?.data?.cast || []));
+    const crew = JSON.parse(JSON.stringify(castAndCrewData?.data?.crew || []));
+
+    const expectedCrewValues: CrewData[] = [];
+    crew.forEach((crewMember) => {
+      if (crewMember?.job?.toLowerCase() === 'director') {
+        expectedCrewValues.push(crewMember);
+      }
+    });
 
     cast.forEach((profile) => {
       if (profile.profile_path) {
@@ -585,6 +704,7 @@ export class MoviesService {
       cast: expectedCastValues,
       video: expectedVideosValues,
       mainData: expectedMainData,
+      crew: expectedCrewValues,
     };
   }
 
@@ -620,59 +740,60 @@ export class MoviesService {
     return favoriteMovieIdArray as unknown as MovieUserStatusDocument[];
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  async testFunction() {
-    // eslint-disable-next-line no-console
-    console.log('hello');
-    let i = 1;
-    // let CONTINUE = true;
-    // let sum = 0;
-    // let numOfItems  = 0;
-    // eslint-disable-next-line no-unreachable-loop
-    for await (
-      const doc of this.moviesModel
-        .find()
-        .cursor()
-    ) {
-      // 5da965d801651524ded15c88
-      // console.log(i);
-      // eslint-disable-next-line no-plusplus
-      i++;
-      // if (doc._id.toString() === '5def446422f6901701a95145') {
-      //   CONTINUE = false;
-      // }
+  async getMovieListCountForUser(userId: string, type: MovieListType): Promise<number> {
+    let count = 0;
 
-      // if (CONTINUE) { continue; }
-      // if (i === 10) { break; }
-      if ((i % 1000) === 0) {
-        // eslint-disable-next-line no-console
-        console.log('items processed?', i);
-      }
-      // const ratingUsersCount = await this.getRatingUsersCount(doc._id.toString());
-      // const kk = generateSortRatingAndRatingUsersCount(doc.rating, ratingUsersCount, doc._id.toString());
-      // const kk = generateSortRatingAndRatingUsersCount(doc.rating, doc.ratingUsersCount, doc._id.toString());
-      // console.log(kk);
-      // doc.ratingUsersCount = ratingUsersCount;
-      // doc.sortRatingAndRatingUsersCount = kk;
-
-      // Deleting field (make sure field is not defined in schema)
-      // doc.set('sortRatingAndRatingUsersCount', undefined, { strict: false });
-
-      const sortSafeWeightedRating = getSortSafeWeightedRatingOfMovie(doc.rating, doc.ratingUsersCount);
-      const kk = `${sortSafeWeightedRating}_${doc._id.toString()}`;
-      // console.log('kk?', kk);
-      doc.sortRatingAndRatingUsersCount = kk;
-      await doc.save();
-
-      // return;
-      // return doc;
-      // sum += doc.rating;
-      // numOfItems += 1;
-      // console.log('sum?', sum);
+    if (type === 'watch') {
+      count = await this.movieUserStatusModel
+        .find({ userId: new mongoose.Types.ObjectId(userId), watch: MovieUserStatusWatch.Watch }, { movieId: 1, _id: 0 })
+        .count();
     }
-    // const avg = (sum / numOfItems).toFixed(2);
-    // console.log('sum?', sum);
-    // console.log('numOfItems?', numOfItems);
-    // console.log('avg?', avg);
+    if (type === 'watched') {
+      count = await this.movieUserStatusModel
+        .find({ userId: new mongoose.Types.ObjectId(userId), watched: MovieUserStatusWatched.Watched }, { movieId: 1, _id: 0 })
+        .count();
+    }
+    if (type === 'favorite') {
+      count = await this.movieUserStatusModel
+        .find({ userId: new mongoose.Types.ObjectId(userId), favourite: MovieUserStatusFavorites.Favorite }, { movieId: 1, _id: 0 })
+        .count();
+    }
+    if (type === 'buy') {
+      count = await this.movieUserStatusModel
+        .find({ userId: new mongoose.Types.ObjectId(userId), buy: MovieUserStatusBuy.Buy }, { movieId: 1, _id: 0 })
+        .count();
+    }
+    return count;
+  }
+
+  async createRecentMovieBlock(fromUserId: string, movieId: string): Promise<void> {
+    const updateBody = {
+      from: new mongoose.Types.ObjectId(fromUserId),
+      movieId: new mongoose.Types.ObjectId(movieId),
+    };
+    await this.recentMovieBlockModel.findOneAndUpdate(updateBody, { $set: { reaction: RecentMovieBlockReaction.Block } }, { upsert: true });
+  }
+
+  async getRecentMovieBlock(fromUserId: string): Promise<Partial<Movie[]>> {
+    const fromAndBlockQuery = {
+      from: new mongoose.Types.ObjectId(fromUserId),
+      reaction: RecentMovieBlockReaction.Block,
+    };
+    const movieBlock = await this.recentMovieBlockModel.find(fromAndBlockQuery).select('movieId');
+    return movieBlock.map((data) => data.movieId);
+  }
+
+  async getRecentAddedMovies(user: UserDocument, limit: number) {
+    const recentBlockMovieIds = await this.getRecentMovieBlock(user.id);
+    const watchlistMovieIds = await this.getWatchListMovieIdsForUser(user.id);
+    const idsToExclude = recentBlockMovieIds.concat(
+      watchlistMovieIds as any,
+    );
+    return this.moviesModel.find(
+      { _id: { $nin: idsToExclude }, logo: { $ne: null } },
+    )
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .exec();
   }
 }

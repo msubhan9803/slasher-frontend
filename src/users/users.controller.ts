@@ -83,6 +83,8 @@ import { ConfirmDeleteAccountQueryDto } from './dto/confirm-delete-account-query
 import { FeedCommentsService } from '../feed-comments/providers/feed-comments.service';
 import { BooksService } from '../books/providers/books.service';
 import { FindAllBooksDto } from '../books/dto/find-all-books.dto';
+import { MovieListTypeDto } from '../movies/dto/movie-list-type-dto';
+import { BookListTypeDto } from '../books/dto/book-list-type-dto';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -442,6 +444,38 @@ export class UsersController {
     return this.friendsService.getSuggestedFriends(user, 7); // for now, always return 7
   }
 
+  @Get('recent-movies')
+  async recentMovies(@Req() request: Request) {
+    const user = getUserFromRequest(request);
+    const movies = await this.moviesService.getRecentAddedMovies(user, 10);
+
+    movies.forEach((movie) => {
+      if (movie.logo?.length > 1) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${movie.logo}`;
+      }
+      if (movie.logo === null) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
+      }
+    });
+    return movies.map(
+      (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating', 'worthWatching']),
+    );
+  }
+
+  @TransformImageUrls('$[*].coverImage.image_path')
+  @Get('recent-books')
+  async recentBooks(@Req() request: Request) {
+    const user = getUserFromRequest(request);
+    const books = await this.booksService.getRecentAddedBooks(user, 10);
+
+    return books.map((bookData) => pick(
+      bookData,
+      ['_id', 'name', 'publishDate', 'coverImage', 'rating', 'worthReading'],
+    ));
+  }
+
   @Post('verification-email-not-received')
   @Public()
   @HttpCode(200)
@@ -543,6 +577,7 @@ export class UsersController {
     const imagesCount = await this.feedPostsService.getAllPostsImagesCountByUser(user.id);
     const postsCount = await this.feedPostsService.getFeedPostsCountByUser(user.id);
     const friendsCount = await this.friendsService.getActiveFriendCount(user.id, [FriendRequestReaction.Accepted]);
+    const watchedListMovieCount = await this.moviesService.getMovieListCountForUser(user.id, 'watched');
 
     const pickFields = ['_id', 'firstName', 'userName', 'profilePic', 'coverPhoto', 'aboutMe', 'profile_status'];
 
@@ -558,6 +593,7 @@ export class UsersController {
       imagesCount,
       postsCount,
       friendsCount,
+      watchedListMovieCount,
     };
   }
 
@@ -615,16 +651,11 @@ export class UsersController {
           );
         }
       }
-      const existingUserName = await this.usersService.findExistingUserName(updateUserDto.userName);
-      if (existingUserName.length) {
-        await this.usersService.findAndUpdatePreviousUserName(user.userName, updateUserDto.userName);
-      } else {
-        additionalFieldsToUpdate.userName = updateUserDto.userName;
-        additionalFieldsToUpdate.previousUserName = user.previousUserName ? user.previousUserName : [];
-        additionalFieldsToUpdate.previousUserName.push(user.userName);
-      }
+      additionalFieldsToUpdate.userName = updateUserDto.userName;
+      additionalFieldsToUpdate.previousUserName = user.previousUserName ? user.previousUserName : [];
+      additionalFieldsToUpdate.previousUserName.push(user.userName);
+      additionalFieldsToUpdate.lastUserNameUpdatedAt = new Date();
     }
-    additionalFieldsToUpdate.lastUserNameUpdatedAt = new Date();
 
     if (updateUserDto.email && updateUserDto.email !== user.email) {
       // Check if new email address is already used by another account. If so, throw exception.
@@ -724,7 +755,7 @@ export class UsersController {
     return { profilePic: user.profilePic };
   }
 
-  @TransformImageUrls('$[*].images[*].image_path', '$[*].userId.profilePic')
+  @TransformImageUrls('$[*].images[*].image_path', '$[*].userId.profilePic', '$[*].bookId.coverImage.image_path')
   @Get(':userId/posts')
   async allFeedPosts(
     @Req() request: Request,
@@ -763,10 +794,10 @@ export class UsersController {
 
     return feedPosts.map(
       (post) => pick(
-post,
+        post,
         ['_id', 'message', 'images', 'userId', 'createdAt',
-          'likedByUser', 'likeCount', 'commentCount', 'movieId', 'hashtags'],
-),
+          'likedByUser', 'likeCount', 'commentCount', 'movieId', 'hashtags', 'bookId', 'postType'],
+      ),
     );
   }
 
@@ -1022,6 +1053,40 @@ post,
     return movies.map(
       (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating', 'worthWatching']),
     );
+  }
+
+  @Get(':userId/movie-list-count')
+  async getMovieListCount(
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: MovieListTypeDto,
+  ) {
+    const user = await this.usersService.findById(param.userId, true);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const { type } = query;
+    const count = await this.moviesService.getMovieListCountForUser(user.id, type);
+
+    return count;
+  }
+
+  @Get(':userId/book-list-count')
+  async getBookListCount(
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: BookListTypeDto,
+  ) {
+    const user = await this.usersService.findById(param.userId, true);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const { type } = query;
+    const count = await this.booksService.getBookListCountForUser(user.id, type);
+
+    return count;
   }
 
   @TransformImageUrls('$[*].coverImage.image_path')

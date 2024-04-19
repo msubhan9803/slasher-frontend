@@ -12,6 +12,9 @@ import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 import { DateTime, Duration } from 'luxon';
 import async from 'async';
+import { RecentBookBlock, RecentBookBlockDocument } from '../../schemas/recentBookBlock/recentBookBlock.schema';
+import { RecentBookBlockReaction } from '../../schemas/recentBookBlock/recentBookBlock.enums';
+import { UserDocument } from '../../schemas/user/user.schema';
 import { BookActiveStatus, BookDeletionState, BookType } from '../../schemas/book/book.enums';
 import { Book, BookDocument } from '../../schemas/book/book.schema';
 import { NON_ALPHANUMERIC_REGEX } from '../../constants';
@@ -20,7 +23,9 @@ import {
   BookUserStatusBuy, BookUserStatusFavorites, BookUserStatusRead, BookUserStatusReadingList,
 } from '../../schemas/bookUserStatus/bookUserStatus.enums';
 import { escapeStringForRegex } from '../../utils/escape-utils';
-import { BookKeysFromOpenLibrary, BookFromOpenLibrary, WorthReadingStatus } from '../../types';
+import {
+  BookKeysFromOpenLibrary, BookFromOpenLibrary, WorthReadingStatus, BookListType,
+} from '../../types';
 import { S3StorageService } from '../../local-storage/providers/s3-storage.service';
 import { getCoverImageForBookOfOpenLibrary } from '../../utils/text-utils';
 import { StorageLocationService } from '../../global/providers/storage-location.service';
@@ -35,6 +40,7 @@ export class BooksService {
   constructor(
     @InjectModel(Book.name) private booksModel: Model<BookDocument>,
     @InjectModel(BookUserStatus.name) private bookUserStatusModel: Model<BookUserStatusDocument>,
+    @InjectModel(RecentBookBlock.name) private recentBookBlockModel: Model<RecentBookBlockDocument>,
     private readonly s3StorageService: S3StorageService,
     private httpService: HttpService,
     private readonly config: ConfigService,
@@ -250,6 +256,76 @@ export class BooksService {
       .exec();
   }
 
+  async recentlyAdded(
+    limit: number,
+    activeOnly: boolean,
+    sortBy?: 'name' | 'publishDate' | 'rating',
+    after?: mongoose.Types.ObjectId,
+    nameContains?: string,
+    bookIdsIn?: mongoose.Types.ObjectId[],
+    sortNameStartsWith?: string,
+  ): Promise<BookDocument[]> {
+    const booksFindAllQuery: any = {
+      type: BookType.OpenLibrary,
+      createdAt: {
+        $gte: DateTime.now().minus({ days: 30 }),
+        $lte: DateTime.now(),
+      },
+    };
+    if (bookIdsIn) {
+      booksFindAllQuery._id = { $in: bookIdsIn };
+    }
+    if (activeOnly) {
+      booksFindAllQuery.deleted = BookDeletionState.NotDeleted;
+      booksFindAllQuery.status = BookActiveStatus.Active;
+    }
+    if (after && sortBy === 'name') {
+      const afterBook = await this.booksModel.findById(after);
+      booksFindAllQuery.sort_name = { ...booksFindAllQuery.sort_name, $gt: afterBook.sort_name };
+    }
+    if (after && sortBy === 'publishDate') {
+      const afterBook = await this.booksModel.findById(after);
+      booksFindAllQuery.sortPublishDate = { $lt: afterBook.sortPublishDate };
+    }
+    if (after && sortBy === 'rating') {
+      const afterBook = await this.booksModel.findById(after);
+      booksFindAllQuery.sortRatingAndRatingUsersCount = { $lt: afterBook.sortRatingAndRatingUsersCount };
+    }
+
+    if (nameContains) {
+      booksFindAllQuery.name = {};
+      booksFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');
+    }
+    if (sortNameStartsWith) {
+      let combinedRegex = '';
+      if (nameContains) {
+        booksFindAllQuery.name.$regex = new RegExp(escapeStringForRegex(nameContains), 'i');
+      }
+      if (sortNameStartsWith && sortNameStartsWith !== '#') {
+        booksFindAllQuery.sort_name = booksFindAllQuery.sort_name || {};
+        combinedRegex = `^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`;
+        booksFindAllQuery.sort_name.$regex = new RegExp(combinedRegex, 'i');
+      } else if (sortNameStartsWith === '#') {
+        combinedRegex = NON_ALPHANUMERIC_REGEX.source;
+        booksFindAllQuery.name = booksFindAllQuery.name || {};
+        booksFindAllQuery.name.$regex = new RegExp(combinedRegex, 'i');
+      }
+    }
+
+    let sortBooks: any = { createdAt: -1 };
+    if (sortBy === 'name') {
+      sortBooks = { sort_name: 1 };
+    } else if (sortBy === 'publishDate') {
+      sortBooks = { sortPublishDate: -1 };
+    } else {
+      sortBooks = { sortRatingAndRatingUsersCount: -1 };
+    }
+    return this.booksModel.find(booksFindAllQuery)
+      .sort(sortBooks)
+      .limit(limit)
+      .exec();
+  }
+
   async getFavoriteListBookIdsForUser(userId: string): Promise<Partial<BookUserStatusDocument[]>> {
     const favoriteBookIdByUser = await this.bookUserStatusModel
       .find({ userId: new mongoose.Types.ObjectId(userId), favourite: BookUserStatusFavorites.Favorite }, { bookId: 1, _id: 0 })
@@ -281,6 +357,32 @@ export class BooksService {
       .exec();
     const readingBookIdArray = readingBookIdByUser.map((book) => book.bookId);
     return readingBookIdArray as unknown as BookUserStatusDocument[];
+  }
+
+  async getBookListCountForUser(userId: string, type: BookListType): Promise<number> {
+    let count = 0;
+
+    if (type === 'reading') {
+      count = await this.bookUserStatusModel
+        .find({ userId: new mongoose.Types.ObjectId(userId), readingList: BookUserStatusReadingList.ReadingList }, { bookId: 1, _id: 0 })
+        .count();
+    }
+    if (type === 'read') {
+      count = await this.bookUserStatusModel
+        .find({ userId: new mongoose.Types.ObjectId(userId), read: BookUserStatusRead.Read }, { bookId: 1, _id: 0 })
+        .count();
+    }
+    if (type === 'favorite') {
+      count = await this.bookUserStatusModel
+        .find({ userId: new mongoose.Types.ObjectId(userId), favourite: BookUserStatusFavorites.Favorite }, { bookId: 1, _id: 0 })
+        .count();
+    }
+    if (type === 'buy') {
+      count = await this.bookUserStatusModel
+        .find({ userId: new mongoose.Types.ObjectId(userId), buy: BookUserStatusBuy.Buy }, { bookId: 1, _id: 0 })
+        .count();
+    }
+    return count;
   }
 
   async syncWithOpenLibrary(): Promise<ReturnBookDb> {
@@ -482,5 +584,36 @@ export class BooksService {
       }
     });
     return storageLocation;
+  }
+
+  async createRecentBookBlock(fromUserId: string, bookId: string): Promise<void> {
+    const updateBody = {
+      from: new mongoose.Types.ObjectId(fromUserId),
+      bookId: new mongoose.Types.ObjectId(bookId),
+    };
+    await this.recentBookBlockModel.findOneAndUpdate(updateBody, { $set: { reaction: RecentBookBlockReaction.Block } }, { upsert: true });
+  }
+
+  async getRecentBookBlock(fromUserId: string): Promise<Partial<Book[]>> {
+    const fromAndBlockQuery = {
+      from: new mongoose.Types.ObjectId(fromUserId),
+      reaction: RecentBookBlockReaction.Block,
+    };
+    const bookBlock = await this.recentBookBlockModel.find(fromAndBlockQuery).select('bookId');
+    return bookBlock.map((data) => data.bookId);
+  }
+
+  async getRecentAddedBooks(user: UserDocument, limit: number) {
+    const recentBlockBookIds = await this.getRecentBookBlock(user.id);
+    const readlistBookIds = await this.getReadingListBookIdsForUser(user.id);
+    const idsToExclude = recentBlockBookIds.concat(
+      readlistBookIds as any,
+    );
+    return this.booksModel.find(
+      { _id: { $nin: idsToExclude } },
+    )
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .exec();
   }
 }

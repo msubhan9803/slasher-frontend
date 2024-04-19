@@ -22,6 +22,9 @@ import {
   keyData1, keyData2, keyEditionData1, keyEditionData2,
   mockBooksSearchQueryFromOpenLibrary, mockBooksSearchQueryFromOpenLibraryNoDocs,
 } from './books.service.mock';
+import { RecentBookBlock } from '../../schemas/recentBookBlock/recentBookBlock.schema';
+import { RecentBookBlockReaction } from '../../schemas/recentBookBlock/recentBookBlock.enums';
+import { BookUserStatusService } from '../../book-user-status/providers/book-user-status.service';
 
 const mockHttpService = () => ({});
 
@@ -31,11 +34,13 @@ describe('BooksService', () => {
   let booksService: BooksService;
   let bookUserStatusModel: Model<BookUserStatusDocument>;
   let usersService: UsersService;
+  let bookUserStatusService: BookUserStatusService;
   let book: BookDocument;
   let activeUser: UserDocument;
   let user1: UserDocument;
   let httpService: HttpService;
   let bookModel: Model<BookDocument>;
+  let recentBookBlockModel: Model<RecentBookBlock>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -46,6 +51,8 @@ describe('BooksService', () => {
     booksService = moduleRef.get<BooksService>(BooksService);
     bookModel = moduleRef.get<Model<BookDocument>>(getModelToken(Book.name));
     bookUserStatusModel = moduleRef.get<Model<BookUserStatusDocument>>(getModelToken(BookUserStatus.name));
+    recentBookBlockModel = moduleRef.get<Model<RecentBookBlock>>(getModelToken(RecentBookBlock.name));
+    bookUserStatusService = moduleRef.get<BookUserStatusService>(BookUserStatusService);
     usersService = moduleRef.get<UsersService>(UsersService);
     app = moduleRef.createNestApplication();
     await app.init();
@@ -548,9 +555,9 @@ describe('BooksService', () => {
       );
       const limit = 5;
       const booksList = await booksService.findAll(limit, true, 'rating');
-      const movieOrder = booksList.map((bov) => ({ rating: bov.rating, ratingUsersCount: bov.ratingUsersCount }));
+      const bookOrder = booksList.map((bov) => ({ rating: bov.rating, ratingUsersCount: bov.ratingUsersCount }));
       // Both `rating` and `ratingUsersCount` are useful to order books.
-      expect(movieOrder).toEqual([
+      expect(bookOrder).toEqual([
         { rating: 5, ratingUsersCount: 30 },
         { rating: 5, ratingUsersCount: 9 },
         { rating: 3, ratingUsersCount: 25 },
@@ -612,6 +619,385 @@ describe('BooksService', () => {
         const limit = 3;
         const firstResults = await booksService.findAll(limit, true, 'name');
         const secondResults = await booksService.findAll(limit, true, 'name', firstResults[limit - 1].id, null, null, 'a');
+        expect(firstResults).toHaveLength(3);
+        expect(secondResults).toHaveLength(2);
+      });
+    });
+  });
+
+  describe('#recentlyAdded', () => {
+    it('only includes books of type BookType.openLibrary', async () => {
+      await booksService.create(
+        booksFactory.build({ status: BookActiveStatus.Active, name: 'a', type: BookType.Free }),
+      );
+      await booksService.create(
+        booksFactory.build({ status: BookActiveStatus.Active, name: 'b', type: BookType.OpenLibrary }),
+      );
+
+      const booksList = await booksService.recentlyAdded(10, true, 'name');
+      expect(booksList).toHaveLength(1);
+    });
+
+    it('when sort by name is applied than expected response', async () => {
+      await booksService.create(
+        booksFactory.build(
+          {
+            status: BookActiveStatus.Active,
+            name: 'Afraid',
+            bookId: '/works/OL450063W',
+          },
+        ),
+      );
+      await booksService.create(
+        booksFactory.build(
+          {
+            status: BookActiveStatus.Active,
+            name: 'Afraid!',
+            bookId: '/works/OL460063W',
+          },
+        ),
+      );
+      await booksService.create(
+        booksFactory.build(
+          {
+            status: BookActiveStatus.Active,
+            name: 'Afraid 2',
+            bookId: '/works/OL470063W',
+          },
+        ),
+      );
+      await booksService.create(
+        booksFactory.build(
+          {
+            status: BookActiveStatus.Active,
+            name: 'Afraid: Containment',
+            bookId: '/works/OL480063W',
+          },
+        ),
+      );
+      await booksService.create(
+        booksFactory.build(
+          {
+            status: BookActiveStatus.Active,
+            name: 'Beetle',
+            bookId: '/works/OL450763W',
+          },
+        ),
+      );
+      await booksService.create(
+        booksFactory.build(
+          {
+            status: BookActiveStatus.Active,
+            name: 'Carmilla',
+            bookId: '/works/OL456063W',
+          },
+        ),
+      );
+      await booksService.create(
+        booksFactory.build(
+          {
+            status: BookActiveStatus.Active,
+            name: 'Dracula',
+            bookId: '/works/OL458063W',
+          },
+        ),
+      );
+      await booksService.create(
+        booksFactory.build(
+          {
+            status: BookActiveStatus.Active,
+            name: 'Frankenstein',
+            bookId: '/works/OL450093W',
+          },
+        ),
+      );
+      const limit = 10;
+      const booksList = await booksService.recentlyAdded(limit, true, 'name');
+      for (let i = 1; i < booksList.length; i += 1) {
+        expect(booksList[i - 1].sort_name < booksList[i].sort_name).toBe(true);
+      }
+      expect(booksList).toHaveLength(8);
+    });
+
+    it('when sort by publishDate is applied than expected response', async () => {
+      await booksService.create(
+        booksFactory.build(
+          {
+            status: BookActiveStatus.Active,
+            publishDate: DateTime.now().plus({ days: 1 }).toJSDate(),
+          },
+        ),
+      );
+      await booksService.create(
+        booksFactory.build({
+          status: BookActiveStatus.Active,
+          publishDate: DateTime.now().minus({ days: 1 }).toJSDate(),
+        }),
+      );
+      await booksService.create(
+        booksFactory.build(
+          {
+            status: BookActiveStatus.Active,
+            publishDate: DateTime.now().minus({ days: 2 }).toJSDate(),
+          },
+        ),
+      );
+      await booksService.create(
+        booksFactory.build(
+          {
+            status: BookActiveStatus.Active,
+            publishDate: DateTime.now().minus({ days: 1 }).toJSDate(),
+          },
+        ),
+      );
+      await booksService.create(
+        booksFactory.build(
+          {
+            status: BookActiveStatus.Active,
+            publishDate: DateTime.now().minus({ days: 3 }).toJSDate(),
+          },
+
+        ),
+      );
+      const limit = 5;
+      const booksList = await booksService.recentlyAdded(limit, true, 'publishDate');
+      for (let i = 0; i < booksList.length - 1; i += 1) {
+        expect(booksList[i].sortPublishDate > booksList[i + 1].sortPublishDate).toBe(true);
+      }
+      expect(booksList).toHaveLength(5);
+    });
+
+    it('finds all the expected book details that has not deleted and Inactive status', async () => {
+      const numberOfInActiveBooks = 4;
+      for (let index = 0; index < numberOfInActiveBooks; index += 1) {
+        await booksService.create(
+          booksFactory.build(),
+        );
+      }
+      const limit = 5;
+      const booksList = await booksService.recentlyAdded(limit, false, 'name');
+      // 4 (numberOfInactiveBooks) + 1 (inactive book created in top-level `beforeEach`) = 5
+      expect(booksList).toHaveLength(4);
+    });
+
+    it('when name contains supplied than expected response', async () => {
+      const bookData = await booksService.create(
+        booksFactory.build(
+          {
+            status: BookActiveStatus.Active,
+            name: 'Afraid',
+          },
+        ),
+      );
+      await booksService.create(
+        booksFactory.build(
+          {
+            status: BookActiveStatus.Active,
+            name: 'The King in Yellow',
+          },
+        ),
+      );
+      await booksService.create(
+        booksFactory.build(
+          {
+            status: BookActiveStatus.Active,
+            name: 'Coraline',
+          },
+        ),
+      );
+      const limit = 5;
+      const booksList = await booksService.recentlyAdded(limit, true, 'name', bookData.id, 'king');
+      expect(booksList).toHaveLength(1);
+    });
+
+    it('when sort_name startsWith supplied than expected response', async () => {
+      await booksService.create(
+        booksFactory.build({
+          status: BookActiveStatus.Active,
+          name: 'Coraline',
+        }),
+      );
+      await booksService.create(
+        booksFactory.build({
+          status: BookActiveStatus.Active,
+          name: 'The King in Yellow',
+        }),
+      );
+      await booksService.create(
+        booksFactory.build({
+          status: BookActiveStatus.Active,
+          name: 'Beetle',
+        }),
+      );
+      await booksService.create(
+        booksFactory.build({
+          status: BookActiveStatus.Active,
+          name: 'Beetle 1',
+        }),
+      );
+      const limit = 5;
+      const booksList = await booksService.recentlyAdded(limit, true, 'name', null, null, null, 'b');
+      expect(booksList).toHaveLength(2);
+    });
+
+    it('when books is sort by rating than expected response', async () => {
+      await booksService.create(
+        booksFactory.build({
+          status: BookActiveStatus.Active,
+          name: 'Coraline',
+          rating: 5,
+          ratingUsersCount: 30,
+        }),
+      );
+      await booksService.create(
+        booksFactory.build({
+          status: BookActiveStatus.Active,
+          name: 'The King in Yellow',
+          rating: 5,
+          ratingUsersCount: 9,
+        }),
+      );
+      await booksService.create(
+        booksFactory.build({
+          status: BookActiveStatus.Active,
+          name: 'Beetle',
+          rating: 3,
+          ratingUsersCount: 25,
+        }),
+      );
+      await booksService.create(
+        booksFactory.build({
+          status: BookActiveStatus.Active,
+          name: 'Beetle 1',
+          rating: 3,
+          ratingUsersCount: 24,
+        }),
+      );
+      await booksService.create(
+        booksFactory.build({
+          status: BookActiveStatus.Active,
+          name: 'Beetle 2',
+          rating: 1,
+          ratingUsersCount: 50,
+        }),
+      );
+      const limit = 5;
+      const booksList = await booksService.recentlyAdded(limit, true, 'rating');
+      const bookOrder = booksList.map((bov) => ({ rating: bov.rating, ratingUsersCount: bov.ratingUsersCount }));
+      // Both `rating` and `ratingUsersCount` are useful to order books.
+      expect(bookOrder).toEqual([
+        { rating: 5, ratingUsersCount: 30 },
+        { rating: 5, ratingUsersCount: 9 },
+        { rating: 3, ratingUsersCount: 25 },
+        { rating: 3, ratingUsersCount: 24 },
+        { rating: 1, ratingUsersCount: 50 },
+      ]);
+      expect(booksList).toHaveLength(5);
+    });
+
+    it('when books are sort by createdAt than expected response', async () => {
+      await booksService.create(
+        booksFactory.build({
+          status: BookActiveStatus.Active,
+          name: 'Coraline',
+          rating: 5,
+          ratingUsersCount: 30,
+          createdAt: DateTime.now().minus({ days: 10 }).toJSDate(),
+        }),
+      );
+      await booksService.create(
+        booksFactory.build({
+          status: BookActiveStatus.Active,
+          name: 'The King in Yellow',
+          rating: 5,
+          ratingUsersCount: 9,
+          createdAt: DateTime.now().minus({ days: 20 }).toJSDate(),
+        }),
+      );
+      await booksService.create(
+        booksFactory.build({
+          status: BookActiveStatus.Active,
+          name: 'Beetle',
+          rating: 3,
+          ratingUsersCount: 25,
+          createdAt: DateTime.now().minus({ days: 32 }).toJSDate(),
+        }),
+      );
+      await booksService.create(
+        booksFactory.build({
+          status: BookActiveStatus.Active,
+          name: 'Beetle 1',
+          rating: 3,
+          ratingUsersCount: 24,
+          createdAt: DateTime.now().minus({ days: 15 }).toJSDate(),
+        }),
+      );
+      await booksService.create(
+        booksFactory.build({
+          status: BookActiveStatus.Active,
+          name: 'Beetle 2',
+          rating: 1,
+          ratingUsersCount: 50,
+          createdAt: DateTime.now().minus({ days: 35 }).toJSDate(),
+        }),
+      );
+      const limit = 5;
+      const bookList = await booksService.recentlyAdded(limit, true);
+      expect(bookList).toHaveLength(3);
+    });
+
+    describe('when `after` argument is supplied', () => {
+      beforeEach(async () => {
+        const name = ['Alive', 'Again alive', 'Afield', 'Audition', 'Aghost'];
+        const rating = [1, 2, 2, 2.5, 3];
+        for (let i = 0; i < 5; i += 1) {
+          await booksService.create(
+            booksFactory.build(
+              {
+                status: BookActiveStatus.Active,
+                rating: rating[i],
+                name: name[i],
+                ratingUsersCount: 22, // must be greater than `MINIMUM_NUMBER_OF_RATING_USES_COUNT`
+              },
+            ),
+          );
+        }
+      });
+      it('sort by name returns the first and second sets of paginated results', async () => {
+        const limit = 3;
+        const firstResults = await booksService.recentlyAdded(limit, true, 'name');
+        const secondResults = await booksService.recentlyAdded(limit, true, 'name', firstResults[limit - 1].id);
+        expect(firstResults).toHaveLength(3);
+        expect(secondResults).toHaveLength(2);
+      });
+
+      it('sort by release date returns the first and second sets of paginated results', async () => {
+        const limit = 3;
+        const firstResults = await booksService.recentlyAdded(limit, true, 'publishDate');
+        const secondResults = await booksService.recentlyAdded(limit, true, 'publishDate', firstResults[limit - 1].id);
+        expect(firstResults).toHaveLength(3);
+        expect(secondResults).toHaveLength(2);
+      });
+
+      it('sort by rating returns the first and second sets of paginated results', async () => {
+        const limit = 3;
+        const firstResults = await booksService.recentlyAdded(limit, true, 'rating');
+        expect(firstResults).toHaveLength(3);
+
+        const firstResultsOrder = firstResults.map((m) => ({ rating: m.rating }));
+        expect(firstResultsOrder).toEqual([{ rating: 3 }, { rating: 2.5 }, { rating: 2 }]);
+
+        const secondResults = await booksService.recentlyAdded(limit, true, 'rating', firstResults[limit - 1].id);
+        expect(secondResults).toHaveLength(2);
+
+        const secondResultsOrder = secondResults.map((m) => ({ rating: m.rating }));
+        expect(secondResultsOrder).toEqual([{ rating: 2 }, { rating: 1 }]);
+      });
+
+      it('sort by name and startsWith returns the first and second sets of paginated results', async () => {
+        const limit = 3;
+        const firstResults = await booksService.recentlyAdded(limit, true, 'name');
+        const secondResults = await booksService.recentlyAdded(limit, true, 'name', firstResults[limit - 1].id, null, null, 'a');
         expect(firstResults).toHaveLength(3);
         expect(secondResults).toHaveLength(2);
       });
@@ -909,6 +1295,168 @@ describe('BooksService', () => {
         expect(books[1].name).toBe('Dr. Nikola\'s Experiment');
         expect(books[1].author[0]).toBe('Guy Newell Boothby');
       });
+    });
+  });
+
+  describe('#getBookListCountForUser', () => {
+    let book1;
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    let activeUser;
+    beforeEach(async () => {
+      book1 = await booksService.create(
+        booksFactory.build({
+          status: BookActiveStatus.Active,
+          type: BookType.OpenLibrary,
+        }),
+      );
+      activeUser = await usersService.create(userFactory.build());
+    });
+
+    it('watch bookListCount', async () => {
+      const countBefore = await booksService.getBookListCountForUser(activeUser._id, 'read');
+      expect(countBefore).toBe(0);
+      await bookUserStatusModel.create({
+        name: 'book user status1',
+        userId: activeUser._id,
+        bookId: book1._id,
+        favourite: 0,
+        readingList: 0,
+        read: 1,
+        buy: 0,
+      });
+      const count = await booksService.getBookListCountForUser(activeUser._id, 'read');
+      expect(count).toBe(1);
+    });
+    it('watched bookListCount', async () => {
+      const countBefore = await booksService.getBookListCountForUser(activeUser._id, 'reading');
+      expect(countBefore).toBe(0);
+      await bookUserStatusModel.create({
+        name: 'book user status1',
+        userId: activeUser._id,
+        bookId: book1._id,
+        favourite: 0,
+        readingList: 1,
+        read: 0,
+        buy: 0,
+      });
+      const count = await booksService.getBookListCountForUser(activeUser._id, 'reading');
+      expect(count).toBe(1);
+    });
+    it('favorite bookListCount', async () => {
+      const countBefore = await booksService.getBookListCountForUser(activeUser._id, 'favorite');
+      expect(countBefore).toBe(0);
+      await bookUserStatusModel.create({
+        name: 'book user status1',
+        userId: activeUser._id,
+        bookId: book1._id,
+        favourite: 1,
+        readingList: 0,
+        read: 0,
+        buy: 0,
+      });
+      const count = await booksService.getBookListCountForUser(activeUser._id, 'favorite');
+      expect(count).toBe(1);
+    });
+    it('buy bookListCount', async () => {
+      const countBefore = await booksService.getBookListCountForUser(activeUser._id, 'buy');
+      expect(countBefore).toBe(0);
+      await bookUserStatusModel.create({
+        name: 'book user status1',
+        userId: activeUser._id,
+        bookId: book1._id,
+        favourite: 0,
+        readingList: 0,
+        read: 0,
+        buy: 1,
+      });
+      const count = await booksService.getBookListCountForUser(activeUser._id, 'buy');
+      expect(count).toBe(1);
+    });
+  });
+
+  describe('#createRecentBookBlock', () => {
+    it('creates the recent book block data', async () => {
+      book = await booksService.create(
+        booksFactory.build({ status: BookActiveStatus.Active }),
+      );
+      const createRecentBookBlockData = await recentBookBlockModel.create({
+        from: activeUser._id,
+        bookId: book._id,
+        reaction: RecentBookBlockReaction.Unblock,
+      });
+      await booksService.createRecentBookBlock(createRecentBookBlockData.from.toString(), createRecentBookBlockData.bookId.toString());
+      const getRecentBlockData = await booksService.getRecentBookBlock(createRecentBookBlockData.from.toString());
+      const bookIds = getRecentBlockData.map((item) => item.toString());
+      expect(bookIds.includes(createRecentBookBlockData.bookId.toString())).toBeTruthy();
+    });
+  });
+
+  describe('#getRecentBookBlock', () => {
+    it('get the recent book block data', async () => {
+      book = await booksService.create(
+        booksFactory.build({ status: BookActiveStatus.Active }),
+      );
+      const book1 = await booksService.create(
+        booksFactory.build({ status: BookActiveStatus.Active }),
+      );
+      const book2 = await booksService.create(
+        booksFactory.build({ status: BookActiveStatus.Active }),
+      );
+      await recentBookBlockModel.create({
+        from: activeUser._id,
+        bookId: book._id,
+        reaction: RecentBookBlockReaction.Unblock,
+      });
+      await recentBookBlockModel.create({
+        from: activeUser._id,
+        bookId: book1._id,
+        reaction: RecentBookBlockReaction.Block,
+      });
+      await recentBookBlockModel.create({
+        from: activeUser._id,
+        bookId: book2._id,
+        reaction: RecentBookBlockReaction.Block,
+      });
+      await recentBookBlockModel.create({
+        from: user1._id,
+        bookId: book1._id,
+        reaction: RecentBookBlockReaction.Unblock,
+      });
+      await recentBookBlockModel.create({
+        from: user1._id,
+        bookId: book2._id,
+        reaction: RecentBookBlockReaction.Block,
+      });
+
+      expect(await booksService.getRecentBookBlock(activeUser._id.toString())).toHaveLength(2);
+      expect(await booksService.getRecentBookBlock(user1._id.toString())).toHaveLength(1);
+    });
+  });
+
+  describe('#getRecentAddedBooks', () => {
+    it('returns the recently added books', async () => {
+      const book1 = await booksService.create(
+        booksFactory.build({ status: BookActiveStatus.Active, name: 'Book 1' }),
+      );
+      const book2 = await booksService.create(
+        booksFactory.build({ status: BookActiveStatus.Active, name: 'Book 2' }),
+      );
+      const book3 = await booksService.create(
+        booksFactory.build({ status: BookActiveStatus.Active, name: 'Book 3' }),
+      );
+
+      await recentBookBlockModel.create({
+        from: activeUser._id,
+        bookId: book1._id,
+        reaction: RecentBookBlockReaction.Block,
+      });
+      await recentBookBlockModel.create({
+        from: activeUser._id,
+        bookId: book2._id,
+        reaction: RecentBookBlockReaction.Block,
+      });
+      await bookUserStatusService.addBookUserStatusRead(activeUser._id.toString(), book3._id.toString());
+      expect(await booksService.getRecentAddedBooks(activeUser, 5)).toHaveLength(1);
     });
   });
 });

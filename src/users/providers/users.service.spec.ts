@@ -257,23 +257,6 @@ describe('UsersService', () => {
     });
   });
 
-  describe('#findAndUpdatePreviousUserName', () => {
-    let user: UserDocument;
-    beforeEach(async () => {
-      user = await usersService.create(userFactory.build({
-        userName: 'horror',
-        previousUserName: ['slasher', 'john', 'tom'],
-      }));
-    });
-
-    it('finds the expected response', async () => {
-      await usersService.findAndUpdatePreviousUserName('horror', 'slasher');
-      const updatedUser = await usersService.findById(user.id, true);
-      expect(updatedUser.userName).toBe('slasher');
-      expect(updatedUser.previousUserName).toContain('horror');
-    });
-  });
-
   describe('#findNonDeletedUserByEmailOrUsername', () => {
     let activeUser;
     let inactiveUser;

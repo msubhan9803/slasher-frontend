@@ -121,7 +121,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         worthWatching: 1,
       });
       book = await booksService.create(booksFactory.build({
-        logo: 'https://picsum.photos/id/237/200/300',
+        coverImage: null,
         status: BookActiveStatus.Active,
         publishDate: DateTime.fromISO('2022-10-19T00:00:00Z').toJSDate(),
       }));
@@ -384,7 +384,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         movieId: null,
         bookId: {
           _id: book._id.toString(),
-          logo: book.logo,
+          coverImage: book.logo,
           name: book.name,
           publishDate: '2022-10-19T00:00:00.000Z',
         },

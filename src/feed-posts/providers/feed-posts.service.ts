@@ -103,7 +103,7 @@ export class FeedPostsService {
       .populate('rssfeedProviderId', 'title _id logo')
       .populate('rssFeedId', 'content title')
       .populate('movieId', 'logo name releaseDate')
-      .populate('bookId', 'name publishDate logo')
+      .populate('bookId', 'name publishDate coverImage')
       .exec();
 
     if (feedPost) {
@@ -125,7 +125,6 @@ export class FeedPostsService {
     feedPostQuery.push({ userId: new mongoose.Types.ObjectId(userId) });
     //remove postType query when we have support for postType.User
     feedPostQuery.push(
-      { postType: { $ne: PostType.MovieReview } },
       { postType: { $ne: PostType.News } },
     );
     if (before) {
@@ -142,6 +141,7 @@ export class FeedPostsService {
       .find({ $and: feedPostQuery })
       .populate('userId', 'userName _id profilePic')
       .populate('movieId', 'logo name releaseDate')
+      .populate('bookId', 'name publishDate coverImage')
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();
@@ -281,9 +281,7 @@ export class FeedPostsService {
           },
           {
             $and: [
-              { postType: { $ne: PostType.MovieReview } },
               { postType: { $ne: PostType.News } },
-              { postType: { $ne: PostType.BookReview } },
             ],
           },
           { hideUsers: { $ne: new mongoose.Types.ObjectId(userId) } },
@@ -293,7 +291,7 @@ export class FeedPostsService {
       .populate('userId', '_id userName profilePic')
       .populate('rssfeedProviderId', '_id title logo')
       .populate('movieId', 'logo name releaseDate')
-      .populate('bookId', 'name publishDate logo')
+      .populate('bookId', 'name publishDate coverImage')
       .sort({ lastUpdateAt: -1 })
       .limit(limit)
       .exec();
@@ -352,7 +350,7 @@ export class FeedPostsService {
       .populate('userId', '_id userName profilePic')
       .populate('rssfeedProviderId', '_id title logo')
       .populate('movieId', 'logo name releaseDate')
-      .populate('bookId', 'name publishDate logo')
+      .populate('bookId', 'name publishDate coverImage')
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();
@@ -382,7 +380,6 @@ export class FeedPostsService {
           { 'images.0': { $exists: true } },
           {
             $and: [
-              { postType: { $ne: PostType.MovieReview } },
               { postType: { $ne: PostType.News } },
             ],
           },
@@ -405,7 +402,6 @@ export class FeedPostsService {
             { 'images.0': { $exists: true } },
             {
               $and: [
-                { postType: { $ne: PostType.MovieReview } },
                 { postType: { $ne: PostType.News } },
               ],
             },
@@ -426,7 +422,6 @@ export class FeedPostsService {
           { status: FeedPostStatus.Active },
           {
             $and: [
-              { postType: { $ne: PostType.MovieReview } },
               { postType: { $ne: PostType.News } },
             ],
           },

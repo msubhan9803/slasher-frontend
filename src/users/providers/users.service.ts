@@ -102,18 +102,6 @@ export class UsersService {
     return this.userModel.find({ previousUserName: { $in: userName } }).exec();
   }
 
-  async findAndUpdatePreviousUserName(currentUserName: string, newUserName: string) {
-    await
-      this.userModel.findOneAndUpdate(
-        { userName: currentUserName },
-        {
-          $set: { userName: newUserName },
-          $push: { previousUserName: currentUserName },
-        },
-        { new: true },
-      ).exec();
-  }
-
   async findNonDeletedUserByEmailOrUsername(emailOrUsername: string): Promise<UserDocument> {
     if (EmailValidator.validate(emailOrUsername)) {
       return this.userModel.findOne({ email: new RegExp(`^${escapeStringForRegex(emailOrUsername)}$`, 'i'), deleted: false }).exec();

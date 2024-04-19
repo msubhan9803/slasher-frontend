@@ -9,18 +9,18 @@ export default [
     userId: {
       _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
       userName: 'Username2',
-      profilePic: expect.any(String),
+      profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
     },
     bookId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
     message: 'Message 3',
     images: [
       {
-        image_path: '/feed/feed_sample1.jpg',
+        image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
         description: 'this is test description',
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
       },
       {
-        image_path: '/feed/feed_sample1.jpg',
+        image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
         description: 'this is test description',
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
       },
@@ -44,12 +44,12 @@ export default [
     message: 'Message 2',
     images: [
       {
-        image_path: '/feed/feed_sample1.jpg',
+        image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
         description: 'this is test description',
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
       },
       {
-        image_path: '/feed/feed_sample1.jpg',
+        image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
         description: 'this is test description',
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
       },
@@ -74,12 +74,12 @@ export default [
     message: 'Message 1',
     images: [
       {
-        image_path: '/feed/feed_sample1.jpg',
+        image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
         description: 'this is test description',
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
       },
       {
-        image_path: '/feed/feed_sample1.jpg',
+        image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
         description: 'this is test description',
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
       },

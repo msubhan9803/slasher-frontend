@@ -515,7 +515,7 @@ export class FeedPostsService {
 
     // Do not return likes by blocked users
     if (requestingContextUserId) {
-      const blockUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(requestingContextUserId);
+      const blockUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(requestingContextUserId, postData.userId.toString());
       filter.push({ userId: { $nin: blockUserIds } });
     }
     const feedPostLikes = await this.feedLikesModel

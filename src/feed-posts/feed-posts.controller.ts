@@ -509,6 +509,39 @@ export class FeedPostsController {
     );
   }
 
+  @TransformImageUrls(
+    '$[*].images[*].image_path',
+    '$[*].userId.profilePic',
+    '$[*].bookId.coverImage.image_path',
+    '$[*].rssfeedProviderId.logo',
+  )
+  @Get('all')
+  async allFeedPosts(
+    @Req() request: Request,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) mainFeedPostQueryDto: MainFeedPostQueryDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const feedPosts = await this.feedPostsService.findAllFeedPostsForUser(
+      user.id,
+      mainFeedPostQueryDto.limit,
+      mainFeedPostQueryDto.before ? new mongoose.Types.ObjectId(mainFeedPostQueryDto.before) : undefined,
+    );
+
+    for (let i = 0; i < feedPosts.length; i += 1) {
+      const findActiveHashtags = await this.hashtagService.findActiveHashtags(feedPosts[i].hashtags);
+      feedPosts[i].hashtags = findActiveHashtags.map((hashtag) => hashtag.name);
+    }
+
+    return feedPosts.map(
+      (feedPost) => pick(
+        feedPost,
+        ['_id', 'message', 'createdAt', 'lastUpdateAt',
+          'rssfeedProviderId', 'images', 'userId', 'commentCount',
+          'likeCount', 'likedByUser', 'movieId', 'bookId', 'hashtags', 'postType'],
+      ),
+    );
+  }
+
   @Delete(':id')
   async delete(
     @Req() request: Request,

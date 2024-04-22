@@ -34,6 +34,9 @@ const topMenuListItems: MenuListItem[] = [
     label: 'Events', icon: solid('calendar-day'), iconColor: '#05FF00', to: '/app/events', id: 2,
   },
   {
+    label: 'Deals', icon: solid('tag'), iconColor: '#9E9E9E', to: '/app/movies/all', id: 15,
+  },
+  {
     label: 'Movies', icon: solid('film'), iconColor: '#FF343E', to: '/app/movies/all', id: 3,
   },
   {
@@ -92,7 +95,20 @@ menuListItems = menuListItems.concat(bottomMenuListItems);
 
 function SidebarNavContent({ onToggleCanvas }: Props) {
   return (
-    <>
+    <Nav>
+      {menuListItems.map((menuItem) => (
+        <SidebarNavItem
+          id={menuItem.id}
+          key={menuItem.id}
+          label={menuItem.label}
+          icon={menuItem.icon}
+          iconColor={menuItem.iconColor}
+          to={menuItem.to}
+          className={menuItem.desktopOnly ? 'd-none d-lg-flex' : ''}
+          comingSoon={menuItem.comingSoon || false}
+          onToggleCanvas={menuItem.comingSoon ? undefined : onToggleCanvas}
+        />
+      ))}
       <RoundButtonLink
         usePlainAnchorTag
         to="mailto:help@slasher.tv?subject=Slasher%20Bug%20Report"
@@ -102,41 +118,26 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
       >
         Report a bug
       </RoundButtonLink>
-      <Nav>
-        {menuListItems.map((menuItem) => (
-          <SidebarNavItem
-            id={menuItem.id}
-            key={menuItem.id}
-            label={menuItem.label}
-            icon={menuItem.icon}
-            iconColor={menuItem.iconColor}
-            to={menuItem.to}
-            className={menuItem.desktopOnly ? 'd-none d-lg-flex' : ''}
-            comingSoon={menuItem.comingSoon || false}
-            onToggleCanvas={menuItem.comingSoon ? undefined : onToggleCanvas}
-          />
-        ))}
-        <ul className="list-inline mt-4 link-hover-underline fs-6">
-          <li className="mb-4"><a className="text-light text-decoration-none" href={GOOGLE_PLAY_DOWNLOAD_URL} target="_blank" rel="noreferrer">Download for Android</a></li>
-          <li className="mb-4"><a className="text-light text-decoration-none" href={APP_STORE_DOWNLOAD_URL} target="_blank" rel="noreferrer">Download for iOS</a></li>
-          <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/advertise`} target="_blank" rel="noreferrer">Advertise on Slasher</a></li>
-          <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/policies`} target="_blank" rel="noreferrer">Terms &amp; Policies</a></li>
-          <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/about`} target="_blank" rel="noreferrer">About</a></li>
-          <li className="mb-4 text-light text-decoration-none">
-            &copy;
-            {' '}
-            {new Date().getFullYear()}
-            {' '}
-            Slasher Corp
-          </li>
-          <li className="text-light text-decoration-none">
-            {`${getAppVersion()}`}
-          </li>
-          <SticyBannerAdSpaceCompensation />
-        </ul>
-        <br />
-      </Nav>
-    </>
+      <ul className="list-inline mt-4 link-hover-underline fs-6">
+        <li className="mb-4"><a className="text-light text-decoration-none" href={GOOGLE_PLAY_DOWNLOAD_URL} target="_blank" rel="noreferrer">Download for Android</a></li>
+        <li className="mb-4"><a className="text-light text-decoration-none" href={APP_STORE_DOWNLOAD_URL} target="_blank" rel="noreferrer">Download for iOS</a></li>
+        <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/advertise`} target="_blank" rel="noreferrer">Advertise on Slasher</a></li>
+        <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/policies`} target="_blank" rel="noreferrer">Terms &amp; Policies</a></li>
+        <li className="mb-4"><a className="text-light text-decoration-none" href={`${WORDPRESS_SITE_URL}/about`} target="_blank" rel="noreferrer">About</a></li>
+        <li className="mb-4 text-light text-decoration-none">
+          &copy;
+          {' '}
+          {new Date().getFullYear()}
+          {' '}
+          Slasher Corp
+        </li>
+        <li className="text-light text-decoration-none">
+          {`${getAppVersion()}`}
+        </li>
+        <SticyBannerAdSpaceCompensation />
+      </ul>
+      <br />
+    </Nav>
   );
 }
 SidebarNavContent.defaultProps = {

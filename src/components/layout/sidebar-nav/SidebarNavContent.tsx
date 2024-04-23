@@ -23,48 +23,49 @@ type MenuListItem = {
   to: string,
   id: any,
   desktopOnly?: boolean,
-  comingSoon?: boolean
+  comingSoon?: boolean,
+  rotate?: number
 };
 
 const topMenuListItems: MenuListItem[] = [
   {
-    label: 'News & Reviews', icon: solid('newspaper'), iconColor: '#0094FF', to: '/app/news', id: 1,
+    label: 'News & Reviews', icon: solid('newspaper'), iconColor: '#0094FF', to: '/app/news', id: 1, rotate: 0,
   },
   {
-    label: 'Events', icon: solid('calendar-day'), iconColor: '#05FF00', to: '/app/events', id: 2,
+    label: 'Events', icon: solid('calendar-day'), iconColor: '#05FF00', to: '/app/events', id: 2, rotate: 0,
   },
   {
-    label: 'Deals', icon: solid('tag'), iconColor: '#9E9E9E', to: '/app/movies/all', id: 15,
+    label: 'Deals', icon: solid('tag'), iconColor: '#9E9E9E', to: 'https://deals.slasher.tv/', id: 15, rotate: 90,
   },
   {
-    label: 'Movies', icon: solid('film'), iconColor: '#FF343E', to: '/app/movies/all', id: 3,
+    label: 'Movies', icon: solid('film'), iconColor: '#FF343E', to: '/app/movies/all', id: 3, rotate: 0,
   },
   {
-    label: 'Books', icon: solid('book-skull'), iconColor: '#D88100', to: '/app/books/all', id: 4,
+    label: 'Books', icon: solid('book-skull'), iconColor: '#D88100', to: '/app/books/all', id: 4, rotate: 0,
   },
   {
-    label: 'Podcasts', icon: solid('podcast'), iconColor: '#8F00FF', to: '/app/podcasts', id: 5,
+    label: 'Podcasts', icon: solid('podcast'), iconColor: '#8F00FF', to: '/app/podcasts', id: 5, rotate: 0,
   },
   {
-    label: 'Music', icon: solid('headphones'), iconColor: '#7C4DFF', to: '/app/music', id: 6,
+    label: 'Music', icon: solid('headphones'), iconColor: '#7C4DFF', to: '/app/music', id: 6, rotate: 0,
   },
   {
-    label: 'Art', icon: solid('palette'), iconColor: '#799F0C', to: '/app/art', id: 7,
+    label: 'Art', icon: solid('palette'), iconColor: '#799F0C', to: '/app/art', id: 7, rotate: 0,
   },
   {
-    label: 'Groups', icon: solid('user-group'), iconColor: '#E1B065', to: '/app/groups', id: 10, comingSoon: true,
+    label: 'Groups', icon: solid('user-group'), iconColor: '#E1B065', to: '/app/groups', id: 10, comingSoon: true, rotate: 0,
   },
   {
-    label: 'Places', icon: solid('location-dot'), iconColor: '#FFC700', to: '/app/places', id: 11, comingSoon: true,
+    label: 'Places', icon: solid('location-dot'), iconColor: '#FFC700', to: '/app/places', id: 11, comingSoon: true, rotate: 0,
   },
   {
-    label: 'Dating', icon: solid('heart'), iconColor: '#FF0000', to: '/app/dating', id: 12, comingSoon: true,
+    label: 'Dating', icon: solid('heart'), iconColor: '#FF0000', to: '/app/dating', id: 12, comingSoon: true, rotate: 0,
   },
   {
-    label: 'Video Channels', icon: solid('tv'), iconColor: '#00E676', to: '/app/videos', id: 13, comingSoon: true,
+    label: 'Video Channels', icon: solid('tv'), iconColor: '#00E676', to: '/app/videos', id: 13, comingSoon: true, rotate: 0,
   },
   {
-    label: 'Shopping', icon: solid('store'), iconColor: '#00D2FF', to: '/app/shopping', id: 14, comingSoon: true,
+    label: 'Shopping', icon: solid('store'), iconColor: '#00D2FF', to: '/app/shopping', id: 14, comingSoon: true, rotate: 0,
   },
 ];
 
@@ -102,6 +103,7 @@ function SidebarNavContent({ onToggleCanvas }: Props) {
           key={menuItem.id}
           label={menuItem.label}
           icon={menuItem.icon}
+          rotate={menuItem.rotate}
           iconColor={menuItem.iconColor}
           to={menuItem.to}
           className={menuItem.desktopOnly ? 'd-none d-lg-flex' : ''}

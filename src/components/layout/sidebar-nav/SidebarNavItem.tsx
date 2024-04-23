@@ -13,6 +13,7 @@ interface Props {
   className?: string;
   id: number;
   comingSoon: boolean;
+  rotate?: number;
   onToggleCanvas?: () => void;
 }
 
@@ -33,7 +34,6 @@ const LinkContentWrapper = styled.div`
 const NavItemContainer = styled.div`
   height: 3.35em;
   margin-bottom: 0.75rem;
-
   .nav-item-label {
     line-height: 1.2em;
   }
@@ -41,6 +41,7 @@ const NavItemContainer = styled.div`
 
 const StyledIcon = styled(FontAwesomeIcon)`
   font-size: 1.25rem;
+  transform: ${(props) => `rotate(${props.rotate}deg)`}
 `;
 
 const shouldHighlight = (to: string, pathname: string) => {
@@ -58,7 +59,7 @@ const shouldHighlight = (to: string, pathname: string) => {
 };
 
 function SidebarNavItem({
-  label, icon, iconColor: color, to, className, id, comingSoon, onToggleCanvas,
+  label, icon, iconColor: color, to, className, id, comingSoon, onToggleCanvas, rotate,
 }: Props) {
   const { pathname } = useLocation();
   const handleRefresh = () => {
@@ -68,7 +69,7 @@ function SidebarNavItem({
   const renderInnerNavItemContent = () => (
     <LinkContentWrapper className="d-flex align-items-center justify-content-start">
       <LinearIcon uniqueId={`icon-${id}`}>
-        <StyledIcon icon={icon} size="lg" className="me-1 fa-fw" />
+        <StyledIcon icon={icon} rotate={rotate} size="lg" className="me-1 fa-fw" />
         <svg width="0" height="0">
           <linearGradient id={`icon-${id}`} x1="100%" y1="100%" x2="0%" y2="0%">
             <stop offset="0%" style={{ stopColor: `${color}`, stopOpacity: '1' }} />
@@ -123,6 +124,7 @@ function SidebarNavItem({
 SidebarNavItem.defaultProps = {
   className: '',
   iconColor: '',
+  rotate: 0,
   onToggleCanvas: () => { },
 };
 

@@ -21,6 +21,7 @@ const SpecificHeightLink = styled(Link)`
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-height: 100%
 `;
 
 const BadgeSpan = styled.span`
@@ -46,6 +47,11 @@ const redirectShopClick = (e: React.MouseEvent) => {
 const redirectPatreon = (e: React.MouseEvent) => {
   e.preventDefault();
   window.open('https://www.patreon.com/theslasherapp', '_blank');
+};
+
+const redirectAdevertise = (e: React.MouseEvent) => {
+  e.preventDefault();
+  window.open('https://pages.slasher.tv/advertise', '_blank');
 };
 
 const shareSlasher = async (e: React.MouseEvent) => {
@@ -117,10 +123,11 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
           </Col>
         </Row>
 
-        <Row>
+        <Row className="mt-2">
           <Col xs={3}>
             <SpecificHeightLink
-              to={mePagePath}
+              to={{ pathname: 'https://pages.slasher.tv/shop/' }}
+              target="_blank"
               className="btn btn-dark btn-sidebar w-100 pt-2"
               onClick={(e) => {
                 onToggleCanvas();
@@ -133,7 +140,8 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
           </Col>
           <Col xs={3}>
             <SpecificHeightLink
-              to={friendsPagePath}
+              to={{ pathname: 'https://www.patreon.com/theslasherapp' }}
+              target="_blank"
               className="btn btn-dark btn-sidebar w-100 pt-2 position-relative"
               onClick={(e) => {
                 onToggleCanvas();
@@ -146,9 +154,13 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
           </Col>
           <Col xs={3}>
             <SpecificHeightLink
-              to="/app/account"
+              to={{ pathname: 'https://pages.slasher.tv/advertise' }}
+              target="_blank"
               className="btn btn-dark btn-sidebar w-100 pt-2"
-              onClick={onToggleCanvas}
+              onClick={(e) => {
+                onToggleCanvas();
+                redirectAdevertise(e);
+              }}
             >
               <LinearIcon uniqueId="icon-0">
                 <FontAwesomeIcon color="#FF1800" icon={solid('bullhorn')} size="lg" className="mb-1" />
@@ -164,7 +176,7 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
           </Col>
           <Col xs={3}>
             <SpecificHeightLink
-              to="/app/help"
+              to="#"
               className="btn btn-dark btn-sidebar w-100 pt-2"
               onClick={(e) => {
                 onToggleCanvas();
@@ -184,5 +196,4 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
 MobileOnlySidebarContent.defaultProps = {
   className: '',
 };
-
 export default MobileOnlySidebarContent;

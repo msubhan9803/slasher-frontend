@@ -7,6 +7,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { Share } from '@capacitor/share';
+import copy from 'copy-to-clipboard';
+
 import UserCircleImage from '../../ui/UserCircleImage';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { deletePageStateCache } from '../../../pageStateCache';
@@ -71,6 +73,8 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
         url: 'https://www.slasher.tv',
         dialogTitle: 'Share with buddies',
       });
+    } else {
+      copy("I found the best app for horror fans and thought you'd be into it! Check it out! https://www.slasher.tv");
     }
   };
 

@@ -92,6 +92,10 @@ function SidebarNavItem({
       e.preventDefault();
       window.open('https://pages.slasher.tv/help/', '_blank');
     }
+    if (link_label === 'Deals') {
+      e.preventDefault();
+      window.open('https://deals.slasher.tv/', '_blank');
+    }
   };
   const commonClasses = 'h-100 w-100 rounded-3 px-3 py-2 d-flex align-items-center';
 

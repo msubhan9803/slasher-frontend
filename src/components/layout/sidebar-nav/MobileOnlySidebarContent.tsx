@@ -34,33 +34,24 @@ interface Props {
   onToggleCanvas: () => void;
 }
 
-const redirectHelpClick = (e: React.MouseEvent) => {
-  e.preventDefault();
-  window.open('https://pages.slasher.tv/help/', '_blank');
+const links: any = {
+  help: 'https://pages.slasher.tv/help/',
+  shop: 'https://pages.slasher.tv/shop/',
+  support: 'https://www.patreon.com/theslasherapp',
+  advertise: 'https://pages.slasher.tv/advertise',
 };
 
-const redirectShopClick = (e: React.MouseEvent) => {
+const redirectClick = (e: React.MouseEvent, type: string) => {
   e.preventDefault();
-  window.open('https://pages.slasher.tv/shop/', '_blank');
-};
-
-const redirectPatreon = (e: React.MouseEvent) => {
-  e.preventDefault();
-  window.open('https://www.patreon.com/theslasherapp', '_blank');
-};
-
-const redirectAdevertise = (e: React.MouseEvent) => {
-  e.preventDefault();
-  window.open('https://pages.slasher.tv/advertise', '_blank');
+  window.open(links[type], '_blank');
 };
 
 const shareSlasher = async (e: React.MouseEvent) => {
   e.preventDefault();
   if (isNativePlatform) {
     await Share.share({
-      title: 'See cool stuff',
-      text: 'Really awesome thing you need to see right meow',
-      url: 'http://ionicframework.com/',
+      text: `I found the best app for horror fans and thought you'd be into it! Check it out!`,
+      url: 'https://www.slasher.tv',
       dialogTitle: 'Share with buddies',
     });
   } else {
@@ -116,7 +107,7 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
             </SpecificHeightLink>
           </Col>
           <Col xs={3}>
-            <SpecificHeightLink to="/app/help" className="btn btn-dark btn-sidebar w-100 pt-2" onClick={(e) => { onToggleCanvas(); redirectHelpClick(e); }}>
+            <SpecificHeightLink to="/app/help" className="btn btn-dark btn-sidebar w-100 pt-2" onClick={(e) => { onToggleCanvas(); redirectClick(e, 'help'); }}>
               <FontAwesomeIcon icon={solid('circle-question')} size="lg" className="mb-1" />
               Help
             </SpecificHeightLink>
@@ -131,7 +122,7 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
               className="btn btn-dark btn-sidebar w-100 pt-2"
               onClick={(e) => {
                 onToggleCanvas();
-                redirectShopClick(e);
+                redirectClick(e, 'shop');
               }}
             >
               <UserCircleImage size="1.25em" className="mb-1" src={Slasher} alt="User icon" />
@@ -145,7 +136,7 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
               className="btn btn-dark btn-sidebar w-100 pt-2 position-relative"
               onClick={(e) => {
                 onToggleCanvas();
-                redirectPatreon(e);
+                redirectClick(e, 'support');
               }}
             >
               <UserCircleImage size="1.25em" className="mb-1" src={SupportSlasher} alt="User icon" />
@@ -159,7 +150,7 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
               className="btn btn-dark btn-sidebar w-100 pt-2"
               onClick={(e) => {
                 onToggleCanvas();
-                redirectAdevertise(e);
+                redirectClick(e, 'advertise');
               }}
             >
               <LinearIcon uniqueId="icon-0">

@@ -515,7 +515,7 @@ export class FeedPostsController {
     '$[*].bookId.coverImage.image_path',
     '$[*].rssfeedProviderId.logo',
   )
-  @Get('all')
+  @Get('all/post')
   async allFeedPosts(
     @Req() request: Request,
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) mainFeedPostQueryDto: MainFeedPostQueryDto,

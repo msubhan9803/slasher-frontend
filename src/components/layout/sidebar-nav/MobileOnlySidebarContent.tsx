@@ -50,7 +50,7 @@ const shareSlasher = async (e: React.MouseEvent) => {
   e.preventDefault();
   if (isNativePlatform) {
     await Share.share({
-      text: `I found the best app for horror fans and thought you'd be into it! Check it out!`,
+      text: 'I found the best app for horror fans and thought you\'d be into it! Check it out!',
       url: 'https://www.slasher.tv',
       dialogTitle: 'Share with buddies',
     });

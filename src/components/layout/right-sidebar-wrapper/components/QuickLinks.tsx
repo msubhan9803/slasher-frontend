@@ -6,6 +6,7 @@ import {
   Button, Col, Image, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 import { LinearIcon } from '../../../ui/FavoriteLinearIcon';
 import Slasher from '../../../../images/slasher-logo-small.svg';
 import SupportSlasher from '../../../../images/support-slasher.svg';
@@ -29,6 +30,21 @@ const StyledRow = styled(Row)`
 `;
 
 function QuickLinks() {
+  const redirectShopClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.open('https://pages.slasher.tv/shop/', '_blank');
+  };
+
+  const redirectPatreon = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.open('https://www.patreon.com/theslasherapp', '_blank');
+  };
+
+  const redirectAdevertise = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.open('https://pages.slasher.tv/advertise', '_blank');
+  };
+
   return (
     <>
       <h2 className="mb-0">
@@ -37,7 +53,7 @@ function QuickLinks() {
 
       <StyledRow className="mt-2 px-1">
         <Col xs={4} className="p-1">
-          <div className="bg-dark p-1 d-flex rounded-3 h-100 flex-column justify-content-center">
+          <Link to="https://pages.slasher.tv/shop/" onClick={(e) => redirectShopClick(e)} className="bg-dark p-1 d-flex rounded-3 h-100 flex-column justify-content-center">
             <div className="d-flex justify-content-center">
               <QuickLinksButton src={Slasher} alt="Slasher icon" />
             </div>
@@ -45,11 +61,11 @@ function QuickLinks() {
             <div className="text-center mt-2">
               Slasher Shop
             </div>
-          </div>
+          </Link>
         </Col>
 
         <Col xs={4} className="p-1">
-          <div className="bg-dark p-1 d-flex rounded-3 h-100 flex-column justify-content-center">
+          <Link to="https://www.patreon.com/theslasherapp" onClick={(e) => redirectPatreon(e)} className="bg-dark p-1 d-flex rounded-3 h-100 flex-column justify-content-center">
             <div className="d-flex justify-content-center">
               <QuickLinksButton src={SupportSlasher} alt="Slasher icon" />
             </div>
@@ -57,11 +73,11 @@ function QuickLinks() {
             <div className="text-center mt-2">
               Support Slasher
             </div>
-          </div>
+          </Link>
         </Col>
 
         <Col xs={4} className="p-1">
-          <div className="bg-dark p-1 d-flex rounded-3 h-100 flex-column justify-content-center">
+          <Link to="https://pages.slasher.tv/advertise" onClick={(e) => redirectAdevertise(e)} className="bg-dark p-1 d-flex rounded-3 h-100 flex-column justify-content-center">
             <div className="d-flex justify-content-center">
               <LinearIcon uniqueId="icon-0">
                 <FontAwesomeIcon color="#FF1800" icon={solid('bullhorn')} size="lg" className="mb-1" />
@@ -77,9 +93,8 @@ function QuickLinks() {
             <div className="text-center mt-2">
               Advertise
             </div>
-          </div>
+          </Link>
         </Col>
-
       </StyledRow>
 
       <StyledShareButton className="btn btn-dark text-decoration-none my-2 w-100 h6" onClick={() => copy("I found the best app for horror fans and thought you'd be into it! Check it out! https://www.slasher.tv")}>

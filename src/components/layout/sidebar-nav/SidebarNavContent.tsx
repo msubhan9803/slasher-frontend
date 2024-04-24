@@ -34,9 +34,9 @@ const topMenuListItems: MenuListItem[] = [
   {
     label: 'Events', icon: solid('calendar-day'), iconColor: '#05FF00', to: '/app/events', id: 2, rotate: 0,
   },
-  {
-    label: 'Deals', icon: solid('tag'), iconColor: '#9E9E9E', to: 'https://deals.slasher.tv/', id: 15, rotate: 90,
-  },
+  // {
+  //   label: 'Deals', icon: solid('tag'), iconColor: '#9E9E9E', to: 'https://deals.slasher.tv/', id: 15, rotate: 90,
+  // },
   {
     label: 'Movies', icon: solid('film'), iconColor: '#FF343E', to: '/app/movies/all', id: 3, rotate: 0,
   },

@@ -4,8 +4,9 @@ import { apiUrl } from '../env';
 import { getSessionToken } from '../utils/session-utils';
 import { ContentDescription, PostType } from '../types';
 
-export async function getHomeFeedPosts(lastRetrievedPostId?: string) {
+export async function getHomeFeedPosts(allPosts: boolean, lastRetrievedPostId?: string) {
   const token = await getSessionToken();
+  const url = allPosts ? `${apiUrl}/api/v1/feed-posts/all/post` : `${apiUrl}/api/v1/feed-posts`;
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -13,7 +14,7 @@ export async function getHomeFeedPosts(lastRetrievedPostId?: string) {
   if (lastRetrievedPostId) {
     queryParameter += `&before=${lastRetrievedPostId}`;
   }
-  return axios.get(`${apiUrl}/api/v1/feed-posts${queryParameter}`, { headers });
+  return axios.get(`${url}${queryParameter}`, { headers });
 }
 
 export async function feedPostDetail(id: string) {

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import {
@@ -77,7 +78,13 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
     } else {
       copy("I found the best app for horror fans and thought you'd be into it! Check it out! https://www.slasher.tv");
       toast(
-        'Copied! You can share Slasher with your friends by pasting this in a social media post, message, or email.',
+        <div>
+          <p>Copied!</p>
+          <p>
+            You can share Slasher with your friends by pasting this in a
+            social media post, message, or email.
+          </p>
+        </div>,
         {
           theme: 'dark',
           type: 'success',

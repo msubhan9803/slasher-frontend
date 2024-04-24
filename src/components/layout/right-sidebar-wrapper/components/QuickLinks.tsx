@@ -4,11 +4,10 @@ import copy from 'copy-to-clipboard';
 import React from 'react';
 import {
   Button, Col, Image, Row,
-  Toast,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import { LinearIcon } from '../../../ui/FavoriteLinearIcon';
 import Slasher from '../../../../images/slasher-logo-small.svg';
 import SupportSlasher from '../../../../images/support-slasher.svg';
@@ -47,7 +46,13 @@ function QuickLinks() {
   const onShareWithFriendButtonClick = () => {
     copy("I found the best app for horror fans and thought you'd be into it! Check it out! https://www.slasher.tv");
     toast(
-      'Copied! You can share Slasher with your friends by pasting this in a social media post, message, or email.',
+      <div>
+        <p>Copied!</p>
+        <p>
+          You can share Slasher with your friends by pasting
+          this in a social media post, message, or email.
+        </p>
+      </div>,
       {
         theme: 'dark',
         type: 'success',

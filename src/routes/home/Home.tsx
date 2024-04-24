@@ -4,6 +4,7 @@ import React, {
 } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { useLocation } from 'react-router-dom';
+import styled from 'styled-components';
 import CustomCreatePost from '../../components/ui/CustomCreatePost';
 import PostFeed from '../../components/ui/post/PostFeed/PostFeed';
 import SuggestedFriend from './SuggestedFriend';
@@ -13,6 +14,7 @@ import {
 } from '../../api/feed-posts';
 import {
   ContentDescription, FriendRequestReaction, FriendType, Post,
+  PostsOrder,
 } from '../../types';
 import { PopoverClickProps } from '../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../api/feed-likes';
@@ -35,7 +37,19 @@ import FriendshipStatusModal from '../../components/ui/friendShipCheckModal';
 import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 import RecentlyAddedBooks from './RecentlyAddedBooks';
 import RecentlyAddedMovies from './RecentlyAddedMovies';
+import CustomSelect from '../../components/filter-sort/CustomSelect';
+import {
+  MD_MEDIA_BREAKPOINT, LG_MEDIA_BREAKPOINT, XL_MEDIA_BREAKPOINT, XXL_MEDIA_BREAKPOINT,
+} from '../../constants';
 // import DebugGoogleAnalytics from '../debug-google-analytics';
+
+const SelectContainer = styled.div`
+  @media(max-width: ${MD_MEDIA_BREAKPOINT}) { margin-bottom: 8px; }
+  @media(min-width: ${MD_MEDIA_BREAKPOINT}) { width: 35%; }
+  @media(min-width: ${LG_MEDIA_BREAKPOINT}) { width: 52%; }
+  @media(min-width: ${XL_MEDIA_BREAKPOINT}) { width: 40%; }
+  @media(min-width: ${XXL_MEDIA_BREAKPOINT}) { width: 30%; }
+`;
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
@@ -60,6 +74,8 @@ function Home() {
   const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
   const [friendData, setFriendData] = useState<FriendType>(null);
   const [friendShipStatusModal, setFriendShipStatusModal] = useState<boolean>(false);
+  const [postsOrder, setPostsOrder] = useState<PostsOrder>(PostsOrder.allPosts);
+  const [getAllPosts, setGetAllPosts] = useState<boolean>(true);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const location = useLocation();
   const userId = useAppSelector((state: any) => state.user.user.id);
@@ -110,6 +126,7 @@ function Home() {
     setLoadingPosts(true);
     const lastPostId = posts.length > 0 ? posts[posts.length - 1]._id : undefined;
     getHomeFeedPosts(
+      getAllPosts,
       forceReload ? undefined : lastPostId,
     ).then((res) => {
       const newPosts = res.data.map((data: any) => {
@@ -169,7 +186,7 @@ function Home() {
         if (forceReload && (noMoreData === true)) { setNoMoreData(false); }
       },
     );
-  }, [noMoreData, posts]);
+  }, [noMoreData, posts, getAllPosts]);
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
@@ -200,7 +217,7 @@ function Home() {
     );
   };
   const callLatestFeedPost = () => {
-    getHomeFeedPosts().then((res) => {
+    getHomeFeedPosts(getAllPosts).then((res) => {
       const newPosts = res.data.map((data: any) => {
         if (data.userId) {
           // Regular post
@@ -417,6 +434,15 @@ function Home() {
     setDropDownValue('PostReportSuccessDialog');
   };
 
+  const handlePostsOrder = (value: PostsOrder) => {
+    if (PostsOrder.allPosts === value) {
+      setGetAllPosts(true);
+    } else {
+      setGetAllPosts(false);
+    }
+    setPostsOrder(value);
+  };
+
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
@@ -437,7 +463,18 @@ function Home() {
             </div>
           )
         }
-        <h1 className="h2 my-3 ms-3 ms-md-0">Latest posts</h1>
+
+        <div className="d-flex justify-content-between align-items-center ">
+          <div>
+            <h1 className="h2 my-3 ms-3 ms-md-0">Latest posts</h1>
+          </div>
+
+          <SelectContainer className="ml-auto ms-auto pb-1 mt-3">
+            <CustomSelect value={postsOrder} onChange={handlePostsOrder} options={[{ value: PostsOrder.allPosts, label: 'All posts (default)' }, { value: PostsOrder.friendsPosts, label: 'Friends posts' }]} />
+          </SelectContainer>
+
+        </div>
+
         <InfiniteScroll
           threshold={3000}
           pageStart={0}

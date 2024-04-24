@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { getGlobalCssProperty, removeGlobalCssProperty, setGlobalCssProperty } from '../../../../utils/styles-utils ';
 import SticyBannerAdSpaceCompensation from '../../../SticyBannerAdSpaceCompensation';
+import { getGlobalCssProperty, removeGlobalCssProperty, setGlobalCssProperty } from '../../../../utils/styles-utils ';
+import QuickLinks from '../../right-sidebar-wrapper/components/QuickLinks';
 
 interface Props {
   children: React.ReactNode;
@@ -56,8 +57,10 @@ function RightSidebarWrapper({ children }: Props) {
       className="d-none d-lg-block"
       ref={rightSidebarRef}
     >
+      <QuickLinks />
       {children}
       <SticyBannerAdSpaceCompensation />
+
     </StyledRightSidebarWrapper>
   );
 }

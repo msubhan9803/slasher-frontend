@@ -29,24 +29,39 @@ export class BlocksService {
     );
   }
 
-  async getUserIdsForBlocksToOrFromUser(userId: string): Promise<string[]> {
-    const blocks = await this.blocksModel.find(
-      {
-        $and: [
-          {
-            $or: [
-              { to: new mongoose.Types.ObjectId(userId) },
-              { from: new mongoose.Types.ObjectId(userId) },
-            ],
-          },
-          {
-            reaction: BlockAndUnblockReaction.Block,
-          },
-        ],
-      },
-    );
+  async getUserIdsForBlocksToOrFromUser(userId: string, postUserId?: string): Promise<string[]> {
+    const blocks = await this.blocksModel.find({
+      $and: [
+        {
+          $or: [{ to: new mongoose.Types.ObjectId(userId) }, { from: new mongoose.Types.ObjectId(userId) }],
+        },
+        {
+          reaction: BlockAndUnblockReaction.Block,
+        },
+      ],
+    });
+
+    const postUserBlocks = await this.blocksModel.find({
+      $and: [
+        {
+          $or: [{ to: new mongoose.Types.ObjectId(postUserId) },
+            { from: new mongoose.Types.ObjectId(postUserId) }],
+        },
+        {
+          reaction: BlockAndUnblockReaction.Block,
+        },
+      ],
+    });
+
     const blockFromOrToUserIds = blocks.map((block) => (block.from.toString() === userId ? block.to.toString() : block.from.toString()));
-    const setBlockFromOrToUserIds = new Set(blockFromOrToUserIds);
+
+    const blockFromOrToPostUserIds = postUserBlocks.map((block) => (block.from.toString() === postUserId
+    ? block.to.toString() : block.from.toString()));
+
+    const constcatedUserIds = blockFromOrToUserIds.concat(blockFromOrToPostUserIds);
+
+    const setBlockFromOrToUserIds = new Set(constcatedUserIds);
+
     return [...setBlockFromOrToUserIds];
   }
 

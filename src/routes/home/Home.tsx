@@ -76,6 +76,7 @@ function Home() {
   const [friendShipStatusModal, setFriendShipStatusModal] = useState<boolean>(false);
   const [postsOrder, setPostsOrder] = useState<PostsOrder>(PostsOrder.allPosts);
   const [getAllPosts, setGetAllPosts] = useState<boolean>(true);
+  const [forceLoading, setForceLoading] = useState<boolean>(false);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const location = useLocation();
   const userId = useAppSelector((state: any) => state.user.user.id);
@@ -121,7 +122,7 @@ function Home() {
     setDropDownValue(value);
   };
 
-  const fetchFeedPosts = useCallback((forceReload = false) => {
+  const fetchFeedPosts = useCallback((forceReload = forceLoading) => {
     if (forceReload) { setPosts([]); }
     setLoadingPosts(true);
     const lastPostId = posts.length > 0 ? posts[posts.length - 1]._id : undefined;
@@ -180,6 +181,7 @@ function Home() {
       () => {
         setRequestAdditionalPosts(false);
         setLoadingPosts(false);
+        setForceLoading(false);
         // Fixed edge case bug when `noMoreData` is already set to `true` when user has reached the
         // end of the page and clicks on the `notification-icon` in top navbar to reload the page
         // otherwise pagination doesn't work.
@@ -194,7 +196,7 @@ function Home() {
     }
   }, [
     fetchFeedPosts, loadingPosts, location, pageStateCache.length,
-    posts.length, requestAdditionalPosts, location.pathname,
+    posts.length, requestAdditionalPosts, location.pathname, getAllPosts, postsOrder,
   ]);
 
   useEffect(() => {
@@ -440,7 +442,9 @@ function Home() {
     } else {
       setGetAllPosts(false);
     }
+    setRequestAdditionalPosts(true);
     setPostsOrder(value);
+    setForceLoading(true);
   };
 
   return (

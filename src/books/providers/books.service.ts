@@ -429,11 +429,11 @@ export class BooksService {
           offset += limit;
 
           // Note to developer: Please ignore below log in testing because in testing we use mockup data which is always fixed.
-          console.log('Total books fetched so far?', offset);
+          // console.log('Total books fetched so far?', offset);
 
           const now = DateTime.now();
           const duration = now.diff(this.syncStartTime);
-          console.log('Total time elapsed:', duration.toFormat("h 'hours,' m 'minutes,' s 'seconds'"));
+          // console.log('Total time elapsed:', duration.toFormat("h 'hours,' m 'minutes,' s 'seconds'"));
 
           const timeTaken = (duration.as('seconds') / offset) * data.numFound;
           const estimatedDuration = Duration.fromObject({ seconds: timeTaken });
@@ -464,7 +464,7 @@ export class BooksService {
     const fetchBookDetails = async (i: number) => {
       // Note: This log is here for initial testing and debugging pupose.
       // eslint-disable-next-line no-console
-      console.log(`i=${i}`);
+      // console.log(`i=${i}`);
       const [keyDataSettled, editionKeyDataSettled]: any = await Promise.allSettled([
         lastValueFrom(
           this.httpService.get<any>(`https://openlibrary.org/${booksFromOpenLibrary[i].key}.json`),

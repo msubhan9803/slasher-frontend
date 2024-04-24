@@ -188,7 +188,7 @@ function Home() {
         if (forceReload && (noMoreData === true)) { setNoMoreData(false); }
       },
     );
-  }, [noMoreData, posts, getAllPosts]);
+  }, [noMoreData, posts, getAllPosts, forceLoading]);
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {

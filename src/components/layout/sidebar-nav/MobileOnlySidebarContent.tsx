@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import { Share } from '@capacitor/share';
 import copy from 'copy-to-clipboard';
 
+import { toast } from 'react-toastify';
 import UserCircleImage from '../../ui/UserCircleImage';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { deletePageStateCache } from '../../../pageStateCache';
@@ -75,6 +76,13 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
       });
     } else {
       copy("I found the best app for horror fans and thought you'd be into it! Check it out! https://www.slasher.tv");
+      toast(
+        'Copied! You can share Slasher with your friends by pasting this in a social media post, message, or email.',
+        {
+          theme: 'dark',
+          type: 'success',
+        },
+      );
     }
   };
 

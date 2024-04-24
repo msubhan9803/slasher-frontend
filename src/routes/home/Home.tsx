@@ -466,11 +466,11 @@ function Home() {
 
         <div className="d-flex justify-content-between align-items-center ">
           <div>
-            <h1 className="h2 my-3 ms-3 ms-md-0">Latest posts</h1>
+            <h1 className="h2 my-3 ms-3 ms-md-0">Posts</h1>
           </div>
 
           <SelectContainer className="ml-auto ms-auto pb-1 mt-3">
-            <CustomSelect value={postsOrder} onChange={handlePostsOrder} options={[{ value: PostsOrder.allPosts, label: 'All posts (default)' }, { value: PostsOrder.friendsPosts, label: 'Friends posts' }]} />
+            <CustomSelect value={postsOrder} onChange={handlePostsOrder} options={[{ value: PostsOrder.allPosts, label: 'View: all posts (default)' }, { value: PostsOrder.friendsPosts, label: 'View: Friends\' posts' }]} />
           </SelectContainer>
 
         </div>

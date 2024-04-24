@@ -6,7 +6,7 @@ import { ContentDescription, PostType } from '../types';
 
 export async function getHomeFeedPosts(allPosts: boolean, lastRetrievedPostId?: string) {
   const token = await getSessionToken();
-  const url = allPosts ? `${apiUrl}/api/v1/feed-posts/all` : `${apiUrl}/api/v1/feed-posts`;
+  const url = allPosts ? `${apiUrl}/api/v1/feed-posts/all/post` : `${apiUrl}/api/v1/feed-posts`;
   const headers = {
     Authorization: `Bearer ${token}`,
   };

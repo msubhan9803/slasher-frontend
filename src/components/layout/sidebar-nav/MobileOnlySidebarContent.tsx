@@ -15,7 +15,7 @@ import { setScrollToTabsPosition } from '../../../redux/slices/scrollPositionSli
 import { LinearIcon } from '../../ui/FavoriteLinearIcon';
 import SupportSlasher from '../../../images/support-slasher.svg';
 import Slasher from '../../../images/slasher.svg';
-import { isNativePlatform } from '../../../constants';
+import { WORDPRESS_SITE_URL, isNativePlatform } from '../../../constants';
 
 const SpecificHeightLink = styled(Link)`
   display: flex;
@@ -35,28 +35,10 @@ interface Props {
 }
 
 const links: any = {
-  help: 'https://pages.slasher.tv/help/',
-  shop: 'https://pages.slasher.tv/shop/',
+  help: `${WORDPRESS_SITE_URL}/help/`,
+  shop: `${WORDPRESS_SITE_URL}/shop/`,
   support: 'https://www.patreon.com/theslasherapp',
-  advertise: 'https://pages.slasher.tv/advertise',
-};
-
-const redirectClick = (e: React.MouseEvent, type: string) => {
-  e.preventDefault();
-  window.open(links[type], '_blank');
-};
-
-const shareSlasher = async (e: React.MouseEvent) => {
-  e.preventDefault();
-  if (isNativePlatform) {
-    await Share.share({
-      text: 'I found the best app for horror fans and thought you\'d be into it! Check it out!',
-      url: 'https://www.slasher.tv',
-      dialogTitle: 'Share with buddies',
-    });
-  } else {
-    // native share
-  }
+  advertise: `${WORDPRESS_SITE_URL}/advertise`,
 };
 
 function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
@@ -73,6 +55,22 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
       dispatch(setScrollToTabsPosition(true));
     } else {
       scrollToTop('instant');
+    }
+  };
+
+  const redirectClick = (e: React.MouseEvent, type: string) => {
+    e.preventDefault();
+    window.open(links[type], '_blank');
+  };
+
+  const shareSlasher = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (isNativePlatform) {
+      await Share.share({
+        text: 'I found the best app for horror fans and thought you\'d be into it! Check it out!',
+        url: 'https://www.slasher.tv',
+        dialogTitle: 'Share with buddies',
+      });
     }
   };
 
@@ -117,7 +115,7 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
         <Row className="mt-2">
           <Col xs={3}>
             <SpecificHeightLink
-              to={{ pathname: 'https://pages.slasher.tv/shop/' }}
+              to={{ pathname: links.shop }}
               target="_blank"
               className="btn btn-dark btn-sidebar w-100 pt-2"
               onClick={(e) => {
@@ -145,7 +143,7 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
           </Col>
           <Col xs={3}>
             <SpecificHeightLink
-              to={{ pathname: 'https://pages.slasher.tv/advertise' }}
+              to={{ pathname: links.advertise }}
               target="_blank"
               className="btn btn-dark btn-sidebar w-100 pt-2"
               onClick={(e) => {

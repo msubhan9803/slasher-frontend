@@ -10,6 +10,7 @@ import { Link } from 'react-router-dom';
 import { LinearIcon } from '../../../ui/FavoriteLinearIcon';
 import Slasher from '../../../../images/slasher-logo-small.svg';
 import SupportSlasher from '../../../../images/support-slasher.svg';
+import { WORDPRESS_SITE_URL } from '../../../../constants';
 
 const StyledShareButton = styled(Button)`
   font-weight: 400;
@@ -29,20 +30,16 @@ const StyledRow = styled(Row)`
  }
 `;
 
+const links: any = {
+  shop: `${WORDPRESS_SITE_URL}/shop/`,
+  support: 'https://www.patreon.com/theslasherapp',
+  advertise: `${WORDPRESS_SITE_URL}/advertise`,
+};
+
 function QuickLinks() {
-  const redirectShopClick = (e: React.MouseEvent) => {
+  const redirectClick = (e: React.MouseEvent, type: string) => {
     e.preventDefault();
-    window.open('https://pages.slasher.tv/shop/', '_blank');
-  };
-
-  const redirectPatreon = (e: React.MouseEvent) => {
-    e.preventDefault();
-    window.open('https://www.patreon.com/theslasherapp', '_blank');
-  };
-
-  const redirectAdevertise = (e: React.MouseEvent) => {
-    e.preventDefault();
-    window.open('https://pages.slasher.tv/advertise', '_blank');
+    window.open(links[type], '_blank');
   };
 
   return (
@@ -53,7 +50,7 @@ function QuickLinks() {
 
       <StyledRow className="mt-2 px-1">
         <Col xs={4} className="p-1">
-          <Link to="https://pages.slasher.tv/shop/" onClick={(e) => redirectShopClick(e)} className="bg-dark p-1 d-flex rounded-3 h-100 flex-column justify-content-center">
+          <Link to="https://pages.slasher.tv/shop/" onClick={(e) => redirectClick(e, 'shop')} className="bg-dark p-1 d-flex rounded-3 h-100 flex-column justify-content-center">
             <div className="d-flex justify-content-center">
               <QuickLinksButton src={Slasher} alt="Slasher icon" />
             </div>
@@ -65,7 +62,7 @@ function QuickLinks() {
         </Col>
 
         <Col xs={4} className="p-1">
-          <Link to="https://www.patreon.com/theslasherapp" onClick={(e) => redirectPatreon(e)} className="bg-dark p-1 d-flex rounded-3 h-100 flex-column justify-content-center">
+          <Link to="https://www.patreon.com/theslasherapp" onClick={(e) => redirectClick(e, 'support')} className="bg-dark p-1 d-flex rounded-3 h-100 flex-column justify-content-center">
             <div className="d-flex justify-content-center">
               <QuickLinksButton src={SupportSlasher} alt="Slasher icon" />
             </div>
@@ -77,7 +74,7 @@ function QuickLinks() {
         </Col>
 
         <Col xs={4} className="p-1">
-          <Link to="https://pages.slasher.tv/advertise" onClick={(e) => redirectAdevertise(e)} className="bg-dark p-1 d-flex rounded-3 h-100 flex-column justify-content-center">
+          <Link to="https://pages.slasher.tv/advertise" onClick={(e) => redirectClick(e, 'advertise')} className="bg-dark p-1 d-flex rounded-3 h-100 flex-column justify-content-center">
             <div className="d-flex justify-content-center">
               <LinearIcon uniqueId="icon-0">
                 <FontAwesomeIcon color="#FF1800" icon={solid('bullhorn')} size="lg" className="mb-1" />

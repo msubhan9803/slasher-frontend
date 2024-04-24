@@ -512,10 +512,11 @@ export class FeedPostsService {
 
   async getLikeUsersForPost(postData: FeedPost, limit: number, offset = 0, requestingContextUserId?: string) {
     const filter: any = [{ feedPostId: postData._id }];
+    const feedPostUser = postData.rssfeedProviderId ? null : (postData.userId as any)._id.toString();
 
     // Do not return likes by blocked users
     if (requestingContextUserId) {
-      const blockUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(requestingContextUserId, postData.userId.toString());
+      const blockUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(requestingContextUserId, feedPostUser);
       filter.push({ userId: { $nin: blockUserIds } });
     }
     const feedPostLikes = await this.feedLikesModel

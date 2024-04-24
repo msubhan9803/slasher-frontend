@@ -50,7 +50,7 @@ function QuickLinks() {
 
       <StyledRow className="mt-2 px-1">
         <Col xs={4} className="p-1">
-          <Link to="https://pages.slasher.tv/shop/" onClick={(e) => redirectClick(e, 'shop')} className="bg-dark p-1 d-flex rounded-3 h-100 flex-column justify-content-center">
+          <Link to="https://pages.slasher.tv/shop/" onClick={(e) => redirectClick(e, 'shop')} className="text-decoration-none bg-dark p-1 d-flex rounded-3 h-100 flex-column justify-content-center">
             <div className="d-flex justify-content-center">
               <QuickLinksButton src={Slasher} alt="Slasher icon" />
             </div>
@@ -62,7 +62,7 @@ function QuickLinks() {
         </Col>
 
         <Col xs={4} className="p-1">
-          <Link to="https://www.patreon.com/theslasherapp" onClick={(e) => redirectClick(e, 'support')} className="bg-dark p-1 d-flex rounded-3 h-100 flex-column justify-content-center">
+          <Link to="https://www.patreon.com/theslasherapp" onClick={(e) => redirectClick(e, 'support')} className="text-decoration-none bg-dark p-1 d-flex rounded-3 h-100 flex-column justify-content-center">
             <div className="d-flex justify-content-center">
               <QuickLinksButton src={SupportSlasher} alt="Slasher icon" />
             </div>
@@ -74,7 +74,7 @@ function QuickLinks() {
         </Col>
 
         <Col xs={4} className="p-1">
-          <Link to="https://pages.slasher.tv/advertise" onClick={(e) => redirectClick(e, 'advertise')} className="bg-dark p-1 d-flex rounded-3 h-100 flex-column justify-content-center">
+          <Link to="https://pages.slasher.tv/advertise" onClick={(e) => redirectClick(e, 'advertise')} className="text-decoration-none text-decoration-none bg-dark p-1 d-flex rounded-3 h-100 flex-column justify-content-center">
             <div className="d-flex justify-content-center">
               <LinearIcon uniqueId="icon-0">
                 <FontAwesomeIcon color="#FF1800" icon={solid('bullhorn')} size="lg" className="mb-1" />

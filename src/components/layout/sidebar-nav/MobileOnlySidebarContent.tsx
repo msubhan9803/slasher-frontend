@@ -151,15 +151,15 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
                 redirectClick(e, 'advertise');
               }}
             >
-              <LinearIcon uniqueId="icon-0">
-                <FontAwesomeIcon color="#FF1800" icon={solid('bullhorn')} size="lg" className="mb-1" />
-                <svg width="0" height="0">
-                  <linearGradient id="icon-0" x1="100%" y1="100%" x2="0%" y2="0%">
-                    <stop offset="0%" style={{ stopColor: '#B412AE', stopOpacity: '1' }} />
-                    <stop offset="100%" style={{ stopColor: '#E25ED2', stopOpacity: '1' }} />
-                  </linearGradient>
-                </svg>
+              <LinearIcon uniqueId="icon-11">
+                <FontAwesomeIcon icon={solid('bullhorn')} size="lg" className="mb-1" />
               </LinearIcon>
+              <svg width="0" height="0">
+                <linearGradient id="icon-11" x1="100%" y1="100%" x2="0%" y2="0%">
+                  <stop offset="0%" style={{ stopColor: '#B412AE', stopOpacity: '1' }} />
+                  <stop offset="100%" style={{ stopColor: '#E25ED2', stopOpacity: '1' }} />
+                </linearGradient>
+              </svg>
               Advertise
             </SpecificHeightLink>
           </Col>

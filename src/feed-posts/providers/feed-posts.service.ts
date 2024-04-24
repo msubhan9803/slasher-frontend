@@ -305,6 +305,70 @@ export class FeedPostsService {
     return feedPosts;
   }
 
+  async findAllFeedPostsForUser(
+    userId: string,
+    limit: number,
+    before?: mongoose.Types.ObjectId,
+  ): Promise<FeedPostDocument[]> {
+    // Get the list of rss feed providers that the user is following
+    const rssFeedProviderIds = (await this.rssFeedProviderFollowsService.findAllByUserId(userId)).map((follow) => follow.rssfeedProviderId);
+    // Get the list of friend ids
+    const blockIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(userId);
+
+    const profileIdsToIgnore = await this.userModel.find({
+      _id: { $ne: new mongoose.Types.ObjectId(userId) },
+      $or: [
+        { profile_status: ProfileVisibility.Private },
+        { $and: [{ profile_status: ProfileVisibility.Public, deleted: true }] },
+      ],
+    }, { _id: 1 });
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    const userIds = profileIdsToIgnore.map((userId) => userId._id);
+    // Optionally, only include posts that are older than the given `before` post
+    const beforeQuery: any = {};
+    if (before) {
+      const feedPost = await this.feedPostModel.findById(before).exec();
+      beforeQuery.lastUpdateAt = { $lt: feedPost.lastUpdateAt };
+    }
+
+    const query = await this.feedPostModel
+      .find({
+        $and: [
+          { status: 1 },
+          { is_deleted: 0 },
+          {
+            $or: [
+              { userId: { $nin: [...blockIds, ...userIds] } },
+              { userId: new mongoose.Types.ObjectId(userId) },
+              { rssfeedProviderId: { $in: rssFeedProviderIds } },
+            ],
+          },
+          {
+            $and: [
+              { postType: { $ne: PostType.News } },
+            ],
+          },
+          { hideUsers: { $ne: new mongoose.Types.ObjectId(userId) } },
+          beforeQuery,
+        ],
+      })
+      .populate('userId', '_id userName profilePic')
+      .populate('rssfeedProviderId', '_id title logo')
+      .populate('movieId', 'logo name releaseDate')
+      .populate('bookId', 'name publishDate coverImage')
+      .sort({ lastUpdateAt: -1 })
+      .limit(limit)
+      .exec();
+    const feedPosts = JSON.parse(JSON.stringify(query)).map((post) => {
+      // eslint-disable-next-line no-param-reassign
+      post.likedByUser = post.likes.includes(userId);
+      // eslint-disable-next-line no-param-reassign
+      post.likeCount = post.likes.length || 0;
+      return post;
+    });
+    return feedPosts;
+  }
+
   async findAllFeedPostsForHashtag(
     hashtag: string,
     limit: number,

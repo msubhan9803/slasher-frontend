@@ -114,7 +114,7 @@ describe('Create Feed Post Like (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.CREATED);
-      expect(response.body).toEqual({ success: true, isFriend: true });
+      expect(response.body).toEqual({ success: true });
 
       const reloadedFeedPost = await feedPostsService.findByIdWithPopulatedFields(feedPost.id, false);
       expect(reloadedFeedPost.likes).toHaveLength(2);
@@ -155,7 +155,7 @@ describe('Create Feed Post Like (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.CREATED);
-      expect(response.body).toEqual({ isFriend: true, success: true });
+      expect(response.body).toEqual({ success: true });
       const reloadedFeedPost = await feedPostsService.findByIdWithPopulatedFields(feedPost.id, false);
       expect(reloadedFeedPost.likes).toHaveLength(1);
       expect(reloadedFeedPost.likeCount).toBe(1);
@@ -314,7 +314,7 @@ describe('Create Feed Post Like (e2e)', () => {
           .auth(user2AuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toBe(HttpStatus.CREATED);
-        expect(response.body).toEqual({ success: true, isFriend: false });
+        expect(response.body).toEqual({ success: true });
       });
 
       it('should not allow the creation of a post like when liking user is not a'
@@ -363,7 +363,7 @@ describe('Create Feed Post Like (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toBe(HttpStatus.CREATED);
-        expect(response.body).toEqual({ success: true, isFriend: true });
+        expect(response.body).toEqual({ success: true });
       });
 
       it('when postType is movieReview than expected response', async () => {
@@ -380,7 +380,7 @@ describe('Create Feed Post Like (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toBe(HttpStatus.CREATED);
-        expect(response.body).toEqual({ success: true, isFriend: true });
+        expect(response.body).toEqual({ success: true });
       });
 
       it('when postType is movieReview and post liking user is a friend of the post creator', async () => {
@@ -409,7 +409,7 @@ describe('Create Feed Post Like (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toBe(HttpStatus.CREATED);
-        expect(response.body).toEqual({ success: true, isFriend: true });
+        expect(response.body).toEqual({ success: true });
       });
 
       it('when post has an rssfeedProviderId, it returns a successful response', async () => {
@@ -424,7 +424,7 @@ describe('Create Feed Post Like (e2e)', () => {
           .post(`/api/v1/feed-likes/post/${feedPost2._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body).toEqual({ success: true, isFriend: true });
+        expect(response.body).toEqual({ success: true });
       });
     });
 

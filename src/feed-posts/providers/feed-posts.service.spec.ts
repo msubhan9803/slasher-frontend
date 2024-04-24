@@ -1251,7 +1251,7 @@ describe('FeedPostsService', () => {
         const limit = 10;
         const offset = 0;
         const requestingContextUserId = activeUser.id;
-        const likeUsers = await feedPostsService.getLikeUsersForPost(feedPost.id, limit, offset, requestingContextUserId);
+        const likeUsers = await feedPostsService.getLikeUsersForPost(feedPost, limit, offset, requestingContextUserId);
         const allLikeUsers = likeUsers.map((user) => user._id.toString());
         expect(allLikeUsers).not.toContain(user0.id);
       });

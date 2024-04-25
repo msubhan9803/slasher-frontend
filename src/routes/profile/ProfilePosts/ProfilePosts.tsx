@@ -25,7 +25,7 @@ import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent'
 import { deletedPostsCache, setPageStateCache } from '../../../pageStateCache';
 import useProgressButton from '../../../components/ui/ProgressButton';
 import FriendshipStatusModal from '../../../components/ui/friendShipCheckModal';
-import { friendship } from '../../../api/friends';
+// import { friendship } from '../../../api/friends';
 import { getProfileSubroutesCache } from '../profileSubRoutesCacheUtils';
 import { formatNumberWithUnits } from '../../../utils/number.utils';
 import { setProfilePageUserDetailsReload } from '../../../redux/slices/userSlice';
@@ -228,27 +228,27 @@ function ProfilePosts({ user }: Props) {
       .catch((error) => console.error(error));
   };
 
-  const checkFriendShipStatus = useCallback((selectedFeedPostId: string) => new Promise<void>(
-    (resolve, reject) => {
-      if (userId === selectedFeedPostId) {
-        resolve();
-      } else {
-        friendship(selectedFeedPostId).then((res) => {
-          if (res.data.reaction === FriendRequestReaction.Accepted) {
-            resolve();
-          } else {
-            setPostUserId(selectedFeedPostId);
-            setFriendShipStatusModal(true);
-            setFriendData(res.data);
-            setFriendStatus(res.data.reaction);
-            reject();
-          }
-        }).catch(() => {
-          reject();
-        });
-      }
-    },
-  ), [userId]);
+  // const checkFriendShipStatus = useCallback((selectedFeedPostId: string) => new Promise<void>(
+  //   (resolve, reject) => {
+  //     if (userId === selectedFeedPostId) {
+  //       resolve();
+  //     } else {
+  //       friendship(selectedFeedPostId).then((res) => {
+  //         if (res.data.reaction === FriendRequestReaction.Accepted) {
+  //           resolve();
+  //         } else {
+  //           setPostUserId(selectedFeedPostId);
+  //           setFriendShipStatusModal(true);
+  //           setFriendData(res.data);
+  //           setFriendStatus(res.data.reaction);
+  //           reject();
+  //         }
+  //       }).catch(() => {
+  //         reject();
+  //       });
+  //     }
+  //   },
+  // ), [userId]);
 
   const handlePostDislike = useCallback((feedPostId: string) => {
     setPosts((prevPosts) => prevPosts.map(
@@ -299,28 +299,29 @@ function ProfilePosts({ user }: Props) {
       }
     };
 
-    const selectedFeedPostUserId = posts.find((post) => post.id === feedPostId)?.userId;
+    // const selectedFeedPostUserId = posts.find((post) => post.id === feedPostId)?.userId;
 
     const handleLikeAndUnlikeFeedPost = async () => {
       try {
         if (checkLike) {
           await unlikeFeedPost(feedPostId);
         } else {
-          const res = await likeFeedPost(feedPostId);
-          if (!res.data.isFriend) {
-            checkFriendShipStatus(selectedFeedPostUserId!);
-          }
+          await likeFeedPost(feedPostId);
+          // const res = await likeFeedPost(feedPostId);
+          // if (!res.data.isFriend) {
+          //   checkFriendShipStatus(selectedFeedPostUserId!);
+          // }
         }
       } catch (error: any) {
         revertOptimisticUpdate();
         if (error.response.status === 403) {
-          checkFriendShipStatus(selectedFeedPostUserId!);
+          // checkFriendShipStatus(selectedFeedPostUserId!);
         }
       }
     };
 
     handleLikeAndUnlikeFeedPost();
-  }, [checkFriendShipStatus, handlePostDislike, handlePostLike, posts]);
+  }, [handlePostDislike, handlePostLike, posts]);
 
   const onBlockYesClick = () => {
     setProgressButtonStatus('loading');

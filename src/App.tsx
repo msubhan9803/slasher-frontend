@@ -5,6 +5,7 @@ import {
   Route, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
 import { App as CapacitorApp } from '@capacitor/app';
+import { isAndroid, isIOS } from 'react-device-detect';
 import { StatusBar } from '@capacitor/status-bar';
 import { Keyboard } from '@capacitor/keyboard';
 import VerificationEmailNotReceived from './routes/verification-email-not-received/VerificationEmailNotReceived';
@@ -31,6 +32,8 @@ import ResetPassword from './routes/reset-password/ResetPassword';
 import AccountActivated from './routes/account-activated/AccountActivated';
 import {
   topStatuBarBackgroundColorAndroidOnly, isNativePlatform,
+  GOOGLE_PLAY_DOWNLOAD_URL,
+  APP_STORE_DOWNLOAD_URL,
 } from './constants';
 import Books from './routes/books/Books';
 import Artists from './routes/artists/Artists';
@@ -162,6 +165,17 @@ function App() {
       await detectAppVersion();
       setAppVersionDetected(true);
     })();
+  }, []);
+
+  useEffect(() => {
+    const redirectToStore = () => {
+      if (isIOS) {
+        window.open(APP_STORE_DOWNLOAD_URL, '_blank');
+      } else if (isAndroid) {
+        window.open(GOOGLE_PLAY_DOWNLOAD_URL, '_blank');
+      }
+    };
+    redirectToStore();
   }, []);
 
   if (!appVersionDetected) { return <div />; }

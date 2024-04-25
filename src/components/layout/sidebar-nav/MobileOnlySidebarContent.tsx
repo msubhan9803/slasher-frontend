@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import {
@@ -6,16 +7,25 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { Share } from '@capacitor/share';
+import copy from 'copy-to-clipboard';
+
+import { toast } from 'react-toastify';
 import UserCircleImage from '../../ui/UserCircleImage';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { deletePageStateCache } from '../../../pageStateCache';
 import { scrollToTop } from '../../../utils/scrollFunctions';
 import { setScrollToTabsPosition } from '../../../redux/slices/scrollPositionSlice';
+import { LinearIcon } from '../../ui/FavoriteLinearIcon';
+import SupportSlasher from '../../../images/support-slasher.svg';
+import Slasher from '../../../images/slasher.svg';
+import { WORDPRESS_SITE_URL, isNativePlatform } from '../../../constants';
 
 const SpecificHeightLink = styled(Link)`
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-height: 100%
 `;
 
 const BadgeSpan = styled.span`
@@ -28,9 +38,11 @@ interface Props {
   onToggleCanvas: () => void;
 }
 
-const redirectHelpClick = (e: React.MouseEvent) => {
-  e.preventDefault();
-  window.open('https://pages.slasher.tv/help/', '_blank');
+const links: any = {
+  help: `${WORDPRESS_SITE_URL}/help/`,
+  shop: `${WORDPRESS_SITE_URL}/shop/`,
+  support: 'https://www.patreon.com/theslasherapp',
+  advertise: `${WORDPRESS_SITE_URL}/advertise`,
 };
 
 function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
@@ -47,6 +59,37 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
       dispatch(setScrollToTabsPosition(true));
     } else {
       scrollToTop('instant');
+    }
+  };
+
+  const redirectClick = (e: React.MouseEvent, type: string) => {
+    e.preventDefault();
+    window.open(links[type], '_blank');
+  };
+
+  const shareSlasher = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (isNativePlatform) {
+      await Share.share({
+        text: 'I found the best app for horror fans and thought you\'d be into it! Check it out!',
+        url: 'https://www.slasher.tv',
+        dialogTitle: 'Share with buddies',
+      });
+    } else {
+      copy("I found the best app for horror fans and thought you'd be into it! Check it out! https://www.slasher.tv");
+      toast(
+        <div>
+          <p>Copied!</p>
+          <p>
+            You can share Slasher with your friends by pasting this in a
+            social media post, message, or email.
+          </p>
+        </div>,
+        {
+          theme: 'dark',
+          type: 'success',
+        },
+      );
     }
   };
 
@@ -68,9 +111,9 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
               <FontAwesomeIcon icon={solid('user-group')} size="lg" className="mb-1" />
               Friends
               {userData.friendRequestCount !== 0 && (
-              <BadgeSpan className="text-black top-0 start-50 translate-middle-y badge rounded-pill bg-primary position-absolute">
-                {userData.friendRequestCount}
-              </BadgeSpan>
+                <BadgeSpan className="text-black top-0 start-50 translate-middle-y badge rounded-pill bg-primary position-absolute">
+                  {userData.friendRequestCount}
+                </BadgeSpan>
               )}
             </SpecificHeightLink>
           </Col>
@@ -81,9 +124,75 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
             </SpecificHeightLink>
           </Col>
           <Col xs={3}>
-            <SpecificHeightLink to="/app/help" className="btn btn-dark btn-sidebar w-100 pt-2" onClick={(e) => { onToggleCanvas(); redirectHelpClick(e); }}>
+            <SpecificHeightLink to="/app/help" className="btn btn-dark btn-sidebar w-100 pt-2" onClick={(e) => { onToggleCanvas(); redirectClick(e, 'help'); }}>
               <FontAwesomeIcon icon={solid('circle-question')} size="lg" className="mb-1" />
               Help
+            </SpecificHeightLink>
+          </Col>
+        </Row>
+
+        <Row className="mt-2">
+          <Col xs={3}>
+            <SpecificHeightLink
+              to={{ pathname: links.shop }}
+              target="_blank"
+              className="btn btn-dark btn-sidebar w-100 pt-2"
+              onClick={(e) => {
+                onToggleCanvas();
+                redirectClick(e, 'shop');
+              }}
+            >
+              <UserCircleImage size="1.25em" className="mb-1" src={Slasher} alt="User icon" />
+              Slasher Shop
+            </SpecificHeightLink>
+          </Col>
+          <Col xs={3}>
+            <SpecificHeightLink
+              to={{ pathname: 'https://www.patreon.com/theslasherapp' }}
+              target="_blank"
+              className="btn btn-dark btn-sidebar w-100 pt-2 position-relative"
+              onClick={(e) => {
+                onToggleCanvas();
+                redirectClick(e, 'support');
+              }}
+            >
+              <UserCircleImage size="1.25em" className="mb-1" src={SupportSlasher} alt="User icon" />
+              Support Slasher
+            </SpecificHeightLink>
+          </Col>
+          <Col xs={3}>
+            <SpecificHeightLink
+              to={{ pathname: links.advertise }}
+              target="_blank"
+              className="btn btn-dark btn-sidebar w-100 pt-2"
+              onClick={(e) => {
+                onToggleCanvas();
+                redirectClick(e, 'advertise');
+              }}
+            >
+              <LinearIcon uniqueId="icon-11">
+                <FontAwesomeIcon icon={solid('bullhorn')} size="lg" className="mb-1" />
+              </LinearIcon>
+              <svg width="0" height="0">
+                <linearGradient id="icon-11" x1="100%" y1="100%" x2="0%" y2="0%">
+                  <stop offset="0%" style={{ stopColor: '#B412AE', stopOpacity: '1' }} />
+                  <stop offset="100%" style={{ stopColor: '#E25ED2', stopOpacity: '1' }} />
+                </linearGradient>
+              </svg>
+              Advertise
+            </SpecificHeightLink>
+          </Col>
+          <Col xs={3}>
+            <SpecificHeightLink
+              to="#"
+              className="btn btn-dark btn-sidebar w-100 pt-2"
+              onClick={(e) => {
+                onToggleCanvas();
+                shareSlasher(e);
+              }}
+            >
+              <FontAwesomeIcon color="#FF1800" icon={solid('share-alt')} size="lg" className="mb-1" />
+              Share Slasher
             </SpecificHeightLink>
           </Col>
         </Row>
@@ -95,5 +204,4 @@ function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
 MobileOnlySidebarContent.defaultProps = {
   className: '',
 };
-
 export default MobileOnlySidebarContent;

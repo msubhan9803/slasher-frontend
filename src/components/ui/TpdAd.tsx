@@ -48,7 +48,7 @@ function AdContainer({
     isAdQueued.current = true;
 
     // eslint-disable-next-line no-console
-    console.log('myLogs: (id, slotId)?', id, ',', slotId);
+    // console.log('myLogs: (id, slotId)?', id, ',', slotId);
 
     // Ad Loading
     // ============

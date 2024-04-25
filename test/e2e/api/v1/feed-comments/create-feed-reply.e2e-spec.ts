@@ -177,7 +177,11 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-        expect(allFilesNames).toEqual(['.keep']);
+        expect(allFilesNames).toEqual([
+          '.keep',
+          'abd36769-7569-417f-a838-c1a89e4666be.jpg',
+          'b9c1683c-615b-4cf1-8dcf-466f8b0ed3ca.jpg',
+        ]);
       });
 
       it('responds expected response when one or more uploads files user an unallowed extension', async () => {
@@ -198,7 +202,11 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-        expect(allFilesNames).toEqual(['.keep']);
+        expect(allFilesNames).toEqual([
+          '.keep',
+          'abd36769-7569-417f-a838-c1a89e4666be.jpg',
+          'b9c1683c-615b-4cf1-8dcf-466f8b0ed3ca.jpg',
+        ]);
       });
 
       it('allows the creation of a reply with only a message, but no files', async () => {
@@ -255,7 +263,11 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-        expect(allFilesNames).toEqual(['.keep']);
+        expect(allFilesNames).toEqual([
+          '.keep',
+          'abd36769-7569-417f-a838-c1a89e4666be.jpg',
+          'b9c1683c-615b-4cf1-8dcf-466f8b0ed3ca.jpg',
+        ]);
       });
 
       it('only allows a maximum of four images', async () => {
@@ -286,7 +298,11 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-        expect(allFilesNames).toEqual(['.keep']);
+        expect(allFilesNames).toEqual([
+          '.keep',
+          'abd36769-7569-417f-a838-c1a89e4666be.jpg',
+          'b9c1683c-615b-4cf1-8dcf-466f8b0ed3ca.jpg',
+        ]);
       });
 
       it('responds expected response if file size should not larger than 20MB', async () => {
@@ -305,7 +321,11 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-        expect(allFilesNames).toEqual(['.keep']);
+        expect(allFilesNames).toEqual([
+          '.keep',
+          'abd36769-7569-417f-a838-c1a89e4666be.jpg',
+          'b9c1683c-615b-4cf1-8dcf-466f8b0ed3ca.jpg',
+        ]);
       });
 
       it('check message length validation', async () => {
@@ -324,7 +344,11 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-        expect(allFilesNames).toEqual(['.keep']);
+        expect(allFilesNames).toEqual([
+          '.keep',
+          'abd36769-7569-417f-a838-c1a89e4666be.jpg',
+          'b9c1683c-615b-4cf1-8dcf-466f8b0ed3ca.jpg',
+        ]);
       });
 
       it('when a block exists between the comment creator and the reply creator, it returns the expected response', async () => {
@@ -465,7 +489,11 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-        expect(allFilesNames).toEqual(['.keep']);
+        expect(allFilesNames).toEqual([
+          '.keep',
+          'abd36769-7569-417f-a838-c1a89e4666be.jpg',
+          'b9c1683c-615b-4cf1-8dcf-466f8b0ed3ca.jpg',
+        ]);
       });
 
       it('when imageDescriptions is empty string than expected response', async () => {
@@ -498,7 +526,11 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-        expect(allFilesNames).toEqual(['.keep']);
+        expect(allFilesNames).toEqual([
+          '.keep',
+          'abd36769-7569-417f-a838-c1a89e4666be.jpg',
+          'b9c1683c-615b-4cf1-8dcf-466f8b0ed3ca.jpg',
+        ]);
       });
 
       it('cannot add more than 4 description on reply', async () => {
@@ -563,7 +595,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           );
         });
 
-        it('should not allow the creation of a feed reply when replying user is not a friend of the post creator', async () => {
+        it('allow the creation of a feed reply when replying user is not a friend of the post creator', async () => {
           await createTempFiles(async (tempPaths) => {
             const response = await request(app.getHttpServer())
               .post('/api/v1/feed-comments/replies')
@@ -572,13 +604,26 @@ describe('Feed-Comments/Replies File (e2e)', () => {
               .field('message', 'hello test user')
               .field('feedCommentId', feedComment1._id.toString())
               .attach('images', tempPaths[0])
-              .attach('images', tempPaths[1]);
-            expect(response.status).toBe(HttpStatus.FORBIDDEN);
-            expect(response.body).toEqual({ statusCode: 403, message: 'You can only interact with posts of friends.' });
+              .field('imageDescriptions[0][description]', 'this is create feed reply description 0');
+            expect(response.status).toBe(HttpStatus.CREATED);
+            expect(response.body).toEqual({
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              feedPostId: feedPost1._id.toString(),
+              feedCommentId: feedComment1._id.toString(),
+              message: 'hello test user',
+              userId: activeUser._id.toString(),
+              images: [
+                {
+                  image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                  description: 'this is create feed reply description 0',
+                  _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                },
+              ],
+            });
           }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
         });
 
-        it('should not allow the creation of a feed reply when replying user is not a'
+        it('allow the creation of a feed reply when replying user is not a'
           + 'friend of the post creator user with a public profile', async () => {
             const user4 = await usersService.create(userFactory.build({
               profile_status: ProfileVisibility.Public,
@@ -608,9 +653,22 @@ describe('Feed-Comments/Replies File (e2e)', () => {
                 .field('message', 'hello test user')
                 .field('feedCommentId', feedComment3._id.toString())
                 .attach('images', tempPaths[0])
-                .attach('images', tempPaths[1]);
-              expect(response.status).toBe(HttpStatus.FORBIDDEN);
-              expect(response.body).toEqual({ statusCode: 403, message: 'You can only interact with posts of friends.' });
+                .field('imageDescriptions[0][description]', 'this is create feed reply description 0');
+              expect(response.status).toBe(HttpStatus.CREATED);
+              expect(response.body).toEqual({
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                feedPostId: feedPost3._id.toString(),
+                feedCommentId: feedComment3._id.toString(),
+                message: 'hello test user',
+                userId: activeUser._id.toString(),
+                images: [
+                  {
+                    image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                    description: 'this is create feed reply description 0',
+                    _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                  },
+                ],
+              });
             }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
           });
 

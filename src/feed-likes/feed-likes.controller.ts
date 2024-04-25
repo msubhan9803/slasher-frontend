@@ -52,7 +52,7 @@ export class FeedLikesController {
     if (feedPostLikeData) {
       throw new HttpException('You already like the post', HttpStatus.BAD_REQUEST);
     }
-    
+
     if (!post.rssfeedProviderId) {
       const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User).toString());
       if (block) {
@@ -169,6 +169,11 @@ export class FeedLikesController {
     const feedPost = await this.feedPostsService.findById(reply.feedPostId.toString(), true);
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+
+    const blockPostData = await this.blocksService.blockExistsBetweenUsers(user.id, feedPost.userId.toString());
+    if (blockPostData) {
+      throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
     }
 
     const blockData = await this.blocksService.blockExistsBetweenUsers(user.id, reply.userId.toString());

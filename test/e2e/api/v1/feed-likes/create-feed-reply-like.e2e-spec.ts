@@ -272,7 +272,7 @@ describe('Create Feed Reply Like (e2e)', () => {
           .send();
         expect(response.status).toEqual(HttpStatus.FORBIDDEN);
         expect(response.body).toEqual({
-          message: 'You can only interact with posts of friends.',
+          message: 'Request failed due to user block (post owner).',
           statusCode: HttpStatus.FORBIDDEN,
         });
       });
@@ -375,16 +375,16 @@ describe('Create Feed Reply Like (e2e)', () => {
           );
         });
 
-        it('should not allow the creation of a reply like when liking user is not a friend of the post creator', async () => {
+        it('allow the creation of a reply like when liking user is not a friend of the post creator', async () => {
           const response = await request(app.getHttpServer())
             .post(`/api/v1/feed-likes/reply/${feedReply4._id}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
-          expect(response.status).toBe(HttpStatus.FORBIDDEN);
-          expect(response.body).toEqual({ statusCode: 403, message: 'You can only interact with posts of friends.' });
+          expect(response.status).toBe(HttpStatus.CREATED);
+          expect(response.body).toEqual({ success: true });
         });
 
-        it('should not allow the creation of a reply like when liking user is not a'
+        it('allow the creation of a reply like when liking user is not a'
           + 'friend of the post creator and user with a public profile', async () => {
             const user3 = await usersService.create(userFactory.build({
               profile_status: ProfileVisibility.Public,
@@ -420,8 +420,8 @@ describe('Create Feed Reply Like (e2e)', () => {
               .post(`/api/v1/feed-likes/reply/${feedReply5._id}`)
               .auth(activeUserAuthToken, { type: 'bearer' })
               .send();
-            expect(response.status).toBe(HttpStatus.FORBIDDEN);
-            expect(response.body).toEqual({ statusCode: 403, message: 'You can only interact with posts of friends.' });
+            expect(response.status).toBe(HttpStatus.CREATED);
+            expect(response.body).toEqual({ success: true });
           });
 
         it('should allow the creation of a reply like when liking user is a friend of the post creator', async () => {
@@ -459,11 +459,8 @@ describe('Create Feed Reply Like (e2e)', () => {
             .post(`/api/v1/feed-likes/reply/${feedReply6._id}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
-          expect(response.status).toBe(HttpStatus.FORBIDDEN);
-          expect(response.body).toEqual({
-            message: 'You can only interact with posts of friends.',
-            statusCode: HttpStatus.FORBIDDEN,
-          });
+          expect(response.status).toBe(HttpStatus.CREATED);
+          expect(response.body).toEqual({ success: true });
         });
 
         it(`should allow the creation of a reply like when liking user is not a friend

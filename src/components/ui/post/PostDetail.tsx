@@ -14,6 +14,9 @@ import {
   updateFeedCommentReply, updateFeedComments,
 } from '../../../api/feed-comments';
 import {
+  likeFeedComment,
+  likeFeedPost,
+  likeFeedReply,
   unlikeFeedComment, unlikeFeedPost, unlikeFeedReply,
 } from '../../../api/feed-likes';
 import { deleteFeedPost, feedPostDetail, updateFeedPost } from '../../../api/feed-posts';
@@ -724,6 +727,7 @@ function PostDetail({
         if (checkLike) {
           await unlikeFeedPost(feedPostId);
         } else {
+          await likeFeedPost(feedPostId);
           // const res = await likeFeedPost(feedPostId);
           // if (!res.data.isFriend) {
           //   checkFriendShipStatus(selectedFeedPostUserId!);
@@ -853,6 +857,8 @@ function PostDetail({
           if (checkCommentLike) {
             await unlikeFeedComment(feedCommentId);
           } else {
+            await likeFeedComment(feedCommentId);
+
             // await likeFeedComment(feedCommentId).then((res) => {
             //   if (!res.data.isFriend) {
             //     checkFriendShipStatus(checkCommentId?.userId?._id!);
@@ -864,6 +870,7 @@ function PostDetail({
           if (checkReplyLike) {
             await unlikeFeedReply(feedCommentId);
           } else {
+            await likeFeedReply(feedCommentId);
             // await likeFeedReply(feedCommentId).then((res) => {
             //   if (!res.data.isFriend) {
             //     checkFriendShipStatus(checkReplyId[0]?.userId?._id!);

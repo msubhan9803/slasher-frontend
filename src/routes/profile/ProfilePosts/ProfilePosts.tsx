@@ -14,7 +14,7 @@ import {
 } from '../../../types';
 import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
-import { unlikeFeedPost } from '../../../api/feed-likes';
+import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
 import { createBlockUser } from '../../../api/blocks';
 import { reportData } from '../../../api/report';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
@@ -306,6 +306,7 @@ function ProfilePosts({ user }: Props) {
         if (checkLike) {
           await unlikeFeedPost(feedPostId);
         } else {
+          await likeFeedPost(feedPostId);
           // const res = await likeFeedPost(feedPostId);
           // if (!res.data.isFriend) {
           //   checkFriendShipStatus(selectedFeedPostUserId!);

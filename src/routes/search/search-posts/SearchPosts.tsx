@@ -9,7 +9,7 @@ import SearchHeader from '../SearchHeader';
 import {
   deleteFeedPost, getHashtagPostList, hideFeedPost, updateFeedPost,
 } from '../../../api/feed-posts';
-import { unlikeFeedPost } from '../../../api/feed-likes';
+import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
 import { useAppSelector } from '../../../redux/hooks';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { followHashtag, getSingleHashtagDetail, unfollowHashtag } from '../../../api/users';
@@ -249,6 +249,7 @@ function SearchPosts() {
         if (checkLike) {
           await unlikeFeedPost(feedPostId);
         } else {
+          await likeFeedPost(feedPostId);
           // const res = await likeFeedPost(feedPostId);
           // if (!res.data.isFriend) {
           //   checkFriendShipStatus(selectedFeedPostUserId!);

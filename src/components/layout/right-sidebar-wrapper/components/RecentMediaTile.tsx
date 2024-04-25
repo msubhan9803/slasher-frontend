@@ -3,7 +3,7 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { Card } from 'react-bootstrap';
+import { Button, Card } from 'react-bootstrap';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import RoundButton from '../../../ui/RoundButton';
 import LikeIconButton from '../../../ui/Poster/LikeIconButton';
@@ -27,7 +27,6 @@ const RatingDiv = styled.div`
 const StyledPoster = styled.div`
   aspect-ratio: 0.6;
   img{
-    width: 9.650rem !important;
     object-fit: cover;
     box-shadow: 0 0 0 1px var(--poster-border-color);
   }
@@ -38,6 +37,7 @@ interface Props {
   image: string;
   title: string;
   addWatchListClick: (value: string) => void;
+  onCloseClick: (e: any, id: string) => void;
   year?: number;
   thumbRating?: number;
   numericRating?: number;
@@ -47,6 +47,7 @@ interface Props {
 
 function RecentMediaTile({
   className, image, title, year, numericRating, thumbRating, id, addWatchListClick, isBook,
+  onCloseClick,
 }: Props) {
   const renderThumbIcon = (rating: number) => (
     <LikeIconButton
@@ -73,6 +74,10 @@ function RecentMediaTile({
     >
       <div className={`${className}`}>
         <div className="position-relative">
+          <Button variant="link" className="position-absolute p-0 px-2 py-1" style={{ right: '0' }} onClick={(e: any) => onCloseClick(e, id ?? '')}>
+            <FontAwesomeIcon icon={solid('xmark')} size="lg" />
+            <span className="visually-hidden">Dismiss suggestion</span>
+          </Button>
           <StyledPoster>
             <LazyLoadImage src={image} alt={`Poster for ${title}`} className="w-100 h-100 rounded-4" />
           </StyledPoster>

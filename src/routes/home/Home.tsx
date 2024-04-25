@@ -32,7 +32,7 @@ import {
 import useProgressButton from '../../components/ui/ProgressButton';
 import { sleep } from '../../utils/timer-utils';
 import { useAppSelector } from '../../redux/hooks';
-import { friendship } from '../../api/friends';
+// import { friendship } from '../../api/friends';
 import FriendshipStatusModal from '../../components/ui/friendShipCheckModal';
 import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 import RecentlyAddedBooks from './RecentlyAddedBooks';
@@ -79,7 +79,7 @@ function Home() {
   const [forceLoading, setForceLoading] = useState<boolean>(false);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const location = useLocation();
-  const userId = useAppSelector((state: any) => state.user.user.id);
+  // const userId = useAppSelector((state: any) => state.user.user.id);
   const userData = useAppSelector((state) => state.user.user);
   const pageStateCache = (getPageStateCache(location) ?? [])
     .filter(removeDeletedPost)
@@ -308,25 +308,26 @@ function Home() {
       });
   };
 
-  const checkFriendShipStatus = useCallback((selectedFeedPostUserId: string) => new Promise<void>(
-    (resolve, reject) => {
-      if (userId === selectedFeedPostUserId) {
-        resolve();
-      } else {
-        friendship(selectedFeedPostUserId).then((res) => {
-          if (res.data.reaction === FriendRequestReaction.Accepted) {
-            resolve();
-          } else {
-            setPostUserId(selectedFeedPostUserId!);
-            setFriendShipStatusModal(true);
-            setFriendData(res.data);
-            setFriendStatus(res.data.reaction);
-            reject();
-          }
-        }).catch(() => reject());
-      }
-    },
-  ), [userId]);
+  // const checkFriendShipStatus =
+  // useCallback((selectedFeedPostUserId: string) => new Promise<void>(
+  //   (resolve, reject) => {
+  //     if (userId === selectedFeedPostUserId) {
+  //       resolve();
+  //     } else {
+  //       friendship(selectedFeedPostUserId).then((res) => {
+  //         if (res.data.reaction === FriendRequestReaction.Accepted) {
+  //           resolve();
+  //         } else {
+  //           setPostUserId(selectedFeedPostUserId!);
+  //           setFriendShipStatusModal(true);
+  //           setFriendData(res.data);
+  //           setFriendStatus(res.data.reaction);
+  //           reject();
+  //         }
+  //       }).catch(() => reject());
+  //     }
+  //   },
+  // ), [userId]);
 
   const handlePostDislike = useCallback((feedPostId: string) => {
     setPosts((prevPosts) => prevPosts.map(
@@ -377,22 +378,23 @@ function Home() {
       }
     };
 
-    const selectedFeedPostUserId = posts.find((post) => post.id === feedPostId)?.userId;
+    // const selectedFeedPostUserId = posts.find((post) => post.id === feedPostId)?.userId;
 
     const handleLikeAndUnlikeFeedPost = async () => {
       try {
         if (checkLike) {
           await unlikeFeedPost(feedPostId);
         } else {
-          const res = await likeFeedPost(feedPostId);
-          if (!res.data.isFriend) {
-            checkFriendShipStatus(selectedFeedPostUserId!);
-          }
+          await likeFeedPost(feedPostId);
+          // const res = await likeFeedPost(feedPostId);
+          // if (!res.data.isFriend) {
+          //   checkFriendShipStatus(selectedFeedPostUserId!);
+          // }
         }
       } catch (error: any) {
         revertOptimisticUpdate();
         if (error.response.status === 403) {
-          checkFriendShipStatus(selectedFeedPostUserId!);
+          // checkFriendShipStatus(selectedFeedPostUserId!);
         }
       }
     };

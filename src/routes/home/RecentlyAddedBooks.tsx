@@ -152,6 +152,7 @@ function RecentlyAddedBooks() {
                       id={book._id}
                       addWatchListClick={addWatchListClick}
                       isBook
+                      onCloseClick={onCloseClick}
                     />
                   </div>
                 </Card>

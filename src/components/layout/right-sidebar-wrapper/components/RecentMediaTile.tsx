@@ -83,7 +83,7 @@ function RecentMediaTile({
           </StyledPoster>
         </div>
 
-        <RatingSection className="mt-2 d-flex justify-content-between align-items-center">
+        <RatingSection className="mt-1 d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center">
             {
               numericRating
@@ -110,7 +110,7 @@ function RecentMediaTile({
           </div>
         </RatingSection>
 
-        <RoundButton className="w-100 mt-2" onClick={(e: React.MouseEvent<HTMLButtonElement>) => onAddWatchListClick(e)}>
+        <RoundButton className="w-100 mt-1" onClick={(e: React.MouseEvent<HTMLButtonElement>) => onAddWatchListClick(e)}>
           {isBook ? '+ Reading list' : '+ Watch list'}
         </RoundButton>
       </div>

@@ -39,6 +39,7 @@ import { ProfileVisibility } from '../../schemas/user/user.enums';
 import { BooksService } from '../../books/providers/books.service';
 import { booksFactory } from '../../../test/factories/books.factory';
 import { BookActiveStatus } from '../../schemas/book/book.enums';
+import { BlocksService } from '../../blocks/providers/blocks.service';
 
 describe('FeedPostsService', () => {
   let app: INestApplication;
@@ -57,6 +58,7 @@ describe('FeedPostsService', () => {
   let blocksModel: Model<BlockAndUnblockDocument>;
   let moviesService: MoviesService;
   let booksService: BooksService;
+  let blocksService: BlocksService;
   let hashtagFollowsService: HashtagFollowsService;
   let hashtagModel: Model<HashtagDocument>;
 
@@ -74,6 +76,7 @@ describe('FeedPostsService', () => {
     rssFeedService = moduleRef.get<RssFeedService>(RssFeedService);
     feedLikesService = moduleRef.get<FeedLikesService>(FeedLikesService);
     booksService = moduleRef.get<BooksService>(BooksService);
+    blocksService = moduleRef.get<BlocksService>(BlocksService);
     moviesService = moduleRef.get<MoviesService>(MoviesService);
     hashtagFollowsService = moduleRef.get<HashtagFollowsService>(HashtagFollowsService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
@@ -907,6 +910,246 @@ describe('FeedPostsService', () => {
         const response = await feedPostsService.findMainFeedPostsForUser(user1.id, limit);
         expect(response).toHaveLength(2);
         expect(response.map(({ _id }) => _id).sort()).toEqual([feedPost1.id, feedPost2.id].sort());
+      });
+    });
+
+    describe('should not include posts hidden for current user', () => {
+      let feedPost1: FeedPostDocument;
+      let feedPost2: FeedPostDocument;
+      beforeEach(async () => {
+        const userFriend1 = await usersService.create(userFactory.build());
+        await friendsService.createFriendRequest(activeUser.id, userFriend1.id);
+        await friendsService.acceptFriendRequest(activeUser.id, userFriend1.id);
+        // Created post is associated with the `userFriend1`
+        feedPost1 = await feedPostsService.create(feedPostFactory.build({ userId: userFriend1.id }));
+        feedPost2 = await feedPostsService.create(feedPostFactory.build({ userId: userFriend1.id }));
+        // feedPost = await feedPostsService.findById(feedPost1.id, false);
+      });
+      it('does not include a hidden post in the returned results', async () => {
+        const limit = 6;
+        // Before hiding, verify that post is returend in the `activeUser` feed
+        const beforeResults = await feedPostsService.findMainFeedPostsForUser(activeUser.id, limit);
+        expect(beforeResults).toHaveLength(2);
+        expect(beforeResults[0]._id).toBe(feedPost2.id);
+        expect(beforeResults[1]._id).toBe(feedPost1.id);
+
+        // Hide feedPost1 for `activeUser`
+        await feedPostsService.hidePost(feedPost1.id, activeUser.id);
+        // Verify that user is added to `hideUsers` field of the `feedPost` (refetching updated `feedPost`)
+        const reloadedFeedPost1 = await feedPostsService.findById(feedPost1.id, false);
+        expect(reloadedFeedPost1.hideUsers).toEqual([activeUser._id]);
+
+        // Verify that the post is not returned after hiding, but that other posts still are
+        const afterResults = await feedPostsService.findMainFeedPostsForUser(activeUser.id, limit);
+        expect(afterResults).toHaveLength(1);
+      });
+    });
+  });
+
+  describe('#findAllFeedPostsForUser', () => {
+    describe('successful responses', () => {
+      let userFriend1;
+      let userNonFriend;
+      let blockUser;
+      let rssFeedProviderToFollow1;
+      let rssFeedProviderToFollow2;
+      let rssFeedProviderDoNotFollow;
+      beforeEach(async () => {
+        // Create some other users
+        userFriend1 = await usersService.create(userFactory.build());
+        userNonFriend = await usersService.create(userFactory.build());
+        blockUser = await usersService.create(userFactory.build());
+
+        // Create accepted friend relationships for some of the users
+        await friendsService.createFriendRequest(activeUser.id, userFriend1.id);
+        await friendsService.acceptFriendRequest(activeUser.id, userFriend1.id);
+        //  block friend
+        await blocksService.createBlock(activeUser.id, blockUser.id);
+        // Create some posts by all of the users (activeUser, activeUser's friends, and non-friend)
+        for (const user of [activeUser, userFriend1, userNonFriend, blockUser]) {
+          for (let i = 0; i < 2; i += 1) {
+            await Promise.all([
+              // Active post
+              await feedPostsService.create(
+                feedPostFactory.build({
+                  userId: user.id,
+                }),
+              ),
+              // Inactive post
+              await feedPostsService.create(
+                feedPostFactory.build({
+                  userId: user.id,
+                  status: FeedPostStatus.Inactive,
+                }),
+              ),
+              // Deleted post
+              await feedPostsService.create(
+                feedPostFactory.build({
+                  userId: user.id,
+                  is_deleted: FeedPostDeletionState.Deleted,
+                }),
+              ),
+            ]);
+          }
+        }
+
+        // Create some rss feed providers
+        rssFeedProviderToFollow1 = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+        rssFeedProviderToFollow2 = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+        rssFeedProviderDoNotFollow = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+
+        // Create follow relationships for some of the rssFeedProviders
+        await rssFeedProviderFollowsService.create(
+          { userId: activeUser.id, rssfeedProviderId: rssFeedProviderToFollow1.id },
+        );
+        await rssFeedProviderFollowsService.create(
+          { userId: activeUser.id, rssfeedProviderId: rssFeedProviderToFollow2.id },
+        );
+
+        // Create some posts by all of the rss feed providers (follow ones and non-follow one)
+        for (const rssFeedProv of [rssFeedProviderToFollow1, rssFeedProviderToFollow2, rssFeedProviderDoNotFollow]) {
+          for (let i = 0; i < 2; i += 1) {
+            await Promise.all([
+              // Active post
+              await feedPostsService.create(
+                feedPostFactory.build({
+                  rssfeedProviderId: rssFeedProv.id,
+                  userId: rssFeedProv.id,
+                }),
+              ),
+              // Inactive post
+              await feedPostsService.create(
+                feedPostFactory.build({
+                  rssfeedProviderId: rssFeedProv.id,
+                  userId: rssFeedProv.id,
+                  status: FeedPostStatus.Inactive,
+                }),
+              ),
+              // Deleted post
+              await feedPostsService.create(
+                feedPostFactory.build({
+                  rssfeedProviderId: rssFeedProv.id,
+                  userId: rssFeedProv.id,
+                  is_deleted: FeedPostDeletionState.Deleted,
+                }),
+              ),
+            ]);
+          }
+        }
+      });
+
+      it('finds the expected set of feed posts for user, ordered in the correct order', async () => {
+        const feedPosts = await feedPostsService.findAllFeedPostsForUser(activeUser.id, 15);
+        expect(feedPosts).toHaveLength(12);
+
+        // And we expect them to be sorted by updatedAt date
+        for (let i = 1; i < feedPosts.length; i += 1) {
+          expect(feedPosts[i].lastUpdateAt < feedPosts[i - 1].lastUpdateAt).toBe(true);
+        }
+      });
+
+      it('returns the first and second sets of paginated results', async () => {
+        const limit = 6;
+        const firstResults = await feedPostsService.findAllFeedPostsForUser(activeUser.id, limit);
+        for (let index = 1; index < firstResults.length; index += 1) {
+          expect(firstResults[index].lastUpdateAt < firstResults[index - 1].lastUpdateAt).toBe(true);
+        }
+        expect(firstResults).toHaveLength(6);
+        // eslint-disable-next-line max-len
+        const secondResults = await feedPostsService.findAllFeedPostsForUser(
+          activeUser.id,
+          limit,
+          new mongoose.Types.ObjectId(firstResults[limit - 1]._id.toString()),
+        );
+        for (let index = 1; index < secondResults.length; index += 1) {
+          expect(secondResults[index].lastUpdateAt < secondResults[index - 1].lastUpdateAt).toBe(true);
+        }
+        expect(secondResults).toHaveLength(6);
+      });
+
+      it('returns the expected likeCount', async () => {
+        const userData = await usersService.create(userFactory.build());
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: userData.id,
+            likes: [userData._id],
+          }),
+        );
+        const feedPosts = await feedPostsService.findAllFeedPostsForUser(userData.id, 10);
+        expect(feedPosts[0].likeCount).toBe(1);
+      });
+
+      it('returns the expected likedByUser', async () => {
+        const userData = await usersService.create(userFactory.build());
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: userData.id,
+            likes: [userData._id],
+          }),
+        );
+        const feedPosts = await feedPostsService.findAllFeedPostsForUser(userData.id, 10);
+        expect((feedPosts[0] as any).likedByUser).toBe(true);
+      });
+
+      it('when post user profile_status is private than expected response', async () => {
+        const user = await usersService.create(userFactory.build({
+          profile_status: ProfileVisibility.Private,
+        }));
+        const hashtag1 = await hashtagModel.create({
+          name: 'good',
+        });
+        const hashtag2 = await hashtagModel.create({
+          name: 'goodidea',
+        });
+        await hashtagFollowsService.create({
+          userId: activeUser._id,
+          hashTagId: hashtag1._id,
+        });
+        await hashtagFollowsService.create({
+          userId: activeUser._id,
+          hashTagId: hashtag2._id,
+        });
+        const post = await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user.id,
+            message: 'newPost #good #goodidea',
+          }),
+        );
+        const feedPosts = await feedPostsService.findAllFeedPostsForUser(activeUser.id, 15);
+        expect(feedPosts).toHaveLength(12);
+        for (let i = 1; i < feedPosts.length; i += 1) {
+          expect(feedPosts[i]._id).not.toEqual(post._id);
+        }
+      });
+
+      it('return the expected post when both user are friends', async () => {
+        const user1 = await usersService.create(userFactory.build());
+        const user2 = await usersService.create(userFactory.build());
+        await friendsService.createFriendRequest(user1.id, user2.id);
+        await friendsService.acceptFriendRequest(user1.id, user2.id);
+        const limit = 6;
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user1.id,
+          }),
+        );
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user1.id,
+          }),
+        );
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user2.id,
+          }),
+        );
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user2.id,
+          }),
+        );
+        const response = await feedPostsService.findAllFeedPostsForUser(user1.id, limit);
+        expect(response).toHaveLength(6);
       });
     });
 

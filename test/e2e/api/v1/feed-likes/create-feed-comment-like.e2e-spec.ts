@@ -139,7 +139,7 @@ describe('Create Feed Comment Like (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.CREATED);
-      expect(response.body).toEqual({ success: true, isFriend: true });
+      expect(response.body).toEqual({ success: true });
 
       const reloadedFeedComment = await feedCommentsService.findFeedComment(feedComment.id);
       expect(reloadedFeedComment.likes).toContainEqual(activeUser._id);
@@ -272,16 +272,16 @@ describe('Create Feed Comment Like (e2e)', () => {
         );
       });
 
-      it('should not allow the creation of a comment like when liking user is not a friend of the post creator', async () => {
+      it('allow the creation of a comment like when liking user is not a friend of the post creator', async () => {
         const response = await request(app.getHttpServer())
           .post(`/api/v1/feed-likes/comment/${feedComments1._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.status).toBe(HttpStatus.FORBIDDEN);
-        expect(response.body).toEqual({ statusCode: 403, message: 'You can only interact with posts of friends.' });
+        expect(response.status).toBe(HttpStatus.CREATED);
+        expect(response.body).toEqual({ success: true });
       });
 
-      it('should not allow the creation of a comment like when liking user is not a'
+      it('allow the creation of a comment like when liking user is not a'
         + 'friend of the post creator and user with a public profile', async () => {
           const user3 = await usersService.create(userFactory.build({
             profile_status: ProfileVisibility.Public,
@@ -307,8 +307,8 @@ describe('Create Feed Comment Like (e2e)', () => {
             .post(`/api/v1/feed-likes/comment/${feedComments2._id}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
-          expect(response.status).toBe(HttpStatus.FORBIDDEN);
-          expect(response.body).toEqual({ statusCode: 403, message: 'You can only interact with posts of friends.' });
+            expect(response.status).toBe(HttpStatus.CREATED);
+            expect(response.body).toEqual({ success: true });
         });
 
       it('should allow the creation of a comment like when liking user is a friend of the post creator', async () => {
@@ -346,7 +346,7 @@ describe('Create Feed Comment Like (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toBe(HttpStatus.CREATED);
-        expect(response.body).toEqual({ success: true, isFriend: true });
+        expect(response.body).toEqual({ success: true });
       });
 
       it(`should allow the creation of a comment like when liking user is not a friend
@@ -386,7 +386,7 @@ describe('Create Feed Comment Like (e2e)', () => {
           .auth(user6AuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toBe(HttpStatus.CREATED);
-        expect(response.body).toEqual({ success: true, isFriend: false });
+        expect(response.body).toEqual({ success: true });
       });
 
       it('when postType is movieReview than expected response', async () => {
@@ -413,7 +413,7 @@ describe('Create Feed Comment Like (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toBe(HttpStatus.CREATED);
-        expect(response.body).toEqual({ success: true, isFriend: true });
+        expect(response.body).toEqual({ success: true });
       });
 
       it('when postType is movieReview and comment liking user is a friend of the post creator', async () => {
@@ -452,7 +452,7 @@ describe('Create Feed Comment Like (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toBe(HttpStatus.CREATED);
-        expect(response.body).toEqual({ success: true, isFriend: true });
+        expect(response.body).toEqual({ success: true });
       });
     });
 

@@ -179,8 +179,6 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
         expect(allFilesNames).toEqual([
           '.keep',
-          'abd36769-7569-417f-a838-c1a89e4666be.jpg',
-          'b9c1683c-615b-4cf1-8dcf-466f8b0ed3ca.jpg',
         ]);
       });
 
@@ -204,8 +202,6 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
         expect(allFilesNames).toEqual([
           '.keep',
-          'abd36769-7569-417f-a838-c1a89e4666be.jpg',
-          'b9c1683c-615b-4cf1-8dcf-466f8b0ed3ca.jpg',
         ]);
       });
 
@@ -265,8 +261,6 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
         expect(allFilesNames).toEqual([
           '.keep',
-          'abd36769-7569-417f-a838-c1a89e4666be.jpg',
-          'b9c1683c-615b-4cf1-8dcf-466f8b0ed3ca.jpg',
         ]);
       });
 
@@ -300,8 +294,6 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
         expect(allFilesNames).toEqual([
           '.keep',
-          'abd36769-7569-417f-a838-c1a89e4666be.jpg',
-          'b9c1683c-615b-4cf1-8dcf-466f8b0ed3ca.jpg',
         ]);
       });
 
@@ -323,8 +315,6 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
         expect(allFilesNames).toEqual([
           '.keep',
-          'abd36769-7569-417f-a838-c1a89e4666be.jpg',
-          'b9c1683c-615b-4cf1-8dcf-466f8b0ed3ca.jpg',
         ]);
       });
 
@@ -346,8 +336,6 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
         expect(allFilesNames).toEqual([
           '.keep',
-          'abd36769-7569-417f-a838-c1a89e4666be.jpg',
-          'b9c1683c-615b-4cf1-8dcf-466f8b0ed3ca.jpg',
         ]);
       });
 
@@ -491,8 +479,6 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
         expect(allFilesNames).toEqual([
           '.keep',
-          'abd36769-7569-417f-a838-c1a89e4666be.jpg',
-          'b9c1683c-615b-4cf1-8dcf-466f8b0ed3ca.jpg',
         ]);
       });
 
@@ -528,8 +514,6 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
         expect(allFilesNames).toEqual([
           '.keep',
-          'abd36769-7569-417f-a838-c1a89e4666be.jpg',
-          'b9c1683c-615b-4cf1-8dcf-466f8b0ed3ca.jpg',
         ]);
       });
 

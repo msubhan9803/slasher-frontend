@@ -18,8 +18,8 @@ const StyleMovie = styled(Row)`
 
 const Card = styled.div`
   position: relative;
-  width:10.33rem;
-  padding-right: 1rem;
+  width:9.33rem;
+  margin-right: 1rem;
 `;
 
 const LoadingIndicatorSpacer = styled.div`
@@ -44,14 +44,14 @@ function RecentlyAddedMovies() {
     getSuggestedMoviesList();
   }, []);
 
-  const slideFriendRight = () => {
+  const slideMovieRight = () => {
     const slider = document.getElementById('sliderMovie');
     if (slider !== null) {
       slider.scrollLeft += 300;
     }
   };
 
-  const slideFriendLeft = () => {
+  const slideMovieLeft = () => {
     const slider = document.getElementById('sliderMovie');
     if (slider !== null) {
       slider.scrollLeft -= 300;
@@ -122,10 +122,10 @@ function RecentlyAddedMovies() {
       {!suggestedMovies || suggestedMovies.length === 0 ? renderNoSuggestionsAvailable() : (
         <div className="p-md-3 pt-md-1 rounded-2">
           <div className="d-flex align-items-center position-relative">
-            <Button tabIndex={0} aria-label="chevron left icon" className="position-absolute d-block p-0 prev bg-transparent border-0" onClick={slideFriendLeft}>
+            <Button tabIndex={0} aria-label="chevron left icon" className="position-absolute d-block p-0 prev bg-transparent border-0" onClick={slideMovieLeft}>
               <FontAwesomeIcon icon={solid('chevron-left')} size="lg" className="text-white" />
             </Button>
-            <Button tabIndex={0} aria-label="chevron right icon" style={{ right: 0 }} className="position-absolute d-block p-0 next bg-transparent border-0" onClick={slideFriendRight}>
+            <Button tabIndex={0} aria-label="chevron right icon" style={{ right: 0 }} className="position-absolute d-block p-0 next bg-transparent border-0" onClick={slideMovieRight}>
               <FontAwesomeIcon icon={solid('chevron-right')} size="lg" className="text-white" />
             </Button>
             <StyleMovie

@@ -27,6 +27,7 @@ const RatingDiv = styled.div`
 const StyledPoster = styled.div`
   aspect-ratio: 0.6;
   img{
+    width: 9.33rem !important;
     object-fit: cover;
     box-shadow: 0 0 0 1px var(--poster-border-color);
   }

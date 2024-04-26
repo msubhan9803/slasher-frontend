@@ -139,10 +139,6 @@ function RecentlyAddedBooks() {
               {suggestedBooks?.map((book: any) => (
                 <Card key={book._id}>
                   <div className="d-flex justify-content-center position-relative">
-                    <Button variant="link" className="position-absolute p-0 px-2 py-1" style={{ right: '0', zIndex: 999 }} onClick={(e: any) => onCloseClick(e, book?._id)}>
-                      <FontAwesomeIcon icon={solid('xmark')} size="lg" />
-                      <span className="visually-hidden">Dismiss suggestion</span>
-                    </Button>
                     <RecentMediaTile
                       image={book.coverImage.image_path}
                       title={book.name}

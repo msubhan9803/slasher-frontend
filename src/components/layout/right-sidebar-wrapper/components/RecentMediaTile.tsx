@@ -74,43 +74,45 @@ function RecentMediaTile({
     >
       <div className={`${className}`}>
         <div className="position-relative">
-          <Button variant="link" className="position-absolute p-0 px-2 py-1" style={{ right: '0', zIndex: '1' }} onClick={(e: any) => onCloseClick(e, id ?? '')}>
+          <Button variant="link" className="position-absolute p-0 px-2 py-1" style={{ right: '0', zIndex: 1 }} onClick={(e: any) => onCloseClick(e, id ?? '')}>
             <FontAwesomeIcon icon={solid('xmark')} size="lg" />
             <span className="visually-hidden">Dismiss suggestion</span>
           </Button>
+
           <StyledPoster className="position-relative">
             <LazyLoadImage src={image} alt={`Poster for ${title}`} className="w-100 h-100 rounded-4" />
-
-            <RatingSection className="w-100 px-2 position-absolute d-flex justify-content-between align-items-center">
-              <div>
-                {
-                  (hasYearOrThumbRating)
-                  && (
-                    <YearAndThumbRating className="d-flex justify-content-between align-items-center">
-                      {thumbRating !== 0 && renderThumbIcon(thumbRating!)}
-                    </YearAndThumbRating>
-                  )
-                }
-              </div>
-
-              <div className="d-flex align-items-center">
-                {
-                  numericRating
-                    ? (
-                      <RatingDiv className="d-flex justify-content-end">
-                        <Card.Text className="rating bg-white mb-0 px-2 rounded-5 fs-5 text-black">
-                          <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" />
-                          <span className="h5">{numericRating}</span>
-                        </Card.Text>
-                      </RatingDiv>
-                    ) : null
-                }
-              </div>
-            </RatingSection>
           </StyledPoster>
+
+          <RatingSection className="w-100 px-2 position-absolute d-flex justify-content-between align-items-center">
+            <div>
+              {
+                (hasYearOrThumbRating)
+                && (
+                  <YearAndThumbRating className="d-flex justify-content-between align-items-center">
+                    {thumbRating !== 0 && renderThumbIcon(thumbRating!)}
+                  </YearAndThumbRating>
+                )
+              }
+            </div>
+
+            <div className="d-flex align-items-center">
+              {
+                numericRating
+                  ? (
+                    <RatingDiv className="d-flex justify-content-end">
+                      <Card.Text className="rating bg-white mb-0 px-2 rounded-5 fs-5 text-black">
+                        <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" />
+                        <span className="h5">{numericRating}</span>
+                      </Card.Text>
+                    </RatingDiv>
+                  ) : null
+              }
+            </div>
+          </RatingSection>
+
         </div>
 
-        <RoundButton className="w-100 mt-1" onClick={(e: React.MouseEvent<HTMLButtonElement>) => onAddWatchListClick(e)}>
+        <RoundButton className="w-100 mt-2" onClick={(e: React.MouseEvent<HTMLButtonElement>) => onAddWatchListClick(e)}>
           {isBook ? '+ Reading list' : '+ Watch list'}
         </RoundButton>
       </div>

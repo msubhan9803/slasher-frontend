@@ -93,9 +93,9 @@ function AccountBlockedUser() {
                             className="me-2"
                           />
                         </div>
-                        <div>
-                          <h1 className="h3 mb-0">{blockUser.firstName}</h1>
-                          <p className="fs-6 mb-0 text-light">
+                        <div className="d-grid">
+                          <h1 className="h3 mb-0 text-truncate">{blockUser.firstName}</h1>
+                          <p className="fs-6 mb-0 text-light text-truncate">
                             {blockUser.userName}
                           </p>
                         </div>

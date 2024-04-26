@@ -451,6 +451,7 @@ export interface ConversationListItem {
 }
 
 export enum CommentsOrder { oldestFirst = 'oldestFirst', newestFirst = 'newestFirst' }
+export enum PostsOrder { friendsPosts = 'friendsPosts', allPosts = 'allPosts' }
 export interface DeviceFields {
   device_token: string;
   device_type: string;

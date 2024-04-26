@@ -4,6 +4,7 @@ import React, {
 } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { useLocation } from 'react-router-dom';
+import styled from 'styled-components';
 import CustomCreatePost from '../../components/ui/CustomCreatePost';
 import PostFeed from '../../components/ui/post/PostFeed/PostFeed';
 import SuggestedFriend from './SuggestedFriend';
@@ -13,6 +14,7 @@ import {
 } from '../../api/feed-posts';
 import {
   ContentDescription, FriendRequestReaction, FriendType, Post,
+  PostsOrder,
 } from '../../types';
 import { PopoverClickProps } from '../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../api/feed-likes';
@@ -30,12 +32,24 @@ import {
 import useProgressButton from '../../components/ui/ProgressButton';
 import { sleep } from '../../utils/timer-utils';
 import { useAppSelector } from '../../redux/hooks';
-import { friendship } from '../../api/friends';
+// import { friendship } from '../../api/friends';
 import FriendshipStatusModal from '../../components/ui/friendShipCheckModal';
 import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 import RecentlyAddedBooks from './RecentlyAddedBooks';
 import RecentlyAddedMovies from './RecentlyAddedMovies';
+import CustomSelect from '../../components/filter-sort/CustomSelect';
+import {
+  MD_MEDIA_BREAKPOINT, LG_MEDIA_BREAKPOINT, XL_MEDIA_BREAKPOINT, XXL_MEDIA_BREAKPOINT,
+} from '../../constants';
 // import DebugGoogleAnalytics from '../debug-google-analytics';
+
+const SelectContainer = styled.div`
+  @media(max-width: ${MD_MEDIA_BREAKPOINT}) { margin-bottom: 8px; }
+  @media(min-width: ${MD_MEDIA_BREAKPOINT}) { width: 35%; }
+  @media(min-width: ${LG_MEDIA_BREAKPOINT}) { width: 52%; }
+  @media(min-width: ${XL_MEDIA_BREAKPOINT}) { width: 40%; }
+  @media(min-width: ${XXL_MEDIA_BREAKPOINT}) { width: 30%; }
+`;
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
@@ -60,9 +74,12 @@ function Home() {
   const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
   const [friendData, setFriendData] = useState<FriendType>(null);
   const [friendShipStatusModal, setFriendShipStatusModal] = useState<boolean>(false);
+  const [postsOrder, setPostsOrder] = useState<PostsOrder>(PostsOrder.allPosts);
+  const [getAllPosts, setGetAllPosts] = useState<boolean>(true);
+  const [forceLoading, setForceLoading] = useState<boolean>(false);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const location = useLocation();
-  const userId = useAppSelector((state: any) => state.user.user.id);
+  // const userId = useAppSelector((state: any) => state.user.user.id);
   const userData = useAppSelector((state) => state.user.user);
   const pageStateCache = (getPageStateCache(location) ?? [])
     .filter(removeDeletedPost)
@@ -105,11 +122,12 @@ function Home() {
     setDropDownValue(value);
   };
 
-  const fetchFeedPosts = useCallback((forceReload = false) => {
+  const fetchFeedPosts = useCallback((forceReload = forceLoading) => {
     if (forceReload) { setPosts([]); }
     setLoadingPosts(true);
     const lastPostId = posts.length > 0 ? posts[posts.length - 1]._id : undefined;
     getHomeFeedPosts(
+      getAllPosts,
       forceReload ? undefined : lastPostId,
     ).then((res) => {
       const newPosts = res.data.map((data: any) => {
@@ -163,13 +181,14 @@ function Home() {
       () => {
         setRequestAdditionalPosts(false);
         setLoadingPosts(false);
+        setForceLoading(false);
         // Fixed edge case bug when `noMoreData` is already set to `true` when user has reached the
         // end of the page and clicks on the `notification-icon` in top navbar to reload the page
         // otherwise pagination doesn't work.
         if (forceReload && (noMoreData === true)) { setNoMoreData(false); }
       },
     );
-  }, [noMoreData, posts]);
+  }, [noMoreData, posts, getAllPosts, forceLoading]);
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
@@ -177,7 +196,7 @@ function Home() {
     }
   }, [
     fetchFeedPosts, loadingPosts, location, pageStateCache.length,
-    posts.length, requestAdditionalPosts, location.pathname,
+    posts.length, requestAdditionalPosts, location.pathname, getAllPosts, postsOrder,
   ]);
 
   useEffect(() => {
@@ -200,7 +219,7 @@ function Home() {
     );
   };
   const callLatestFeedPost = () => {
-    getHomeFeedPosts().then((res) => {
+    getHomeFeedPosts(getAllPosts).then((res) => {
       const newPosts = res.data.map((data: any) => {
         if (data.userId) {
           // Regular post
@@ -289,25 +308,26 @@ function Home() {
       });
   };
 
-  const checkFriendShipStatus = useCallback((selectedFeedPostUserId: string) => new Promise<void>(
-    (resolve, reject) => {
-      if (userId === selectedFeedPostUserId) {
-        resolve();
-      } else {
-        friendship(selectedFeedPostUserId).then((res) => {
-          if (res.data.reaction === FriendRequestReaction.Accepted) {
-            resolve();
-          } else {
-            setPostUserId(selectedFeedPostUserId!);
-            setFriendShipStatusModal(true);
-            setFriendData(res.data);
-            setFriendStatus(res.data.reaction);
-            reject();
-          }
-        }).catch(() => reject());
-      }
-    },
-  ), [userId]);
+  // const checkFriendShipStatus =
+  // useCallback((selectedFeedPostUserId: string) => new Promise<void>(
+  //   (resolve, reject) => {
+  //     if (userId === selectedFeedPostUserId) {
+  //       resolve();
+  //     } else {
+  //       friendship(selectedFeedPostUserId).then((res) => {
+  //         if (res.data.reaction === FriendRequestReaction.Accepted) {
+  //           resolve();
+  //         } else {
+  //           setPostUserId(selectedFeedPostUserId!);
+  //           setFriendShipStatusModal(true);
+  //           setFriendData(res.data);
+  //           setFriendStatus(res.data.reaction);
+  //           reject();
+  //         }
+  //       }).catch(() => reject());
+  //     }
+  //   },
+  // ), [userId]);
 
   const handlePostDislike = useCallback((feedPostId: string) => {
     setPosts((prevPosts) => prevPosts.map(
@@ -358,22 +378,23 @@ function Home() {
       }
     };
 
-    const selectedFeedPostUserId = posts.find((post) => post.id === feedPostId)?.userId;
+    // const selectedFeedPostUserId = posts.find((post) => post.id === feedPostId)?.userId;
 
     const handleLikeAndUnlikeFeedPost = async () => {
       try {
         if (checkLike) {
           await unlikeFeedPost(feedPostId);
         } else {
-          const res = await likeFeedPost(feedPostId);
-          if (!res.data.isFriend) {
-            checkFriendShipStatus(selectedFeedPostUserId!);
-          }
+          await likeFeedPost(feedPostId);
+          // const res = await likeFeedPost(feedPostId);
+          // if (!res.data.isFriend) {
+          //   checkFriendShipStatus(selectedFeedPostUserId!);
+          // }
         }
       } catch (error: any) {
         revertOptimisticUpdate();
         if (error.response.status === 403) {
-          checkFriendShipStatus(selectedFeedPostUserId!);
+          // checkFriendShipStatus(selectedFeedPostUserId!);
         }
       }
     };
@@ -417,6 +438,17 @@ function Home() {
     setDropDownValue('PostReportSuccessDialog');
   };
 
+  const handlePostsOrder = (value: PostsOrder) => {
+    if (PostsOrder.allPosts === value) {
+      setGetAllPosts(true);
+    } else {
+      setGetAllPosts(false);
+    }
+    setRequestAdditionalPosts(true);
+    setPostsOrder(value);
+    setForceLoading(true);
+  };
+
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
@@ -437,7 +469,18 @@ function Home() {
             </div>
           )
         }
-        <h1 className="h2 my-3 ms-3 ms-md-0">Latest posts</h1>
+
+        <div className="d-flex justify-content-between align-items-center ">
+          <div>
+            <h1 className="h2 my-3 ms-3 ms-md-0">Posts</h1>
+          </div>
+
+          <SelectContainer className="ml-auto ms-auto pb-1 mt-3">
+            <CustomSelect value={postsOrder} onChange={handlePostsOrder} options={[{ value: PostsOrder.allPosts, label: 'View: all posts (default)' }, { value: PostsOrder.friendsPosts, label: 'View: Friends\' posts' }]} />
+          </SelectContainer>
+
+        </div>
+
         <InfiniteScroll
           threshold={3000}
           pageStart={0}

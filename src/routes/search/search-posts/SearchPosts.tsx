@@ -9,7 +9,7 @@ import SearchHeader from '../SearchHeader';
 import {
   deleteFeedPost, getHashtagPostList, hideFeedPost, updateFeedPost,
 } from '../../../api/feed-posts';
-import { unlikeFeedPost, likeFeedPost } from '../../../api/feed-likes';
+import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
 import { useAppSelector } from '../../../redux/hooks';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { followHashtag, getSingleHashtagDetail, unfollowHashtag } from '../../../api/users';
@@ -22,7 +22,7 @@ import {
 } from '../../../pageStateCache';
 import useProgressButton from '../../../components/ui/ProgressButton';
 import FriendshipStatusModal from '../../../components/ui/friendShipCheckModal';
-import { friendship } from '../../../api/friends';
+// import { friendship } from '../../../api/friends';
 import { sleep } from '../../../utils/timer-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
@@ -59,7 +59,7 @@ function SearchPosts() {
   const [friendShipStatusModal, setFriendShipStatusModal] = useState<boolean>(false);
   const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
   const [friendData, setFriendData] = useState<FriendType>(null);
-  const userId = useAppSelector((state) => state.user.user.id);
+  // const userId = useAppSelector((state) => state.user.user.id);
 
   useEffect(() => {
     setQueryParam(searchParams.get('hashtag'));
@@ -176,24 +176,24 @@ function SearchPosts() {
     setShow(true);
     setDropDownValue(value);
   };
-  const checkFriendShipStatus = (selectedFeedPostId: string) => new Promise<void>(
-    (resolve, reject) => {
-      if (userId === selectedFeedPostId) {
-        resolve();
-      } else {
-        friendship(selectedFeedPostId).then((res) => {
-          if (res.data.reaction === FriendRequestReaction.Accepted) {
-            resolve();
-          } else {
-            setPostUserId(selectedFeedPostId);
-            setFriendShipStatusModal(true);
-            setFriendData(res.data);
-            setFriendStatus(res.data.reaction);
-          }
-        }).catch(() => reject());
-      }
-    },
-  );
+  // const checkFriendShipStatus = (selectedFeedPostId: string) => new Promise<void>(
+  //   (resolve, reject) => {
+  //     if (userId === selectedFeedPostId) {
+  //       resolve();
+  //     } else {
+  //       friendship(selectedFeedPostId).then((res) => {
+  //         if (res.data.reaction === FriendRequestReaction.Accepted) {
+  //           resolve();
+  //         } else {
+  //           setPostUserId(selectedFeedPostId);
+  //           setFriendShipStatusModal(true);
+  //           setFriendData(res.data);
+  //           setFriendStatus(res.data.reaction);
+  //         }
+  //       }).catch(() => reject());
+  //     }
+  //   },
+  // );
 
   const handlePostDislike = useCallback((feedPostId: string) => {
     setSearchPosts((prevPosts) => prevPosts.map(
@@ -228,7 +228,7 @@ function SearchPosts() {
   const onLikeClick = async (feedPostId: string) => {
     const checkLike = searchPosts.some((post) => post.id === feedPostId
       && post.likeIcon);
-    const selectedFeedPostUserId = searchPosts.find((post) => post.id === feedPostId)?.userId;
+    // const selectedFeedPostUserId = searchPosts.find((post) => post.id === feedPostId)?.userId;
 
     const revertOptimisticUpdate = () => {
       if (checkLike) {
@@ -249,15 +249,16 @@ function SearchPosts() {
         if (checkLike) {
           await unlikeFeedPost(feedPostId);
         } else {
-          const res = await likeFeedPost(feedPostId);
-          if (!res.data.isFriend) {
-            checkFriendShipStatus(selectedFeedPostUserId!);
-          }
+          await likeFeedPost(feedPostId);
+          // const res = await likeFeedPost(feedPostId);
+          // if (!res.data.isFriend) {
+          //   checkFriendShipStatus(selectedFeedPostUserId!);
+          // }
         }
       } catch (error: any) {
         revertOptimisticUpdate();
         if (error.response.status === 403) {
-          checkFriendShipStatus(selectedFeedPostUserId!);
+          // checkFriendShipStatus(selectedFeedPostUserId!);
         }
       }
     };

@@ -18,7 +18,7 @@ const StyleMovie = styled(Row)`
 
 const Card = styled.div`
   position: relative;
-  width: 10.625rem;
+  width:10.33rem;
   padding-right: 1rem;
 `;
 
@@ -135,12 +135,8 @@ function RecentlyAddedMovies() {
               tabIndex={-1}
             >
               {suggestedMovies?.map((movie: any) => (
-                <Card key={movie._id} className="p-2">
+                <Card key={movie._id}>
                   <div className="d-flex justify-content-center position-relative">
-                    <Button variant="link" className="position-absolute p-0 px-2 py-1" style={{ right: '0', zIndex: 999 }} onClick={(e: any) => onCloseClick(e, movie?._id)}>
-                      <FontAwesomeIcon icon={solid('xmark')} size="lg" />
-                      <span className="visually-hidden">Dismiss suggestion</span>
-                    </Button>
                     <RecentMediaTile
                       image={movie.logo}
                       title={movie.name}
@@ -149,6 +145,7 @@ function RecentlyAddedMovies() {
                       thumbRating={movie.worthWatching}
                       id={movie._id}
                       addWatchListClick={addWatchListClick}
+                      onCloseClick={onCloseClick}
                     />
                   </div>
                 </Card>

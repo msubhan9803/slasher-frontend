@@ -3,7 +3,7 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { Card } from 'react-bootstrap';
+import { Button, Card } from 'react-bootstrap';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import RoundButton from '../../../ui/RoundButton';
 import LikeIconButton from '../../../ui/Poster/LikeIconButton';
@@ -13,7 +13,7 @@ const YearAndThumbRating = styled.div`
 `;
 
 const RatingSection = styled.div`
-  min-height: 2.313rem;
+  bottom: 0.563rem;
 `;
 
 const RatingDiv = styled.div`
@@ -27,7 +27,6 @@ const RatingDiv = styled.div`
 const StyledPoster = styled.div`
   aspect-ratio: 0.6;
   img{
-    width: 9.650rem !important;
     object-fit: cover;
     box-shadow: 0 0 0 1px var(--poster-border-color);
   }
@@ -38,6 +37,7 @@ interface Props {
   image: string;
   title: string;
   addWatchListClick: (value: string) => void;
+  onCloseClick: (e: any, id: string) => void;
   year?: number;
   thumbRating?: number;
   numericRating?: number;
@@ -47,6 +47,7 @@ interface Props {
 
 function RecentMediaTile({
   className, image, title, year, numericRating, thumbRating, id, addWatchListClick, isBook,
+  onCloseClick,
 }: Props) {
   const renderThumbIcon = (rating: number) => (
     <LikeIconButton
@@ -73,37 +74,43 @@ function RecentMediaTile({
     >
       <div className={`${className}`}>
         <div className="position-relative">
-          <StyledPoster>
+          <Button variant="link" className="position-absolute p-0 px-2 py-1" style={{ right: '0', zIndex: 1 }} onClick={(e: any) => onCloseClick(e, id ?? '')}>
+            <FontAwesomeIcon icon={solid('xmark')} size="lg" />
+            <span className="visually-hidden">Dismiss suggestion</span>
+          </Button>
+
+          <StyledPoster className="position-relative">
             <LazyLoadImage src={image} alt={`Poster for ${title}`} className="w-100 h-100 rounded-4" />
           </StyledPoster>
+
+          <RatingSection className="w-100 px-2 position-absolute d-flex justify-content-between align-items-center">
+            <div>
+              {
+                (hasYearOrThumbRating)
+                && (
+                  <YearAndThumbRating className="d-flex justify-content-between align-items-center">
+                    {thumbRating !== 0 && renderThumbIcon(thumbRating!)}
+                  </YearAndThumbRating>
+                )
+              }
+            </div>
+
+            <div className="d-flex align-items-center">
+              {
+                numericRating
+                  ? (
+                    <RatingDiv className="d-flex justify-content-end">
+                      <Card.Text className="rating bg-white mb-0 px-2 rounded-5 fs-5 text-black">
+                        <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" />
+                        <span className="h5">{numericRating}</span>
+                      </Card.Text>
+                    </RatingDiv>
+                  ) : null
+              }
+            </div>
+          </RatingSection>
+
         </div>
-
-        <RatingSection className="mt-2 d-flex justify-content-between align-items-center">
-          <div className="d-flex align-items-center">
-            {
-              numericRating
-                ? (
-                  <RatingDiv className="d-flex justify-content-end me-2">
-                    <Card.Text className="rating bg-white mb-0 px-2 rounded-5 fs-5 text-black">
-                      <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" />
-                      <span className="h5">{numericRating}</span>
-                    </Card.Text>
-                  </RatingDiv>
-                ) : null
-            }
-          </div>
-
-          <div>
-            {
-              (hasYearOrThumbRating)
-              && (
-                <YearAndThumbRating className="d-flex justify-content-between align-items-center">
-                  {thumbRating !== 0 && renderThumbIcon(thumbRating!)}
-                </YearAndThumbRating>
-              )
-            }
-          </div>
-        </RatingSection>
 
         <RoundButton className="w-100 mt-2" onClick={(e: React.MouseEvent<HTMLButtonElement>) => onAddWatchListClick(e)}>
           {isBook ? '+ Reading list' : '+ Watch list'}

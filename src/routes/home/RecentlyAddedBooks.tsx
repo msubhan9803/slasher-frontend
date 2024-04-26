@@ -20,7 +20,7 @@ const StyledBook = styled(Row)`
 
 const Card = styled.div`
   position: relative;
-  width: 10.625rem;
+  width:10.33rem;
   padding-right: 1rem;
 `;
 
@@ -137,12 +137,8 @@ function RecentlyAddedBooks() {
               tabIndex={-1}
             >
               {suggestedBooks?.map((book: any) => (
-                <Card key={book._id} className="p-2">
+                <Card key={book._id}>
                   <div className="d-flex justify-content-center position-relative">
-                    <Button variant="link" className="position-absolute p-0 px-2 py-1" style={{ right: '0', zIndex: 999 }} onClick={(e: any) => onCloseClick(e, book?._id)}>
-                      <FontAwesomeIcon icon={solid('xmark')} size="lg" />
-                      <span className="visually-hidden">Dismiss suggestion</span>
-                    </Button>
                     <RecentMediaTile
                       image={book.coverImage.image_path}
                       title={book.name}
@@ -152,6 +148,7 @@ function RecentlyAddedBooks() {
                       id={book._id}
                       addWatchListClick={addWatchListClick}
                       isBook
+                      onCloseClick={onCloseClick}
                     />
                   </div>
                 </Card>

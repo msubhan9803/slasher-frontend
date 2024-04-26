@@ -74,7 +74,7 @@ function RecentMediaTile({
     >
       <div className={`${className}`}>
         <div className="position-relative">
-          <Button variant="link" className="position-absolute p-0 px-2 py-1" style={{ right: '0' }} onClick={(e: any) => onCloseClick(e, id ?? '')}>
+          <Button variant="link" className="position-absolute p-0 px-2 py-1" style={{ right: '0', zIndex: '1' }} onClick={(e: any) => onCloseClick(e, id ?? '')}>
             <FontAwesomeIcon icon={solid('xmark')} size="lg" />
             <span className="visually-hidden">Dismiss suggestion</span>
           </Button>

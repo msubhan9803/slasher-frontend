@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  useCallback, useEffect, useRef, useState,
+  useCallback, useEffect, useLayoutEffect, useRef, useState,
 } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { useLocation } from 'react-router-dom';
@@ -41,6 +41,7 @@ import CustomSelect from '../../components/filter-sort/CustomSelect';
 import {
   MD_MEDIA_BREAKPOINT, LG_MEDIA_BREAKPOINT, XL_MEDIA_BREAKPOINT, XXL_MEDIA_BREAKPOINT,
 } from '../../constants';
+import { getLocalStorage, setLocalStorage } from '../../utils/localstorage-utils';
 // import DebugGoogleAnalytics from '../debug-google-analytics';
 
 const SelectContainer = styled.div`
@@ -79,6 +80,7 @@ function Home() {
   const [forceLoading, setForceLoading] = useState<boolean>(false);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const location = useLocation();
+  const postOrder = getLocalStorage('postOrder');
   // const userId = useAppSelector((state: any) => state.user.user.id);
   const userData = useAppSelector((state) => state.user.user);
   const pageStateCache = (getPageStateCache(location) ?? [])
@@ -91,6 +93,16 @@ function Home() {
   const lastLocationKeyRef = useRef(location.key);
 
   const persistScrollPosition = () => { setPageStateCache(location, posts); };
+
+  useLayoutEffect(() => {
+    if (PostsOrder.allPosts === postOrder) {
+      setGetAllPosts(true);
+      setPostsOrder(PostsOrder.allPosts);
+    } else {
+      setGetAllPosts(false);
+      setPostsOrder(PostsOrder.friendsPosts);
+    }
+  }, [postOrder]);
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     persistScrollPosition();
@@ -444,6 +456,7 @@ function Home() {
     } else {
       setGetAllPosts(false);
     }
+    setLocalStorage('postOrder', JSON.stringify(value));
     setRequestAdditionalPosts(true);
     setPostsOrder(value);
     setForceLoading(true);

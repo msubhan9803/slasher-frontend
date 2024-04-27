@@ -487,7 +487,8 @@ export class FeedCommentsController {
       }
     }
 
-    const excludedUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(user.id, feedPost.userId._id.toString());
+    const feedPostUser = feedPost.rssfeedProviderId ? null : (feedPost.userId as any)._id.toString();
+    const excludedUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(user.id, feedPostUser);
     const allFeedCommentsWithReplies = await this.feedCommentsService.findFeedCommentsWithReplies(
       query.feedPostId,
       query.limit,

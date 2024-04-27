@@ -52,18 +52,7 @@ export class FeedLikesController {
     if (feedPostLikeData) {
       throw new HttpException('You already like the post', HttpStatus.BAD_REQUEST);
     }
-    let isFriend = true;
-    if (
-      post.postType !== PostType.MovieReview && post.postType !== PostType.BookReview
-      && !post.rssfeedProviderId
-      && user.id !== (post.userId as unknown as User).toString()
-    ) {
-      isFriend = await this.friendsService.areFriends(user.id, (post.userId as unknown as User).toString()) || false;
 
-      if (!isFriend) {
-        await this.postAccessService.checkAccessPostService(user, post.hashtags);
-      }
-    }
     if (!post.rssfeedProviderId) {
       const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User).toString());
       if (block) {
@@ -98,7 +87,7 @@ export class FeedLikesController {
       notification.notificationMsg = postTypeMessages[post.postType] || postTypeMessages.default;
       await this.createNotificationQueue.add('create-notification', notification);
     }
-    return { success: true, isFriend };
+    return { success: true };
   }
 
   @Delete('post/:feedPostId')
@@ -135,18 +124,6 @@ export class FeedLikesController {
         throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
       }
     }
-    let isFriend = true;
-    if (
-      feedPost.postType !== PostType.MovieReview && feedPost.postType !== PostType.BookReview
-      && !feedPost.rssfeedProviderId
-      && user.id !== (feedPost.userId as unknown as User).toString()
-    ) {
-      isFriend = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User).toString()) || false;
-
-      if (!isFriend) {
-        await this.postAccessService.checkAccessPostService(user, feedPost.hashtags);
-      }
-    }
 
     await this.feedLikesService.createFeedCommentLike(params.feedCommentId, user.id);
 
@@ -168,7 +145,7 @@ export class FeedLikesController {
 
       await this.createNotificationQueue.add('create-notification', notification);
     }
-    return { success: true, isFriend };
+    return { success: true };
   }
 
   @Delete('comment/:feedCommentId')
@@ -194,6 +171,11 @@ export class FeedLikesController {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
 
+    const blockPostData = await this.blocksService.blockExistsBetweenUsers(user.id, feedPost.userId.toString());
+    if (blockPostData) {
+      throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
+    }
+
     const blockData = await this.blocksService.blockExistsBetweenUsers(user.id, reply.userId.toString());
     if (blockData) {
       throw new HttpException('Request failed due to user block (reply owner).', HttpStatus.FORBIDDEN);
@@ -203,17 +185,6 @@ export class FeedLikesController {
       const block = await this.blocksService.blockExistsBetweenUsers(user.id, (reply.userId as unknown as User).toString());
       if (block) {
         throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
-      }
-    }
-    let isFriend = true;
-    if (
-      feedPost.postType !== PostType.MovieReview && !feedPost.rssfeedProviderId
-      && user.id !== (feedPost.userId as unknown as User).toString()
-    ) {
-      isFriend = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User).toString()) || false;
-
-      if (!isFriend) {
-        await this.postAccessService.checkAccessPostService(user, feedPost.hashtags);
       }
     }
 
@@ -239,7 +210,7 @@ export class FeedLikesController {
       await this.createNotificationQueue.add('create-notification', notification);
     }
 
-    return { success: true, isFriend };
+    return { success: true };
   }
 
   @Delete('reply/:feedReplyId')

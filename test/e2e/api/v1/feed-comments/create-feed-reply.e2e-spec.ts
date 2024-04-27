@@ -149,7 +149,6 @@ describe('Feed-Comments/Replies File (e2e)', () => {
             feedPostId: feedPost._id.toString(),
             feedCommentId: feedComment._id.toString(),
             message: 'hello test user',
-            isFriend: true,
             userId: activeUser._id.toString(),
             images: [
               {
@@ -178,7 +177,9 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-        expect(allFilesNames).toEqual(['.keep']);
+        expect(allFilesNames).toEqual([
+          '.keep',
+        ]);
       });
 
       it('responds expected response when one or more uploads files user an unallowed extension', async () => {
@@ -199,7 +200,9 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-        expect(allFilesNames).toEqual(['.keep']);
+        expect(allFilesNames).toEqual([
+          '.keep',
+        ]);
       });
 
       it('allows the creation of a reply with only a message, but no files', async () => {
@@ -217,7 +220,6 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           feedPostId: feedPost._id.toString(),
           feedCommentId: feedComment._id.toString(),
           message: 'This is a test message',
-          isFriend: true,
           userId: activeUser._id.toString(),
           images: [],
         });
@@ -239,7 +241,6 @@ describe('Feed-Comments/Replies File (e2e)', () => {
             feedCommentId: feedComment._id.toString(),
             feedPostId: feedPost._id.toString(),
             message: null,
-            isFriend: true,
             userId: activeUser._id.toString(),
             images: [
               {
@@ -258,7 +259,9 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-        expect(allFilesNames).toEqual(['.keep']);
+        expect(allFilesNames).toEqual([
+          '.keep',
+        ]);
       });
 
       it('only allows a maximum of four images', async () => {
@@ -289,7 +292,9 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-        expect(allFilesNames).toEqual(['.keep']);
+        expect(allFilesNames).toEqual([
+          '.keep',
+        ]);
       });
 
       it('responds expected response if file size should not larger than 20MB', async () => {
@@ -308,7 +313,9 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-        expect(allFilesNames).toEqual(['.keep']);
+        expect(allFilesNames).toEqual([
+          '.keep',
+        ]);
       });
 
       it('check message length validation', async () => {
@@ -327,7 +334,9 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-        expect(allFilesNames).toEqual(['.keep']);
+        expect(allFilesNames).toEqual([
+          '.keep',
+        ]);
       });
 
       it('when a block exists between the comment creator and the reply creator, it returns the expected response', async () => {
@@ -430,7 +439,6 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           feedCommentId: feedComment._id.toString(),
           feedPostId: feedPost._id.toString(),
           message: 'This is a test reply message',
-          isFriend: true,
           userId: activeUser._id.toString(),
           images: [],
         });
@@ -469,7 +477,9 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-        expect(allFilesNames).toEqual(['.keep']);
+        expect(allFilesNames).toEqual([
+          '.keep',
+        ]);
       });
 
       it('when imageDescriptions is empty string than expected response', async () => {
@@ -489,7 +499,6 @@ describe('Feed-Comments/Replies File (e2e)', () => {
             feedPostId: feedPost._id.toString(),
             feedCommentId: feedComment._id.toString(),
             message: 'hello test user',
-            isFriend: true,
             userId: activeUser._id.toString(),
             images: [
               {
@@ -503,7 +512,9 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-        expect(allFilesNames).toEqual(['.keep']);
+        expect(allFilesNames).toEqual([
+          '.keep',
+        ]);
       });
 
       it('cannot add more than 4 description on reply', async () => {
@@ -568,7 +579,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           );
         });
 
-        it('should not allow the creation of a feed reply when replying user is not a friend of the post creator', async () => {
+        it('allow the creation of a feed reply when replying user is not a friend of the post creator', async () => {
           await createTempFiles(async (tempPaths) => {
             const response = await request(app.getHttpServer())
               .post('/api/v1/feed-comments/replies')
@@ -577,13 +588,26 @@ describe('Feed-Comments/Replies File (e2e)', () => {
               .field('message', 'hello test user')
               .field('feedCommentId', feedComment1._id.toString())
               .attach('images', tempPaths[0])
-              .attach('images', tempPaths[1]);
-            expect(response.status).toBe(HttpStatus.FORBIDDEN);
-            expect(response.body).toEqual({ statusCode: 403, message: 'You can only interact with posts of friends.' });
+              .field('imageDescriptions[0][description]', 'this is create feed reply description 0');
+            expect(response.status).toBe(HttpStatus.CREATED);
+            expect(response.body).toEqual({
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              feedPostId: feedPost1._id.toString(),
+              feedCommentId: feedComment1._id.toString(),
+              message: 'hello test user',
+              userId: activeUser._id.toString(),
+              images: [
+                {
+                  image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                  description: 'this is create feed reply description 0',
+                  _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                },
+              ],
+            });
           }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
         });
 
-        it('should not allow the creation of a feed reply when replying user is not a'
+        it('allow the creation of a feed reply when replying user is not a'
           + 'friend of the post creator user with a public profile', async () => {
             const user4 = await usersService.create(userFactory.build({
               profile_status: ProfileVisibility.Public,
@@ -613,9 +637,22 @@ describe('Feed-Comments/Replies File (e2e)', () => {
                 .field('message', 'hello test user')
                 .field('feedCommentId', feedComment3._id.toString())
                 .attach('images', tempPaths[0])
-                .attach('images', tempPaths[1]);
-              expect(response.status).toBe(HttpStatus.FORBIDDEN);
-              expect(response.body).toEqual({ statusCode: 403, message: 'You can only interact with posts of friends.' });
+                .field('imageDescriptions[0][description]', 'this is create feed reply description 0');
+              expect(response.status).toBe(HttpStatus.CREATED);
+              expect(response.body).toEqual({
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                feedPostId: feedPost3._id.toString(),
+                feedCommentId: feedComment3._id.toString(),
+                message: 'hello test user',
+                userId: activeUser._id.toString(),
+                images: [
+                  {
+                    image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                    description: 'this is create feed reply description 0',
+                    _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                  },
+                ],
+              });
             }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
           });
 
@@ -657,7 +694,6 @@ describe('Feed-Comments/Replies File (e2e)', () => {
               feedPostId: feedPost4._id.toString(),
               feedCommentId: feedComment4._id.toString(),
               message: 'hello test user',
-              isFriend: true,
               userId: activeUser._id.toString(),
               images: [
                 {
@@ -704,7 +740,6 @@ describe('Feed-Comments/Replies File (e2e)', () => {
               feedCommentId: feedComment2._id.toString(),
               feedPostId: feedPost2._id.toString(),
               message: 'hello test user',
-              isFriend: true,
               userId: activeUser._id.toString(),
               images: [
                 {
@@ -756,7 +791,6 @@ describe('Feed-Comments/Replies File (e2e)', () => {
               feedCommentId: feedComment5._id.toString(),
               feedPostId: feedPost5._id.toString(),
               message: 'hello test user',
-              isFriend: true,
               userId: activeUser._id.toString(),
               images: [
                 {
@@ -808,7 +842,6 @@ describe('Feed-Comments/Replies File (e2e)', () => {
               feedCommentId: feedComment6._id.toString(),
               feedPostId: feedPost6._id.toString(),
               message: 'hello test user',
-              isFriend: true,
               userId: activeUser._id.toString(),
               images: [
                 {

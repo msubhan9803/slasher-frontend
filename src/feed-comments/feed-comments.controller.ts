@@ -79,20 +79,7 @@ export class FeedCommentsController {
     if (!post) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-    let isFriend = true;
     const user = getUserFromRequest(request);
-    if (
-      post.postType !== PostType.MovieReview && post.postType !== PostType.BookReview
-      && !post.rssfeedProviderId
-      && user.id !== (post.userId as unknown as User).toString()
-    ) {
-      isFriend = await this.friendsService.areFriends(user.id, (post.userId as unknown as User).toString()) || false;
-
-      if (!isFriend) {
-        await this.postAccessService.checkAccessPostService(user, post.hashtags);
-      }
-    }
-
     if (!post.rssfeedProviderId) {
       const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User).toString());
       if (block) {
@@ -135,7 +122,6 @@ export class FeedCommentsController {
       message: comment.message,
       userId: comment.userId,
       images: comment.images,
-      isFriend,
     };
   }
 
@@ -304,17 +290,6 @@ export class FeedCommentsController {
         throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
       }
     }
-    let isFriend = true;
-    if (
-      feedPost.postType !== PostType.MovieReview && feedPost.postType !== PostType.BookReview
-      && !feedPost.rssfeedProviderId
-      && user.id !== (feedPost.userId as unknown as User).toString()
-    ) {
-      isFriend = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User).toString()) || false;
-      if (!isFriend) {
-        await this.postAccessService.checkAccessPostService(user, feedPost.hashtags);
-      }
-    }
 
     if (files && files.length && files?.length !== createFeedReplyDto.imageDescriptions?.length) {
       throw new HttpException(
@@ -353,7 +328,6 @@ export class FeedCommentsController {
       message: reply.message,
       userId: reply.userId,
       images: reply.images,
-      isFriend,
     };
   }
 
@@ -513,7 +487,7 @@ export class FeedCommentsController {
       }
     }
 
-    const excludedUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(user.id);
+    const excludedUserIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(user.id, feedPost.userId._id.toString());
     const allFeedCommentsWithReplies = await this.feedCommentsService.findFeedCommentsWithReplies(
       query.feedPostId,
       query.limit,

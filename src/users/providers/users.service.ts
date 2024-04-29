@@ -104,9 +104,12 @@ export class UsersService {
 
   async findNonDeletedUserByEmailOrUsername(emailOrUsername: string): Promise<UserDocument> {
     if (EmailValidator.validate(emailOrUsername)) {
-      return this.userModel.findOne({ email: new RegExp(`^${escapeStringForRegex(emailOrUsername)}$`, 'i'), deleted: false }).exec();
+      return this.userModel.findOne({ email: new RegExp(`^${escapeStringForRegex(emailOrUsername)}$`, 'i') })
+      .sort({ _id: -1 })
+      .exec();
     }
-    return this.userModel.findOne({ userName: new RegExp(`^${escapeStringForRegex(emailOrUsername)}$`, 'i'), deleted: false }).exec();
+    return this.userModel.findOne({ userName: new RegExp(`^${escapeStringForRegex(emailOrUsername)}$`, 'i') })
+    .sort({ _id: -1 }).exec();
   }
 
   async userNameAvailable(userName: string): Promise<boolean> {

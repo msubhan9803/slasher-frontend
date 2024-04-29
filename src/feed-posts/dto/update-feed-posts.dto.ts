@@ -75,7 +75,7 @@ class UpdateBookPostDto {
   goreFactorRating: number;
 
   @IsOptional()
-  @IsIn([WorthReadingStatus.Down, WorthReadingStatus.Up])
+  @IsIn([WorthReadingStatus.NoRating, WorthReadingStatus.Down, WorthReadingStatus.Up])
   @Type(() => Number)
   @IsNumber()
   worthReading: WorthReadingStatus;

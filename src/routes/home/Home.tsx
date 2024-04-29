@@ -489,7 +489,7 @@ function Home() {
           </div>
 
           <SelectContainer className="ml-auto ms-auto pb-1 mt-3">
-            <CustomSelect value={postsOrder} onChange={handlePostsOrder} options={[{ value: PostsOrder.allPosts, label: 'View: all posts (default)' }, { value: PostsOrder.friendsPosts, label: 'View: Friends\' posts' }]} />
+            <CustomSelect value={postsOrder} onChange={handlePostsOrder} options={[{ value: PostsOrder.allPosts, label: 'View: All posts (default)' }, { value: PostsOrder.friendsPosts, label: 'View: Friends\' posts' }]} />
           </SelectContainer>
 
         </div>

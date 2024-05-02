@@ -314,6 +314,7 @@ export class FeedPostsService {
     const rssFeedProviderIds = (await this.rssFeedProviderFollowsService.findAllByUserId(userId)).map((follow) => follow.rssfeedProviderId);
     // Get the list of friend ids
     const blockIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(userId);
+    const friendIds = await this.friendsService.getFriendIds(userId, [FriendRequestReaction.Accepted]);
 
     const profileIdsToIgnore = await this.userModel.find({
       _id: { $ne: new mongoose.Types.ObjectId(userId) },
@@ -338,8 +339,8 @@ export class FeedPostsService {
           { is_deleted: 0 },
           {
             $or: [
+              { userId: { $in: [...friendIds, new mongoose.Types.ObjectId(userId)] } },
               { userId: { $nin: [...blockIds, ...userIds] } },
-              { userId: new mongoose.Types.ObjectId(userId) },
               { rssfeedProviderId: { $in: rssFeedProviderIds } },
             ],
           },
@@ -671,5 +672,21 @@ export class FeedPostsService {
         : FeedPostPrivacyType.Public,
     };
     await this.feedPostModel.updateMany({ userId }, { $set: updateFeedPostData }, { multi: true });
+  }
+
+  async deleteAllPostByUserId(id: string): Promise<void> {
+    await this.feedPostModel.updateMany(
+      { userId: new mongoose.Types.ObjectId(id) },
+      { $set: { is_deleted: FeedPostDeletionState.Deleted } },
+      { multi: true },
+    );
+  }
+
+  async deleteAllFeedPostLikeByUserId(id: string): Promise<void> {
+    await this.feedPostModel.updateMany(
+      { likes: { $in: [new mongoose.Types.ObjectId(id)] } },
+      { $inc: { likeCount: -1 }, $pull: { likes: new mongoose.Types.ObjectId(id) } },
+      { multi: true },
+    );
   }
 }

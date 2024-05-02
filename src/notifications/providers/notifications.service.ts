@@ -158,6 +158,14 @@ export class NotificationsService {
     return friendsCount;
   }
 
+  async deleteAllNotificationByUserId(userId: string): Promise<void> {
+    await this.notificationModel.updateMany(
+      { senderId: new mongoose.Types.ObjectId(userId) },
+      { $set: { is_deleted: NotificationDeletionStatus.Deleted } },
+      { multi: true },
+    );
+  }
+
   /**
    * Deletes all notifications created before the given beforeDate.
    * @param beforeDate

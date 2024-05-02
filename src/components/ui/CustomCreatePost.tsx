@@ -22,13 +22,31 @@ const StyledRoundButtonLink = styled(RoundButtonLink)`
   border-radius: 6.25rem;
 `;
 
+const StyledRoundButton = styled.div`
+  border: 1px solid #3A3B46;
+  border-radius: 6.25rem;
+`;
+
 function CustomCreatePost({
   label, icon, iconClass, className, handleCreateInput, linkParams,
 }: CreatePostProps) {
   const userProfilePic = useAppSelector((state) => state.user.user.profilePic);
   const { pathname } = useLocation();
 
-  return (
+  return !linkParams && handleCreateInput ? (
+    <StyledRoundButton
+      onClick={handleCreateInput}
+      className={`btn btn-black w-100 d-flex justify-content-between ${className}`}
+    >
+      <div>
+        <UserCircleImage size="1.4rem" src={userProfilePic} alt="user picture" />
+        <span className="ms-2 text-light">{label}</span>
+      </div>
+      <div className="align-self-center me-2">
+        <FontAwesomeIcon role="button" icon={icon!} size="lg" className={iconClass} />
+      </div>
+    </StyledRoundButton>
+  ) : (
     <StyledRoundButtonLink
       handleClick={handleCreateInput}
       state={pathname}

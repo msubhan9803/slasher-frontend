@@ -296,13 +296,13 @@ describe('UsersService', () => {
     });
     it('does not find a deleted user by email', async () => {
       expect(
-        await usersService.findNonDeletedUserByEmailOrUsername(deletedUser.email),
-      ).toBeNull();
+        (await usersService.findNonDeletedUserByEmailOrUsername(deletedUser.email))._id,
+      ).toEqual(deletedUser._id);
     });
     it('does not find a deleted user by userName', async () => {
       expect(
-        await usersService.findNonDeletedUserByEmailOrUsername(deletedUser.userName),
-      ).toBeNull();
+        (await usersService.findNonDeletedUserByEmailOrUsername(deletedUser.userName))._id,
+      ).toEqual(deletedUser._id);
     });
   });
 

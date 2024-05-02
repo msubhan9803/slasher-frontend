@@ -18,6 +18,9 @@ import { HashtagFollowsModule } from '../hashtag-follows/hashtag-follows.module'
 import { UsersEmailChangeController } from './users.email-change.controller';
 import { UsersPublicController } from './users.public.controller';
 import { EmailRevertTokensModule } from '../email-revert-tokens/email-revert-tokens.module';
+import { FeedCommentsModule } from '../feed-comments/feed-comments.module';
+import { FeedLikesModule } from '../feed-likes/feed-likes.module';
+import { FriendsModule } from '../friends/friends.module';
 
 // Since the UsersModule is likely to be used in many places, we'll make it global
 @Global()
@@ -33,6 +36,9 @@ import { EmailRevertTokensModule } from '../email-revert-tokens/email-revert-tok
     MailModule,
     DisallowedUsernameModule,
     CaptchaModule,
+    FeedCommentsModule,
+    FeedLikesModule,
+    FriendsModule,
     MoviesModule,
     HashtagFollowsModule,
   ],

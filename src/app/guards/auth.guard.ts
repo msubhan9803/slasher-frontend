@@ -63,6 +63,10 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Expired token');
     }
 
+    if (user.deleted || user.userBanned || user.userSuspended) {
+      throw new UnauthorizedException('Expired token');
+    }
+
     // When the user changes their password, the check below will treat all of their previous
     // JWT tokens as expired because the passwordChangedAt values won't match.
     if (passwordChangedAt !== user.passwordChangedAt?.toISOString()) {

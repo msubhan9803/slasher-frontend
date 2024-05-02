@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
@@ -7,6 +8,7 @@ import { FeedReplyDeletionState } from '../../schemas/feedReply/feedReply.enums'
 import { FeedReply, FeedReplyDocument } from '../../schemas/feedReply/feedReply.schema';
 import { FeedPostsService } from '../../feed-posts/providers/feed-posts.service';
 import { CommentsSortByType } from '../../types';
+import { FeedPost, FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 
 export interface FeedCommentWithReplies extends FeedComment {
   replies: FeedReply[];
@@ -17,6 +19,7 @@ export class FeedCommentsService {
   constructor(
     @InjectModel(FeedComment.name) private feedCommentModel: Model<FeedCommentDocument>,
     @InjectModel(FeedReply.name) private feedReplyModel: Model<FeedReplyDocument>,
+    @InjectModel(FeedPost.name) private feedPostModel: Model<FeedPostDocument>,
     private feedPostService: FeedPostsService,
   ) { }
 
@@ -251,5 +254,63 @@ export class FeedCommentsService {
     });
     feedCommentData.replies = feedReplyData;
     return feedCommentData;
+  }
+
+  async deleteAllCommentByUserId(id: string): Promise<void> {
+    const commentArray = await this.feedCommentModel.aggregate([
+      {
+        $match:
+        {
+          $and:
+            [
+              { userId: new mongoose.Types.ObjectId(id) },
+              { is_deleted: FeedCommentDeletionState.NotDeleted },
+            ],
+        },
+      },
+      {
+        $group: {
+          _id: '$feedPostId',
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+    for (const doc of commentArray) {
+      const postId = doc._id;
+      const commentCount = doc.count;
+      await this.feedPostModel.updateOne(
+        { _id: new mongoose.Types.ObjectId(postId) },
+        { $inc: { commentCount: -commentCount } },
+        { multi: true },
+      );
+    }
+    await Promise.all([
+      this.feedCommentModel.updateMany(
+        { likes: { $in: [new mongoose.Types.ObjectId(id)] } },
+        { $pull: { likes: new mongoose.Types.ObjectId(id) } },
+        { multi: true },
+      ),
+      this.feedCommentModel.updateMany(
+        { userId: new mongoose.Types.ObjectId(id) },
+        { $set: { is_deleted: FeedCommentDeletionState.Deleted } },
+        { multi: true },
+      ),
+    ]);
+  }
+
+  async deleteAllReplyByUserId(id: string): Promise<void> {
+    await this.feedReplyModel.updateMany(
+      { userId: new mongoose.Types.ObjectId(id) },
+      { $set: { deleted: FeedReplyDeletionState.Deleted } },
+      { multi: true },
+    );
+  }
+
+  async deleteAllFeedReplyLikeByUserId(id: string): Promise<void> {
+    await this.feedReplyModel.updateMany(
+      { likes: { $in: [new mongoose.Types.ObjectId(id)] } },
+      { $pull: { likes: new mongoose.Types.ObjectId(id) } },
+      { multi: true },
+    );
   }
 }

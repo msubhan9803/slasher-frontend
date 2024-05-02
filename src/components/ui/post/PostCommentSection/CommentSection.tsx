@@ -16,6 +16,7 @@ import { decryptMessage, escapeHtmlSpecialCharacters, newLineToBr } from '../../
 import CustomSwiper from '../../CustomSwiper';
 import { LikeShareModalResourceName, LikeShareModalTabName } from '../../../../types';
 import { LG_MEDIA_BREAKPOINT, topToDivHeight } from '../../../../constants';
+import { onKeyboardOpen } from '../../../../utils/styles-utils ';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -121,7 +122,7 @@ function CommentSection({
   }, []);
 
   const handleReply = () => {
-    if (setIsReply) { setIsReply(true); }
+    if (setIsReply) { setIsReply(true); onKeyboardOpen(); }
     const scrollId = isReply ? `reply-${id}` : `comment-${id}`;
     if (handleSeeCompleteList) {
       handleSeeCompleteList(feedCommentId || id, name, isReply ? id : '', scrollId, replyCommentIndex, userId);

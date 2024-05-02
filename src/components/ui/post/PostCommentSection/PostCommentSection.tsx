@@ -123,13 +123,19 @@ function PostCommentSection({
       // `Reply to comment` textInput and show default "Write a comment"
       const sendCommentOrReplyButtons = Array.from(document.querySelectorAll(`#${SEND_BUTTON_COMMENT_OR_REPLY}`));
       const uploadImageButtons = Array.from(document.querySelectorAll(`#${CHOOSE_FILE_CAMERA_ICON}`));
+      const commentReplyInput = Array.from(document.querySelectorAll(`#${COMMENT_OR_REPLY_INPUT}`));
       const element = e.target as Element || null;
       const clickedElementIsNotSendButton = !sendCommentOrReplyButtons
         .some((el) => el.contains(element as any));
       const clickedElementIsNotFileIUploadButton = !uploadImageButtons
         .some((el) => el.contains(element as any));
+      const clickedElementIsNotCommentReplyInput = !commentReplyInput
+        .some((el) => el.contains(element as any));
       if (clickedElementIsNotSendButton && clickedElementIsNotFileIUploadButton
-        && !replyImageArray.length && !hasReplyMessage) { setIsReply(false); }
+        && clickedElementIsNotCommentReplyInput
+        && !replyImageArray.length && !hasReplyMessage) {
+        setIsReply(false);
+      }
     }
   }, [setIsReply, hasReplyMessage, replyImageArray]);
 

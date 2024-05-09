@@ -14,6 +14,8 @@ import { useAppSelector } from '../../../redux/hooks';
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
 import { captchaSiteKey } from '../../../env';
 import { WORDPRESS_SITE_URL } from '../../../constants';
+import { setLocalStorage } from '../../../utils/localstorage-utils';
+import { PostsOrder } from '../../../types';
 
 interface Props {
   activeStep: number;
@@ -60,6 +62,7 @@ function RegistrationTerms({ activeStep }: Props) {
       );
 
       setProgressButtonStatus('default');
+      setLocalStorage('postOrder', JSON.stringify(PostsOrder.allPosts));
       setErrorMessages([]);
       navigate('/app/registration/final');
     } catch (error: any) {

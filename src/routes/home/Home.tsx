@@ -95,12 +95,14 @@ function Home() {
   const persistScrollPosition = () => { setPageStateCache(location, posts); };
 
   useLayoutEffect(() => {
-    if (PostsOrder.allPosts === postOrder) {
-      setGetAllPosts(true);
-      setPostsOrder(PostsOrder.allPosts);
-    } else {
-      setGetAllPosts(false);
-      setPostsOrder(PostsOrder.friendsPosts);
+    if (postOrder) {
+      if (PostsOrder.friendsPosts === postOrder) {
+        setGetAllPosts(false);
+        setPostsOrder(PostsOrder.friendsPosts);
+      } else {
+        setGetAllPosts(true);
+        setPostsOrder(PostsOrder.allPosts);
+      }
     }
   }, [postOrder]);
 

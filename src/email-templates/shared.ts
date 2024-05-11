@@ -32,7 +32,7 @@ export const sharedEmailHeader = `
           <table role="presentation" style="width:570px;border-collapse:collapse;background:#141414;border-spacing:0;text-align:left;">
             <tr>
               <td align="center">
-                <img src="https://imageslasher.s3.amazonaws.com/email/slasher-email-header-image-2023-05-18.png" alt="Slasher logo" style="width:100%;height:auto;display:block;" />
+                <img src="https://s3.us-east-1.amazonaws.com/cdn.theslasherapp.com/email/slasher-email-header-image-2023-05-18.png" alt="Slasher logo" style="width:100%;height:auto;display:block;" />
               </td>
             </tr>
 

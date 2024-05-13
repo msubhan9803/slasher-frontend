@@ -155,9 +155,9 @@ export class UsersController {
       throw new HttpException('User banned.', HttpStatus.UNAUTHORIZED);
     }
 
-    if (user.deleted) {
-      throw new HttpException('User Deleted.', HttpStatus.UNAUTHORIZED);
-    }
+    // if (user.deleted) {
+    //   throw new HttpException('User Deleted.', HttpStatus.UNAUTHORIZED);
+    // }
 
     if (!bcrypt.compareSync(userSignInDto.password, user.password)) {
       throw new HttpException(

@@ -346,7 +346,7 @@ describe('Users sign-in (e2e)', () => {
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
         expect(response.body.message).toContain(
-          'User Deleted.',
+          'Incorrect username or password.',
         );
       });
     });

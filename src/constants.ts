@@ -54,4 +54,4 @@ export const isBrowser = typeof window !== 'undefined';
 export const envValueForTpdAndGoogleAnalytics = isBrowser ? (window.location.host === 'staging.slasher.tv' ? 'dev' : 'prod') : 'dev';
 export const osValueForTpdAndGoogleAnalytics = Capacitor.getPlatform(); // android | web | ios
 
-export const SLASHER_AMAZON_TAG_ID = 'slasherapp-20'; // (affiliate id)
+export const SLASHER_AMAZON_TAG_ID = 'theslashera04-20'; // (affiliate id)

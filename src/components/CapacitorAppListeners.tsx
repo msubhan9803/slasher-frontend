@@ -4,7 +4,7 @@ import {
   ActionPerformed, PushNotifications, Token,
 } from '@capacitor/push-notifications';
 import { Preferences } from '@capacitor/preferences';
-import { AppUpdate } from '@capawesome/capacitor-app-update';
+import { AppUpdate, AppUpdateAvailability } from '@capawesome/capacitor-app-update';
 import { Capacitor } from '@capacitor/core';
 import { App as CapacitorApp, URLOpenListenerEvent } from '@capacitor/app';
 import { Device } from '@capacitor/device';
@@ -32,16 +32,19 @@ function CapacitorAppListeners() {
   const checkAndSetAppVerionPreferance = async () => {
     const appVersion = (await Preferences.get({ key: 'app-version' })).value;
     const result = await AppUpdate.getAppUpdateInfo();
-    const { currentVersion, availableVersion } = result;
-    let updateRequired = false;
-    const currentParts = currentVersion.split('.').map(Number);
-    const availableParts = availableVersion.split('.').map(Number);
-    for (let i = 0; i < currentParts.length; i += 1) {
-      if (currentParts[i] < availableParts[i]) {
-        updateRequired = true;
-      }
-    }
-    if (updateRequired) {
+    const { currentVersion } = result;
+    // let updateRequired = false;
+    // const currentParts = currentVersion.split('.').map(Number);
+    // const availableParts = availableVersion.split('.').map(Number);
+    // for (let i = 0; i < currentParts.length; i += 1) {
+    //   if (currentParts[i] < availableParts[i]) {
+    //     updateRequired = true;
+    //   }
+    // }
+    // if (updateRequired) {
+    //   await AppUpdate.openAppStore();
+    // }
+    if (result.updateAvailability === AppUpdateAvailability.UPDATE_AVAILABLE) {
       await AppUpdate.openAppStore();
     }
     if (currentVersion !== appVersion) {

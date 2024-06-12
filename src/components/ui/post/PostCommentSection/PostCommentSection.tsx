@@ -705,7 +705,7 @@ function PostCommentSection({
                     && !checkLoadMoreId.includes(data.id)
                     && data.commentReplySection.length - data.isReplyIndex > 0
                     && !(
-                      data.commentReplySection.findLastIndex(
+                      data.commentReplySection.length && data.commentReplySection.findLastIndex(
                         (item: any) => item.newComment,
                       ) === data.commentReplySection.length - 1
                     )

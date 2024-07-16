@@ -71,7 +71,7 @@ const LeftSidebarWrapper = styled.div`
   -ms-overflow-style { display: none; }
   scrollbar-width { display: none; }
   &:hover {
-    padding-right: 1rem; // We remove (--scroll-bar-width) to account for the width of scrollbar sidebar is hovered.
+    // padding-right: 1rem; // We remove (--scroll-bar-width) to account for the width of scrollbar sidebar is hovered.
     ::-webkit-scrollbar { display: block; }
     -ms-overflow-style { display: block; }
     scrollbar-width { display: block; }
@@ -328,7 +328,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
       {showSticyBannerAdDesktopOnly
         && (
           <TpdAd
-            className="position-fixed bottom-0 w-100"
+            className="position-fixed bottom-0"
             style={{ height: 'auto' }}
             slotId={tpdAdSlotIdBannerA}
             id="bottom-ad"

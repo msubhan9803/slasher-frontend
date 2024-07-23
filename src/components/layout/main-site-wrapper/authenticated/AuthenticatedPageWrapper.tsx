@@ -329,7 +329,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
         && (
           <TpdAd
             className="position-fixed bottom-0"
-            style={{ height: 'auto' }}
+            style={{ height: 'auto', zIndex: 99 }}
             slotId={tpdAdSlotIdBannerA}
             id="bottom-ad"
             showSponsoredText={false}

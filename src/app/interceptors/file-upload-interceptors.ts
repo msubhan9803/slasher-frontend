@@ -38,7 +38,7 @@ export class MaxFileCustomErrorMessageInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest();
     const fileCount = request.files?.length;
 
-    if (fileCount > this.maxFiles) {
+    if (this.maxFiles !== null && fileCount > this.maxFiles) {
       return throwError(() => new HttpException(
         `Too many files uploaded. Maximum allowed: ${this.maxFiles}`,
         HttpStatus.BAD_REQUEST,

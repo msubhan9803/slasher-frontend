@@ -22,7 +22,7 @@ const StyledRightSidebarWrapper = styled.div`
   -ms-overflow-style { display: none; }
   scrollbar-width { display: none; }
   &:hover {
-    padding-right: calc(1rem + var(--reset-padding-when-no-scroll-bar, 0px));
+    // padding-right: calc(1rem + var(--reset-padding-when-no-scroll-bar, 0px));
     // In above we remove (--scroll-bar-width) to account for the width of scrollbar sidebar is hovered.
     // Also, we add "--reset-padding-when-no-scroll-bar" so that when height is not enought and scrollbar
     // is not shown when hovered we must not change the padding, and we do that by setting same value for

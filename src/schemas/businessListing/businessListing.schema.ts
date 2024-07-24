@@ -1,11 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { BusinessType } from './businessListing.enums';
+import { BusinessType, Cast, TrailerLinks } from './businessListing.enums';
 import { BusinessListingType } from '../businessListingType/businessListingType.schema';
 
 @Schema({ timestamps: true })
 export class BusinessListing {
-  @Prop()
   readonly _id: mongoose.Schema.Types.ObjectId;
 
   @Prop({ enum: BusinessType, required: true })
@@ -57,18 +56,10 @@ export class BusinessListing {
   officialRatingReceived?: string;
 
   @Prop({ type: Map, of: String })
-  trailerLinks?: {
-    main: string;
-    trailer2: string;
-    trailer3: string;
-  };
+  trailerLinks?: TrailerLinks;
 
   @Prop([{ castImage: String, name: String, characterName: String }])
-  casts?: {
-    castImage: string;
-    name: string;
-    characterName: string;
-  }[];
+  casts?: Cast;
 
   constructor(options?: Partial<BusinessListing>) {
     if (!options) {

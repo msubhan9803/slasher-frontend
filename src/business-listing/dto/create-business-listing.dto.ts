@@ -1,60 +1,22 @@
 /* eslint-disable max-classes-per-file */
-import { Type } from 'class-transformer';
 import {
-  ArrayMinSize,
-  IsArray,
   IsBoolean,
   IsEnum,
-  IsMongoId,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
   MaxLength,
-  ValidateNested,
 } from 'class-validator';
 import mongoose from 'mongoose';
 import { BusinessType } from 'src/schemas/businessListing/businessListing.enums';
 
-class CastDto {
-  @IsNotEmpty({ message: 'Cast image URL is required' })
-  @IsString()
-  castImage: string;
-
-  @IsNotEmpty({ message: 'Cast name is required' })
-  @IsString()
-  name: string;
-
-  @IsOptional()
-  @IsString()
-  characterName: string;
-}
-
-class TrailerLinksDto {
-  @IsNotEmpty({ message: 'Main trailer link is required' })
-  @IsString()
-  main: string;
-
-  @IsOptional()
-  @IsString()
-  trailer2: string;
-
-  @IsOptional()
-  @IsString()
-  trailer3: string;
-}
-
 export class CreateBusinessListingDto {
-  @IsOptional()
-  @IsMongoId()
-  readonly _id?: mongoose.Schema.Types.ObjectId;
-
   @IsEnum(BusinessType, { message: 'Invalid business type' })
   businesstype: BusinessType;
 
-  @IsOptional()
   @IsString()
-  image?: string;
+  listingType: mongoose.Schema.Types.ObjectId;
 
   @IsNotEmpty({ message: 'Title is required' })
   @IsString()
@@ -75,6 +37,9 @@ export class CreateBusinessListingDto {
   @IsBoolean()
   isActive?: boolean;
 
+  /***********
+   * Fields for books *
+   ***********/
   @IsOptional()
   @IsString()
   @MaxLength(100, { message: 'Author name must be less than 100 characters' })
@@ -89,9 +54,11 @@ export class CreateBusinessListingDto {
   @MaxLength(20, { message: 'ISBN must be less than 20 characters' })
   isbn?: string;
 
+  /***********
+   * Fields for movies *
+   ***********/
   @IsOptional()
-  @IsNumber()
-  yearReleased?: number;
+  yearReleased?: any;
 
   @IsOptional()
   @IsString()
@@ -99,8 +66,7 @@ export class CreateBusinessListingDto {
   countryOfOrigin?: string;
 
   @IsOptional()
-  @IsNumber()
-  durationInMinutes?: number;
+  durationInMinutes?: any;
 
   @IsOptional()
   @IsString()
@@ -108,14 +74,8 @@ export class CreateBusinessListingDto {
   officialRatingReceived?: string;
 
   @IsOptional()
-  @ValidateNested()
-  @Type(() => TrailerLinksDto)
-  trailerLinks?: TrailerLinksDto;
+  trailerLinks?: string;
 
   @IsOptional()
-  @IsArray()
-  @ArrayMinSize(1, { message: 'At least one cast member is required' })
-  @ValidateNested({ each: true })
-  @Type(() => CastDto)
-  casts?: CastDto[];
+  casts?: string;
 }

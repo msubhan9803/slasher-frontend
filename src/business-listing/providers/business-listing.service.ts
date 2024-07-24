@@ -1,23 +1,33 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
+import { BusinessListingType, BusinessListingTypeDocument } from 'src/schemas/businessListingType/businessListingType.schema';
 import { BusinessListing, BusinessListingDocument } from '../../schemas/businessListing/businessListing.schema';
-import { CreateBusinessListingDto } from '../dto/create-business-listing.dto';
 import { UpdateBusinessListingDto } from '../dto/update-business-listing.dto';
+import { CreateBusinessListingTypeDto } from '../dto/create-business-listing-type.dto';
 
 @Injectable()
 export class BusinessListingService {
   constructor(
     @InjectConnection() private readonly connection: mongoose.Connection,
     @InjectModel(BusinessListing.name) private businessListingModel: Model<BusinessListingDocument>,
+    @InjectModel(BusinessListingType.name) private businessListingTypeModel: Model<BusinessListingTypeDocument>,
   ) {}
 
-  async createBusinessListing(createBusinessListingDto: CreateBusinessListingDto): Promise<BusinessListing> {
+  async createListing(createBusinessListingDto: Partial<BusinessListing>): Promise<BusinessListing> {
     return this.businessListingModel.create(createBusinessListingDto);
   }
 
-  async findAll(): Promise<BusinessListing[]> {
+  async createListingType(createBusinessListingDto: CreateBusinessListingTypeDto): Promise<BusinessListingType> {
+    return this.businessListingTypeModel.create(createBusinessListingDto);
+  }
+
+  async getAllListings(): Promise<BusinessListing[]> {
     return this.businessListingModel.find().exec();
+  }
+
+  async getAllListingTypes(): Promise<BusinessListingType[]> {
+    return this.businessListingTypeModel.find().exec();
   }
 
   async findOne(id: string): Promise<BusinessListing> {

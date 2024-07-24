@@ -4,7 +4,6 @@ import { ListingName } from './businessListingType.enums';
 
 @Schema({ timestamps: true })
 export class BusinessListingType {
-  @Prop()
   readonly _id: mongoose.Schema.Types.ObjectId;
 
   @Prop({ enum: ListingName, required: true })

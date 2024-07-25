@@ -208,7 +208,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
   }, [dispatch]);
 
   const onChatMessageReceivedHandler = useCallback((message: Message) => {
-    dispatch(updateRecentMessage(message));
+    // dispatch(updateRecentMessage(message));
   }, [dispatch]);
 
   useEffect(() => {

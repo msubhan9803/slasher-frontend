@@ -37,6 +37,7 @@ import Books from './routes/books/Books';
 import Artists from './routes/artists/Artists';
 import Podcasts from './routes/podcasts/Podcasts';
 import Music from './routes/music/Music';
+import BusinessListings from './routes/business-listings/BusinessListings';
 import SocialGroups from './routes/social-group/SocialGroups';
 import ActivateAccount from './routes/activate-account/ActivateAccount';
 import PasswordResetSuccess from './routes/password-reset-success/PasswordResetSuccess';
@@ -98,6 +99,7 @@ const routes: Record<string, TopLevelRoute> = {
   // 'app/books/*': { wrapper: AuthenticatedPageWrapper, component: Books },
   'app/music/*': { wrapper: AuthenticatedPageWrapper, component: Music },
   'app/art/*': { wrapper: AuthenticatedPageWrapper, component: Artists },
+  'app/business-listings/*': { wrapper: AuthenticatedPageWrapper, component: BusinessListings },
   'app/forgot-password': { wrapper: UnauthenticatedPageWrapper, component: ForgotPassword },
   'app/reset-password': { wrapper: UnauthenticatedPageWrapper, component: ResetPassword },
   'app/email-change/confirm': { wrapper: UnauthenticatedPageWrapper, component: ChangeEmailConfirm },

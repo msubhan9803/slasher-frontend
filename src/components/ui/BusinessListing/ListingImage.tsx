@@ -1,12 +1,13 @@
 import styled from 'styled-components';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { UseFormSetValue } from 'react-hook-form';
 import { Row, Col } from 'react-bootstrap';
 import CustomText from '../CustomText';
 import PhotoUploadInput from '../PhotoUploadInput';
+import { BusinessListing } from '../../../routes/business-listings/type';
 
 type Props = {
-  setImageUpload: (value: React.SetStateAction<File | null | undefined>) => void;
+  image: string | File | null | undefined;
+  setValue: UseFormSetValue<BusinessListing>;
 };
 
 const Container = styled(Row)`
@@ -46,7 +47,7 @@ const InfoCol = styled(Col)`
   }
 `;
 
-export default function ListingImage({ setImageUpload }: Props) {
+export default function ListingImage({ setValue, image }: Props) {
   return (
     <Container>
       <UploadCol xs={12} md="auto">
@@ -54,8 +55,9 @@ export default function ListingImage({ setImageUpload }: Props) {
           height="9.688rem"
           variant="outline"
           onChange={(file) => {
-            setImageUpload(file);
+            setValue('image', file);
           }}
+          defaultPhotoUrl={image as string}
         />
       </UploadCol>
 

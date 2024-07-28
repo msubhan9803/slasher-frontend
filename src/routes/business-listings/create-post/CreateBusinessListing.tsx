@@ -40,7 +40,7 @@ function CreateBusinessListing() {
   const [charCount, setCharCount] = useState<number>(0);
 
   const {
-    control, register, handleSubmit, setValue,
+    control, register, handleSubmit, setValue, watch,
   } = useForm<BusinessListing>({
     resolver: yupResolver<BusinessListing>(schema as yup.ObjectSchema<BusinessListing, yup.AnyObject, any, ''>),
     defaultValues: {
@@ -67,6 +67,8 @@ function CreateBusinessListing() {
       }],
     } as BusinessListing,
   });
+
+  const image = watch('image');
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -114,7 +116,7 @@ function CreateBusinessListing() {
         <ListingPromotionDetails noteList={listingConfig.noteList} />
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          <ListingImage setImageUpload={setImageUpload} />
+          <ListingImage image={image} setValue={setValue} />
 
           <Row>
             <ListingTitle name="title" register={register} />

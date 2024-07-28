@@ -26,7 +26,7 @@ export type BusinessListing = {
   _id: string | null;
   businesstype: BusinessType | null;
   listingType: string | null;
-  image: string | Object | null;
+  image: File | null | undefined | string;
   title: string | null;
   overview: string | null;
   link: string | null;

@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import {
+  useForm, useFieldArray, SubmitHandler, Resolver,
+} from 'react-hook-form';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Col, Row } from 'react-bootstrap';
 import CustomText from '../../../components/ui/CustomText';
 import RoundButton from '../../../components/ui/RoundButton';
@@ -10,7 +15,7 @@ import ListingOverview from '../../../components/ui/BusinessListing/ListingOverv
 import ListingPromotionDetails from '../../../components/ui/BusinessListing/ListingPromotionDetails';
 import ListingImage from '../../../components/ui/BusinessListing/ListingImage';
 import ListingConfig from '../listingConfig';
-import { ListingType } from '../type';
+import { BusinessListing, ListingType } from '../type';
 import YearReleased from '../../../components/ui/BusinessListing/Movies/YearReleased';
 import CountryOfOrigin from '../../../components/ui/BusinessListing/Movies/CountryOfOrigin';
 import MovieDuration from '../../../components/ui/BusinessListing/Movies/Duration';
@@ -28,13 +33,57 @@ const noteList = [
   'People on Slasher can follow your movie and get notifIed of new posts.',
 ];
 
+const schema = yup.object().shape({
+  // title: yup.string().required('Title is required'),
+  // yearReleased: yup.number().required('Year released is required').positive().integer(),
+  // description: yup.string().required('Description is required'),
+});
+
 function CreateBusinessListing() {
   const [searchParams] = useSearchParams();
-  const listingType: ListingType = (searchParams.get('type') as ListingType);
+  const listingType: ListingType = (searchParams.get('type') as ListingType) || 'movies';
   const listingConfig = ListingConfig[listingType];
   const [, setImageUpload] = useState<File | null | undefined>();
   const [description, setDescription] = useState<string>('');
   const [charCount, setCharCount] = useState<number>(0);
+
+  const {
+    control, register, handleSubmit, setValue,
+  } = useForm<BusinessListing>({
+    resolver: yupResolver<BusinessListing>(schema as yup.ObjectSchema<BusinessListing, yup.AnyObject, any, ''>),
+    defaultValues: {
+      _id: null,
+      businesstype: null,
+      listingType: null,
+      image: null,
+      title: null,
+      overview: null,
+      link: null,
+      isActive: null,
+      author: null,
+      pages: null,
+      isbn: null,
+      yearReleased: null,
+      countryOfOrigin: null,
+      durationInMinutes: null,
+      officialRatingReceived: null,
+      trailerLinks: null,
+      casts: [{
+        castImage: null,
+        name: '',
+        characterName: '',
+      }],
+    } as BusinessListing,
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'casts',
+  });
+
+  const onSubmit: SubmitHandler<BusinessListing> = (data) => {
+    console.log(data);
+  };
 
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCharCount(e.target.value.length);
@@ -77,34 +126,44 @@ function CreateBusinessListing() {
 
         <ListingPromotionDetails noteList={noteList} />
 
-        <ListingImage setImageUpload={setImageUpload} />
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <ListingImage setImageUpload={setImageUpload} />
 
-        <Row>
-          <ListingTitle />
-          <ListingOverview
-            description={description}
-            handleMessageChange={handleMessageChange}
-            charCount={charCount}
-          />
-          <YearReleased />
-          <CountryOfOrigin />
-          <MovieDuration />
-          <MovieRating />
-          <Trailers />
-          <MovieLink />
-          <Casts setImageUpload={setImageUpload} />
+          <Row>
+            <ListingTitle name="title" register={register} />
+            <ListingOverview
+              name="overview"
+              register={register}
+              charCount={charCount}
+            />
 
-          <Pricing />
-          <PaymentInfo />
-        </Row>
+            {/* Movie Fields */}
+            <YearReleased name="yearReleased" register={register} />
+            <CountryOfOrigin name="countryOfOrigin" register={register} />
+            <MovieDuration name="durationInMinutes" register={register} />
+            <MovieRating name="officialRatingReceived" register={register} />
+            <Trailers name="trailerLinks" register={register} />
+            <MovieLink name="link" register={register} />
+            <Casts
+              setValue={setValue}
+              fields={fields}
+              append={append}
+              remove={remove}
+              register={register}
+            />
 
-        <Row>
-          <Col md={4} className="mt-4">
-            <RoundButton className="w-100 fs-3" size="lg">
-              Submit
-            </RoundButton>
-          </Col>
-        </Row>
+            <Pricing />
+            <PaymentInfo />
+          </Row>
+
+          <Row>
+            <Col md={4} className="mt-4">
+              <RoundButton className="w-100 fs-3" size="lg" type="submit">
+                Submit
+              </RoundButton>
+            </Col>
+          </Row>
+        </form>
       </div>
     </div>
   );

@@ -24,7 +24,7 @@ const StyledButton = styled.div`
 function PaypalButton() {
   return (
     <StyledButton>
-      <img src={PaypalImage} width="50" alt="paypal button" />
+      <img src={PaypalImage} width="80" alt="paypal button" />
     </StyledButton>
   );
 }

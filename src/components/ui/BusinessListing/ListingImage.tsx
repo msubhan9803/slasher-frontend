@@ -21,7 +21,7 @@ export default function ListingImage({ setImageUpload }: Props) {
         />
       </Col>
 
-      <Col xs={12} md="auto">
+      <Col xs={12} md="auto" style={{ margin: 'auto 0 auto 0' }}>
         <div>
           <h3 className="mb-1 mt-3">Upload cover art</h3>
           <CustomText

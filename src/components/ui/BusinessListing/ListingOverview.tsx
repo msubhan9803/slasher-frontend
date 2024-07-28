@@ -1,27 +1,31 @@
-import React from 'react';
-import { Col, Form, Row } from 'react-bootstrap';
+import { Col, Form } from 'react-bootstrap';
+import { UseFormRegister } from 'react-hook-form';
 import CharactersCounter from '../CharactersCounter';
+import {
+  BusinessListing,
+  BusinessListingKeys,
+} from '../../../routes/business-listings/type';
 
 type Props = {
-  description: string;
-  handleMessageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  charCount: number
+  name: BusinessListingKeys;
+  register: UseFormRegister<BusinessListing>;
+  charCount: number;
 };
 
-export default function ListingOverview({ description, handleMessageChange, charCount }: Props) {
+export default function ListingOverview({ name, register, charCount }: Props) {
   return (
     <Col xs="12" className="my-2">
       <Form.Group className="fs-5" controlId="Overview">
         <Form.Control
+          {...register(name)}
           maxLength={113}
           rows={6}
           as="textarea"
-          value={description}
-          onChange={handleMessageChange}
           placeholder="Overview"
           style={{ resize: 'none' }}
           className="fs-4"
         />
+
         <CharactersCounter
           counterClass="float-end fs-5 me-2"
           charCount={charCount}

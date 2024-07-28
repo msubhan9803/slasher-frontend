@@ -1,9 +1,16 @@
 import { Col, Form } from 'react-bootstrap';
+import { UseFormRegister } from 'react-hook-form';
+import { BusinessListing, BusinessListingKeys } from '../../../../routes/business-listings/type';
 
-export default function MovieRating() {
+type Props = {
+  name: BusinessListingKeys;
+  register: UseFormRegister<BusinessListing>
+};
+
+export default function MovieRating({ name, register }: Props) {
   return (
     <Col xs="12" md="6" className="my-2">
-      <Form.Control type="text" placeholder="Official rating received" className="fs-4" />
+      <Form.Control {...register(name)} type="text" placeholder="Official rating received" className="fs-4" />
     </Col>
   );
 }

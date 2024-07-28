@@ -6,7 +6,7 @@ import NotificationSetting from '../../../components/layout/right-sidebar-wrappe
 import RecentMessages from '../../../components/layout/right-sidebar-wrapper/components/RecentMessages';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 import { enableDevFeatures } from '../../../env';
-import CreateBusinessListings from '../../../components/layout/right-sidebar-wrapper/components/CreateBusinessListings';
+import CreateBusinessListingButton from '../../../components/layout/right-sidebar-wrapper/components/CreateBusinessListingButton';
 
 function MovieRightSideNav() {
   const params = useParams();
@@ -17,7 +17,7 @@ function MovieRightSideNav() {
         && <RoundButtonLink to="/app/movies/add" variant="primary" className="w-100 mb-3">Add your movie</RoundButtonLink>
       }
 
-      <CreateBusinessListings />
+      <CreateBusinessListingButton />
       {params.id && params.summary && <NotificationSetting />}
       <AdvertisementBox />
       <RecentMessages />

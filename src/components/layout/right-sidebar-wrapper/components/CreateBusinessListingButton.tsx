@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import RoundButtonLink from '../../../ui/RoundButtonLink';
 
-function CreateBusinessListings() {
+function CreateBusinessListingButton() {
   const params = useParams();
 
   return (
@@ -16,4 +16,4 @@ function CreateBusinessListings() {
   );
 }
 
-export default CreateBusinessListings;
+export default CreateBusinessListingButton;

@@ -6,7 +6,7 @@ import RecentMessages from '../../../components/layout/right-sidebar-wrapper/com
 import AdvertisementBox from '../../../components/layout/right-sidebar-wrapper/components/AdvertisementBox';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 import { enableDevFeatures } from '../../../env';
-import CreateBusinessListings from '../../../components/layout/right-sidebar-wrapper/components/CreateBusinessListings';
+import CreateBusinessListingButton from '../../../components/layout/right-sidebar-wrapper/components/CreateBusinessListingButton';
 
 function BooksRightSideNav() {
   const params = useParams();
@@ -20,7 +20,7 @@ function BooksRightSideNav() {
         </>
         )}
 
-      <CreateBusinessListings />
+      <CreateBusinessListingButton />
       {enableDevFeatures && <NotificationSetting />}
       <AdvertisementBox />
       <RecentMessages />

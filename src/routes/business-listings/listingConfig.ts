@@ -22,7 +22,7 @@ const config: Config = {
   },
   books: {
     title:
-      'A listing in the book database with your cover art, description, link to buy your book, and more.',
+      'Add your book and reach horror fans on Slasher more easily!',
     shortTitle: 'Add your book',
     noteList: [
       'A listing in the movie database with your cover art, description, trailers, and more.',

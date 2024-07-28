@@ -26,13 +26,6 @@ import Casts from '../../../components/ui/BusinessListing/Movies/Casts';
 import Pricing from '../../../components/ui/BusinessListing/Pricing';
 import PaymentInfo from '../../../components/ui/BusinessListing/PaymentInfo';
 
-const noteList = [
-  'A listing in the movie database with your cover art, description, trailers, and more.',
-  'A second listing in the Slasher Indie section.',
-  'Create posts and updates about your movie that also appear on the timeline.',
-  'People on Slasher can follow your movie and get notifIed of new posts.',
-];
-
 const schema = yup.object().shape({
   // title: yup.string().required('Title is required'),
   // yearReleased: yup.number().required('Year released is required').positive().integer(),
@@ -41,10 +34,9 @@ const schema = yup.object().shape({
 
 function CreateBusinessListing() {
   const [searchParams] = useSearchParams();
-  const listingType: ListingType = (searchParams.get('type') as ListingType) || 'movies';
+  const listingType: ListingType = (searchParams.get('type') as ListingType);
   const listingConfig = ListingConfig[listingType];
   const [, setImageUpload] = useState<File | null | undefined>();
-  const [description, setDescription] = useState<string>('');
   const [charCount, setCharCount] = useState<number>(0);
 
   const {
@@ -85,11 +77,6 @@ function CreateBusinessListing() {
     console.log(data);
   };
 
-  const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCharCount(e.target.value.length);
-    setDescription(e.target.value);
-  };
-
   return (
     <div>
       <Row className="d-md-none pt-2">
@@ -108,7 +95,7 @@ function CreateBusinessListing() {
       <div className="bg-dark px-md-4 py-4 py-md-5 rounded-3 bg-mobile-transparent">
         <div className="d-flex justify-content-between">
           <h2 className="mb-0 fw-bold">
-            Add your movie and reach horror fans looking for movies on Slasher!
+            {listingConfig.title}
           </h2>
         </div>
         <div className="my-3">
@@ -124,7 +111,7 @@ function CreateBusinessListing() {
           />
         </div>
 
-        <ListingPromotionDetails noteList={noteList} />
+        <ListingPromotionDetails noteList={listingConfig.noteList} />
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <ListingImage setImageUpload={setImageUpload} />

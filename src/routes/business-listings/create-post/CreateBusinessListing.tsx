@@ -1,5 +1,6 @@
+/* eslint-disable max-lines */
 import React, { useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   useForm, useFieldArray, SubmitHandler, Resolver,
 } from 'react-hook-form';
@@ -28,6 +29,7 @@ import PaymentInfo from '../../../components/ui/BusinessListing/PaymentInfo';
 import Author from '../../../components/ui/BusinessListing/Books/Author';
 import Pages from '../../../components/ui/BusinessListing/Books/Pages';
 import Isbn from '../../../components/ui/BusinessListing/Books/Isbn';
+import useCreateListing from '../../../hooks/businessListing/useCreateListing';
 
 const schema = yup.object().shape({
   // title: yup.string().required('Title is required'),
@@ -37,6 +39,7 @@ const schema = yup.object().shape({
 
 function CreateBusinessListing() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const listingType: ListingType = (searchParams.get('type') as ListingType);
   const listingConfig = ListingConfig[listingType];
   const [, setImageUpload] = useState<File | null | undefined>();
@@ -71,6 +74,10 @@ function CreateBusinessListing() {
     },
   });
 
+  const {
+    createBusinessListing, loading, error, success,
+  } = useCreateListing();
+
   const image = watch('image');
 
   const { fields, append, remove } = useFieldArray({
@@ -93,8 +100,12 @@ function CreateBusinessListing() {
     isbn: ([BusinessType.BOOKS] as string[]).includes(listingType),
   }), [listingType]);
 
-  const onSubmit: SubmitHandler<BusinessListing> = (data) => {
-    console.log(data);
+  const onSubmit: SubmitHandler<BusinessListing> = async (data) => {
+    try {
+      await createBusinessListing(data);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -105,6 +116,7 @@ function CreateBusinessListing() {
             role="button"
             icon={solid('arrow-left-long')}
             size="2x"
+            onClick={() => navigate(-1)}
           />
         </Col>
         <Col>

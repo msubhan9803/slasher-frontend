@@ -7,6 +7,7 @@ import CustomSearchInput from '../../components/ui/CustomSearchInput';
 import RoundButton from '../../components/ui/RoundButton';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
 import { enableDevFeatures } from '../../env';
+import CreateBusinessListingButton from '../../components/layout/right-sidebar-wrapper/components/CreateBusinessListingButton';
 
 interface MovisHeaderProps {
   tabKey: string;
@@ -61,7 +62,7 @@ function MoviesHeader({
         </Col>
         {enableDevFeatures && (
           <Col md={4} className="order-first order-md-last">
-            <RoundButton className="d-lg-none w-100">Add your movie</RoundButton>
+            <CreateBusinessListingButton />
           </Col>
         )}
       </Row>

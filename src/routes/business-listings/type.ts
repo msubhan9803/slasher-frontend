@@ -31,12 +31,12 @@ export type BusinessListing = {
   overview: string | null;
   link: string | null;
   isActive: boolean | null;
+  yearReleased?: number | null;
 
   author?: string | null;
   pages?: number | null;
   isbn?: string | null;
 
-  yearReleased?: number | null;
   countryOfOrigin?: string | null;
   durationInMinutes?: number | null;
   officialRatingReceived?: string | null;

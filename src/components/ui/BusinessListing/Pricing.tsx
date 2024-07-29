@@ -44,7 +44,7 @@ function Pricing() {
       <StyledCard>
         <CardHeader>
           <h2>
-            <span className="fw-bold fs-1 mr-1" style={{ color: '#FF1800' }}>$30</span>
+            <span className="fw-bold fs-1" style={{ color: '#FF1800', marginRight: '4px' }}>$30</span>
             / month
           </h2>
         </CardHeader>

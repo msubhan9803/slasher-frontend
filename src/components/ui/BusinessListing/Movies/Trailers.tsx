@@ -15,8 +15,8 @@ export default function Trailers({ name, register }: Props) {
       <Row>
         <Col xs="12" className="my-2">
           <Form.Control
-            {...register(name)}
-            name={`${name}.main`}
+            {...register('trailerLinks.main')}
+            name="trailerLinks.main"
             type="text"
             placeholder="Main trailer (YouTube link)"
             className="fs-4"
@@ -24,8 +24,8 @@ export default function Trailers({ name, register }: Props) {
         </Col>
         <Col xs="12" className="my-2">
           <Form.Control
-            {...register(name)}
-            name={`${name}.trailer2`}
+            {...register('trailerLinks.trailer2')}
+            name="trailerLinks.trailer2"
             type="text"
             placeholder="Main trailer (YouTube link)"
             className="fs-4"
@@ -33,8 +33,8 @@ export default function Trailers({ name, register }: Props) {
         </Col>
         <Col xs="12" className="my-2">
           <Form.Control
-            {...register(name)}
-            name={`${name}.trailer3`}
+            {...register('trailerLinks.trailer3')}
+            name="trailerLinks.trailer3"
             type="text"
             placeholder="Main trailer (YouTube link)"
             className="fs-4"

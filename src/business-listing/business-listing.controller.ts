@@ -51,17 +51,19 @@ export class BusinessListingController {
         throw new HttpException('No files uploaded', HttpStatus.BAD_REQUEST);
       }
 
-      const casts: Cast = JSON.parse(createBusienssListingDto.casts);
-      const trailerLinks: TrailerLinks = JSON.parse(createBusienssListingDto.trailerLinks);
+      const casts: Cast = JSON.parse(createBusienssListingDto.casts ?? '[]');
+      const trailerLinks: TrailerLinks = JSON.parse(createBusienssListingDto.trailerLinks ?? '{}');
 
       const listingImageFile = files[0]; // first file is always listing image
       const castFiles = files.slice(1); // after first file, there's going to be casts images
 
       const listingStorageLocation = await this.storeFile('business-listing', listingImageFile);
 
-      for (const [index, file] of castFiles.entries()) {
-        const castImageLocation = await this.storeFile('business-listing-cast', file);
-        casts[index].castImage = castImageLocation;
+      if (casts.length > 0) {
+        for (const [index, file] of castFiles.entries()) {
+          const castImageLocation = await this.storeFile('business-listing-cast', file);
+          casts[index].castImage = castImageLocation;
+        }
       }
 
       const businessListing = new BusinessListing({
@@ -70,6 +72,10 @@ export class BusinessListingController {
         trailerLinks,
         image: listingStorageLocation,
       });
+
+     if (createBusienssListingDto.pages) {
+      businessListing.pages = createBusienssListingDto?.pages;
+     }
 
       const createdBusinessListing = await this.businessListingService.createListing(businessListing);
 

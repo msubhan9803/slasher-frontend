@@ -4,7 +4,7 @@ export enum BusinessType {
   BOOKS = 'books',
   MOVIES = 'movies',
   PODCASTER = 'podcaster',
-  VIDEO_CREATOR = 'video creator',
+  VIDEO_CREATOR = 'video_creator',
   MUSICIAN = 'musician',
 }
 

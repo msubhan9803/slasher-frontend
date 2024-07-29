@@ -34,7 +34,7 @@ export class BusinessListing {
   @Prop()
   author?: string;
 
-  @Prop()
+  @Prop({ set: (value: string | number) => Number(value) })
   pages?: number;
 
   @Prop()

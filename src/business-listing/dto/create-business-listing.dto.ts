@@ -1,9 +1,10 @@
 /* eslint-disable max-classes-per-file */
+import { Transform } from 'class-transformer';
 import {
   IsBoolean,
   IsEnum,
+  IsInt,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
   MaxLength,
@@ -46,7 +47,8 @@ export class CreateBusinessListingDto {
   author?: string;
 
   @IsOptional()
-  @IsNumber()
+  @Transform(({ value }) => parseInt(value, 10), { toClassOnly: true })
+  @IsInt({ message: 'Pages must be an integer' })
   pages?: number;
 
   @IsOptional()

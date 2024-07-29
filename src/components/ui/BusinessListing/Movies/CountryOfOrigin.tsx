@@ -4,10 +4,15 @@ import { BusinessListingKeys, BusinessListing } from '../../../../routes/busines
 
 type Props = {
   name: BusinessListingKeys;
-  register: UseFormRegister<BusinessListing>
+  register: UseFormRegister<BusinessListing>;
+  isVisible: boolean;
 };
 
-export default function CountryOfOrigin({ name, register }: Props) {
+export default function CountryOfOrigin({ name, register, isVisible }: Props) {
+  if (!isVisible) {
+    return null;
+  }
+
   return (
     <Col xs="12" md="6" className="my-2">
       <Form.Control

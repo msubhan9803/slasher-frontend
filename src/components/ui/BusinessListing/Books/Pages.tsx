@@ -8,19 +8,14 @@ type Props = {
   isVisible: boolean;
 };
 
-export default function MovieDuration({ name, register, isVisible }: Props) {
+export default function Pages({ name, register, isVisible }: Props) {
   if (!isVisible) {
     return null;
   }
 
   return (
     <Col xs="12" md="6" className="my-2">
-      <Form.Control
-        {...register(name)}
-        type="text"
-        placeholder="Duration in minutes"
-        className="fs-4"
-      />
+      <Form.Control {...register(name)} type="text" placeholder="Pages" className="fs-4" />
     </Col>
   );
 }

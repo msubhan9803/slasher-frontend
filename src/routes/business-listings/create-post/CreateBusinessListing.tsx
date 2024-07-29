@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   useForm, useFieldArray, SubmitHandler, Resolver,
@@ -15,16 +15,19 @@ import ListingOverview from '../../../components/ui/BusinessListing/ListingOverv
 import ListingPromotionDetails from '../../../components/ui/BusinessListing/ListingPromotionDetails';
 import ListingImage from '../../../components/ui/BusinessListing/ListingImage';
 import ListingConfig from '../listingConfig';
-import { BusinessListing, ListingType } from '../type';
-import YearReleased from '../../../components/ui/BusinessListing/Movies/YearReleased';
+import { BusinessListing, BusinessType, ListingType } from '../type';
+import YearReleased from '../../../components/ui/BusinessListing/YearReleased';
 import CountryOfOrigin from '../../../components/ui/BusinessListing/Movies/CountryOfOrigin';
 import MovieDuration from '../../../components/ui/BusinessListing/Movies/Duration';
 import MovieRating from '../../../components/ui/BusinessListing/Movies/MovieRating';
 import Trailers from '../../../components/ui/BusinessListing/Movies/Trailers';
-import MovieLink from '../../../components/ui/BusinessListing/Movies/MovieLink';
+import ListingLink from '../../../components/ui/BusinessListing/ListingLink';
 import Casts from '../../../components/ui/BusinessListing/Movies/Casts';
 import Pricing from '../../../components/ui/BusinessListing/Pricing';
 import PaymentInfo from '../../../components/ui/BusinessListing/PaymentInfo';
+import Author from '../../../components/ui/BusinessListing/Books/Author';
+import Pages from '../../../components/ui/BusinessListing/Books/Pages';
+import Isbn from '../../../components/ui/BusinessListing/Books/Isbn';
 
 const schema = yup.object().shape({
   // title: yup.string().required('Title is required'),
@@ -65,7 +68,7 @@ function CreateBusinessListing() {
         name: '',
         characterName: '',
       }],
-    } as BusinessListing,
+    },
   });
 
   const image = watch('image');
@@ -74,6 +77,21 @@ function CreateBusinessListing() {
     control,
     name: 'casts',
   });
+
+  const visibilityConfig = useMemo(() => ({
+    yearReleased: ([BusinessType.MOVIES, BusinessType.BOOKS] as string[]).includes(listingType),
+    countryOfOrigin: ([BusinessType.MOVIES] as string[]).includes(listingType),
+    durationInMinutes: ([BusinessType.MOVIES] as string[]).includes(listingType),
+    officialRatingReceived: ([BusinessType.MOVIES] as string[]).includes(listingType),
+    trailerLinks: ([BusinessType.MOVIES] as string[]).includes(listingType),
+    casts: ([BusinessType.MOVIES] as string[]).includes(listingType),
+
+    link: ([BusinessType.MOVIES, BusinessType.BOOKS] as string[]).includes(listingType),
+
+    author: ([BusinessType.BOOKS] as string[]).includes(listingType),
+    pages: ([BusinessType.BOOKS] as string[]).includes(listingType),
+    isbn: ([BusinessType.BOOKS] as string[]).includes(listingType),
+  }), [listingType]);
 
   const onSubmit: SubmitHandler<BusinessListing> = (data) => {
     console.log(data);
@@ -126,19 +144,26 @@ function CreateBusinessListing() {
               charCount={charCount}
             />
 
-            {/* Movie Fields */}
-            <YearReleased name="yearReleased" register={register} />
-            <CountryOfOrigin name="countryOfOrigin" register={register} />
-            <MovieDuration name="durationInMinutes" register={register} />
-            <MovieRating name="officialRatingReceived" register={register} />
-            <Trailers name="trailerLinks" register={register} />
-            <MovieLink name="link" register={register} />
+            <YearReleased name="yearReleased" register={register} isVisible={visibilityConfig.yearReleased} />
+
+            <CountryOfOrigin name="countryOfOrigin" register={register} isVisible={visibilityConfig.countryOfOrigin} />
+            <MovieDuration name="durationInMinutes" register={register} isVisible={visibilityConfig.durationInMinutes} />
+            <MovieRating name="officialRatingReceived" register={register} isVisible={visibilityConfig.officialRatingReceived} />
+
+            <Author name="author" register={register} isVisible={visibilityConfig.author} />
+            <Pages name="pages" register={register} isVisible={visibilityConfig.pages} />
+            <Isbn name="isbn" register={register} isVisible={visibilityConfig.isbn} />
+
+            <Trailers name="trailerLinks" register={register} isVisible={visibilityConfig.trailerLinks} />
+            <ListingLink text={listingConfig.linkFieldLabel} name="link" register={register} isVisible={visibilityConfig.link} />
+
             <Casts
               setValue={setValue}
               fields={fields}
               append={append}
               remove={remove}
               register={register}
+              isVisible={visibilityConfig.casts}
             />
 
             <Pricing />

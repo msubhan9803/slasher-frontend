@@ -4,10 +4,15 @@ import { BusinessListing, BusinessListingKeys } from '../../../../routes/busines
 
 type Props = {
   name: BusinessListingKeys;
-  register: UseFormRegister<BusinessListing>
+  register: UseFormRegister<BusinessListing>;
+  isVisible: boolean;
 };
 
-export default function MovieRating({ name, register }: Props) {
+export default function MovieRating({ name, register, isVisible }: Props) {
+  if (!isVisible) {
+    return null;
+  }
+
   return (
     <Col xs="12" md="6" className="my-2">
       <Form.Control {...register(name)} type="text" placeholder="Official rating received" className="fs-4" />

@@ -1,6 +1,9 @@
 import { Col, Form } from 'react-bootstrap';
 import { UseFormRegister } from 'react-hook-form';
-import { BusinessListingKeys, BusinessListing } from '../../../../routes/business-listings/type';
+import {
+  BusinessListingKeys,
+  BusinessListing,
+} from '../../../../routes/business-listings/type';
 
 type Props = {
   name: BusinessListingKeys;
@@ -8,7 +11,7 @@ type Props = {
   isVisible: boolean;
 };
 
-export default function MovieDuration({ name, register, isVisible }: Props) {
+export default function Author({ name, register, isVisible }: Props) {
   if (!isVisible) {
     return null;
   }
@@ -18,7 +21,7 @@ export default function MovieDuration({ name, register, isVisible }: Props) {
       <Form.Control
         {...register(name)}
         type="text"
-        placeholder="Duration in minutes"
+        placeholder="Author"
         className="fs-4"
       />
     </Col>

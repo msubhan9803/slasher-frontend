@@ -20,6 +20,7 @@ type Props = {
   append: UseFieldArrayAppend<BusinessListing, 'casts'>;
   remove: UseFieldArrayRemove;
   register: UseFormRegister<BusinessListing>;
+  isVisible: boolean;
 };
 
 export default function Casts({
@@ -28,7 +29,12 @@ export default function Casts({
   append,
   remove,
   register,
+  isVisible,
 }: Props) {
+  if (!isVisible) {
+    return null;
+  }
+
   return (
     <>
       <h2 className="fw-bold mt-4 mb-2">Top billed cast</h2>
@@ -100,6 +106,7 @@ export default function Casts({
           cursor: 'pointer',
           display: 'inline-flex',
           alignItems: 'center',
+          width: 'fit-content',
         }}
         onClick={() => append({ name: '', characterName: '', castImage: null })}
       >

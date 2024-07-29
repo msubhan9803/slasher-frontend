@@ -4,10 +4,15 @@ import { BusinessListingKeys, BusinessListing } from '../../../../routes/busines
 
 type Props = {
   name: BusinessListingKeys;
-  register: UseFormRegister<BusinessListing>
+  register: UseFormRegister<BusinessListing>;
+  isVisible: boolean;
 };
 
-export default function Trailers({ name, register }: Props) {
+export default function Trailers({ name, register, isVisible }: Props) {
+  if (!isVisible) {
+    return null;
+  }
+
   return (
     <Col xs="12" className="mt-4">
       <h2 className="fw-bold my-2">Trailers</h2>

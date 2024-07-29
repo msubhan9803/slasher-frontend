@@ -5,6 +5,7 @@ type Config = {
     title: string;
     shortTitle: string;
     noteList: string[];
+    linkFieldLabel: string;
   };
 };
 
@@ -19,6 +20,7 @@ const config: Config = {
       'Create posts and updates about your movie that also appear on the timeline.',
       'People on Slasher can follow your movie and get notifIed of new posts.',
     ],
+    linkFieldLabel: 'Link to watch your movie',
   },
   books: {
     title:
@@ -30,6 +32,7 @@ const config: Config = {
       'Create posts and updates about your book that also appear on the timeline.',
       'People on Slasher can follow your book and get notifIed of new posts.',
     ],
+    linkFieldLabel: 'Link to buy book',
   },
 };
 

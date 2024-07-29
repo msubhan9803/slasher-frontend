@@ -24,7 +24,7 @@ export type TrailerLinks = {
 
 export type BusinessListing = {
   _id: string | null;
-  businesstype: BusinessType | null;
+  businesstype: BusinessType | null | string;
   listingType: string | null;
   image: File | null | undefined | string;
   title: string | null;

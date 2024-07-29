@@ -48,8 +48,8 @@ function CreateBusinessListing() {
     resolver: yupResolver<BusinessListing>(schema as yup.ObjectSchema<BusinessListing, yup.AnyObject, any, ''>),
     defaultValues: {
       _id: null,
-      businesstype: null,
-      listingType: null,
+      businesstype: listingType as string,
+      listingType: '66a0d7bd5e030b27bc304463',
       image: null,
       title: null,
       overview: null,

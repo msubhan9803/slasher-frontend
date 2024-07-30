@@ -117,6 +117,9 @@ export class Movie extends MovieUnusedFields {
   @Prop({ default: 0 })
   popularity: number;
 
+  @Prop({ default: null })
+  movieImage: string;
+
   /***********
    * Methods *
    ***********/

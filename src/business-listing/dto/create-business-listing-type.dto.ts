@@ -7,7 +7,7 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
-import { ListingName } from 'src/schemas/businessListingType/businessListingType.enums';
+import { ListingName } from '../../schemas/businessListingType/businessListingType.enums';
 
 export class CreateBusinessListingTypeDto {
   @IsEnum(ListingName, { message: 'Invalid listing name' })

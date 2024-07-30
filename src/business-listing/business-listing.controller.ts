@@ -6,19 +6,22 @@ import {
  UploadedFiles,
  UseInterceptors,
 } from '@nestjs/common';
-import { generateFileUploadInterceptors } from 'src/app/interceptors/file-upload-interceptors';
-import { UPLOAD_PARAM_NAME_FOR_FILES, MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILE_FOR_BUSINESS_LISTING } from 'src/constants';
-import { defaultFileInterceptorFileFilter } from 'src/utils/file-upload-utils';
-import { StorageLocationService } from 'src/global/providers/storage-location.service';
-import { LocalStorageService } from 'src/local-storage/providers/local-storage.service';
-import { S3StorageService } from 'src/local-storage/providers/s3-storage.service';
-import { BusinessListing } from 'src/schemas/businessListing/businessListing.schema';
 import { ConfigService } from '@nestjs/config/dist/config.service';
-import { TransformImageUrls } from 'src/app/decorators/transform-image-urls.decorator';
-import { BusinessListingType } from 'src/schemas/businessListingType/businessListingType.schema';
-import { BusinessType, Cast, TrailerLinks } from 'src/schemas/businessListing/businessListing.enums';
-import { BooksService } from 'src/books/providers/books.service';
-import { BookActiveStatus, BookType } from 'src/schemas/book/book.enums';
+import { UPLOAD_PARAM_NAME_FOR_FILES, MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILE_FOR_BUSINESS_LISTING } from '../constants';
+import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
+import { StorageLocationService } from '../global/providers/storage-location.service';
+import { LocalStorageService } from '../local-storage/providers/local-storage.service';
+import { S3StorageService } from '../local-storage/providers/s3-storage.service';
+import { BusinessListing } from '../schemas/businessListing/businessListing.schema';
+import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
+import { BusinessListingType } from '../schemas/businessListingType/businessListingType.schema';
+import { BusinessType, Cast, TrailerLinks } from '../schemas/businessListing/businessListing.enums';
+import { BooksService } from '../books/providers/books.service';
+import { BookActiveStatus, BookType } from '../schemas/book/book.enums';
+import { MoviesService } from '../movies/providers/movies.service';
+import { MovieActiveStatus, MovieType } from '../schemas/movie/movie.enums';
+import { getUserFromRequest } from '../utils/request-utils';
+import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
 import { BusinessListingService } from './providers/business-listing.service';
 import { CreateBusinessListingDto } from './dto/create-business-listing.dto';
 import { CreateBusinessListingTypeDto } from './dto/create-business-listing-type.dto';
@@ -32,6 +35,7 @@ export class BusinessListingController {
     private readonly s3StorageService: S3StorageService,
     private readonly storageLocationService: StorageLocationService,
     private readonly booksService: BooksService,
+    private readonly moviesService: MoviesService,
   ) {}
 
   @TransformImageUrls('$.image')
@@ -47,7 +51,7 @@ export class BusinessListingController {
     ),
   )
   async createListing(
-    @Req() request: any,
+    @Req() request: Request,
     @Body() createBusienssListingDto: CreateBusinessListingDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
@@ -71,12 +75,14 @@ export class BusinessListingController {
         }
       }
 
+      const user = getUserFromRequest(request as any);
+
       const businessListing = new BusinessListing({
         ...createBusienssListingDto,
         casts,
         trailerLinks,
         image: listingStorageLocation,
-        userRef: request.user._id,
+        userRef: user._id,
       });
 
      if (createBusienssListingDto.pages) {
@@ -94,6 +100,8 @@ export class BusinessListingController {
         isbn,
         yearReleased,
         officialRatingReceived,
+        countryOfOrigin,
+        durationInMinutes,
       } = createBusienssListingDto;
 
       switch (businesstype) {
@@ -116,6 +124,22 @@ export class BusinessListingController {
             publishDate: new Date(yearReleased),
           });
           break;
+
+        case BusinessType.MOVIES:
+          this.moviesService.create({
+            name: title,
+            sort_name: '',
+            movieImage: listingStorageLocation,
+            descriptions: overview,
+            trailerUrls: Object.values(trailerLinks).map((trailer: string) => trailer),
+            countryOfOrigin,
+            durationInMinutes,
+            rating: parseInt(officialRatingReceived, 10),
+            releaseDate: new Date(yearReleased),
+            status: MovieActiveStatus.Active,
+            type: MovieType.MovieDb,
+          });
+        break;
 
         default:
           break;

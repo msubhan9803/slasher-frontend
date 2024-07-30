@@ -1,5 +1,5 @@
 import { registerDecorator, ValidationOptions, ValidationArguments } from 'class-validator';
-import { BusinessType } from 'src/schemas/businessListing/businessListing.enums';
+import { BusinessType } from '../../schemas/businessListing/businessListing.enums';
 
 export function IsMovieFieldsRequired(validationOptions?: ValidationOptions) {
   return function (object: Record<string, any>, propertyName: string) {

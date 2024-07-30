@@ -10,7 +10,7 @@ import {
   MaxLength,
 } from 'class-validator';
 import mongoose from 'mongoose';
-import { BusinessType } from 'src/schemas/businessListing/businessListing.enums';
+import { BusinessType } from '../../schemas/businessListing/businessListing.enums';
 import { IsMovieFieldsRequired } from '../decorators/is-movie-fields-required.decorator';
 import { IsBookFieldsRequired } from '../decorators/is-book-fields-required.decorator';
 

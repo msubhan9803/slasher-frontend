@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
-import { BusinessListingType, BusinessListingTypeDocument } from 'src/schemas/businessListingType/businessListingType.schema';
+import { BusinessListingType, BusinessListingTypeDocument } from '../../schemas/businessListingType/businessListingType.schema';
 import { BusinessListing, BusinessListingDocument } from '../../schemas/businessListing/businessListing.schema';
 import { UpdateBusinessListingDto } from '../dto/update-business-listing.dto';
 import { CreateBusinessListingTypeDto } from '../dto/create-business-listing-type.dto';

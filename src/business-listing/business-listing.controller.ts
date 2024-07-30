@@ -2,6 +2,7 @@
 import {
   Body,
  Controller, Get, HttpException, HttpStatus, Post,
+ Req,
  UploadedFiles,
  UseInterceptors,
 } from '@nestjs/common';
@@ -15,7 +16,9 @@ import { BusinessListing } from 'src/schemas/businessListing/businessListing.sch
 import { ConfigService } from '@nestjs/config/dist/config.service';
 import { TransformImageUrls } from 'src/app/decorators/transform-image-urls.decorator';
 import { BusinessListingType } from 'src/schemas/businessListingType/businessListingType.schema';
-import { Cast, TrailerLinks } from 'src/schemas/businessListing/businessListing.enums';
+import { BusinessType, Cast, TrailerLinks } from 'src/schemas/businessListing/businessListing.enums';
+import { BooksService } from 'src/books/providers/books.service';
+import { BookActiveStatus, BookType } from 'src/schemas/book/book.enums';
 import { BusinessListingService } from './providers/business-listing.service';
 import { CreateBusinessListingDto } from './dto/create-business-listing.dto';
 import { CreateBusinessListingTypeDto } from './dto/create-business-listing-type.dto';
@@ -28,6 +31,7 @@ export class BusinessListingController {
     private readonly localStorageService: LocalStorageService,
     private readonly s3StorageService: S3StorageService,
     private readonly storageLocationService: StorageLocationService,
+    private readonly booksService: BooksService,
   ) {}
 
   @TransformImageUrls('$.image')
@@ -43,6 +47,7 @@ export class BusinessListingController {
     ),
   )
   async createListing(
+    @Req() request: any,
     @Body() createBusienssListingDto: CreateBusinessListingDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
@@ -71,6 +76,7 @@ export class BusinessListingController {
         casts,
         trailerLinks,
         image: listingStorageLocation,
+        userRef: request.user._id,
       });
 
      if (createBusienssListingDto.pages) {
@@ -78,6 +84,42 @@ export class BusinessListingController {
      }
 
       const createdBusinessListing = await this.businessListingService.createListing(businessListing);
+
+      const {
+        businesstype,
+        title,
+        overview,
+        author,
+        pages,
+        isbn,
+        yearReleased,
+        officialRatingReceived,
+      } = createBusienssListingDto;
+
+      switch (businesstype) {
+        case BusinessType.BOOKS:
+          this.booksService.create({
+            name: title,
+            sort_name: '',
+            author: [author],
+            numberOfPages: pages,
+            isbnNumber: [isbn],
+            description: overview,
+            rating: parseInt(officialRatingReceived, 10),
+            status: BookActiveStatus.Active,
+            coverImage: {
+              image_path: listingStorageLocation,
+              description: '',
+            },
+            coverEditionKey: 'empty',
+            type: BookType.OpenLibrary,
+            publishDate: new Date(yearReleased),
+          });
+          break;
+
+        default:
+          break;
+      }
 
       return {
         _id: createdBusinessListing._id,

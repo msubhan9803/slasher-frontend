@@ -3,9 +3,38 @@ import { apiUrl } from '../env';
 import { getSessionToken } from '../utils/session-utils';
 import { BusinessListing, BusinessType, Cast } from '../routes/business-listings/type';
 
+function processTrailerLinks(trailerLinks: any | null): string | null {
+  if (trailerLinks === null) {
+    return null;
+  }
+
+  const allValuesAreNull = Object.values(trailerLinks).every((value) => value === null);
+
+  if (allValuesAreNull) {
+    return null;
+  }
+
+  return JSON.stringify(trailerLinks);
+}
+
+function processCasts(casts: Cast[] | null): string | null {
+  if (casts === null || casts.length === 0) {
+    return null;
+  }
+
+  const filteredCasts = casts.filter((cast: Cast) => cast.castImage !== null
+    && cast.name.trim() !== ''
+    && cast.characterName.trim() !== '');
+
+  const processedCasts = filteredCasts.map((cast: Cast) => ({
+    ...cast,
+    castImage: typeof cast.castImage === 'string' ? cast.castImage : undefined,
+  }));
+
+  return processedCasts.length > 0 ? JSON.stringify(processedCasts) : null;
+}
+
 export async function createListing(listing: BusinessListing) {
-  // eslint-disable-next-line no-debugger
-  debugger;
   const token = await getSessionToken();
   const headers = {
     'Content-Type': 'multipart/form-data',
@@ -33,16 +62,8 @@ export async function createListing(listing: BusinessListing) {
     formData.append('officialRatingReceived', listing.officialRatingReceived ?? '');
 
     // Stringify and append movie-specific complex fields
-    formData.append('trailerLinks', JSON.stringify(listing.trailerLinks ?? {}));
-    formData.append(
-      'casts',
-      JSON.stringify(
-        listing.casts?.map((cast: Cast) => ({
-          ...cast,
-          castImage: typeof cast.castImage === 'string' ? cast.castImage : undefined,
-        })) ?? [],
-      ),
-    );
+    formData.append('trailerLinks', processTrailerLinks(listing.trailerLinks) ?? '');
+    formData.append('casts', processCasts(listing.casts as Cast[]) ?? '');
   }
 
   // Handle file uploads

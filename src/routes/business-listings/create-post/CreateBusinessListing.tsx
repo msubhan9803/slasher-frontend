@@ -1,11 +1,9 @@
 /* eslint-disable max-lines */
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  useForm, useFieldArray, SubmitHandler, Resolver,
+  useForm, useFieldArray, SubmitHandler,
 } from 'react-hook-form';
-import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Col, Row } from 'react-bootstrap';
@@ -30,12 +28,7 @@ import Author from '../../../components/ui/BusinessListing/Books/Author';
 import Pages from '../../../components/ui/BusinessListing/Books/Pages';
 import Isbn from '../../../components/ui/BusinessListing/Books/Isbn';
 import useCreateListing from '../../../hooks/businessListing/useCreateListing';
-
-const schema = yup.object().shape({
-  // title: yup.string().required('Title is required'),
-  // yearReleased: yup.number().required('Year released is required').positive().integer(),
-  // description: yup.string().required('Description is required'),
-});
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
 function CreateBusinessListing() {
   const [searchParams] = useSearchParams();
@@ -48,7 +41,6 @@ function CreateBusinessListing() {
   const {
     control, register, handleSubmit, setValue, watch,
   } = useForm<BusinessListing>({
-    resolver: yupResolver<BusinessListing>(schema as yup.ObjectSchema<BusinessListing, yup.AnyObject, any, ''>),
     defaultValues: {
       _id: null,
       businesstype: listingType as string,
@@ -75,7 +67,7 @@ function CreateBusinessListing() {
   });
 
   const {
-    createBusinessListing, loading, error, success,
+    createBusinessListing, loading, errorMessages, success,
   } = useCreateListing();
 
   const image = watch('image');
@@ -180,6 +172,12 @@ function CreateBusinessListing() {
 
             <Pricing />
             <PaymentInfo />
+          </Row>
+
+          <Row>
+            <Col xs={12}>
+              <ErrorMessageList errorMessages={errorMessages} className="m-0" />
+            </Col>
           </Row>
 
           <Row>

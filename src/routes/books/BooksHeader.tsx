@@ -50,7 +50,7 @@ function BooksHeader({
         </Col>
         {enableDevFeatures
           && (
-          <Col md={4} className="order-first order-md-last">
+          <Col md={4} className="order-first order-md-last d-lg-none w-100">
             <CreateBusinessListingButton />
           </Col>
           )}

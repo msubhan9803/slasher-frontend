@@ -11,6 +11,8 @@ import {
 } from 'class-validator';
 import mongoose from 'mongoose';
 import { BusinessType } from 'src/schemas/businessListing/businessListing.enums';
+import { IsMovieFieldsRequired } from '../decorators/is-movie-fields-required.decorator';
+import { IsBookFieldsRequired } from '../decorators/is-book-fields-required.decorator';
 
 export class CreateBusinessListingDto {
   @IsEnum(BusinessType, { message: 'Invalid business type' })
@@ -21,17 +23,16 @@ export class CreateBusinessListingDto {
 
   @IsNotEmpty({ message: 'Title is required' })
   @IsString()
-  @MaxLength(100, { message: 'Title must be less than 100 characters' })
   title: string;
 
-  @IsOptional()
+  @IsNotEmpty({ message: 'Overview is required' })
   @IsString()
   @MaxLength(500, { message: 'Overview must be less than 500 characters' })
   overview?: string;
 
   @IsOptional()
+  @IsMovieFieldsRequired({ message: 'Link is required' })
   @IsString()
-  @MaxLength(200, { message: 'Link must be less than 200 characters' })
   link?: string;
 
   @IsOptional()
@@ -42,42 +43,47 @@ export class CreateBusinessListingDto {
    * Fields for books *
    ***********/
   @IsOptional()
+  @IsBookFieldsRequired({ message: 'Author is required' })
   @IsString()
-  @MaxLength(100, { message: 'Author name must be less than 100 characters' })
   author?: string;
 
   @IsOptional()
+  @IsBookFieldsRequired({ message: 'Page is required' })
   @Transform(({ value }) => parseInt(value, 10), { toClassOnly: true })
   @IsInt({ message: 'Pages must be an integer' })
   pages?: number;
 
   @IsOptional()
+  @IsBookFieldsRequired({ message: 'ISBN is required' })
   @IsString()
-  @MaxLength(20, { message: 'ISBN must be less than 20 characters' })
   isbn?: string;
 
   /***********
    * Fields for movies *
    ***********/
   @IsOptional()
+  @IsMovieFieldsRequired({ message: 'Released Year is required' })
   yearReleased?: any;
 
   @IsOptional()
   @IsString()
-  @MaxLength(100, { message: 'Country of origin must be less than 100 characters' })
+  @IsMovieFieldsRequired({ message: 'Country of origin is required' })
   countryOfOrigin?: string;
 
   @IsOptional()
+  @IsMovieFieldsRequired({ message: 'Duration is required' })
   durationInMinutes?: any;
 
   @IsOptional()
   @IsString()
-  @MaxLength(10, { message: 'Official rating received must be less than 10 characters' })
+  @IsMovieFieldsRequired({ message: 'Official Rating is required' })
   officialRatingReceived?: string;
 
   @IsOptional()
+  @IsMovieFieldsRequired({ message: 'Trailer links are required' })
   trailerLinks?: string;
 
   @IsOptional()
+  @IsMovieFieldsRequired({ message: 'Please add atleast one cast' })
   casts?: string;
 }

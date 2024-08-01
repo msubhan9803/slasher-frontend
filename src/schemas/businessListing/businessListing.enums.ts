@@ -8,12 +8,6 @@ export enum BusinessType {
   MUSICIAN = 'musician',
 }
 
-export type Cast = {
-  castImage?: string;
-  name: string;
-  characterName: string;
-}[];
-
 export type TrailerLinks = {
   main: string;
   trailer2: string;

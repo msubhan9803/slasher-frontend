@@ -1,8 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { BusinessType, Cast, TrailerLinks } from './businessListing.enums';
+import { BusinessType } from './businessListing.enums';
 import { BusinessListingType } from '../businessListingType/businessListingType.schema';
 import { User } from '../user/user.schema';
+import { Movie } from '../movie/movie.schema';
+import { Book } from '../book/book.schema';
 
 @Schema({ timestamps: true })
 export class BusinessListing {
@@ -18,52 +20,25 @@ export class BusinessListing {
   listingType: mongoose.Schema.Types.ObjectId;
 
   @Prop()
-  image: string;
+  businessLogo?: string;
+
+  @Prop()
+  coverPhoto?: string;
 
   @Prop({ required: true })
   title: string;
 
-  @Prop()
+  @Prop({ required: true })
   overview: string;
-
-  @Prop()
-  link: string;
 
   @Prop({ default: true })
   isActive: boolean;
 
-  /***********
-   * Fields for books *
-   ***********/
-  @Prop()
-  author?: string;
+  @Prop({ default: null, ref: Book.name })
+  bookRef?: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ set: (value: string | number) => Number(value) })
-  pages?: number;
-
-  @Prop()
-  isbn?: string;
-
-  /***********
-   * Fields for movies *
-   ***********/
-  @Prop()
-  yearReleased?: number;
-
-  @Prop()
-  countryOfOrigin?: string;
-
-  @Prop()
-  durationInMinutes?: number;
-
-  @Prop()
-  officialRatingReceived?: string;
-
-  @Prop({ type: Map, of: String })
-  trailerLinks?: TrailerLinks;
-
-  @Prop([{ castImage: String, name: String, characterName: String }])
-  casts?: Cast;
+  @Prop({ default: null, ref: Movie.name })
+  movieRef?: mongoose.Schema.Types.ObjectId;
 
   constructor(options?: Partial<BusinessListing>) {
     if (!options) {

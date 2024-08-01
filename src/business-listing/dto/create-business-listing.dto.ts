@@ -36,6 +36,7 @@ export class CreateBusinessListingDto {
   link?: string;
 
   @IsOptional()
+  @Transform(({ value }) => value === 'true', { toClassOnly: true })
   @IsBoolean()
   isActive?: boolean;
 

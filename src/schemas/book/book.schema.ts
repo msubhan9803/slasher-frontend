@@ -91,8 +91,11 @@ export class Book extends BookUnusedFields {
   @Prop({ default: BookDeletionState.NotDeleted, enum: [BookDeletionState.NotDeleted, BookDeletionState.Deleted] })
   deleted: BookDeletionState;
 
-  @Prop({ default: BookType.Free, enum: [BookType.Free, BookType.OpenLibrary] })
+  @Prop({ default: BookType.Free, enum: [BookType.Free, BookType.OpenLibrary, BookType.UserDefined] })
   type: BookType;
+
+  @Prop()
+  buyUrl?: string;
 
   /***********
    * Methods *

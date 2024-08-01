@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import {
+  Cast,
   MovieActiveStatus, MovieDeletionStatus, MovieType,
 } from './movie.enums';
 import { MovieUnusedFields } from './movie.unused-fields';
@@ -109,6 +110,7 @@ export class Movie extends MovieUnusedFields {
     enum: [
       MovieType.Free,
       MovieType.MovieDb,
+      MovieType.UserDefined,
     ],
     default: MovieType.Free,
   })
@@ -119,6 +121,12 @@ export class Movie extends MovieUnusedFields {
 
   @Prop({ default: null })
   movieImage: string;
+
+  @Prop([{ castImage: String, name: String, characterName: String }])
+  casts?: Cast[];
+
+  @Prop()
+  watchUrl?: string;
 
   /***********
    * Methods *

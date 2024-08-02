@@ -129,7 +129,7 @@ export class Movie extends MovieUnusedFields {
   @Prop()
   watchUrl?: string;
 
-  @Prop({ default: null, ref: User.name, required: true })
+  @Prop({ default: null, ref: User.name })
   userRef?: mongoose.Schema.Types.ObjectId;
 
   /***********

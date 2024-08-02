@@ -101,11 +101,10 @@ export class MoviesController {
       userData,
     }, [
       'movieDBId', 'rating', 'ratingUsersCount', 'goreFactorRating', 'goreFactorRatingUsersCount',
-      'worthWatching', 'worthWatchingUpUsersCount', 'worthWatchingDownUsersCount', 'userData',
+      'worthWatching', 'worthWatchingUpUsersCount', 'worthWatchingDownUsersCount', 'userData', 'type', 'movieImage',
     ]);
   }
 
-  @TransformImageUrls('$[*].movieImage')
   @Get()
   async findAll(@Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: FindAllMoviesDto) {
     const movies = await this.moviesService.findAll(
@@ -121,6 +120,11 @@ export class MoviesController {
       throw new HttpException('No movies found', HttpStatus.NOT_FOUND);
     }
     movies.forEach((movie) => {
+      if (movie.type === 2) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = relativeToFullImagePath(this.configService, movie.movieImage);
+        return;
+      }
       if (movie.logo?.length > 1) {
         // eslint-disable-next-line no-param-reassign
         movie.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${movie.logo}`;
@@ -131,7 +135,7 @@ export class MoviesController {
       }
     });
     return movies.map(
-      (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating', 'worthWatching', 'movieImage']),
+      (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating', 'worthWatching', 'movieImage', 'type']),
     );
   }
 
@@ -142,6 +146,17 @@ export class MoviesController {
       throw new HttpException('MovieDB movie not found', HttpStatus.NOT_FOUND);
     }
     return movieDbData;
+  }
+
+  @TransformImageUrls('$.mainData.poster_path', '$.cast[*].profile_path')
+  @Get('userDefinedMovieData/:id')
+  async fetchUserDefinedMovieData(@Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateMovieIdDto) {
+    const movieData = await this.moviesService.fetchUserDefinedMovieData(params.id);
+    if (!movieData) {
+      throw new HttpException('User defined Movie movie not found', HttpStatus.NOT_FOUND);
+    }
+
+    return movieData;
   }
 
   @Put(':id/rating')

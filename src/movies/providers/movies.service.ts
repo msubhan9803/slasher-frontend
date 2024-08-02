@@ -708,6 +708,66 @@ export class MoviesService {
     };
   }
 
+  async fetchUserDefinedMovieData(id: string): Promise<any> {
+    const {
+      type,
+      name,
+      descriptions,
+      countryOfOrigin,
+      movieImage,
+      casts,
+      releaseDate,
+      trailerUrls,
+    } = await this.moviesModel.findOne({ _id: id }).exec();
+
+    const cast = casts.map((elem) => ({
+      profile_path: elem.castImage,
+      character: elem.characterName,
+      name: elem.name,
+    }));
+
+    const video = trailerUrls.map((url) => ({ key: url }));
+
+    return {
+      cast,
+      video,
+      mainData: {
+        type,
+        overview: descriptions,
+        poster_path: movieImage,
+        release_dates: {
+          results: [
+            {
+              iso_3166_1: 'US',
+              release_dates: [
+                {
+                  certification: 'R',
+                  descriptors: [
+                  ],
+                  iso_639_1: 'en',
+                  note: '',
+                  release_date: releaseDate,
+                  type: 4,
+                },
+              ],
+            },
+          ],
+        },
+        runtime: 75,
+        title: name,
+        original_title: name,
+        production_countries: [
+          {
+            iso_3166_1: 'US',
+            name: countryOfOrigin,
+          },
+        ],
+        release_date: releaseDate,
+      },
+      crew: [],
+    };
+  }
+
   async getWatchedListMovieIdsForUser(userId: string): Promise<Partial<MovieUserStatusDocument[]>> {
     const watchedMovieIdByUser = await this.movieUserStatusModel
       .find({ userId: new mongoose.Types.ObjectId(userId), watched: MovieUserStatusWatched.Watched }, { movieId: 1, _id: 0 })

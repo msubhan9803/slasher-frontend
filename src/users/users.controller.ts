@@ -934,6 +934,11 @@ export class UsersController {
       query.startsWith,
     );
     movies.forEach((movie) => {
+      if (movie.type === 2) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = relativeToFullImagePath(this.configService, movie.movieImage);
+        return;
+      }
       if (movie.logo?.length > 1) {
         // eslint-disable-next-line no-param-reassign
         movie.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${movie.logo}`;
@@ -971,6 +976,11 @@ export class UsersController {
       query.startsWith,
     );
     movies.forEach((movie) => {
+      if (movie.type === 2) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = relativeToFullImagePath(this.configService, movie.movieImage);
+        return;
+      }
       if (movie.logo?.length > 1) {
         // eslint-disable-next-line no-param-reassign
         movie.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${movie.logo}`;
@@ -1008,6 +1018,11 @@ export class UsersController {
       query.startsWith,
     );
     movies.forEach((movie) => {
+      if (movie.type === 2) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = relativeToFullImagePath(this.configService, movie.movieImage);
+        return;
+      }
       if (movie.logo?.length > 1) {
         // eslint-disable-next-line no-param-reassign
         movie.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${movie.logo}`;
@@ -1045,6 +1060,11 @@ export class UsersController {
       query.startsWith,
     );
     movies.forEach((movie) => {
+      if (movie.type === 2) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = relativeToFullImagePath(this.configService, movie.movieImage);
+        return;
+      }
       if (movie.logo?.length > 1) {
         // eslint-disable-next-line no-param-reassign
         movie.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${movie.logo}`;

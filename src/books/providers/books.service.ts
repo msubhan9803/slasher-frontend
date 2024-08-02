@@ -200,7 +200,7 @@ export class BooksService {
     sortNameStartsWith?: string,
   ): Promise<BookDocument[]> {
     const booksFindAllQuery: any = {
-      type: BookType.OpenLibrary,
+      type: { $in: [BookType.OpenLibrary, BookType.UserDefined] },
     };
     if (bookIdsIn) {
       booksFindAllQuery._id = { $in: bookIdsIn };

@@ -6,6 +6,7 @@ import {
 } from './movie.enums';
 import { MovieUnusedFields } from './movie.unused-fields';
 import { WorthWatchingStatus } from '../../types';
+import { User } from '../user/user.schema';
 
 @Schema({ timestamps: true })
 export class Movie extends MovieUnusedFields {
@@ -120,13 +121,16 @@ export class Movie extends MovieUnusedFields {
   popularity: number;
 
   @Prop({ default: null })
-  movieImage: string;
+  movieImage?: string;
 
   @Prop([{ castImage: String, name: String, characterName: String }])
   casts?: Cast[];
 
   @Prop()
   watchUrl?: string;
+
+  @Prop({ default: null, ref: User.name, required: true })
+  userRef?: mongoose.Schema.Types.ObjectId;
 
   /***********
    * Methods *

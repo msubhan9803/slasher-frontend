@@ -4,6 +4,7 @@ import { BookUnusedFields } from './book.unused-fields';
 import { BookActiveStatus, BookDeletionState, BookType } from './book.enums';
 import { WorthReadingStatus } from '../../types';
 import { Image, ImageSchema } from '../shared/image.schema';
+import { User } from '../user/user.schema';
 
 @Schema({ timestamps: true })
 export class Book extends BookUnusedFields {
@@ -96,6 +97,9 @@ export class Book extends BookUnusedFields {
 
   @Prop()
   buyUrl?: string;
+
+  @Prop({ default: null, ref: User.name, required: true })
+  userRef?: mongoose.Schema.Types.ObjectId;
 
   /***********
    * Methods *

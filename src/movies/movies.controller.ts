@@ -6,6 +6,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import mongoose from 'mongoose';
+import { TransformImageUrls } from 'src/app/decorators/transform-image-urls.decorator';
 import { pick } from '../utils/object-utils';
 import { relativeToFullImagePath } from '../utils/image-utils';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
@@ -104,6 +105,7 @@ export class MoviesController {
     ]);
   }
 
+  @TransformImageUrls('$[*].movieImage')
   @Get()
   async findAll(@Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: FindAllMoviesDto) {
     const movies = await this.moviesService.findAll(
@@ -129,7 +131,7 @@ export class MoviesController {
       }
     });
     return movies.map(
-      (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating', 'worthWatching']),
+      (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating', 'worthWatching', 'movieImage']),
     );
   }
 

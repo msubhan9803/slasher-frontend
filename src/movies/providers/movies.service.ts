@@ -349,7 +349,7 @@ export class MoviesService {
     sortNameStartsWith?: string,
   ): Promise<MovieDocument[]> {
     const movieFindAllQuery: any = {
-      type: MovieType.MovieDb,
+      type: { $in: [MovieType.MovieDb, MovieType.UserDefined] },
     };
     if (movieIdsIn) {
       movieFindAllQuery._id = { $in: movieIdsIn };

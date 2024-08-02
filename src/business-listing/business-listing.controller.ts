@@ -148,6 +148,7 @@ export class BusinessListingController {
             coverEditionKey: 'empty',
             publishDate: new Date(yearReleased),
             buyUrl: link,
+            userRef: user._id,
           });
 
           businessListing.bookRef = book._id;
@@ -170,6 +171,7 @@ export class BusinessListingController {
             status: MovieActiveStatus.Active,
             casts,
             watchUrl: link,
+            userRef: user._id,
           });
 
           businessListing.movieRef = movie._id;

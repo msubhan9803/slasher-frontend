@@ -416,7 +416,11 @@ function PostFeed({
       if (post.rssfeedProviderId) {
         navigate(`/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`, { state });
       } else if (postType === 'review') {
-        navigate(`/app/movies/${post.movieId}/reviews/${post.id}#comments`, { state });
+        if (post.movieId) {
+          navigate(`/app/movies/${post.movieId}/reviews/${post.id}#comments`, { state });
+        } else {
+          navigate(`/app/books/${post.bookId}/reviews/${post.id}#comments`, { state });
+        }
       } else {
         navigate(`/${post.userName}/posts/${post.id}`, { state });
       }

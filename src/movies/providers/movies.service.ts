@@ -718,6 +718,7 @@ export class MoviesService {
       casts,
       releaseDate,
       trailerUrls,
+      watchUrl,
     } = await this.moviesModel.findOne({ _id: id }).exec();
 
     const cast = casts.map((elem) => ({
@@ -735,6 +736,7 @@ export class MoviesService {
         type,
         overview: descriptions,
         poster_path: movieImage,
+        watchUrl,
         release_dates: {
           results: [
             {

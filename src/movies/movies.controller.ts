@@ -100,7 +100,7 @@ export class MoviesController {
       ratingUsersCount,
       userData,
     }, [
-      'movieDBId', 'rating', 'ratingUsersCount', 'goreFactorRating', 'goreFactorRatingUsersCount',
+      '_id', 'movieDBId', 'rating', 'ratingUsersCount', 'goreFactorRating', 'goreFactorRatingUsersCount',
       'worthWatching', 'worthWatchingUpUsersCount', 'worthWatchingDownUsersCount', 'userData', 'type', 'movieImage',
     ]);
   }

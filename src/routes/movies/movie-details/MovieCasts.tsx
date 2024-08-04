@@ -59,7 +59,7 @@ function MovieCasts({ castList }: CastListProps) {
             <Col key={cast.name} xs={6} sm={3} md={2} lg={3} xl={2}>
               <Card className="bg-transparent border-0">
                 <div className="casts-image">
-                  <Card.Img variant="top" src={cast.profile_path} alt="top cast" className="w-100 h-100 rounded-3" />
+                  <Card.Img variant="top" src={cast.profile_path} alt="top cast" className="w-100 h-100 rounded-3" style={{ objectFit: 'cover' }} />
                 </div>
                 <Card.Body className="px-0 pb-0">
                   <Card.Title className="fs-3 m-0">

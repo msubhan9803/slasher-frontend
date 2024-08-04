@@ -6,11 +6,14 @@ import { useLocation, useParams } from 'react-router-dom';
 import PlayMovie from './PlayMovie';
 import RoundButton from '../../../components/ui/RoundButton';
 import AboutMovie from './AboutMovie';
-import { getMoviesById, getMoviesDataById } from '../../../api/movies';
-import { AdditionalMovieData, MovieData, MoviePageCache } from '../../../types';
+import { getMoviesById, getMoviesDataById, getUserDefinedMovieData } from '../../../api/movies';
+import {
+  AdditionalMovieData, MovieData, MoviePageCache, MovieType,
+} from '../../../types';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { getPageStateCache, hasPageStateCache, setPageStateCache } from '../../../pageStateCache';
 import { enableDevFeatures } from '../../../env';
+import getYouTubeEmbedId from '../../../utils/youtube-embed-id-utils';
 
 function MovieDetails() {
   const location = useLocation();
@@ -21,6 +24,9 @@ function MovieDetails() {
   const [movieData, setMovieData] = useState<MovieData | undefined>(
     hasPageStateCache(location) ? pageStateCache.movieData : undefined,
   );
+  const [movieType, setMovieType] = useState(
+    hasPageStateCache(location) ? pageStateCache.movieType : null,
+  );
   const [initialDataLoadedFromCache, setInitialDataLoadedFromCache] = useState(false);
   const [additionalMovieData, setAdditionalMovieData] = useState<AdditionalMovieData | undefined>(
     hasPageStateCache(location) ? pageStateCache.additionalMovieData : undefined,
@@ -30,6 +36,7 @@ function MovieDetails() {
     if (hasPageStateCache(location) && !initialDataLoadedFromCache) {
       setInitialDataLoadedFromCache(true);
       setMovieData(pageStateCache.movieData);
+      setMovieData(pageStateCache.movieType);
     }
   }, [pageStateCache, location, initialDataLoadedFromCache]);
 
@@ -42,19 +49,28 @@ function MovieDetails() {
   }), [movieData, location]);
 
   useEffect(() => {
-    if (params.id && (!movieData || movieData?.isUpdated)) {
+    if (params.id && (!movieData || movieData?.isUpdated) && !movieType) {
       getMoviesById(params.id)
         .then((res) => {
           setMovieData(res.data);
+          setMovieType(res.data.type);
           // Update `pageStateCache`
           setPageStateCache<MoviePageCache>(location, {
-            ...getPageStateCache(location), movieData: res.data,
+            ...getPageStateCache(location),
+            movieData: res.data,
+            movieType: res.data.type,
           });
         });
     }
-  }, [location, movieData, params]);
+  }, [location, movieData, params, movieType]);
+
   useEffect(() => {
-    if (movieData && movieData.movieDBId && !additionalMovieData) {
+    if (
+      movieData
+      && movieData.movieDBId
+      && !additionalMovieData
+      && movieType !== MovieType.UserDefined
+    ) {
       getMoviesDataById(movieData.movieDBId)
         .then((res) => {
           setAdditionalMovieData(res.data);
@@ -64,7 +80,24 @@ function MovieDetails() {
           });
         });
     }
-  }, [additionalMovieData, location, movieData]);
+  }, [additionalMovieData, location, movieData, movieType]);
+
+  useEffect(() => {
+    if (
+      movieData
+      && !additionalMovieData
+      && movieType === MovieType.UserDefined
+    ) {
+      getUserDefinedMovieData(movieData._id)
+        .then((res) => {
+          setAdditionalMovieData(res.data);
+          // Update `pageStateCache`
+          setPageStateCache<MoviePageCache>(location, {
+            ...getPageStateCache(location), additionalMovieData: res.data,
+          });
+        });
+    }
+  }, [additionalMovieData, location, movieData, movieType]);
 
   useLayoutEffect(() => {
     window.scrollTo({
@@ -73,7 +106,7 @@ function MovieDetails() {
     });
   }, []);
 
-  if (!movieData || !additionalMovieData) {
+  if (!movieType || !movieData || !additionalMovieData) {
     return <LoadingIndicator />;
   }
 
@@ -81,13 +114,25 @@ function MovieDetails() {
     <div>
       <Container fluid className="mb-5 p-0 pb-5">
         {enableDevFeatures && <RoundButton className="d-lg-none w-100 my-3 fs-4">Add your movie</RoundButton>}
-        {additionalMovieData?.video?.[0]?.key && (
+        {movieType !== MovieType.UserDefined && additionalMovieData?.video?.[0]?.key && (
           <PlayMovie embedId={
             additionalMovieData && additionalMovieData.video
             && additionalMovieData.video[0] && additionalMovieData.video[0].key
           }
           />
         )}
+
+        {movieType === MovieType.UserDefined && (
+          <PlayMovie
+            embedId={
+                additionalMovieData
+                && additionalMovieData.video
+                && additionalMovieData.video[0]
+                && getYouTubeEmbedId(additionalMovieData.video[0].key) as string
+              }
+          />
+        )}
+
         <AboutMovie
           movieData={movieData}
           setMovieData={setMovieData}

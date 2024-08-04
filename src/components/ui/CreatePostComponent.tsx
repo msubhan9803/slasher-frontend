@@ -26,7 +26,7 @@ import {
   ContentDescription, AdditionalMovieData, MovieData,
   WorthWatchingStatus, BookData, WorthReadingStatus,
 } from '../../types';
-import { getMoviesById, getMoviesDataById } from '../../api/movies';
+import { getMoviesById, getMoviesDataById, getUserDefinedMovieData } from '../../api/movies';
 import { StyledMoviePoster } from '../../routes/movies/movie-details/StyledUtils';
 import { LG_MEDIA_BREAKPOINT, isNativePlatform, topToDivHeight } from '../../constants';
 import { ProgressButtonComponentType } from './ProgressButton';
@@ -129,12 +129,21 @@ function CreatePostComponent({
   const [aboutMovieDetail, setAboutMovieDetail] = useState<AdditionalMovieData>();
   const [aboutBookDetail, setAboutBookDetail] = useState<any>();
 
+  const fetchData = async () => {
+    const movieDataRes = await getMoviesById(movieId as string);
+    if (movieDataRes.data.movieDBId) {
+      const { data } = await getMoviesDataById(movieDataRes.data.movieDBId);
+      setAboutMovieDetail(data);
+    } else {
+      const { data } = await getUserDefinedMovieData(movieDataRes.data._id);
+      setAboutMovieDetail(data);
+    }
+  };
+
   useEffect(() => {
     if (!movieId) { return; }
 
-    getMoviesById(movieId)
-      .then((res1) => getMoviesDataById(res1.data.movieDBId)
-        .then((res2) => setAboutMovieDetail(res2.data)));
+    fetchData();
   }, [movieId]);
 
   useEffect(() => {

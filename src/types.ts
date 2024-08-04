@@ -113,6 +113,7 @@ export interface MainData {
   release_dates: any;
   runtime: number;
   production_countries: Country[];
+  watchUrl: string;
 }
 
 export interface Country {
@@ -337,6 +338,7 @@ export enum PostType {
   BookReview = 4,
 }
 export interface MovieData {
+  _id: string;
   movieDBId?: number;
   // ** RATING/GORE-FACTOR/WORTH-WATCHING FIELDS **
   // ratings
@@ -423,6 +425,7 @@ export type MoviePageCache = {
   movieData: MovieData,
   additionalMovieData: AdditionalMovieData,
   reviews: any
+  movieType: any
 };
 
 // Cache type for Book related data (page = http://localhost:3000/app/book/64477b42b12f5efbb3468ff4/reviews)
@@ -492,3 +495,9 @@ export type MovieListType = typeof movieList[number];
 
 export const bookList = ['reading', 'read', 'favorite', 'buy'] as const;
 export type BookListType = typeof bookList[number];
+
+export enum MovieType {
+  Free = 0,
+  MovieDb = 1,
+  UserDefined = 2,
+}

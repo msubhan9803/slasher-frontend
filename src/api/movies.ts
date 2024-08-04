@@ -41,6 +41,14 @@ export async function getMoviesDataById(movieDBId: number) {
 
   return axios.get(`${apiUrl}/api/v1/movies/movieDbData/${movieDBId}`, { headers });
 }
+export async function getUserDefinedMovieData(movieId: string) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.get(`${apiUrl}/api/v1/movies/userDefinedMovieData/${movieId}`, { headers });
+}
 export async function getMoviesIdList(id: any) {
   const token = await getSessionToken();
   const headers = {

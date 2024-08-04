@@ -64,7 +64,7 @@ function MovieTrailers({ trailerList }: MovieTrailerList) {
           id="slideTrailer"
           className="d-flex flex-nowrap w-100"
         >
-          {trailerList && trailerList.map((trailer: Video) => (
+          {trailerList && trailerList.map((trailer: Video, index: number) => (
 
             <Col sm={5} md={4} lg={6} xl={4} key={trailer.key}>
               <div className="trailer-image position-relative">

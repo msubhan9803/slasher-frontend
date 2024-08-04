@@ -30,6 +30,7 @@ import { enableDevFeatures } from '../../../env';
 import { generateAmazonAffiliateLinkForMovie } from '../../../utils/text-utils';
 import TpdAd from '../../../components/ui/TpdAd';
 import { tpdAdSlotIdZ } from '../../../utils/tpd-ad-slot-ids';
+import getYouTubeEmbedId from '../../../utils/youtube-embed-id-utils';
 
 interface MovieIconProps {
   label: string;
@@ -198,7 +199,9 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
     //   }
     // }, 0);
   };
-  const to = generateAmazonAffiliateLinkForMovie(aboutMovieData?.mainData?.title);
+  const to = aboutMovieData?.mainData?.watchUrl
+    ? aboutMovieData?.mainData?.watchUrl
+    : generateAmazonAffiliateLinkForMovie(aboutMovieData?.mainData?.title);
 
   return (
     <div>
@@ -341,7 +344,11 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
                 aboutMovieData?.video?.length > 0
                 && (
                   <MovieTrailers
-                    trailerList={aboutMovieData && aboutMovieData.video as any}
+                    trailerList={
+                      aboutMovieData
+                      && aboutMovieData.video.map((video: any) => (
+                        { key: getYouTubeEmbedId(video.key) })) as any
+                    }
                   />
                 )
               }

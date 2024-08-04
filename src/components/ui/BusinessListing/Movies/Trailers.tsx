@@ -32,7 +32,7 @@ export default function Trailers({ name, register, isVisible }: Props) {
             {...register('trailerLinks.trailer2')}
             name="trailerLinks.trailer2"
             type="text"
-            placeholder="Main trailer (YouTube link)"
+            placeholder="Trailer #2 (YouTube link)"
             className="fs-4"
           />
         </Col>
@@ -41,7 +41,7 @@ export default function Trailers({ name, register, isVisible }: Props) {
             {...register('trailerLinks.trailer3')}
             name="trailerLinks.trailer3"
             type="text"
-            placeholder="Main trailer (YouTube link)"
+            placeholder="Trailer #3 (YouTube link)"
             className="fs-4"
           />
         </Col>

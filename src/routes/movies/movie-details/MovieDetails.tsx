@@ -36,17 +36,17 @@ function MovieDetails() {
     if (hasPageStateCache(location) && !initialDataLoadedFromCache) {
       setInitialDataLoadedFromCache(true);
       setMovieData(pageStateCache.movieData);
-      setMovieData(pageStateCache.movieType);
+      setMovieType(pageStateCache.movieType);
     }
   }, [pageStateCache, location, initialDataLoadedFromCache]);
 
   useEffect(() => (() => {
-    if (movieData) {
+    if (movieData && movieType) {
       setPageStateCache<MoviePageCache>(location, {
-        ...getPageStateCache(location), movieData,
+        ...getPageStateCache(location), movieData, movieType,
       });
     }
-  }), [movieData, location]);
+  }), [movieData, location, movieType]);
 
   useEffect(() => {
     if (params.id && (!movieData || movieData?.isUpdated) && !movieType) {
@@ -58,6 +58,9 @@ function MovieDetails() {
           setPageStateCache<MoviePageCache>(location, {
             ...getPageStateCache(location),
             movieData: res.data,
+          });
+          setPageStateCache<MoviePageCache>(location, {
+            ...getPageStateCache(location),
             movieType: res.data.type,
           });
         });

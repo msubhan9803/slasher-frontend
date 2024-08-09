@@ -50,3 +50,16 @@ export type BusinessListing = {
 };
 
 export type BusinessListingKeys = keyof BusinessListing;
+
+export enum ListingName {
+  LISTING1 = 'listing_1',
+  LISTING2 = 'listing_2',
+}
+
+export type BusinessListingType = {
+  _id: string;
+  name: ListingName;
+  label: string;
+  features: string[];
+  price: number;
+};

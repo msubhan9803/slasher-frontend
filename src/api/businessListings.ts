@@ -35,7 +35,6 @@ function processCasts(casts: Cast[] | null): string | null {
 }
 
 export async function createListing(listing: BusinessListing) {
-  console.log('🌺🌺🌺🌺 listing: ', listing);
   const token = await getSessionToken();
   const headers = {
     'Content-Type': 'multipart/form-data',
@@ -94,6 +93,19 @@ export async function createListing(listing: BusinessListing) {
   return axios.post(
     `${apiUrl}/api/v1/business-listing/create-listing`,
     formData,
+    { headers },
+  );
+}
+
+export async function fetchListingTypes() {
+  const token = await getSessionToken();
+  const headers = {
+    'Content-Type': 'multipart/form-data',
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.get(
+    `${apiUrl}/api/v1/business-listing/get-all-listing-types`,
     { headers },
   );
 }

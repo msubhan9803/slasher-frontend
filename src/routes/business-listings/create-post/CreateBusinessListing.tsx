@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm, useFieldArray, SubmitHandler } from 'react-hook-form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -33,6 +33,7 @@ import Address from '../../../components/ui/BusinessListing/Address';
 import PhoneNumber from '../../../components/ui/BusinessListing/PhoneNumber';
 import CoverPhoto from '../../../components/ui/BusinessListing/CoverPhoto';
 import Switch from '../../../components/ui/Switch';
+import useListingTypes from '../../../hooks/businessListing/useListingTypes';
 
 function CreateBusinessListing() {
   const [searchParams] = useSearchParams();
@@ -49,7 +50,7 @@ function CreateBusinessListing() {
     defaultValues: {
       _id: null,
       businesstype: listingType as string,
-      listingType: '66a0d7bd5e030b27bc304463',
+      listingType: null,
       image: null,
       coverPhoto: null,
       email: '',
@@ -81,6 +82,8 @@ function CreateBusinessListing() {
   const {
     createBusinessListing, loading, errorMessages, success,
   } = useCreateListing();
+
+  const { listingTypes } = useListingTypes();
 
   const image = watch('image');
   const coverPhoto = watch('coverPhoto');
@@ -309,7 +312,10 @@ function CreateBusinessListing() {
               isVisible={visibilityConfig.casts}
             />
 
-            <Pricing />
+            <Pricing
+              listingTypes={listingTypes}
+              setValue={setValue}
+            />
             <PaymentInfo />
           </Row>
 

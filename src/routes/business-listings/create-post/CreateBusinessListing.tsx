@@ -136,6 +136,10 @@ function CreateBusinessListing() {
       author: ([BusinessType.BOOKS] as string[]).includes(listingType),
       pages: ([BusinessType.BOOKS] as string[]).includes(listingType),
       isbn: ([BusinessType.BOOKS] as string[]).includes(listingType),
+
+      physicalAddress: !(
+        [BusinessType.MOVIES, BusinessType.BOOKS] as string[]
+      ).includes(listingType),
     }),
     [listingType],
   );
@@ -187,19 +191,32 @@ function CreateBusinessListing() {
           <Row className="my-4">
             <Col md={6} lg={12} xl={6}>
               <div className="d-block d-md-flex align-items-center">
-                <ListingImage image={image} setValue={setValue} />
+                <ListingImage
+                  isSquared={
+                    !(
+                      [BusinessType.MOVIES, BusinessType.BOOKS] as string[]
+                    ).includes(listingType)
+                  }
+                  image={image}
+                  setValue={setValue}
+                />
               </div>
             </Col>
 
-            {
-              !([BusinessType.MOVIES, BusinessType.BOOKS] as string[]).includes(listingType) && (
-                <Col md={6} lg={12} xl={6} className="mt-5 mt-md-0 mt-lg-5 mt-xl-0">
-                  <div className="d-block d-md-flex align-items-center">
-                    <CoverPhoto image={coverPhoto} setValue={setValue} />
-                  </div>
-                </Col>
-              )
-            }
+            {!([BusinessType.MOVIES, BusinessType.BOOKS] as string[]).includes(
+              listingType,
+            ) && (
+              <Col
+                md={6}
+                lg={12}
+                xl={6}
+                className="mt-5 mt-md-0 mt-lg-5 mt-xl-0"
+              >
+                <div className="d-block d-md-flex align-items-center">
+                  <CoverPhoto image={coverPhoto} setValue={setValue} />
+                </div>
+              </Col>
+            )}
           </Row>
 
           <Row>
@@ -214,26 +231,27 @@ function CreateBusinessListing() {
               isVisible={visibilityConfig.phoneNumber}
             />
 
-            <div className="d-block d-md-flex align-items-center my-2">
-              Do you have physical address?
+            {visibilityConfig.physicalAddress && (
+              <>
+                <div className="d-block d-md-flex align-items-center my-2">
+                  Do you have physical address?
+                  <Switch
+                    id="listingAddressSwitch"
+                    className="ms-0 ms-md-3"
+                    isChecked={hasPhysicalPresence}
+                    onSwitchToggle={() => setHasPhysicalPresence(!hasPhysicalPresence)}
+                  />
+                </div>
 
-              <Switch
-                id="listingAddressSwitch"
-                className="ms-0 ms-md-3"
-                isChecked={hasPhysicalPresence}
-                onSwitchToggle={() => setHasPhysicalPresence(!hasPhysicalPresence)}
-              />
-            </div>
-
-            {
-              hasPhysicalPresence && (
-                <Address
-                  name="address"
-                  register={register}
-                  isVisible={visibilityConfig.address}
-                />
-              )
-            }
+                {hasPhysicalPresence && (
+                  <Address
+                    name="address"
+                    register={register}
+                    isVisible={visibilityConfig.address}
+                  />
+                )}
+              </>
+            )}
 
             <WebsiteLink
               name="websiteLink"
@@ -312,10 +330,7 @@ function CreateBusinessListing() {
               isVisible={visibilityConfig.casts}
             />
 
-            <Pricing
-              listingTypes={listingTypes}
-              setValue={setValue}
-            />
+            <Pricing listingTypes={listingTypes} setValue={setValue} />
             <PaymentInfo />
           </Row>
 

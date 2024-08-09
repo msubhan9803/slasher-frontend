@@ -76,33 +76,4 @@ export default function CoverPhoto({ setValue, image }: Props) {
       </div>
     </div>
   );
-
-  return (
-    <Container>
-      <UploadCol xs={12} sm={5} lg="auto">
-        <StyledPhotoUploadInput
-          height="9.688rem"
-          variant="outline"
-          onChange={(file) => {
-            setValue('coverPhoto', file);
-          }}
-          defaultPhotoUrl={image as string}
-        />
-      </UploadCol>
-
-      <InfoCol xs={12} sm={7} lg="auto">
-        <h3 className="mb-1 mt-3">Upload cover photo</h3>
-        <CustomText
-          text="Recommended size:"
-          textColor="#A6A6A6"
-          textClass="fs-5 mb-0"
-        />
-        <CustomText
-          text="600x900 pixels (Jpg, Png)"
-          textColor="#A6A6A6"
-          textClass="fs-5"
-        />
-      </InfoCol>
-    </Container>
-  );
 }

@@ -6,6 +6,7 @@ import PhotoUploadInput from '../PhotoUploadInput';
 import { BusinessListing } from '../../../routes/business-listings/type';
 
 type Props = {
+  isSquared: boolean;
   image: string | File | null | undefined;
   setValue: UseFormSetValue<BusinessListing>;
 };
@@ -47,12 +48,39 @@ const InfoCol = styled(Col)`
   }
 `;
 
-export default function ListingImage({ setValue, image }: Props) {
+export default function ListingImage({ isSquared, setValue, image }: Props) {
+  if (isSquared) {
+    return (
+      <div className="d-block d-md-flex align-items-center">
+        <PhotoUploadInput
+          className="mx-auto mx-md-0 me-md-3"
+          height="10rem"
+          variant="outline"
+          defaultPhotoUrl={image as string}
+          onChange={(file) => {
+            setValue('image', file);
+          }}
+        />
+        <div className="text-center text-md-start mt-4 mt-md-0">
+          <h1 className="h3 mb-2 fw-bold">Upload cover art</h1>
+          <div className="d-block justify-content-center">
+            <p className="fs-5 text-light mb-0">
+              Recommended size: 180x180 pixels
+            </p>
+            <p className="fs-5 text-light mb-0">
+              (jpg, png)
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="d-block d-md-flex align-items-center">
       <PhotoUploadInput
         className="mx-auto mx-md-0 me-md-3"
-        height="10rem"
+        height="9.688rem"
         variant="outline"
         defaultPhotoUrl={image as string}
         onChange={(file) => {
@@ -63,7 +91,7 @@ export default function ListingImage({ setValue, image }: Props) {
         <h1 className="h3 mb-2 fw-bold">Upload cover art</h1>
         <div className="d-block justify-content-center">
           <p className="fs-5 text-light mb-0">
-            Recommended size: 180x180 pixels
+            Recommended size: 600x900 pixels
           </p>
           <p className="fs-5 text-light mb-0">
             (jpg, png)
@@ -71,34 +99,5 @@ export default function ListingImage({ setValue, image }: Props) {
         </div>
       </div>
     </div>
-  );
-
-  return (
-    <Container>
-      <UploadCol xs={12} sm={5} lg="auto">
-        <StyledPhotoUploadInput
-          height="9.688rem"
-          variant="outline"
-          onChange={(file) => {
-            setValue('image', file);
-          }}
-          defaultPhotoUrl={image as string}
-        />
-      </UploadCol>
-
-      <InfoCol xs={12} sm={7} lg="auto">
-        <h3 className="mb-1 mt-3">Upload cover art</h3>
-        <CustomText
-          text="Recommended size:"
-          textColor="#A6A6A6"
-          textClass="fs-5 mb-0"
-        />
-        <CustomText
-          text="600x900 pixels (Jpg, Png)"
-          textColor="#A6A6A6"
-          textClass="fs-5"
-        />
-      </InfoCol>
-    </Container>
   );
 }

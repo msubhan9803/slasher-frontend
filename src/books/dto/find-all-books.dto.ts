@@ -33,4 +33,8 @@ export class FindAllBooksDto {
   @IsOptional()
   @Matches(/^[a-z0-9#]+$/)
   startsWith: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  type: number;
 }

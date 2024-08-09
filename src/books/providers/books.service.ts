@@ -198,10 +198,19 @@ export class BooksService {
     nameContains?: string,
     bookIdsIn?: mongoose.Types.ObjectId[],
     sortNameStartsWith?: string,
+    type?: number,
   ): Promise<BookDocument[]> {
-    const booksFindAllQuery: any = {
-      type: { $in: [BookType.OpenLibrary, BookType.UserDefined] },
-    };
+    let booksFindAllQuery: any = {};
+    if (type) {
+      booksFindAllQuery = {
+        type,
+      };
+    } else {
+      booksFindAllQuery = {
+        type: { $in: [BookType.OpenLibrary, BookType.UserDefined] },
+      };
+    }
+
     if (bookIdsIn) {
       booksFindAllQuery._id = { $in: bookIdsIn };
     }

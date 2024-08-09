@@ -115,6 +115,7 @@ export class MoviesController {
       query.nameContains,
       null,
       query.startsWith,
+      query.type,
     );
     if (!movies) {
       throw new HttpException('No movies found', HttpStatus.NOT_FOUND);

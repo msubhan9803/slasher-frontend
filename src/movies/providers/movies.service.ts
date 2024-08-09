@@ -347,10 +347,19 @@ export class MoviesService {
     nameContains?: string,
     movieIdsIn?: mongoose.Types.ObjectId[],
     sortNameStartsWith?: string,
+    type?: number,
   ): Promise<MovieDocument[]> {
-    const movieFindAllQuery: any = {
-      type: { $in: [MovieType.MovieDb, MovieType.UserDefined] },
-    };
+    let movieFindAllQuery: any = {};
+    if (type) {
+      movieFindAllQuery = {
+        type,
+      };
+    } else {
+      movieFindAllQuery = {
+        type: { $in: [MovieType.MovieDb, MovieType.UserDefined] },
+      };
+    }
+
     if (movieIdsIn) {
       movieFindAllQuery._id = { $in: movieIdsIn };
     }

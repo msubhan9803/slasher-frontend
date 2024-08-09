@@ -342,6 +342,11 @@ export enum BookType {
   OpenLibrary = 1,
   UserDefined = 2,
 }
+export enum MovieType {
+  Free = 0,
+  MovieDb = 1,
+  UserDefined = 2,
+}
 
 export interface MovieData {
   _id: string;
@@ -503,9 +508,3 @@ export type MovieListType = typeof movieList[number];
 
 export const bookList = ['reading', 'read', 'favorite', 'buy'] as const;
 export type BookListType = typeof bookList[number];
-
-export enum MovieType {
-  Free = 0,
-  MovieDb = 1,
-  UserDefined = 2,
-}

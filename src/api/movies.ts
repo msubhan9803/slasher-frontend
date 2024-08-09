@@ -7,6 +7,7 @@ export async function getMovies(
   sortValue: string,
   key: string,
   lastRetrievedMovieId?: string | null,
+  type?: string,
 ) {
   const token = await getSessionToken();
   const headers = {
@@ -21,6 +22,9 @@ export async function getMovies(
   }
   if (key) {
     queryParameter += `&startsWith=${encodeURIComponent(key)}`;
+  }
+  if (type) {
+    queryParameter += `&type=${encodeURIComponent(type)}`;
   }
   return axios.get(`${apiUrl}/api/v1/movies${queryParameter}`, { headers });
 }

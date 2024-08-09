@@ -98,7 +98,7 @@ export class Book extends BookUnusedFields {
   @Prop()
   buyUrl?: string;
 
-  @Prop({ default: null, ref: User.name, required: true })
+  @Prop({ default: null, ref: User.name })
   userRef?: mongoose.Schema.Types.ObjectId;
 
   /***********

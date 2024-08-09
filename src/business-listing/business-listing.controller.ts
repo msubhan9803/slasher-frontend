@@ -80,9 +80,9 @@ export class BusinessListingController {
         createBusienssListingDto.trailerLinks ?? '{}',
       );
 
-      const listingFile = files[0]; // First file is always business logo
-      const coverPhotoFile = files[1]; // Second is always business logo
-      const castFiles = files.slice(2); // Third onwards are cast files
+      const listingFile = files[0]; // First file is listing image or movie / book image
+      const castFiles = files.slice(2); // Third onwards are cast files for listing type === movies
+      const coverPhotoFile = files[1]; // Second file will be cover photo for listing types !== movies / books
 
       const listingStorageLocation = await this.storeFile(
         'business-listing',
@@ -113,6 +113,10 @@ export class BusinessListingController {
         durationInMinutes,
         link,
         isActive,
+        email,
+        phoneNumber,
+        address,
+        websiteLink,
       } = createBusienssListingDto;
 
       let movie = null;
@@ -177,7 +181,11 @@ export class BusinessListingController {
           businessListing.movieRef = movie._id;
           break;
 
-        default:
+          default:
+          businessListing.email = email;
+          businessListing.phoneNumber = phoneNumber;
+          businessListing.address = address;
+          businessListing.websiteLink = websiteLink;
           businessListing.businessLogo = listingStorageLocation;
           businessListing.coverPhoto = await this.storeFile(
             'business-listing',

@@ -2,6 +2,7 @@
 import { Transform } from 'class-transformer';
 import {
   IsBoolean,
+  IsEmail,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -13,6 +14,7 @@ import mongoose from 'mongoose';
 import { BusinessType } from '../../schemas/businessListing/businessListing.enums';
 import { IsMovieFieldsRequired } from '../decorators/is-movie-fields-required.decorator';
 import { IsBookFieldsRequired } from '../decorators/is-book-fields-required.decorator';
+import { IsOtherBusinessCommonFieldsRequired } from '../decorators/is-other-business-common-fields-required.decorator';
 
 export class CreateBusinessListingDto {
   @IsEnum(BusinessType, { message: 'Invalid business type' })
@@ -41,6 +43,27 @@ export class CreateBusinessListingDto {
   isActive?: boolean;
 
   /***********
+   * Fields for other businesses *
+   ***********/
+  @IsOptional()
+  @IsOtherBusinessCommonFieldsRequired({ message: 'Email is required' })
+  @IsEmail({}, { message: 'Invalid email format' })
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  phoneNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  address?: string;
+
+  @IsOptional()
+  @IsOtherBusinessCommonFieldsRequired({ message: 'Website Link is required' })
+  @IsString()
+  websiteLink?: string;
+
+  /***********
    * Fields for books *
    ***********/
   @IsOptional()
@@ -51,7 +74,7 @@ export class CreateBusinessListingDto {
   @IsOptional()
   @IsBookFieldsRequired({ message: 'Page is required' })
   @Transform(({ value }) => parseInt(value, 10), { toClassOnly: true })
-  @IsInt({ message: 'Pages must be an integer' })
+  @IsInt({ message: 'Number of pages is required' })
   pages?: number;
 
   @IsOptional()

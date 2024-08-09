@@ -26,7 +26,7 @@ export class BusinessListing {
   coverPhoto?: string;
 
   @Prop({ required: true })
-  title: string;
+  title?: string;
 
   @Prop({ required: true })
   overview: string;
@@ -39,6 +39,18 @@ export class BusinessListing {
 
   @Prop({ default: null, ref: Movie.name })
   movieRef?: mongoose.Schema.Types.ObjectId;
+
+  @Prop()
+  email?: string;
+
+  @Prop()
+  phoneNumber?: string;
+
+  @Prop()
+  address?: string;
+
+  @Prop()
+  websiteLink?: string;
 
   constructor(options?: Partial<BusinessListing>) {
     if (!options) {

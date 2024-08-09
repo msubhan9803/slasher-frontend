@@ -1,10 +1,10 @@
 import { registerDecorator, ValidationOptions, ValidationArguments } from 'class-validator';
 import { BusinessType } from '../../schemas/businessListing/businessListing.enums';
 
-export function IsBookFieldsRequired(validationOptions?: ValidationOptions) {
+export function IsOtherBusinessCommonFieldsRequired(validationOptions?: ValidationOptions) {
   return function (object: Record<string, any>, propertyName: string) {
     registerDecorator({
-      name: 'IsBookFieldsRequired',
+      name: 'IsOtherBusinessCommonFieldsRequired',
       target: object.constructor,
       propertyName,
       options: validationOptions,
@@ -14,7 +14,7 @@ export function IsBookFieldsRequired(validationOptions?: ValidationOptions) {
           const obj = args.object as Record<string, any>;
           const businessType = obj.businesstype;
 
-          if (businessType === BusinessType.BOOKS) {
+          if (businessType !== BusinessType.BOOKS || businessType !== BusinessType.MOVIES) {
             return value !== null && value !== undefined && value !== '';
           }
           return true;

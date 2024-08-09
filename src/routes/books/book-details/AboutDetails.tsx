@@ -10,7 +10,7 @@ import BooksModal from '../components/BooksModal';
 import BorderButton from '../../../components/ui/BorderButton';
 import CustomRatingText from '../../../components/ui/CustomRatingText';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
-import { BookData, WorthReadingStatus } from '../../../types';
+import { BookData, BookType, WorthReadingStatus } from '../../../types';
 import ShareLinksModal from '../../../components/ui/ShareLinksModal';
 import { urlForBook } from '../../../utils/url-utils';
 import {
@@ -137,12 +137,10 @@ function AboutDetails({
 
   const hasRating = bookData.userData !== null && bookData.userData?.rating !== 0;
   const hasGoreFactor = bookData.userData !== null && bookData.userData?.goreFactorRating !== 0;
-  const to = generateAmazonAffiliateLinkForBook(
-    bookData.name,
-    bookData.author?.join(', '),
-  );
+  const to = bookData.type === BookType.UserDefined ? bookData.buyUrl : generateAmazonAffiliateLinkForBook(bookData.name, bookData.author?.join(', '));
   const isbn = getPrefferedISBN(bookData.isbnNumber);
   const year = getYearFromDate(bookData.publishDate);
+
   return (
     <AboutBookDetails className="text-xl-start pt-4">
       <Row className="justify-content-center mt-2 mt-xl-0">

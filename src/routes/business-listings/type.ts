@@ -1,4 +1,4 @@
-export type ListingType = 'movies' | 'books';
+export type ListingType = 'movies' | 'books' | 'podcaster' | 'musician' | 'artist';
 
 export enum BusinessType {
   VENDOR = 'vendor',
@@ -27,11 +27,16 @@ export type BusinessListing = {
   businesstype: BusinessType | null | string;
   listingType: string | null;
   image: File | null | undefined | string;
-  title: string | null;
-  overview: string | null;
+  coverPhoto?: File | null | undefined | string;
+  email?: string;
+  title?: string | null;
+  overview?: string | null;
   link: string | null;
   isActive: boolean | null;
   yearReleased?: number | null;
+  address?: string;
+  phoneNumber?: string | null;
+  websiteLink?: string | null;
 
   author?: string | null;
   pages?: number | null;

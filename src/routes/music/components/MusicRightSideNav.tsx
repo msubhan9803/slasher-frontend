@@ -4,11 +4,14 @@ import AdvertisementBox from '../../../components/layout/right-sidebar-wrapper/c
 import FriendRequests from '../../../components/layout/right-sidebar-wrapper/components/FriendRequests';
 import NotificationSetting from '../../../components/layout/right-sidebar-wrapper/components/NotificationSetting';
 import RecentMessages from '../../../components/layout/right-sidebar-wrapper/components/RecentMessages';
+import CreateBusinessListingButton from '../../../components/layout/right-sidebar-wrapper/components/CreateBusinessListingButton';
 
 function MusicRightSideNav() {
   const params = useParams();
   return (
     <>
+      <CreateBusinessListingButton />
+
       {params.id && params.summary && <NotificationSetting />}
       <AdvertisementBox />
       <RecentMessages />

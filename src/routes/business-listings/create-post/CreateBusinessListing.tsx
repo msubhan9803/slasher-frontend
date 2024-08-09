@@ -1,14 +1,13 @@
 /* eslint-disable max-lines */
 import { useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import {
-  useForm, useFieldArray, SubmitHandler,
-} from 'react-hook-form';
+import { useForm, useFieldArray, SubmitHandler } from 'react-hook-form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { Col, Row } from 'react-bootstrap';
+import { Col, Container, Row } from 'react-bootstrap';
 import CustomText from '../../../components/ui/CustomText';
 import RoundButton from '../../../components/ui/RoundButton';
+import Email from '../../../components/ui/BusinessListing/Email';
 import ListingTitle from '../../../components/ui/BusinessListing/ListingTitle';
 import ListingOverview from '../../../components/ui/BusinessListing/ListingOverview';
 import ListingPromotionDetails from '../../../components/ui/BusinessListing/ListingPromotionDetails';
@@ -29,14 +28,20 @@ import Pages from '../../../components/ui/BusinessListing/Books/Pages';
 import Isbn from '../../../components/ui/BusinessListing/Books/Isbn';
 import useCreateListing from '../../../hooks/businessListing/useCreateListing';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import WebsiteLink from '../../../components/ui/BusinessListing/WebsiteLink';
+import Address from '../../../components/ui/BusinessListing/Address';
+import PhoneNumber from '../../../components/ui/BusinessListing/PhoneNumber';
+import CoverPhoto from '../../../components/ui/BusinessListing/CoverPhoto';
+import Switch from '../../../components/ui/Switch';
 
 function CreateBusinessListing() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const listingType: ListingType = (searchParams.get('type') as ListingType);
+  const listingType: ListingType = searchParams.get('type') as ListingType;
   const listingConfig = ListingConfig[listingType];
   const [, setImageUpload] = useState<File | null | undefined>();
   const [charCount, setCharCount] = useState<number>(0);
+  const [hasPhysicalPresence, setHasPhysicalPresence] = useState(false);
 
   const {
     control, register, handleSubmit, setValue, watch,
@@ -46,6 +51,11 @@ function CreateBusinessListing() {
       businesstype: listingType as string,
       listingType: '66a0d7bd5e030b27bc304463',
       image: null,
+      coverPhoto: null,
+      email: '',
+      address: '',
+      websiteLink: '',
+      phoneNumber: '',
       title: null,
       overview: null,
       link: null,
@@ -58,11 +68,13 @@ function CreateBusinessListing() {
       durationInMinutes: null,
       officialRatingReceived: null,
       trailerLinks: null,
-      casts: [{
-        castImage: null,
-        name: '',
-        characterName: '',
-      }],
+      casts: [
+        {
+          castImage: null,
+          name: '',
+          characterName: '',
+        },
+      ],
     },
   });
 
@@ -71,26 +83,59 @@ function CreateBusinessListing() {
   } = useCreateListing();
 
   const image = watch('image');
+  const coverPhoto = watch('coverPhoto');
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'casts',
   });
 
-  const visibilityConfig = useMemo(() => ({
-    yearReleased: ([BusinessType.MOVIES, BusinessType.BOOKS] as string[]).includes(listingType),
-    countryOfOrigin: ([BusinessType.MOVIES] as string[]).includes(listingType),
-    durationInMinutes: ([BusinessType.MOVIES] as string[]).includes(listingType),
-    officialRatingReceived: ([BusinessType.MOVIES] as string[]).includes(listingType),
-    trailerLinks: ([BusinessType.MOVIES] as string[]).includes(listingType),
-    casts: ([BusinessType.MOVIES] as string[]).includes(listingType),
+  const visibilityConfig = useMemo(
+    () => ({
+      title: true,
+      overview: true,
 
-    link: ([BusinessType.MOVIES, BusinessType.BOOKS] as string[]).includes(listingType),
+      email: !([BusinessType.MOVIES, BusinessType.BOOKS] as string[]).includes(
+        listingType,
+      ),
+      websiteLink: !(
+        [BusinessType.MOVIES, BusinessType.BOOKS] as string[]
+      ).includes(listingType),
+      address: !(
+        [BusinessType.MOVIES, BusinessType.BOOKS] as string[]
+      ).includes(listingType),
+      phoneNumber: !(
+        [BusinessType.MOVIES, BusinessType.BOOKS] as string[]
+      ).includes(listingType),
+      coverPhoto: !(
+        [BusinessType.MOVIES, BusinessType.BOOKS] as string[]
+      ).includes(listingType),
 
-    author: ([BusinessType.BOOKS] as string[]).includes(listingType),
-    pages: ([BusinessType.BOOKS] as string[]).includes(listingType),
-    isbn: ([BusinessType.BOOKS] as string[]).includes(listingType),
-  }), [listingType]);
+      yearReleased: (
+        [BusinessType.MOVIES, BusinessType.BOOKS] as string[]
+      ).includes(listingType),
+      countryOfOrigin: ([BusinessType.MOVIES] as string[]).includes(
+        listingType,
+      ),
+      durationInMinutes: ([BusinessType.MOVIES] as string[]).includes(
+        listingType,
+      ),
+      officialRatingReceived: ([BusinessType.MOVIES] as string[]).includes(
+        listingType,
+      ),
+      trailerLinks: ([BusinessType.MOVIES] as string[]).includes(listingType),
+      casts: ([BusinessType.MOVIES] as string[]).includes(listingType),
+
+      link: ([BusinessType.MOVIES, BusinessType.BOOKS] as string[]).includes(
+        listingType,
+      ),
+
+      author: ([BusinessType.BOOKS] as string[]).includes(listingType),
+      pages: ([BusinessType.BOOKS] as string[]).includes(listingType),
+      isbn: ([BusinessType.BOOKS] as string[]).includes(listingType),
+    }),
+    [listingType],
+  );
 
   const onSubmit: SubmitHandler<BusinessListing> = async (data) => {
     try {
@@ -118,9 +163,7 @@ function CreateBusinessListing() {
 
       <div className="bg-dark px-md-4 py-4 py-md-5 rounded-3 bg-mobile-transparent">
         <div className="d-flex justify-content-between">
-          <h2 className="mb-0 fw-bold">
-            {listingConfig.title}
-          </h2>
+          <h2 className="mb-0 fw-bold">{listingConfig.title}</h2>
         </div>
         <div className="my-3">
           <CustomText
@@ -138,28 +181,124 @@ function CreateBusinessListing() {
         <ListingPromotionDetails noteList={listingConfig.noteList} />
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          <ListingImage image={image} setValue={setValue} />
+          <Row className="my-4">
+            <Col md={6} lg={12} xl={6}>
+              <div className="d-block d-md-flex align-items-center">
+                <ListingImage image={image} setValue={setValue} />
+              </div>
+            </Col>
+
+            {
+              !([BusinessType.MOVIES, BusinessType.BOOKS] as string[]).includes(listingType) && (
+                <Col md={6} lg={12} xl={6} className="mt-5 mt-md-0 mt-lg-5 mt-xl-0">
+                  <div className="d-block d-md-flex align-items-center">
+                    <CoverPhoto image={coverPhoto} setValue={setValue} />
+                  </div>
+                </Col>
+              )
+            }
+          </Row>
 
           <Row>
-            <ListingTitle name="title" register={register} />
+            <Email
+              name="email"
+              register={register}
+              isVisible={visibilityConfig.email}
+            />
+            <PhoneNumber
+              name="phoneNumber"
+              register={register}
+              isVisible={visibilityConfig.phoneNumber}
+            />
+
+            <div className="d-block d-md-flex align-items-center my-2">
+              Do you have physical address?
+
+              <Switch
+                id="listingAddressSwitch"
+                className="ms-0 ms-md-3"
+                isChecked={hasPhysicalPresence}
+                onSwitchToggle={() => setHasPhysicalPresence(!hasPhysicalPresence)}
+              />
+            </div>
+
+            {
+              hasPhysicalPresence && (
+                <Address
+                  name="address"
+                  register={register}
+                  isVisible={visibilityConfig.address}
+                />
+              )
+            }
+
+            <WebsiteLink
+              name="websiteLink"
+              register={register}
+              isVisible={visibilityConfig.websiteLink}
+            />
+
+            <ListingTitle
+              name="title"
+              register={register}
+              isVisible={visibilityConfig.title}
+            />
             <ListingOverview
               name="overview"
               register={register}
               charCount={charCount}
+              isVisible={visibilityConfig.overview}
             />
 
-            <YearReleased name="yearReleased" register={register} isVisible={visibilityConfig.yearReleased} />
+            <YearReleased
+              name="yearReleased"
+              register={register}
+              isVisible={visibilityConfig.yearReleased}
+            />
 
-            <CountryOfOrigin name="countryOfOrigin" register={register} isVisible={visibilityConfig.countryOfOrigin} />
-            <MovieDuration name="durationInMinutes" register={register} isVisible={visibilityConfig.durationInMinutes} />
-            <MovieRating name="officialRatingReceived" register={register} isVisible={visibilityConfig.officialRatingReceived} />
+            <CountryOfOrigin
+              name="countryOfOrigin"
+              register={register}
+              isVisible={visibilityConfig.countryOfOrigin}
+            />
+            <MovieDuration
+              name="durationInMinutes"
+              register={register}
+              isVisible={visibilityConfig.durationInMinutes}
+            />
+            <MovieRating
+              name="officialRatingReceived"
+              register={register}
+              isVisible={visibilityConfig.officialRatingReceived}
+            />
 
-            <Author name="author" register={register} isVisible={visibilityConfig.author} />
-            <Pages name="pages" register={register} isVisible={visibilityConfig.pages} />
-            <Isbn name="isbn" register={register} isVisible={visibilityConfig.isbn} />
+            <Author
+              name="author"
+              register={register}
+              isVisible={visibilityConfig.author}
+            />
+            <Pages
+              name="pages"
+              register={register}
+              isVisible={visibilityConfig.pages}
+            />
+            <Isbn
+              name="isbn"
+              register={register}
+              isVisible={visibilityConfig.isbn}
+            />
 
-            <Trailers name="trailerLinks" register={register} isVisible={visibilityConfig.trailerLinks} />
-            <ListingLink text={listingConfig.linkFieldLabel} name="link" register={register} isVisible={visibilityConfig.link} />
+            <Trailers
+              name="trailerLinks"
+              register={register}
+              isVisible={visibilityConfig.trailerLinks}
+            />
+            <ListingLink
+              text={listingConfig.linkFieldLabel}
+              name="link"
+              register={register}
+              isVisible={visibilityConfig.link}
+            />
 
             <Casts
               setValue={setValue}

@@ -11,6 +11,7 @@ import { getPodcasts } from '../../api/podcasts';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
+import CreateBusinessListingButton from '../../components/layout/right-sidebar-wrapper/components/CreateBusinessListingButton';
 
 function BasicPodcastsIndex() {
   const { podcasts, lastRetrievalTime } = useAppSelector<any>((state) => state.podcasts);
@@ -38,6 +39,10 @@ function BasicPodcastsIndex() {
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
+        <div className="d-lg-none">
+          <CreateBusinessListingButton />
+        </div>
+
         <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
           {errorMessage && errorMessage.length > 0 && (
             <div className="mt-3 text-start">

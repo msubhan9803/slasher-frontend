@@ -8,7 +8,7 @@ type Props = {
   isVisible: boolean;
 };
 
-export default function ListingTitle({ name, register, isVisible }: Props) {
+export default function Email({ name, register, isVisible }: Props) {
   if (!isVisible) {
     return null;
   }
@@ -17,8 +17,8 @@ export default function ListingTitle({ name, register, isVisible }: Props) {
     <Col xs="12" className="my-2">
       <Form.Control
         {...register(name)}
-        type="text"
-        placeholder="Title"
+        type="email"
+        placeholder="Email"
         className="fs-4"
       />
     </Col>

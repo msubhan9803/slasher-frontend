@@ -22,6 +22,10 @@ const Container = styled(Row)`
     justify-content: center;
     flex-direction: column;
   }
+
+  @media (max-width: 768px) and (min-width: 979px) {
+    max-width: 100% !important;
+  }
 `;
 
 const UploadCol = styled(Col)`
@@ -47,7 +51,7 @@ const InfoCol = styled(Col)`
   }
 `;
 
-export default function ListingImage({ setValue, image }: Props) {
+export default function CoverPhoto({ setValue, image }: Props) {
   return (
     <div className="d-block d-md-flex align-items-center">
       <PhotoUploadInput
@@ -56,14 +60,14 @@ export default function ListingImage({ setValue, image }: Props) {
         variant="outline"
         defaultPhotoUrl={image as string}
         onChange={(file) => {
-          setValue('image', file);
+          setValue('coverPhoto', file);
         }}
       />
       <div className="text-center text-md-start mt-4 mt-md-0">
-        <h1 className="h3 mb-2 fw-bold">Upload cover art</h1>
+        <h1 className="h3 mb-2 fw-bold">Upload cover photo</h1>
         <div className="d-block justify-content-center">
           <p className="fs-5 text-light mb-0">
-            Recommended size: 180x180 pixels
+            Recommended size: 830x320 pixels
           </p>
           <p className="fs-5 text-light mb-0">
             (jpg, png)
@@ -80,14 +84,14 @@ export default function ListingImage({ setValue, image }: Props) {
           height="9.688rem"
           variant="outline"
           onChange={(file) => {
-            setValue('image', file);
+            setValue('coverPhoto', file);
           }}
           defaultPhotoUrl={image as string}
         />
       </UploadCol>
 
       <InfoCol xs={12} sm={7} lg="auto">
-        <h3 className="mb-1 mt-3">Upload cover art</h3>
+        <h3 className="mb-1 mt-3">Upload cover photo</h3>
         <CustomText
           text="Recommended size:"
           textColor="#A6A6A6"

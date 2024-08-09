@@ -27,12 +27,48 @@ const config: Config = {
       'Add your book and reach horror fans on Slasher more easily!',
     shortTitle: 'Add your book',
     noteList: [
-      'A listing in the movie database with your cover art, description, trailers, and more.',
+      'A listing in the book database with your cover art, description, trailers, and more.',
       'A second listing in the Slasher Indie section.',
       'Create posts and updates about your book that also appear on the timeline.',
       'People on Slasher can follow your book and get notifIed of new posts.',
     ],
     linkFieldLabel: 'Link to buy book',
+  },
+  podcaster: {
+    title:
+      'Add your podcast and reach horror fans on Slasher more easily!',
+    shortTitle: 'Add your podcast',
+    noteList: [
+      'A listing in the podcast database with your cover art, description, trailers, and more.',
+      'A second listing in the Slasher Indie section.',
+      'Create posts and updates about your book that also appear on the timeline.',
+      'People on Slasher can follow your book and get notifIed of new posts.',
+    ],
+    linkFieldLabel: 'Link to buy podcast',
+  },
+  musician: {
+    title:
+      'Add your music and reach horror fans on Slasher more easily!',
+    shortTitle: 'Add your music',
+    noteList: [
+      'A listing in the music database with your cover art, description, trailers, and more.',
+      'A second listing in the Slasher Indie section.',
+      'Create posts and updates about your book that also appear on the timeline.',
+      'People on Slasher can follow your book and get notifIed of new posts.',
+    ],
+    linkFieldLabel: 'Link to buy music',
+  },
+  artist: {
+    title:
+      'Add your art and reach horror fans on Slasher more easily!',
+    shortTitle: 'Add your art',
+    noteList: [
+      'A listing in the art database with your cover art, description, trailers, and more.',
+      'A second listing in the Slasher Indie section.',
+      'Create posts and updates about your book that also appear on the timeline.',
+      'People on Slasher can follow your book and get notifIed of new posts.',
+    ],
+    linkFieldLabel: 'Link to buy art',
   },
 };
 

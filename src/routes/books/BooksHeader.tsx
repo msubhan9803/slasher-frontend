@@ -48,12 +48,10 @@ function BooksHeader({
           <CustomSelect value={sortVal} onChange={sort} options={sortoptions} placeholder="Sort..." type="sort" />
           {/* <CustomSelect options={sortoptions} type="sort" /> */}
         </Col>
-        {enableDevFeatures
-          && (
-          <Col md={4} className="order-first order-md-last d-lg-none w-100">
-            <CreateBusinessListingButton />
-          </Col>
-          )}
+
+        <Col md={4} className="order-first order-md-last d-lg-none w-100">
+          <CreateBusinessListingButton />
+        </Col>
       </Row>
       {showKeys
         && (

@@ -19,7 +19,7 @@ import RoundButton from '../../../components/ui/RoundButton';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
 import BookReviews from '../book-reviews/BookReviews';
 import { enableDevFeatures } from '../../../env';
-import { BookData } from '../../../types';
+import { BookData, BookType } from '../../../types';
 import { addBookUserStatus, deleteBookUserStatus, getBooksIdList } from '../../../api/books';
 import BookReviewDetails from '../book-reviews/BookReviewDetails';
 import { generateAmazonAffiliateLinkForBook } from '../../../utils/text-utils';
@@ -154,7 +154,7 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
     updateBookIconList();
   }, [bookIdList]);
 
-  const to = generateAmazonAffiliateLinkForBook(bookData.name, bookData.author?.join(', '));
+  const to = bookData.type === BookType.UserDefined ? bookData.buyUrl : generateAmazonAffiliateLinkForBook(bookData.name, bookData.author?.join(', '));
 
   return (
     <div>

@@ -11,6 +11,7 @@ import { setArtists } from '../../redux/slices/artistsSlice';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
+import CreateBusinessListingButton from '../../components/layout/right-sidebar-wrapper/components/CreateBusinessListingButton';
 
 function BasicArtistsIndex() {
   const [loadingPosts, setLoadingPosts] = useState<boolean>(true);
@@ -38,6 +39,10 @@ function BasicArtistsIndex() {
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
+        <div className="d-lg-none">
+          <CreateBusinessListingButton />
+        </div>
+
         <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
           {errorMessage && errorMessage.length > 0 && (
             <div className="mt-3 text-start">

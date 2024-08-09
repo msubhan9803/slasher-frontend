@@ -337,6 +337,12 @@ export enum PostType {
   MovieReview = 3,
   BookReview = 4,
 }
+export enum BookType {
+  Free = 0,
+  OpenLibrary = 1,
+  UserDefined = 2,
+}
+
 export interface MovieData {
   _id: string;
   movieDBId?: number;
@@ -392,6 +398,8 @@ export interface BookData {
   },
   // to check movieData state update
   isUpdated?: boolean
+  type: BookType;
+  buyUrl?: string;
 }
 
 export type LocationPointType = {

@@ -151,7 +151,10 @@ function AboutDetails({
   const handleShowShareLinks = () => setShowShareLinks(true);
   const hasRating = movieData.userData !== null && movieData.userData?.rating !== 0;
   const hasGoreFactor = movieData.userData !== null && movieData.userData?.goreFactorRating !== 0;
-  const to = generateAmazonAffiliateLinkForMovie(aboutMovieDetail?.mainData?.title);
+  // const to = generateAmazonAffiliateLinkForMovie(aboutMovieDetail?.mainData?.title);
+  const to = aboutMovieDetail?.mainData?.watchUrl
+    ? aboutMovieDetail?.mainData?.watchUrl
+    : generateAmazonAffiliateLinkForMovie(aboutMovieDetail?.mainData?.title);
   const directors: string = aboutMovieDetail.crew
     ?.filter((crewMember) => crewMember?.job?.toLowerCase() === 'director')
     ?.map((director) => director?.name)

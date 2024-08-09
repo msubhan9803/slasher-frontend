@@ -15,7 +15,7 @@ export default function Pages({ name, register, isVisible }: Props) {
 
   return (
     <Col xs="12" md="6" className="my-2">
-      <Form.Control {...register(name)} type="number" placeholder="Pages" className="fs-4" />
+      <Form.Control {...register(name)} type="number" placeholder="Number of pages" className="fs-4" />
     </Col>
   );
 }

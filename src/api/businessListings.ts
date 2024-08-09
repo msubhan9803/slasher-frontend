@@ -35,6 +35,7 @@ function processCasts(casts: Cast[] | null): string | null {
 }
 
 export async function createListing(listing: BusinessListing) {
+  console.log('🌺🌺🌺🌺 listing: ', listing);
   const token = await getSessionToken();
   const headers = {
     'Content-Type': 'multipart/form-data',
@@ -64,13 +65,24 @@ export async function createListing(listing: BusinessListing) {
     // Stringify and append movie-specific complex fields
     formData.append('trailerLinks', processTrailerLinks(listing.trailerLinks) ?? '');
     formData.append('casts', processCasts(listing.casts as Cast[]) ?? '');
+  } else {
+    formData.append('email', listing.email ?? '');
+    formData.append('phoneNumber', listing.phoneNumber ?? '');
+    formData.append('address', listing.address ?? '');
+    formData.append('websiteLink', listing.websiteLink ?? '');
   }
 
-  // Handle file uploads
+  // Listing Image / Movie / Book Images
   if (listing.image) {
     formData.append('files', listing.image as File);
   }
 
+  // Applicable for listings other than books / movies
+  if (listing.coverPhoto) {
+    formData.append('files', listing.coverPhoto as File);
+  }
+
+  // Note: Only added if type is movie and first image is movie cover photo
   if (listing.businesstype === BusinessType.MOVIES && listing.casts) {
     listing.casts.forEach((cast: Cast) => {
       if (cast.castImage && !(typeof cast.castImage === 'string')) {

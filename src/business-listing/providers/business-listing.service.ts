@@ -22,8 +22,12 @@ export class BusinessListingService {
     return this.businessListingTypeModel.create(createBusinessListingDto);
   }
 
-  async getAllListings(): Promise<BusinessListing[]> {
-    return this.businessListingModel.find().exec();
+  async getAllListings(businesstype: string): Promise<BusinessListing[]> {
+    const getAllListingsQuery: any = {
+      businesstype,
+    };
+
+    return this.businessListingModel.find(getAllListingsQuery).exec();
   }
 
   async getAllListingTypes(): Promise<BusinessListingType[]> {

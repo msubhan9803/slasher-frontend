@@ -6,9 +6,11 @@ import {
   HttpException,
   HttpStatus,
   Post,
+  Query,
   Req,
   UploadedFiles,
   UseInterceptors,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config/dist/config.service';
 import {
@@ -16,6 +18,7 @@ import {
   MAXIMUM_IMAGE_UPLOAD_SIZE,
   MAX_ALLOWED_UPLOAD_FILE_FOR_BUSINESS_LISTING,
 } from '../constants';
+import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 import { StorageLocationService } from '../global/providers/storage-location.service';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
@@ -40,6 +43,7 @@ import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-
 import { BusinessListingService } from './providers/business-listing.service';
 import { CreateBusinessListingDto } from './dto/create-business-listing.dto';
 import { CreateBusinessListingTypeDto } from './dto/create-business-listing-type.dto';
+import { GetAllListingsDto } from './dto/get-all-listings.';
 
 @Controller({ path: 'business-listing', version: ['1'] })
 export class BusinessListingController {
@@ -229,7 +233,21 @@ export class BusinessListingController {
   @Get('get-all-listing-types')
   async getAllListingType() {
     try {
-      const businessListings = await this.businessListingService.getAllListingTypes();
+      const businessListingTypes = await this.businessListingService.getAllListingTypes();
+
+      return businessListingTypes;
+    } catch (error) {
+      throw new HttpException(
+        'Unable to create listing type',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  @Get('get-all-listings')
+  async getAllListings(@Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: GetAllListingsDto) {
+    try {
+      const businessListings = await this.businessListingService.getAllListings(query.businesstype);
 
       return businessListings;
     } catch (error) {

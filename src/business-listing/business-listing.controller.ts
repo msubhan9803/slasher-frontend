@@ -244,6 +244,7 @@ export class BusinessListingController {
     }
   }
 
+  @TransformImageUrls('$[*].businessLogo')
   @Get('get-all-listings')
   async getAllListings(@Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: GetAllListingsDto) {
     try {

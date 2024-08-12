@@ -9,7 +9,7 @@ export default function useListings(businesstype: string) {
 
   const fetchBusinessListings = async () => {
     setLoadingListings(true);
-    setListingError(null); // Reset error state before fetching
+    setListingError(null);
 
     try {
       const { data } = await fetchListings({ businesstype });

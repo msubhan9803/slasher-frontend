@@ -1,0 +1,153 @@
+/* eslint-disable max-len */
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import styled from 'styled-components';
+import { Row, Col } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import useListingDetail from '../../../hooks/businessListing/useListingDetail';
+import defaultCoverImage from '../../../images/default-cover-image.jpg';
+import UserCircleImage from '../../../components/ui/UserCircleImage';
+import LoadingIndicator from '../../../components/ui/LoadingIndicator';
+import { StyledBorder } from '../../../components/ui/StyledBorder';
+
+const ProfileCoverImage = styled.img`
+  width: 100%;
+  object-fit: cover;
+`;
+
+const CustomCol = styled(Col)`
+  margin-top: -3.938rem;
+`;
+
+const AboutProfileImage = styled(UserCircleImage)`
+  border: 0.25rem solid #1B1B1B;
+`;
+
+const InfoContainer = styled.div`
+  font-size: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 8px;
+`;
+
+const InfoItem = styled.h3`
+  font-weight: 300;
+  color: #fff;
+`;
+
+const ReadMoreLink = styled.span`
+  cursor: pointer;
+  text-decoration: underline;
+`;
+
+export default function BusinessListingDetail() {
+  const params = useParams();
+  const [isExpanded, setIsExpanded] = useState(false);
+  const { listingDetail, loadingListingDetail, listingDetailError } = useListingDetail(params.id as string);
+
+  const toggleReadMore = () => {
+    setIsExpanded(!isExpanded);
+  };
+
+  useEffect(() => {
+    console.log('listingDetail: ', listingDetail);
+  }, [listingDetail]);
+
+  if (loadingListingDetail) {
+    return <LoadingIndicator />;
+  }
+
+  return (
+    <div className="bg-dark bg-mobile-transparent rounded mb-4">
+      <div className="p-md-4 g-0">
+        <div>
+          <ProfileCoverImage
+            src={listingDetail?.coverPhoto as string || defaultCoverImage}
+            alt="Cover picture"
+            className="mt-3 mt-md-0 w-100 rounded"
+            onClick={() => {}}
+          />
+        </div>
+
+        <Row className="d-flex ps-md-4 md:ps-md-2 lg:ps-md-4">
+          <CustomCol
+            md={3}
+            lg={12}
+            xl="auto"
+            className="text-center text-lg-center text-xl-start  position-relative"
+          >
+            <AboutProfileImage
+              size="11.25rem"
+              src={listingDetail?.businessLogo}
+              alt="user picture"
+              onClick={() => {}}
+            />
+          </CustomCol>
+
+          <Col className="w-100 mt-md-4">
+            <Row className="d-flex justify-content-between">
+              <Col
+                xs={12}
+                md={6}
+                lg={12}
+                xl={6}
+                className="text-center text-md-start text-lg-center text-xl-start mt-4 mt-md-0 ps-md-0"
+              >
+                <h1 className="mb-md-0 text-break">{listingDetail?.title}</h1>
+
+                <InfoContainer>
+                  <InfoItem>
+                    <FontAwesomeIcon icon={solid('globe')} className="me-2 text-primary align-self-center" />
+                    {listingDetail?.websiteLink}
+                  </InfoItem>
+                  <InfoItem>
+                    <FontAwesomeIcon icon={solid('envelope')} className="me-2 text-primary align-self-center" />
+                    {listingDetail?.email}
+                  </InfoItem>
+                  <InfoItem>
+                    <FontAwesomeIcon icon={solid('location-dot')} className="me-2 text-primary align-self-center" />
+                    {listingDetail?.address}
+                  </InfoItem>
+                  <InfoItem>
+                    <FontAwesomeIcon icon={solid('phone')} className="me-2 text-primary align-self-center" />
+                    {listingDetail?.phoneNumber}
+                  </InfoItem>
+                </InfoContainer>
+              </Col>
+              {/* <Col xs={12} md={6} lg={12} xl={7}>
+                {isSelfUserProfile && (
+                  <div className="d-flex justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
+                    <RoundButton
+                      className="btn btn-form bg-black rounded-5 d-flex px-4"
+                      onClick={() => navigate(`/${userName}/edit`)}
+                    >
+                      <FontAwesomeIcon
+                        icon={solid('pen')}
+                        className="me-2 align-self-center"
+                      />
+                      Edit profile
+                    </RoundButton>
+                  </div>
+                )}
+              </Col> */}
+            </Row>
+          </Col>
+        </Row>
+
+        <StyledBorder className="d-md-block d-none" />
+
+        <h1 className="mb-md-0 text-break fs-1 my-4">About</h1>
+        <p className="text-gray-100 my-2">
+          {isExpanded ? listingDetail?.overview : `${listingDetail?.overview?.substring(0, 300)}...`}
+          {listingDetail?.overview && listingDetail?.overview?.length > 300 && (
+            <ReadMoreLink className="text-primary" onClick={toggleReadMore}>
+              {isExpanded ? ' Read less' : ' Read more'}
+            </ReadMoreLink>
+          )}
+        </p>
+      </div>
+    </div>
+  );
+}

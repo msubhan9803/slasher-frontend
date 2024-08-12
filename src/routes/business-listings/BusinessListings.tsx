@@ -8,6 +8,7 @@ import {
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
+import BusinessListingDetail from './detail/BusinessListingDetail';
 
 function BusinessListings() {
   return (
@@ -15,6 +16,7 @@ function BusinessListings() {
       <ContentPageWrapper>
         <Routes>
           <Route path="create" element={<CreateBusinessListing />} />
+          <Route path="detail/:id" element={<BusinessListingDetail />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <SticyBannerAdSpaceCompensation />

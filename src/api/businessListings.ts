@@ -125,3 +125,15 @@ export async function fetchListings(paramObj: {
     { headers },
   );
 }
+
+export async function fetchListingDetail(listingId: string) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.get(
+    `${apiUrl}/api/v1/business-listing/get-listing-detail/${listingId}`,
+    { headers },
+  );
+}

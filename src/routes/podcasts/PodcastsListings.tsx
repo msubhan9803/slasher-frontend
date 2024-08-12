@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Col, Container, Row } from 'react-bootstrap';
 import Card from 'react-bootstrap/Card';
 import styled from 'styled-components';
@@ -20,6 +21,17 @@ const StyledCardText = styled(Card.Text)`
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: #e0e0e0; /* lighter white tone */
+`;
+
+const CardTitle = styled(Card.Title)`
+  font-weight: bold;
+  color: #ffffff; /* white color */
+`;
+
+const CardLink = styled(Link)`
+  text-decoration: none !important;
+  color: inherit;
 `;
 
 interface BasicPodcastsIndexProps {
@@ -32,14 +44,16 @@ function PodcastsListings({ listings }: BasicPodcastsIndexProps) {
       <Row className="g-3">
         {listings.map((listing: BusinessListing) => (
           <Col xs={6} lg={4} key={listing._id}>
-            <StyledCard bg="transparent">
-              <StyledCardImg variant="top" src={listing.businessLogo} />
+            <CardLink to={`/app/business-listings/detail/${listing._id}`}>
+              <StyledCard bg="transparent">
+                <StyledCardImg variant="top" src={listing.businessLogo} />
 
-              <Card.Body className="px-0 py-10">
-                <Card.Title>{listing.title}</Card.Title>
-                <StyledCardText>{listing.overview}</StyledCardText>
-              </Card.Body>
-            </StyledCard>
+                <Card.Body className="px-0 py-10">
+                  <CardTitle>{listing.title}</CardTitle>
+                  <StyledCardText>{listing.overview}</StyledCardText>
+                </Card.Body>
+              </StyledCard>
+            </CardLink>
           </Col>
         ))}
       </Row>

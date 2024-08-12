@@ -2,6 +2,7 @@ import axios from 'axios';
 import { apiUrl } from '../env';
 import { getSessionToken } from '../utils/session-utils';
 import { BusinessListing, BusinessType, Cast } from '../routes/business-listings/type';
+import { generateParamsString } from '../utils/params-string-generator-utils';
 
 function processTrailerLinks(trailerLinks: any | null): string | null {
   if (trailerLinks === null) {
@@ -100,12 +101,27 @@ export async function createListing(listing: BusinessListing) {
 export async function fetchListingTypes() {
   const token = await getSessionToken();
   const headers = {
-    'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
 
   return axios.get(
     `${apiUrl}/api/v1/business-listing/get-all-listing-types`,
+    { headers },
+  );
+}
+
+export async function fetchListings(paramObj: {
+  businesstype?: string;
+}) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  const paramString = generateParamsString(paramObj) ?? '';
+
+  return axios.get(
+    `${apiUrl}/api/v1/business-listing/get-all-listings?${paramString}`,
     { headers },
   );
 }

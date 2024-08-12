@@ -1,40 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { DateTime } from 'luxon';
-import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
+import {
+  ContentPageWrapper,
+  ContentSidbarWrapper,
+} from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
-import BasicPodcastsList from './BasicPodcastsList';
 import PodcastsSidebar from './components/PodcastsSidebar';
-import { useAppSelector } from '../../redux/hooks';
-import { setPodcasts } from '../../redux/slices/podcastsSlice';
-import { getPodcasts } from '../../api/podcasts';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 import CreateBusinessListingButton from '../../components/layout/right-sidebar-wrapper/components/CreateBusinessListingButton';
+import useListings from '../../hooks/businessListing/useListings';
+import PodcastsListings from './PodcastsListings';
 
 function BasicPodcastsIndex() {
-  const { podcasts, lastRetrievalTime } = useAppSelector<any>((state) => state.podcasts);
-  const [loadingPosts, setLoadingPosts] = useState<boolean>(true);
-  const [errorMessage, setErrorMessage] = useState<string[]>();
-
-  const dispatch = useDispatch();
-  useEffect(() => {
-    if (!lastRetrievalTime
-      || DateTime.now().diff(DateTime.fromISO(lastRetrievalTime)).as('minutes') > 5
-    ) {
-      setLoadingPosts(true);
-      getPodcasts().then((res: any) => {
-        dispatch(setPodcasts(res.data));
-      }).catch((error) => {
-        setErrorMessage(error.response.data.message);
-      }).finally(() => {
-        setLoadingPosts(false);
-      });
-    } else {
-      setLoadingPosts(false);
-    }
-  }, [dispatch, lastRetrievalTime]);
+  const { listings, loadingListings, listingError } = useListings('podcaster');
 
   return (
     <ContentSidbarWrapper>
@@ -44,24 +22,33 @@ function BasicPodcastsIndex() {
         </div>
 
         <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
-          {errorMessage && errorMessage.length > 0 && (
+          {listingError && (
             <div className="mt-3 text-start">
-              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
+              <ErrorMessageList errorMessages={[listingError]} className="m-0" />
             </div>
           )}
+
           <div className="m-2">
-            <h1 className="h2">Podcasts</h1>
-            {loadingPosts && <LoadingIndicator />}
-            {!loadingPosts && podcasts?.length > 0 && (
-              <BasicPodcastsList podcasts={podcasts} />
+            <h1 className="h2 pb-4">Podcasts</h1>
+
+            {loadingListings && <LoadingIndicator />}
+
+            {!loadingListings && listings?.length > 0 && (
+              <PodcastsListings listings={listings} />
             )}
+
             {/* eslint-disable-next-line max-len */}
-            {!loadingPosts && podcasts?.length === 0
-              && (
-              <div className="py-3 fw-bold" style={{ borderBottom: '1px solid var(--stroke-and-line-separator-color)' }}>
+            {!loadingListings && listings?.length === 0 && (
+              <div
+                className="py-3 fw-bold"
+                style={{
+                  borderBottom:
+                    '1px solid var(--stroke-and-line-separator-color)',
+                }}
+              >
                 No Data Found
               </div>
-              )}
+            )}
           </div>
         </div>
         <SticyBannerAdSpaceCompensation />

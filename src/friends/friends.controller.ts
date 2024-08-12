@@ -118,9 +118,10 @@ export class FriendsController {
     const user = getUserFromRequest(request);
 
     await Promise.all([
-      await this.friendsService.cancelFriendshipOrDeclineRequest(user.id, cancelFriendshipOrDeclineRequestDto.userId),
-      await this.userFollowService.deleteFollowDataOnUnfriend(user.id, cancelFriendshipOrDeclineRequestDto.userId),
-      await this.chatService.deletePrivateDirectMessageConversation([
+      this.friendsService.cancelFriendshipOrDeclineRequest(user.id, cancelFriendshipOrDeclineRequestDto.userId),
+      this.userFollowService.deleteFollowDataOnUnfriend(user.id, cancelFriendshipOrDeclineRequestDto.userId),
+      this.userFollowService.deleteFollowDataOnUnfriend(user.id, cancelFriendshipOrDeclineRequestDto.userId),
+      this.chatService.deletePrivateDirectMessageConversation([
         new mongoose.Types.ObjectId(user.id),
         new mongoose.Types.ObjectId(cancelFriendshipOrDeclineRequestDto.userId),
       ]),

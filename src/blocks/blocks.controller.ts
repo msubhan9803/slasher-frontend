@@ -14,11 +14,13 @@ import { BlocksLimitOffSetDto } from './dto/blocks-limit-offset.dto';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { FriendRequestReaction } from '../schemas/friend/friend.enums';
 import { FriendsGateway } from '../friends/providers/friends.gateway';
+import { UserFollowService } from '../user-follow/providers/userFollow.service';
 
 @Controller({ path: 'blocks', version: ['1'] }) export class BlocksController {
   constructor(
     private readonly blocksService: BlocksService,
     private readonly friendsService: FriendsService,
+    private readonly userFollowService: UserFollowService,
     private readonly chatService: ChatService,
     private friendsGateway: FriendsGateway,
 
@@ -35,6 +37,7 @@ import { FriendsGateway } from '../friends/providers/friends.gateway';
     await Promise.all([
       this.blocksService.createBlock(user.id, createBlockDto.userId),
       this.friendsService.cancelFriendshipOrDeclineRequest(user.id, createBlockDto.userId),
+      this.userFollowService.deleteFollowDataOnUnfriend(user.id, createBlockDto.userId),
       this.chatService.deletePrivateDirectMessageConversations(user.id, createBlockDto.userId),
       this.chatService.deletePrivateDirectMessageConversation([
         new mongoose.Types.ObjectId(user.id),

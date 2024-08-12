@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 /* eslint-disable max-len */
 import {
   Body,
@@ -5,6 +6,7 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Param,
   Post,
   Query,
   Req,
@@ -44,6 +46,7 @@ import { BusinessListingService } from './providers/business-listing.service';
 import { CreateBusinessListingDto } from './dto/create-business-listing.dto';
 import { CreateBusinessListingTypeDto } from './dto/create-business-listing-type.dto';
 import { GetAllListingsDto } from './dto/get-all-listings.';
+import { ValidateBusinessListingIdDto } from './dto/validate.business-listing-id.dto';
 
 @Controller({ path: 'business-listing', version: ['1'] })
 export class BusinessListingController {
@@ -251,6 +254,21 @@ export class BusinessListingController {
       const businessListings = await this.businessListingService.getAllListings(query.businesstype);
 
       return businessListings;
+    } catch (error) {
+      throw new HttpException(
+        'Unable to create listing type',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  @TransformImageUrls('$.businessLogo', '$.coverPhoto')
+  @Get('get-listing-detail/:id')
+  async getListingDetail(@Param() params: ValidateBusinessListingIdDto) {
+    try {
+      const businessListingDetail = await this.businessListingService.findOne(params.id);
+
+      return businessListingDetail;
     } catch (error) {
       throw new HttpException(
         'Unable to create listing type',

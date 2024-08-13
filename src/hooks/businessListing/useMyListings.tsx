@@ -1,9 +1,17 @@
 import { useEffect, useState } from 'react';
-import { fetchListings } from '../../api/businessListings';
+import { fetchMyListings } from '../../api/businessListings';
 import { BusinessListing } from '../../routes/business-listings/type';
+import { useAppSelector } from '../../redux/hooks';
 
-export default function useListingsByType(businesstype: string) {
-  const [listings, setListings] = useState<BusinessListing[]>([]);
+type MyListingResponse = {
+  books?: BusinessListing[] | null | undefined;
+  movies?: BusinessListing[] | null | undefined;
+  podcaster?: BusinessListing[] | null | undefined;
+};
+
+export default function useMyListings() {
+  const userRef = useAppSelector((state) => state.user.user.id);
+  const [listings, setListings] = useState<MyListingResponse>();
   const [loadingListings, setLoadingListings] = useState<boolean>(true);
   const [listingError, setListingError] = useState<string | null>(null);
 
@@ -12,8 +20,8 @@ export default function useListingsByType(businesstype: string) {
     setListingError(null);
 
     try {
-      const { data } = await fetchListings({ businesstype });
-      setListings(data as BusinessListing[]);
+      const { data } = await fetchMyListings({ userRef: userRef as string });
+      setListings(data as MyListingResponse);
     } catch (err: any) {
       setListingError('Failed to fetch listings');
     } finally {

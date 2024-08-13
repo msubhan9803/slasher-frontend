@@ -1,13 +1,17 @@
-import React from 'react';
 import { useLocation } from 'react-router-dom';
 import RoundButtonLink from '../../../ui/RoundButtonLink';
+import { BusinessType } from '../../../../routes/business-listings/type';
 
-function CreateBusinessListingButton() {
+type Props = {
+  type?: BusinessType;
+};
+
+function CreateBusinessListingButton({ type }: Props) {
   const location = useLocation();
-  const isMoviesPage = location.pathname.includes('movies');
-  const isPodcaster = location.pathname.includes('podcasts');
-  const isMusician = location.pathname.includes('music');
-  const isArtist = location.pathname.includes('art');
+  const isMoviesPage = type === BusinessType.MOVIES ? type : location.pathname.includes('movies');
+  const isPodcaster = type === BusinessType.PODCASTER ? type : location.pathname.includes('podcasts');
+  const isMusician = type === BusinessType.MUSICIAN ? type : location.pathname.includes('music');
+  const isArtist = type === BusinessType.ARTIST ? type : location.pathname.includes('art');
 
   if (isMoviesPage) {
     return (
@@ -67,5 +71,9 @@ function CreateBusinessListingButton() {
     </RoundButtonLink>
   );
 }
+
+CreateBusinessListingButton.defaultProps = {
+  type: undefined,
+};
 
 export default CreateBusinessListingButton;

@@ -26,10 +26,13 @@ function SlasherIndieMovies() {
     )
       .then((res) => {
         const newFilter = res.data;
+        console.log('🌺 newFilter: ', newFilter);
+
         if (search) {
           searchResult = newFilter && newFilter.length > 0
             ? newFilter.filter((src: any) => src.name.toLowerCase().startsWith(search))
             : [];
+
           setFilteredMovies(searchResult);
         } else {
           setFilteredMovies(res.data);

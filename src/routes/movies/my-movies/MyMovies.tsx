@@ -3,6 +3,7 @@ import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import { myMovies } from '../components/MovieList';
 import { MoviesProps } from '../components/MovieProps';
 import MoviesHeader from '../MoviesHeader';
+import MainListingWrapper from '../../../components/ui/MyListings/MainListingWrapper';
 
 function MyMovies() {
   const [showKeys, setShowKeys] = useState(false);
@@ -23,6 +24,7 @@ function MyMovies() {
   useEffect(() => {
     searchData();
   }, [search, searchData]);
+
   return (
     <div>
       <MoviesHeader
@@ -32,11 +34,9 @@ function MyMovies() {
         setSearch={setSearch}
         search={search}
       />
-      <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
-        <div className="m-md-2">
-          <PosterCardList dataList={filteredMovies} />
-        </div>
-      </div>
+      <MainListingWrapper />
+
+      {/* <PosterCardList dataList={filteredMovies} /> */}
     </div>
   );
 }

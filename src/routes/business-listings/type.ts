@@ -1,3 +1,6 @@
+import { BookReviewDataProp } from '../books/components/BookProps';
+import { MovieDataProp } from '../movies/components/MovieProps';
+
 export type ListingType = 'movies' | 'books' | 'podcaster' | 'musician' | 'artist';
 
 export enum BusinessType {
@@ -48,6 +51,9 @@ export type BusinessListing = {
   officialRatingReceived?: string | null;
   trailerLinks?: TrailerLinks | null;
   casts?: Cast[];
+
+  bookRef?: BookReviewDataProp;
+  movieRef?: MovieDataProp;
 };
 
 export type BusinessListingKeys = keyof BusinessListing;

@@ -48,4 +48,5 @@ export interface BookReviewDataProp {
     description: string | null;
     _id: string;
   };
+  _id?: string;
 }

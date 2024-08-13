@@ -126,6 +126,22 @@ export async function fetchListings(paramObj: {
   );
 }
 
+export async function fetchMyListings(paramObj: {
+  userRef?: string;
+}) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  const paramString = generateParamsString(paramObj) ?? '';
+
+  return axios.get(
+    `${apiUrl}/api/v1/business-listing/get-all-my-listings?${paramString}`,
+    { headers },
+  );
+}
+
 export async function fetchListingDetail(listingId: string) {
   const token = await getSessionToken();
   const headers = {

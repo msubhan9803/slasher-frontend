@@ -8,11 +8,11 @@ import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 import CreateBusinessListingButton from '../../components/layout/right-sidebar-wrapper/components/CreateBusinessListingButton';
-import useListings from '../../hooks/businessListing/useListings';
 import PodcastsListings from './PodcastsListings';
+import useListingsByType from '../../hooks/businessListing/useListings';
 
 function BasicPodcastsIndex() {
-  const { listings, loadingListings, listingError } = useListings('podcaster');
+  const { listings, loadingListings, listingError } = useListingsByType('podcaster');
 
   return (
     <ContentSidbarWrapper>

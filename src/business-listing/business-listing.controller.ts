@@ -14,6 +14,7 @@ import {
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { ConfigService } from '@nestjs/config/dist/config.service';
 import {
   UPLOAD_PARAM_NAME_FOR_FILES,
@@ -47,6 +48,7 @@ import { CreateBusinessListingDto } from './dto/create-business-listing.dto';
 import { CreateBusinessListingTypeDto } from './dto/create-business-listing-type.dto';
 import { GetAllListingsDto } from './dto/get-all-listings.';
 import { ValidateBusinessListingIdDto } from './dto/validate.business-listing-id.dto';
+// import { GetAllMyListingsDto } from './dto/get-all-my-listings.';
 
 @Controller({ path: 'business-listing', version: ['1'] })
 export class BusinessListingController {
@@ -254,6 +256,32 @@ export class BusinessListingController {
       const businessListings = await this.businessListingService.getAllListings(query.businesstype);
 
       return businessListings;
+    } catch (error) {
+      throw new HttpException(
+        'Unable to create listing type',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  @TransformImageUrls('$[*].businessLogo', '$.books[*].bookRef.coverImage.image_path', '$.movies[*].movieRef.movieImage')
+  @Get('get-all-my-listings')
+  async getAllMyListings(
+    @Req() request: Request,
+    // @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: GetAllMyListingsDto
+  ) {
+    try {
+      const user = getUserFromRequest(request);
+      const businessListings = await this.businessListingService.getAllMyListings(user.id);
+
+      return businessListings.reduce((acc, listing) => {
+        const type = listing.businesstype;
+        if (!acc[type]) {
+          acc[type] = [];
+        }
+        acc[type].push(listing);
+        return acc;
+      }, {});
     } catch (error) {
       throw new HttpException(
         'Unable to create listing type',

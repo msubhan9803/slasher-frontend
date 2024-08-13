@@ -23,11 +23,27 @@ export class BusinessListingService {
   }
 
   async getAllListings(businesstype: string): Promise<BusinessListing[]> {
-    const getAllListingsQuery: any = {
-      businesstype,
-    };
+    let getAllListingsQuery = {};
+
+    if (businesstype) {
+      getAllListingsQuery = {
+        businesstype,
+      };
+    }
 
     return this.businessListingModel.find(getAllListingsQuery).exec();
+  }
+
+  async getAllMyListings(userRef: string): Promise<BusinessListing[]> {
+    let getAllMyListingsQuery = {};
+
+    if (userRef) {
+      getAllMyListingsQuery = {
+        userRef,
+      };
+    }
+
+    return this.businessListingModel.find(getAllMyListingsQuery).populate('bookRef movieRef').exec();
   }
 
   async getAllListingTypes(): Promise<BusinessListingType[]> {
@@ -35,7 +51,7 @@ export class BusinessListingService {
   }
 
   async findOne(id: string): Promise<BusinessListing> {
-    const businessListing = await this.businessListingModel.findById(id).exec();
+    const businessListing = await this.businessListingModel.findById(id).populate('bookRef movieRef').exec();
     if (!businessListing) {
       throw new NotFoundException(`Business listing with ID ${id} not found`);
     }

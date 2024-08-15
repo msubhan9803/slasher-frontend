@@ -3,6 +3,7 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Card } from 'react-bootstrap';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import LikeIconButton from './LikeIconButton';
 import { WorthWatchingStatus } from '../../../types';
@@ -16,11 +17,14 @@ interface PosterProps {
   rating?: number;
   poster?: string;
   deactivate?: boolean;
+  editUrl?: string;
 }
 interface Props {
   type?: string;
 }
 const PosterCardStyle = styled(Card) <Props>`
+  position: relative;
+
   .poster {
     img {
       // ${(props) => props.type === 'book' && 'width:9.563rem !important'} ;
@@ -67,12 +71,24 @@ const StyledPoster = styled.div`
     box-shadow: 0 0 0 1px var(--poster-border-color);
   }
 `;
+const EditIcon = styled(Link)`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: #fff;
+  font-size: 1.5rem;
+`;
 
 function PosterCard({
-  type, name, poster, year, worthWatching, rating, deactivate,
+  type, name, poster, year, worthWatching, rating, deactivate, editUrl,
 }: PosterProps) {
   return (
     <PosterCardStyle className="bg-transparent border-0" type={type}>
+      {editUrl && (
+      <EditIcon to={editUrl}>
+        <FontAwesomeIcon icon={solid('pencil-alt')} />
+      </EditIcon>
+      )}
       <div className="poster">
         <StyledPoster>
           <LazyLoadImage src={poster} alt={`${name} poster`} className="w-100 h-100 rounded-4" />
@@ -114,6 +130,7 @@ PosterCard.defaultProps = {
   poster: null,
   worthWatching: null,
   deactivate: false,
+  editUrl: '',
 };
 
 export default PosterCard;

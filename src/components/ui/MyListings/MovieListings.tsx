@@ -37,6 +37,7 @@ export default function MovieListings({ listings }: Props) {
             })) as any
           }
           type="movie"
+          editButton
         />
       </div>
     </div>

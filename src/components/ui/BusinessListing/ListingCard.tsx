@@ -1,8 +1,10 @@
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Col } from 'react-bootstrap';
 import Card from 'react-bootstrap/Card';
 import styled from 'styled-components';
-import { BusinessListing } from '../../../routes/business-listings/type';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 
 const StyledCard = styled(Card)`
   width: 100%;
@@ -45,11 +47,21 @@ const CardLink = styled(Link)`
   color: inherit;
 `;
 
+const EditIcon = styled(Link)`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: #fff;
+  font-size: 1.5rem;
+  z-index: 99;
+`;
+
 interface ListingCardProps {
   listingId: string;
   businessLogo: string;
   title: string;
   overview: string;
+  editUrl?: string;
 }
 
 function ListingCard({
@@ -57,12 +69,18 @@ function ListingCard({
   businessLogo,
   title,
   overview,
+  editUrl,
 }: ListingCardProps) {
   return (
     <Col xs={6} lg={4} key={listingId}>
       <CardLink to={`/app/business-listings/detail/${listingId}`}>
         <StyledCard bg="transparent">
           <ImageWrapper>
+            {editUrl && (
+              <EditIcon to={editUrl}>
+                <FontAwesomeIcon icon={solid('pencil-alt')} />
+              </EditIcon>
+            )}
             <StyledCardImg variant="top" src={businessLogo} />
           </ImageWrapper>
           <Card.Body className="px-0 py-10">
@@ -74,5 +92,9 @@ function ListingCard({
     </Col>
   );
 }
+
+ListingCard.defaultProps = {
+  editUrl: '',
+};
 
 export default ListingCard;

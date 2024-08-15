@@ -37,6 +37,7 @@ export default function BookListings({ listings }: Props) {
             })) as any
           }
           type="book"
+          editButton
         />
       </div>
     </div>

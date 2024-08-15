@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import useMyListings from '../../../hooks/businessListing/useMyListings';
 import BookListings from './BookListings';
 import LoadingIndicator from '../LoadingIndicator';
@@ -7,8 +7,7 @@ import MovieListings from './MovieListings';
 import PodcastListings from './PodcastListings';
 
 export default function MainListingWrapper() {
-  const { listings, loadingListings, listingError } = useMyListings();
-
+  const { listings, loadingListings } = useMyListings();
   useEffect(() => {
     console.log('listings: ', listings);
   }, [listings]);

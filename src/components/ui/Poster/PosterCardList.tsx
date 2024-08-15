@@ -15,6 +15,7 @@ interface PosterCardProps {
   dataList: CardListProps[] | [];
   type?: string;
   onSelect?: (value?: string) => void;
+  editButton?: boolean | null | undefined;
 }
 interface CardListProps {
   id: number;
@@ -31,7 +32,7 @@ interface CardListProps {
 }
 
 function PosterCardList({
-  dataList, type, onSelect,
+  dataList, type, onSelect, editButton,
 }: PosterCardProps) {
   const bp = useBootstrapBreakpointName();
   const scrollPosition: any = useAppSelector((state) => state.scrollPosition);
@@ -46,6 +47,7 @@ function PosterCardList({
       });
     }
   }, [dataList, scrollPosition, location.pathname]);
+
   return (
     <Row className="mt-0">
       {dataList && dataList.length > 0 && dataList.map((listDetail: CardListProps, i, arr) => {
@@ -76,6 +78,7 @@ function PosterCardList({
                   worthWatching={listDetail.worthWatching}
                   rating={listDetail.rating}
                   deactivate={listDetail.isDeactivate}
+                  editUrl={editButton === true ? `/app/business-listings/create?id=${listDetail._id}&type=${type}s` : undefined}
                 />
               </Link>
             </Col>
@@ -90,6 +93,7 @@ function PosterCardList({
 PosterCardList.defaultProps = {
   onSelect: undefined,
   type: 'movies',
+  editButton: null,
 };
 
 export default PosterCardList;

@@ -36,6 +36,7 @@ export default function PodcastListings({ listings }: Props) {
                 title={listing.title as string}
                 businessLogo={listing.businessLogo as string}
                 overview={listing.overview as string}
+                editUrl={`/app/business-listings/create?id=${listing._id}&type=podcaster`}
               />
             ))}
           </Row>

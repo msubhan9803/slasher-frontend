@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm, useFieldArray, SubmitHandler } from 'react-hook-form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { Col, Container, Row } from 'react-bootstrap';
+import { Col, Row } from 'react-bootstrap';
 import CustomText from '../../../components/ui/CustomText';
 import RoundButton from '../../../components/ui/RoundButton';
 import Email from '../../../components/ui/BusinessListing/Email';
@@ -34,10 +34,12 @@ import PhoneNumber from '../../../components/ui/BusinessListing/PhoneNumber';
 import CoverPhoto from '../../../components/ui/BusinessListing/CoverPhoto';
 import Switch from '../../../components/ui/Switch';
 import useListingTypes from '../../../hooks/businessListing/useListingTypes';
+import useListingDetail from '../../../hooks/businessListing/useListingDetail';
 
 function CreateBusinessListing() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const listingId = searchParams.get('id') as string;
   const listingType: ListingType = searchParams.get('type') as ListingType;
   const listingConfig = ListingConfig[listingType];
   const [, setImageUpload] = useState<File | null | undefined>();
@@ -82,6 +84,11 @@ function CreateBusinessListing() {
   const {
     createBusinessListing, loading, errorMessages, success,
   } = useCreateListing();
+  const {
+    listingDetail,
+    loadingListingDetail,
+    listingDetailError,
+  } = useListingDetail(listingId as string);
 
   const { listingTypes } = useListingTypes();
 
@@ -146,11 +153,19 @@ function CreateBusinessListing() {
 
   const onSubmit: SubmitHandler<BusinessListing> = async (data) => {
     try {
-      await createBusinessListing(data);
+      if (!listingId) {
+        await createBusinessListing(data);
+      }
     } catch (err) {
       console.error(err);
     }
   };
+
+  useEffect(() => {
+    if (!loadingListingDetail) {
+      console.log('listingDetail: ', listingDetail);
+    }
+  }, [listingDetail, loadingListingDetail]);
 
   return (
     <div>

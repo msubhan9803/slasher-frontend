@@ -290,7 +290,7 @@ export class BusinessListingController {
     }
   }
 
-  @TransformImageUrls('$.businessLogo', '$.coverPhoto')
+  @TransformImageUrls('$.businessLogo', '$.coverPhoto', '$.bookRef.coverImage.image_path', '$.movieRef.movieImage', '$.movieRef.casts[*].castImage')
   @Get('get-listing-detail/:id')
   async getListingDetail(@Param() params: ValidateBusinessListingIdDto) {
     try {

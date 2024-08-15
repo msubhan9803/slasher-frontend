@@ -24,12 +24,12 @@ interface MovisHeaderProps {
 
 const tabs = [
   { value: 'all', label: 'All movies' },
-  { value: 'slasher-indie', label: 'Slasher Indie', devOnly: true },
+  { value: 'my-movies', label: 'My movies', devOnly: false },
+  { value: 'slasher-indie', label: 'Slasher Indie', devOnly: false },
   { value: 'favorites', label: 'Favorites list' },
   { value: 'watch-list', label: 'Watch list' },
   { value: 'watched-list', label: 'Watched list' },
   { value: 'buy-list', label: 'Buy list' },
-  { value: 'my-movies', label: 'My movies', devOnly: true },
 ];
 const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => !t.devOnly);
 const sortoptions = [

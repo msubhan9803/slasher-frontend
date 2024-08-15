@@ -11,7 +11,13 @@ function PodcastsListings({ listings }: BasicPodcastsIndexProps) {
     <Container fluid>
       <Row className="g-3">
         {listings.map((listing: BusinessListing) => (
-          <ListingCard key={listing._id} listing={listing} />
+          <ListingCard
+            key={listing._id}
+            listingId={listing._id as string}
+            title={listing.title as string}
+            businessLogo={listing.businessLogo as string}
+            overview={listing.overview as string}
+          />
         ))}
       </Row>
     </Container>

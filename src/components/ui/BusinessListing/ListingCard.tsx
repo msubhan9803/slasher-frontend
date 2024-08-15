@@ -46,20 +46,28 @@ const CardLink = styled(Link)`
 `;
 
 interface ListingCardProps {
-  listing: BusinessListing;
+  listingId: string;
+  businessLogo: string;
+  title: string;
+  overview: string;
 }
 
-function ListingCard({ listing }: ListingCardProps) {
+function ListingCard({
+  listingId,
+  businessLogo,
+  title,
+  overview,
+}: ListingCardProps) {
   return (
-    <Col xs={6} lg={4} key={listing._id}>
-      <CardLink to={`/app/business-listings/detail/${listing._id}`}>
+    <Col xs={6} lg={4} key={listingId}>
+      <CardLink to={`/app/business-listings/detail/${listingId}`}>
         <StyledCard bg="transparent">
           <ImageWrapper>
-            <StyledCardImg variant="top" src={listing.businessLogo} />
+            <StyledCardImg variant="top" src={businessLogo} />
           </ImageWrapper>
           <Card.Body className="px-0 py-10">
-            <CardTitle>{listing.title}</CardTitle>
-            <StyledCardText>{listing.overview}</StyledCardText>
+            <CardTitle>{title}</CardTitle>
+            <StyledCardText>{overview}</StyledCardText>
           </Card.Body>
         </StyledCard>
       </CardLink>

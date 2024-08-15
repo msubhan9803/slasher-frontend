@@ -8,10 +8,10 @@ type Props = {
 
 function CreateBusinessListingButton({ type }: Props) {
   const location = useLocation();
-  const isMoviesPage = type === BusinessType.MOVIES ? type : location.pathname.includes('movies');
-  const isPodcaster = type === BusinessType.PODCASTER ? type : location.pathname.includes('podcasts');
-  const isMusician = type === BusinessType.MUSICIAN ? type : location.pathname.includes('music');
-  const isArtist = type === BusinessType.ARTIST ? type : location.pathname.includes('art');
+  const isMoviesPage = type ? type === BusinessType.MOVIES : location.pathname.includes('movies');
+  const isPodcaster = type ? type === BusinessType.PODCASTER : location.pathname.includes('podcasts');
+  const isMusician = type ? type === BusinessType.MUSICIAN : location.pathname.includes('music');
+  const isArtist = type ? type === BusinessType.ARTIST : location.pathname.includes('art');
 
   if (isMoviesPage) {
     return (

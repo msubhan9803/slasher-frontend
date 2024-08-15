@@ -38,7 +38,7 @@ export type BusinessListing = {
   link: string | null;
   isActive: boolean | null;
   yearReleased?: number | null;
-  address?: string;
+  address?: string | undefined;
   phoneNumber?: string | null;
   websiteLink?: string | null;
 

@@ -22,8 +22,10 @@ export default function useListingDetail(listingId: string) {
   };
 
   useEffect(() => {
-    fetchBusinessListingDetail();
-  }, []);
+    if (listingId) {
+      fetchBusinessListingDetail();
+    }
+  }, [listingId]);
 
   return {
     listingDetail,

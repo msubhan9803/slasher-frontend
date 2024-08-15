@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { BusinessListing, BusinessType } from '../../../routes/business-listings/type';
 import CreateBusinessListingButton from '../../layout/right-sidebar-wrapper/components/CreateBusinessListingButton';
-import PosterCardList from '../Poster/PosterCardList';
+import MovieOrBookListingList from '../BusinessListing/MovieOrBookListingList';
 
 type Props = {
   listings: BusinessListing[];
@@ -23,17 +23,17 @@ export default function MovieListings({ listings }: Props) {
       </div>
 
       <div className="m-md-2">
-        <PosterCardList
+        <MovieOrBookListingList
           dataList={
             listings.map((listing) => ({
               _id: listing.movieRef?._id,
-              id: listing.movieRef?._id,
-              name: listing.movieRef?.name,
+              name: listing.movieRef?.name ?? '',
               logo: listing.movieRef?.movieImage,
               year: listing.movieRef?.releaseDate,
               liked: false,
               rating: listing.movieRef?.rating,
               worthWatching: listing.movieRef?.worthWatching,
+              listingId: listing._id,
             })) as any
           }
           type="movie"

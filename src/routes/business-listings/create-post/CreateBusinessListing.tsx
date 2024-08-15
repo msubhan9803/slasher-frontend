@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useForm, useFieldArray, SubmitHandler } from 'react-hook-form';
+import { SubmitHandler } from 'react-hook-form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Col, Row } from 'react-bootstrap';
@@ -35,6 +35,7 @@ import CoverPhoto from '../../../components/ui/BusinessListing/CoverPhoto';
 import Switch from '../../../components/ui/Switch';
 import useListingTypes from '../../../hooks/businessListing/useListingTypes';
 import useListingDetail from '../../../hooks/businessListing/useListingDetail';
+import useBusinessListingForm from '../../../hooks/businessListing/useBusinessListingForm';
 
 function CreateBusinessListing() {
   const [searchParams] = useSearchParams();
@@ -47,43 +48,9 @@ function CreateBusinessListing() {
   const [hasPhysicalPresence, setHasPhysicalPresence] = useState(false);
 
   const {
-    control, register, handleSubmit, setValue, watch,
-  } = useForm<BusinessListing>({
-    defaultValues: {
-      _id: null,
-      businesstype: listingType as string,
-      listingType: null,
-      image: null,
-      coverPhoto: null,
-      email: '',
-      address: '',
-      websiteLink: '',
-      phoneNumber: '',
-      title: null,
-      overview: null,
-      link: null,
-      isActive: null,
-      author: null,
-      pages: null,
-      isbn: null,
-      yearReleased: null,
-      countryOfOrigin: null,
-      durationInMinutes: null,
-      officialRatingReceived: null,
-      trailerLinks: null,
-      casts: [
-        {
-          castImage: null,
-          name: '',
-          characterName: '',
-        },
-      ],
-    },
-  });
-
-  const {
     createBusinessListing, loading, errorMessages, success,
   } = useCreateListing();
+
   const {
     listingDetail,
     loadingListingDetail,
@@ -92,13 +59,19 @@ function CreateBusinessListing() {
 
   const { listingTypes } = useListingTypes();
 
+  const {
+    control,
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    fields,
+    append,
+    remove,
+  } = useBusinessListingForm({ listingType, listingDetail });
+
   const image = watch('image');
   const coverPhoto = watch('coverPhoto');
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'casts',
-  });
 
   const visibilityConfig = useMemo(
     () => ({
@@ -161,11 +134,18 @@ function CreateBusinessListing() {
     }
   };
 
+  const togglePhysicalPresenceSwitch = () => {
+    setHasPhysicalPresence(!hasPhysicalPresence);
+    setValue('address', '');
+  };
+
   useEffect(() => {
-    if (!loadingListingDetail) {
-      console.log('listingDetail: ', listingDetail);
+    if (listingDetail) {
+      if (listingDetail?.address) {
+        setHasPhysicalPresence(true);
+      }
     }
-  }, [listingDetail, loadingListingDetail]);
+  }, [listingDetail]);
 
   return (
     <div>
@@ -254,7 +234,7 @@ function CreateBusinessListing() {
                     id="listingAddressSwitch"
                     className="ms-0 ms-md-3"
                     isChecked={hasPhysicalPresence}
-                    onSwitchToggle={() => setHasPhysicalPresence(!hasPhysicalPresence)}
+                    onSwitchToggle={togglePhysicalPresenceSwitch}
                   />
                 </div>
 

@@ -106,6 +106,20 @@ const useBusinessListingForm = ({ listingType, listingDetail }: Props) => {
           setValue('address', listingDetail.address);
           break;
 
+        case BusinessType.MUSICIAN:
+          setValue('_id', listingDetail._id);
+          setValue('businesstype', listingDetail.businesstype);
+          setValue('image', listingDetail.businessLogo);
+          setValue('coverPhoto', listingDetail.coverPhoto);
+          setValue('listingType', listingDetail.listingType);
+          setValue('email', listingDetail.email);
+          setValue('phoneNumber', listingDetail.phoneNumber);
+          setValue('title', listingDetail.title);
+          setValue('overview', listingDetail.overview);
+          setValue('websiteLink', listingDetail.websiteLink);
+          setValue('address', listingDetail.address);
+          break;
+
         default:
           break;
       }

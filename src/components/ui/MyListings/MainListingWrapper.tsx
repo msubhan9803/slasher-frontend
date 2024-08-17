@@ -22,8 +22,8 @@ export default function MainListingWrapper() {
     <div>
       <BookListings listings={listings?.books as BusinessListing[]} />
       <MovieListings listings={listings?.movies as BusinessListing[]} />
-      <PodcastListings listings={listings?.podcaster as BusinessListing[]} />
       <MusicsListings listings={listings?.musician as BusinessListing[]} />
+      <PodcastListings listings={listings?.podcaster as BusinessListing[]} />
     </div>
   );
 }

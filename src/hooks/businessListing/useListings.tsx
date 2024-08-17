@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { fetchListings } from '../../api/businessListings';
-import { BusinessListing } from '../../routes/business-listings/type';
+import { BusinessListing, ListingType } from '../../routes/business-listings/type';
 
-export default function useListingsByType(businesstype: string) {
+export default function useListingsByType(businesstype: ListingType) {
   const [listings, setListings] = useState<BusinessListing[]>([]);
   const [loadingListings, setLoadingListings] = useState<boolean>(true);
   const [listingError, setListingError] = useState<string | null>(null);

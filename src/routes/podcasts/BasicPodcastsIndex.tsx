@@ -10,9 +10,10 @@ import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceC
 import CreateBusinessListingButton from '../../components/layout/right-sidebar-wrapper/components/CreateBusinessListingButton';
 import PodcastsListings from './PodcastsListings';
 import useListingsByType from '../../hooks/businessListing/useListings';
+import { BusinessType } from '../business-listings/type';
 
 function BasicPodcastsIndex() {
-  const { listings, loadingListings, listingError } = useListingsByType('podcaster');
+  const { listings, loadingListings, listingError } = useListingsByType(BusinessType.PODCASTER);
 
   return (
     <ContentSidbarWrapper>

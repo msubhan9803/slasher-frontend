@@ -29,7 +29,7 @@ export class CreateBusinessListingDto {
 
   @IsNotEmpty({ message: 'Overview is required' })
   @IsString()
-  @MaxLength(500, { message: 'Overview must be less than 500 characters' })
+  @MaxLength(1010, { message: 'Overview must be less than 1000 characters' })
   overview?: string;
 
   @IsOptional()

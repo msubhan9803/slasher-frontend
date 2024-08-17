@@ -264,7 +264,12 @@ export class BusinessListingController {
     }
   }
 
-  @TransformImageUrls('$.podcaster[*].businessLogo', '$.books[*].bookRef.coverImage.image_path', '$.movies[*].movieRef.movieImage')
+  @TransformImageUrls(
+    '$.podcaster[*].businessLogo',
+    '$.books[*].bookRef.coverImage.image_path',
+    '$.movies[*].movieRef.movieImage',
+    '$.musician[*].businessLogo',
+  )
   @Get('get-all-my-listings')
   async getAllMyListings(
     @Req() request: Request,

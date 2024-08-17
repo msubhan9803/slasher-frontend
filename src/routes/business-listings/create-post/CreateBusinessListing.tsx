@@ -5,6 +5,7 @@ import { SubmitHandler } from 'react-hook-form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Col, Row } from 'react-bootstrap';
+import { toast } from 'react-toastify';
 import CustomText from '../../../components/ui/CustomText';
 import RoundButton from '../../../components/ui/RoundButton';
 import Email from '../../../components/ui/BusinessListing/Email';
@@ -68,6 +69,7 @@ function CreateBusinessListing() {
     fields,
     append,
     remove,
+    reset,
   } = useBusinessListingForm({ listingType, listingDetail });
 
   const image = watch('image');
@@ -128,6 +130,32 @@ function CreateBusinessListing() {
     try {
       if (!listingId) {
         await createBusinessListing(data);
+
+        toast(
+          <div>
+            <p>Success!</p>
+            <p>
+              Successefully created your listing
+            </p>
+          </div>,
+          {
+            theme: 'dark',
+            type: 'success',
+          },
+        );
+
+        let url = '';
+        switch (listingType) {
+          case BusinessType.MOVIES:
+            url = '/app/movies/my-movies';
+            break;
+
+          default:
+            url = '/app/movies/my-movies';
+            break;
+        }
+
+        navigate(url);
       }
     } catch (err) {
       console.error(err);

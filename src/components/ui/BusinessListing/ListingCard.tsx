@@ -53,7 +53,7 @@ const EditIcon = styled(Link)`
   right: 10px;
   color: #fff;
   font-size: 1.5rem;
-  z-index: 99;
+  z-index: 1;
 `;
 
 interface ListingCardProps {

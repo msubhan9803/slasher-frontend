@@ -9,7 +9,7 @@ type Props = {
 
 const useBusinessListingForm = ({ listingType, listingDetail }: Props) => {
   const {
-    control, register, handleSubmit, setValue, watch,
+    control, register, handleSubmit, setValue, watch, reset,
   } = useForm<BusinessListing>({
     defaultValues: {
       _id: null,
@@ -121,6 +121,7 @@ const useBusinessListingForm = ({ listingType, listingDetail }: Props) => {
     fields,
     append,
     remove,
+    reset,
   };
 };
 

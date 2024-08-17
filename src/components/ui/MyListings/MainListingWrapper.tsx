@@ -5,9 +5,11 @@ import LoadingIndicator from '../LoadingIndicator';
 import { BusinessListing } from '../../../routes/business-listings/type';
 import MovieListings from './MovieListings';
 import PodcastListings from './PodcastListings';
+import MusicsListings from './MusicsListings';
 
 export default function MainListingWrapper() {
   const { listings, loadingListings } = useMyListings();
+
   useEffect(() => {
     console.log('listings: ', listings);
   }, [listings]);
@@ -21,6 +23,7 @@ export default function MainListingWrapper() {
       <BookListings listings={listings?.books as BusinessListing[]} />
       <MovieListings listings={listings?.movies as BusinessListing[]} />
       <PodcastListings listings={listings?.podcaster as BusinessListing[]} />
+      <MusicsListings listings={listings?.musician as BusinessListing[]} />
     </div>
   );
 }

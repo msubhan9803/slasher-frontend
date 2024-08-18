@@ -166,6 +166,20 @@ export async function updateListingThumbnailOrCoverPhoto(type: FileType, listing
   );
 }
 
+export async function toggleListingStatus(listingId: string, businessType: string) {
+  const token = await getSessionToken();
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.put(
+    `${apiUrl}/api/v1/business-listing/toggle-listing-status`,
+    { listingId, businessType },
+    { headers },
+  );
+}
+
 export async function fetchListingTypes() {
   const token = await getSessionToken();
   const headers = {

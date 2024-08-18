@@ -52,8 +52,8 @@ export default function BusinessListingDetail() {
   };
 
   useEffect(() => {
-    console.log('listingDetail: ', listingDetail);
-  }, [listingDetail]);
+    console.log('listingDetailError: ', listingDetailError);
+  }, [listingDetailError]);
 
   if (loadingListingDetail) {
     return <LoadingIndicator />;
@@ -78,12 +78,16 @@ export default function BusinessListingDetail() {
             xl="auto"
             className="text-center text-lg-center text-xl-start  position-relative"
           >
-            <AboutProfileImage
-              size="11.25rem"
-              src={listingDetail?.businessLogo}
-              alt="user picture"
-              onClick={() => {}}
-            />
+            {
+              !listingDetailError && (
+                <AboutProfileImage
+                  size="11.25rem"
+                  src={listingDetail?.businessLogo}
+                  alt="user picture"
+                  onClick={() => {}}
+                />
+              )
+            }
           </CustomCol>
 
           <Col className="w-100 mt-md-4">
@@ -147,15 +151,27 @@ export default function BusinessListingDetail() {
 
         <StyledBorder className="d-md-block d-none" />
 
-        <h1 className="mb-md-0 text-break fs-1 my-4">About</h1>
-        <p className="text-gray-100 my-2">
-          {isExpanded ? listingDetail?.overview : `${listingDetail?.overview?.substring(0, 300)}...`}
-          {listingDetail?.overview && listingDetail?.overview?.length > 300 && (
-            <ReadMoreLink className="text-primary" onClick={toggleReadMore}>
-              {isExpanded ? ' Read less' : ' Read more'}
-            </ReadMoreLink>
-          )}
-        </p>
+        {
+          !listingDetailError && (
+          <>
+            <h1 className="mb-md-0 text-break fs-1 my-4">About</h1>
+            <p className="text-gray-100 my-2">
+              {isExpanded ? listingDetail?.overview : `${listingDetail?.overview?.substring(0, 300)}...`}
+              {listingDetail?.overview && listingDetail?.overview?.length > 300 && (
+              <ReadMoreLink className="text-primary" onClick={toggleReadMore}>
+                {isExpanded ? ' Read less' : ' Read more'}
+              </ReadMoreLink>
+              )}
+            </p>
+          </>
+          )
+        }
+
+        {
+          listingDetailError && (
+            <p className="py-4 text-center fw-bold">No Data Found</p>
+          )
+        }
       </div>
     </div>
   );

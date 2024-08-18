@@ -15,7 +15,10 @@ export default function useListingDetail(listingId: string) {
       const { data } = await fetchListingDetail(listingId);
       setListingDetail(data as BusinessListing);
     } catch (err: any) {
-      setListingDetailError('Failed to fetch listings');
+      console.log('err: ', err);
+      if (err.response.data.statusCode === 400) {
+        setListingDetailError(err.response.data.message);
+      }
     } finally {
       setLoadingListingDetail(false);
     }

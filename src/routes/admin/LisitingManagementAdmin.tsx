@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { useMemo, useState } from 'react';
 import { ListingType } from '../business-listings/type';
 import useListingsAdmin from '../../hooks/businessListing/useListingsAdmin';
+import useToggleListingStatus from '../../hooks/businessListing/useToggleListingStatus';
 
 const statusCellClass = 'status__cell';
 const StyledContainer = styled.div`
@@ -81,9 +82,14 @@ const toProperCase = (str: string) => str
 
 export default function LisitingManagementAdmin() {
   const [businessType, setBusinessType] = useState<ListingType | null>(null);
-  const { listings, loadingListings, listingError } = useListingsAdmin(
+  const {
+    listings, loadingListings, listingError, refetch: refetchListings,
+  } = useListingsAdmin(
     businessType,
   );
+  const {
+    toggleStatus, loading, errorMessages, success,
+  } = useToggleListingStatus();
 
   const rows = useMemo(() => listings.map((listing) => ({
     id: listing._id,
@@ -95,15 +101,16 @@ export default function LisitingManagementAdmin() {
     isActive: listing.isActive,
   })), [listings]);
 
-  const handleSwitchChange = (id: number) => {
-    console.log(`Toggle switch for row id: ${id}`);
+  const handleSwitchChange = async (listingId: string, businessTypeVal: ListingType) => {
+    await toggleStatus(listingId, businessTypeVal);
+    refetchListings();
   };
 
   const columns: GridColDef[] = [
     {
       field: 'businessType',
       headerName: 'Business Type',
-      width: 200,
+      flex: 1,
       renderCell: (params) => {
         const { value } = params;
         if (!value) {
@@ -113,8 +120,8 @@ export default function LisitingManagementAdmin() {
       },
     },
     { field: 'title', headerName: 'Title', flex: 1 },
-    { field: 'createdAt', headerName: 'Created At', width: 150 },
-    { field: 'userName', headerName: 'User Name', width: 150 },
+    { field: 'createdAt', headerName: 'Created At', flex: 1 },
+    { field: 'userName', headerName: 'User Name', flex: 1 },
     {
       field: 'isActive',
       headerName: 'Status',
@@ -122,7 +129,7 @@ export default function LisitingManagementAdmin() {
       renderCell: (params) => (
         <Switch
           checked={params.value}
-          onChange={() => handleSwitchChange(params.row.id)}
+          onChange={() => handleSwitchChange(params.row.id, params.row.businessType)}
           inputProps={{ 'aria-label': 'active switch' }}
         />
       ),
@@ -131,39 +138,31 @@ export default function LisitingManagementAdmin() {
 
   return (
     <StyledContainer>
-      {loadingListings ? (
-        <div>Loading...</div>
-      ) : listingError ? (
-        <div>Error loading data</div>
-      ) : rows.length === 0 ? (
-        <div>No Data Available</div>
-      ) : (
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          sx={{
-            '& .MuiDataGrid-root': {
-              borderRadius: '16px',
-              overflow: 'hidden',
-            },
-            '& .MuiDataGrid-columnHeaders': {
-              backgroundColor: 'red',
-            },
-            '& .MuiTablePagination-root': {
-              marginBottom: '0px',
-            },
-            background: 'white',
-            border: '1px solid black',
-          }}
-          initialState={{
-            pagination: { paginationModel: { pageSize: 10 } },
-            sorting: {
-              sortModel: [{ field: 'isActive', sort: 'asc' }],
-            },
-          }}
-          pageSizeOptions={[10, 25, 50]}
-        />
-      )}
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        sx={{
+          '& .MuiDataGrid-root': {
+            borderRadius: '16px',
+            overflow: 'hidden',
+          },
+          '& .MuiDataGrid-columnHeaders': {
+            backgroundColor: 'red',
+          },
+          '& .MuiTablePagination-root': {
+            marginBottom: '0px',
+          },
+          background: 'white',
+          border: '1px solid black',
+        }}
+        initialState={{
+          pagination: { paginationModel: { pageSize: 10 } },
+          sorting: {
+            sortModel: [{ field: 'isActive', sort: 'desc' }],
+          },
+        }}
+        pageSizeOptions={[10, 25, 50]}
+      />
     </StyledContainer>
   );
 }

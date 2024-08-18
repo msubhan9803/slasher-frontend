@@ -29,5 +29,6 @@ export default function useListingsAdmin(businesstype: ListingType | null) {
     listings,
     loadingListings,
     listingError,
+    refetch: fetchBusinessListings,
   };
 }

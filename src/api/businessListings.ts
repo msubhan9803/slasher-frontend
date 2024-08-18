@@ -1,7 +1,10 @@
+/* eslint-disable max-lines */
 import axios from 'axios';
 import { apiUrl } from '../env';
 import { getSessionToken } from '../utils/session-utils';
-import { BusinessListing, BusinessType, Cast } from '../routes/business-listings/type';
+import {
+  BusinessListing, BusinessType, Cast, TrailerLinks,
+} from '../routes/business-listings/type';
 import { generateParamsString } from '../utils/params-string-generator-utils';
 
 function processTrailerLinks(trailerLinks: any | null): string | null {
@@ -94,6 +97,50 @@ export async function createListing(listing: BusinessListing) {
   return axios.post(
     `${apiUrl}/api/v1/business-listing/create-listing`,
     formData,
+    { headers },
+  );
+}
+
+export async function updateListing(listing: BusinessListing) {
+  const token = await getSessionToken();
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+  };
+
+  // Create payload based on business type
+  const payload: any = {
+    _id: listing._id,
+    title: listing.title,
+    overview: listing.overview,
+    link: listing.link,
+  };
+
+  if (listing.businesstype === BusinessType.BOOKS) {
+    payload.businesstype = BusinessType.BOOKS;
+    payload.yearReleased = parseInt((listing.yearReleased as number).toString(), 10);
+    payload.bookRef = listing.bookRef?._id;
+    payload.author = listing.author;
+    payload.pages = parseInt((listing.pages as number)?.toString(), 10);
+    payload.isbn = listing.isbn;
+  } else if (listing.businesstype === BusinessType.MOVIES) {
+    payload.businesstype = BusinessType.MOVIES;
+    payload.movieRef = listing.movieRef?._id;
+    payload.yearReleased = parseInt((listing.yearReleased as number).toString(), 10);
+    payload.countryOfOrigin = listing.countryOfOrigin;
+    payload.durationInMinutes = parseInt((listing.durationInMinutes as number)?.toString(), 10);
+    payload.officialRatingReceived = parseInt(listing.officialRatingReceived as string, 10);
+    payload.trailerLinks = Object.values(listing.trailerLinks as TrailerLinks);
+  } else {
+    payload.email = listing.email;
+    payload.phoneNumber = listing.phoneNumber;
+    payload.address = listing.address;
+    payload.websiteLink = listing.websiteLink;
+  }
+
+  return axios.put(
+    `${apiUrl}/api/v1/business-listing/update-listing`,
+    payload,
     { headers },
   );
 }

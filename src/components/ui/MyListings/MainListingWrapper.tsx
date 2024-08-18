@@ -11,10 +11,6 @@ import ArtistListings from '../../../routes/artists/ArtistListings';
 export default function MainListingWrapper() {
   const { listings, loadingListings } = useMyListings();
 
-  useEffect(() => {
-    console.log('listings: ', listings);
-  }, [listings]);
-
   if (loadingListings) {
     return <LoadingIndicator />;
   }

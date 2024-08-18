@@ -347,7 +347,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
                     trailerList={
                       aboutMovieData
                       && aboutMovieData.video.map((video: any) => (
-                        { key: getYouTubeEmbedId(video.key) })) as any
+                        { key: getYouTubeEmbedId(video.key) })).filter((item) => item.key) as any
                     }
                   />
                 )

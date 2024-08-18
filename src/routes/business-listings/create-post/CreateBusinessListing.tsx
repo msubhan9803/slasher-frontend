@@ -37,6 +37,7 @@ import Switch from '../../../components/ui/Switch';
 import useListingTypes from '../../../hooks/businessListing/useListingTypes';
 import useListingDetail from '../../../hooks/businessListing/useListingDetail';
 import useBusinessListingForm from '../../../hooks/businessListing/useBusinessListingForm';
+import useUpdateListing from '../../../hooks/businessListing/useUpdateListing';
 
 function CreateBusinessListing() {
   const [searchParams] = useSearchParams();
@@ -51,6 +52,13 @@ function CreateBusinessListing() {
   const {
     createBusinessListing, loading, errorMessages, success,
   } = useCreateListing();
+
+  const {
+    updateBusinessListing,
+    loading: updateBusinessListingLoading,
+    errorMessages: updateBusinessListingErrors,
+    success: updateBusinessListingSuccess,
+  } = useUpdateListing();
 
   const {
     listingDetail,
@@ -126,60 +134,72 @@ function CreateBusinessListing() {
     [listingType],
   );
 
+  const handleAfterSuccessfullApi = () => {
+    toast(
+      <div>
+        <p>Success!</p>
+        <p>
+          Successefully
+          &nbsp;
+          {listingId ? 'updated' : 'created' }
+          &nbsp;
+          your listing
+        </p>
+      </div>,
+      {
+        theme: 'dark',
+        type: 'success',
+      },
+    );
+
+    let url = '';
+    switch (listingType) {
+      case BusinessType.MOVIES:
+        url = '/app/movies/my-movies';
+        break;
+
+      case BusinessType.BOOKS:
+        url = '/app/books/my-books';
+        break;
+
+      case BusinessType.PODCASTER:
+        url = '/app/podcasts/my-podcasts';
+        break;
+
+      case BusinessType.MUSICIAN:
+        url = '/app/music/my-music';
+        break;
+
+      case BusinessType.ARTIST:
+        url = '/app/art/my-art';
+        break;
+
+      case BusinessType.VENDOR:
+        url = '/app/vendor/my-vendor';
+        break;
+
+      case BusinessType.VIDEO_CREATOR:
+        url = '/app/videos/my-videos';
+        break;
+
+      default:
+        url = '/app/movies/my-movies';
+        break;
+    }
+
+    navigate(url);
+  };
+
   const onSubmit: SubmitHandler<BusinessListing> = async (data) => {
     try {
       if (!listingId) {
-        await createBusinessListing(data);
-
-        toast(
-          <div>
-            <p>Success!</p>
-            <p>
-              Successefully created your listing
-            </p>
-          </div>,
-          {
-            theme: 'dark',
-            type: 'success',
-          },
-        );
-
-        let url = '';
-        switch (listingType) {
-          case BusinessType.MOVIES:
-            url = '/app/movies/my-movies';
-            break;
-
-          case BusinessType.BOOKS:
-            url = '/app/movies/my-books';
-            break;
-
-          case BusinessType.PODCASTER:
-            url = '/app/movies/my-podcasts';
-            break;
-
-          case BusinessType.MUSICIAN:
-            url = '/app/movies/my-music';
-            break;
-
-          case BusinessType.ARTIST:
-            url = '/app/movies/my-art';
-            break;
-
-          case BusinessType.VENDOR:
-            url = '/app/movies/my-vendor';
-            break;
-
-          case BusinessType.VIDEO_CREATOR:
-            url = '/app/movies/my-videos';
-            break;
-
-          default:
-            url = '/app/movies/my-movies';
-            break;
-        }
-
-        navigate(url);
+        await createBusinessListing(data, handleAfterSuccessfullApi);
+      } else {
+        await updateBusinessListing({
+          ...data,
+          bookRef: listingDetail?.bookRef,
+          movieRef: listingDetail?.movieRef,
+        }, handleAfterSuccessfullApi);
       }
     } catch (err) {
       console.error(err);
@@ -383,7 +403,7 @@ function CreateBusinessListing() {
 
           <Row>
             <Col xs={12}>
-              <ErrorMessageList errorMessages={errorMessages} className="m-0" />
+              <ErrorMessageList errorMessages={errorMessages ?? updateBusinessListingErrors} className="m-0" />
             </Col>
           </Row>
 

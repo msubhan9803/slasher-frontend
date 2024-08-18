@@ -33,6 +33,7 @@ const StyledYouTubeButton = styled(Button)`
   margin-top: -2.5em;
 `;
 function MovieTrailers({ trailerList }: MovieTrailerList) {
+  console.log('trailerList: ', trailerList);
   const [showVideoPlayerModal, setShowYouTubeModal] = useState(false);
   const [videoKey, setVideoKey] = useState('');
 
@@ -65,7 +66,6 @@ function MovieTrailers({ trailerList }: MovieTrailerList) {
           className="d-flex flex-nowrap w-100"
         >
           {trailerList && trailerList.map((trailer: Video, index: number) => (
-
             <Col sm={5} md={4} lg={6} xl={4} key={trailer.key}>
               <div className="trailer-image position-relative">
                 <div>

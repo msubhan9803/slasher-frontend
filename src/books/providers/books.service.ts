@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable max-lines */
 import mongoose, { Model } from 'mongoose';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { HttpService } from '@nestjs/axios';
 import { ReturnBookDb } from 'src/movies/dto/cron-job-response.dto';
@@ -624,5 +624,15 @@ export class BooksService {
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();
+  }
+
+  async updateBook(id: string, bookData: Partial<Book>) {
+    const updatedBookData = await this.booksModel.findByIdAndUpdate(id, bookData, { new: true }).exec();
+
+    if (!updatedBookData) {
+      throw new NotFoundException(`Book with ID ${id} not found`);
+    }
+
+    return updatedBookData;
   }
 }

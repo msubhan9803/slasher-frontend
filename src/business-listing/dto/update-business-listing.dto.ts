@@ -5,7 +5,6 @@ import {
   IsArray,
   IsBoolean,
   IsEnum,
-  IsMongoId,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -13,7 +12,6 @@ import {
   MaxLength,
   ValidateNested,
 } from 'class-validator';
-import mongoose from 'mongoose';
 import { BusinessType } from 'src/schemas/businessListing/businessListing.enums';
 
 class CastDto {
@@ -30,32 +28,23 @@ class CastDto {
   characterName: string;
 }
 
-class TrailerLinksDto {
-  @IsNotEmpty({ message: 'Main trailer link is required' })
-  @IsString()
-  main: string;
-
-  @IsOptional()
-  @IsString()
-  trailer2: string;
-
-  @IsOptional()
-  @IsString()
-  trailer3: string;
-}
-
 export class UpdateBusinessListingDto {
-  @IsOptional()
-  @IsMongoId()
-  readonly _id?: mongoose.Schema.Types.ObjectId;
+  @IsString()
+  readonly _id: string;
 
+  @IsOptional()
   @IsEnum(BusinessType, { message: 'Invalid business type' })
   businesstype: BusinessType;
 
   @IsOptional()
   @IsString()
-  image?: string;
+  bookRef?: string;
 
+  @IsOptional()
+  @IsString()
+  movieRef?: string;
+
+  @IsOptional()
   @IsNotEmpty({ message: 'Title is required' })
   @IsString()
   @MaxLength(100, { message: 'Title must be less than 100 characters' })
@@ -64,7 +53,7 @@ export class UpdateBusinessListingDto {
   @IsOptional()
   @IsString()
   @MaxLength(500, { message: 'Overview must be less than 500 characters' })
-  overview?: string;
+  overview: string;
 
   @IsOptional()
   @IsString()
@@ -103,14 +92,11 @@ export class UpdateBusinessListingDto {
   durationInMinutes?: number;
 
   @IsOptional()
-  @IsString()
-  @MaxLength(10, { message: 'Official rating received must be less than 10 characters' })
-  officialRatingReceived?: string;
+  @IsNumber()
+  officialRatingReceived?: number;
 
   @IsOptional()
-  @ValidateNested()
-  @Type(() => TrailerLinksDto)
-  trailerLinks?: TrailerLinksDto;
+  trailerLinks?: string[];
 
   @IsOptional()
   @IsArray()

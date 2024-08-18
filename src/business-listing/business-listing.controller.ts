@@ -8,6 +8,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   Req,
   UploadedFiles,
@@ -48,7 +49,7 @@ import { CreateBusinessListingDto } from './dto/create-business-listing.dto';
 import { CreateBusinessListingTypeDto } from './dto/create-business-listing-type.dto';
 import { GetAllListingsDto } from './dto/get-all-listings.';
 import { ValidateBusinessListingIdDto } from './dto/validate.business-listing-id.dto';
-// import { GetAllMyListingsDto } from './dto/get-all-my-listings.';
+import { UpdateBusinessListingDto } from './dto/update-business-listing.dto';
 
 @Controller({ path: 'business-listing', version: ['1'] })
 export class BusinessListingController {
@@ -137,8 +138,6 @@ export class BusinessListingController {
         userRef: user._id,
         businesstype,
         listingType,
-        title,
-        overview,
         isActive,
       });
 
@@ -191,6 +190,8 @@ export class BusinessListingController {
           break;
 
           default:
+          businessListing.title = title;
+          businessListing.overview = overview;
           businessListing.email = email;
           businessListing.phoneNumber = phoneNumber;
           businessListing.address = address;
@@ -206,6 +207,78 @@ export class BusinessListingController {
       const createdBusinessListing = await this.businessListingService.createListing(businessListing);
 
       return createdBusinessListing;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @TransformImageUrls('$.image')
+  @Put('update-listing')
+  async updateListing(
+    @Body() updatingBusienssListingDto: UpdateBusinessListingDto,
+  ) {
+    try {
+      const {
+        bookRef,
+        movieRef,
+        businesstype,
+        title,
+        overview,
+        author,
+        pages,
+        isbn,
+        yearReleased,
+        officialRatingReceived,
+        countryOfOrigin,
+        durationInMinutes,
+        link,
+        trailerLinks,
+      } = updatingBusienssListingDto;
+
+      switch (businesstype) {
+        case BusinessType.BOOKS:
+          await this.booksService.updateBook(
+          bookRef,
+          {
+            name: title,
+            author: [author],
+            numberOfPages: pages,
+            isbnNumber: [isbn],
+            description: overview,
+            status: BookActiveStatus.Active,
+            publishDate: new Date(yearReleased),
+            buyUrl: link,
+          },
+        );
+        break;
+
+        case BusinessType.MOVIES:
+          await this.moviesService.updateMovie(
+            movieRef,
+            {
+            name: title,
+            descriptions: overview,
+            trailerUrls: Object.values(trailerLinks).map(
+              (trailer: string) => trailer,
+            ),
+            countryOfOrigin,
+            durationInMinutes,
+            rating: officialRatingReceived,
+            releaseDate: new Date(yearReleased),
+            status: MovieActiveStatus.Active,
+            watchUrl: link,
+          },
+        );
+        break;
+
+        default:
+          await this.businessListingService.update(updatingBusienssListingDto._id, updatingBusienssListingDto);
+          break;
+      }
+
+      const updatedBusinessListing = await this.getListingDetail({ id: updatingBusienssListingDto._id });
+
+      return updatedBusinessListing;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }

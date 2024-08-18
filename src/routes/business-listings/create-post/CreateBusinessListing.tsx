@@ -150,6 +150,30 @@ function CreateBusinessListing() {
             url = '/app/movies/my-movies';
             break;
 
+          case BusinessType.BOOKS:
+            url = '/app/movies/my-books';
+            break;
+
+          case BusinessType.PODCASTER:
+            url = '/app/movies/my-podcasts';
+            break;
+
+          case BusinessType.MUSICIAN:
+            url = '/app/movies/my-music';
+            break;
+
+          case BusinessType.ARTIST:
+            url = '/app/movies/my-art';
+            break;
+
+          case BusinessType.VENDOR:
+            url = '/app/movies/my-vendor';
+            break;
+
+          case BusinessType.VIDEO_CREATOR:
+            url = '/app/movies/my-videos';
+            break;
+
           default:
             url = '/app/movies/my-movies';
             break;

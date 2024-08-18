@@ -1,7 +1,7 @@
 import { BookReviewDataProp } from '../books/components/BookProps';
 import { MovieDataProp } from '../movies/components/MovieProps';
 
-export type ListingType = 'movies' | 'books' | 'podcaster' | 'musician' | 'artist';
+export type ListingType = 'movies' | 'books' | 'podcaster' | 'musician' | 'artist' | 'vendor' | 'video_creator';
 
 export enum BusinessType {
   VENDOR = 'vendor',

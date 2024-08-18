@@ -7,7 +7,10 @@ type MyListingResponse = {
   books?: BusinessListing[] | null | undefined;
   movies?: BusinessListing[] | null | undefined;
   podcaster?: BusinessListing[] | null | undefined;
+  artist?: BusinessListing[] | null | undefined;
   musician?: BusinessListing[] | null | undefined;
+  vendor?: BusinessListing[] | null | undefined;
+  video_creator?: BusinessListing[] | null | undefined;
 };
 
 export default function useMyListings() {

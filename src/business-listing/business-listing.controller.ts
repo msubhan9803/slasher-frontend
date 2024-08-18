@@ -265,9 +265,10 @@ export class BusinessListingController {
   }
 
   @TransformImageUrls(
-    '$.podcaster[*].businessLogo',
-    '$.books[*].bookRef.coverImage.image_path',
     '$.movies[*].movieRef.movieImage',
+    '$.books[*].bookRef.coverImage.image_path',
+    '$.podcaster[*].businessLogo',
+    '$.artist[*].businessLogo',
     '$.musician[*].businessLogo',
   )
   @Get('get-all-my-listings')

@@ -179,7 +179,7 @@ export async function fetchListingTypes() {
 }
 
 export async function fetchListings(paramObj: {
-  businesstype?: string;
+  businesstype?: string | null;
 }) {
   const token = await getSessionToken();
   const headers = {
@@ -190,6 +190,22 @@ export async function fetchListings(paramObj: {
 
   return axios.get(
     `${apiUrl}/api/v1/business-listing/get-all-listings?${paramString}`,
+    { headers },
+  );
+}
+
+export async function fetchListingsAdmin(paramObj: {
+  businesstype?: string | null;
+}) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  const paramString = generateParamsString(paramObj) ?? '';
+
+  return axios.get(
+    `${apiUrl}/api/v1/business-listing/get-all-listings-admin?${paramString}`,
     { headers },
   );
 }

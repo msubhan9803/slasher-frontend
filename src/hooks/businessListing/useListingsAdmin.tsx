@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { fetchListings } from '../../api/businessListings';
+import { fetchListingsAdmin } from '../../api/businessListings';
 import { BusinessListing, ListingType } from '../../routes/business-listings/type';
 
-export default function useListingsByType(businesstype: ListingType | null) {
+export default function useListingsAdmin(businesstype: ListingType | null) {
   const [listings, setListings] = useState<BusinessListing[]>([]);
   const [loadingListings, setLoadingListings] = useState<boolean>(true);
   const [listingError, setListingError] = useState<string | null>(null);
@@ -12,7 +12,7 @@ export default function useListingsByType(businesstype: ListingType | null) {
     setListingError(null);
 
     try {
-      const { data } = await fetchListings({ businesstype });
+      const { data } = await fetchListingsAdmin({ businesstype });
       setListings(data as BusinessListing[]);
     } catch (err: any) {
       setListingError('Failed to fetch listings');

@@ -1,3 +1,4 @@
+import { User } from '../../types';
 import { BookReviewDataProp } from '../books/components/BookProps';
 import { MovieDataProp } from '../movies/components/MovieProps';
 
@@ -54,6 +55,9 @@ export type BusinessListing = {
 
   bookRef?: BookReviewDataProp;
   movieRef?: MovieDataProp;
+  userRef?: User;
+
+  createdAt: string;
 };
 
 export type BusinessListingKeys = keyof BusinessListing;

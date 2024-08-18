@@ -13,3 +13,8 @@ export type TrailerLinks = {
   trailer2: string;
   trailer3: string;
 };
+
+export enum FileType {
+  THUMBNAIL = 'THUMBNAIL',
+  COVER_PHOTO = 'COVER_PHOTO',
+}

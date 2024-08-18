@@ -32,6 +32,7 @@ import { TransformImageUrls } from '../app/decorators/transform-image-urls.decor
 import { BusinessListingType } from '../schemas/businessListingType/businessListingType.schema';
 import {
   BusinessType,
+  FileType,
   TrailerLinks,
 } from '../schemas/businessListing/businessListing.enums';
 import { BooksService } from '../books/providers/books.service';
@@ -50,6 +51,7 @@ import { CreateBusinessListingTypeDto } from './dto/create-business-listing-type
 import { GetAllListingsDto } from './dto/get-all-listings.';
 import { ValidateBusinessListingIdDto } from './dto/validate.business-listing-id.dto';
 import { UpdateBusinessListingDto } from './dto/update-business-listing.dto';
+import { UpdateBusinessListingImageCoverDto } from './dto/update-business-listing-image-cover.dto';
 
 @Controller({ path: 'business-listing', version: ['1'] })
 export class BusinessListingController {
@@ -277,6 +279,78 @@ export class BusinessListingController {
       }
 
       const updatedBusinessListing = await this.getListingDetail({ id: updatingBusienssListingDto._id });
+
+      return updatedBusinessListing;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Post('update-listing-thumbnail-or-cover-photo')
+  @UseInterceptors(
+    ...generateFileUploadInterceptors(
+      UPLOAD_PARAM_NAME_FOR_FILES,
+      MAX_ALLOWED_UPLOAD_FILE_FOR_BUSINESS_LISTING,
+      MAXIMUM_IMAGE_UPLOAD_SIZE,
+      {
+        fileFilter: defaultFileInterceptorFileFilter,
+      },
+    ),
+  )
+  async updateListingThumbnailOrCoverPhoto(
+    @Req() request: Request,
+    @Body() updateBusinessListingImageCoverDto: UpdateBusinessListingImageCoverDto,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ) {
+    try {
+      if (!files || files.length === 0) {
+        throw new HttpException('No files uploaded', HttpStatus.BAD_REQUEST);
+      }
+
+      const { listingId, type, listingType } = updateBusinessListingImageCoverDto;
+      const fileObj = files[0];
+
+      const listingStorageLocation = await this.storeFile(
+        'business-listing',
+        fileObj,
+      );
+
+      const listingDetail: any = await this.getListingDetail({ id: listingId });
+
+      const payload: any = {};
+
+      switch (listingType) {
+        case BusinessType.BOOKS:
+          await this.booksService.updateBook(
+            listingDetail.bookRef._id,
+            {
+              coverImage: {
+                image_path: listingStorageLocation,
+                description: '',
+              },
+            },
+          );
+          break;
+
+        case BusinessType.MOVIES:
+          await this.moviesService.updateMovie(
+            listingDetail.movieRef._id,
+            {
+              movieImage: listingStorageLocation,
+            },
+          );
+          break;
+
+        default:
+          if (type === FileType.THUMBNAIL) {
+            payload.businessLogo = listingStorageLocation;
+          } else {
+            payload.coverPhoto = listingStorageLocation;
+          }
+          break;
+      }
+
+      const updatedBusinessListing = await this.businessListingService.update(listingId, payload as UpdateBusinessListingDto);
 
       return updatedBusinessListing;
     } catch (error) {

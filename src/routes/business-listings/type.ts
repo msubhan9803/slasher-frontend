@@ -70,3 +70,8 @@ export type BusinessListingType = {
   features: string[];
   price: number;
 };
+
+export enum FileType {
+  THUMBNAIL = 'THUMBNAIL',
+  COVER_PHOTO = 'COVER_PHOTO',
+}

@@ -75,8 +75,12 @@ const EditIcon = styled(Link)`
   position: absolute;
   top: 10px;
   right: 10px;
-  color: #fff;
+  color: #FF1800;
   font-size: 1.5rem;
+`;
+const StyledFontAwesomeIcon = styled(FontAwesomeIcon)`
+  stroke: #000;
+  stroke-width: 10px;
 `;
 
 function PosterCard({
@@ -86,7 +90,7 @@ function PosterCard({
     <PosterCardStyle className="bg-transparent border-0" type={type}>
       {editUrl && (
       <EditIcon to={editUrl}>
-        <FontAwesomeIcon icon={solid('pencil-alt')} />
+        <StyledFontAwesomeIcon icon={solid('pencil-alt')} />
       </EditIcon>
       )}
       <div className="poster">

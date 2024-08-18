@@ -14,7 +14,9 @@ import ListingOverview from '../../../components/ui/BusinessListing/ListingOverv
 import ListingPromotionDetails from '../../../components/ui/BusinessListing/ListingPromotionDetails';
 import ListingImage from '../../../components/ui/BusinessListing/ListingImage';
 import ListingConfig from '../listingConfig';
-import { BusinessListing, BusinessType, ListingType } from '../type';
+import {
+  BusinessListing, BusinessType, FileType, ListingType,
+} from '../type';
 import YearReleased from '../../../components/ui/BusinessListing/YearReleased';
 import CountryOfOrigin from '../../../components/ui/BusinessListing/Movies/CountryOfOrigin';
 import MovieDuration from '../../../components/ui/BusinessListing/Movies/Duration';
@@ -38,6 +40,7 @@ import useListingTypes from '../../../hooks/businessListing/useListingTypes';
 import useListingDetail from '../../../hooks/businessListing/useListingDetail';
 import useBusinessListingForm from '../../../hooks/businessListing/useBusinessListingForm';
 import useUpdateListing from '../../../hooks/businessListing/useUpdateListing';
+import useUpdateListingThumbnailOrCoverPhoto from '../../../hooks/businessListing/useUpdateListingThumbnailOrCoverPhoto';
 
 function CreateBusinessListing() {
   const [searchParams] = useSearchParams();
@@ -65,6 +68,13 @@ function CreateBusinessListing() {
     loadingListingDetail,
     listingDetailError,
   } = useListingDetail(listingId as string);
+
+  const {
+    updateThumbnailOrCoverPhoto,
+    loading: updateThumbnailOrCoverPhotoLoading,
+    errorMessages: updateThumbnailOrCoverPhotoErrors,
+    success: updateThumbnailOrCoverPhotoSuccess,
+  } = useUpdateListingThumbnailOrCoverPhoto(listingType);
 
   const { listingTypes } = useListingTypes();
 
@@ -211,6 +221,16 @@ function CreateBusinessListing() {
     setValue('address', '');
   };
 
+  const handleFileChange = (file: File, type: FileType) => {
+    if (file) {
+      if (listingId) {
+        updateThumbnailOrCoverPhoto(type, listingId, file);
+      } else {
+        setValue(type === FileType.THUMBNAIL ? 'image' : 'coverPhoto', file);
+      }
+    }
+  };
+
   useEffect(() => {
     if (listingDetail) {
       if (listingDetail?.address) {
@@ -231,13 +251,13 @@ function CreateBusinessListing() {
           />
         </Col>
         <Col>
-          <h1 className="text-center mb-0 h2">{listingConfig.shortTitle}</h1>
+          <h1 className="text-center mb-0 h2">{listingConfig?.shortTitle}</h1>
         </Col>
       </Row>
 
       <div className="bg-dark px-md-4 py-4 py-md-5 rounded-3 bg-mobile-transparent">
         <div className="d-flex justify-content-between">
-          <h2 className="mb-0 fw-bold">{listingConfig.title}</h2>
+          <h2 className="mb-0 fw-bold">{listingConfig?.title}</h2>
         </div>
         <div className="my-3">
           <CustomText
@@ -252,7 +272,7 @@ function CreateBusinessListing() {
           />
         </div>
 
-        <ListingPromotionDetails noteList={listingConfig.noteList} />
+        <ListingPromotionDetails noteList={listingConfig?.noteList} />
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <Row className="my-4">
@@ -265,7 +285,8 @@ function CreateBusinessListing() {
                     ).includes(listingType)
                   }
                   image={image}
-                  setValue={setValue}
+                  fileType={FileType.THUMBNAIL}
+                  handleFileChange={handleFileChange}
                 />
               </div>
             </Col>
@@ -280,7 +301,11 @@ function CreateBusinessListing() {
                 className="mt-5 mt-md-0 mt-lg-5 mt-xl-0"
               >
                 <div className="d-block d-md-flex align-items-center">
-                  <CoverPhoto image={coverPhoto} setValue={setValue} />
+                  <CoverPhoto
+                    image={coverPhoto}
+                    fileType={FileType.COVER_PHOTO}
+                    handleFileChange={handleFileChange}
+                  />
                 </div>
               </Col>
             )}
@@ -382,7 +407,7 @@ function CreateBusinessListing() {
               isVisible={visibilityConfig.trailerLinks}
             />
             <ListingLink
-              text={listingConfig.linkFieldLabel}
+              text={listingConfig?.linkFieldLabel}
               name="link"
               register={register}
               isVisible={visibilityConfig.link}

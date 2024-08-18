@@ -1,9 +1,10 @@
+/* eslint-disable max-len */
 /* eslint-disable max-lines */
 import axios from 'axios';
 import { apiUrl } from '../env';
 import { getSessionToken } from '../utils/session-utils';
 import {
-  BusinessListing, BusinessType, Cast, TrailerLinks,
+  BusinessListing, BusinessType, Cast, FileType, ListingType, TrailerLinks,
 } from '../routes/business-listings/type';
 import { generateParamsString } from '../utils/params-string-generator-utils';
 
@@ -141,6 +142,26 @@ export async function updateListing(listing: BusinessListing) {
   return axios.put(
     `${apiUrl}/api/v1/business-listing/update-listing`,
     payload,
+    { headers },
+  );
+}
+
+export async function updateListingThumbnailOrCoverPhoto(type: FileType, listingId: string, file: File, listingType: ListingType) {
+  const token = await getSessionToken();
+  const headers = {
+    'Content-Type': 'multipart/form-data',
+    Authorization: `Bearer ${token}`,
+  };
+
+  const formData = new FormData();
+  formData.append('type', type);
+  formData.append('listingId', listingId);
+  formData.append('listingType', listingType);
+  formData.append('files', file);
+
+  return axios.post(
+    `${apiUrl}/api/v1/business-listing/update-listing-thumbnail-or-cover-photo`,
+    formData,
     { headers },
   );
 }

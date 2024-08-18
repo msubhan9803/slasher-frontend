@@ -1,54 +1,16 @@
-import styled from 'styled-components';
-import { UseFormSetValue } from 'react-hook-form';
-import { Row, Col } from 'react-bootstrap';
-import CustomText from '../CustomText';
+import { FileType } from '../../../routes/business-listings/type';
 import PhotoUploadInput from '../PhotoUploadInput';
-import { BusinessListing } from '../../../routes/business-listings/type';
 
 type Props = {
   isSquared: boolean;
   image: string | File | null | undefined;
-  setValue: UseFormSetValue<BusinessListing>;
+  fileType: FileType;
+  handleFileChange: (file: File, type: FileType) => void
 };
 
-const Container = styled(Row)`
-  height: 100%;
-  margin: 1rem 0;
-  display: flex;
-  justify-content: start;
-  align-items: center;
-  text-align: center;
-
-  @media (max-width: 576px) {
-    justify-content: center;
-    flex-direction: column;
-  }
-`;
-
-const UploadCol = styled(Col)`
-  @media (max-width: 576px) {
-    margin-bottom: 1rem;
-  }
-`;
-
-const StyledPhotoUploadInput = styled(PhotoUploadInput)`
-  @media (max-width: 576px) {
-    margin: auto;
-  }
-`;
-
-const InfoCol = styled(Col)`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: start;
-
-  @media (max-width: 576px) {
-    align-items: center;
-  }
-`;
-
-export default function ListingImage({ isSquared, setValue, image }: Props) {
+export default function ListingImage({
+  isSquared, fileType, handleFileChange, image,
+}: Props) {
   if (isSquared) {
     return (
       <div className="d-block d-md-flex align-items-center">
@@ -58,7 +20,7 @@ export default function ListingImage({ isSquared, setValue, image }: Props) {
           variant="outline"
           defaultPhotoUrl={image as string}
           onChange={(file) => {
-            setValue('image', file);
+            handleFileChange(file as File, fileType);
           }}
         />
         <div className="text-center text-md-start mt-4 mt-md-0">
@@ -84,7 +46,7 @@ export default function ListingImage({ isSquared, setValue, image }: Props) {
         variant="outline"
         defaultPhotoUrl={image as string}
         onChange={(file) => {
-          setValue('image', file);
+          handleFileChange(file as File, fileType);
         }}
       />
       <div className="text-center text-md-start mt-4 mt-md-0">

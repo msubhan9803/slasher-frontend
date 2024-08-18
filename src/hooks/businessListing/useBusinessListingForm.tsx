@@ -56,8 +56,8 @@ const useBusinessListingForm = ({ listingType, listingDetail }: Props) => {
           setValue('businesstype', listingDetail.businesstype);
           setValue('image', listingDetail.bookRef?.coverImage.image_path);
           setValue('listingType', listingDetail.listingType);
-          setValue('title', listingDetail.title);
-          setValue('overview', listingDetail.overview);
+          setValue('title', listingDetail.bookRef?.name);
+          setValue('overview', listingDetail.bookRef?.description);
           setValue('link', listingDetail.bookRef?.buyUrl as string);
           setValue('isActive', listingDetail.isActive);
           setValue('author', listingDetail.bookRef?.author[0]);
@@ -72,8 +72,8 @@ const useBusinessListingForm = ({ listingType, listingDetail }: Props) => {
           setValue('businesstype', listingDetail.businesstype);
           setValue('image', listingDetail.movieRef?.movieImage);
           setValue('listingType', listingDetail.listingType);
-          setValue('title', listingDetail.title);
-          setValue('overview', listingDetail.overview);
+          setValue('title', listingDetail.movieRef?.name);
+          setValue('overview', listingDetail.movieRef?.descriptions);
           setValue('isActive', listingDetail.isActive);
           setValue('yearReleased', new Date(listingDetail.movieRef?.releaseDate as string).getFullYear());
           setValue('countryOfOrigin', listingDetail.movieRef?.countryOfOrigin);

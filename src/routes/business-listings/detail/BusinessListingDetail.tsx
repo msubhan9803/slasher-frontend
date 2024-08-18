@@ -98,23 +98,32 @@ export default function BusinessListingDetail() {
                 <h1 className="mb-md-0 text-break">{listingDetail?.title}</h1>
 
                 <InfoContainer>
+                  {listingDetail?.websiteLink && (
                   <InfoItem>
                     <FontAwesomeIcon icon={solid('globe')} className="me-2 text-primary align-self-center" />
-                    {listingDetail?.websiteLink}
+                    {listingDetail.websiteLink}
                   </InfoItem>
+                  )}
+                  {listingDetail?.email && (
                   <InfoItem>
                     <FontAwesomeIcon icon={solid('envelope')} className="me-2 text-primary align-self-center" />
-                    {listingDetail?.email}
+                    {listingDetail.email}
                   </InfoItem>
+                  )}
+                  {listingDetail?.address && (
                   <InfoItem>
                     <FontAwesomeIcon icon={solid('location-dot')} className="me-2 text-primary align-self-center" />
-                    {listingDetail?.address}
+                    {listingDetail.address}
                   </InfoItem>
+                  )}
+                  {listingDetail?.phoneNumber && (
                   <InfoItem>
                     <FontAwesomeIcon icon={solid('phone')} className="me-2 text-primary align-self-center" />
-                    {listingDetail?.phoneNumber}
+                    {listingDetail.phoneNumber}
                   </InfoItem>
+                  )}
                 </InfoContainer>
+
               </Col>
               {/* <Col xs={12} md={6} lg={12} xl={7}>
                 {isSelfUserProfile && (

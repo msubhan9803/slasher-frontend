@@ -28,10 +28,23 @@ export class BusinessListingService {
     if (businesstype) {
       getAllListingsQuery = {
         businesstype,
+        isActive: true,
       };
     }
 
     return this.businessListingModel.find(getAllListingsQuery).exec();
+  }
+
+  async getAllListingsForAdmin(businesstype: string): Promise<BusinessListing[]> {
+    let getAllListingsQuery = {};
+
+    if (businesstype) {
+      getAllListingsQuery = {
+        businesstype,
+      };
+    }
+
+    return this.businessListingModel.find(getAllListingsQuery).populate('bookRef movieRef userRef').exec();
   }
 
   async getAllMyListings(userRef: string): Promise<BusinessListing[]> {

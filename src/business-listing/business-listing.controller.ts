@@ -17,6 +17,7 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ConfigService } from '@nestjs/config/dist/config.service';
+import { UserType } from 'src/schemas/user/user.enums';
 import {
   UPLOAD_PARAM_NAME_FOR_FILES,
   MAXIMUM_IMAGE_UPLOAD_SIZE,
@@ -64,6 +65,8 @@ export class BusinessListingController {
     private readonly booksService: BooksService,
     private readonly moviesService: MoviesService,
   ) {}
+
+  adminOnlyApiRestrictionMessage = 'Only admins can access this API';
 
   @TransformImageUrls('$.image')
   @Post('create-listing')
@@ -401,6 +404,30 @@ export class BusinessListingController {
   async getAllListings(@Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: GetAllListingsDto) {
     try {
       const businessListings = await this.businessListingService.getAllListings(query.businesstype);
+
+      return businessListings;
+    } catch (error) {
+      throw new HttpException(
+        'Unable to create listing type',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  @TransformImageUrls('$[*].businessLogo')
+  @Get('get-all-listings-admin')
+  async getAllListingsForAdmin(
+    @Req() request: Request,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: GetAllListingsDto,
+  ) {
+    try {
+      const user = getUserFromRequest(request);
+      const isAdmin = user.userType === UserType.Admin;
+      if (!isAdmin) {
+        throw new HttpException(this.adminOnlyApiRestrictionMessage, HttpStatus.NOT_FOUND);
+      }
+
+      const businessListings = await this.businessListingService.getAllListingsForAdmin(query.businesstype);
 
       return businessListings;
     } catch (error) {

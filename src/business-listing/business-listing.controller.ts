@@ -53,6 +53,7 @@ import { GetAllListingsDto } from './dto/get-all-listings.';
 import { ValidateBusinessListingIdDto } from './dto/validate.business-listing-id.dto';
 import { UpdateBusinessListingDto } from './dto/update-business-listing.dto';
 import { UpdateBusinessListingImageCoverDto } from './dto/update-business-listing-image-cover.dto';
+import { ToggleListingStatusDto } from './dto/toggle-listing-status.dto';
 
 @Controller({ path: 'business-listing', version: ['1'] })
 export class BusinessListingController {
@@ -281,7 +282,7 @@ export class BusinessListingController {
           break;
       }
 
-      const updatedBusinessListing = await this.getListingDetail({ id: updatingBusienssListingDto._id });
+      const updatedBusinessListing = await this.businessListingService.findOneWithoutStatusCondition(updatingBusienssListingDto._id);
 
       return updatedBusinessListing;
     } catch (error) {
@@ -318,7 +319,7 @@ export class BusinessListingController {
         fileObj,
       );
 
-      const listingDetail: any = await this.getListingDetail({ id: listingId });
+      const listingDetail: any = await this.businessListingService.findOneWithoutStatusCondition(listingId);
 
       const payload: any = {};
 
@@ -356,6 +357,50 @@ export class BusinessListingController {
       const updatedBusinessListing = await this.businessListingService.update(listingId, payload as UpdateBusinessListingDto);
 
       return updatedBusinessListing;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @TransformImageUrls('$.image')
+  @Put('toggle-listing-status')
+  async toggleListingStatus(
+    @Body() toggleListingStatusDto: ToggleListingStatusDto,
+  ) {
+    try {
+      const { listingId, businessType } = toggleListingStatusDto;
+
+      const listingDetail: any = await this.businessListingService.findOneWithoutStatusCondition(listingId);
+      const currentListingStatus = listingDetail.isActive;
+      const currentBookStatus = listingDetail?.bookRef?.status;
+      const currentMovieStatus = listingDetail?.movieRef?.status;
+
+      switch (businessType) {
+        case BusinessType.BOOKS:
+          await this.booksService.updateBook(
+            listingDetail.bookRef._id,
+          {
+            status: currentBookStatus === BookActiveStatus.Active ? BookActiveStatus.Inactive : BookActiveStatus.Active,
+          },
+        );
+        break;
+
+        case BusinessType.MOVIES:
+          await this.moviesService.updateMovie(
+            listingDetail.movieRef._id,
+            {
+            status: currentMovieStatus === MovieActiveStatus.Active ? MovieActiveStatus.Inactive : MovieActiveStatus.Active,
+          },
+        );
+        break;
+
+        default:
+          break;
+      }
+
+      const updatedListing = await this.businessListingService.update(listingId, { isActive: !currentListingStatus });
+
+      return updatedListing;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
@@ -479,7 +524,7 @@ export class BusinessListingController {
       return businessListingDetail;
     } catch (error) {
       throw new HttpException(
-        'Unable to create listing type',
+        'Unable to fetch listing details',
         HttpStatus.BAD_REQUEST,
       );
     }

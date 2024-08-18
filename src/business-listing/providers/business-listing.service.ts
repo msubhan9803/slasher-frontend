@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { BusinessListingType, BusinessListingTypeDocument } from '../../schemas/businessListingType/businessListingType.schema';
@@ -68,10 +68,21 @@ export class BusinessListingService {
     if (!businessListing) {
       throw new NotFoundException(`Business listing with ID ${id} not found`);
     }
+    if (!businessListing.isActive) {
+      throw new BadRequestException(`Business listing with ID ${id} not found`);
+    }
     return businessListing;
   }
 
-  async update(id: string, updateBusinessListingDto: UpdateBusinessListingDto): Promise<BusinessListing> {
+  async findOneWithoutStatusCondition(id: string): Promise<BusinessListing> {
+    const businessListing = await this.businessListingModel.findById(id).populate('bookRef movieRef').exec();
+    if (!businessListing) {
+      throw new NotFoundException(`Business listing with ID ${id} not found`);
+    }
+    return businessListing;
+  }
+
+  async update(id: string, updateBusinessListingDto: Partial<UpdateBusinessListingDto>): Promise<BusinessListing> {
     const existingBusinessListing = await this.businessListingModel.findByIdAndUpdate(id, updateBusinessListingDto, { new: true }).exec();
     if (!existingBusinessListing) {
       throw new NotFoundException(`Business listing with ID ${id} not found`);

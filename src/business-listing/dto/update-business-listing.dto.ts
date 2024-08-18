@@ -4,6 +4,7 @@ import {
   ArrayMinSize,
   IsArray,
   IsBoolean,
+  IsEmail,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -13,6 +14,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { BusinessType } from 'src/schemas/businessListing/businessListing.enums';
+import { IsOtherBusinessCommonFieldsRequired } from '../decorators/is-other-business-common-fields-required.decorator';
 
 class CastDto {
   @IsNotEmpty({ message: 'Cast image URL is required' })
@@ -52,7 +54,7 @@ export class UpdateBusinessListingDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(500, { message: 'Overview must be less than 500 characters' })
+  @MaxLength(1010, { message: 'Overview must be less than 500 characters' })
   overview: string;
 
   @IsOptional()
@@ -79,7 +81,7 @@ export class UpdateBusinessListingDto {
   isbn?: string;
 
   @IsOptional()
-  @IsNumber()
+  @IsNumber({}, { message: 'Year released must be number' })
   yearReleased?: number;
 
   @IsOptional()
@@ -104,4 +106,25 @@ export class UpdateBusinessListingDto {
   @ValidateNested({ each: true })
   @Type(() => CastDto)
   casts?: CastDto[];
+
+  /***********
+   * Fields for other businesses *
+   ***********/
+  @IsOptional()
+  @IsOtherBusinessCommonFieldsRequired({ message: 'Email is required' })
+  @IsEmail({}, { message: 'Invalid email format' })
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  phoneNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  address?: string;
+
+  @IsOptional()
+  @IsOtherBusinessCommonFieldsRequired({ message: 'Website Link is required' })
+  @IsString()
+  websiteLink?: string;
 }

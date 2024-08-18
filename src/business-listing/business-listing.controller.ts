@@ -246,7 +246,7 @@ export class BusinessListingController {
             isbnNumber: [isbn],
             description: overview,
             status: BookActiveStatus.Active,
-            publishDate: new Date(yearReleased),
+            publishDate: new Date(yearReleased, 0),
             buyUrl: link,
           },
         );
@@ -264,7 +264,7 @@ export class BusinessListingController {
             countryOfOrigin,
             durationInMinutes,
             rating: officialRatingReceived,
-            releaseDate: new Date(yearReleased),
+            releaseDate: new Date(yearReleased, 0),
             status: MovieActiveStatus.Active,
             watchUrl: link,
           },

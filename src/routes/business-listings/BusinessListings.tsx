@@ -1,6 +1,8 @@
 import {
   Navigate, Route, Routes,
+  useParams,
 } from 'react-router-dom';
+import { useCallback, useEffect } from 'react';
 import NotFound from '../../components/NotFound';
 import CreateBusinessListing from './create-post/CreateBusinessListing';
 import {
@@ -11,6 +13,7 @@ import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authe
 import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import BusinessListingPosts from './BusinessListingPosts/BusinessListingPosts';
+import { getUser } from '../../api/users';
 
 function SharedHeaderProfilePages() {
   return (
@@ -29,6 +32,19 @@ function SharedHeaderProfilePages() {
 }
 
 function BusinessListings() {
+  const { userName: userNameOrId } = useParams<string>();
+
+  const loadUser = useCallback(() => {
+    getUser(userNameOrId!)
+      .then((res) => {
+        console.log('res: ', res);
+      });
+  }, [userNameOrId]);
+
+  useEffect(() => {
+    loadUser();
+  }, []);
+
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>

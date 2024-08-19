@@ -145,11 +145,11 @@ function CreatePost() {
           <Form.Group controlId="about-me" className="d-flex justify-content-between">
             <div className="align-items-center d-flex form-label mb-4 w-100 mb-4">
               <UserCircleImage src={loggedInUser.profilePic} alt="user picture" className="me-3" />
-              <h2 className="h3 mb-0 align-self-center">
+              {/* <h2 className="h3 mb-0 align-self-center">
                 {loggedInUser.userName}
-              </h2>
+              </h2> */}
 
-              <SelectContainer className="ml-auto ms-auto pb-1 mt-3">
+              <SelectContainer>
                 <CustomSelect
                   value={selectedPostAsListingValue}
                   onChange={handlePostAsSelection}

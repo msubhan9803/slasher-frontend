@@ -17,10 +17,10 @@ export default function MainListingWrapper() {
 
   return (
     <div>
+      <ArtistListings listings={listings?.artist as BusinessListing[]} />
       <BookListings listings={listings?.books as BusinessListing[]} />
       <MovieListings listings={listings?.movies as BusinessListing[]} />
       <MusicsListings listings={listings?.musician as BusinessListing[]} />
-      <ArtistListings listings={listings?.artist as BusinessListing[]} />
       <PodcastListings listings={listings?.podcaster as BusinessListing[]} />
     </div>
   );

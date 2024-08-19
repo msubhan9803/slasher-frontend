@@ -110,6 +110,7 @@ function ProfilePosts({ user }: Props) {
           bookId: data?.bookId,
           hashtags: data.hashtags,
           postType: data.postType,
+          businessListingRef: data.businessListingRef,
         }
       ));
       setPosts((prev: Post[]) => [
@@ -181,6 +182,7 @@ function ProfilePosts({ user }: Props) {
           bookId: data.bookId,
           hashtags: data.hashtags,
           postType: data.postType,
+          businessListingRef: data.businessListingRef,
         }));
         setPosts(newPosts);
       });

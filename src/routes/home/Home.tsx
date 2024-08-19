@@ -163,6 +163,7 @@ function Home() {
             bookId: data?.bookId,
             hashtags: data.hashtags,
             postType: data?.postType,
+            businessListingRef: data?.businessListingRef,
           };
         }
         // RSS feed post
@@ -179,6 +180,7 @@ function Home() {
           commentCount: data.commentCount,
           rssfeedProviderId: data?.rssfeedProviderId?._id,
           hashtags: data.hashtags,
+          businessListingRef: data?.businessListingRef,
         };
       });
       setPosts((prev: Post[]) => [
@@ -252,6 +254,7 @@ function Home() {
             movieId: data.movieId,
             hashtags: data.hashtags,
             postType: data?.postType,
+            businessListingRef: data?.businessListingRef,
           };
         }
         // RSS feed post
@@ -268,6 +271,7 @@ function Home() {
           commentCount: data.commentCount,
           rssfeedProviderId: data.rssfeedProviderId._id,
           hashtags: data.hashtags,
+          businessListingRef: data?.businessListingRef,
         };
       });
       setPosts(newPosts);

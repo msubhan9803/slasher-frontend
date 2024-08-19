@@ -40,6 +40,11 @@ export async function createPost(
   }
   formData.append('message', postData.message);
   formData.append('postType', postData.postType);
+
+  if (postData.businessListingRef) {
+    formData.append('businessListingRef', postData.businessListingRef);
+  }
+
   // Useful for `share-movie-as-post` and `movie-review-post`
   if (postData.movieId) {
     formData.append('movieId', postData.movieId);

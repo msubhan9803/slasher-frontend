@@ -524,6 +524,7 @@ function PostFeed({
                   onSelect={onSelect}
                   postImages={post.images}
                   postType={postType}
+                  businessListingRef={post.businessListingRef}
                 />
               </Card.Header>
               <Card.Body className="px-0 pt-3 pb-0">

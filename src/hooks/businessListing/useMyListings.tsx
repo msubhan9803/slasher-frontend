@@ -39,6 +39,7 @@ export default function useMyListings() {
 
   return {
     listings,
+    listingsFlat: listings ? Object.values(listings as object).flat() as BusinessListing[] : [],
     loadingListings,
     listingError,
   };

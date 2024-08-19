@@ -1,10 +1,11 @@
 /* eslint-disable max-lines */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert, Button, Form,
 } from 'react-bootstrap';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import styled from 'styled-components';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
 import { createPost } from '../../../api/feed-posts';
@@ -19,6 +20,19 @@ import { atMentionsGlobalRegex, generateMentionReplacementMatchFunc } from '../.
 import { setProfilePageUserDetailsReload } from '../../../redux/slices/userSlice';
 import { deletePageStateCache } from '../../../pageStateCache';
 import SticyBannerAdSpaceCompensation from '../../../components/SticyBannerAdSpaceCompensation';
+import useMyListings from '../../../hooks/businessListing/useMyListings';
+import CustomSelect from '../../../components/filter-sort/CustomSelect';
+import {
+  MD_MEDIA_BREAKPOINT, LG_MEDIA_BREAKPOINT, XL_MEDIA_BREAKPOINT, XXL_MEDIA_BREAKPOINT,
+} from '../../../constants';
+
+const SelectContainer = styled.div`
+  @media(max-width: ${MD_MEDIA_BREAKPOINT}) { margin-bottom: 8px; }
+  @media(min-width: ${MD_MEDIA_BREAKPOINT}) { width: 35%; }
+  @media(min-width: ${LG_MEDIA_BREAKPOINT}) { width: 52%; }
+  @media(min-width: ${XL_MEDIA_BREAKPOINT}) { width: 40%; }
+  @media(min-width: ${XXL_MEDIA_BREAKPOINT}) { width: 30%; }
+`;
 
 export interface MentionProps {
   id: string;
@@ -45,9 +59,13 @@ function CreatePost() {
   const [containSpoiler, setContainSpoiler] = useState<boolean>(false);
   const [selectedPostType, setSelectedPostType] = useState<string>('');
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
+  const [selectedPostAsListingValue, setSelectedPostAsListingValue] = useState('');
+  const [businessListingRef, setBusinessListingRef] = useState<string | null>(null);
   const paramsMovieId = searchParams.get('movieId');
   const paramsBookId = searchParams.get('bookId');
   const dispatch = useAppDispatch();
+
+  const { listingsFlat, loadingListings } = useMyListings();
 
   const addPost = async () => {
     /* eslint no-useless-escape: 0 */
@@ -70,6 +88,7 @@ function CreatePost() {
     let createPostData: any = {
       message: postContentWithMentionReplacements,
       postType: PostType.User,
+      businessListingRef,
     };
     if (paramsMovieId) {
       createPostData = {
@@ -102,9 +121,22 @@ function CreatePost() {
         setErrorMessage(msg);
       });
   };
+
   const onCloseButton = () => {
     navigate(location.state);
   };
+
+  const handlePostAsSelection = (value: string) => {
+    setSelectedPostAsListingValue(value);
+    setBusinessListingRef(value !== loggedInUser.id ? value : null);
+  };
+
+  useEffect(() => {
+    if (loggedInUser.id) {
+      setSelectedPostAsListingValue(loggedInUser.id);
+    }
+  }, [loggedInUser]);
+
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
@@ -116,6 +148,20 @@ function CreatePost() {
               <h2 className="h3 mb-0 align-self-center">
                 {loggedInUser.userName}
               </h2>
+
+              <SelectContainer className="ml-auto ms-auto pb-1 mt-3">
+                <CustomSelect
+                  value={selectedPostAsListingValue}
+                  onChange={handlePostAsSelection}
+                  options={[
+                    { value: loggedInUser.id, label: loggedInUser.userName },
+                    ...listingsFlat.map((elem) => ({
+                      value: elem._id,
+                      label: `${elem.title ?? elem.movieRef?.name ?? elem.bookRef?.name} (${elem.businesstype})`,
+                    })),
+                  ]}
+                />
+              </SelectContainer>
             </div>
             <Button
               variant="link"

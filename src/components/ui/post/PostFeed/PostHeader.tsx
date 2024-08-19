@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DateTime } from 'luxon';
 import { Button, Col, Row } from 'react-bootstrap';
 import { HashLink } from 'react-router-hash-link';
@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import CustomPopover, { PopoverClickProps } from '../../CustomPopover';
 import UserCircleImage from '../../UserCircleImage';
 import BorderButton from '../../BorderButton';
+import { BusinessListing, BusinessType } from '../../../../routes/business-listings/type';
 
 interface PostHeaderProps {
   userName: string;
@@ -24,6 +25,7 @@ interface PostHeaderProps {
   onSelect?: (value: string) => void;
   postImages?: string[];
   postType?: string;
+  businessListingRef?: BusinessListing;
 }
 interface StyledSavedProps {
   saved: boolean;
@@ -35,13 +37,67 @@ const StyledSaveButton = styled(Button) <StyledSavedProps>`
     ${(props) => (props.saved ? 'color: var(--bs-yellow)' : '')};
   }
 `;
+
+type BusinessListingDetails = {
+  id: string | undefined | null;
+  name: string | undefined;
+  isMovie: boolean | undefined | null;
+  isBook: boolean | undefined | null;
+  logo: string | undefined;
+};
+
 function PostHeader({
   id, userName, postDate, profileImage, popoverOptions, onPopoverClick, isSinglePost,
-  message, userId, rssfeedProviderId, onSelect, postImages, postType,
+  message, userId, rssfeedProviderId, onSelect, postImages, postType, businessListingRef,
 }: PostHeaderProps) {
+  console.log('🌺 businessListingRef', businessListingRef);
+
   const [notificationOn, setNotificationOn] = useState(false);
   const [saved, setSaved] = useState(false);
   const [bgColor, setBgColor] = useState<boolean>(false);
+  const [businessListingDetail, setBusinessListingDetail] = useState<BusinessListingDetails>();
+
+  const getRedirectionLink = () => {
+    if (businessListingDetail) {
+      if (businessListingDetail.isBook) {
+        return `/app/books/${businessListingDetail.id}`;
+      }
+      if (businessListingDetail.isMovie) {
+        return `/app/movies/${businessListingDetail.id}`;
+      }
+
+      return `/app/business-listings/detail/${businessListingDetail.id}`;
+    }
+
+    return rssfeedProviderId
+      ? `/app/news/partner/${rssfeedProviderId}`
+      : `/${userName}`;
+  };
+
+  useEffect(() => {
+    if (businessListingRef) {
+      const detailId = businessListingRef.bookRef?._id
+      ?? businessListingRef.movieRef?._id
+      ?? businessListingRef._id;
+
+      const name = businessListingRef.title
+      ?? businessListingRef.bookRef?.name
+      ?? businessListingRef.movieRef?.name;
+
+      const logo = businessListingRef.bookRef?.coverImage.image_path
+      ?? businessListingRef.movieRef?.movieImage
+      ?? businessListingRef.businessLogo;
+
+      setBusinessListingDetail({
+        id: detailId,
+        name,
+        isMovie: !!businessListingRef.movieRef,
+        isBook: !!businessListingRef.bookRef,
+        logo,
+      });
+    }
+  }, [businessListingRef]);
+
   return (
     <Row className="justify-content-between">
       <Col xs="auto">
@@ -49,25 +105,21 @@ function PostHeader({
           <Col className="my-auto rounded-circle" xs="auto">
             <Link
               onClick={() => onSelect?.(rssfeedProviderId || id)}
-              to={rssfeedProviderId
-                ? `/app/news/partner/${rssfeedProviderId}`
-                : `/${userName}`}
+              to={getRedirectionLink()}
               className="d-block text-decoration-none rounded-circle"
             >
               <div className="rounded-circle">
-                <UserCircleImage size="3.313rem" src={profileImage} alt={`${userName} profile picture`} className="bg-secondary d-flex" />
+                <UserCircleImage size="3.313rem" src={businessListingDetail?.logo ?? profileImage} alt={`${userName} profile picture`} className="bg-secondary d-flex" />
               </div>
             </Link>
           </Col>
           <Col xs="auto" className="ps-0 align-self-center">
             <Link
               onClick={() => onSelect!(rssfeedProviderId || id)}
-              to={rssfeedProviderId
-                ? `/app/news/partner/${rssfeedProviderId}`
-                : `/${userName}`}
+              to={getRedirectionLink()}
               className="text-decoration-none d-block"
             >
-              <h2 className="mb-0 h3">{userName}</h2>
+              <h2 className="mb-0 h3">{businessListingDetail ? businessListingDetail.name : userName}</h2>
             </Link>
             {
               isSinglePost ? (
@@ -139,6 +191,7 @@ PostHeader.defaultProps = {
   onSelect: undefined,
   postImages: [],
   postType: '',
+  businessListingRef: '',
 };
 
 export default PostHeader;

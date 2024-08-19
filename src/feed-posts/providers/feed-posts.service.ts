@@ -142,6 +142,13 @@ export class FeedPostsService {
       .populate('userId', 'userName _id profilePic')
       .populate('movieId', 'logo name releaseDate')
       .populate('bookId', 'name publishDate coverImage')
+      .populate({
+        path: 'businessListingRef',
+        populate: [
+          { path: 'bookRef', select: '_id name publishDate coverImage' },
+          { path: 'movieRef', select: '_id name releaseDate logo movieImage' },
+        ],
+      })
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();

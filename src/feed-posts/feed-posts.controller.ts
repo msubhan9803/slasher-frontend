@@ -151,6 +151,11 @@ export class FeedPostsController {
     feedPost.userId = user._id;
     feedPost.hashtags = hashtags;
     feedPost.postType = createFeedPostsDto.postType;
+
+    if (feedPost.businessListingRef) {
+      feedPost.businessListingRef = createFeedPostsDto.businessListingRef;
+    }
+
     if (user.profile_status === ProfileVisibility.Private) {
       feedPost.privacyType = FeedPostPrivacyType.Private;
     }
@@ -504,7 +509,7 @@ export class FeedPostsController {
         feedPost,
         ['_id', 'message', 'createdAt', 'lastUpdateAt',
           'rssfeedProviderId', 'images', 'userId', 'commentCount',
-          'likeCount', 'likedByUser', 'movieId', 'bookId', 'hashtags', 'postType'],
+          'likeCount', 'likedByUser', 'movieId', 'bookId', 'hashtags', 'postType', 'businessListingRef'],
       ),
     );
   }
@@ -514,6 +519,9 @@ export class FeedPostsController {
     '$[*].userId.profilePic',
     '$[*].bookId.coverImage.image_path',
     '$[*].rssfeedProviderId.logo',
+    '$[*].businessListingRef.businessLogo',
+    '$[*].businessListingRef.bookRef.coverImage.image_path',
+    '$[*].businessListingRef.movieRef.movieImage',
   )
   @Get('all/post')
   async allFeedPosts(
@@ -537,7 +545,7 @@ export class FeedPostsController {
         feedPost,
         ['_id', 'message', 'createdAt', 'lastUpdateAt',
           'rssfeedProviderId', 'images', 'userId', 'commentCount',
-          'likeCount', 'likedByUser', 'movieId', 'bookId', 'hashtags', 'postType'],
+          'likeCount', 'likedByUser', 'movieId', 'bookId', 'hashtags', 'postType', 'businessListingRef'],
       ),
     );
   }

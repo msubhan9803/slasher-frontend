@@ -41,4 +41,5 @@ export enum PostType {
   News = 2,
   MovieReview = 3,
   BookReview = 4,
+  BusinessListing = 5,
 }

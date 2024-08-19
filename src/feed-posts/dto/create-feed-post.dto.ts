@@ -8,7 +8,7 @@ import {
   IsMongoId,
   IsNotEmpty,
   IsNumber,
-  IsOptional, Max, MaxLength, Min, ValidateNested,
+  IsOptional, IsString, Max, MaxLength, Min, ValidateNested,
 } from 'class-validator';
 import mongoose from 'mongoose';
 import { PostType } from '../../schemas/feedPost/feedPost.enums';
@@ -113,4 +113,8 @@ export class CreateFeedPostsDto {
   @ValidateNested({ each: true })
   @Type(() => ImageDescriptionsDto)
   imageDescriptions: ImageDescriptionsDto[];
+
+  @IsOptional()
+  @IsString()
+  businessListingRef?: mongoose.Schema.Types.ObjectId | null;
 }

@@ -122,8 +122,57 @@ export class FeedPostsService {
   ): Promise<FeedPostDocument[]> {
     const feedPostFindAllQuery: any = {};
     const feedPostQuery = [];
-    feedPostQuery.push({ userId: new mongoose.Types.ObjectId(userId) });
+    feedPostQuery.push({ userId: new mongoose.Types.ObjectId(userId), businessListingRef: null });
     //remove postType query when we have support for postType.User
+    feedPostQuery.push(
+      { postType: { $ne: PostType.News } },
+    );
+    if (before) {
+      const feedPost = await this.feedPostModel.findById(before).exec();
+      feedPostQuery.push({ createdAt: { $lt: feedPost.createdAt } });
+    }
+    if (activeOnly) {
+      feedPostFindAllQuery.is_deleted = FeedPostDeletionState.NotDeleted;
+      feedPostFindAllQuery.status = FeedPostStatus.Active;
+      feedPostQuery.push(feedPostFindAllQuery);
+    }
+
+    const feedPosts = await this.feedPostModel
+      .find({ $and: feedPostQuery })
+      .populate('userId', 'userName _id profilePic')
+      .populate('movieId', 'logo name releaseDate')
+      .populate('bookId', 'name publishDate coverImage')
+      .populate({
+        path: 'businessListingRef',
+        populate: [
+          { path: 'bookRef', select: '_id name publishDate coverImage' },
+          { path: 'movieRef', select: '_id name releaseDate logo movieImage' },
+        ],
+      })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .exec();
+
+    return JSON.parse(JSON.stringify(feedPosts)).map((post) => {
+      // eslint-disable-next-line no-param-reassign
+      post.likeCount = post.likes.length || 0;
+      // eslint-disable-next-line no-param-reassign
+      post.likedByUser = post.likes.includes(loggedInUserId);
+      return post;
+    });
+  }
+
+  async findAllByBusinessListing(
+    businessListingRef: string,
+    limit: number,
+    activeOnly: boolean,
+    loggedInUserId: mongoose.Types.ObjectId,
+    before?: mongoose.Types.ObjectId,
+  ): Promise<FeedPostDocument[]> {
+    const feedPostFindAllQuery: any = {};
+    const feedPostQuery = [];
+    feedPostQuery.push({ businessListingRef: new mongoose.Types.ObjectId(businessListingRef) });
+
     feedPostQuery.push(
       { postType: { $ne: PostType.News } },
     );

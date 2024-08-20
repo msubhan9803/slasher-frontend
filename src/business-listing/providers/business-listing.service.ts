@@ -64,7 +64,7 @@ export class BusinessListingService {
   }
 
   async findOne(id: string): Promise<BusinessListing> {
-    const businessListing = await this.businessListingModel.findById(id).populate('bookRef movieRef').exec();
+    const businessListing = await this.businessListingModel.findById(id).populate('bookRef movieRef userRef').exec();
     if (!businessListing) {
       throw new NotFoundException(`Business listing with ID ${id} not found`);
     }

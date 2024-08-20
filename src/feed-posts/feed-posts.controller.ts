@@ -49,6 +49,7 @@ import { HashtagFollowsService } from '../hashtag-follows/providers/hashtag-foll
 import { BooksService } from '../books/providers/books.service';
 import { BookUserStatusService } from '../book-user-status/providers/book-user-status.service';
 import { BookIdDto } from './dto/book-id.dto';
+import { ParamBusinessListingIdDto } from './dto/param-business-listing-id.dto';
 
 @Controller({ path: 'feed-posts', version: ['1'] })
 export class FeedPostsController {
@@ -546,6 +547,47 @@ export class FeedPostsController {
         ['_id', 'message', 'createdAt', 'lastUpdateAt',
           'rssfeedProviderId', 'images', 'userId', 'commentCount',
           'likeCount', 'likedByUser', 'movieId', 'bookId', 'hashtags', 'postType', 'businessListingRef'],
+      ),
+    );
+  }
+
+  @TransformImageUrls(
+    '$[*].images[*].image_path',
+    '$[*].userId.profilePic',
+    '$[*].bookId.coverImage.image_path',
+    '$[*].rssfeedProviderId.logo',
+    '$[*].businessListingRef.businessLogo',
+    '$[*].businessListingRef.bookRef.coverImage.image_path',
+    '$[*].businessListingRef.movieRef.movieImage',
+  )
+  @Get('business-listing-posts/:businessListingRef')
+  async allBusinessListingPosts(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamBusinessListingIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: AllFeedPostQueryDto,
+  ) {
+    const loggedInUser = getUserFromRequest(request);
+
+    const feedPosts = await this.feedPostsService.findAllByBusinessListing(
+      param.businessListingRef,
+      query.limit,
+      true,
+      loggedInUser.id,
+      query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
+    );
+
+    for (let i = 0; i < feedPosts.length; i += 1) {
+      const findActiveHashtags = await this.hashtagService.findActiveHashtags(feedPosts[i].hashtags);
+      feedPosts[i].hashtags = findActiveHashtags.map((hashtag) => hashtag.name);
+    }
+
+    return feedPosts.map(
+      (post) => pick(
+        post,
+        ['_id', 'message', 'images', 'userId', 'createdAt',
+          'likedByUser', 'likeCount', 'commentCount', 'movieId', 'hashtags', 'bookId', 'postType', 'businessListingRef'],
       ),
     );
   }

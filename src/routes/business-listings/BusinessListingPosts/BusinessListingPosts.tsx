@@ -1,21 +1,41 @@
+/* eslint-disable max-lines */
 import { useCallback, useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
+import InfiniteScroll from 'react-infinite-scroller';
 import BusinessListingHeader from '../BusinessListingHeader';
 import useListingPosts from '../../../hooks/businessListing/useListingPosts';
 import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
-import { ProfileSubroutesCache } from '../../../types';
+import {
+  ContentDescription, FriendRequestReaction, FriendType, ProfileSubroutesCache,
+} from '../../../types';
 import { setPageStateCache } from '../../../pageStateCache';
 import { getProfileSubroutesCache } from '../../profile/profileSubRoutesCacheUtils';
 import { formatNumberWithUnits } from '../../../utils/number.utils';
 import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import useListingDetail from '../../../hooks/businessListing/useListingDetail';
+import CustomCreatePost from '../../../components/ui/CustomCreatePost';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import LoadingIndicator from '../../../components/ui/LoadingIndicator';
+import ReportModal from '../../../components/ui/ReportModal';
+import useProgressButton from '../../../components/ui/ProgressButton';
+import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
+import { setProfilePageUserDetailsReload } from '../../../redux/slices/userSlice';
+import { createBlockUser } from '../../../api/blocks';
+import { reportData } from '../../../api/report';
+import EditPostModal from '../../../components/ui/post/EditPostModal';
+import FriendshipStatusModal from '../../../components/ui/friendShipCheckModal';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
 
 export default function BusinessListingPosts() {
+  const params = useParams();
   const location = useLocation();
+  const dispatch = useAppDispatch();
+  const loginUserData = useAppSelector((state) => state.user.user);
   const [showReportModal, setShowReportModal] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
   const [errorMessage, setErrorMessage] = useState<string[]>();
@@ -26,13 +46,27 @@ export default function BusinessListingPosts() {
   const [postImages, setPostImages] = useState<string[]>([]);
   const [postId, setPostId] = useState<string>('');
   const [postUserId, setPostUserId] = useState<string>('');
+  const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
+  const [friendShipStatusModal, setFriendShipStatusModal] = useState<boolean>(false);
+  const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
+  const [friendData, setFriendData] = useState<FriendType>(null);
 
   const {
     posts,
     setPosts,
     loadingListingPosts,
     listingPostsError,
+    refetchListingPosts,
   } = useListingPosts();
+
+  const {
+    listingDetail,
+    loadingListingDetail,
+    listingDetailError,
+  } = useListingDetail(params.id as string);
+
+  const postsCountWithLabel = `Posts: ${formatNumberWithUnits(posts.length)}`;
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.message) {
@@ -126,14 +160,96 @@ export default function BusinessListingPosts() {
     handleLikeAndUnlikeFeedPost();
   }, [handlePostDislike, handlePostLike, posts]);
 
-  const postsCountWithLabel = `Posts: ${formatNumberWithUnits(posts.length)}`;
+  const renderNoMoreDataMessage = () => (
+    <p className="text-center">
+      {
+        posts.length === 0
+          ? 'No posts available'
+          : 'No more posts'
+      }
+    </p>
+  );
+
+  const deletePostClickAsync = async () => {
+    setProgressButtonStatus('loading');
+    return deleteFeedPost(postId)
+      .then(async () => {
+        setProgressButtonStatus('default');
+        setPosts((prevPosts) => prevPosts.filter(((post) => post._id !== postId)));
+        dispatch(setProfilePageUserDetailsReload(true));
+      })
+
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+
+  const onBlockYesClick = () => {
+    setProgressButtonStatus('loading');
+    createBlockUser(postUserId)
+      .then(() => {
+        setProgressButtonStatus('default');
+        setDropDownValue('BlockUserSuccess');
+        refetchListingPosts();
+      })
+      /* eslint-disable no-console */
+      .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
+  };
+
+  const afterBlockUser = () => {
+    setShowReportModal(false);
+  };
+
+  const reportProfilePost = (reason: string) => {
+    setProgressButtonStatus('loading');
+    const reportPayload = {
+      targetId: postId!,
+      reason,
+      reportType: 'post',
+    };
+    reportData(reportPayload).then((res) => {
+      if (res) {
+        refetchListingPosts();
+        setProgressButtonStatus('default');
+      }
+    })
+      /* eslint-disable no-console */
+      .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
+    setDropDownValue('PostReportSuccessDialog');
+  };
+
+  const onUpdatePost = (
+    message: string,
+    images: string[],
+    imageDelete: string[] | undefined,
+    descriptionArray?: ContentDescription[],
+  ) => {
+    setProgressButtonStatus('loading');
+    updateFeedPost(postId, message, images, imageDelete, null, descriptionArray).then(async () => {
+      setProgressButtonStatus('default');
+      setShowReportModal(false);
+      const updatePost = posts.map((post: any) => {
+        if (post._id === postId) {
+          return {
+            ...post, message,
+          };
+        }
+        return post;
+      });
+      setPosts(updatePost);
+      refetchListingPosts();
+    })
+      .catch((error) => {
+        setProgressButtonStatus('failure');
+        const msg = error.response.status === 0 && !error.response.data
+          ? 'Combined size of files is too large.'
+          : error.response.data.message;
+        setEditModalErrorMessage(msg);
+      });
+  };
 
   useEffect(() => {
-    if (posts.length === 0) {
-      return;
-    }
-    console.log('🌺 posts: ', posts);
-  }, [posts]);
+    console.log('🌺 listingDetail: ', listingDetail);
+  }, [listingDetail]);
 
   return (
     <>
@@ -141,7 +257,22 @@ export default function BusinessListingPosts() {
       <div className="ms-3 fs-4 fw-bold my-3">{postsCountWithLabel}</div>
 
       <ProfileTabContent>
-        {
+        {listingDetail && loginUserData.userName === listingDetail.userRef?.userName
+          && (
+            <div className="mb-4 mt-1">
+              <CustomCreatePost />
+            </div>
+          )}
+
+        <ErrorMessageList errorMessages={listingDetailError ? [listingDetailError] : []} divClass="mt-3 text-start" className="m-0" />
+
+        <InfiniteScroll
+          pageStart={0}
+          initialLoad
+          loadMore={() => { setRequestAdditionalPosts(true); }}
+          hasMore={!noMoreData}
+        >
+          {
           posts.length > 0
           && (
             <PostFeed
@@ -155,6 +286,54 @@ export default function BusinessListingPosts() {
             />
           )
         }
+        </InfiniteScroll>
+
+        {loadingListingPosts && <LoadingIndicator />}
+
+        {noMoreData && renderNoMoreDataMessage()}
+
+        {['Block user', 'Report', 'Delete', 'PostReportSuccessDialog', 'BlockUserSuccess'].includes(dropDownValue)
+          && (
+            <ReportModal
+              onConfirmClickAsync={deletePostClickAsync}
+              show={showReportModal}
+              setShow={setShowReportModal}
+              slectedDropdownValue={dropDownValue}
+              onBlockYesClick={onBlockYesClick}
+              afterBlockUser={afterBlockUser}
+              handleReport={reportProfilePost}
+              ProgressButton={ProgressButton}
+            />
+          )}
+
+        {dropDownValue === 'Edit'
+          && (
+            <EditPostModal
+              show={showReportModal}
+              errorMessage={editModalErrorMessage}
+              setShow={setShowReportModal}
+              setPostContent={setPostContent}
+              postContent={postContent}
+              onUpdatePost={onUpdatePost}
+              postImages={postImages}
+              setPostImages={setPostImages}
+              deleteImageIds={deleteImageIds}
+              setDeleteImageIds={setDeleteImageIds}
+              ProgressButton={ProgressButton}
+            />
+          )}
+
+        {friendShipStatusModal && !loginUserData.ignoreFriendSuggestionDialog && (
+          <FriendshipStatusModal
+            friendShipStatusModal={friendShipStatusModal}
+            setFriendShipStatusModal={setFriendShipStatusModal}
+            friendStatus={friendStatus}
+            setFriendStatus={setFriendStatus}
+            setFriendData={setFriendData}
+            friendData={friendData}
+            userId={postUserId}
+          />
+        )}
       </ProfileTabContent>
     </>
   );

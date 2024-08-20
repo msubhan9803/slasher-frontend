@@ -57,5 +57,6 @@ export default function useListingPosts() {
     setPosts,
     loadingListingPosts,
     listingPostsError,
+    refetchListingPosts: fetchBusinessListingPosts,
   };
 }

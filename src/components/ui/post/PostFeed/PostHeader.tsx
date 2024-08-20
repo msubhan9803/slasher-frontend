@@ -50,7 +50,6 @@ function PostHeader({
   id, userName, postDate, profileImage, popoverOptions, onPopoverClick, isSinglePost,
   message, userId, rssfeedProviderId, onSelect, postImages, postType, businessListingRef,
 }: PostHeaderProps) {
-  console.log('⏱️ postDate: ', postDate);
   const [notificationOn, setNotificationOn] = useState(false);
   const [saved, setSaved] = useState(false);
   const [bgColor, setBgColor] = useState<boolean>(false);

@@ -1,11 +1,19 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { getBusinessListingPosts } from '../../api/feed-posts';
 import { Post } from '../../types';
+import { getBusinessListingSubroutesCache } from '../../routes/business-listings/businessListingSubroutesCache';
+import { deletedPostsCache } from '../../pageStateCache';
+
+const removeDeletedPost = (post: any) => !deletedPostsCache.has(post._id);
 
 export default function useListingPosts() {
   const params = useParams();
-  const [posts, setPosts] = useState<Post[]>([]);
+  const location = useLocation();
+  const businessListingSubRoutesCache = getBusinessListingSubroutesCache(location);
+  const [posts, setPosts] = useState<Post[]>(
+    businessListingSubRoutesCache?.listingPosts?.filter(removeDeletedPost) || [],
+  );
   const [loadingListingPosts, setLoadingListingPosts] = useState<boolean>(true);
   const [listingPostsError, setListingPostsError] = useState<string | null>(null);
 

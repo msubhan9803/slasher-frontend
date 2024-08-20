@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
 import BusinessListingHeader from '../BusinessListingHeader';
@@ -246,10 +246,6 @@ export default function BusinessListingPosts() {
         setEditModalErrorMessage(msg);
       });
   };
-
-  useEffect(() => {
-    console.log('🌺 listingDetail: ', listingDetail);
-  }, [listingDetail]);
 
   return (
     <>

@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { Row, Col } from 'react-bootstrap';
@@ -10,6 +10,9 @@ import defaultCoverImage from '../../images/default-cover-image.jpg';
 import UserCircleImage from '../../components/ui/UserCircleImage';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { StyledBorder } from '../../components/ui/StyledBorder';
+import TabLinks from '../../components/ui/Tabs/TabLinks';
+import { setScrollToTabsPosition } from '../../redux/slices/scrollPositionSlice';
+import { useAppDispatch } from '../../redux/hooks';
 
 const ProfileCoverImage = styled.img`
   width: 100%;
@@ -42,14 +45,22 @@ const ReadMoreLink = styled.span`
   text-decoration: underline;
 `;
 
+const tabs = [
+  { value: 'posts', label: 'Posts' },
+];
+
 export default function BusinessListingHeader() {
   const params = useParams();
+  const dispatch = useAppDispatch();
   const [isExpanded, setIsExpanded] = useState(false);
+  const positionRef = useRef<HTMLDivElement>(null);
   const { listingDetail, loadingListingDetail, listingDetailError } = useListingDetail(params.id as string);
 
   const toggleReadMore = () => {
     setIsExpanded(!isExpanded);
   };
+
+  const handleScrollToTab = () => dispatch(setScrollToTabsPosition(true));
 
   if (loadingListingDetail) {
     return <LoadingIndicator />;
@@ -152,6 +163,17 @@ export default function BusinessListingHeader() {
             <p className="py-4 text-center fw-bold">No Data Found</p>
           )
         }
+
+        <StyledBorder className="d-md-block d-none" />
+        <div ref={positionRef} aria-hidden="true">
+          <TabLinks
+            tabLink={tabs}
+            // toLink={`/${user?.userName}`}
+            toLink="/"
+            selectedTab="posts"
+            overrideOnClick={handleScrollToTab}
+          />
+        </div>
       </div>
     </div>
   );

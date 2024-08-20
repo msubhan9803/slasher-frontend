@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import useMyListings from '../../../hooks/businessListing/useMyListings';
 import BookListings from './BookListings';
 import LoadingIndicator from '../LoadingIndicator';

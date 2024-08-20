@@ -213,3 +213,18 @@ export async function getHashtagPostList(hashTag: string, lastRetrievedPostId?: 
   }
   return axios.get(`${apiUrl}/api/v1/feed-posts/hashtag/${hashTag}${queryParameter}`, { headers });
 }
+
+export async function getBusinessListingPosts(
+  businessListingRef: string,
+  lastRetrievedPostId?: string,
+) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  let queryParameter = '?limit=10';
+  if (lastRetrievedPostId) {
+    queryParameter += `&before=${lastRetrievedPostId}`;
+  }
+  return axios.get(`${apiUrl}/api/v1/feed-posts/business-listing-posts/${businessListingRef}${queryParameter}`, { headers });
+}

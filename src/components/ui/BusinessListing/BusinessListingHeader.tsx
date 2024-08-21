@@ -102,7 +102,7 @@ export default function BusinessListingHeader({ businessListingRef }: Props) {
           </CustomCol>
 
           <Col className="w-100 mt-md-4">
-            <Row className="d-flex justify-content-between">
+            <Row className="d-flex justify-content-between mb-4">
               <Col
                 xs={12}
                 md={6}
@@ -150,7 +150,7 @@ export default function BusinessListingHeader({ businessListingRef }: Props) {
           !listingDetailError && (
           <>
             <h1 className="mb-md-0 text-break fs-1 my-4">About</h1>
-            <p className="text-gray-100 my-2">
+            <p className="text-gray-100 my-4">
               {isExpanded ? listingDetail?.overview : `${listingDetail?.overview?.substring(0, 300)}...`}
               {listingDetail?.overview && listingDetail?.overview?.length > 300 && (
               <ReadMoreLink className="text-primary" onClick={toggleReadMore}>
@@ -169,6 +169,7 @@ export default function BusinessListingHeader({ businessListingRef }: Props) {
         }
 
         <StyledBorder className="d-md-block d-none" />
+
         <div ref={positionRef} aria-hidden="true">
           <TabLinks
             tabLink={tabs}

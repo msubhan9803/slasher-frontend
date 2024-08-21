@@ -104,6 +104,13 @@ export class FeedPostsService {
       .populate('rssFeedId', 'content title')
       .populate('movieId', 'logo name releaseDate')
       .populate('bookId', 'name publishDate coverImage')
+      .populate({
+        path: 'businessListingRef',
+        populate: [
+          { path: 'bookRef', select: '_id name publishDate coverImage' },
+          { path: 'movieRef', select: '_id name releaseDate logo movieImage' },
+        ],
+      })
       .exec();
 
     if (feedPost) {

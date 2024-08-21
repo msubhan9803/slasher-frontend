@@ -202,7 +202,15 @@ export class FeedPostsController {
     };
   }
 
-  @TransformImageUrls('$.userId.profilePic', '$.rssfeedProviderId.logo', '$.images[*].image_path', '$.bookId.coverImage.image_path')
+  @TransformImageUrls(
+    '$.userId.profilePic',
+    '$.rssfeedProviderId.logo',
+    '$.images[*].image_path',
+    '$.bookId.coverImage.image_path',
+    '$.businessListingRef.businessLogo',
+    '$.businessListingRef.bookRef.coverImage.image_path',
+    '$.businessListingRef.movieRef.movieImage',
+  )
   @Get(':id')
   async singleFeedPostDetails(
     @Req() request: Request,
@@ -269,7 +277,7 @@ export class FeedPostsController {
       ...pick(
         feedPost,
         ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likedByUser',
-          'postType', 'spoilers', 'movieId', 'bookId', 'message', 'hashtags'],
+          'postType', 'spoilers', 'movieId', 'bookId', 'message', 'hashtags', 'businessListingRef'],
       ),
       reviewData,
     };

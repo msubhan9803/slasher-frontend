@@ -132,6 +132,9 @@ export class Movie extends MovieUnusedFields {
   @Prop({ default: null, ref: User.name })
   userRef?: mongoose.Schema.Types.ObjectId;
 
+  @Prop()
+  businessListingRef?: string;
+
   /***********
    * Methods *
    ***********/

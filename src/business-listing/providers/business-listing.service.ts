@@ -89,4 +89,12 @@ export class BusinessListingService {
     }
     return existingBusinessListing;
   }
+
+  async updateAll(id: string, businessListingData: BusinessListing): Promise<BusinessListing> {
+    const existingBusinessListing = await this.businessListingModel.findByIdAndUpdate(id, businessListingData, { new: true }).exec();
+    if (!existingBusinessListing) {
+      throw new NotFoundException(`Business listing with ID ${id} not found`);
+    }
+    return existingBusinessListing;
+  }
 }

@@ -101,7 +101,7 @@ export class MoviesController {
       userData,
     }, [
       '_id', 'movieDBId', 'rating', 'ratingUsersCount', 'goreFactorRating', 'goreFactorRatingUsersCount',
-      'worthWatching', 'worthWatchingUpUsersCount', 'worthWatchingDownUsersCount', 'userData', 'type', 'movieImage',
+      'worthWatching', 'worthWatchingUpUsersCount', 'worthWatchingDownUsersCount', 'userData', 'type', 'movieImage', 'businessListingRef',
     ]);
   }
 

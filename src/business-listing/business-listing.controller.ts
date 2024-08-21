@@ -97,7 +97,7 @@ export class BusinessListingController {
       );
 
       const listingFile = files[0]; // First file is listing image or movie / book image
-      const castFiles = files.slice(2); // Third onwards are cast files for listing type === movies
+      const castFiles = files.slice(1); // Second onwards (in-case of movies) are cast files for listing type === movies
       const coverPhotoFile = files[1]; // Second file will be cover photo for listing types !== movies / books
 
       const listingStorageLocation = await this.storeFile(
@@ -140,12 +140,30 @@ export class BusinessListingController {
 
       const user = getUserFromRequest(request as any);
 
+      const currentListingByBusinessType = await this.businessListingService.getAllListings(businesstype);
+
       const businessListing = new BusinessListing({
         userRef: user._id,
         businesstype,
         listingType,
         isActive,
       });
+
+      if (![BusinessType.BOOKS, BusinessType.MOVIES].includes(businesstype)) {
+        businessListing.title = title;
+        businessListing.overview = overview;
+        businessListing.email = email;
+        businessListing.phoneNumber = phoneNumber;
+        businessListing.address = address;
+        businessListing.websiteLink = websiteLink;
+        businessListing.businessLogo = listingStorageLocation;
+        businessListing.coverPhoto = await this.storeFile(
+          'business-listing',
+          coverPhotoFile,
+        );
+      }
+
+      let createdBusinessListing = await this.businessListingService.createListing(businessListing);
 
       switch (businesstype) {
         case BusinessType.BOOKS:
@@ -167,9 +185,12 @@ export class BusinessListingController {
             publishDate: new Date(yearReleased),
             buyUrl: link,
             userRef: user._id,
+            businessListingRef: createdBusinessListing._id.toString(),
           });
 
           businessListing.bookRef = book._id;
+          createdBusinessListing = await this.businessListingService.updateAll(createdBusinessListing._id.toString(), businessListing);
+
           break;
 
         case BusinessType.MOVIES:
@@ -190,27 +211,18 @@ export class BusinessListingController {
             casts,
             watchUrl: link,
             userRef: user._id,
+            businessListingRef: createdBusinessListing._id.toString(),
+            movieDBId: currentListingByBusinessType.length,
           });
 
           businessListing.movieRef = movie._id;
+          createdBusinessListing = await this.businessListingService.updateAll(createdBusinessListing._id.toString(), businessListing);
+
           break;
 
           default:
-          businessListing.title = title;
-          businessListing.overview = overview;
-          businessListing.email = email;
-          businessListing.phoneNumber = phoneNumber;
-          businessListing.address = address;
-          businessListing.websiteLink = websiteLink;
-          businessListing.businessLogo = listingStorageLocation;
-          businessListing.coverPhoto = await this.storeFile(
-            'business-listing',
-            coverPhotoFile,
-          );
           break;
       }
-
-      const createdBusinessListing = await this.businessListingService.createListing(businessListing);
 
       return createdBusinessListing;
     } catch (error) {

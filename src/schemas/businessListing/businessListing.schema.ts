@@ -25,11 +25,11 @@ export class BusinessListing {
   @Prop()
   coverPhoto?: string;
 
-  @Prop({ required: true })
+  @Prop()
   title?: string;
 
-  @Prop({ required: true })
-  overview: string;
+  @Prop()
+  overview?: string;
 
   @Prop({ default: true })
   isActive: boolean;

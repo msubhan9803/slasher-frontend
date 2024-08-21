@@ -107,7 +107,7 @@ export class BooksController {
       ...bookRelatedFields,
       'rating', 'ratingUsersCount', 'goreFactorRating',
       'goreFactorRatingUsersCount', 'worthReading', 'worthReadingUpUsersCount', 'worthReadingDownUsersCount', 'userData', 'coverImage',
-      'type', 'buyUrl',
+      'type', 'buyUrl', 'businessListingRef',
     ]);
   }
 

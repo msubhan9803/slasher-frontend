@@ -127,4 +127,8 @@ export class UpdateBusinessListingDto {
   @IsOtherBusinessCommonFieldsRequired({ message: 'Website Link is required' })
   @IsString()
   websiteLink?: string;
+
+  @IsOptional()
+  @IsString()
+  userRef?: string;
 }

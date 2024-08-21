@@ -10,6 +10,8 @@ import RoundButtonLink from '../../ui/RoundButtonLink';
 import { getAppVersion } from '../../../utils/version-utils';
 import { enableDevFeatures } from '../../../env';
 import SticyBannerAdSpaceCompensation from '../../SticyBannerAdSpaceCompensation';
+import { useAppSelector } from '../../../redux/hooks';
+import { UserType } from '../../../types';
 
 const MAX_ALLOWED_COMING_SOON_ITEMS_IN_MENU = 1;
 
@@ -26,6 +28,7 @@ type MenuListItem = {
   desktopOnly?: boolean,
   comingSoon?: boolean,
   rotate?: number
+  isAdmin?: boolean;
 };
 
 const topMenuListItems: MenuListItem[] = [
@@ -68,6 +71,9 @@ const topMenuListItems: MenuListItem[] = [
   {
     label: 'Shopping', icon: solid('store'), iconColor: '#00D2FF', to: '/app/shopping', id: 14, comingSoon: true, rotate: 0,
   },
+  {
+    label: 'Manage Listing', icon: solid('list-check'), iconColor: '#00D2FF', to: '/app/admin/listing-management', id: 15, rotate: 0, isAdmin: true,
+  },
 ];
 
 const bottomMenuListItems: MenuListItem[] = [
@@ -96,9 +102,19 @@ for (let i = 0; i < numberOfComingSoonItemsToShow; i += 1) {
 menuListItems = menuListItems.concat(bottomMenuListItems);
 
 function SidebarNavContent({ onToggleCanvas }: Props) {
+  const userData = useAppSelector((state) => state.user);
+
+  const filterAdminRoutes = (routesList: MenuListItem[]) => {
+    if (userData.user.userType !== UserType.Admin) {
+      return routesList.filter((item) => !item.isAdmin);
+    }
+
+    return routesList;
+  };
+
   return (
     <Nav>
-      {menuListItems.map((menuItem) => (
+      {filterAdminRoutes(menuListItems).map((menuItem) => (
         <SidebarNavItem
           id={menuItem.id}
           key={menuItem.id}

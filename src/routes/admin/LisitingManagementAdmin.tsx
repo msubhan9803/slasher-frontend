@@ -7,6 +7,8 @@ import { useMemo, useState } from 'react';
 import { ListingType } from '../business-listings/type';
 import useListingsAdmin from '../../hooks/businessListing/useListingsAdmin';
 import useToggleListingStatus from '../../hooks/businessListing/useToggleListingStatus';
+import { useAppSelector } from '../../redux/hooks';
+import { UserType } from '../../types';
 
 const statusCellClass = 'status__cell';
 const StyledContainer = styled.div`
@@ -81,6 +83,7 @@ const toProperCase = (str: string) => str
   .join(' ');
 
 export default function LisitingManagementAdmin() {
+  const userData = useAppSelector((state) => state.user);
   const [businessType, setBusinessType] = useState<ListingType | null>(null);
   const {
     listings, loadingListings, listingError, refetch: refetchListings,
@@ -135,6 +138,10 @@ export default function LisitingManagementAdmin() {
       ),
     },
   ];
+
+  if (userData.user.userType !== UserType.Admin) {
+    return <p className="text-light fw-bold text-center">Not Authorized</p>;
+  }
 
   return (
     <StyledContainer>

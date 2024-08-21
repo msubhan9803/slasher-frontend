@@ -7,8 +7,11 @@ import { deletedPostsCache } from '../../pageStateCache';
 
 const removeDeletedPost = (post: any) => !deletedPostsCache.has(post._id);
 
-export default function useListingPosts() {
-  const params = useParams();
+type Props = {
+  businessListingRef: string;
+};
+
+export default function useListingPosts({ businessListingRef }: Props) {
   const location = useLocation();
   const businessListingSubRoutesCache = getBusinessListingSubroutesCache(location);
   const [posts, setPosts] = useState<Post[]>(
@@ -23,7 +26,7 @@ export default function useListingPosts() {
 
     try {
       const res = await getBusinessListingPosts(
-        params.id as string,
+        businessListingRef as string,
         posts.length > 0 ? posts[posts.length - 1]._id : undefined,
       );
 

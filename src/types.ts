@@ -371,6 +371,8 @@ export interface MovieData {
   },
   // to check movieData state update
   isUpdated?: boolean
+  businessListingRef?: string;
+  type: MovieType;
 }
 export interface BookData {
   numberOfPages: number,
@@ -405,6 +407,7 @@ export interface BookData {
   isUpdated?: boolean
   type: BookType;
   buyUrl?: string;
+  businessListingRef?: string;
 }
 
 export type LocationPointType = {

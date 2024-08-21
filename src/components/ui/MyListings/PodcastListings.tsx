@@ -29,16 +29,20 @@ export default function PodcastListings({ listings }: Props) {
       <div className="m-md-2">
         <Container fluid>
           <Row className="g-3">
-            {listings.map((listing) => (
-              <ListingCard
-                key={listing._id}
-                listingId={listing._id as string}
-                title={listing.title as string}
-                businessLogo={listing.businessLogo as string}
-                overview={listing.overview as string}
-                editUrl={`/app/business-listings/create?id=${listing._id}&type=${BusinessType.PODCASTER}`}
-              />
-            ))}
+            {listings && listings.length > 0 ? (
+              listings.map((listing) => (
+                <ListingCard
+                  key={listing._id}
+                  listingId={listing._id as string}
+                  title={listing.title as string}
+                  businessLogo={listing.businessLogo as string}
+                  overview={listing.overview as string}
+                  editUrl={`/app/business-listings/create?id=${listing._id}&type=${BusinessType.PODCASTER}`}
+                />
+              ))
+            ) : (
+              <p className="text-light fw-bold text-center">No Data</p>
+            )}
           </Row>
         </Container>
       </div>

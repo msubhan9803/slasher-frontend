@@ -73,6 +73,8 @@ function PostHeader({
   };
 
   useEffect(() => {
+    console.log('🔥🔥🔥🔥 businessListingRef: ', businessListingRef);
+
     if (businessListingRef) {
       const detailId = businessListingRef.bookRef?._id
       ?? businessListingRef.movieRef?._id
@@ -86,13 +88,15 @@ function PostHeader({
       ?? businessListingRef.movieRef?.movieImage
       ?? businessListingRef.businessLogo;
 
-      setBusinessListingDetail({
+      const temp = {
         id: detailId,
         name,
         isMovie: !!businessListingRef.movieRef,
         isBook: !!businessListingRef.bookRef,
         logo,
-      });
+      };
+
+      setBusinessListingDetail(temp);
     }
   }, [businessListingRef]);
 

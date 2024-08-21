@@ -4,6 +4,8 @@ import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import CreatePostInput from '../../../components/ui/post/CreatePostInput';
 import postImage from '../../../images/movie-post.jpg';
 import ReportModal from '../../../components/ui/ReportModal';
+import BusinessListingPosts from '../../../components/ui/BusinessListing/BusinessListingPosts';
+import { MovieData, MovieType } from '../../../types';
 
 const selfPostData = [
   {
@@ -11,7 +13,8 @@ const selfPostData = [
     userName: 'The Curse of La Patasola',
     profileImage: 'https://i.pravatar.cc/300?img=12',
     postDate: '06/18/2022 11:10 PM',
-    message: 'Samuel Goldwyn Films presents Dreamcatcher, a new horror movie written and directed by Jacob Johnston and coming to On-Demand and Digital on March 5, 2021.',
+    message:
+      'Samuel Goldwyn Films presents Dreamcatcher, a new horror movie written and directed by Jacob Johnston and coming to On-Demand and Digital on March 5, 2021.',
     postUrl: postImage,
     likeIcon: false,
   },
@@ -31,7 +34,8 @@ const viewerPostData = [
     userName: 'The Curse of La Patasola',
     profileImage: 'https://i.pravatar.cc/300?img=12',
     postDate: '06/18/2022 11:10 PM',
-    message: 'Samuel Goldwyn Films presents Dreamcatcher, a new horror movie written and directed by Jacob Johnston and coming to On-Demand and Digital on March 5, 2021.',
+    message:
+      'Samuel Goldwyn Films presents Dreamcatcher, a new horror movie written and directed by Jacob Johnston and coming to On-Demand and Digital on March 5, 2021.',
     postUrl: postImage,
     likeIcon: false,
   },
@@ -39,7 +43,12 @@ const viewerPostData = [
 
 const selfOptions = ['Edit', 'Delete'];
 const viewerOptions = ['Report'];
-function MoviePosts() {
+
+type Props = {
+  movieData: MovieData
+};
+
+function MoviePosts({ movieData }: Props) {
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
   const popoverOptions = queryParam === 'self' ? selfOptions : viewerOptions;
@@ -50,16 +59,29 @@ function MoviePosts() {
     setShow(true);
     setDropDownValue(value);
   };
+
   return (
     <>
       {queryParam === 'self' && <CreatePostInput />}
-      <PostFeed
+      {/* <PostFeed
         postFeedData={postData}
         popoverOptions={popoverOptions}
         isCommentSection={false}
         onPopoverClick={handlePopoverOption}
+      /> */}
+
+      {movieData.type === MovieType.UserDefined
+        && movieData.businessListingRef && (
+          <BusinessListingPosts
+            businessListingRef={movieData.businessListingRef as string}
+          />
+      )}
+
+      <ReportModal
+        show={show}
+        setShow={setShow}
+        slectedDropdownValue={dropDownValue}
       />
-      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </>
   );
 }

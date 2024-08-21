@@ -5,14 +5,14 @@ import styled from 'styled-components';
 import { Row, Col } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import useListingDetail from '../../hooks/businessListing/useListingDetail';
-import defaultCoverImage from '../../images/default-cover-image.jpg';
-import UserCircleImage from '../../components/ui/UserCircleImage';
-import LoadingIndicator from '../../components/ui/LoadingIndicator';
-import { StyledBorder } from '../../components/ui/StyledBorder';
-import TabLinks from '../../components/ui/Tabs/TabLinks';
-import { setScrollToTabsPosition } from '../../redux/slices/scrollPositionSlice';
-import { useAppDispatch } from '../../redux/hooks';
+import useListingDetail from '../../../hooks/businessListing/useListingDetail';
+import defaultCoverImage from '../../../images/default-cover-image.jpg';
+import UserCircleImage from '../UserCircleImage';
+import LoadingIndicator from '../LoadingIndicator';
+import { StyledBorder } from '../StyledBorder';
+import TabLinks from '../Tabs/TabLinks';
+import { setScrollToTabsPosition } from '../../../redux/slices/scrollPositionSlice';
+import { useAppDispatch } from '../../../redux/hooks';
 
 const ProfileCoverImage = styled.img`
   width: 100%;
@@ -49,12 +49,16 @@ const tabs = [
   { value: 'posts', label: 'Posts' },
 ];
 
-export default function BusinessListingHeader() {
+type Props = {
+  businessListingRef: string;
+};
+
+export default function BusinessListingHeader({ businessListingRef }: Props) {
   const params = useParams();
   const dispatch = useAppDispatch();
   const [isExpanded, setIsExpanded] = useState(false);
   const positionRef = useRef<HTMLDivElement>(null);
-  const { listingDetail, loadingListingDetail, listingDetailError } = useListingDetail(params.id as string);
+  const { listingDetail, loadingListingDetail, listingDetailError } = useListingDetail(businessListingRef as string);
 
   const toggleReadMore = () => {
     setIsExpanded(!isExpanded);

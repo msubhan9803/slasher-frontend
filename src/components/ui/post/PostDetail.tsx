@@ -484,6 +484,8 @@ function PostDetail({
   const getFeedPostDetail = useCallback((feedPostId: string) => {
     feedPostDetail(feedPostId)
       .then((res) => {
+        console.log('📺 res: ', res);
+
         if (postType === 'news') {
           if (partnerId !== res.data.rssfeedProviderId?._id && !queryCommentId) {
             navigate(`/app/news/partner/${res.data.rssfeedProviderId?._id}/posts/${postId}`);
@@ -527,6 +529,7 @@ function PostDetail({
             likeIcon: res.data.likedByUser,
             likedByUser: res.data.likedByUser,
             rssfeedProviderId: res.data.rssfeedProviderId?._id,
+            businessListingRef: res.data.businessListingRef,
           };
         } else if (reviewDetail === 'movie-review') {
           post = {
@@ -549,6 +552,7 @@ function PostDetail({
             spoilers: res.data.spoilers,
             movieId: res.data.movieId._id,
             hashtags: res.data?.hashtags,
+            businessListingRef: res.data.businessListingRef,
           };
         } else if (reviewDetail === 'book-review') {
           post = {
@@ -570,6 +574,7 @@ function PostDetail({
             bookId: res.data.bookId._id,
             spoilers: res.data.spoilers,
             hashtags: res.data.hashtags,
+            businessListingRef: res.data.businessListingRef,
           };
         } else {
           // Regular post
@@ -586,6 +591,7 @@ function PostDetail({
             likedByUser: res.data.likedByUser,
             likeCount: res.data.likeCount,
             commentCount: res.data.commentCount,
+            businessListingRef: res.data.businessListingRef,
           };
         }
         setPostData([post]);

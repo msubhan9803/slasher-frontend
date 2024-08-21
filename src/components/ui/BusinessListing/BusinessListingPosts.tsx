@@ -1,38 +1,40 @@
 /* eslint-disable max-lines */
-import { useCallback, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import React, { useCallback, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
-import BusinessListingHeader from '../BusinessListingHeader';
-import useListingPosts from '../../../hooks/businessListing/useListingPosts';
-import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
-import { PopoverClickProps } from '../../../components/ui/CustomPopover';
-import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
+import { useLocation } from 'react-router-dom';
 import {
   ContentDescription, FriendRequestReaction, FriendType, ProfileSubroutesCache,
 } from '../../../types';
-import { setPageStateCache } from '../../../pageStateCache';
-import { getProfileSubroutesCache } from '../../profile/profileSubRoutesCacheUtils';
-import { formatNumberWithUnits } from '../../../utils/number.utils';
-import ProfileTabContent from '../../../components/ui/profile/ProfileTabContent';
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import useListingDetail from '../../../hooks/businessListing/useListingDetail';
-import CustomCreatePost from '../../../components/ui/CustomCreatePost';
-import ErrorMessageList from '../../../components/ui/ErrorMessageList';
-import LoadingIndicator from '../../../components/ui/LoadingIndicator';
-import ReportModal from '../../../components/ui/ReportModal';
-import useProgressButton from '../../../components/ui/ProgressButton';
-import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
-import { setProfilePageUserDetailsReload } from '../../../redux/slices/userSlice';
 import { createBlockUser } from '../../../api/blocks';
+import { unlikeFeedPost, likeFeedPost } from '../../../api/feed-likes';
+import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { reportData } from '../../../api/report';
-import EditPostModal from '../../../components/ui/post/EditPostModal';
-import FriendshipStatusModal from '../../../components/ui/friendShipCheckModal';
+import useListingDetail from '../../../hooks/businessListing/useListingDetail';
+import useListingPosts from '../../../hooks/businessListing/useListingPosts';
+import { setPageStateCache } from '../../../pageStateCache';
+import { setProfilePageUserDetailsReload } from '../../../redux/slices/userSlice';
+import { getProfileSubroutesCache } from '../../../routes/profile/profileSubRoutesCacheUtils';
+import { formatNumberWithUnits } from '../../../utils/number.utils';
+import CustomCreatePost from '../CustomCreatePost';
+import { PopoverClickProps } from '../CustomPopover';
+import ErrorMessageList from '../ErrorMessageList';
+import FriendshipStatusModal from '../friendShipCheckModal';
+import LoadingIndicator from '../LoadingIndicator';
+import EditPostModal from '../post/EditPostModal';
+import PostFeed from '../post/PostFeed/PostFeed';
+import ProfileTabContent from '../profile/ProfileTabContent';
+import useProgressButton from '../ProgressButton';
+import ReportModal from '../ReportModal';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+
+type Props = {
+  businessListingRef: string;
+};
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
 
-export default function BusinessListingPosts() {
-  const params = useParams();
+export default function BusinessListingPosts({ businessListingRef }: Props) {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const loginUserData = useAppSelector((state) => state.user.user);
@@ -58,13 +60,13 @@ export default function BusinessListingPosts() {
     loadingListingPosts,
     listingPostsError,
     refetchListingPosts,
-  } = useListingPosts();
+  } = useListingPosts({ businessListingRef });
 
   const {
     listingDetail,
     loadingListingDetail,
     listingDetailError,
-  } = useListingDetail(params.id as string);
+  } = useListingDetail(businessListingRef as string);
 
   const postsCountWithLabel = `Posts: ${formatNumberWithUnits(posts.length)}`;
 
@@ -125,7 +127,7 @@ export default function BusinessListingPosts() {
 
   const onLikeClick = useCallback(async (feedPostId: string) => {
     const checkLike = posts.some((post) => post.id === feedPostId
-      && post.likeIcon);
+        && post.likeIcon);
 
     // Dislike/Like optimistically
     if (checkLike) {
@@ -163,10 +165,10 @@ export default function BusinessListingPosts() {
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
-        posts.length === 0
-          ? 'No posts available'
-          : 'No more posts'
-      }
+          posts.length === 0
+            ? 'No posts available'
+            : 'No more posts'
+        }
     </p>
   );
 
@@ -179,7 +181,7 @@ export default function BusinessListingPosts() {
         dispatch(setProfilePageUserDetailsReload(true));
       })
 
-      /* eslint-disable no-console */
+    /* eslint-disable no-console */
       .catch((error) => console.error(error));
   };
 
@@ -191,7 +193,7 @@ export default function BusinessListingPosts() {
         setDropDownValue('BlockUserSuccess');
         refetchListingPosts();
       })
-      /* eslint-disable no-console */
+    /* eslint-disable no-console */
       .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
   };
 
@@ -212,7 +214,7 @@ export default function BusinessListingPosts() {
         setProgressButtonStatus('default');
       }
     })
-      /* eslint-disable no-console */
+    /* eslint-disable no-console */
       .catch((error) => { console.error(error); setProgressButtonStatus('failure'); });
     setDropDownValue('PostReportSuccessDialog');
   };
@@ -249,16 +251,15 @@ export default function BusinessListingPosts() {
 
   return (
     <>
-      <BusinessListingHeader />
       <div className="ms-3 fs-4 fw-bold my-3">{postsCountWithLabel}</div>
 
       <ProfileTabContent>
         {listingDetail && loginUserData.userName === listingDetail.userRef?.userName
-          && (
-            <div className="mb-4 mt-1">
-              <CustomCreatePost />
-            </div>
-          )}
+            && (
+              <div className="mb-4 mt-1">
+                <CustomCreatePost />
+              </div>
+            )}
 
         <ErrorMessageList errorMessages={listingDetailError ? [listingDetailError] : []} divClass="mt-3 text-start" className="m-0" />
 
@@ -269,19 +270,19 @@ export default function BusinessListingPosts() {
           hasMore={!noMoreData}
         >
           {
-          posts.length > 0
-          && (
-            <PostFeed
-              postFeedData={posts}
-              popoverOptions={loginUserPopoverOptions}
-              isCommentSection={false}
-              onPopoverClick={handlePopoverOption}
-              otherUserPopoverOptions={otherUserPopoverOptions}
-              onLikeClick={onLikeClick}
-              onSelect={persistScrollPosition}
-            />
-          )
-        }
+            posts.length > 0
+            && (
+              <PostFeed
+                postFeedData={posts}
+                popoverOptions={loginUserPopoverOptions}
+                isCommentSection={false}
+                onPopoverClick={handlePopoverOption}
+                otherUserPopoverOptions={otherUserPopoverOptions}
+                onLikeClick={onLikeClick}
+                onSelect={persistScrollPosition}
+              />
+            )
+          }
         </InfiniteScroll>
 
         {loadingListingPosts && <LoadingIndicator />}
@@ -289,46 +290,46 @@ export default function BusinessListingPosts() {
         {noMoreData && renderNoMoreDataMessage()}
 
         {['Block user', 'Report', 'Delete', 'PostReportSuccessDialog', 'BlockUserSuccess'].includes(dropDownValue)
-          && (
-            <ReportModal
-              onConfirmClickAsync={deletePostClickAsync}
-              show={showReportModal}
-              setShow={setShowReportModal}
-              slectedDropdownValue={dropDownValue}
-              onBlockYesClick={onBlockYesClick}
-              afterBlockUser={afterBlockUser}
-              handleReport={reportProfilePost}
-              ProgressButton={ProgressButton}
-            />
-          )}
+            && (
+              <ReportModal
+                onConfirmClickAsync={deletePostClickAsync}
+                show={showReportModal}
+                setShow={setShowReportModal}
+                slectedDropdownValue={dropDownValue}
+                onBlockYesClick={onBlockYesClick}
+                afterBlockUser={afterBlockUser}
+                handleReport={reportProfilePost}
+                ProgressButton={ProgressButton}
+              />
+            )}
 
         {dropDownValue === 'Edit'
-          && (
-            <EditPostModal
-              show={showReportModal}
-              errorMessage={editModalErrorMessage}
-              setShow={setShowReportModal}
-              setPostContent={setPostContent}
-              postContent={postContent}
-              onUpdatePost={onUpdatePost}
-              postImages={postImages}
-              setPostImages={setPostImages}
-              deleteImageIds={deleteImageIds}
-              setDeleteImageIds={setDeleteImageIds}
-              ProgressButton={ProgressButton}
-            />
-          )}
+            && (
+              <EditPostModal
+                show={showReportModal}
+                errorMessage={editModalErrorMessage}
+                setShow={setShowReportModal}
+                setPostContent={setPostContent}
+                postContent={postContent}
+                onUpdatePost={onUpdatePost}
+                postImages={postImages}
+                setPostImages={setPostImages}
+                deleteImageIds={deleteImageIds}
+                setDeleteImageIds={setDeleteImageIds}
+                ProgressButton={ProgressButton}
+              />
+            )}
 
         {friendShipStatusModal && !loginUserData.ignoreFriendSuggestionDialog && (
-          <FriendshipStatusModal
-            friendShipStatusModal={friendShipStatusModal}
-            setFriendShipStatusModal={setFriendShipStatusModal}
-            friendStatus={friendStatus}
-            setFriendStatus={setFriendStatus}
-            setFriendData={setFriendData}
-            friendData={friendData}
-            userId={postUserId}
-          />
+        <FriendshipStatusModal
+          friendShipStatusModal={friendShipStatusModal}
+          setFriendShipStatusModal={setFriendShipStatusModal}
+          friendStatus={friendStatus}
+          setFriendStatus={setFriendStatus}
+          setFriendData={setFriendData}
+          friendData={friendData}
+          userId={postUserId}
+        />
         )}
       </ProfileTabContent>
     </>

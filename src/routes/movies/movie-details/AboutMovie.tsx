@@ -17,7 +17,7 @@ import MovieCasts from './MovieCasts';
 import MovieTrailers from './MovieTrailers';
 import MovieEdit from '../movie-edit/MovieEdit';
 import MoviePosts from '../movie-posts/MoviePosts';
-import { AdditionalMovieData, MovieData } from '../../../types';
+import { AdditionalMovieData, MovieData, MovieType } from '../../../types';
 import RoundButton from '../../../components/ui/RoundButton';
 import BorderButton from '../../../components/ui/BorderButton';
 import CustomGroupIcons from '../../../components/ui/CustomGroupIcons';
@@ -31,6 +31,7 @@ import { generateAmazonAffiliateLinkForMovie } from '../../../utils/text-utils';
 import TpdAd from '../../../components/ui/TpdAd';
 import { tpdAdSlotIdZ } from '../../../utils/tpd-ad-slot-ids';
 import getYouTubeEmbedId from '../../../utils/youtube-embed-id-utils';
+import BusinessListingPosts from '../../../components/ui/BusinessListing/BusinessListingPosts';
 
 interface MovieIconProps {
   label: string;
@@ -66,7 +67,14 @@ type OptionType = { value: string, label: string, devOnly?: boolean };
 
 const tabsForAllViews: OptionType[] = [
   { value: 'details', label: 'Details' },
-  { value: 'posts', label: 'Posts', devOnly: true },
+  {
+    value: 'posts', label: 'Posts', devOnly: true,
+  },
+  { value: 'reviews', label: 'Reviews' },
+];
+const tabsForBusinessListings: OptionType[] = [
+  { value: 'details', label: 'Details' },
+  { value: 'posts', label: 'Posts' },
   { value: 'reviews', label: 'Reviews' },
 ];
 const tabsForSelf: OptionType[] = [
@@ -322,7 +330,12 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
               <TabLinks
                 tabsClass="start"
                 tabsClassSmall="start"
-                tabLink={tabs}
+                tabLink={
+                  movieData.type === MovieType.UserDefined
+                  && movieData.businessListingRef
+                    ? tabsForBusinessListings
+                    : tabs
+                }
                 toLink={`/app/movies/${params.id}`}
                 selectedTab={params && params['*']!.startsWith('reviews/') ? 'reviews' : params['*']}
                 params={selfView ? '?view=self' : ''}
@@ -338,6 +351,15 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
           element={(
             <>
               <MovieOverview overView={aboutMovieData?.mainData?.overview} />
+
+              {/* {
+                movieData.type === MovieType.UserDefined && movieData.businessListingRef && (
+                  <BusinessListingPosts
+                    businessListingRef={movieData.businessListingRef as string}
+                  />
+                )
+              } */}
+
               <TpdAd className="my-3" id="about-movie-ad-placeholder" slotId={tpdAdSlotIdZ} />
               <MovieCasts castList={aboutMovieData?.cast as any} />
               {
@@ -370,7 +392,7 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
           )}
         />
         <Route path="reviews/:postId" element={<MovieReviewDetails />} />
-        <Route path="posts" element={<MoviePosts />} />
+        <Route path="posts" element={<MoviePosts movieData={movieData} />} />
         <Route path="edit" element={<MovieEdit />} />
       </Routes>
     </div>

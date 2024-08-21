@@ -25,6 +25,7 @@ import BookReviewDetails from '../book-reviews/BookReviewDetails';
 import { generateAmazonAffiliateLinkForBook } from '../../../utils/text-utils';
 import TpdAd from '../../../components/ui/TpdAd';
 import { tpdAdSlotIdZ } from '../../../utils/tpd-ad-slot-ids';
+import BusinessListingPosts from '../../../components/ui/BusinessListing/BusinessListingPosts';
 
 const StyledBookPoster = styled.div`
   aspect-ratio: 0.67;
@@ -285,7 +286,14 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
           element={(
             <>
               <BookOverview description={bookData.description || ''} />
-              {enableDevFeatures && <BookPosts />}
+              {/* {enableDevFeatures && <BookPosts />} */}
+              {
+                bookData.type === BookType.UserDefined && bookData.businessListingRef && (
+                  <BusinessListingPosts
+                    businessListingRef={bookData.businessListingRef as string}
+                  />
+                )
+              }
               <TpdAd className="my-3" id="about-movie-ad-placeholder" slotId={tpdAdSlotIdZ} />
             </>
           )}

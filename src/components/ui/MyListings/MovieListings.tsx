@@ -23,9 +23,10 @@ export default function MovieListings({ listings }: Props) {
       </div>
 
       <div className="m-md-2">
-        <MovieOrBookListingList
-          dataList={
-            listings.map((listing) => ({
+        {listings && listings.length > 0 ? (
+          <MovieOrBookListingList
+            dataList={
+            listings?.map((listing) => ({
               _id: listing.movieRef?._id,
               name: listing.movieRef?.name ?? '',
               logo: listing.movieRef?.movieImage,
@@ -36,9 +37,12 @@ export default function MovieListings({ listings }: Props) {
               listingId: listing._id,
             })) as any
           }
-          type="movie"
-          editButton
-        />
+            type="movie"
+            editButton
+          />
+        ) : (
+          <p className="text-light fw-bold text-center">No Data</p>
+        )}
       </div>
     </div>
   );

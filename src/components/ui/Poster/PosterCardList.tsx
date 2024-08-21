@@ -50,7 +50,7 @@ function PosterCardList({
 
   return (
     <Row className="mt-0">
-      {dataList && dataList.length > 0 && dataList.map((listDetail: CardListProps, i, arr) => {
+      {dataList && dataList.length > 0 ? dataList.map((listDetail: CardListProps, i, arr) => {
         const show = checkAdsPosterCardList(bp, i, arr);
         return (
           <React.Fragment key={listDetail._id}>
@@ -85,7 +85,9 @@ function PosterCardList({
             {show && <TpdAd className="mb-3" id={`card-${i.toString()}`} slotId={getInfiniteAdSlot()} />}
           </React.Fragment>
         );
-      })}
+      }) : (
+        <p className="text-light fw-bold text-center">No Data</p>
+      )}
     </Row>
   );
 }

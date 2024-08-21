@@ -1,8 +1,4 @@
-import {
-  Navigate, Route, Routes,
-  useParams,
-} from 'react-router-dom';
-import { useCallback, useEffect } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import NotFound from '../../components/NotFound';
 import CreateBusinessListing from './create-post/CreateBusinessListing';
 import {
@@ -12,17 +8,17 @@ import {
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
-import BusinessListingPosts from './BusinessListingPosts/BusinessListingPosts';
+import BusinessListingDetail from './BusinessListingDetail/BusinessListingDetail';
 
 function SharedHeaderProfilePages() {
   return (
     <Routes>
-      <Route path="/" element={(<Navigate to="posts" replace />)} />
+      <Route path="/" element={<Navigate to="posts" replace />} />
       <Route path="create" element={<CreateBusinessListing />} />
 
       <Route path="detail/:id">
         <Route index element={<Navigate to="posts" replace />} />
-        <Route path="posts" element={<BusinessListingPosts />} />
+        <Route path="posts" element={<BusinessListingDetail />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />

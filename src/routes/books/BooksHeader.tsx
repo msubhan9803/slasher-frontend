@@ -9,10 +9,12 @@ import TabLinks from '../../components/ui/Tabs/TabLinks';
 import { enableDevFeatures } from '../../env';
 import CreateBusinessListingButton from '../../components/layout/right-sidebar-wrapper/components/CreateBusinessListingButton';
 
-const bookTabs = [
+type OptionType = { value: string, label: string, devOnly?: boolean };
+
+const bookTabs: OptionType[] = [
   { value: 'all', label: 'All books' },
-  { value: 'my-books', label: 'My books', devOnly: true },
-  { value: 'slasher-indie', label: 'Slasher Indie', devOnly: true },
+  { value: 'my-books', label: 'My books' },
+  { value: 'slasher-indie', label: 'Slasher Indie' },
   { value: 'favorites', label: 'Favorites list' },
   { value: 'read', label: 'Read' },
   { value: 'reading-list', label: 'Reading list' },

@@ -4,6 +4,8 @@ import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import ReportModal from '../../../components/ui/ReportModal';
 import postImage from '../../../images/book-post-image.jpg';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
+import { BookData, BookType } from '../../../types';
+import BusinessListingPosts from '../../../components/ui/BusinessListing/BusinessListingPosts';
 
 const postData = [
   {
@@ -18,7 +20,12 @@ const postData = [
 ];
 const selfOptions = ['Edit', 'Delete'];
 const viewerOptions = ['Report'];
-function BookPosts() {
+
+type Props = {
+  bookData: BookData;
+};
+
+function BookPosts({ bookData }: Props) {
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
   const popoverOptions = queryParam === 'self' ? selfOptions : viewerOptions;
@@ -28,18 +35,26 @@ function BookPosts() {
     setShow(true);
     setDropDownValue(value);
   };
+
   return (
     <>
       {/* {queryParam === 'self' &&  */}
-      <CustomCreatePost className="mt-3 mt-lg-0" />
+      {/* <CustomCreatePost className="mt-3 mt-lg-0" /> */}
       {/* } */}
       <div className="mt-3">
-        <PostFeed
+        {/* <PostFeed
           postFeedData={postData}
           popoverOptions={popoverOptions}
           isCommentSection={false}
           onPopoverClick={handlePopoverOption}
-        />
+        /> */}
+
+        {bookData.type === BookType.UserDefined
+        && bookData.businessListingRef && (
+          <BusinessListingPosts
+            businessListingRef={bookData.businessListingRef as string}
+          />
+        )}
       </div>
       <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </>

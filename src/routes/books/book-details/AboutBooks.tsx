@@ -12,7 +12,6 @@ import { BookIconProps } from '../components/BookProps';
 import BookEdit from '../book-edit/BookEdit';
 import BookOverview from './BookOverview';
 import { BookIconList } from '../components/booksList';
-import BookPosts from '../book-posts/BookPosts';
 import BorderButton from '../../../components/ui/BorderButton';
 import CustomGroupIcons from '../../../components/ui/CustomGroupIcons';
 import RoundButton from '../../../components/ui/RoundButton';
@@ -25,7 +24,7 @@ import BookReviewDetails from '../book-reviews/BookReviewDetails';
 import { generateAmazonAffiliateLinkForBook } from '../../../utils/text-utils';
 import TpdAd from '../../../components/ui/TpdAd';
 import { tpdAdSlotIdZ } from '../../../utils/tpd-ad-slot-ids';
-import BusinessListingPosts from '../../../components/ui/BusinessListing/BusinessListingPosts';
+import BookPosts from '../book-posts/BookPosts';
 
 const StyledBookPoster = styled.div`
   aspect-ratio: 0.67;
@@ -37,6 +36,11 @@ const StyledBookPoster = styled.div`
 type OptionType = { value: string, label: string, devOnly?: boolean };
 const tabsForAllViews: OptionType[] = [
   { value: 'details', label: 'Details' },
+  { value: 'reviews', label: 'Reviews' },
+];
+const tabsForBusinessListings: OptionType[] = [
+  { value: 'details', label: 'Details' },
+  { value: 'posts', label: 'Posts' },
   { value: 'reviews', label: 'Reviews' },
 ];
 const tabsForSelf: OptionType[] = [
@@ -270,7 +274,12 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
               <TabLinks
                 tabsClass="start"
                 tabsClassSmall="start"
-                tabLink={tabs}
+                tabLink={
+                  bookData.type === BookType.UserDefined
+                  && bookData.businessListingRef
+                    ? tabsForBusinessListings
+                    : tabs
+                }
                 toLink={`/app/books/${params.id}`}
                 selectedTab={params && params['*']!.startsWith('reviews/') ? 'reviews' : params['*']}
                 params={queryParam === 'self' ? '?view=self' : ''}
@@ -287,13 +296,13 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
             <>
               <BookOverview description={bookData.description || ''} />
               {/* {enableDevFeatures && <BookPosts />} */}
-              {
+              {/* {
                 bookData.type === BookType.UserDefined && bookData.businessListingRef && (
                   <BusinessListingPosts
                     businessListingRef={bookData.businessListingRef as string}
                   />
                 )
-              }
+              } */}
               <TpdAd className="my-3" id="about-movie-ad-placeholder" slotId={tpdAdSlotIdZ} />
             </>
           )}
@@ -312,6 +321,7 @@ function AboutBooks({ bookData, setBookData }: AboutBooksProps) {
             />
           )}
         />
+        <Route path="posts" element={<BookPosts bookData={bookData} />} />
         <Route path="reviews/:postId" element={<BookReviewDetails />} />
         <Route path="edit" element={<BookEdit />} />
       </Routes>

@@ -351,15 +351,6 @@ function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData)
           element={(
             <>
               <MovieOverview overView={aboutMovieData?.mainData?.overview} />
-
-              {/* {
-                movieData.type === MovieType.UserDefined && movieData.businessListingRef && (
-                  <BusinessListingPosts
-                    businessListingRef={movieData.businessListingRef as string}
-                  />
-                )
-              } */}
-
               <TpdAd className="my-3" id="about-movie-ad-placeholder" slotId={tpdAdSlotIdZ} />
               <MovieCasts castList={aboutMovieData?.cast as any} />
               {

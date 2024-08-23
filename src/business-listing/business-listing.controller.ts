@@ -3,6 +3,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
@@ -54,6 +55,9 @@ import { ValidateBusinessListingIdDto } from './dto/validate.business-listing-id
 import { UpdateBusinessListingDto } from './dto/update-business-listing.dto';
 import { UpdateBusinessListingImageCoverDto } from './dto/update-business-listing-image-cover.dto';
 import { ToggleListingStatusDto } from './dto/toggle-listing-status.dto';
+import { AddMovieCast } from './dto/add-movie-cast.dto';
+import { UpdateMovieCast } from './dto/update-movie-cast.dto';
+import { RemoveMovieCast } from './dto/remove-movie-cast.dto';
 
 @Controller({ path: 'business-listing', version: ['1'] })
 export class BusinessListingController {
@@ -189,7 +193,10 @@ export class BusinessListingController {
           });
 
           businessListing.bookRef = book._id;
-          createdBusinessListing = await this.businessListingService.updateAll(createdBusinessListing._id.toString(), businessListing);
+          createdBusinessListing = await this.businessListingService.updateAll(
+            createdBusinessListing._id.toString(),
+            businessListing,
+          );
 
           break;
 
@@ -216,11 +223,14 @@ export class BusinessListingController {
           });
 
           businessListing.movieRef = movie._id;
-          createdBusinessListing = await this.businessListingService.updateAll(createdBusinessListing._id.toString(), businessListing);
+          createdBusinessListing = await this.businessListingService.updateAll(
+            createdBusinessListing._id.toString(),
+            businessListing,
+          );
 
           break;
 
-          default:
+        default:
           break;
       }
 
@@ -255,9 +265,7 @@ export class BusinessListingController {
 
       switch (businesstype) {
         case BusinessType.BOOKS:
-          await this.booksService.updateBook(
-          bookRef,
-          {
+          await this.booksService.updateBook(bookRef, {
             name: title,
             author: [author],
             numberOfPages: pages,
@@ -266,14 +274,11 @@ export class BusinessListingController {
             status: BookActiveStatus.Active,
             publishDate: new Date(yearReleased, 0),
             buyUrl: link,
-          },
-        );
-        break;
+          });
+          break;
 
         case BusinessType.MOVIES:
-          await this.moviesService.updateMovie(
-            movieRef,
-            {
+          await this.moviesService.updateMovie(movieRef, {
             name: title,
             descriptions: overview,
             trailerUrls: Object.values(trailerLinks).map(
@@ -285,16 +290,20 @@ export class BusinessListingController {
             releaseDate: new Date(yearReleased, 0),
             status: MovieActiveStatus.Active,
             watchUrl: link,
-          },
-        );
-        break;
+          });
+          break;
 
         default:
-          await this.businessListingService.update(updatingBusienssListingDto._id, updatingBusienssListingDto);
+          await this.businessListingService.update(
+            updatingBusienssListingDto._id,
+            updatingBusienssListingDto,
+          );
           break;
       }
 
-      const updatedBusinessListing = await this.businessListingService.findOneWithoutStatusCondition(updatingBusienssListingDto._id);
+      const updatedBusinessListing = await this.businessListingService.findOneWithoutStatusCondition(
+          updatingBusienssListingDto._id,
+        );
 
       return updatedBusinessListing;
     } catch (error) {
@@ -315,7 +324,8 @@ export class BusinessListingController {
   )
   async updateListingThumbnailOrCoverPhoto(
     @Req() request: Request,
-    @Body() updateBusinessListingImageCoverDto: UpdateBusinessListingImageCoverDto,
+    @Body()
+    updateBusinessListingImageCoverDto: UpdateBusinessListingImageCoverDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
     try {
@@ -331,30 +341,26 @@ export class BusinessListingController {
         fileObj,
       );
 
-      const listingDetail: any = await this.businessListingService.findOneWithoutStatusCondition(listingId);
+      const listingDetail: any = await this.businessListingService.findOneWithoutStatusCondition(
+          listingId,
+        );
 
       const payload: any = {};
 
       switch (listingType) {
         case BusinessType.BOOKS:
-          await this.booksService.updateBook(
-            listingDetail.bookRef._id,
-            {
-              coverImage: {
-                image_path: listingStorageLocation,
-                description: '',
-              },
+          await this.booksService.updateBook(listingDetail.bookRef._id, {
+            coverImage: {
+              image_path: listingStorageLocation,
+              description: '',
             },
-          );
+          });
           break;
 
         case BusinessType.MOVIES:
-          await this.moviesService.updateMovie(
-            listingDetail.movieRef._id,
-            {
-              movieImage: listingStorageLocation,
-            },
-          );
+          await this.moviesService.updateMovie(listingDetail.movieRef._id, {
+            movieImage: listingStorageLocation,
+          });
           break;
 
         default:
@@ -366,7 +372,10 @@ export class BusinessListingController {
           break;
       }
 
-      const updatedBusinessListing = await this.businessListingService.update(listingId, payload as UpdateBusinessListingDto);
+      const updatedBusinessListing = await this.businessListingService.update(
+        listingId,
+        payload as UpdateBusinessListingDto,
+      );
 
       return updatedBusinessListing;
     } catch (error) {
@@ -382,35 +391,40 @@ export class BusinessListingController {
     try {
       const { listingId, businessType } = toggleListingStatusDto;
 
-      const listingDetail: any = await this.businessListingService.findOneWithoutStatusCondition(listingId);
+      const listingDetail: any = await this.businessListingService.findOneWithoutStatusCondition(
+          listingId,
+        );
       const currentListingStatus = listingDetail.isActive;
       const currentBookStatus = listingDetail?.bookRef?.status;
       const currentMovieStatus = listingDetail?.movieRef?.status;
 
       switch (businessType) {
         case BusinessType.BOOKS:
-          await this.booksService.updateBook(
-            listingDetail.bookRef._id,
-          {
-            status: currentBookStatus === BookActiveStatus.Active ? BookActiveStatus.Inactive : BookActiveStatus.Active,
-          },
-        );
-        break;
+          await this.booksService.updateBook(listingDetail.bookRef._id, {
+            status:
+              currentBookStatus === BookActiveStatus.Active
+                ? BookActiveStatus.Inactive
+                : BookActiveStatus.Active,
+          });
+          break;
 
         case BusinessType.MOVIES:
-          await this.moviesService.updateMovie(
-            listingDetail.movieRef._id,
-            {
-            status: currentMovieStatus === MovieActiveStatus.Active ? MovieActiveStatus.Inactive : MovieActiveStatus.Active,
-          },
-        );
-        break;
+          await this.moviesService.updateMovie(listingDetail.movieRef._id, {
+            status:
+              currentMovieStatus === MovieActiveStatus.Active
+                ? MovieActiveStatus.Inactive
+                : MovieActiveStatus.Active,
+          });
+          break;
 
         default:
           break;
       }
 
-      const updatedListing = await this.businessListingService.update(listingId, { isActive: !currentListingStatus });
+      const updatedListing = await this.businessListingService.update(
+        listingId,
+        { isActive: !currentListingStatus },
+      );
 
       return updatedListing;
     } catch (error) {
@@ -442,6 +456,124 @@ export class BusinessListingController {
     }
   }
 
+  @TransformImageUrls('$.image')
+  @Post('add-movie-cast')
+  @UseInterceptors(
+    ...generateFileUploadInterceptors(
+      UPLOAD_PARAM_NAME_FOR_FILES,
+      MAX_ALLOWED_UPLOAD_FILE_FOR_BUSINESS_LISTING,
+      MAXIMUM_IMAGE_UPLOAD_SIZE,
+      {
+        fileFilter: defaultFileInterceptorFileFilter,
+      },
+    ),
+  )
+  async addCast(
+    @Body() addMovieCast: AddMovieCast,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ) {
+    try {
+      if (!files || files.length === 0) {
+        throw new HttpException('No files uploaded', HttpStatus.BAD_REQUEST);
+      }
+
+      const castFile = files[0];
+
+      const castImageStorageLocation = await this.storeFile(
+        'business-listing-cast',
+        castFile,
+      );
+
+      const { movieRef, name, characterName } = addMovieCast;
+
+      let movie = await this.moviesService.findById(movieRef, false);
+
+      movie = await this.moviesService.updateMovie(movieRef, {
+        ...movie,
+        casts: [
+          ...movie.casts,
+          {
+            name,
+            characterName,
+            castImage: castImageStorageLocation,
+          },
+        ],
+      });
+
+      return movie;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @TransformImageUrls('$.image')
+  @Post('update-movie-cast')
+  @UseInterceptors(
+    ...generateFileUploadInterceptors(
+      UPLOAD_PARAM_NAME_FOR_FILES,
+      MAX_ALLOWED_UPLOAD_FILE_FOR_BUSINESS_LISTING,
+      MAXIMUM_IMAGE_UPLOAD_SIZE,
+      {
+        fileFilter: defaultFileInterceptorFileFilter,
+      },
+    ),
+  )
+  async updateCast(
+    @Body() updateMovieCast: UpdateMovieCast,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ) {
+    try {
+      let castImageStorageLocation = null;
+
+      if (files.length > 0) {
+        const castFile = files[0];
+
+        castImageStorageLocation = await this.storeFile(
+          'business-listing-cast',
+          castFile,
+        );
+      }
+
+      const {
+        movieRef, castRef, name, characterName,
+      } = updateMovieCast;
+
+      let movie = await this.moviesService.findById(movieRef, false);
+
+      movie = await this.moviesService.updateMovie(movieRef, {
+        ...movie,
+        casts: movie.casts.map((cast) => (cast._id.toString() === castRef ? ({
+          name,
+          characterName,
+          castImage: castImageStorageLocation ?? cast.castImage,
+        }) : cast)),
+      });
+
+      return movie;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Delete('remove-movie-cast/:movieRef/:castRef')
+  async removeCast(
+    @Param() params: RemoveMovieCast,
+  ) {
+    try {
+      const { movieRef, castRef } = params;
+
+      let movie = await this.moviesService.findById(movieRef, false);
+      movie = await this.moviesService.updateMovie(movieRef, {
+        ...movie,
+        casts: movie.casts.filter((cast) => cast._id.toString() !== castRef),
+      });
+
+      return movie;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
   @Get('get-all-listing-types')
   async getAllListingType() {
     try {
@@ -458,9 +590,14 @@ export class BusinessListingController {
 
   @TransformImageUrls('$[*].businessLogo')
   @Get('get-all-listings')
-  async getAllListings(@Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: GetAllListingsDto) {
+  async getAllListings(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: GetAllListingsDto,
+  ) {
     try {
-      const businessListings = await this.businessListingService.getAllListings(query.businesstype);
+      const businessListings = await this.businessListingService.getAllListings(
+        query.businesstype,
+      );
 
       return businessListings;
     } catch (error) {
@@ -475,16 +612,22 @@ export class BusinessListingController {
   @Get('get-all-listings-admin')
   async getAllListingsForAdmin(
     @Req() request: Request,
-    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: GetAllListingsDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: GetAllListingsDto,
   ) {
     try {
       const user = getUserFromRequest(request);
       const isAdmin = user.userType === UserType.Admin;
       if (!isAdmin) {
-        throw new HttpException(this.adminOnlyApiRestrictionMessage, HttpStatus.NOT_FOUND);
+        throw new HttpException(
+          this.adminOnlyApiRestrictionMessage,
+          HttpStatus.NOT_FOUND,
+        );
       }
 
-      const businessListings = await this.businessListingService.getAllListingsForAdmin(query.businesstype);
+      const businessListings = await this.businessListingService.getAllListingsForAdmin(
+          query.businesstype,
+        );
 
       return businessListings;
     } catch (error) {
@@ -527,11 +670,19 @@ export class BusinessListingController {
     }
   }
 
-  @TransformImageUrls('$.businessLogo', '$.coverPhoto', '$.bookRef.coverImage.image_path', '$.movieRef.movieImage', '$.movieRef.casts[*].castImage')
+  @TransformImageUrls(
+    '$.businessLogo',
+    '$.coverPhoto',
+    '$.bookRef.coverImage.image_path',
+    '$.movieRef.movieImage',
+    '$.movieRef.casts[*].castImage',
+  )
   @Get('get-listing-detail/:id')
   async getListingDetail(@Param() params: ValidateBusinessListingIdDto) {
     try {
-      const businessListingDetail = await this.businessListingService.findOne(params.id);
+      const businessListingDetail = await this.businessListingService.findOne(
+        params.id,
+      );
 
       return businessListingDetail;
     } catch (error) {

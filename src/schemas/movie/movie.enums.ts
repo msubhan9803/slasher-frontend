@@ -16,6 +16,7 @@ export enum MovieDeletionStatus {
 }
 
 export type Cast = {
+  _id?: string;
   castImage?: string;
   name: string;
   characterName: string;

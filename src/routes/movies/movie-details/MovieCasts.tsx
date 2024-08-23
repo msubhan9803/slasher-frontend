@@ -57,8 +57,8 @@ function MovieCasts({ castList }: CastListProps) {
         <StyledCast id="slideCasts" className="flex-nowrap w-100">
           {castList && castList.map((cast: MovieCast) => (
             <Col key={cast.name} xs={6} sm={3} md={2} lg={3} xl={2}>
-              <Card className="bg-transparent border-0">
-                <div className="casts-image">
+              <Card className="bg-transparent border-0 h-100">
+                <div className="casts-image" style={{ height: '-webkit-fill-available' }}>
                   <Card.Img variant="top" src={cast.profile_path} alt="top cast" className="w-100 h-100 rounded-3" style={{ objectFit: 'cover' }} />
                 </div>
                 <Card.Body className="px-0 pb-0">

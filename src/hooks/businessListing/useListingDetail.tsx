@@ -33,5 +33,6 @@ export default function useListingDetail(listingId: string) {
     listingDetail,
     loadingListingDetail,
     listingDetailError,
+    refetchBusinessListing: fetchBusinessListingDetail,
   };
 }

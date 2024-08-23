@@ -15,6 +15,7 @@ export enum BusinessType {
 }
 
 export type Cast = {
+  _id?: string | undefined | null;
   castImage?: File | string | null | undefined;
   name: string;
   characterName: string;
@@ -79,3 +80,10 @@ export enum FileType {
   THUMBNAIL = 'THUMBNAIL',
   COVER_PHOTO = 'COVER_PHOTO',
 }
+
+export type EditCastsState = {
+  isNew?: boolean;
+  isUpdated?: boolean;
+  isRemoved?: boolean;
+  cast: Cast;
+};

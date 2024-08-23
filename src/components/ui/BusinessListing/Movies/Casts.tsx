@@ -4,10 +4,10 @@ import {
 import {
   FieldArrayWithId,
   UseFieldArrayAppend,
-  UseFieldArrayRemove,
   UseFormRegister,
   UseFormSetValue,
 } from 'react-hook-form';
+import { v4 as uuidv4 } from 'uuid';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import CustomText from '../../CustomText';
@@ -18,7 +18,7 @@ type Props = {
   setValue: UseFormSetValue<BusinessListing>;
   fields: FieldArrayWithId<BusinessListing, 'casts', 'id'>[];
   append: UseFieldArrayAppend<BusinessListing, 'casts'>;
-  remove: UseFieldArrayRemove;
+  remove: (index: number) => void;
   register: UseFormRegister<BusinessListing>;
   isVisible: boolean;
 };
@@ -108,7 +108,9 @@ export default function Casts({
           alignItems: 'center',
           width: 'fit-content',
         }}
-        onClick={() => append({ name: '', characterName: '', castImage: null })}
+        onClick={() => append({
+          _id: uuidv4(), name: '', characterName: '', castImage: null,
+        })}
       >
         <CustomText
           text="+ Add more cast members"

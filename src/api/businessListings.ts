@@ -180,6 +180,77 @@ export async function toggleListingStatus(listingId: string, businessType: strin
   );
 }
 
+export type AddCastApiPayload = {
+  movieRef: string;
+  name: string;
+  characterName: string;
+  castImage: File;
+};
+
+export async function addCastApi(payload: AddCastApiPayload) {
+  const token = await getSessionToken();
+  const headers = {
+    'Content-Type': 'multipart/form-data',
+    Authorization: `Bearer ${token}`,
+  };
+
+  const formData = new FormData();
+
+  formData.append('movieRef', payload.movieRef);
+  formData.append('name', payload.name);
+  formData.append('characterName', payload.characterName);
+  formData.append('files', payload.castImage);
+
+  return axios.post(
+    `${apiUrl}/api/v1/business-listing/add-movie-cast`,
+    formData,
+    { headers },
+  );
+}
+
+export type UpdateCastApiPayload = {
+  movieRef: string;
+  castRef: string;
+  name: string;
+  characterName: string;
+  castImage: File;
+};
+
+export async function updateCastApi(payload: UpdateCastApiPayload) {
+  const token = await getSessionToken();
+  const headers = {
+    'Content-Type': 'multipart/form-data',
+    Authorization: `Bearer ${token}`,
+  };
+
+  const formData = new FormData();
+
+  formData.append('movieRef', payload.movieRef);
+  formData.append('castRef', payload.castRef);
+  formData.append('name', payload.name);
+  formData.append('characterName', payload.characterName);
+  formData.append('files', payload.castImage);
+
+  return axios.post(
+    `${apiUrl}/api/v1/business-listing/update-movie-cast`,
+    formData,
+    { headers },
+  );
+}
+
+export async function removeCastApi(movieRef: string, castRef: string) {
+  const token = await getSessionToken();
+  const headers = {
+    'Content-Type': 'multipart/form-data',
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.delete(
+    `${apiUrl}/api/v1/business-listing/remove-movie-cast/${movieRef}/${castRef}`,
+    { headers },
+  );
+}
+
 export async function fetchListingTypes() {
   const token = await getSessionToken();
   const headers = {

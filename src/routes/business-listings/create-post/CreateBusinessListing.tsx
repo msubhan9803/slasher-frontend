@@ -39,8 +39,8 @@ import Switch from '../../../components/ui/Switch';
 import useListingTypes from '../../../hooks/businessListing/useListingTypes';
 import useListingDetail from '../../../hooks/businessListing/useListingDetail';
 import useBusinessListingForm from '../../../hooks/businessListing/useBusinessListingForm';
-import useUpdateListing from '../../../hooks/businessListing/useUpdateListing';
 import useUpdateListingThumbnailOrCoverPhoto from '../../../hooks/businessListing/useUpdateListingThumbnailOrCoverPhoto';
+import useUpdateListing from '../../../hooks/businessListing/useUpdateListing';
 
 function CreateBusinessListing() {
   const [searchParams] = useSearchParams();
@@ -48,33 +48,21 @@ function CreateBusinessListing() {
   const listingId = searchParams.get('id') as string;
   const listingType: ListingType = searchParams.get('type') as ListingType;
   const listingConfig = ListingConfig[listingType];
-  const [, setImageUpload] = useState<File | null | undefined>();
   const [charCount, setCharCount] = useState<number>(0);
   const [hasPhysicalPresence, setHasPhysicalPresence] = useState(false);
 
   const {
-    createBusinessListing, loading, errorMessages, success,
+    createBusinessListing, errorMessages,
   } = useCreateListing();
 
   const {
     updateBusinessListing,
-    loading: updateBusinessListingLoading,
     errorMessages: updateBusinessListingErrors,
-    success: updateBusinessListingSuccess,
   } = useUpdateListing();
 
-  const {
-    listingDetail,
-    loadingListingDetail,
-    listingDetailError,
-  } = useListingDetail(listingId as string);
+  const { listingDetail } = useListingDetail(listingId as string);
 
-  const {
-    updateThumbnailOrCoverPhoto,
-    loading: updateThumbnailOrCoverPhotoLoading,
-    errorMessages: updateThumbnailOrCoverPhotoErrors,
-    success: updateThumbnailOrCoverPhotoSuccess,
-  } = useUpdateListingThumbnailOrCoverPhoto(listingType);
+  const { updateThumbnailOrCoverPhoto } = useUpdateListingThumbnailOrCoverPhoto(listingType);
 
   const { listingTypes } = useListingTypes();
 
@@ -87,7 +75,7 @@ function CreateBusinessListing() {
     fields,
     append,
     remove,
-    reset,
+    getEditedCastsList,
   } = useBusinessListingForm({ listingType, listingDetail });
 
   const image = watch('image');
@@ -149,11 +137,9 @@ function CreateBusinessListing() {
       <div>
         <p>Success!</p>
         <p>
-          Successefully
-          &nbsp;
-          {listingId ? 'updated' : 'created' }
-          &nbsp;
-          your listing
+          Successefully &nbsp;
+          {listingId ? 'updated' : 'created'}
+          &nbsp; your listing
         </p>
       </div>,
       {
@@ -205,11 +191,17 @@ function CreateBusinessListing() {
       if (!listingId) {
         await createBusinessListing(data, handleAfterSuccessfullApi);
       } else {
-        await updateBusinessListing({
-          ...data,
-          bookRef: listingDetail?.bookRef,
-          movieRef: listingDetail?.movieRef,
-        }, handleAfterSuccessfullApi);
+        const editedCastsState = getEditedCastsList();
+
+        await updateBusinessListing(
+          {
+            ...data,
+            bookRef: listingDetail?.bookRef,
+            movieRef: listingDetail?.movieRef,
+          },
+          editedCastsState,
+          handleAfterSuccessfullApi,
+        );
       }
     } catch (err) {
       console.error(err);
@@ -428,7 +420,10 @@ function CreateBusinessListing() {
 
           <Row>
             <Col xs={12}>
-              <ErrorMessageList errorMessages={errorMessages ?? updateBusinessListingErrors} className="m-0" />
+              <ErrorMessageList
+                errorMessages={errorMessages ?? updateBusinessListingErrors}
+                className="m-0"
+              />
             </Col>
           </Row>
 

@@ -418,7 +418,7 @@ export class FeedPostsService {
       })
       .populate('userId', '_id userName profilePic')
       .populate('rssfeedProviderId', '_id title logo')
-      .populate('movieId', 'logo name releaseDate')
+      .populate('movieId', 'logo name releaseDate movieImage')
       .populate('bookId', 'name publishDate coverImage')
       .populate({
         path: 'businessListingRef',

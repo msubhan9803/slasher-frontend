@@ -494,6 +494,7 @@ export class FeedPostsController {
     '$[*].images[*].image_path',
     '$[*].userId.profilePic',
     '$[*].bookId.coverImage.image_path',
+    '$[*].movieRef.movieImage',
     '$[*].rssfeedProviderId.logo',
   )
   @Get()
@@ -527,6 +528,7 @@ export class FeedPostsController {
     '$[*].images[*].image_path',
     '$[*].userId.profilePic',
     '$[*].bookId.coverImage.image_path',
+    '$[*].movieId.movieImage',
     '$[*].rssfeedProviderId.logo',
     '$[*].businessListingRef.businessLogo',
     '$[*].businessListingRef.bookRef.coverImage.image_path',

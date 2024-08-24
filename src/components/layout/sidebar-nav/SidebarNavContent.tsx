@@ -33,7 +33,10 @@ type MenuListItem = {
 
 const topMenuListItems: MenuListItem[] = [
   {
-    label: 'My Listings', icon: solid('list-check'), iconColor: '#00D2FF', to: '/app/my-listings', id: 16, rotate: 0,
+    label: 'Manage Listing', icon: solid('list-check'), iconColor: '#00D2FF', to: '/app/admin/listing-management', id: 15, rotate: 0, isAdmin: true,
+  },
+  {
+    label: 'My Listings', icon: solid('table-cells'), iconColor: '#00D2FF', to: '/app/my-listings', id: 16, rotate: 0,
   },
   {
     label: 'News & Reviews', icon: solid('newspaper'), iconColor: '#0094FF', to: '/app/news', id: 1, rotate: 0,
@@ -79,9 +82,6 @@ const topMenuListItems: MenuListItem[] = [
   },
   {
     label: 'Shopping', icon: solid('store'), iconColor: '#00D2FF', to: '/app/shopping', id: 14, comingSoon: true, rotate: 0,
-  },
-  {
-    label: 'Manage Listing', icon: solid('list-check'), iconColor: '#00D2FF', to: '/app/admin/listing-management', id: 15, rotate: 0, isAdmin: true,
   },
 ];
 

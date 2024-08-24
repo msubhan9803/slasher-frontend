@@ -1,3 +1,4 @@
+import InfiniteScroll from 'react-infinite-scroller';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import ArtistsRightSideNav from './components/ArtistsRightSideNav';
@@ -10,7 +11,13 @@ import { BusinessType } from '../business-listings/type';
 import ArtListings from './ArtListings';
 
 function BasicArtistsIndex() {
-  const { listings, loadingListings, listingError } = useListingsByType(BusinessType.ARTIST);
+  const {
+    listings,
+    loadingListings,
+    listingError,
+    loadMoreListings,
+    hasMore,
+  } = useListingsByType(BusinessType.ARTIST);
 
   return (
     <ContentSidbarWrapper>
@@ -31,7 +38,14 @@ function BasicArtistsIndex() {
             {loadingListings && <LoadingIndicator />}
 
             {!loadingListings && listings?.length > 0 && (
-              <ArtListings listings={listings} />
+              <InfiniteScroll
+                pageStart={0}
+                loadMore={loadMoreListings}
+                hasMore={hasMore}
+                loader={<LoadingIndicator key={0} />}
+              >
+                <ArtListings listings={listings} />
+              </InfiniteScroll>
             )}
 
             {!loadingListings && listings?.length === 0

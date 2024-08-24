@@ -265,6 +265,8 @@ export async function fetchListingTypes() {
 
 export async function fetchListings(paramObj: {
   businesstype?: string | null;
+  after?: string;
+  limit?: number;
 }) {
   const token = await getSessionToken();
   const headers = {

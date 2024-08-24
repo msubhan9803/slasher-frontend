@@ -1,3 +1,4 @@
+import InfiniteScroll from 'react-infinite-scroller';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import VendroRightSideNav from './components/VendorRightSideNav';
@@ -10,7 +11,13 @@ import { BusinessType } from '../business-listings/type';
 import VendorListings from './VendorListings';
 
 function BasicVendorIndex() {
-  const { listings, loadingListings, listingError } = useListingsByType(BusinessType.VENDOR);
+  const {
+    listings,
+    loadingListings,
+    listingError,
+    loadMoreListings,
+    hasMore,
+  } = useListingsByType(BusinessType.VENDOR);
 
   return (
     <ContentSidbarWrapper>
@@ -31,7 +38,14 @@ function BasicVendorIndex() {
             {loadingListings && <LoadingIndicator />}
 
             {!loadingListings && listings?.length > 0 && (
-              <VendorListings listings={listings} />
+              <InfiniteScroll
+                pageStart={0}
+                loadMore={loadMoreListings}
+                hasMore={hasMore}
+                loader={<LoadingIndicator key={0} />}
+              >
+                <VendorListings listings={listings} />
+              </InfiniteScroll>
             )}
 
             {!loadingListings && listings?.length === 0

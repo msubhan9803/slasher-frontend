@@ -1,3 +1,4 @@
+import InfiniteScroll from 'react-infinite-scroller';
 import {
   ContentPageWrapper,
   ContentSidbarWrapper,
@@ -13,7 +14,13 @@ import MusicListings from './MusicListings';
 import { BusinessType } from '../business-listings/type';
 
 function BasicMusicIndex() {
-  const { listings, loadingListings, listingError } = useListingsByType(BusinessType.MUSICIAN);
+  const {
+    listings,
+    loadingListings,
+    listingError,
+    loadMoreListings,
+    hasMore,
+  } = useListingsByType(BusinessType.MUSICIAN);
 
   return (
     <ContentSidbarWrapper>
@@ -35,7 +42,14 @@ function BasicMusicIndex() {
             {loadingListings && <LoadingIndicator />}
 
             {!loadingListings && listings?.length > 0 && (
-              <MusicListings listings={listings} />
+              <InfiniteScroll
+                pageStart={0}
+                loadMore={loadMoreListings}
+                hasMore={hasMore}
+                loader={<LoadingIndicator key={0} />}
+              >
+                <MusicListings listings={listings} />
+              </InfiniteScroll>
             )}
 
             {/* eslint-disable-next-line max-len */}

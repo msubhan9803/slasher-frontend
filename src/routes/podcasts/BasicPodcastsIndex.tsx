@@ -1,3 +1,4 @@
+import InfiniteScroll from 'react-infinite-scroller';
 import {
   ContentPageWrapper,
   ContentSidbarWrapper,
@@ -13,7 +14,13 @@ import useListingsByType from '../../hooks/businessListing/useListings';
 import { BusinessType } from '../business-listings/type';
 
 function BasicPodcastsIndex() {
-  const { listings, loadingListings, listingError } = useListingsByType(BusinessType.PODCASTER);
+  const {
+    listings,
+    loadingListings,
+    listingError,
+    loadMoreListings,
+    hasMore,
+  } = useListingsByType(BusinessType.PODCASTER);
 
   return (
     <ContentSidbarWrapper>
@@ -35,10 +42,16 @@ function BasicPodcastsIndex() {
             {loadingListings && <LoadingIndicator />}
 
             {!loadingListings && listings?.length > 0 && (
-              <PodcastsListings listings={listings} />
+              <InfiniteScroll
+                pageStart={0}
+                loadMore={loadMoreListings}
+                hasMore={hasMore}
+                loader={<LoadingIndicator key={0} />}
+              >
+                <PodcastsListings listings={listings} />
+              </InfiniteScroll>
             )}
 
-            {/* eslint-disable-next-line max-len */}
             {!loadingListings && listings?.length === 0 && (
               <div
                 className="py-3 fw-bold"

@@ -1,3 +1,4 @@
+import InfiniteScroll from 'react-infinite-scroller';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import VideoCreatorRightSideNav from './components/VideoCreatorRightSideNav';
@@ -10,7 +11,13 @@ import { BusinessType } from '../business-listings/type';
 import VideoCreatorListings from './VideoCreatorListings';
 
 function BasicVideoCreatorsIndex() {
-  const { listings, loadingListings, listingError } = useListingsByType(BusinessType.VIDEO_CREATOR);
+  const {
+    listings,
+    loadingListings,
+    listingError,
+    loadMoreListings,
+    hasMore,
+  } = useListingsByType(BusinessType.VIDEO_CREATOR);
 
   return (
     <ContentSidbarWrapper>
@@ -31,7 +38,14 @@ function BasicVideoCreatorsIndex() {
             {loadingListings && <LoadingIndicator />}
 
             {!loadingListings && listings?.length > 0 && (
-              <VideoCreatorListings listings={listings} />
+              <InfiniteScroll
+                pageStart={0}
+                loadMore={loadMoreListings}
+                hasMore={hasMore}
+                loader={<LoadingIndicator key={0} />}
+              >
+                <VideoCreatorListings listings={listings} />
+              </InfiniteScroll>
             )}
 
             {!loadingListings && listings?.length === 0

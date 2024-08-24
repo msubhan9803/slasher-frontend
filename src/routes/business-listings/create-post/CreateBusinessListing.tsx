@@ -148,7 +148,7 @@ function CreateBusinessListing() {
       },
     );
 
-    navigate('/app/books/my-listings');
+    navigate('/app/my-listings');
   };
 
   const onSubmit: SubmitHandler<BusinessListing> = async (data) => {

@@ -64,6 +64,7 @@ import Admin from './routes/admin/Admin';
 import useTPDAdSlots from './hooks/useTPDAdSlots';
 import MyListings from './routes/business-listings/MyListings';
 import Vendors from './routes/vendors/Vendors';
+import VideoCreators from './routes/video-creators/VideoCreators';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -102,6 +103,7 @@ const routes: Record<string, TopLevelRoute> = {
   'app/music/*': { wrapper: AuthenticatedPageWrapper, component: Music },
   'app/art/*': { wrapper: AuthenticatedPageWrapper, component: Artists },
   'app/vendors/*': { wrapper: AuthenticatedPageWrapper, component: Vendors },
+  'app/video-creators/*': { wrapper: AuthenticatedPageWrapper, component: VideoCreators },
   'app/my-listings': { wrapper: AuthenticatedPageWrapper, component: MyListings },
   'app/business-listings/*': { wrapper: AuthenticatedPageWrapper, component: BusinessListings },
   'app/forgot-password': { wrapper: UnauthenticatedPageWrapper, component: ForgotPassword },

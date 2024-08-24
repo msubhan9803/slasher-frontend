@@ -56,7 +56,7 @@ const EditIcon = styled(Link)`
   z-index: 1;
 `;
 const StyledFontAwesomeIcon = styled(FontAwesomeIcon)`
-  stroke: #000;
+  stroke: #fff;
   stroke-width: 10px;
 `;
 

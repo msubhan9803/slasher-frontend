@@ -7,6 +7,7 @@ import PodcastListings from './PodcastListings';
 import MusicsListings from './MusicsListings';
 import ArtListings from './ArtListings';
 import VendorListings from './VendorListings';
+import VideoCreatorListings from './VideoCreatorListings';
 
 export default function MainListingWrapper() {
   const { listings, loadingListings } = useMyListings();
@@ -23,6 +24,7 @@ export default function MainListingWrapper() {
       <MusicsListings listings={listings?.musician as BusinessListing[]} />
       <PodcastListings listings={listings?.podcaster as BusinessListing[]} />
       <VendorListings listings={listings?.vendor as BusinessListing[] ?? []} />
+      <VideoCreatorListings listings={listings?.video_creator as BusinessListing[] ?? []} />
     </div>
   );
 }

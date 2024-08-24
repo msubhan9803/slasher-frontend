@@ -6,7 +6,7 @@ import RecentMessages from '../../../components/layout/right-sidebar-wrapper/com
 import AdvertisementBox from '../../../components/layout/right-sidebar-wrapper/components/AdvertisementBox';
 import CreateBusinessListingButton from '../../../components/layout/right-sidebar-wrapper/components/CreateBusinessListingButton';
 
-function VendroRightSideNav() {
+function VideoCreatorRightSideNav() {
   const params = useParams();
   return (
     <>
@@ -19,4 +19,4 @@ function VendroRightSideNav() {
   );
 }
 
-export default VendroRightSideNav;
+export default VideoCreatorRightSideNav;

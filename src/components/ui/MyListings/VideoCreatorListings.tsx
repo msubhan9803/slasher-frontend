@@ -15,14 +15,14 @@ const StyledWrapper = styled.div`
   max-width: 240px !important;
 `;
 
-export default function VendorListings({ listings }: Props) {
+export default function VideoCreatorListings({ listings }: Props) {
   return (
     <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2 mt-4">
       <div className="d-flex justify-content-between align-items-center">
-        <h1 className="fs-1 m-0">My Vendors</h1>
+        <h1 className="fs-1 m-0">My Video Creations</h1>
 
         <StyledWrapper>
-          <CreateBusinessListingButton type={BusinessType.VENDOR} />
+          <CreateBusinessListingButton type={BusinessType.VIDEO_CREATOR} />
         </StyledWrapper>
       </div>
 
@@ -37,7 +37,7 @@ export default function VendorListings({ listings }: Props) {
                   title={listing.title as string}
                   businessLogo={listing.businessLogo as string}
                   overview={listing.overview as string}
-                  editUrl={`/app/business-listings/create?id=${listing._id}&type=${BusinessType.VENDOR}`}
+                  editUrl={`/app/business-listings/create?id=${listing._id}&type=${BusinessType.VIDEO_CREATOR}`}
                 />
               ))
             ) : (

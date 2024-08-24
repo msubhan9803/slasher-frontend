@@ -1,16 +1,16 @@
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
-import VendroRightSideNav from './components/VendorRightSideNav';
+import VideoCreatorRightSideNav from './components/VideoCreatorRightSideNav';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 import CreateBusinessListingButton from '../../components/layout/right-sidebar-wrapper/components/CreateBusinessListingButton';
 import useListingsByType from '../../hooks/businessListing/useListings';
 import { BusinessType } from '../business-listings/type';
-import VendorListings from './VendorListings';
+import VideoCreatorListings from './VideoCreatorListings';
 
-function BasicVendorIndex() {
-  const { listings, loadingListings, listingError } = useListingsByType(BusinessType.VENDOR);
+function BasicVideoCreatorsIndex() {
+  const { listings, loadingListings, listingError } = useListingsByType(BusinessType.VIDEO_CREATOR);
 
   return (
     <ContentSidbarWrapper>
@@ -26,12 +26,12 @@ function BasicVendorIndex() {
             </div>
           )}
           <div className="m-2">
-            <h1 className="h2 pb-4">Vendors</h1>
+            <h1 className="h2 pb-4">Video Creators</h1>
 
             {loadingListings && <LoadingIndicator />}
 
             {!loadingListings && listings?.length > 0 && (
-              <VendorListings listings={listings} />
+              <VideoCreatorListings listings={listings} />
             )}
 
             {!loadingListings && listings?.length === 0
@@ -46,10 +46,10 @@ function BasicVendorIndex() {
         <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
       <RightSidebarWrapper>
-        <VendroRightSideNav />
+        <VideoCreatorRightSideNav />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>
   );
 }
 
-export default BasicVendorIndex;
+export default BasicVideoCreatorsIndex;

@@ -13,7 +13,7 @@ type OptionType = { value: string, label: string, devOnly?: boolean };
 
 const bookTabs: OptionType[] = [
   { value: 'all', label: 'All books' },
-  { value: 'my-books', label: 'My books' },
+  // { value: 'my-books', label: 'My books' },
   { value: 'slasher-indie', label: 'Slasher Indie' },
   { value: 'favorites', label: 'Favorites list' },
   { value: 'read', label: 'Read' },

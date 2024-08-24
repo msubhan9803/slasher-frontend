@@ -24,7 +24,7 @@ interface MovisHeaderProps {
 
 const tabs = [
   { value: 'all', label: 'All movies' },
-  { value: 'my-movies', label: 'My movies', devOnly: false },
+  // { value: 'my-movies', label: 'My movies', devOnly: false },
   { value: 'slasher-indie', label: 'Slasher Indie', devOnly: false },
   { value: 'favorites', label: 'Favorites list' },
   { value: 'watch-list', label: 'Watch list' },

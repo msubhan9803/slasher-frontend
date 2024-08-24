@@ -62,6 +62,7 @@ import { detectAppVersion } from './utils/version-utils';
 import { enableADs, enableDevFeatures } from './env';
 import Admin from './routes/admin/Admin';
 import useTPDAdSlots from './hooks/useTPDAdSlots';
+import MyListings from './routes/business-listings/MyListings';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -99,6 +100,7 @@ const routes: Record<string, TopLevelRoute> = {
   // 'app/books/*': { wrapper: AuthenticatedPageWrapper, component: Books },
   'app/music/*': { wrapper: AuthenticatedPageWrapper, component: Music },
   'app/art/*': { wrapper: AuthenticatedPageWrapper, component: Artists },
+  'app/my-listings': { wrapper: AuthenticatedPageWrapper, component: MyListings },
   'app/business-listings/*': { wrapper: AuthenticatedPageWrapper, component: BusinessListings },
   'app/forgot-password': { wrapper: UnauthenticatedPageWrapper, component: ForgotPassword },
   'app/reset-password': { wrapper: UnauthenticatedPageWrapper, component: ResetPassword },

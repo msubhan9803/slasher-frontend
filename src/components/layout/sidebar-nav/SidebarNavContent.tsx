@@ -33,6 +33,9 @@ type MenuListItem = {
 
 const topMenuListItems: MenuListItem[] = [
   {
+    label: 'My Listings', icon: solid('list-check'), iconColor: '#00D2FF', to: '/app/my-listings', id: 16, rotate: 0,
+  },
+  {
     label: 'News & Reviews', icon: solid('newspaper'), iconColor: '#0094FF', to: '/app/news', id: 1, rotate: 0,
   },
   {

@@ -644,6 +644,8 @@ export class BusinessListingController {
     '$.podcaster[*].businessLogo',
     '$.artist[*].businessLogo',
     '$.musician[*].businessLogo',
+    '$.vendor[*].businessLogo',
+    '$.video_creator[*].businessLogo',
   )
   @Get('get-all-my-listings')
   async getAllMyListings(

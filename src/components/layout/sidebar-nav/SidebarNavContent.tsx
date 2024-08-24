@@ -60,7 +60,7 @@ const topMenuListItems: MenuListItem[] = [
     label: 'Art', icon: solid('palette'), iconColor: '#799F0C', to: '/app/art', id: 7, rotate: 0,
   },
   {
-    label: 'Vendor', icon: solid('suitcase'), iconColor: '#799F0C', to: '/app/vendors', id: 17, rotate: 0,
+    label: 'Vendor', icon: solid('shop'), iconColor: '#799F0C', to: '/app/vendors', id: 17, rotate: 0,
   },
   {
     label: 'Groups', icon: solid('user-group'), iconColor: '#E1B065', to: '/app/groups', id: 10, comingSoon: true, rotate: 0,

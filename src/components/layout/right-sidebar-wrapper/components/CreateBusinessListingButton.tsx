@@ -69,7 +69,7 @@ function CreateBusinessListingButton({ type }: Props) {
         variant="primary"
         className="w-100 my-3"
       >
-        Add your vendor
+        Add your vendor listing
       </RoundButtonLink>
     );
   }

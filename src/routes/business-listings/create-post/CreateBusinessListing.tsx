@@ -148,42 +148,7 @@ function CreateBusinessListing() {
       },
     );
 
-    let url = '';
-    switch (listingType) {
-      case BusinessType.MOVIES:
-        url = '/app/movies/my-movies';
-        break;
-
-      case BusinessType.BOOKS:
-        url = '/app/books/my-books';
-        break;
-
-      case BusinessType.PODCASTER:
-        url = '/app/podcasts/my-podcasts';
-        break;
-
-      case BusinessType.MUSICIAN:
-        url = '/app/music/my-music';
-        break;
-
-      case BusinessType.ARTIST:
-        url = '/app/art/my-art';
-        break;
-
-      case BusinessType.VENDOR:
-        url = '/app/vendor/my-vendor';
-        break;
-
-      case BusinessType.VIDEO_CREATOR:
-        url = '/app/videos/my-videos';
-        break;
-
-      default:
-        url = '/app/movies/my-movies';
-        break;
-    }
-
-    navigate(url);
+    navigate('/app/books/my-listings');
   };
 
   const onSubmit: SubmitHandler<BusinessListing> = async (data) => {

@@ -471,7 +471,12 @@ function PostFeed({
   const swiperDataForPost = (post: any) => {
     const imageVideoList = FormatImageVideoList(post.images, post.message);
     if (post.movieId) {
-      const posterData = postMovieDataToMovieDBformat(post.movieId, post.postType, post.id);
+      const posterData = postMovieDataToMovieDBformat(post.movieId, post.postType, post.id) as any;
+
+      if (post.movieId.movieImage) {
+        posterData.poster_path = post.movieId.movieImage;
+      }
+
       imageVideoList.splice(0, 0, { posterData });
     }
     if (post.bookId) {

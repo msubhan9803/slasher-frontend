@@ -73,8 +73,6 @@ function PostHeader({
   };
 
   useEffect(() => {
-    console.log('🔥🔥🔥🔥 businessListingRef: ', businessListingRef);
-
     if (businessListingRef) {
       const detailId = businessListingRef.bookRef?._id
       ?? businessListingRef.movieRef?._id

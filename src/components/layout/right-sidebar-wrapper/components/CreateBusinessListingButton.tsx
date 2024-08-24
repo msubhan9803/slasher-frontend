@@ -12,6 +12,7 @@ function CreateBusinessListingButton({ type }: Props) {
   const isPodcaster = type ? type === BusinessType.PODCASTER : location.pathname.includes('podcasts');
   const isMusician = type ? type === BusinessType.MUSICIAN : location.pathname.includes('music');
   const isArtist = type ? type === BusinessType.ARTIST : location.pathname.includes('art');
+  const isVendor = type ? type === BusinessType.VENDOR : location.pathname.includes('vendor');
 
   if (isMoviesPage) {
     return (
@@ -57,6 +58,18 @@ function CreateBusinessListingButton({ type }: Props) {
         className="w-100 my-3"
       >
         Add your art
+      </RoundButtonLink>
+    );
+  }
+
+  if (isVendor) {
+    return (
+      <RoundButtonLink
+        to="/app/business-listings/create?type=vendor"
+        variant="primary"
+        className="w-100 my-3"
+      >
+        Add your vendor
       </RoundButtonLink>
     );
   }

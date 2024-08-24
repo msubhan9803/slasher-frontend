@@ -5,7 +5,8 @@ import { BusinessListing } from '../../../routes/business-listings/type';
 import MovieListings from './MovieListings';
 import PodcastListings from './PodcastListings';
 import MusicsListings from './MusicsListings';
-import ArtistListings from '../../../routes/artists/ArtistListings';
+import ArtListings from './ArtListings';
+import VendorListings from './VendorListings';
 
 export default function MainListingWrapper() {
   const { listings, loadingListings } = useMyListings();
@@ -16,11 +17,12 @@ export default function MainListingWrapper() {
 
   return (
     <div>
-      <ArtistListings listings={listings?.artist as BusinessListing[]} />
+      <ArtListings listings={listings?.artist as BusinessListing[]} />
       <BookListings listings={listings?.books as BusinessListing[]} />
       <MovieListings listings={listings?.movies as BusinessListing[]} />
       <MusicsListings listings={listings?.musician as BusinessListing[]} />
       <PodcastListings listings={listings?.podcaster as BusinessListing[]} />
+      <VendorListings listings={listings?.vendor as BusinessListing[] ?? []} />
     </div>
   );
 }

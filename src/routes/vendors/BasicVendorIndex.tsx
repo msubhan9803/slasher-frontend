@@ -1,16 +1,16 @@
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
-import ArtistsRightSideNav from './components/ArtistsRightSideNav';
+import VendroRightSideNav from './components/VendroRightSideNav';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import SticyBannerAdSpaceCompensation from '../../components/SticyBannerAdSpaceCompensation';
 import CreateBusinessListingButton from '../../components/layout/right-sidebar-wrapper/components/CreateBusinessListingButton';
 import useListingsByType from '../../hooks/businessListing/useListings';
 import { BusinessType } from '../business-listings/type';
-import ArtListings from './ArtListings';
+import VendorListings from './VendorListings';
 
-function BasicArtistsIndex() {
-  const { listings, loadingListings, listingError } = useListingsByType(BusinessType.ARTIST);
+function BasicVendorIndex() {
+  const { listings, loadingListings, listingError } = useListingsByType(BusinessType.VENDOR);
 
   return (
     <ContentSidbarWrapper>
@@ -26,12 +26,12 @@ function BasicArtistsIndex() {
             </div>
           )}
           <div className="m-2">
-            <h1 className="h2 pb-4">Art</h1>
+            <h1 className="h2 pb-4">Vendors</h1>
 
             {loadingListings && <LoadingIndicator />}
 
             {!loadingListings && listings?.length > 0 && (
-              <ArtListings listings={listings} />
+              <VendorListings listings={listings} />
             )}
 
             {!loadingListings && listings?.length === 0
@@ -46,10 +46,10 @@ function BasicArtistsIndex() {
         <SticyBannerAdSpaceCompensation />
       </ContentPageWrapper>
       <RightSidebarWrapper>
-        <ArtistsRightSideNav />
+        <VendroRightSideNav />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>
   );
 }
 
-export default BasicArtistsIndex;
+export default BasicVendorIndex;

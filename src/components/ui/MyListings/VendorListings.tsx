@@ -1,8 +1,11 @@
 import styled from 'styled-components';
 import { Container, Row } from 'react-bootstrap';
-import CreateBusinessListingButton from '../../components/layout/right-sidebar-wrapper/components/CreateBusinessListingButton';
-import { BusinessListing, BusinessType } from '../business-listings/type';
-import ListingCard from '../../components/ui/BusinessListing/ListingCard';
+import {
+  BusinessListing,
+  BusinessType,
+} from '../../../routes/business-listings/type';
+import CreateBusinessListingButton from '../../layout/right-sidebar-wrapper/components/CreateBusinessListingButton';
+import ListingCard from '../BusinessListing/ListingCard';
 
 type Props = {
   listings: BusinessListing[];
@@ -12,14 +15,14 @@ const StyledWrapper = styled.div`
   max-width: 240px !important;
 `;
 
-export default function ArtistListings({ listings }: Props) {
+export default function MusicsListings({ listings }: Props) {
   return (
     <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2 mt-4">
       <div className="d-flex justify-content-between align-items-center">
-        <h1 className="fs-1 m-0">My Art</h1>
+        <h1 className="fs-1 m-0">My Vendor</h1>
 
         <StyledWrapper>
-          <CreateBusinessListingButton type={BusinessType.ARTIST} />
+          <CreateBusinessListingButton type={BusinessType.VENDOR} />
         </StyledWrapper>
       </div>
 
@@ -34,7 +37,7 @@ export default function ArtistListings({ listings }: Props) {
                   title={listing.title as string}
                   businessLogo={listing.businessLogo as string}
                   overview={listing.overview as string}
-                  editUrl={`/app/business-listings/create?id=${listing._id}&type=${BusinessType.ARTIST}`}
+                  editUrl={`/app/business-listings/create?id=${listing._id}&type=${BusinessType.VENDOR}`}
                 />
               ))
             ) : (

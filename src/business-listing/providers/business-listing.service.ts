@@ -22,17 +22,29 @@ export class BusinessListingService {
     return this.businessListingTypeModel.create(createBusinessListingDto);
   }
 
-  async getAllListings(businesstype: string): Promise<BusinessListing[]> {
-    let getAllListingsQuery = {};
+  async getAllListings(businesstype: string, limit?: number, after?: string): Promise<BusinessListing[]> {
+    const getAllListingsQuery: any = { isActive: true };
 
     if (businesstype) {
-      getAllListingsQuery = {
-        businesstype,
-        isActive: true,
-      };
+      getAllListingsQuery.businesstype = businesstype;
     }
 
-    return this.businessListingModel.find(getAllListingsQuery).exec();
+    let query = this.businessListingModel
+      .find(getAllListingsQuery)
+      .sort({ createdAt: -1 });
+
+    if (after) {
+      const lastDocument = await this.businessListingModel.findById(after) as any;
+      if (lastDocument) {
+        query = query.find({ createdAt: { $lt: lastDocument.createdAt } });
+      }
+    }
+
+    if (limit) {
+      query = query.limit(limit);
+    }
+
+    return query.exec();
   }
 
   async getAllListingsForAdmin(businesstype: string): Promise<BusinessListing[]> {

@@ -591,12 +591,13 @@ export class BusinessListingController {
   @TransformImageUrls('$[*].businessLogo')
   @Get('get-all-listings')
   async getAllListings(
-    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
-    query: GetAllListingsDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: any,
   ) {
     try {
       const businessListings = await this.businessListingService.getAllListings(
         query.businesstype,
+        query.limit,
+        query.after,
       );
 
       return businessListings;

@@ -39,6 +39,7 @@ export default function BookListings({ listings }: Props) {
                 rating: listing.bookRef?.rating,
                 worthReading: listing.bookRef?.worthReading,
                 listingId: listing._id,
+                status: listing.isActive,
               })) as any
             }
             type="book"

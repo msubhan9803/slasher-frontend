@@ -35,6 +35,7 @@ export default function MovieListings({ listings }: Props) {
               rating: listing.movieRef?.rating,
               worthWatching: listing.movieRef?.worthWatching,
               listingId: listing._id,
+              status: listing.isActive,
             })) as any
           }
             type="movie"

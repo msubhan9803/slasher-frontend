@@ -1,6 +1,6 @@
+/* eslint-disable max-lines */
 /* eslint-disable max-len */
 import { useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { Row, Col } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -54,7 +54,6 @@ type Props = {
 };
 
 export default function BusinessListingHeader({ businessListingRef }: Props) {
-  const params = useParams();
   const dispatch = useAppDispatch();
   const [isExpanded, setIsExpanded] = useState(false);
   const positionRef = useRef<HTMLDivElement>(null);
@@ -65,6 +64,13 @@ export default function BusinessListingHeader({ businessListingRef }: Props) {
   };
 
   const handleScrollToTab = () => dispatch(setScrollToTabsPosition(true));
+
+  const ensureHttps = (url: string) => {
+    if (!/^https?:\/\//i.test(url)) {
+      return `https://${url}`;
+    }
+    return url;
+  };
 
   if (loadingListingDetail) {
     return <LoadingIndicator />;
@@ -116,25 +122,33 @@ export default function BusinessListingHeader({ businessListingRef }: Props) {
                   {listingDetail?.websiteLink && (
                   <InfoItem>
                     <FontAwesomeIcon icon={solid('globe')} className="me-2 text-primary align-self-center" />
-                    {listingDetail.websiteLink}
+                    <a href={ensureHttps(listingDetail.websiteLink)} target="_blank" className="text-decoration-none text-white" rel="noreferrer">
+                      {listingDetail.websiteLink}
+                    </a>
                   </InfoItem>
                   )}
                   {listingDetail?.email && (
                   <InfoItem>
                     <FontAwesomeIcon icon={solid('envelope')} className="me-2 text-primary align-self-center" />
-                    {listingDetail.email}
+                    <a href={`mailto:${listingDetail.email}`} className="text-decoration-none text-white">
+                      {listingDetail.email}
+                    </a>
                   </InfoItem>
                   )}
                   {listingDetail?.address && (
-                  <InfoItem>
-                    <FontAwesomeIcon icon={solid('location-dot')} className="me-2 text-primary align-self-center" />
-                    {listingDetail.address}
-                  </InfoItem>
+                    <InfoItem>
+                      <FontAwesomeIcon icon={solid('location-dot')} className="me-2 text-primary align-self-center" />
+                      <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(listingDetail.address)}`} target="_blank" rel="noopener noreferrer" className="text-decoration-none text-white">
+                        {listingDetail.address}
+                      </a>
+                    </InfoItem>
                   )}
                   {listingDetail?.phoneNumber && (
                   <InfoItem>
                     <FontAwesomeIcon icon={solid('phone')} className="me-2 text-primary align-self-center" />
-                    {listingDetail.phoneNumber}
+                    <a href={`tel:${listingDetail.phoneNumber}`} className="text-decoration-none text-white">
+                      {listingDetail.phoneNumber}
+                    </a>
                   </InfoItem>
                   )}
                 </InfoContainer>

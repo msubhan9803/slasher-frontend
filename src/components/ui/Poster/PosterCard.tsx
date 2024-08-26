@@ -19,6 +19,7 @@ interface PosterProps {
   poster?: string;
   deactivate?: boolean;
   editUrl?: string;
+  status?: boolean;
 }
 interface Props {
   type?: string;
@@ -84,8 +85,14 @@ const StyledFontAwesomeIcon = styled(FontAwesomeIcon)`
   stroke-width: 10px;
 `;
 
+const StatusText = styled.div<{ status: boolean }>`
+  color: ${({ status }) => (status ? 'green' : 'red')};
+  font-weight: bold;
+  margin-top: 10px;
+`;
+
 function PosterCard({
-  type, name, poster, year, worthWatching, rating, deactivate, editUrl,
+  type, name, poster, year, worthWatching, rating, deactivate, editUrl, status,
 }: PosterProps) {
   return (
     <PosterCardStyle className="bg-transparent border-0" type={type}>
@@ -121,6 +128,13 @@ function PosterCard({
             />
           )}
         </div>
+        {
+          status && (
+            <StatusText status={status as boolean}>
+              {status ? 'Active' : 'Inactive'}
+            </StatusText>
+          )
+        }
         <MovieName className="h3 fw-bold mt-1 ">
           {name}
         </MovieName>
@@ -147,6 +161,7 @@ PosterCard.defaultProps = {
   worthWatching: null,
   deactivate: false,
   editUrl: '',
+  status: false,
 };
 
 export default PosterCard;

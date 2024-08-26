@@ -85,6 +85,9 @@ const useBusinessListingForm = ({ listingType, listingDetail }: Props) => {
   const getEditedCastsList = () => editedCastsState;
 
   useEffect(() => {
+    if (listingType !== BusinessType.MOVIES) {
+      return;
+    }
     if (!listingDetail || !isDirty) {
       return;
     }

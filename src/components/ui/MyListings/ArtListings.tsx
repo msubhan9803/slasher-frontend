@@ -38,6 +38,7 @@ export default function ArtListings({ listings }: Props) {
                   businessLogo={listing.businessLogo as string}
                   overview={listing.overview as string}
                   editUrl={`/app/business-listings/create?id=${listing._id}&type=${BusinessType.ARTIST}`}
+                  status={listing.isActive as boolean}
                 />
               ))
             ) : (

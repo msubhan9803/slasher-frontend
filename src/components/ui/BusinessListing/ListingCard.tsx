@@ -4,7 +4,6 @@ import { Col } from 'react-bootstrap';
 import Card from 'react-bootstrap/Card';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import RoundButtonLink from '../RoundButtonLink';
 
 const StyledCard = styled(Card)`
@@ -48,6 +47,12 @@ const CardLink = styled(Link)`
   color: inherit;
 `;
 
+const StatusText = styled.div<{ status: boolean }>`
+  color: ${({ status }) => (status ? 'green' : 'red')};
+  font-weight: bold;
+  margin-top: 10px;
+`;
+
 const EditIcon = styled(Link)`
   position: absolute;
   top: 10px;
@@ -67,6 +72,7 @@ interface ListingCardProps {
   title: string;
   overview: string;
   editUrl?: string;
+  status?: boolean;
 }
 
 function ListingCard({
@@ -75,6 +81,7 @@ function ListingCard({
   title,
   overview,
   editUrl,
+  status,
 }: ListingCardProps) {
   return (
     <Col xs={6} lg={4} key={listingId}>
@@ -89,6 +96,9 @@ function ListingCard({
             <StyledCardImg variant="top" src={businessLogo} />
           </ImageWrapper>
           <Card.Body className="px-0 py-10">
+            <StatusText status={status as boolean}>
+              {status ? 'Active' : 'Inactive'}
+            </StatusText>
             <CardTitle>{title}</CardTitle>
             <StyledCardText>{overview}</StyledCardText>
           </Card.Body>
@@ -111,6 +121,7 @@ function ListingCard({
 
 ListingCard.defaultProps = {
   editUrl: '',
+  status: false,
 };
 
 export default ListingCard;

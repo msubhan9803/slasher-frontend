@@ -29,6 +29,7 @@ interface CardListProps {
   worthWatching?: number;
   isDeactivate?: boolean;
   listingId: string;
+  status?: boolean;
 }
 
 function MovieOrBookListingList({
@@ -83,6 +84,7 @@ function MovieOrBookListingList({
                   rating={listDetail.rating}
                   deactivate={listDetail.isDeactivate}
                   editUrl={editButton === true ? `/app/business-listings/create?type=${type}s&id=${listDetail.listingId}` : undefined}
+                  status={listDetail.status as boolean}
                 />
               </Link>
             </Col>

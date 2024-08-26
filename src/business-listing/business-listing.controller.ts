@@ -696,6 +696,29 @@ export class BusinessListingController {
     }
   }
 
+  @TransformImageUrls(
+    '$.businessLogo',
+    '$.coverPhoto',
+    '$.bookRef.coverImage.image_path',
+    '$.movieRef.movieImage',
+    '$.movieRef.casts[*].castImage',
+  )
+  @Get('get-listing-detail-for-edit/:id')
+  async getListingDetailForEdit(@Param() params: ValidateBusinessListingIdDto) {
+    try {
+      const businessListingDetail = await this.businessListingService.findOneWithoutStatusCondition(
+        params.id,
+      );
+
+      return businessListingDetail;
+    } catch (error) {
+      throw new HttpException(
+        'Unable to fetch listing details',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
   private async storeFile(locationName: string, file: any): Promise<string> {
     const storageLocation = this.storageLocationService.generateNewStorageLocationFor(
         locationName,

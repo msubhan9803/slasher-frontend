@@ -18,6 +18,8 @@ export default function MainListingWrapper() {
 
   return (
     <div>
+      <h1 className="fs-1 m-0 my-4 my-md-0">My Listings</h1>
+
       <ArtListings listings={listings?.artist as BusinessListing[]} />
       <BookListings listings={listings?.books as BusinessListing[]} />
       <MovieListings listings={listings?.movies as BusinessListing[]} />

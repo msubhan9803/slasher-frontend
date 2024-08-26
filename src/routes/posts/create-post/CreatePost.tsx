@@ -27,11 +27,9 @@ import {
 } from '../../../constants';
 
 const SelectContainer = styled.div`
+  width: 240px;
   @media(max-width: ${MD_MEDIA_BREAKPOINT}) { margin-bottom: 8px; }
-  @media(min-width: ${MD_MEDIA_BREAKPOINT}) { width: 35%; }
-  @media(min-width: ${LG_MEDIA_BREAKPOINT}) { width: 52%; }
-  @media(min-width: ${XL_MEDIA_BREAKPOINT}) { width: 40%; }
-  @media(min-width: ${XXL_MEDIA_BREAKPOINT}) { width: 30%; }
+  @media(width: ${MD_MEDIA_BREAKPOINT}) { width: auto; }
 `;
 
 export interface MentionProps {
@@ -143,25 +141,30 @@ function CreatePost() {
         {(paramsType === 'group-post' && !paramsGroupId) && <Alert variant="danger">Group id missing from URL</Alert>}
         <Form className="bg-dark px-4 py-4 rounded-2 position-relative">
           <Form.Group controlId="about-me" className="d-flex justify-content-between">
-            <div className="align-items-center d-flex form-label mb-4 w-100 mb-4">
+            <div className="align-items-center d-flex flex-column flex-md-row form-label mb-4 w-100 mb-4">
               <UserCircleImage src={loggedInUser.profilePic} alt="user picture" className="me-3" />
-              {/* <h2 className="h3 mb-0 align-self-center">
-                {loggedInUser.userName}
-              </h2> */}
 
-              <SelectContainer>
-                <CustomSelect
-                  value={selectedPostAsListingValue}
-                  onChange={handlePostAsSelection}
-                  options={[
-                    { value: loggedInUser.id, label: loggedInUser.userName },
-                    ...listingsFlat.map((elem) => ({
-                      value: elem._id,
-                      label: `${elem.title ?? elem.movieRef?.name ?? elem.bookRef?.name} (${elem.businesstype})`,
-                    })),
-                  ]}
-                />
-              </SelectContainer>
+              <div className="d-flex flex-column justify-content-start my-2">
+                <h2 className="h3 mb-2 align-self-start">
+                  Posting as:
+                </h2>
+
+                <div className="w-100">
+                  <SelectContainer>
+                    <CustomSelect
+                      value={selectedPostAsListingValue}
+                      onChange={handlePostAsSelection}
+                      options={[
+                        { value: loggedInUser.id, label: loggedInUser.userName },
+                        ...listingsFlat.map((elem) => ({
+                          value: elem._id,
+                          label: `${elem.title ?? elem.movieRef?.name ?? elem.bookRef?.name} (${elem.businesstype})`,
+                        })),
+                      ]}
+                    />
+                  </SelectContainer>
+                </div>
+              </div>
             </div>
             <Button
               variant="link"

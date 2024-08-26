@@ -22,7 +22,7 @@ function CreateBusinessListingButton({ type }: Props) {
         variant="primary"
         className="w-100 my-3"
       >
-        Add your movie
+        Add Movie Listing
       </RoundButtonLink>
     );
   }
@@ -34,7 +34,7 @@ function CreateBusinessListingButton({ type }: Props) {
         variant="primary"
         className="w-100 my-3"
       >
-        Add your podcast
+        Add Podcast Listing
       </RoundButtonLink>
     );
   }
@@ -46,7 +46,7 @@ function CreateBusinessListingButton({ type }: Props) {
         variant="primary"
         className="w-100 my-3"
       >
-        Add your music
+        Add Music Listing
       </RoundButtonLink>
     );
   }
@@ -58,7 +58,7 @@ function CreateBusinessListingButton({ type }: Props) {
         variant="primary"
         className="w-100 my-3"
       >
-        Add your art
+        Add Art Listing
       </RoundButtonLink>
     );
   }
@@ -70,7 +70,7 @@ function CreateBusinessListingButton({ type }: Props) {
         variant="primary"
         className="w-100 my-3"
       >
-        Add your vendor listing
+        Add Vendor Listing
       </RoundButtonLink>
     );
   }
@@ -82,7 +82,7 @@ function CreateBusinessListingButton({ type }: Props) {
         variant="primary"
         className="w-100 my-3"
       >
-        Add your video creations
+        Add Video Creation Listing
       </RoundButtonLink>
     );
   }
@@ -93,7 +93,7 @@ function CreateBusinessListingButton({ type }: Props) {
       variant="primary"
       className="w-100 my-3"
     >
-      Add your book
+      Add Book Listing
     </RoundButtonLink>
   );
 }

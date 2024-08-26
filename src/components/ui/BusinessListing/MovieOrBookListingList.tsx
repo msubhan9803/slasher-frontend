@@ -86,7 +86,6 @@ function MovieOrBookListingList({
                 />
               </Link>
             </Col>
-            {show && <TpdAd className="mb-3" id={`card-${i.toString()}`} slotId={getInfiniteAdSlot()} />}
           </React.Fragment>
         );
       })}

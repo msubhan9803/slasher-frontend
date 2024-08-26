@@ -31,10 +31,14 @@ function processCasts(casts: Cast[] | null): string | null {
     && cast.name.trim() !== ''
     && cast.characterName.trim() !== '');
 
-  const processedCasts = filteredCasts.map((cast: Cast) => ({
-    ...cast,
-    castImage: typeof cast.castImage === 'string' ? cast.castImage : undefined,
-  }));
+  const processedCasts = filteredCasts.map((cast: Cast) => {
+    const temp = {
+      ...cast,
+      castImage: typeof cast.castImage === 'string' ? cast.castImage : undefined,
+    };
+    delete temp._id;
+    return temp;
+  });
 
   return processedCasts.length > 0 ? JSON.stringify(processedCasts) : null;
 }
@@ -321,6 +325,18 @@ export async function fetchListingDetail(listingId: string) {
 
   return axios.get(
     `${apiUrl}/api/v1/business-listing/get-listing-detail/${listingId}`,
+    { headers },
+  );
+}
+
+export async function fetchListingDetailForEdit(listingId: string) {
+  const token = await getSessionToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.get(
+    `${apiUrl}/api/v1/business-listing/get-listing-detail-for-edit/${listingId}`,
     { headers },
   );
 }

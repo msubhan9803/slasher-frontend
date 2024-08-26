@@ -15,7 +15,7 @@ export default function MovieListings({ listings }: Props) {
   return (
     <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2 mt-4">
       <div className="d-flex justify-content-between align-items-center">
-        <h1 className="fs-1 m-0">My Movies</h1>
+        <h1 className="fs-1 m-0">Movies</h1>
 
         <StyledWrapper>
           <CreateBusinessListingButton type={BusinessType.MOVIES} />

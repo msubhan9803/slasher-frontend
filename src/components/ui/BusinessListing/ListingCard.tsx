@@ -5,6 +5,7 @@ import Card from 'react-bootstrap/Card';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import RoundButtonLink from '../RoundButtonLink';
 
 const StyledCard = styled(Card)`
   width: 100%;
@@ -80,17 +81,28 @@ function ListingCard({
       <CardLink to={`/app/business-listings/detail/${listingId}`}>
         <StyledCard bg="transparent">
           <ImageWrapper>
-            {editUrl && (
+            {/* {editUrl && (
               <EditIcon to={editUrl}>
                 <StyledFontAwesomeIcon icon={solid('pencil-alt')} />
               </EditIcon>
-            )}
+            )} */}
             <StyledCardImg variant="top" src={businessLogo} />
           </ImageWrapper>
           <Card.Body className="px-0 py-10">
             <CardTitle>{title}</CardTitle>
             <StyledCardText>{overview}</StyledCardText>
           </Card.Body>
+          <Card.Footer>
+            {editUrl && (
+              <RoundButtonLink
+                to={editUrl}
+                variant="primary"
+                className="w-100 my-3"
+              >
+                Edit
+              </RoundButtonLink>
+            )}
+          </Card.Footer>
         </StyledCard>
       </CardLink>
     </Col>

@@ -8,6 +8,7 @@ import { LazyLoadImage } from 'react-lazy-load-image-component';
 import LikeIconButton from './LikeIconButton';
 import { WorthWatchingStatus } from '../../../types';
 import { getYearFromDate } from '../../../utils/date-utils';
+import RoundButtonLink from '../RoundButtonLink';
 
 interface PosterProps {
   type?: string;
@@ -88,11 +89,11 @@ function PosterCard({
 }: PosterProps) {
   return (
     <PosterCardStyle className="bg-transparent border-0" type={type}>
-      {editUrl && (
+      {/* {editUrl && (
       <EditIcon to={editUrl}>
         <StyledFontAwesomeIcon icon={solid('pencil-alt')} />
       </EditIcon>
-      )}
+      )} */}
       <div className="poster">
         <StyledPoster>
           <LazyLoadImage src={poster} alt={`${name} poster`} className="w-100 h-100 rounded-4" />
@@ -124,6 +125,17 @@ function PosterCard({
           {name}
         </MovieName>
       </Card.Body>
+      <Card.Footer>
+        {editUrl && (
+          <RoundButtonLink
+            to={editUrl}
+            variant="primary"
+            className="w-100 my-3"
+          >
+            Edit
+          </RoundButtonLink>
+        )}
+      </Card.Footer>
     </PosterCardStyle>
   );
 }

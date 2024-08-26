@@ -37,7 +37,7 @@ import PhoneNumber from '../../../components/ui/BusinessListing/PhoneNumber';
 import CoverPhoto from '../../../components/ui/BusinessListing/CoverPhoto';
 import Switch from '../../../components/ui/Switch';
 import useListingTypes from '../../../hooks/businessListing/useListingTypes';
-import useListingDetail from '../../../hooks/businessListing/useListingDetail';
+import useListingDetailForEdit from '../../../hooks/businessListing/useListingDetailForEdit';
 import useBusinessListingForm from '../../../hooks/businessListing/useBusinessListingForm';
 import useUpdateListingThumbnailOrCoverPhoto from '../../../hooks/businessListing/useUpdateListingThumbnailOrCoverPhoto';
 import useUpdateListing from '../../../hooks/businessListing/useUpdateListing';
@@ -60,7 +60,7 @@ function CreateBusinessListing() {
     errorMessages: updateBusinessListingErrors,
   } = useUpdateListing();
 
-  const { listingDetail } = useListingDetail(listingId as string);
+  const { listingDetail } = useListingDetailForEdit(listingId as string);
 
   const { updateThumbnailOrCoverPhoto } = useUpdateListingThumbnailOrCoverPhoto(listingType);
 

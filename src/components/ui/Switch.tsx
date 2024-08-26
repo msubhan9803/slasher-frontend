@@ -1,7 +1,8 @@
+/* eslint-disable no-nested-ternary */
 import React from 'react';
 import styled from 'styled-components';
 
-const SwitchStyledLabel = styled.label`
+const SwitchStyledLabel = styled.label<{ yesNoLabel?: boolean }>`
   input:checked+.slider {
     background-color: #32D74B;
   }
@@ -11,12 +12,12 @@ const SwitchStyledLabel = styled.label`
     transform: translateX(1.87rem);
   }
   input:checked+.slider:after {
-    content: 'ON';
+    content: ${({ yesNoLabel }) => (yesNoLabel ? "'Yes'" : "'ON'")};
     left: 30%;
-    color: var(--bs-black)
+    color: var(--bs-black);
   }
   .slider:after {
-    content: 'OFF';
+    content: ${({ yesNoLabel }) => (yesNoLabel ? "'No'" : "'OFF'")};
     color: var(--bs-body-color);
     display: block;
     position: absolute;
@@ -71,20 +72,21 @@ interface Props {
   className?: string,
   isChecked?: boolean,
   onSwitchToggle?: (e: React.ChangeEvent<HTMLInputElement>) => void | undefined,
+  yesNoLabel?: boolean;
 }
 
 function Switch({
-  id, className, isChecked, onSwitchToggle,
+  id, className, isChecked, onSwitchToggle, yesNoLabel,
 }: Props) {
   return (
     <SwitchDiv>
-      <SwitchStyledLabel className={`switch ${className}`} htmlFor={id} role="switch" aria-checked={isChecked}>
+      <SwitchStyledLabel className={`switch ${className}`} htmlFor={id} role="switch" aria-checked={isChecked} yesNoLabel={yesNoLabel}>
         <input type="checkbox" id={id} onChange={onSwitchToggle} checked={isChecked} />
         <div className="slider round" />
         <span className="visually-hidden">
           switch state:
           {' '}
-          {isChecked ? 'on' : 'off'}
+          {isChecked ? (yesNoLabel ? 'Yes' : 'On') : (yesNoLabel ? 'No' : 'Off')}
         </span>
       </SwitchStyledLabel>
     </SwitchDiv>
@@ -95,6 +97,7 @@ Switch.defaultProps = {
   className: '',
   isChecked: false,
   onSwitchToggle: () => { },
+  yesNoLabel: false,
 };
 
 export default Switch;

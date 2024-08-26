@@ -359,7 +359,7 @@ function ProfilePosts({ user }: Props) {
     });
   };
 
-  const postsCountWithLabel = `Posts: ${formatNumberWithUnits(user.postsCount)}`;
+  const postsCountWithLabel = `Posts: ${formatNumberWithUnits(posts.length)}`;
 
   return (
     <div>

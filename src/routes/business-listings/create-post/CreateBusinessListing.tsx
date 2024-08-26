@@ -289,6 +289,7 @@ function CreateBusinessListing() {
                     className="ms-0 ms-md-3"
                     isChecked={hasPhysicalPresence}
                     onSwitchToggle={togglePhysicalPresenceSwitch}
+                    yesNoLabel
                   />
                 </div>
 

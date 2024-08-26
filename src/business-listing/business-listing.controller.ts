@@ -18,7 +18,7 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ConfigService } from '@nestjs/config/dist/config.service';
-import { UserType } from 'src/schemas/user/user.enums';
+import { UserType } from '../schemas/user/user.enums';
 import {
   UPLOAD_PARAM_NAME_FOR_FILES,
   MAXIMUM_IMAGE_UPLOAD_SIZE,

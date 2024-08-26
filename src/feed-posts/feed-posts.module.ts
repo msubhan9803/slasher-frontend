@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { BusinessListing, BusinessListingSchema } from 'src/schemas/businessListing/businessListing.schema';
+import { BusinessListing, BusinessListingSchema } from '../schemas/businessListing/businessListing.schema';
 import { FeedPostsController } from './feed-posts.controller';
 import { FeedPostsService } from './providers/feed-posts.service';
 import { FeedPost, FeedPostSchema } from '../schemas/feedPost/feedPost.schema';

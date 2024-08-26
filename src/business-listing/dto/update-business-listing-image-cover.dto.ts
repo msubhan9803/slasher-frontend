@@ -2,7 +2,7 @@ import {
   IsEnum,
   IsString,
 } from 'class-validator';
-import { FileType } from 'src/schemas/businessListing/businessListing.enums';
+import { FileType } from '../../schemas/businessListing/businessListing.enums';
 
 export class UpdateBusinessListingImageCoverDto {
   @IsEnum(FileType, { message: 'Invalid business type' })

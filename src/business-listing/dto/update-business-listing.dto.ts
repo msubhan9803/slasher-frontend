@@ -13,7 +13,7 @@ import {
   MaxLength,
   ValidateNested,
 } from 'class-validator';
-import { BusinessType } from 'src/schemas/businessListing/businessListing.enums';
+import { BusinessType } from '../../schemas/businessListing/businessListing.enums';
 import { IsOtherBusinessCommonFieldsRequired } from '../decorators/is-other-business-common-fields-required.decorator';
 
 class CastDto {

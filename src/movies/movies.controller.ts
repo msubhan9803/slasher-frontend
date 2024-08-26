@@ -6,7 +6,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import mongoose from 'mongoose';
-import { TransformImageUrls } from 'src/app/decorators/transform-image-urls.decorator';
+import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { pick } from '../utils/object-utils';
 import { relativeToFullImagePath } from '../utils/image-utils';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';

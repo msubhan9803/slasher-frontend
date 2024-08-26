@@ -17,7 +17,7 @@ import useGoogleAnalytics from '../hooks/useGoogleAnalytics';
 
 function CapacitorAppListeners() {
   const navigate = useNavigate();
-  // useGoogleAnalytics();
+  useGoogleAnalytics();
 
   useEffect(() => {
     CapacitorApp.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {

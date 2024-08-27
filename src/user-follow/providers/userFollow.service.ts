@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { BlocksService } from '../../blocks/providers/blocks.service';
 import { UserFollow, UserFollowDocument } from '../../schemas/userFollow/userFollow.schema';
 
 @Injectable()
 export class UserFollowService {
     constructor(
         @InjectModel(UserFollow.name) private userFollowModel: Model<UserFollowDocument>,
+    private readonly blocksService: BlocksService,
+
     ) { }
 
     async createOrUpdate(userId: string, followUserId: string, notification: boolean): Promise<UserFollowDocument> {
@@ -47,7 +50,8 @@ export class UserFollowService {
     }
 
     async findAllUsersForFollowNotification(id: string): Promise<UserFollowDocument[]> {
-        return this.userFollowModel.find({ followUserId: id }, { userId: 1, _id: 0 }).exec();
+        const blockIds = await this.blocksService.getUserIdsForBlocksToOrFromUser(id);
+        return this.userFollowModel.find({ followUserId: id, userId: { $nin: blockIds } }, { userId: 1, _id: 0 }).exec();
     }
 
     async deleteFollowDataOnUnfriend(fromUserId: string, toUserId: string): Promise<void> {

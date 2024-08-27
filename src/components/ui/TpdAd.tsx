@@ -82,10 +82,11 @@ function AdContainer({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
+    justifySelf: 'center',
   };
 
   return (
-    <div>
+    <div className={`${id === 'bottom-ad' ? 'd-grid' : ''}`}>
       <div className={adContainerClassName} style={{ ...AD_CONTAINER_STYLE, ...adContainerStyle }}>
         <div style={{ ...AD_UNIT_STYLE, ...adUnitStyle }} className={adUnitClassName} id={id}>
           {children}

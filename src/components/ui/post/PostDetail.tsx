@@ -136,14 +136,20 @@ function PostDetail({
     setPopoverClick(popoverClickProps);
   };
 
-  type FeedCommentsOptions = { isOldestFirst: boolean, isLoadNewerCommentsClick: boolean };
+  type FeedCommentsOptions = {
+    isOldestFirst: boolean,
+    isLoadNewerCommentsClick: boolean,
+    lastCommentId?: string
+  };
 
   const feedComments = useCallback((options: FeedCommentsOptions) => {
-    const { isOldestFirst, isLoadNewerCommentsClick } = options;
+    const { isOldestFirst, isLoadNewerCommentsClick, lastCommentId } = options;
     let data;
     const isAddingBelowCurrentComments = !isLoadNewerCommentsClick;
     if (isAddingBelowCurrentComments) {
       data = commentData.length > 0 ? commentData[commentData.length - 1]._id : undefined;
+    } else if (lastCommentId) {
+      data = lastCommentId;
     } else {
       data = commentData.length > 0 ? commentData[0]._id : undefined;
     }
@@ -451,7 +457,16 @@ function PostDetail({
       return removeFeedComments(commentID).then(async () => {
         setProgressButtonStatus('default');
         setCommentID('');
-        callLatestFeedComments();
+        setRequestAdditionalPosts(true);
+        const deletedCommentIndex = commentData.findIndex((comment) => comment._id === commentID);
+        const updatedCommentData = commentData.filter((comment) => comment._id !== commentID);
+        setCommentData(updatedCommentData);
+        const lastCommentId = commentData[deletedCommentIndex - 1]._id;
+        setNoMoreData(false);
+        // eslint-disable-next-line max-len
+        feedComments({ isOldestFirst: isCommentsOldestFirst, isLoadNewerCommentsClick: false, lastCommentId });
+        // setCommentData([]);
+        // callLatestFeedComments();
         setPostData([{
           ...postData[0],
           commentCount: postData[0].commentCount - 1,

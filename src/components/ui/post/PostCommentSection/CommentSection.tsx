@@ -65,6 +65,7 @@ const CommentMessage = styled.div`
   color: #CCCCCC;
   a {
     display: inline-block;
+    word-break: break-all;
   }
 `;
 const LinearIcon = styled.div<LinearIconProps>`

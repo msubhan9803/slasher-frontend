@@ -15,7 +15,6 @@ import { MovieUserStatusModule } from '../movie-user-status/movie.user.status.mo
 import { BusinessListingService } from './providers/business-listing.service';
 import { StorageLocationService } from '../global/providers/storage-location.service';
 import { BusinessListingController } from './business-listing.controller';
-import { BusinessListingType, BusinessListingTypeSchema } from '../schemas/businessListingType/businessListingType.schema';
 import { BusinessListing, BusinessListingSchema } from '../schemas/businessListing/businessListing.schema';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
@@ -24,7 +23,6 @@ import { BooksService } from '../books/providers/books.service';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: BusinessListing.name, schema: BusinessListingSchema }]),
-    MongooseModule.forFeature([{ name: BusinessListingType.name, schema: BusinessListingTypeSchema }]),
     MongooseModule.forFeature([{ name: Book.name, schema: BookSchema }]),
     MongooseModule.forFeature([{ name: BookUserStatus.name, schema: BookUserStatusSchema }]),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),

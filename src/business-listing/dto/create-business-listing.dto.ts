@@ -10,7 +10,6 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
-import mongoose from 'mongoose';
 import { BusinessType } from '../../schemas/businessListing/businessListing.enums';
 import { IsMovieFieldsRequired } from '../decorators/is-movie-fields-required.decorator';
 import { IsBookFieldsRequired } from '../decorators/is-book-fields-required.decorator';
@@ -21,7 +20,7 @@ export class CreateBusinessListingDto {
   businesstype: BusinessType;
 
   @IsString()
-  listingType: mongoose.Schema.Types.ObjectId;
+  listingType: string;
 
   @IsNotEmpty({ message: 'Title is required' })
   @IsString()

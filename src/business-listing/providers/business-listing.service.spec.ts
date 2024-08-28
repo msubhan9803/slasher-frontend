@@ -12,8 +12,6 @@ import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { BusinessListingService } from './business-listing.service';
 import { UsersService } from '../../users/providers/users.service';
 import { userFactory } from '../../../test/factories/user.factory';
-import { businessListingTypeFactory } from '../../../test/factories/businessListingType.factory';
-import { BusinessListingType } from '../../schemas/businessListingType/businessListingType.schema';
 import { BusinessType } from '../../schemas/businessListing/businessListing.enums';
 
 describe('BusinessListingService', () => {
@@ -21,9 +19,7 @@ describe('BusinessListingService', () => {
   let connection: Connection;
   let businessListingService: BusinessListingService;
   let usersService: UsersService;
-  // let businessListingModel: Model<BusinessListing>;
   let businessListing: BusinessListing;
-  let businessListingType: BusinessListingType;
   let activeUser: UserDocument;
   let user1: UserDocument;
 
@@ -34,7 +30,6 @@ describe('BusinessListingService', () => {
 
     connection = moduleRef.get<Connection>(getConnectionToken());
     businessListingService = moduleRef.get<BusinessListingService>(BusinessListingService);
-    // businessListingModel = moduleRef.get<Model<BusinessListing>>(getModelToken(BusinessListing.name));
     usersService = moduleRef.get<UsersService>(UsersService);
 
     app = moduleRef.createNestApplication();
@@ -59,23 +54,9 @@ describe('BusinessListingService', () => {
       userFactory.build({ userName: 'Michael' }),
     );
 
-    const {
-      name,
-      label,
-      features,
-      price,
-    } = businessListingTypeFactory.build();
-    businessListingType = await businessListingService.createListingType({
-      name,
-      label,
-      features,
-      price,
-    });
-
     // Create a sample business listing for use in tests
     const tempBusienssListing = businessListingFactory.build();
     tempBusienssListing.userRef = activeUser._id;
-    tempBusienssListing.listingType = businessListingType._id;
 
     businessListing = await businessListingService.createListing(tempBusienssListing);
   });
@@ -138,37 +119,6 @@ describe('BusinessListingService', () => {
       expect(listings).toBeTruthy();
       expect(listings.length).toBeGreaterThan(0);
       expect(listings[0].userRef.toString()).toEqual(activeUser._id.toString());
-    });
-  });
-
-  describe('#getAllListingTypes', () => {
-    it('retrieves all business listing types', async () => {
-      const listingTypes = await businessListingService.getAllListingTypes();
-
-      expect(listingTypes).toBeTruthy();
-      expect(listingTypes.length).toBeGreaterThan(0);
-      expect(listingTypes[0].name).toEqual(businessListingType.name);
-    });
-  });
-
-  describe('#createListingType', () => {
-    it('successfully creates a business listing type', async () => {
-      const {
-        name,
-        label,
-        features,
-        price,
-      } = businessListingTypeFactory.build();
-      const createdListingType = await businessListingService.createListingType({
-        name,
-        label,
-        features,
-        price,
-      });
-
-      expect(createdListingType).toBeTruthy();
-      expect(createdListingType.name).toEqual(name);
-      expect(createdListingType.features).toEqual(features);
     });
   });
 

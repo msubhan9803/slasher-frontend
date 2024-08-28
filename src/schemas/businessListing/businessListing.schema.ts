@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { BusinessType } from './businessListing.enums';
-import { BusinessListingType } from '../businessListingType/businessListingType.schema';
+import { BusinessType, ListingType } from './businessListing.enums';
 import { User } from '../user/user.schema';
 import { Movie } from '../movie/movie.schema';
 import { Book } from '../book/book.schema';
@@ -16,8 +15,8 @@ export class BusinessListing {
   @Prop({ enum: BusinessType, required: true })
   businesstype: BusinessType;
 
-  @Prop({ default: null, ref: BusinessListingType.name, required: true })
-  listingType: mongoose.Schema.Types.ObjectId;
+  @Prop({ enum: ListingType, required: true })
+  listingType: string;
 
   @Prop()
   businessLogo?: string;

@@ -31,7 +31,6 @@ import { LocalStorageService } from '../local-storage/providers/local-storage.se
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { BusinessListing } from '../schemas/businessListing/businessListing.schema';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
-import { BusinessListingType } from '../schemas/businessListingType/businessListingType.schema';
 import {
   BusinessType,
   FileType,
@@ -49,7 +48,6 @@ import { getUserFromRequest } from '../utils/request-utils';
 import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
 import { BusinessListingService } from './providers/business-listing.service';
 import { CreateBusinessListingDto } from './dto/create-business-listing.dto';
-import { CreateBusinessListingTypeDto } from './dto/create-business-listing-type.dto';
 import { GetAllListingsDto } from './dto/get-all-listings.';
 import { ValidateBusinessListingIdDto } from './dto/validate.business-listing-id.dto';
 import { UpdateBusinessListingDto } from './dto/update-business-listing.dto';
@@ -179,7 +177,6 @@ export class BusinessListingController {
             numberOfPages: pages,
             isbnNumber: [isbn],
             description: overview,
-            rating: parseInt(officialRatingReceived, 10),
             status: BookActiveStatus.Active,
             coverImage: {
               image_path: listingStorageLocation,
@@ -432,30 +429,6 @@ export class BusinessListingController {
     }
   }
 
-  @Post('create-listing-type')
-  async createListingType(
-    @Body() createListingTypeDto: CreateBusinessListingTypeDto,
-  ) {
-    try {
-      const listingType = new BusinessListingType(createListingTypeDto);
-
-      const createdBusinessListing = await this.businessListingService.createListingType(listingType);
-
-      return {
-        _id: createdBusinessListing._id,
-        name: createdBusinessListing.name,
-        label: createdBusinessListing.label,
-        features: createdBusinessListing.features,
-        price: createdBusinessListing.price,
-      };
-    } catch (error) {
-      throw new HttpException(
-        'Unable to create listing type',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-  }
-
   @TransformImageUrls('$.image')
   @Post('add-movie-cast')
   @UseInterceptors(
@@ -571,20 +544,6 @@ export class BusinessListingController {
       return movie;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @Get('get-all-listing-types')
-  async getAllListingType() {
-    try {
-      const businessListingTypes = await this.businessListingService.getAllListingTypes();
-
-      return businessListingTypes;
-    } catch (error) {
-      throw new HttpException(
-        'Unable to create listing type',
-        HttpStatus.BAD_REQUEST,
-      );
     }
   }
 

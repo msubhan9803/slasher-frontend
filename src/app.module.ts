@@ -46,6 +46,7 @@ import { AuthGuard } from './app/guards/auth.guard';
 import { CaptchaModule } from './captcha/captcha.module';
 import { UserFollowModule } from './user-follow/user-follow.module';
 import { BookUserStatusModule } from './book-user-status/book.user.status.module';
+import { BusinessListingModule } from './business-listing/business-listing.module';
 
 @Module({
   imports: [
@@ -109,6 +110,7 @@ import { BookUserStatusModule } from './book-user-status/book.user.status.module
     CaptchaModule,
     UserFollowModule,
     BookUserStatusModule,
+    BusinessListingModule,
   ],
   controllers: [AppController],
   providers: [

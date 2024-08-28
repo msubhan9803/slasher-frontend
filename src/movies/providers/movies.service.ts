@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
@@ -347,10 +347,19 @@ export class MoviesService {
     nameContains?: string,
     movieIdsIn?: mongoose.Types.ObjectId[],
     sortNameStartsWith?: string,
+    type?: number,
   ): Promise<MovieDocument[]> {
-    const movieFindAllQuery: any = {
-      type: MovieType.MovieDb,
-    };
+    let movieFindAllQuery: any = {};
+    if (type) {
+      movieFindAllQuery = {
+        type,
+      };
+    } else {
+      movieFindAllQuery = {
+        type: { $in: [MovieType.MovieDb, MovieType.UserDefined] },
+      };
+    }
+
     if (movieIdsIn) {
       movieFindAllQuery._id = { $in: movieIdsIn };
     }
@@ -708,6 +717,68 @@ export class MoviesService {
     };
   }
 
+  async fetchUserDefinedMovieData(id: string): Promise<any> {
+    const {
+      type,
+      name,
+      descriptions,
+      countryOfOrigin,
+      movieImage,
+      casts,
+      releaseDate,
+      trailerUrls,
+      watchUrl,
+    } = await this.moviesModel.findOne({ _id: id }).exec();
+
+    const cast = casts.map((elem) => ({
+      profile_path: elem.castImage,
+      character: elem.characterName,
+      name: elem.name,
+    }));
+
+    const video = trailerUrls.map((url) => ({ key: url }));
+
+    return {
+      cast,
+      video,
+      mainData: {
+        type,
+        overview: descriptions,
+        poster_path: movieImage,
+        watchUrl,
+        release_dates: {
+          results: [
+            {
+              iso_3166_1: 'US',
+              release_dates: [
+                {
+                  certification: 'R',
+                  descriptors: [
+                  ],
+                  iso_639_1: 'en',
+                  note: '',
+                  release_date: releaseDate,
+                  type: 4,
+                },
+              ],
+            },
+          ],
+        },
+        runtime: 75,
+        title: name,
+        original_title: name,
+        production_countries: [
+          {
+            iso_3166_1: 'US',
+            name: countryOfOrigin,
+          },
+        ],
+        release_date: releaseDate,
+      },
+      crew: [],
+    };
+  }
+
   async getWatchedListMovieIdsForUser(userId: string): Promise<Partial<MovieUserStatusDocument[]>> {
     const watchedMovieIdByUser = await this.movieUserStatusModel
       .find({ userId: new mongoose.Types.ObjectId(userId), watched: MovieUserStatusWatched.Watched }, { movieId: 1, _id: 0 })
@@ -795,5 +866,15 @@ export class MoviesService {
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();
+  }
+
+  async updateMovie(id: string, movieData: Partial<Movie>) {
+    const updatedMovieData = await this.moviesModel.findByIdAndUpdate(id, movieData, { new: true }).exec();
+
+    if (!updatedMovieData) {
+      throw new NotFoundException(`Movie with ID ${id} not found`);
+    }
+
+    return updatedMovieData;
   }
 }

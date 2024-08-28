@@ -1,6 +1,7 @@
 export enum BookType {
   Free = 0,
   OpenLibrary = 1,
+  UserDefined = 2,
 }
 
 export enum BookActiveStatus {

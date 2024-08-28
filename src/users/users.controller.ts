@@ -759,7 +759,14 @@ export class UsersController {
     return { profilePic: user.profilePic };
   }
 
-  @TransformImageUrls('$[*].images[*].image_path', '$[*].userId.profilePic', '$[*].bookId.coverImage.image_path')
+  @TransformImageUrls(
+    '$[*].images[*].image_path',
+    '$[*].userId.profilePic',
+    '$[*].bookId.coverImage.image_path',
+    '$[*].businessListingRef.businessLogo',
+    '$[*].businessListingRef.bookRef.coverImage.image_path',
+    '$[*].businessListingRef.movieRef.movieImage',
+  )
   @Get(':userId/posts')
   async allFeedPosts(
     @Req() request: Request,
@@ -800,7 +807,7 @@ export class UsersController {
       (post) => pick(
         post,
         ['_id', 'message', 'images', 'userId', 'createdAt',
-          'likedByUser', 'likeCount', 'commentCount', 'movieId', 'hashtags', 'bookId', 'postType'],
+          'likedByUser', 'likeCount', 'commentCount', 'movieId', 'hashtags', 'bookId', 'postType', 'businessListingRef'],
       ),
     );
   }
@@ -934,6 +941,11 @@ export class UsersController {
       query.startsWith,
     );
     movies.forEach((movie) => {
+      if (movie.type === 2) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = relativeToFullImagePath(this.configService, movie.movieImage);
+        return;
+      }
       if (movie.logo?.length > 1) {
         // eslint-disable-next-line no-param-reassign
         movie.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${movie.logo}`;
@@ -971,6 +983,11 @@ export class UsersController {
       query.startsWith,
     );
     movies.forEach((movie) => {
+      if (movie.type === 2) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = relativeToFullImagePath(this.configService, movie.movieImage);
+        return;
+      }
       if (movie.logo?.length > 1) {
         // eslint-disable-next-line no-param-reassign
         movie.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${movie.logo}`;
@@ -1008,6 +1025,11 @@ export class UsersController {
       query.startsWith,
     );
     movies.forEach((movie) => {
+      if (movie.type === 2) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = relativeToFullImagePath(this.configService, movie.movieImage);
+        return;
+      }
       if (movie.logo?.length > 1) {
         // eslint-disable-next-line no-param-reassign
         movie.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${movie.logo}`;
@@ -1045,6 +1067,11 @@ export class UsersController {
       query.startsWith,
     );
     movies.forEach((movie) => {
+      if (movie.type === 2) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = relativeToFullImagePath(this.configService, movie.movieImage);
+        return;
+      }
       if (movie.logo?.length > 1) {
         // eslint-disable-next-line no-param-reassign
         movie.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${movie.logo}`;

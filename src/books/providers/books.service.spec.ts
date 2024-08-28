@@ -298,12 +298,15 @@ describe('BooksService', () => {
   });
 
   describe('#findAll', () => {
-    it('only includes books of type BookType.openLibrary', async () => {
+    it('only includes books of type BookType.openLibrary & BookType.userDefined', async () => {
       await booksService.create(
         booksFactory.build({ status: BookActiveStatus.Active, name: 'a', type: BookType.Free }),
       );
       await booksService.create(
         booksFactory.build({ status: BookActiveStatus.Active, name: 'b', type: BookType.OpenLibrary }),
+      );
+      await booksService.create(
+        booksFactory.build({ status: BookActiveStatus.Active, name: 'c', type: BookType.UserDefined }),
       );
 
       const booksList = await booksService.findAll(10, true, 'name');

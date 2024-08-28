@@ -52,7 +52,9 @@ export class BooksController {
       query.nameContains,
       null,
       query.startsWith,
+      query.type,
     );
+
     return books.map((bookData) => pick(
       bookData,
       ['_id', 'name', 'publishDate', 'coverImage', 'rating', 'worthReading'],
@@ -105,6 +107,7 @@ export class BooksController {
       ...bookRelatedFields,
       'rating', 'ratingUsersCount', 'goreFactorRating',
       'goreFactorRatingUsersCount', 'worthReading', 'worthReadingUpUsersCount', 'worthReadingDownUsersCount', 'userData', 'coverImage',
+      'type', 'buyUrl', 'businessListingRef',
     ]);
   }
 

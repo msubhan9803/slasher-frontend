@@ -6,6 +6,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import mongoose from 'mongoose';
+import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { pick } from '../utils/object-utils';
 import { relativeToFullImagePath } from '../utils/image-utils';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
@@ -99,8 +100,8 @@ export class MoviesController {
       ratingUsersCount,
       userData,
     }, [
-      'movieDBId', 'rating', 'ratingUsersCount', 'goreFactorRating', 'goreFactorRatingUsersCount',
-      'worthWatching', 'worthWatchingUpUsersCount', 'worthWatchingDownUsersCount', 'userData',
+      '_id', 'movieDBId', 'rating', 'ratingUsersCount', 'goreFactorRating', 'goreFactorRatingUsersCount',
+      'worthWatching', 'worthWatchingUpUsersCount', 'worthWatchingDownUsersCount', 'userData', 'type', 'movieImage', 'businessListingRef',
     ]);
   }
 
@@ -114,11 +115,17 @@ export class MoviesController {
       query.nameContains,
       null,
       query.startsWith,
+      query.type,
     );
     if (!movies) {
       throw new HttpException('No movies found', HttpStatus.NOT_FOUND);
     }
     movies.forEach((movie) => {
+      if (movie.type === 2) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = relativeToFullImagePath(this.configService, movie.movieImage);
+        return;
+      }
       if (movie.logo?.length > 1) {
         // eslint-disable-next-line no-param-reassign
         movie.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${movie.logo}`;
@@ -129,7 +136,7 @@ export class MoviesController {
       }
     });
     return movies.map(
-      (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating', 'worthWatching']),
+      (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating', 'worthWatching', 'movieImage', 'type']),
     );
   }
 
@@ -140,6 +147,17 @@ export class MoviesController {
       throw new HttpException('MovieDB movie not found', HttpStatus.NOT_FOUND);
     }
     return movieDbData;
+  }
+
+  @TransformImageUrls('$.mainData.poster_path', '$.cast[*].profile_path')
+  @Get('userDefinedMovieData/:id')
+  async fetchUserDefinedMovieData(@Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateMovieIdDto) {
+    const movieData = await this.moviesService.fetchUserDefinedMovieData(params.id);
+    if (!movieData) {
+      throw new HttpException('User defined Movie movie not found', HttpStatus.NOT_FOUND);
+    }
+
+    return movieData;
   }
 
   @Put(':id/rating')

@@ -4,6 +4,7 @@ import { BookUnusedFields } from './book.unused-fields';
 import { BookActiveStatus, BookDeletionState, BookType } from './book.enums';
 import { WorthReadingStatus } from '../../types';
 import { Image, ImageSchema } from '../shared/image.schema';
+import { User } from '../user/user.schema';
 
 @Schema({ timestamps: true })
 export class Book extends BookUnusedFields {
@@ -91,8 +92,17 @@ export class Book extends BookUnusedFields {
   @Prop({ default: BookDeletionState.NotDeleted, enum: [BookDeletionState.NotDeleted, BookDeletionState.Deleted] })
   deleted: BookDeletionState;
 
-  @Prop({ default: BookType.Free, enum: [BookType.Free, BookType.OpenLibrary] })
+  @Prop({ default: BookType.Free, enum: [BookType.Free, BookType.OpenLibrary, BookType.UserDefined] })
   type: BookType;
+
+  @Prop()
+  buyUrl?: string;
+
+  @Prop({ default: null, ref: User.name })
+  userRef?: mongoose.Schema.Types.ObjectId;
+
+  @Prop()
+  businessListingRef?: string;
 
   /***********
    * Methods *

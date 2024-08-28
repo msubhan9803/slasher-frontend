@@ -1,5 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { BusinessListing, BusinessListingSchema } from '../schemas/businessListing/businessListing.schema';
 import { FeedPostsController } from './feed-posts.controller';
 import { FeedPostsService } from './providers/feed-posts.service';
 import { FeedPost, FeedPostSchema } from '../schemas/feedPost/feedPost.schema';
@@ -27,6 +28,7 @@ import { PostAccessService } from './providers/post-access.service';
     MongooseModule.forFeature([{ name: FeedPostLike.name, schema: FeedPostLikeSchema }]),
     MongooseModule.forFeature([{ name: BlockAndUnblock.name, schema: BlockAndUnblockSchema }]),
     MongooseModule.forFeature([{ name: Hashtag.name, schema: HashtagSchema }]),
+    MongooseModule.forFeature([{ name: BusinessListing.name, schema: BusinessListingSchema }]),
     RssFeedProviderFollowsModule,
     FriendsModule,
     BlocksModule,

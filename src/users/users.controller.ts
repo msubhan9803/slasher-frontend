@@ -763,6 +763,7 @@ export class UsersController {
     '$[*].images[*].image_path',
     '$[*].userId.profilePic',
     '$[*].bookId.coverImage.image_path',
+    '$[*].movieId.movieImage',
     '$[*].businessListingRef.businessLogo',
     '$[*].businessListingRef.bookRef.coverImage.image_path',
     '$[*].businessListingRef.movieRef.movieImage',

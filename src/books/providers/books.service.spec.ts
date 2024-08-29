@@ -298,18 +298,27 @@ describe('BooksService', () => {
   });
 
   describe('#findAll', () => {
-    it('only includes books of type BookType.openLibrary & BookType.userDefined', async () => {
+    it('only includes books of type BookType.openLibrary', async () => {
       await booksService.create(
         booksFactory.build({ status: BookActiveStatus.Active, name: 'a', type: BookType.Free }),
       );
       await booksService.create(
         booksFactory.build({ status: BookActiveStatus.Active, name: 'b', type: BookType.OpenLibrary }),
       );
-      await booksService.create(
-        booksFactory.build({ status: BookActiveStatus.Active, name: 'c', type: BookType.UserDefined }),
-      );
 
       const booksList = await booksService.findAll(10, true, 'name');
+      expect(booksList).toHaveLength(1);
+    });
+
+    it('only includes books of type BookType.UserDefined', async () => {
+      await booksService.create(
+        booksFactory.build({ status: BookActiveStatus.Active, name: 'a', type: BookType.Free }),
+      );
+      await booksService.create(
+        booksFactory.build({ status: BookActiveStatus.Active, name: 'b', type: BookType.UserDefined }),
+      );
+
+      const booksList = await booksService.findAll(10, true, 'name', null, null, null, null, BookType.UserDefined);
       expect(booksList).toHaveLength(1);
     });
 

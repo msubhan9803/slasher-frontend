@@ -174,18 +174,29 @@ describe('MoviesService', () => {
   });
 
   describe('#findAll', () => {
-    it('only includes movies of type MovieType.MovieDb & MovieType.UserDefined', async () => {
+    it('only includes movies of type MovieType.MovieDb', async () => {
       await moviesService.create(
         moviesFactory.build({ status: MovieActiveStatus.Active, name: 'a', type: MovieType.Free }),
       );
       await moviesService.create(
         moviesFactory.build({ status: MovieActiveStatus.Active, name: 'b', type: MovieType.MovieDb }),
       );
-      await moviesService.create(
-        moviesFactory.build({ status: MovieActiveStatus.Active, name: 'c', type: MovieType.UserDefined }),
-      );
 
       const moviesList = await moviesService.findAll(2, true, 'name');
+
+      expect(moviesList).toHaveLength(1);
+    });
+
+    it('only includes movies of type MovieType.UserDefined', async () => {
+      await moviesService.create(
+        moviesFactory.build({ status: MovieActiveStatus.Active, name: 'a', type: MovieType.MovieDb }),
+      );
+      await moviesService.create(
+        moviesFactory.build({ status: MovieActiveStatus.Active, name: 'b', type: MovieType.UserDefined }),
+      );
+
+      const moviesList = await moviesService.findAll(2, true, 'name', null, null, null, null, MovieType.UserDefined);
+
       expect(moviesList).toHaveLength(1);
     });
 

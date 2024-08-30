@@ -353,8 +353,15 @@ export class FeedPostsService {
       })
       .populate('userId', '_id userName profilePic')
       .populate('rssfeedProviderId', '_id title logo')
-      .populate('movieId', 'logo name releaseDate')
+      .populate('movieId', 'logo name releaseDate movieImage')
       .populate('bookId', 'name publishDate coverImage')
+      .populate({
+        path: 'businessListingRef',
+        populate: [
+          { path: 'bookRef', select: '_id name publishDate coverImage' },
+          { path: 'movieRef', select: '_id name releaseDate logo movieImage' },
+        ],
+      })
       .sort({ lastUpdateAt: -1 })
       .limit(limit)
       .exec();

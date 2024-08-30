@@ -121,6 +121,7 @@ describe('All Feed Post (e2e)', () => {
         .get(`/api/v1/users/${activeUser.id}/posts?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
+      console.log('🌺 response: ', response);
       for (let i = 1; i < response.body.length; i += 1) {
         expect(response.body[i].createdAt < response.body[i - 1].createdAt).toBe(true);
         const postFromResponse = response.body[i];
@@ -152,6 +153,7 @@ describe('All Feed Post (e2e)', () => {
           bookId: null,
           likeCount: 2,
           commentCount: 0,
+          businessListingRef: null,
         });
       }
       expect(response.body).toHaveLength(6);
@@ -304,10 +306,12 @@ describe('All Feed Post (e2e)', () => {
         logo: 'https://picsum.photos/id/237/200/300',
         name: 'Shawshank Redemption',
         releaseDate: '2022-10-17T00:00:00.000Z',
+        movieImage: null,
       },
       bookId: null,
       likeCount: 2,
       commentCount: 0,
+      businessListingRef: null,
     });
   });
 });

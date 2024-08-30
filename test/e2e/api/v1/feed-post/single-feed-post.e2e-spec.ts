@@ -191,6 +191,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         postType: 1,
         likedByUser: true,
         message: expect.any(String),
+        businessListingRef: null,
       });
     });
 
@@ -283,6 +284,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         bookId: null,
         postType: 1,
         message: 'Message 1',
+        businessListingRef: null,
       });
     });
 
@@ -337,6 +339,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         postType: 3,
         message: 'Message 1',
         reviewData: { rating: 5, goreFactorRating: 4, worthWatching: 1 },
+        businessListingRef: null,
       });
     });
 
@@ -391,6 +394,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         postType: 4,
         message: 'Message 1',
         reviewData: { rating: 5, goreFactorRating: 4, worthReading: 1 },
+        businessListingRef: null,
       });
     });
 

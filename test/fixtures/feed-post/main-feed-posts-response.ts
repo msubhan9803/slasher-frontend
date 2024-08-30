@@ -35,6 +35,7 @@ export default [
     movieId: null,
     bookId: null,
     hashtags: [],
+    businessListingRef: null,
   },
   {
     _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -71,10 +72,12 @@ export default [
       logo: 'https://picsum.photos/id/237/200/300',
       name: 'Shawshank Redemption',
       releaseDate: '2022-10-17T00:00:00.000Z',
+      movieImage: null,
     },
     postType: 1,
     bookId: null,
     hashtags: [],
+    businessListingRef: null,
   },
   {
     _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -115,5 +118,6 @@ export default [
       publishDate: '2022-10-17T00:00:00.000Z',
     },
     hashtags: [],
+    businessListingRef: null,
   },
 ];

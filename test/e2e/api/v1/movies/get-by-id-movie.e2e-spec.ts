@@ -10,7 +10,7 @@ import { moviesFactory } from '../../../../factories/movies.factory';
 import { MoviesService } from '../../../../../src/movies/providers/movies.service';
 import { userFactory } from '../../../../factories/user.factory';
 import { UserDocument } from '../../../../../src/schemas/user/user.schema';
-import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
+import { MovieActiveStatus, MovieType } from '../../../../../src/schemas/movie/movie.enums';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { WorthWatchingStatus } from '../../../../../src/types';
@@ -98,6 +98,9 @@ describe('GET Movie (e2e)', () => {
           ratingUsersCount: 0,
           worthWatchingDownUsersCount: 0,
           worthWatchingUpUsersCount: 0,
+          type: MovieType.Free,
+          movieImage: null,
+          _id: movie._id.toString(),
         });
       });
 
@@ -155,6 +158,9 @@ describe('GET Movie (e2e)', () => {
               goreFactorRating: activeUserMovieStatusRating.goreFactorRating,
               worthWatching: activeUserMovieStatusRating.worthWatching,
             },
+            type: MovieType.Free,
+            movieImage: null,
+            _id: movie._id.toString(),
           });
         });
       });

@@ -12,7 +12,7 @@ import { userFactory } from '../../../../factories/user.factory';
 import { User } from '../../../../../src/schemas/user/user.schema';
 import { MoviesService } from '../../../../../src/movies/providers/movies.service';
 import { moviesFactory } from '../../../../factories/movies.factory';
-import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
+import { MovieActiveStatus, MovieType } from '../../../../../src/schemas/movie/movie.enums';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
@@ -156,6 +156,8 @@ describe('All Movies (e2e)', () => {
           rating: 0,
           worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -164,6 +166,8 @@ describe('All Movies (e2e)', () => {
           rating: 0,
           worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -172,6 +176,8 @@ describe('All Movies (e2e)', () => {
           rating: 0,
           worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -180,6 +186,8 @@ describe('All Movies (e2e)', () => {
           rating: 0,
           worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -188,6 +196,8 @@ describe('All Movies (e2e)', () => {
           rating: 0,
           worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
       ]);
     });
@@ -254,6 +264,8 @@ describe('All Movies (e2e)', () => {
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           releaseDate: '2022-10-21T00:00:00.000Z',
           rating: 0,
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -261,6 +273,8 @@ describe('All Movies (e2e)', () => {
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           releaseDate: '2022-10-20T00:00:00.000Z',
           rating: 0,
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -268,6 +282,8 @@ describe('All Movies (e2e)', () => {
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           releaseDate: '2022-10-19T00:00:00.000Z',
           rating: 0,
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -275,6 +291,8 @@ describe('All Movies (e2e)', () => {
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           releaseDate: '2022-10-18T00:00:00.000Z',
           rating: 0,
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -282,6 +300,8 @@ describe('All Movies (e2e)', () => {
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           releaseDate: '2022-10-17T00:00:00.000Z',
           rating: 0,
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
       ]);
       expect(response.body).toHaveLength(5);
@@ -360,6 +380,8 @@ describe('All Movies (e2e)', () => {
           rating: 5,
           worthWatching: 2,
           releaseDate: '2022-10-17T00:00:00.000Z',
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -368,6 +390,8 @@ describe('All Movies (e2e)', () => {
           rating: 4,
           worthWatching: 1,
           releaseDate: '2022-10-17T00:00:00.000Z',
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -376,6 +400,8 @@ describe('All Movies (e2e)', () => {
           rating: 3,
           worthWatching: 0,
           releaseDate: '2022-10-17T00:00:00.000Z',
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -384,6 +410,8 @@ describe('All Movies (e2e)', () => {
           rating: 2,
           worthWatching: 1,
           releaseDate: '2022-10-17T00:00:00.000Z',
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -392,6 +420,8 @@ describe('All Movies (e2e)', () => {
           rating: 1,
           worthWatching: 2,
           releaseDate: '2022-10-17T00:00:00.000Z',
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
       ]);
     });
@@ -450,6 +480,8 @@ describe('All Movies (e2e)', () => {
         releaseDate: movie.releaseDate.toISOString(),
         rating: 0,
         worthWatching: 0,
+        type: MovieType.MovieDb,
+        movieImage: null,
       }]);
     });
 
@@ -514,6 +546,8 @@ describe('All Movies (e2e)', () => {
         releaseDate: movie0.releaseDate.toISOString(),
         rating: 0,
         worthWatching: 0,
+        type: MovieType.MovieDb,
+        movieImage: null,
       },
       {
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -522,6 +556,8 @@ describe('All Movies (e2e)', () => {
         releaseDate: movie1.releaseDate.toISOString(),
         rating: 0,
         worthWatching: 0,
+        type: MovieType.MovieDb,
+        movieImage: null,
       }]);
     });
 
@@ -716,6 +752,8 @@ describe('All Movies (e2e)', () => {
           releaseDate: '2022-10-17T00:00:00.000Z',
           rating: 0,
           worthWatching: 0,
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -724,6 +762,8 @@ describe('All Movies (e2e)', () => {
           releaseDate: '2022-10-17T00:00:00.000Z',
           rating: 0,
           worthWatching: 0,
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -732,6 +772,8 @@ describe('All Movies (e2e)', () => {
           releaseDate: '2022-10-17T00:00:00.000Z',
           rating: 0,
           worthWatching: 0,
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -740,6 +782,8 @@ describe('All Movies (e2e)', () => {
           releaseDate: '2022-10-17T00:00:00.000Z',
           rating: 0,
           worthWatching: 0,
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -748,6 +792,8 @@ describe('All Movies (e2e)', () => {
           releaseDate: '2022-10-17T00:00:00.000Z',
           rating: 0,
           worthWatching: 0,
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -756,6 +802,8 @@ describe('All Movies (e2e)', () => {
           releaseDate: '2022-10-17T00:00:00.000Z',
           rating: 0,
           worthWatching: 0,
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -764,6 +812,8 @@ describe('All Movies (e2e)', () => {
           releaseDate: '2022-10-17T00:00:00.000Z',
           rating: 0,
           worthWatching: 0,
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -772,6 +822,8 @@ describe('All Movies (e2e)', () => {
           releaseDate: '2022-10-17T00:00:00.000Z',
           rating: 0,
           worthWatching: 0,
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -780,6 +832,8 @@ describe('All Movies (e2e)', () => {
           releaseDate: '2022-10-17T00:00:00.000Z',
           rating: 0,
           worthWatching: 0,
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -788,6 +842,8 @@ describe('All Movies (e2e)', () => {
           releaseDate: '2022-10-17T00:00:00.000Z',
           rating: 0,
           worthWatching: 0,
+          type: MovieType.MovieDb,
+          movieImage: null,
         },
       ]);
     });

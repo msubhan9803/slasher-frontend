@@ -121,7 +121,6 @@ describe('All Feed Post (e2e)', () => {
         .get(`/api/v1/users/${activeUser.id}/posts?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      console.log('🌺 response: ', response);
       for (let i = 1; i < response.body.length; i += 1) {
         expect(response.body[i].createdAt < response.body[i - 1].createdAt).toBe(true);
         const postFromResponse = response.body[i];

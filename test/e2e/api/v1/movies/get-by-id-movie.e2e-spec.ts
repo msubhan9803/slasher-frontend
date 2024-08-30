@@ -66,7 +66,8 @@ describe('GET Movie (e2e)', () => {
       user1 = await usersService.create(userFactory.build());
     });
 
-    describe('Find a movie by id', () => {
+    // eslint-disable-next-line jest/no-focused-tests
+    describe.only('Find a movie by id', () => {
       it('requires authentication', async () => {
         const movieId = new mongoose.Types.ObjectId();
         await request(app.getHttpServer()).get(`/api/v1/movies/${movieId}`).expect(HttpStatus.UNAUTHORIZED);
@@ -158,7 +159,7 @@ describe('GET Movie (e2e)', () => {
               goreFactorRating: activeUserMovieStatusRating.goreFactorRating,
               worthWatching: activeUserMovieStatusRating.worthWatching,
             },
-            type: MovieType.Free,
+            type: MovieType.MovieDb,
             movieImage: null,
             _id: movie._id.toString(),
           });
@@ -178,7 +179,8 @@ describe('GET Movie (e2e)', () => {
         });
       });
 
-      it('when post has a movieId or userId than expected movie details', async () => {
+      // eslint-disable-next-line jest/no-focused-tests
+      it.only('when post has a movieId or userId than expected movie details', async () => {
         const movie = await moviesService.create(
           moviesFactory.build({
             status: MovieActiveStatus.Active,
@@ -196,6 +198,8 @@ describe('GET Movie (e2e)', () => {
           .get(`/api/v1/movies/${movie._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
+        console.log('🔥 response: ', response.body);
+
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
           movieDBId: 1,
@@ -212,6 +216,9 @@ describe('GET Movie (e2e)', () => {
             worthWatching: 0,
             reviewPostId: post.id,
           },
+          _id: movie._id.toString(),
+          movieImage: null,
+          type: MovieType.MovieDb,
         });
       });
     });

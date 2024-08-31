@@ -38,7 +38,6 @@ lerna-debug.log*
 .vscode/
 
 # Ignore all env files other than .env.template and .env.deploy/
-.env*
 !.env.*.template
 !.env.deploy/
 
@@ -58,3 +57,4 @@ lerna-debug.log*
 .terraform/
 .terraform/**
 .terraform.lock.hcl
+config.bat

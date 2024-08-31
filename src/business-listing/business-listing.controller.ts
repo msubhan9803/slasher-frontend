@@ -275,7 +275,7 @@ export class BusinessListingController {
           break;
 
         case BusinessType.MOVIES:
-          await this.moviesService.updateMovie(movieRef, {
+          await this.moviesService.update(movieRef, {
             name: title,
             descriptions: overview,
             trailerUrls: Object.values(trailerLinks).map(
@@ -355,7 +355,7 @@ export class BusinessListingController {
           break;
 
         case BusinessType.MOVIES:
-          await this.moviesService.updateMovie(listingDetail.movieRef._id, {
+          await this.moviesService.update(listingDetail.movieRef._id, {
             movieImage: listingStorageLocation,
           });
           break;
@@ -406,7 +406,7 @@ export class BusinessListingController {
           break;
 
         case BusinessType.MOVIES:
-          await this.moviesService.updateMovie(listingDetail.movieRef._id, {
+          await this.moviesService.update(listingDetail.movieRef._id, {
             status:
               currentMovieStatus === MovieActiveStatus.Active
                 ? MovieActiveStatus.Inactive
@@ -461,7 +461,7 @@ export class BusinessListingController {
 
       let movie = await this.moviesService.findById(movieRef, false);
 
-      movie = await this.moviesService.updateMovie(movieRef, {
+      movie = await this.moviesService.update(movieRef, {
         ...movie,
         casts: [
           ...movie.casts,
@@ -513,7 +513,7 @@ export class BusinessListingController {
 
       let movie = await this.moviesService.findById(movieRef, false);
 
-      movie = await this.moviesService.updateMovie(movieRef, {
+      movie = await this.moviesService.update(movieRef, {
         ...movie,
         casts: movie.casts.map((cast) => (cast._id.toString() === castRef ? ({
           name,
@@ -536,7 +536,7 @@ export class BusinessListingController {
       const { movieRef, castRef } = params;
 
       let movie = await this.moviesService.findById(movieRef, false);
-      movie = await this.moviesService.updateMovie(movieRef, {
+      movie = await this.moviesService.update(movieRef, {
         ...movie,
         casts: movie.casts.filter((cast) => cast._id.toString() !== castRef),
       });

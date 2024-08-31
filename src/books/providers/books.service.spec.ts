@@ -87,6 +87,26 @@ describe('BooksService', () => {
     });
   });
 
+  describe('#updateBook', () => {
+    it('finds the expected book and update the details', async () => {
+      book = await booksService.create(
+        booksFactory.build({ status: BookActiveStatus.Active }),
+      );
+
+      const bookData = {
+        name: 'Update Book Name',
+        author: ['John Doe'],
+      };
+
+      expect(await booksService.findById(book.id, false)).toBeTruthy();
+
+      const updatedBook = await booksService.updateBook(book.id, bookData);
+      const reloadedBook = await booksService.findById(updatedBook.id, false);
+      expect(reloadedBook.name).toEqual(bookData.name);
+      expect(reloadedBook.author).toEqual(bookData.author);
+    });
+  });
+
   describe('#BooksIdsForUser', () => {
     // eslint-disable-next-line @typescript-eslint/no-shadow
     let activeUser;

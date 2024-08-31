@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
@@ -866,15 +866,5 @@ export class MoviesService {
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();
-  }
-
-  async updateMovie(id: string, movieData: Partial<Movie>) {
-    const updatedMovieData = await this.moviesModel.findByIdAndUpdate(id, movieData, { new: true }).exec();
-
-    if (!updatedMovieData) {
-      throw new NotFoundException(`Movie with ID ${id} not found`);
-    }
-
-    return updatedMovieData;
   }
 }

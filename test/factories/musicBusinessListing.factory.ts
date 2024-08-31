@@ -5,13 +5,13 @@ import { addFactoryToRewindList } from '../helpers/factory-helpers.ts';
 
 const randomName = Math.random().toString(36).substring(2, 5);
 
-export const businessListingFactory = Factory.define<Partial<BusinessListing>>(({ sequence }) => new BusinessListing({
-  businesstype: BusinessType.ARTIST,
+export const musicCreatorBusinessListingFactory = Factory.define<Partial<BusinessListing>>(({ sequence }) => new BusinessListing({
+  businesstype: BusinessType.MUSICIAN,
   listingType: ListingType.LISTING1,
   businessLogo: 'http://localhost:4000/api/v1/local-storage/business-listing/business-listing_6b44257a-ae1f-4d2b-8e13-8d4e2e7b86a8.jpeg',
   coverPhoto: '/business-listing/business-listing_bca83ffa-2534-47fa-9f96-650a9b820b39.png',
-  title: `Book?! ${randomName}${sequence}`,
-  overview: 'Horror NFT | Buy Now | Visit Website',
+  title: `Music?! ${randomName}${sequence}`,
+  overview: 'Horror Music | Buy Now | Visit Website',
   isActive: true,
   bookRef: null,
   movieRef: null,
@@ -21,4 +21,4 @@ export const businessListingFactory = Factory.define<Partial<BusinessListing>>((
   websiteLink: 'www.example.com',
 }));
 
-addFactoryToRewindList(businessListingFactory);
+addFactoryToRewindList(musicCreatorBusinessListingFactory);

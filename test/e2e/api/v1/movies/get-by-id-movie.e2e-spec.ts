@@ -98,7 +98,7 @@ describe('GET Movie (e2e)', () => {
           ratingUsersCount: 0,
           worthWatchingDownUsersCount: 0,
           worthWatchingUpUsersCount: 0,
-          type: MovieType.Free,
+          type: MovieType.MovieDb,
           movieImage: null,
           _id: movie._id.toString(),
         });
